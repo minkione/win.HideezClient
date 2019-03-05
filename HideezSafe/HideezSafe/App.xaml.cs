@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using Unity;
+using Unity.Lifetime;
+using System;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
-using Unity;
+using System.Diagnostics;
+using System.Configuration;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using HideezSafe.Properties;
+using HideezSafe.Utils;
 
 namespace HideezSafe
 {
@@ -15,6 +18,8 @@ namespace HideezSafe
     /// </summary>
     public partial class App : Application
     {
+        private IStartupHelper startupHelper;
+
         public static IUnityContainer Container { get; private set; }
 
         public App()
@@ -26,11 +31,29 @@ namespace HideezSafe
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            startupHelper = Container.Resolve<IStartupHelper>();
+
+            if (Settings.Default.FirstLaunch)
+            {
+                OnFirstLaunch();
+
+                Settings.Default.FirstLaunch = false;
+                Settings.Default.Save();
+            }
+        }
+
+        private void OnFirstLaunch()
+        {
+            // add to startup with windows if first start app
+            startupHelper.AddToStartup();
         }
 
         private void InitializeDIContainer()
         {
             Container = new UnityContainer();
+
+            Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
         }
 
         private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)
