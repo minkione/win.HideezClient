@@ -35,31 +35,8 @@ namespace HideezSafe
 
         private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
-            /*
-             * The intent of this method is to gather as much information as we can
-             * Even if something goes wrong in the information gathering part
-             * We know we are doomed for the fatal error crash
-             * But we can still gather some useful information 
-             * So that those who come after us
-             * May fix our mistakes
-             * And make this application great again
-             */
-            try
-            {
-                // Todo: Send fatal exception report
-                Debug.WriteLine((e.ExceptionObject as Exception)?.ToString());
-            }
-            catch (Exception)
-            {
-                try
-                {
-                    Environment.FailFast("An error occured while handling fatal error", e.ExceptionObject as Exception);
-                }
-                catch (Exception exc)
-                {
-                    Environment.FailFast("An error occured while handling an error during fatal error handling", exc);
-                }
-            }
+            // A simple entry in the event log will suffice for the time being
+            Environment.FailFast("Fatal error occured", e.ExceptionObject as Exception);
         }
     }
 }
