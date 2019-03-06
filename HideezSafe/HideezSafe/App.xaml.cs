@@ -1,18 +1,18 @@
 ﻿using HideezSafe.Models.Settings;
 using HideezSafe.Modules.SettingsManager;
 using HideezSafe.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
 using Unity;
+using Unity.Lifetime;
+using System;
+using System.Data;
+using System.Linq;
+using System.Windows;
+using System.Diagnostics;
+using System.Configuration;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using HideezSafe.Properties;
+using HideezSafe.Utils;
 
 namespace HideezSafe
 {
@@ -21,6 +21,8 @@ namespace HideezSafe
     /// </summary>
     public partial class App : Application
     {
+        private IStartupHelper startupHelper;
+
         public static IUnityContainer Container { get; private set; }
 
         public App()
@@ -67,11 +69,29 @@ namespace HideezSafe
             {
                 settings.FirstLaunch = false;
             }
+
+            startupHelper = Container.Resolve<IStartupHelper>();
+
+            if (Settings.Default.FirstLaunch)
+            {
+                OnFirstLaunch();
+
+                Settings.Default.FirstLaunch = false;
+                Settings.Default.Save();
+            }
+        }
+
+        private void OnFirstLaunch()
+        {
+            // add to startup with windows if first start app
+            startupHelper.AddToStartup();
         }
 
         private void InitializeDIContainer()
         {
             Container = new UnityContainer();
+
+            Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
         }
 
         /// <summary>
