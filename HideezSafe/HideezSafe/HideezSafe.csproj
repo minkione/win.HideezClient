@@ -43,6 +43,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
@@ -83,6 +84,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Settings\ISettings.cs" />
+    <Compile Include="Models\Settings\Settings.cs" />
+    <Compile Include="Modules\SettingsManager\ISettingsManager.cs" />
+    <Compile Include="Modules\SettingsManager\SettingsManager.cs" />
+    <Compile Include="Utilities\Constants.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="Views\MainWindowView.xaml.cs">
       <DependentUpon>MainWindowView.xaml</DependentUpon>
@@ -120,9 +126,6 @@
   <ItemGroup>
     <Folder Include="Converters\" />
     <Folder Include="DataTypes\" />
-    <Folder Include="Models\" />
-    <Folder Include="Modules\" />
-    <Folder Include="Utilities\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
