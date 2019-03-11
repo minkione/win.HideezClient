@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Serialization;
 using HideezSafe.Models.Settings;
+using HideezSafe.Modules.FileSerializer;
+using HideezSafe.Utilities;
+using Unity;
 
 namespace HideezSafe.Modules.SettingsManager
 {
@@ -14,22 +14,68 @@ namespace HideezSafe.Modules.SettingsManager
     /// </summary>
     class SettingsManager : ISettingsManager
     {
+        private Settings settings = null;
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="SettingsManager"/> class
+        /// </summary>
+        public SettingsManager()
+        {
+            // Initialize with default settings file path specified in constants
+            SettingsFilePath = Path.Combine(Constants.DefaultSettingsFolderPath, Constants.DefaultSettingsFileName);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="SettingsManager"/> class
+        /// </summary>
+        /// <param name="settingsFilePath">Path to the settings file</param>
+        public SettingsManager(string settingsFilePath)
+        {
+            SettingsFilePath = settingsFilePath;
+        }
+
+        /// <summary>
+        /// Injection property of class responsible for settings serialization and deserialization
+        /// </summary>
+        [Dependency]
+        public IFileSerializer FileSerializer { get; set; }
+
+        // Todo: Check that a path ends with filename
+        /// <summary>
+        /// Path to the settings file. 
+        /// <note type="caution">
+        /// Changing path value does not automatically update settings cache
+        /// </note>
+        /// </summary>
+        public string SettingsFilePath { get; set; } = string.Empty;
+
         /// <summary>
         /// Program settings cache
         /// </summary>
-        public ISettings Settings { get; private set; } = null;
+        public Settings Settings
+        {
+            get
+            {
+                return settings;
+            }
+            private set
+            {
+                if (settings != value)
+                {
+                    settings = value;
+                    // Todo: Notify through Messanger that settings were changed
+                }
+            }
+        }
 
         /// <summary>
         /// Get settings from cache. If not available, load from file
         /// </summary>
         /// <param name="settingsFilePath">Path to settings file</param>
         /// <returns>Returns loaded program settings</returns>
-        public Task<ISettings> GetSettingsAsync(string settingsFilePath)
+        public Task<Settings> GetSettingsAsync()
         {
-            if (Settings == null)
-                return LoadSettingsAsync(settingsFilePath);
-            else
-                return Task.FromResult(Settings);
+            return Task.FromResult(Settings) ?? LoadSettingsAsync();
         }
 
         /// <summary>
@@ -37,37 +83,30 @@ namespace HideezSafe.Modules.SettingsManager
         /// </summary>
         /// <param name="settingsFilePath">Path to settings file</param>
         /// <returns>Returns program settings loaded from file</returns>
-        public Task<ISettings> LoadSettingsAsync(string settingsFilePath)
+        public Task<Settings> LoadSettingsAsync()
         {
-            return Task.Run(() => { return LoadSettings(settingsFilePath); });
+            return Task.Run(() => { return LoadSettings(); });
         }
 
         /// <summary>
-        /// Save program options into file
+        /// Save program options into file. 
+        /// <seealso cref="LoadSettingsAsync(string)"/> is called automatically if save is successful 
         /// </summary>
         /// <param name="settingsFileName">Path to settings file</param>
         /// <param name="optionsModel">Settings that will be saved</param>
-        /// <returns>Returns true if successfully saved settings into file; Otherwise throws exception</returns>
-        public bool SaveSettings(string settingsFilePath, ISettings settings)
+        /// <returns>Returns saved settings. Throws exception if save failed</returns>
+        public Settings SaveSettings(Settings settings)
         {
-            XmlWriterSettings xws = new XmlWriterSettings()
-            {
-                NewLineOnAttributes = true,
-                Indent = true,
-                IndentChars = "  ",
-                Encoding = System.Text.Encoding.UTF8
-            };
+            var directory = Path.GetDirectoryName(SettingsFilePath);
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
 
-            // Create a new file stream to write the serialized object to a file
-            using (XmlWriter xw = XmlWriter.Create(settingsFilePath, xws))
-            {
-                // Create a new XmlSerializer instance with the type of the test class
-                XmlSerializer serializerObj = new XmlSerializer(typeof(Settings));
+            FileSerializer.Serialize(SettingsFilePath, settings);
 
-                serializerObj.Serialize(xw, settings);
-            }
+            // Will automatically update cache and notify observers
+            LoadSettings();
 
-            return true;
+            return settings;
         }
 
         /// <summary>
@@ -75,47 +114,14 @@ namespace HideezSafe.Modules.SettingsManager
         /// </summary>
         /// <param name="settingsFileName">Path to settings file</param>
         /// <returns>Returns program settings loaded from file</returns>
-        private ISettings LoadSettings(string settingsFilePath)
+        private Settings LoadSettings()
         {
-            Settings loadedModel = null;
+            var loadedModel = FileSerializer.Deserialize<Settings>(SettingsFilePath);
 
-            try
-            {
-                if (File.Exists(settingsFilePath))
-                {
-                    // Create a new file stream for reading the XML file
-                    using (FileStream readFileStream = new FileStream(settingsFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                    {
-                        try
-                        {
-                            // Create a new XmlSerializer instance with the type of the test class
-                            XmlSerializer serializerObj = new XmlSerializer(typeof(Settings));
+            // Should automatically notify all observers that cached settings were changed
+            Settings = loadedModel ?? new Settings();
 
-                            // Load the object saved above by using the Deserialize function
-                            loadedModel = (Settings)serializerObj.Deserialize(readFileStream);
-                        }
-                        catch (Exception e)
-                        {
-                            // Todo: log error with logger
-                        }
-
-                        // Cleanup
-                        readFileStream.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Todo: log error with logger
-            }
-            finally
-            {
-                // Load default settings if deserilization failed
-                if (loadedModel == null)
-                    loadedModel = new Settings();
-            }
-
-            return loadedModel;
+            return Settings;
         }
     }
 }

@@ -5,15 +5,10 @@ namespace HideezSafe.Models.Settings
 {
     [Serializable]
     [XmlRoot(ElementName = "Settings", IsNullable = false)]
-    class Settings : ISettings
+    public class Settings
     {
-        private bool firstLaunch;
-        private bool launchOnStartup;
-        private string selectedLanguage;
-
         /// <summary>
-        /// Class constructor
-        /// Initializes with default values
+        /// Initializes new instance of <see cref="Settings"/> with default values
         /// </summary>
         public Settings()
         {
@@ -25,7 +20,7 @@ namespace HideezSafe.Models.Settings
         /// <summary>
         /// Copy constructor
         /// </summary>
-        /// <param name="copy"></param>
+        /// <param name="copy">Intance to copy from</param>
         public Settings(Settings copy)
             :this()
         {
@@ -38,51 +33,12 @@ namespace HideezSafe.Models.Settings
         }
 
         [XmlElement(ElementName = "FirstLaunch")]
-        public bool FirstLaunch
-        {
-            get
-            {
-                return firstLaunch;
-            }
-            set
-            {
-                if (firstLaunch != value)
-                {
-                    firstLaunch = value;
-                }
-            }
-        }
+        public bool FirstLaunch { get; set; }
 
         [XmlElement(ElementName = "LaunchOnStartup")]
-        public bool LaunchOnStartup
-        {
-            get
-            {
-                return launchOnStartup;
-            }
-            set
-            {
-                if (launchOnStartup != value)
-                {
-                    launchOnStartup = value;
-                }
-            }
-        }
+        public bool LaunchOnStartup { get; set; }
 
         [XmlElement(ElementName = "SelectedLanguage")]
-        public string SelectedLanguage
-        {
-            get
-            {
-                return selectedLanguage;
-            }
-            set
-            {
-                if (selectedLanguage != value)
-                {
-                    selectedLanguage = value;
-                }
-            }
-        }
+        public string SelectedLanguage { get; set; }
     }
 }

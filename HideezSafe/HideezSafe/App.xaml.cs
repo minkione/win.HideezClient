@@ -11,10 +11,13 @@ using System.Diagnostics;
 using System.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HideezSafe.Properties;
 using HideezSafe.Utils;
 using SingleInstanceApp;
 using System.Runtime.InteropServices;
+using System.IO;
+using System.Threading;
+using System.Globalization;
+using HideezSafe.Modules.FileSerializer;
 
 namespace HideezSafe
 {
@@ -37,18 +40,15 @@ namespace HideezSafe
         {
             base.OnStartup(e);
 
-            ISettings settings = null;
+            Settings settings = null;
             ISettingsManager settingsManager = null;
             try
             {
-                // Resolve SettingsManager to retrieve app settings/session data
-                // and start with correct parameters from last session
-                // Todo: uncomment when DI container is merged into develop
-                //settingsManager = сontainer.Resolve<ISettingsManager>();
+                settingsManager = Container.Resolve<ISettingsManager>();
 
                 var task = Task.Run(async () => // Off Loading Load Programm Settings to non-UI thread
                 {
-                    settings = await settingsManager.LoadSettingsAsync(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.DefaultSettingsFileName));
+                    settings = await settingsManager.LoadSettingsAsync();
                 });
                 task.Wait(); // Block this to ensure that results are usable in next steps of sequence
 
@@ -67,19 +67,14 @@ namespace HideezSafe
 
             // Todo: Resolve main window view & viewmodel
 
-            if (settings.FirstLaunch)
-            {
-                settings.FirstLaunch = false;
-            }
-
             startupHelper = Container.Resolve<IStartupHelper>();
 
-            if (Settings.Default.FirstLaunch)
+            if (settings.FirstLaunch)
             {
                 OnFirstLaunch();
 
-                Settings.Default.FirstLaunch = false;
-                Settings.Default.Save();
+                settings.FirstLaunch = false;
+                settingsManager.SaveSettings(settings);
             }
         }
 
@@ -127,6 +122,8 @@ namespace HideezSafe
             Container = new UnityContainer();
 
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IFileSerializer, XmlFileSerializer>();
+            Container.RegisterType<ISettingsManager, SettingsManager>(new ContainerControlledLifetimeManager());
         }
 
         /// <summary>

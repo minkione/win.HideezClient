@@ -103,11 +103,12 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Modules\FileSerializer\IFileSerializer.cs" />
+    <Compile Include="Modules\FileSerializer\XmlFileSerializer.cs" />
+    <Compile Include="Modules\SettingsManager\ISettingsManager.cs" />
     <Compile Include="Utilities\AutoRunApp\IStartupHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\StartupHelper.cs" />
-    <Compile Include="Models\Settings\ISettings.cs" />
     <Compile Include="Models\Settings\Settings.cs" />
-    <Compile Include="Modules\SettingsManager\ISettingsManager.cs" />
     <Compile Include="Modules\SettingsManager\SettingsManager.cs" />
     <Compile Include="Utilities\Constants.cs" />
     <Compile Include="Version.cs" />
@@ -135,9 +136,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.manifest" />
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -151,9 +150,6 @@
   <ItemGroup>
     <Folder Include="Converters\" />
     <Folder Include="DataTypes\" />
-    <Folder Include="Models\" />
-    <Folder Include="Modules\" />
-    <Folder Include="Utilities\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
   <ItemGroup>
