@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using HideezSafe.Models.Settings;
 using HideezSafe.Modules.FileSerializer;
@@ -14,6 +15,7 @@ namespace HideezSafe.Modules.SettingsManager
     /// </summary>
     class SettingsManager : ISettingsManager
     {
+        private string settingsFilePath = string.Empty;
         private Settings settings = null;
 
         /// <summary>
@@ -40,14 +42,38 @@ namespace HideezSafe.Modules.SettingsManager
         [Dependency]
         public IFileSerializer FileSerializer { get; set; }
 
-        // Todo: Check that a path ends with filename
         /// <summary>
-        /// Path to the settings file. 
+        /// Path to the settings file
         /// <note type="caution">
         /// Changing path value does not automatically update settings cache
         /// </note>
         /// </summary>
-        public string SettingsFilePath { get; set; } = string.Empty;
+        /// <exception cref="ArgumentException">Thrown if assigned path refers to the existing directory instead of file</exception>
+        public string SettingsFilePath
+        {
+            get
+            {
+                return settingsFilePath;
+            }
+            set
+            {
+                if (settingsFilePath != value)
+                {
+                    if (string.IsNullOrWhiteSpace(value))
+                        throw new ArgumentNullException("Settings file path cannot be null or empty");
+
+                    Path.GetFullPath(value); // Will throw exceptions if path is formatted incorrectly
+
+                    if (Directory.Exists(value))
+                        throw new ArgumentException("Settings file path cannot refer to the existing directory");
+
+                    if (string.IsNullOrWhiteSpace(Path.GetFileName(value)))
+                        throw new ArgumentException("Settings file path must include a filename");
+
+                    settingsFilePath = value;
+                }
+            }
+        }
 
         /// <summary>
         /// Program settings cache
@@ -63,7 +89,7 @@ namespace HideezSafe.Modules.SettingsManager
                 if (settings != value)
                 {
                     settings = value;
-                    // Todo: Notify through Messanger that settings were changed
+                    // Todo: Notify all observers through Messanger that settings were changed
                 }
             }
         }
@@ -103,7 +129,7 @@ namespace HideezSafe.Modules.SettingsManager
 
             FileSerializer.Serialize(SettingsFilePath, settings);
 
-            // Will automatically update cache and notify observers
+            // Settings reload will automatically update cache and notify observers
             LoadSettings();
 
             return settings;

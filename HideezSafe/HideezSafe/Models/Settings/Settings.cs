@@ -5,7 +5,7 @@ namespace HideezSafe.Models.Settings
 {
     [Serializable]
     [XmlRoot(ElementName = "Settings", IsNullable = false)]
-    public class Settings
+    public class Settings : IEquatable<Settings>
     {
         /// <summary>
         /// Initializes new instance of <see cref="Settings"/> with default values
@@ -40,5 +40,39 @@ namespace HideezSafe.Models.Settings
 
         [XmlElement(ElementName = "SelectedLanguage")]
         public string SelectedLanguage { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Settings))
+                return false;
+
+            var other = (Settings)obj;
+
+            return Equals(other);
+        }
+
+        public bool Equals(Settings other)
+        {
+            if (other == null)
+                return false;
+
+            return (FirstLaunch == other.FirstLaunch) &&
+                (LaunchOnStartup == other.LaunchOnStartup) &&
+                (SelectedLanguage == other.SelectedLanguage);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 43;
+                int inc = 53;
+
+                hash = hash * inc + FirstLaunch.GetHashCode();
+                hash = hash * inc + LaunchOnStartup.GetHashCode();
+                hash = hash * inc + SelectedLanguage.GetHashCode();
+                return hash;
+            }
+        }
     }
 }
