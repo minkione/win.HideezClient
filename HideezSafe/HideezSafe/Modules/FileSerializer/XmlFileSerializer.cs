@@ -8,7 +8,7 @@ namespace HideezSafe.Modules.FileSerializer
 {
     class XmlFileSerializer : IFileSerializer
     {
-        public T Deserialize<T>(string filePath)
+        public T Deserialize<T>(string filePath) where T : new()
         {
             T model = default(T);
 
@@ -45,7 +45,7 @@ namespace HideezSafe.Modules.FileSerializer
             return model;
         }
 
-        public bool Serialize<T>(string filePath, T serializedObject)
+        public bool Serialize<T>(string filePath, T serializedObject) where T : new()
         {
             XmlWriterSettings xws = new XmlWriterSettings()
             {

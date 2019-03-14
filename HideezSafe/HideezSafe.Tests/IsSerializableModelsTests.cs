@@ -62,6 +62,9 @@ namespace HideezSafe.Tests
 
             /// <summary>
             /// Asserts that object is serializable and serialization deserialization is working properly
+            /// <note>
+            /// Asserted class must implement Equals, otherwise the assertion might fail
+            /// </note>
             /// </summary>
             /// <param name="source">Object to assert</param>
             public static void AssertRoundTripSerializationIsPossible(T source)

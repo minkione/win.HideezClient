@@ -1,10 +1,9 @@
 ﻿namespace HideezSafe.Modules.FileSerializer
 {
-    // Todo: Add check for Serializable classes
     interface IFileSerializer
     {
-        bool Serialize<T>(string filePath, T serializedObject);
+        bool Serialize<T>(string filePath, T serializedObject) where T : new();
 
-        T Deserialize<T>(string filePath);
+        T Deserialize<T>(string filePath) where T : new();
     }
 }

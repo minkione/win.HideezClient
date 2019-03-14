@@ -11,6 +11,8 @@ namespace HideezSafe.Tests
     [TestClass]
     public class SettingsManagerTests
     {
+        private readonly string absoluteFormattedPath = $"C:\\{Path.GetRandomFileName()}\\{Path.GetRandomFileName()}.xml";
+
         [TestMethod]
         public void SettingsManager_DefaultSettingsFilePath()
         {
@@ -27,14 +29,15 @@ namespace HideezSafe.Tests
         public void SettingsFilePath_SetAbsolutePath_Success()
         {
             // Arrange
+#pragma warning disable IDE0017 // Simplify object initialization
             var settingsManager = new SettingsManager();
-            var absolutePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+#pragma warning restore IDE0017 // Simplify object initialization
 
             // Act
-            settingsManager.SettingsFilePath = absolutePath;
+            settingsManager.SettingsFilePath = absoluteFormattedPath;
 
             // Assert
-            Assert.AreEqual(settingsManager.SettingsFilePath, absolutePath);
+            Assert.AreEqual(settingsManager.SettingsFilePath, absoluteFormattedPath);
         }
 
         [TestMethod]
@@ -56,7 +59,9 @@ namespace HideezSafe.Tests
         public void SettingsFilePath_SetEmptyPath_Exception()
         {
             // Arrange
+#pragma warning disable IDE0017 // Simplify object initialization
             var settingsManager = new SettingsManager();
+#pragma warning restore IDE0017 // Simplify object initialization
 
             // Act
             settingsManager.SettingsFilePath = string.Empty;
@@ -93,32 +98,192 @@ namespace HideezSafe.Tests
         }
 
         [TestMethod]
-        public void Settings_LoadSettings_SettingsLoaded()
+        public void SettingsManager_LoadSettings_SettingsDeserialized()
         {
             // Arrange
-            var path = "somepath";
+            var defaultSettings = new Settings();
+            var serializedSettings = new Settings() { FirstLaunch = false, LaunchOnStartup = false, SelectedLanguage = "pl-PL" };
+
+            var serializerMock = new Mock<IFileSerializer>();
+            bool settingsDeserialized = false;
+            serializerMock.Setup(m => m.Deserialize<Settings>(absoluteFormattedPath)).Callback(() => { settingsDeserialized = true; }).Returns(serializedSettings);
+
+            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            {
+                FileSerializer = serializerMock.Object
+            };
+
+            // Act
+            var saveSettingsResult = settingsManager.LoadSettingsAsync().Result;
+
+            // Assert
+            Assert.IsTrue(settingsDeserialized);
+        }
+
+        [TestMethod]
+        public void LoadSettings_SettingsNotLoaded_SettingsLoaded()
+        {
+            // Arrange
             var defaultSettings = new Settings();
 
             var serializedSettings = new Settings() { FirstLaunch = false, LaunchOnStartup = false, SelectedLanguage = "pl-PL" };
             var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.Setup(m => m.Deserialize<Settings>(path)).Returns(serializedSettings);
+            serializerMock.Setup(m => m.Deserialize<Settings>(absoluteFormattedPath)).Returns(serializedSettings);
 
-            var settingsManager = new SettingsManager(path);
-            settingsManager.FileSerializer = serializerMock.Object;
+            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            {
+                FileSerializer = serializerMock.Object
+            };
 
             // Act
-            var loadedSettings = settingsManager.LoadSettingsAsync().Result; // Synchronous call
+            var loadSettingsResult = settingsManager.LoadSettingsAsync().Result; // Synchronous call
 
             // Assert
             Assert.IsNotNull(settingsManager.Settings);
-            Assert.AreEqual(loadedSettings, serializedSettings);
-            Assert.AreEqual(loadedSettings, settingsManager.Settings);
+            Assert.AreEqual(loadSettingsResult, serializedSettings);
+            Assert.AreEqual(loadSettingsResult, settingsManager.Settings);
+            Assert.AreEqual(serializedSettings, settingsManager.Settings);
+        }
+        
+        [TestMethod]
+        public void SettingsManager_SaveSettings_SettingsSerialized()
+        {
+            // Arrange
+            var defaultSettings = new Settings();
+            var serializedSettings = new Settings() { FirstLaunch = false, LaunchOnStartup = false, SelectedLanguage = "pl-PL" };
+
+            var serializerMock = new Mock<IFileSerializer>();
+            bool settingsSerialized = false;
+            serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Callback(() => { settingsSerialized = true; }).Returns(true);
+
+            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            {
+                FileSerializer = serializerMock.Object
+            };
+
+            // Act
+            var saveSettingsResult = settingsManager.SaveSettings(serializedSettings);
+
+            // Assert
+            Assert.IsTrue(settingsSerialized);
+        }
+
+        [TestMethod]
+        public void SaveSettings_SettingsNotLoaded_SettingsUpdated()
+        {
+            // Arrange
+            var defaultSettings = new Settings();
+            var serializedSettings = new Settings() { FirstLaunch = false, LaunchOnStartup = false, SelectedLanguage = "pl-PL" };
+
+            var serializerMock = new Mock<IFileSerializer>();
+            serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
+            serializerMock.Setup(m => m.Deserialize<Settings>(absoluteFormattedPath)).Returns(serializedSettings);
+
+            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            {
+                FileSerializer = serializerMock.Object
+            };
+
+            // Act
+            var saveSettingsResult = settingsManager.SaveSettings(serializedSettings);
+
+            // Assert
+            Assert.IsNotNull(settingsManager.Settings);
+            Assert.AreNotEqual(defaultSettings, settingsManager.Settings);
+            Assert.AreEqual(saveSettingsResult, settingsManager.Settings);
+            Assert.AreEqual(saveSettingsResult, serializedSettings);
             Assert.AreEqual(serializedSettings, settingsManager.Settings);
         }
 
-        public void Settings_SaveSettings_SettingsSaved()
+        [TestMethod]
+        public void SaveSettings_SettingsLoaded_SettingsUpdated()
         {
-            // Todo: Settings saving
+            // Arrange
+            var defaultSettings = new Settings();
+            var serializedSettings = new Settings() { FirstLaunch = false, LaunchOnStartup = false, SelectedLanguage = "pl-PL" };
+            
+            var serializerMock = new Mock<IFileSerializer>();
+            serializerMock.SetupSequence(m => m.Deserialize<Settings>(absoluteFormattedPath))
+                .Returns(defaultSettings)
+                .Returns(serializedSettings);
+            serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
+
+            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            {
+                FileSerializer = serializerMock.Object
+            };
+
+            var loadSettingsResult = settingsManager.LoadSettingsAsync().Result;
+
+            // Act
+            var saveSettingsResult = settingsManager.SaveSettings(serializedSettings);
+
+            // Assert
+            Assert.IsNotNull(settingsManager.Settings);
+            Assert.AreEqual(loadSettingsResult, defaultSettings);
+            Assert.AreNotEqual(defaultSettings, settingsManager.Settings);
+            Assert.AreNotEqual(saveSettingsResult, defaultSettings);
+            Assert.AreEqual(saveSettingsResult, settingsManager.Settings);
+            Assert.AreEqual(saveSettingsResult, serializedSettings);
+            Assert.AreEqual(serializedSettings, settingsManager.Settings);
         }
+
+        [TestMethod]
+        public void GetSettings_SettingsNotLoaded_SettingsUpdated()
+        {
+            // Arrange
+            var defaultSettings = new Settings();
+            var serializedSettings = new Settings() { FirstLaunch = false, LaunchOnStartup = false, SelectedLanguage = "pl-PL" };
+
+            var serializerMock = new Mock<IFileSerializer>();
+            serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
+            serializerMock.Setup(m => m.Deserialize<Settings>(absoluteFormattedPath)).Returns(serializedSettings);
+
+            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            {
+                FileSerializer = serializerMock.Object
+            };
+
+            // Act
+            var loadSettingsResult = settingsManager.GetSettingsAsync().Result;
+
+            // Assert
+            Assert.IsNotNull(settingsManager.Settings);
+            Assert.AreNotEqual(defaultSettings, loadSettingsResult);
+            Assert.AreEqual(loadSettingsResult, settingsManager.Settings);
+            Assert.AreNotEqual(defaultSettings, settingsManager.Settings);
+        }
+
+        [TestMethod]
+        public void GetSettings_SettingsLoaded_SettingsNotUpdated()
+        {
+            // Arrange
+            var defaultSettings = new Settings();
+            var serializedSettings = new Settings() { FirstLaunch = false, LaunchOnStartup = false, SelectedLanguage = "pl-PL" };
+
+            var serializerMock = new Mock<IFileSerializer>();
+            serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
+            serializerMock.Setup(m => m.Deserialize<Settings>(absoluteFormattedPath)).Returns(serializedSettings);
+
+            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            {
+                FileSerializer = serializerMock.Object
+            };
+
+            var loadSettingsResult = settingsManager.LoadSettingsAsync().Result;
+
+            // Act
+            var getSettingsResult = settingsManager.GetSettingsAsync().Result;
+
+            // Assert
+            Assert.IsNotNull(settingsManager.Settings);
+            Assert.AreNotEqual(defaultSettings, settingsManager.Settings);
+            Assert.AreNotEqual(defaultSettings, loadSettingsResult);
+            Assert.AreNotEqual(defaultSettings, getSettingsResult);
+            Assert.AreEqual(loadSettingsResult, settingsManager.Settings);
+            Assert.AreEqual(getSettingsResult, settingsManager.Settings);
+            Assert.AreEqual(loadSettingsResult, getSettingsResult);
+        }
+
     }
 }

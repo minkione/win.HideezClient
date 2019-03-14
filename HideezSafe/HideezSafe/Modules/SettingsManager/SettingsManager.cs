@@ -101,7 +101,10 @@ namespace HideezSafe.Modules.SettingsManager
         /// <returns>Returns loaded program settings</returns>
         public Task<Settings> GetSettingsAsync()
         {
-            return Task.FromResult(Settings) ?? LoadSettingsAsync();
+            if (Settings == null)
+                return LoadSettingsAsync();
+            else
+                return Task.FromResult(Settings);
         }
 
         /// <summary>
