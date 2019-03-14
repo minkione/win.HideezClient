@@ -285,5 +285,52 @@ namespace HideezSafe.Tests
             Assert.AreEqual(loadSettingsResult, getSettingsResult);
         }
 
+        [TestMethod]
+        public void LoadSettings_DeserializationFailed_DefaultReturned()
+        {
+            // Arrange
+            var defaultSettings = new Settings();
+
+            var serializerMock = new Mock<IFileSerializer>();
+            serializerMock.Setup(m => m.Deserialize<Settings>(absoluteFormattedPath)).Returns(default(Settings));
+
+            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            {
+                FileSerializer = serializerMock.Object
+            };
+
+            // Act
+            var loadSettingsResult = settingsManager.LoadSettingsAsync().Result;
+
+            // Assert
+            Assert.IsNotNull(settingsManager.Settings);
+            Assert.AreEqual(defaultSettings, settingsManager.Settings);
+            Assert.AreEqual(loadSettingsResult, settingsManager.Settings);
+            Assert.AreEqual(defaultSettings, loadSettingsResult);
+        }
+
+        [TestMethod]
+        public void GetSettings_DeserializationFailed_DefaultReturned()
+        {
+            // Arrange
+            var defaultSettings = new Settings();
+
+            var serializerMock = new Mock<IFileSerializer>();
+            serializerMock.Setup(m => m.Deserialize<Settings>(absoluteFormattedPath)).Returns(default(Settings));
+
+            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            {
+                FileSerializer = serializerMock.Object
+            };
+
+            // Act
+            var getSettingsResult = settingsManager.GetSettingsAsync().Result;
+
+            // Assert
+            Assert.IsNotNull(settingsManager.Settings);
+            Assert.AreEqual(defaultSettings, settingsManager.Settings);
+            Assert.AreEqual(getSettingsResult, settingsManager.Settings);
+            Assert.AreEqual(defaultSettings, getSettingsResult);
+        }
     }
 }

@@ -41,11 +41,10 @@ namespace HideezSafe
             base.OnStartup(e);
 
             Settings settings = null;
-            ISettingsManager settingsManager = null;
+            ISettingsManager settingsManager = Container.Resolve<ISettingsManager>();
+
             try
             {
-                settingsManager = Container.Resolve<ISettingsManager>();
-
                 var task = Task.Run(async () => // Off Loading Load Programm Settings to non-UI thread
                 {
                     settings = await settingsManager.LoadSettingsAsync();
