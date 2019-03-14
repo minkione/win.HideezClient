@@ -1,4 +1,4 @@
-﻿namespace HideezSafe.Utils
+﻿namespace HideezSafe.Utilities
 {
     public interface IStartupHelper
     {

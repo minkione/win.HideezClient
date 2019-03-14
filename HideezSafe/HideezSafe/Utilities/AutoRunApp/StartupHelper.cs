@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.Win32;
 using System.Windows.Forms;
 
-namespace HideezSafe.Utils
+namespace HideezSafe.Utilities
 {
 
   /// <summary>

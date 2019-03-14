@@ -9,9 +9,18 @@ using System.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HideezSafe.Properties;
-using HideezSafe.Utils;
+using HideezSafe.Utilities;
 using SingleInstanceApp;
 using System.Runtime.InteropServices;
+using HideezSafe.ViewModels;
+using HideezSafe.Modules;
+using MvvmExtentions.EventAggregator;
+using Hardcodet.Wpf.TaskbarNotification;
+using System.Globalization;
+using GalaSoft.MvvmLight.Messaging;
+using HideezSafe.Mvvm.Messages;
+using System.Threading;
+using HideezSafe.Mvvm;
 
 namespace HideezSafe
 {
@@ -20,21 +29,36 @@ namespace HideezSafe
     /// </summary>
     public partial class App : Application, ISingleInstance
     {
-        private IStartupHelper startupHelper;
+        private IMessenger messenger;
 
         public static IUnityContainer Container { get; private set; }
 
         public App()
         {
             AppDomain.CurrentDomain.UnhandledException += FatalExceptionHandler;
-            InitializeDIContainer();
         }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            InitializeDIContainer();
 
-            startupHelper = Container.Resolve<IStartupHelper>();
+            // Init localization
+            CultureInfo culture = Settings.Default.Culture;
+            TranslationSource.Instance.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
+            messenger = Container.Resolve<IMessenger>();
+            Container.Resolve<IAppMessageHandler>();
+            Container.Resolve<ILanguageMessageHandler>();
+            Container.Resolve<IWindowMessageHandler>();
+
+            TaskbarIcon taskbarIcon = Container.Resolve<TaskbarIcon>();
+            taskbarIcon.DataContext = Container.Resolve<TaskbarIconViewModel>();
+
+            //IBalloonTipNotifyManager balloonTipNotifyManager = Container.Resolve<IBalloonTipNotifyManager>();
+            //balloonTipNotifyManager.ShowInfo("Info", "Hideez Safe is started");
 
             if (Settings.Default.FirstLaunch)
             {
@@ -67,21 +91,15 @@ namespace HideezSafe
             // handle command line arguments of second instance
             // ...
 
-            if (this.MainWindow.WindowState == WindowState.Minimized)
-            {
-                this.MainWindow.WindowState = WindowState.Normal;
-            }
+            Messenger.Default.Send(new ActivateWindowMessage());
 
-            this.MainWindow.Show();
-            this.MainWindow.Activate();
-            
             return true;
         }
 
         private void OnFirstLaunch()
         {
             // add to startup with windows if first start app
-            startupHelper.AddToStartup();
+            messenger.Send(new InvertStateAutoStartupMessage());
         }
 
         private void InitializeDIContainer()
@@ -89,6 +107,17 @@ namespace HideezSafe
             Container = new UnityContainer();
 
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
+            Container.RegisterType<IBalloonTipNotifyManager, BalloonTipNotifyManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IMenuFactory, MenuFactory>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<TaskbarIconViewModel>(new ContainerControlledLifetimeManager());
+
+            // Messenger
+            Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IAppMessageHandler, AppMessageHandler>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ILanguageMessageHandler, LanguageMessageHandler>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IWindowMessageHandler, WindowMessageHandler>(new ContainerControlledLifetimeManager());
         }
 
         private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)
