@@ -9,6 +9,7 @@ using Moq;
 
 namespace HideezSafe.Tests
 {
+    // Todo: Remove duplicate code from arrangement and assertions
     [TestClass]
     public class SettingsManagerTests
     {
@@ -23,7 +24,7 @@ namespace HideezSafe.Tests
         public void SettingsManager_DefaultSettingsFilePath()
         {
             // Arrange
-            var settingsManager = new SettingsManager();
+            var settingsManager = new SettingsManager<ApplicationSettings>();
 
             // Act phase is empty, default path is set in default constructor
 
@@ -36,7 +37,7 @@ namespace HideezSafe.Tests
         {
             // Arrange
 #pragma warning disable IDE0017 // Simplify object initialization
-            var settingsManager = new SettingsManager();
+            var settingsManager = new SettingsManager<ApplicationSettings>();
 #pragma warning restore IDE0017 // Simplify object initialization
 
             // Act
@@ -50,7 +51,7 @@ namespace HideezSafe.Tests
         public void SettingsFilePath_SetRelativePath_Success()
         {
             // Arrange
-            var settingsManager = new SettingsManager();
+            var settingsManager = new SettingsManager<ApplicationSettings>();
             var relativePath = "settings.txt";
 
             // Act
@@ -66,7 +67,7 @@ namespace HideezSafe.Tests
         {
             // Arrange
 #pragma warning disable IDE0017 // Simplify object initialization
-            var settingsManager = new SettingsManager();
+            var settingsManager = new SettingsManager<ApplicationSettings>();
 #pragma warning restore IDE0017 // Simplify object initialization
 
             // Act
@@ -80,7 +81,7 @@ namespace HideezSafe.Tests
         public void SettingsFilePath_SetIncorrectFileName_Exception()
         {
             // Arrange
-            var settingsManager = new SettingsManager();
+            var settingsManager = new SettingsManager<ApplicationSettings>();
             var incorrectPath = "S:\\SomeMagicalPath\\some<><>file.xml";
 
             // Act
@@ -94,7 +95,7 @@ namespace HideezSafe.Tests
         public void SettingsFilePath_NoFilenamePath_Exception()
         {
             // Arrange
-            var settingsManager = new SettingsManager();
+            var settingsManager = new SettingsManager<ApplicationSettings>();
             var path = Path.GetTempPath();
 
             // Act
@@ -112,7 +113,7 @@ namespace HideezSafe.Tests
             var serializerMock = new Mock<IFileSerializer>();
             serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(serializedSettings);
 
-            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
             {
                 FileSerializer = serializerMock.Object
             };
@@ -134,7 +135,7 @@ namespace HideezSafe.Tests
             var serializerMock = new Mock<IFileSerializer>();
             serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(serializedSettings);
 
-            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
             {
                 FileSerializer = serializerMock.Object
             };
@@ -159,7 +160,7 @@ namespace HideezSafe.Tests
             var serializerMock = new Mock<IFileSerializer>();
             serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
 
-            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
             {
                 FileSerializer = serializerMock.Object
             };
@@ -182,7 +183,7 @@ namespace HideezSafe.Tests
             serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
             serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(serializedSettings);
 
-            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
             {
                 FileSerializer = serializerMock.Object
             };
@@ -212,7 +213,7 @@ namespace HideezSafe.Tests
                 .Returns(serializedSettings);
             serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
 
-            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
             {
                 FileSerializer = serializerMock.Object
             };
@@ -244,7 +245,7 @@ namespace HideezSafe.Tests
             serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
             serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(serializedSettings);
 
-            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
             {
                 FileSerializer = serializerMock.Object
             };
@@ -271,7 +272,7 @@ namespace HideezSafe.Tests
             serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
             serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(serializedSettings);
 
-            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
             {
                 FileSerializer = serializerMock.Object
             };
@@ -301,7 +302,7 @@ namespace HideezSafe.Tests
             var serializerMock = new Mock<IFileSerializer>();
             serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(default(ApplicationSettings));
 
-            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
             {
                 FileSerializer = serializerMock.Object
             };
@@ -326,7 +327,7 @@ namespace HideezSafe.Tests
             var serializerMock = new Mock<IFileSerializer>();
             serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(default(ApplicationSettings));
 
-            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
             {
                 FileSerializer = serializerMock.Object
             };
@@ -343,13 +344,13 @@ namespace HideezSafe.Tests
         }
 
         [TestMethod]
-        public void Settings_NotLoaded_Null()
+        public void Settings_NotLoaded_Default()
         {
             // Arrange
             var serializerMock = new Mock<IFileSerializer>();
             serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(default(ApplicationSettings));
 
-            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
             {
                 FileSerializer = serializerMock.Object
             };
@@ -358,7 +359,7 @@ namespace HideezSafe.Tests
             var settings = settingsManager.Settings;
 
             // Assert
-            Assert.IsNull(settings);
+            Assert.AreEqual(settings, default(ApplicationSettings));
         }
 
         [TestMethod]
@@ -368,7 +369,7 @@ namespace HideezSafe.Tests
             var serializerMock = new Mock<IFileSerializer>();
             serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(default(ApplicationSettings));
 
-            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
             {
                 FileSerializer = serializerMock.Object
             };
@@ -392,7 +393,7 @@ namespace HideezSafe.Tests
             var serializerMock = new Mock<IFileSerializer>();
             serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(default(ApplicationSettings));
 
-            var settingsManager = new SettingsManager(absoluteFormattedPath)
+            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
             {
                 FileSerializer = serializerMock.Object
             };

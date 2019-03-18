@@ -1,19 +1,18 @@
 ﻿using System.Threading.Tasks;
 using HideezSafe.Models.Settings;
-using HideezSafe.Modules.FileSerializer;
 
 namespace HideezSafe.Modules.SettingsManager
 {
-    interface ISettingsManager
+    interface ISettingsManager<T> where T : BaseSettings, new()
     {
-        ApplicationSettings Settings { get; }
+        T Settings { get; }
 
         string SettingsFilePath { get; set; }
 
-        Task<ApplicationSettings> GetSettingsAsync();
+        Task<T> GetSettingsAsync();
 
-        Task<ApplicationSettings> LoadSettingsAsync();
+        Task<T> LoadSettingsAsync();
 
-        ApplicationSettings SaveSettings(ApplicationSettings settings);
+        T SaveSettings(T settings);
     }
 }

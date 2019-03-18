@@ -41,7 +41,7 @@ namespace HideezSafe
             base.OnStartup(e);
 
             ApplicationSettings settings = null;
-            ISettingsManager settingsManager = Container.Resolve<ISettingsManager>();
+            ISettingsManager<ApplicationSettings> settingsManager = Container.Resolve<ISettingsManager<ApplicationSettings>>();
 
             try
             {
@@ -122,7 +122,7 @@ namespace HideezSafe
 
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
-            Container.RegisterType<ISettingsManager, SettingsManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
         }
 
         /// <summary>

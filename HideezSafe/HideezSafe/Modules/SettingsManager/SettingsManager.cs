@@ -13,10 +13,10 @@ namespace HideezSafe.Modules.SettingsManager
     /// Settings should loaded on the application start and are kept in cache until updated
     /// See <seealso cref="ISettings"/> and <seealso cref="Settings"/> for information about available settings
     /// </summary>
-    class SettingsManager : ISettingsManager
+    class SettingsManager<T> : ISettingsManager<T> where T : BaseSettings, new()
     {
         private string settingsFilePath = string.Empty;
-        private ApplicationSettings settings = null;
+        private T settings;
 
         /// <summary>
         /// Initializes a new instance of <see cref="SettingsManager"/> class
@@ -78,14 +78,14 @@ namespace HideezSafe.Modules.SettingsManager
         /// <summary>
         /// Deep copy of program settings cache
         /// </summary>
-        public ApplicationSettings Settings
+        public T Settings
         {
             get
             {
                 if (settings == null)
-                    return null;
+                    return default(T);
                 else
-                    return new ApplicationSettings(settings);
+                    return (T)settings.Clone();
             }
             private set
             {
@@ -100,9 +100,8 @@ namespace HideezSafe.Modules.SettingsManager
         /// <summary>
         /// Get settings from cache. If not available, load from file
         /// </summary>
-        /// <param name="settingsFilePath">Path to settings file</param>
         /// <returns>Returns loaded program settings</returns>
-        public Task<ApplicationSettings> GetSettingsAsync()
+        public Task<T> GetSettingsAsync()
         {
             if (Settings == null)
                 return LoadSettingsAsync();
@@ -113,9 +112,8 @@ namespace HideezSafe.Modules.SettingsManager
         /// <summary>
         /// Asynchronously load program settings from file
         /// </summary>
-        /// <param name="settingsFilePath">Path to settings file</param>
         /// <returns>Returns program settings loaded from file</returns>
-        public Task<ApplicationSettings> LoadSettingsAsync()
+        public Task<T> LoadSettingsAsync()
         {
             return Task.Run(() => { return LoadSettings(); });
         }
@@ -124,10 +122,9 @@ namespace HideezSafe.Modules.SettingsManager
         /// Save program options into file. 
         /// <seealso cref="LoadSettingsAsync(string)"/> is called automatically if save is successful 
         /// </summary>
-        /// <param name="settingsFileName">Path to settings file</param>
-        /// <param name="optionsModel">Settings that will be saved</param>
+        /// <param name="settings">Settings that will be saved</param>
         /// <returns>Returns saved settings. Throws exception if save failed</returns>
-        public ApplicationSettings SaveSettings(ApplicationSettings settings)
+        public T SaveSettings(T settings)
         {
             var directory = Path.GetDirectoryName(SettingsFilePath);
             if (!Directory.Exists(directory))
@@ -144,14 +141,13 @@ namespace HideezSafe.Modules.SettingsManager
         /// <summary>
         /// Synchronously load program settings from file
         /// </summary>
-        /// <param name="settingsFileName">Path to settings file</param>
         /// <returns>Returns program settings loaded from file</returns>
-        private ApplicationSettings LoadSettings()
+        private T LoadSettings()
         {
-            var loadedModel = FileSerializer.Deserialize<ApplicationSettings>(SettingsFilePath);
+            var loadedModel = FileSerializer.Deserialize<T>(SettingsFilePath);
 
             // Should automatically notify all observers that cached settings were changed
-            Settings = loadedModel ?? new ApplicationSettings();
+            Settings = loadedModel ?? new T();
 
             return Settings;
         }

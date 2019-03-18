@@ -112,7 +112,6 @@
     <Compile Include="Utilities\AutoRunApp\StartupHelper.cs" />
     <Compile Include="Models\Settings\ApplicationSettings.cs" />
     <Compile Include="Modules\SettingsManager\SettingsManager.cs" />
-    <Compile Include="Utilities\Comparer\DictionaryKeyValueComparer.cs" />
     <Compile Include="Utilities\Constants.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="Views\MainWindowView.xaml.cs">
