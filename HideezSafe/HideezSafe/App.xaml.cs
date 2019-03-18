@@ -12,6 +12,8 @@ using HideezSafe.Properties;
 using HideezSafe.Utils;
 using SingleInstanceApp;
 using System.Runtime.InteropServices;
+using HideezSafe.Modules;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace HideezSafe
 {
@@ -35,6 +37,7 @@ namespace HideezSafe
             base.OnStartup(e);
 
             startupHelper = Container.Resolve<IStartupHelper>();
+            Container.Resolve<WorkstationManager>();
 
             if (Settings.Default.FirstLaunch)
             {
@@ -89,6 +92,8 @@ namespace HideezSafe
             Container = new UnityContainer();
 
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IWorkstationManager, WorkstationManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterInstance<IMessenger>(Messenger.Default, new ContainerControlledLifetimeManager());
         }
 
         private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)
