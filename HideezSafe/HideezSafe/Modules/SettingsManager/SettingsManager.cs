@@ -76,13 +76,16 @@ namespace HideezSafe.Modules.SettingsManager
         }
 
         /// <summary>
-        /// Program settings cache
+        /// Deep copy of program settings cache
         /// </summary>
         public Settings Settings
         {
             get
             {
-                return settings;
+                if (settings == null)
+                    return null;
+                else
+                    return new Settings(settings);
             }
             private set
             {
