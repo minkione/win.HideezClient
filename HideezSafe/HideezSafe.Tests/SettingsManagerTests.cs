@@ -13,18 +13,67 @@ namespace HideezSafe.Tests
     [TestClass]
     public class SettingsManagerTests
     {
-        private readonly string absoluteFormattedPath;
-
-        public SettingsManagerTests()
+        private class TestSettings : BaseSettings
         {
-            absoluteFormattedPath = $"C:\\{Path.GetRandomFileName()}\\{Path.GetRandomFileName()}.xml";
+            [Setting]
+            public int IntProperty { get; set; } = 0;
+
+            public override object Clone()
+            {
+                return new TestSettings { IntProperty = IntProperty };
+            }
         }
+
+        // Arrange step helpers
+        private string GetAbsoluteFormattedPath()
+        {
+            return $"A:\\Directory\\filename.xml";
+        }
+
+        private TestSettings GetDefaultSettings()
+        {
+            return new TestSettings();
+        }
+
+        private TestSettings GetSerializedSettings()
+        {
+            return new TestSettings { IntProperty = 854 };
+        }
+
+        private SettingsManager<TestSettings> SetupSettingsManager()
+        {
+            return new SettingsManager<TestSettings>
+            {
+                SettingsFilePath = GetAbsoluteFormattedPath()
+            };
+        }
+
+        private SettingsManager<TestSettings> SetupSettingsManager(IFileSerializer fileSerializer)
+        {
+            return new SettingsManager<TestSettings>
+            {
+                FileSerializer = fileSerializer,
+                SettingsFilePath = GetAbsoluteFormattedPath()
+            };
+        }
+
+        private Mock<IFileSerializer> SetupFileSerializerMock()
+        {
+            var serializerMock = new Mock<IFileSerializer>();
+
+            serializerMock.Setup(m => m.Serialize(GetAbsoluteFormattedPath(), GetSerializedSettings())).Returns(true);
+
+            serializerMock.Setup(m => m.Deserialize<TestSettings>(GetAbsoluteFormattedPath())).Returns(GetSerializedSettings());
+
+            return serializerMock;
+        }
+
 
         [TestMethod]
         public void SettingsManager_DefaultSettingsFilePath()
         {
             // Arrange
-            var settingsManager = new SettingsManager<ApplicationSettings>();
+            var settingsManager = SetupSettingsManager();
 
             // Act phase is empty, default path is set in default constructor
 
@@ -36,22 +85,20 @@ namespace HideezSafe.Tests
         public void SettingsFilePath_SetAbsolutePath_Success()
         {
             // Arrange
-#pragma warning disable IDE0017 // Simplify object initialization
-            var settingsManager = new SettingsManager<ApplicationSettings>();
-#pragma warning restore IDE0017 // Simplify object initialization
+            var settingsManager = SetupSettingsManager();
 
             // Act
-            settingsManager.SettingsFilePath = absoluteFormattedPath;
+            settingsManager.SettingsFilePath = GetAbsoluteFormattedPath();
 
             // Assert
-            Assert.AreEqual(settingsManager.SettingsFilePath, absoluteFormattedPath);
+            Assert.AreEqual(settingsManager.SettingsFilePath, GetAbsoluteFormattedPath());
         }
 
         [TestMethod]
         public void SettingsFilePath_SetRelativePath_Success()
         {
             // Arrange
-            var settingsManager = new SettingsManager<ApplicationSettings>();
+            var settingsManager = SetupSettingsManager();
             var relativePath = "settings.txt";
 
             // Act
@@ -66,9 +113,7 @@ namespace HideezSafe.Tests
         public void SettingsFilePath_SetEmptyPath_Exception()
         {
             // Arrange
-#pragma warning disable IDE0017 // Simplify object initialization
-            var settingsManager = new SettingsManager<ApplicationSettings>();
-#pragma warning restore IDE0017 // Simplify object initialization
+            var settingsManager = SetupSettingsManager();
 
             // Act
             settingsManager.SettingsFilePath = string.Empty;
@@ -81,7 +126,7 @@ namespace HideezSafe.Tests
         public void SettingsFilePath_SetIncorrectFileName_Exception()
         {
             // Arrange
-            var settingsManager = new SettingsManager<ApplicationSettings>();
+            var settingsManager = SetupSettingsManager();
             var incorrectPath = "S:\\SomeMagicalPath\\some<><>file.xml";
 
             // Act
@@ -95,7 +140,7 @@ namespace HideezSafe.Tests
         public void SettingsFilePath_NoFilenamePath_Exception()
         {
             // Arrange
-            var settingsManager = new SettingsManager<ApplicationSettings>();
+            var settingsManager = SetupSettingsManager();
             var path = Path.GetTempPath();
 
             // Act
@@ -108,37 +153,22 @@ namespace HideezSafe.Tests
         public async Task SettingsManager_LoadSettings_SettingsDeserialized()
         {
             // Arrange
-            var serializedSettings = new ApplicationSettings() { IsFirstLaunch = false, LaunchApplicationOnStartup = false, SelectedUiLanguage = "pl-PL" };
-
-            var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(serializedSettings);
-
-            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
-            {
-                FileSerializer = serializerMock.Object
-            };
+            var serializerMock = SetupFileSerializerMock();
+            var settingsManager = SetupSettingsManager(serializerMock.Object);
 
             // Act
             var saveSettingsResult = await settingsManager.LoadSettingsAsync();
 
             // Assert
-            serializerMock.Verify(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath));
+            serializerMock.Verify(m => m.Deserialize<TestSettings>(GetAbsoluteFormattedPath()));
         }
 
         [TestMethod]
         public async Task LoadSettings_SettingsNotLoaded_SettingsLoaded()
         {
             // Arrange
-            var defaultSettings = new ApplicationSettings();
-
-            var serializedSettings = new ApplicationSettings() { IsFirstLaunch = false, LaunchApplicationOnStartup = false, SelectedUiLanguage = "pl-PL" };
-            var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(serializedSettings);
-
-            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
-            {
-                FileSerializer = serializerMock.Object
-            };
+            var serializedSettings = GetSerializedSettings();
+            var settingsManager = SetupSettingsManager(SetupFileSerializerMock().Object);
 
             // Act
             var loadSettingsResult = await settingsManager.LoadSettingsAsync();
@@ -155,41 +185,26 @@ namespace HideezSafe.Tests
         public void SettingsManager_SaveSettings_SettingsSerialized()
         {
             // Arrange
-            var serializedSettings = new ApplicationSettings() { IsFirstLaunch = false, LaunchApplicationOnStartup = false, SelectedUiLanguage = "pl-PL" };
-
-            var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
-
-            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
-            {
-                FileSerializer = serializerMock.Object
-            };
+            var serializerMock = SetupFileSerializerMock();
+            var settingsManager = SetupSettingsManager(serializerMock.Object);
 
             // Act
-            var saveSettingsResult = settingsManager.SaveSettings(serializedSettings);
+            var saveSettingsResult = settingsManager.SaveSettings(GetSerializedSettings());
 
             // Assert
-            serializerMock.Verify(m => m.Serialize(absoluteFormattedPath, serializedSettings));
+            serializerMock.Verify(m => m.Serialize(GetAbsoluteFormattedPath(), GetSerializedSettings()));
         }
 
         [TestMethod]
         public void SaveSettings_SettingsNotLoaded_SettingsUpdated()
         {
             // Arrange
-            var defaultSettings = new ApplicationSettings();
-            var serializedSettings = new ApplicationSettings() { IsFirstLaunch = false, LaunchApplicationOnStartup = false, SelectedUiLanguage = "pl-PL" };
-
-            var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
-            serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(serializedSettings);
-
-            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
-            {
-                FileSerializer = serializerMock.Object
-            };
+            var defaultSettings = GetDefaultSettings();
+            var serializedSettings = GetSerializedSettings();
+            var settingsManager = SetupSettingsManager(SetupFileSerializerMock().Object);
 
             // Act
-            var saveSettingsResult = settingsManager.SaveSettings(serializedSettings);
+            var saveSettingsResult = settingsManager.SaveSettings(GetSerializedSettings());
 
             // Assert
             Assert.IsNotNull(settingsManager.Settings);
@@ -204,19 +219,16 @@ namespace HideezSafe.Tests
         public async Task SaveSettings_SettingsLoaded_SettingsUpdated()
         {
             // Arrange
-            var defaultSettings = new ApplicationSettings();
-            var serializedSettings = new ApplicationSettings() { IsFirstLaunch = false, LaunchApplicationOnStartup = false, SelectedUiLanguage = "pl-PL" };
-            
+            var defaultSettings = GetDefaultSettings();
+            var serializedSettings = GetSerializedSettings();
+
             var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.SetupSequence(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath))
+            serializerMock.SetupSequence(m => m.Deserialize<TestSettings>(GetAbsoluteFormattedPath()))
                 .Returns(defaultSettings)
                 .Returns(serializedSettings);
-            serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
+            serializerMock.Setup(m => m.Serialize(GetAbsoluteFormattedPath(), serializedSettings)).Returns(true);
 
-            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
-            {
-                FileSerializer = serializerMock.Object
-            };
+            var settingsManager = SetupSettingsManager(serializerMock.Object);
 
             var loadSettingsResult = await settingsManager.LoadSettingsAsync();
 
@@ -238,17 +250,9 @@ namespace HideezSafe.Tests
         public async Task GetSettings_SettingsNotLoaded_SettingsUpdated()
         {
             // Arrange
-            var defaultSettings = new ApplicationSettings();
-            var serializedSettings = new ApplicationSettings() { IsFirstLaunch = false, LaunchApplicationOnStartup = false, SelectedUiLanguage = "pl-PL" };
-
-            var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
-            serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(serializedSettings);
-
-            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
-            {
-                FileSerializer = serializerMock.Object
-            };
+            var defaultSettings = GetDefaultSettings();
+            var serializedSettings = GetSerializedSettings();
+            var settingsManager = SetupSettingsManager(SetupFileSerializerMock().Object);
 
             // Act
             var loadSettingsResult = await settingsManager.GetSettingsAsync();
@@ -265,17 +269,9 @@ namespace HideezSafe.Tests
         public async Task GetSettings_SettingsLoaded_SettingsNotUpdated()
         {
             // Arrange
-            var defaultSettings = new ApplicationSettings();
-            var serializedSettings = new ApplicationSettings() { IsFirstLaunch = false, LaunchApplicationOnStartup = false, SelectedUiLanguage = "pl-PL" };
-
-            var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.Setup(m => m.Serialize(absoluteFormattedPath, serializedSettings)).Returns(true);
-            serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(serializedSettings);
-
-            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
-            {
-                FileSerializer = serializerMock.Object
-            };
+            var defaultSettings = GetDefaultSettings();
+            var serializedSettings = GetSerializedSettings();
+            var settingsManager = SetupSettingsManager(SetupFileSerializerMock().Object);
 
             var loadSettingsResult = await settingsManager.LoadSettingsAsync();
 
@@ -297,15 +293,12 @@ namespace HideezSafe.Tests
         public async Task LoadSettings_DeserializationFailed_DefaultReturned()
         {
             // Arrange
-            var defaultSettings = new ApplicationSettings();
+            var defaultSettings = GetDefaultSettings();
 
             var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(default(ApplicationSettings));
+            serializerMock.Setup(m => m.Deserialize<TestSettings>(GetAbsoluteFormattedPath())).Returns(default(TestSettings));
 
-            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
-            {
-                FileSerializer = serializerMock.Object
-            };
+            var settingsManager = SetupSettingsManager(serializerMock.Object);
 
             // Act
             var loadSettingsResult = await settingsManager.LoadSettingsAsync();
@@ -322,15 +315,12 @@ namespace HideezSafe.Tests
         public async Task GetSettings_DeserializationFailed_DefaultReturned()
         {
             // Arrange
-            var defaultSettings = new ApplicationSettings();
+            var defaultSettings = GetDefaultSettings();
 
             var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(default(ApplicationSettings));
+            serializerMock.Setup(m => m.Deserialize<TestSettings>(GetAbsoluteFormattedPath())).Returns(default(TestSettings));
 
-            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
-            {
-                FileSerializer = serializerMock.Object
-            };
+            var settingsManager = SetupSettingsManager(serializerMock.Object);
 
             // Act
             var getSettingsResult = await settingsManager.GetSettingsAsync();
@@ -347,13 +337,9 @@ namespace HideezSafe.Tests
         public void Settings_NotLoaded_Default()
         {
             // Arrange
-            var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(default(ApplicationSettings));
-
-            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
-            {
-                FileSerializer = serializerMock.Object
-            };
+            var defaultSettings = GetDefaultSettings();
+            var serializedSettings = GetSerializedSettings();
+            var settingsManager = SetupSettingsManager(SetupFileSerializerMock().Object);
 
             // Act
             var settings = settingsManager.Settings;
@@ -366,13 +352,9 @@ namespace HideezSafe.Tests
         public async Task Settings_DefaultSettingsLoaded_DeepCopyCreated()
         {
             // Arrange
-            var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(default(ApplicationSettings));
-
-            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
-            {
-                FileSerializer = serializerMock.Object
-            };
+            var defaultSettings = GetDefaultSettings();
+            var serializedSettings = GetSerializedSettings();
+            var settingsManager = SetupSettingsManager(SetupFileSerializerMock().Object);
 
             await settingsManager.LoadSettingsAsync();
             
@@ -390,13 +372,9 @@ namespace HideezSafe.Tests
         public async Task GetSettings_DefaultSettingsLoaded_DeepCopyCreated()
         {
             // Arrange
-            var serializerMock = new Mock<IFileSerializer>();
-            serializerMock.Setup(m => m.Deserialize<ApplicationSettings>(absoluteFormattedPath)).Returns(default(ApplicationSettings));
-
-            var settingsManager = new SettingsManager<ApplicationSettings>(absoluteFormattedPath)
-            {
-                FileSerializer = serializerMock.Object
-            };
+            var defaultSettings = GetDefaultSettings();
+            var serializedSettings = GetSerializedSettings();
+            var settingsManager = SetupSettingsManager(SetupFileSerializerMock().Object);
 
             await settingsManager.LoadSettingsAsync();
 
@@ -409,7 +387,6 @@ namespace HideezSafe.Tests
             Assert.IsNotNull(settingsReference2);
             Assert.AreNotSame(settingsReference1, settingsReference2);
         }
-
 
     }
 }

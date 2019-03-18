@@ -127,8 +127,6 @@ namespace HideezSafe.Modules.SettingsManager
         public T SaveSettings(T settings)
         {
             var directory = Path.GetDirectoryName(SettingsFilePath);
-            if (!Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
 
             FileSerializer.Serialize(SettingsFilePath, settings);
 

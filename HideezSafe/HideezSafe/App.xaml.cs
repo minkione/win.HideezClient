@@ -47,6 +47,10 @@ namespace HideezSafe
             {
                 var task = Task.Run(async () => // Off Loading Load Programm Settings to non-UI thread
                 {
+                    var appSettingsDirectory = Path.GetDirectoryName(settingsManager.SettingsFilePath);
+                    if (!Directory.Exists(appSettingsDirectory))
+                        Directory.CreateDirectory(appSettingsDirectory);
+
                     settings = await settingsManager.LoadSettingsAsync();
                 });
                 task.Wait(); // Block this to ensure that results are usable in next steps of sequence
