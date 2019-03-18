@@ -6,14 +6,14 @@ namespace HideezSafe.Modules.SettingsManager
 {
     interface ISettingsManager
     {
-        Settings Settings { get; }
+        ApplicationSettings Settings { get; }
 
         string SettingsFilePath { get; set; }
 
-        Task<Settings> GetSettingsAsync();
+        Task<ApplicationSettings> GetSettingsAsync();
 
-        Task<Settings> LoadSettingsAsync();
+        Task<ApplicationSettings> LoadSettingsAsync();
 
-        Settings SaveSettings(Settings settings);
+        ApplicationSettings SaveSettings(ApplicationSettings settings);
     }
 }

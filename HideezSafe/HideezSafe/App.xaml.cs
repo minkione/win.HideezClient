@@ -40,7 +40,7 @@ namespace HideezSafe
         {
             base.OnStartup(e);
 
-            Settings settings = null;
+            ApplicationSettings settings = null;
             ISettingsManager settingsManager = Container.Resolve<ISettingsManager>();
 
             try
@@ -51,8 +51,8 @@ namespace HideezSafe
                 });
                 task.Wait(); // Block this to ensure that results are usable in next steps of sequence
 
-                Thread.CurrentThread.CurrentCulture = new CultureInfo(settings.SelectedLanguage);
-                Thread.CurrentThread.CurrentUICulture = new CultureInfo(settings.SelectedLanguage);
+                Thread.CurrentThread.CurrentCulture = new CultureInfo(settings.SelectedUiLanguage);
+                Thread.CurrentThread.CurrentUICulture = new CultureInfo(settings.SelectedUiLanguage);
             }
             catch (Exception exp)
             {
@@ -68,11 +68,11 @@ namespace HideezSafe
 
             startupHelper = Container.Resolve<IStartupHelper>();
 
-            if (settings.FirstLaunch)
+            if (settings.IsFirstLaunch)
             {
                 OnFirstLaunch();
 
-                settings.FirstLaunch = false;
+                settings.IsFirstLaunch = false;
                 settingsManager.SaveSettings(settings);
             }
         }

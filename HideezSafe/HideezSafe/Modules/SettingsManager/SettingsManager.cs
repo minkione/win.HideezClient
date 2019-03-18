@@ -16,7 +16,7 @@ namespace HideezSafe.Modules.SettingsManager
     class SettingsManager : ISettingsManager
     {
         private string settingsFilePath = string.Empty;
-        private Settings settings = null;
+        private ApplicationSettings settings = null;
 
         /// <summary>
         /// Initializes a new instance of <see cref="SettingsManager"/> class
@@ -78,14 +78,14 @@ namespace HideezSafe.Modules.SettingsManager
         /// <summary>
         /// Deep copy of program settings cache
         /// </summary>
-        public Settings Settings
+        public ApplicationSettings Settings
         {
             get
             {
                 if (settings == null)
                     return null;
                 else
-                    return new Settings(settings);
+                    return new ApplicationSettings(settings);
             }
             private set
             {
@@ -102,7 +102,7 @@ namespace HideezSafe.Modules.SettingsManager
         /// </summary>
         /// <param name="settingsFilePath">Path to settings file</param>
         /// <returns>Returns loaded program settings</returns>
-        public Task<Settings> GetSettingsAsync()
+        public Task<ApplicationSettings> GetSettingsAsync()
         {
             if (Settings == null)
                 return LoadSettingsAsync();
@@ -115,7 +115,7 @@ namespace HideezSafe.Modules.SettingsManager
         /// </summary>
         /// <param name="settingsFilePath">Path to settings file</param>
         /// <returns>Returns program settings loaded from file</returns>
-        public Task<Settings> LoadSettingsAsync()
+        public Task<ApplicationSettings> LoadSettingsAsync()
         {
             return Task.Run(() => { return LoadSettings(); });
         }
@@ -127,7 +127,7 @@ namespace HideezSafe.Modules.SettingsManager
         /// <param name="settingsFileName">Path to settings file</param>
         /// <param name="optionsModel">Settings that will be saved</param>
         /// <returns>Returns saved settings. Throws exception if save failed</returns>
-        public Settings SaveSettings(Settings settings)
+        public ApplicationSettings SaveSettings(ApplicationSettings settings)
         {
             var directory = Path.GetDirectoryName(SettingsFilePath);
             if (!Directory.Exists(directory))
@@ -146,12 +146,12 @@ namespace HideezSafe.Modules.SettingsManager
         /// </summary>
         /// <param name="settingsFileName">Path to settings file</param>
         /// <returns>Returns program settings loaded from file</returns>
-        private Settings LoadSettings()
+        private ApplicationSettings LoadSettings()
         {
-            var loadedModel = FileSerializer.Deserialize<Settings>(SettingsFilePath);
+            var loadedModel = FileSerializer.Deserialize<ApplicationSettings>(SettingsFilePath);
 
             // Should automatically notify all observers that cached settings were changed
-            Settings = loadedModel ?? new Settings();
+            Settings = loadedModel ?? new ApplicationSettings();
 
             return Settings;
         }

@@ -103,13 +103,16 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Settings\BaseSettings.cs" />
+    <Compile Include="Models\Settings\SettingAttribute.cs" />
     <Compile Include="Modules\FileSerializer\IFileSerializer.cs" />
     <Compile Include="Modules\FileSerializer\XmlFileSerializer.cs" />
     <Compile Include="Modules\SettingsManager\ISettingsManager.cs" />
     <Compile Include="Utilities\AutoRunApp\IStartupHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\StartupHelper.cs" />
-    <Compile Include="Models\Settings\Settings.cs" />
+    <Compile Include="Models\Settings\ApplicationSettings.cs" />
     <Compile Include="Modules\SettingsManager\SettingsManager.cs" />
+    <Compile Include="Utilities\Comparer\DictionaryKeyValueComparer.cs" />
     <Compile Include="Utilities\Constants.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="Views\MainWindowView.xaml.cs">

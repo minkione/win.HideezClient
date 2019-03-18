@@ -82,8 +82,8 @@ namespace HideezSafe.Tests
         [TestMethod]
         public void Settings_IsSerializable()
         {
-            var settingsObject = new Settings();
-            GenericSerializeAsserter<Settings>.AssertRoundTripSerializationIsPossible(settingsObject);
+            var settingsObject = new ApplicationSettings();
+            GenericSerializeAsserter<ApplicationSettings>.AssertRoundTripSerializationIsPossible(settingsObject);
         }
     }
 }
