@@ -8,7 +8,7 @@
     <tb:TaskbarIcon
         x:Key="TaskbarIcon"
         DoubleClickCommand="{Binding ShowWindowCommand}"
-        IconSource="pack://application:,,,/Resources/Icon/Idle/32x32.ico"
+        IconSource="{Binding IconSource}"
         ToolTipText="{Binding ToolTip}">
         <!--  LeftClickCommand="{Binding ShowWindowCommand}"  -->
 

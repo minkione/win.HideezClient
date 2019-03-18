@@ -61,6 +61,52 @@ namespace HideezSafe.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Device is not connected.
+        /// </summary>
+        internal static string Icon_DeviceNotConnected {
+            get {
+                return ResourceManager.GetString("Icon.DeviceNotConnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot connect to Hideez service.
+        /// </summary>
+        internal static string Icon_FailedConnectHideezService {
+            get {
+                return ResourceManager.GetString("Icon.FailedConnectHideezService", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New notifications are available.
+        /// </summary>
+        internal static string Icon_NewNotificationsAvailable {
+            get {
+                return ResourceManager.GetString("Icon.NewNotificationsAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New notifications are available
+        ///Device is not connected.
+        /// </summary>
+        internal static string Icon_NoKeyConnectionAlert {
+            get {
+                return ResourceManager.GetString("Icon.NoKeyConnectionAlert", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Synchronization in progress.
+        /// </summary>
+        internal static string Icon_SynchronizationInProgress {
+            get {
+                return ResourceManager.GetString("Icon.SynchronizationInProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add new device ....
         /// </summary>
         internal static string Menu_AddDevice {

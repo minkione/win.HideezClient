@@ -1,5 +1,4 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
-using HideezSafe.Mvvm.Messages;
 using HideezSafe.Properties;
 using HideezSafe.Utilities;
 using HideezSafe.ViewModels;
@@ -8,6 +7,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Windows;
 
 namespace HideezSafe.Modules
 {
@@ -15,11 +15,16 @@ namespace HideezSafe.Modules
     {
         private readonly IMessenger messenger;
         private readonly IStartupHelper startupHelper;
+        private readonly IWindowsManager windowsManager;
+        private readonly IAppHelper appHelper;
 
-        public MenuFactory(IMessenger messenger, IStartupHelper startupHelper)
+        public MenuFactory(IMessenger messenger, IStartupHelper startupHelper
+            , IWindowsManager windowsManager, IAppHelper appHelper)
         {
             this.messenger = messenger;
             this.startupHelper = startupHelper;
+            this.windowsManager = windowsManager;
+            this.appHelper = appHelper;
         }
 
         public MenuItemViewModel GetMenuItem(MenuItemType type)
@@ -27,7 +32,7 @@ namespace HideezSafe.Modules
             switch (type)
             {
                 case MenuItemType.ShowWindow:
-                    return GetViewModel("Menu.ShowWindow", x => messenger.Send(new ActivateWindowMessage()));
+                    return GetViewModel("Menu.ShowWindow", x => windowsManager.ActivateMainWindow());
                 case MenuItemType.AddDevice:
                     return GetViewModel("Menu.AddDevice", x => throw new NotImplementedException());
                 case MenuItemType.CheckForUpdates:
@@ -49,7 +54,7 @@ namespace HideezSafe.Modules
                 case MenuItemType.LogOff:
                     return GetViewModel("Menu.LogOff", x => throw new NotImplementedException());
                 case MenuItemType.Exit:
-                    return GetViewModel("Menu.Exit", x => messenger.Send(new ShutdownAppMessage()));
+                    return GetViewModel("Menu.Exit", x => appHelper.Shutdown());
                 case MenuItemType.Lenguage:
                     return GetLenguages();
                 case MenuItemType.LaunchOnStartup:
@@ -63,23 +68,18 @@ namespace HideezSafe.Modules
         private void OnOpenUrl(string urlKey)
         {
             string url = TranslationSource.Instance[urlKey];
-            messenger.Send(new OpenUrlMessage(url));
+            appHelper.OpenUrl(url);
         }
 
         private MenuItemViewModel GetLaunchOnStartup()
         {
-            MenuItemViewModel vm = GetViewModel("Menu.LaunchOnStartup", x => OnLaunchOnStartup(x as MenuItemViewModel));
+            MenuItemViewModel vm = GetViewModel("Menu.LaunchOnStartup", x => startupHelper.ReverseState());
             vm.IsCheckable = true;
             vm.CommandParameter = vm;
             vm.IsChecked = startupHelper.IsInStartup();
+            // TODO add weak event handler
+            startupHelper.StateChanged += (appName, state) => vm.IsChecked = (state == AutoStartupState.On);
             return vm;
-        }
-
-        private void OnLaunchOnStartup(MenuItemViewModel viewModel)
-        {
-            messenger.Send(new InvertStateAutoStartupMessage());
-            if (viewModel != null)
-                viewModel.IsChecked = startupHelper.IsInStartup();
         }
 
         private MenuItemViewModel GetLenguages()
@@ -96,14 +96,21 @@ namespace HideezSafe.Modules
                     char[] arrName = culture.NativeName.ToCharArray();
                     arrName[0] = Char.ToUpper(arrName[0], culture);
 
-                    var menuItem = GetViewModel(new string(arrName), x =>
+                    var menuItem = new LanguageMenuItemViewModel
                     {
-                        if (x is CultureInfo cultureInfo)
-                            OnApplyLanguage(cultureInfo, menuLenguage);
-                    });
-                    menuItem.IsCheckable = true;
-                    menuItem.IsChecked = culture.Equals(defaultCulture);
-                    menuItem.CommandParameter = culture;
+                        Header = new string(arrName),
+                        IsCheckable = true,
+                        IsChecked = culture.Equals(defaultCulture),
+                        CommandParameter = culture,
+                    };
+                    menuItem.Command = new DelegateCommand
+                    {
+                        CommandAction = x =>
+                        {
+                            if (x is CultureInfo cultureInfo)
+                                OnApplyLanguage(cultureInfo);
+                        }
+                    };
                     menuLenguage.MenuItems.Add(menuItem);
                 }
                 catch (Exception ex)
@@ -116,25 +123,9 @@ namespace HideezSafe.Modules
             return menuLenguage;
         }
 
-        private void OnApplyLanguage(CultureInfo cultureInfo, MenuItemViewModel menuLenguage)
+        private void OnApplyLanguage(CultureInfo cultureInfo)
         {
-            try
-            {
-                messenger.Send(new LanguageChangedMessage(cultureInfo));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-                Debug.Assert(false);
-            }
-
-            foreach (var menu in menuLenguage.MenuItems)
-            {
-                if (menu.IsChecked && !menu.Header.Equals(Settings.Default.Culture.NativeName, StringComparison.OrdinalIgnoreCase))
-                {
-                    menu.IsChecked = false;
-                }
-            }
+            appHelper.ChangeCulture(cultureInfo);
         }
 
         private MenuItemViewModel GetViewModel(string header, Action<object> action)

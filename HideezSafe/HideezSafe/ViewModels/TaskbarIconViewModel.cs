@@ -1,27 +1,47 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.Modules;
 using HideezSafe.Mvvm;
-using HideezSafe.Mvvm.Messages;
 using MvvmExtentions.Commands;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace HideezSafe.ViewModels
 {
-    class TaskbarIconViewModel : ObservableObject
+    /// <summary>
+    /// A ViewModel class for taskbar icon in the MVVM pattern.
+    /// </summary>
+    class TaskbarIconViewModel : LocalizedObject
     {
         private readonly IMenuFactory menuFactory;
-        private readonly IMessenger messenger;
+        private readonly IWindowsManager windowsManager;
 
         #region Property
 
-        private string toolTip = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>().Title;
+        private readonly string appName = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>().Title;
+        private string toolTip;
 
+        /// <summary>
+        ///  A tooltip text that is being displayed.
+        /// </summary>
+        [Localization]
         public string ToolTip
         {
-            get { return toolTip; }
+            get
+            {
+                string info = L(toolTip);
+                return appName + (string.IsNullOrEmpty(info) ? "" : $": {info}");
+            }
             set { Set(ref toolTip, value); }
+        }
+
+        private ImageSource iconSource;
+
+        public ImageSource IconSource
+        {
+            get { return iconSource; }
+            set { Set(ref iconSource, value); }
         }
 
         public ObservableCollection<MenuItemViewModel> MenuItems { get; } = new ObservableCollection<MenuItemViewModel>();
@@ -39,16 +59,17 @@ namespace HideezSafe.ViewModels
             {
                 return new DelegateCommand
                 {
-                    CommandAction = x => messenger.Send(new ActivateWindowMessage()),
+                    CommandAction = x => windowsManager.ActivateMainWindow(),
                 };
             }
         }
 
         #endregion Command
-        public TaskbarIconViewModel(IMenuFactory menuFactory, IMessenger messenger)
+
+        public TaskbarIconViewModel(IMenuFactory menuFactory, IWindowsManager windowsManager)
         {
             this.menuFactory = menuFactory;
-            this.messenger = messenger;
+            this.windowsManager = windowsManager;
 
             InitMenuItems();
         }

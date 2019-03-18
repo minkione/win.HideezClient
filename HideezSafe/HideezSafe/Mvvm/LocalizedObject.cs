@@ -32,7 +32,10 @@ namespace HideezSafe.Mvvm
             return TranslationSource.Instance[key] ?? key;
         }
 
-        public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
+        /// <summary>
+        /// Event handler for localized culture changed.
+        /// </summary>
+        public virtual bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {
             localizeDependencies.ForEach(RaisePropertyChanged);
 

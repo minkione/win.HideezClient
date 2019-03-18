@@ -18,7 +18,6 @@ using MvvmExtentions.EventAggregator;
 using Hardcodet.Wpf.TaskbarNotification;
 using System.Globalization;
 using GalaSoft.MvvmLight.Messaging;
-using HideezSafe.Mvvm.Messages;
 using System.Threading;
 using HideezSafe.Mvvm;
 
@@ -29,7 +28,9 @@ namespace HideezSafe
     /// </summary>
     public partial class App : Application, ISingleInstance
     {
+        private IStartupHelper startupHelper;
         private IMessenger messenger;
+        private IWindowsManager windowsManager;
 
         public static IUnityContainer Container { get; private set; }
 
@@ -50,15 +51,10 @@ namespace HideezSafe
             Thread.CurrentThread.CurrentUICulture = culture;
 
             messenger = Container.Resolve<IMessenger>();
-            Container.Resolve<IAppMessageHandler>();
-            Container.Resolve<ILanguageMessageHandler>();
-            Container.Resolve<IWindowMessageHandler>();
+            Container.Resolve<ITaskbarIconManager>();
 
-            TaskbarIcon taskbarIcon = Container.Resolve<TaskbarIcon>();
-            taskbarIcon.DataContext = Container.Resolve<TaskbarIconViewModel>();
-
-            //IBalloonTipNotifyManager balloonTipNotifyManager = Container.Resolve<IBalloonTipNotifyManager>();
-            //balloonTipNotifyManager.ShowInfo("Info", "Hideez Safe is started");
+            startupHelper = Container.Resolve<IStartupHelper>();
+            windowsManager = Container.Resolve<IWindowsManager>();
 
             if (Settings.Default.FirstLaunch)
             {
@@ -91,7 +87,7 @@ namespace HideezSafe
             // handle command line arguments of second instance
             // ...
 
-            Messenger.Default.Send(new ActivateWindowMessage());
+            windowsManager.ActivateMainWindow();
 
             return true;
         }
@@ -99,7 +95,7 @@ namespace HideezSafe
         private void OnFirstLaunch()
         {
             // add to startup with windows if first start app
-            messenger.Send(new InvertStateAutoStartupMessage());
+            startupHelper.AddToStartup();
         }
 
         private void InitializeDIContainer()
@@ -108,16 +104,17 @@ namespace HideezSafe
 
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
+
+            // Taskbar icon
             Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
             Container.RegisterType<IBalloonTipNotifyManager, BalloonTipNotifyManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IMenuFactory, MenuFactory>(new ContainerControlledLifetimeManager());
             Container.RegisterType<TaskbarIconViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ITaskbarIconManager, TaskbarIconManager>(new ContainerControlledLifetimeManager());
 
             // Messenger
             Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<IAppMessageHandler, AppMessageHandler>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<ILanguageMessageHandler, LanguageMessageHandler>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<IWindowMessageHandler, WindowMessageHandler>(new ContainerControlledLifetimeManager());
         }
 
         private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)

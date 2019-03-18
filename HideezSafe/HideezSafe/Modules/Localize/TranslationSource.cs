@@ -1,38 +1,43 @@
-﻿using GalaSoft.MvvmLight.Helpers;
-using HideezSafe.Resources;
-using HideezSafe.Utilities;
+﻿using HideezSafe.Resources;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Resources;
-using System.Linq;
-using System.Windows;
 
 namespace HideezSafe.Modules
 {
+    /// <summary>
+    /// A class that provide access to resource localized and manage one.
+    /// </summary>
     public class TranslationSource : INotifyPropertyChanged
     {
-        private static readonly TranslationSource instance = new TranslationSource();
         private IReadOnlyList<CultureInfo> supportedCultures;
         private readonly object supportedCulturesLockObj = new object();
+        private readonly ResourceManager resManager = new ResourceManager(typeof(Strings));
+        private CultureInfo currentCulture;
 
         protected TranslationSource()
         {
         }
 
-        public static TranslationSource Instance
-        {
-            get { return instance; }
-        }
+        /// <summary>
+        /// Provide single access to this source
+        /// </summary>
+        public static TranslationSource Instance { get; } = new TranslationSource();
 
-        private readonly ResourceManager resManager = new ResourceManager(typeof(Strings));
-        private CultureInfo currentCulture;
-
+        /// <summary>
+        /// Returns the value of the string resource localized.
+        /// </summary>
+        /// <param name="key">Key to get string from resource localized.</param>
+        /// <returns>Localized string.</returns>
         public string this[string key]
         {
             get { return this.resManager.GetString(key, this.CurrentCulture); }
         }
 
+        /// <summary>
+        /// An object that represents the culture for which the resource is localized.
+        /// </summary>
         public CultureInfo CurrentCulture
         {
             get { return this.currentCulture; }
@@ -50,6 +55,9 @@ namespace HideezSafe.Modules
             }
         }
 
+        /// <summary>
+        /// Return supported cultures for resource localized.
+        /// </summary>
         public IReadOnlyList<CultureInfo> SupportedCultures
         {
             get
@@ -83,6 +91,9 @@ namespace HideezSafe.Modules
             }
         }
 
+        /// <summary>
+        /// Occurs when a property CurrentCulture value changes.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
     }
 }
