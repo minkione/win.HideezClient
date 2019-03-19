@@ -9,9 +9,17 @@ using System.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HideezSafe.Properties;
-using HideezSafe.Utils;
+using HideezSafe.Utilities;
 using SingleInstanceApp;
 using System.Runtime.InteropServices;
+using HideezSafe.ViewModels;
+using HideezSafe.Modules;
+using MvvmExtentions.EventAggregator;
+using Hardcodet.Wpf.TaskbarNotification;
+using System.Globalization;
+using GalaSoft.MvvmLight.Messaging;
+using System.Threading;
+using HideezSafe.Mvvm;
 
 namespace HideezSafe
 {
@@ -21,20 +29,32 @@ namespace HideezSafe
     public partial class App : Application, ISingleInstance
     {
         private IStartupHelper startupHelper;
+        private IMessenger messenger;
+        private IWindowsManager windowsManager;
 
         public static IUnityContainer Container { get; private set; }
 
         public App()
         {
             AppDomain.CurrentDomain.UnhandledException += FatalExceptionHandler;
-            InitializeDIContainer();
         }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            InitializeDIContainer();
+
+            // Init localization
+            CultureInfo culture = Settings.Default.Culture;
+            TranslationSource.Instance.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
+            messenger = Container.Resolve<IMessenger>();
+            Container.Resolve<ITaskbarIconManager>();
 
             startupHelper = Container.Resolve<IStartupHelper>();
+            windowsManager = Container.Resolve<IWindowsManager>();
 
             if (Settings.Default.FirstLaunch)
             {
@@ -67,14 +87,8 @@ namespace HideezSafe
             // handle command line arguments of second instance
             // ...
 
-            if (this.MainWindow.WindowState == WindowState.Minimized)
-            {
-                this.MainWindow.WindowState = WindowState.Normal;
-            }
+            windowsManager.ActivateMainWindow();
 
-            this.MainWindow.Show();
-            this.MainWindow.Activate();
-            
             return true;
         }
 
@@ -89,6 +103,18 @@ namespace HideezSafe
             Container = new UnityContainer();
 
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
+
+            // Taskbar icon
+            Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
+            Container.RegisterType<IBalloonTipNotifyManager, BalloonTipNotifyManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IMenuFactory, MenuFactory>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<TaskbarIconViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ITaskbarIconManager, TaskbarIconManager>(new ContainerControlledLifetimeManager());
+
+            // Messenger
+            Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
         }
 
         private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)
