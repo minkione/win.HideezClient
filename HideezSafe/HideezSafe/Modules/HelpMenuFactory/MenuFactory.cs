@@ -1,4 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
+using HideezSafe.Models.Settings;
+using HideezSafe.Modules.SettingsManager;
 using HideezSafe.Properties;
 using HideezSafe.Utilities;
 using HideezSafe.ViewModels;
@@ -17,14 +19,17 @@ namespace HideezSafe.Modules
         private readonly IStartupHelper startupHelper;
         private readonly IWindowsManager windowsManager;
         private readonly IAppHelper appHelper;
+        private readonly ISettingsManager<ApplicationSettings> settingsManager;
 
         public MenuFactory(IMessenger messenger, IStartupHelper startupHelper
-            , IWindowsManager windowsManager, IAppHelper appHelper)
+            , IWindowsManager windowsManager, IAppHelper appHelper,
+            ISettingsManager<ApplicationSettings> settingsManager)
         {
             this.messenger = messenger;
             this.startupHelper = startupHelper;
             this.windowsManager = windowsManager;
             this.appHelper = appHelper;
+            this.settingsManager = settingsManager;
         }
 
         public MenuItemViewModel GetMenuItem(MenuItemType type)
@@ -56,7 +61,7 @@ namespace HideezSafe.Modules
                 case MenuItemType.Exit:
                     return GetViewModel("Menu.Exit", x => appHelper.Shutdown());
                 case MenuItemType.Lenguage:
-                    return GetLenguages();
+                    return GetLanguages();
                 case MenuItemType.LaunchOnStartup:
                     return GetLaunchOnStartup();
                 case MenuItemType.Separator:
@@ -82,13 +87,13 @@ namespace HideezSafe.Modules
             return vm;
         }
 
-        private MenuItemViewModel GetLenguages()
+        private MenuItemViewModel GetLanguages()
         {
             var menuLenguage = new MenuItemViewModel { Header = "Menu.InterfaceLanguages", };
             menuLenguage.MenuItems = new ObservableCollection<MenuItemViewModel>();
 
             // supported cultures
-            CultureInfo defaultCulture = Settings.Default.Culture;
+            CultureInfo defaultCulture = new CultureInfo(settingsManager.Settings.SelectedUiLanguage);
             foreach (CultureInfo culture in TranslationSource.Instance.SupportedCultures)
             {
                 try

@@ -1,5 +1,7 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
+using HideezSafe.Models.Settings;
 using HideezSafe.Modules;
+using HideezSafe.Modules.SettingsManager;
 using HideezSafe.Properties;
 using System;
 using System.Collections.Generic;
@@ -15,6 +17,13 @@ namespace HideezSafe.Utilities
 {
     class AppHelper : IAppHelper
     {
+        private readonly ISettingsManager<ApplicationSettings> settingsManager;
+
+        public AppHelper(ISettingsManager<ApplicationSettings> settingsManager)
+        {
+            this.settingsManager = settingsManager;
+        }
+
         public void Shutdown()
         {
             Application.Current.Shutdown();
@@ -38,11 +47,11 @@ namespace HideezSafe.Utilities
 
         public void ChangeCulture(CultureInfo newCulture)
         {
-            Settings.Default.Culture = newCulture;
-            Settings.Default.Save();
+            var settings = settingsManager.Settings;
+            settings.SelectedUiLanguage = newCulture.TwoLetterISOLanguageName;
+            settingsManager.SaveSettings(settings);
 
-            TranslationSource.Instance.CurrentCulture = Settings.Default.Culture;
-
+            TranslationSource.Instance.CurrentCulture = newCulture;
             Thread.CurrentThread.CurrentCulture = newCulture;
             Thread.CurrentThread.CurrentUICulture = newCulture;
         }

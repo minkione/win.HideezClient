@@ -42,15 +42,7 @@ namespace HideezSafe
             base.OnStartup(e);
             InitializeDIContainer();
 
-            // Init localization
-            CultureInfo culture = Settings.Default.Culture;
-            TranslationSource.Instance.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
-
-            messenger = Container.Resolve<IMessenger>();
-            Container.Resolve<ITaskbarIconManager>();
-
+            // Init settings
             ApplicationSettings settings = null;
             ISettingsManager<ApplicationSettings> settingsManager = Container.Resolve<ISettingsManager<ApplicationSettings>>();
 
@@ -66,8 +58,11 @@ namespace HideezSafe
                 });
                 task.Wait(); // Block this to ensure that results are usable in next steps of sequence
 
-                Thread.CurrentThread.CurrentCulture = new CultureInfo(settings.SelectedUiLanguage);
-                Thread.CurrentThread.CurrentUICulture = new CultureInfo(settings.SelectedUiLanguage);
+                // Init localization
+                var culture = new CultureInfo(settings.SelectedUiLanguage);
+                TranslationSource.Instance.CurrentCulture = culture;
+                Thread.CurrentThread.CurrentCulture = culture;
+                Thread.CurrentThread.CurrentUICulture = culture;
             }
             catch (Exception exp)
             {
@@ -79,8 +74,8 @@ namespace HideezSafe
                 Console.WriteLine("");
             }
 
-            // Todo: Resolve main window view & viewmodel
-
+            messenger = Container.Resolve<IMessenger>();
+            Container.Resolve<ITaskbarIconManager>();
             startupHelper = Container.Resolve<IStartupHelper>();
             windowsManager = Container.Resolve<IWindowsManager>();
 
