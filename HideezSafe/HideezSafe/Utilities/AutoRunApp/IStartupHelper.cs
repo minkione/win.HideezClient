@@ -1,5 +1,13 @@
-﻿namespace HideezSafe.Utils
+﻿using System;
+
+namespace HideezSafe.Utilities
 {
+    public enum AutoStartupState
+    {
+        On,
+        Off,
+    }
+
     public interface IStartupHelper
     {
         bool AddToStartup();
@@ -9,5 +17,7 @@
         bool IsInStartup(string appName);
         bool RemoveFromStartup();
         bool RemoveFromStartup(string appName);
+        bool ReverseState();
+        event Action<string, AutoStartupState> StateChanged;
     }
 }
