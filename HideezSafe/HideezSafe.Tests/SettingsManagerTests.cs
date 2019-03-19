@@ -9,7 +9,6 @@ using Moq;
 
 namespace HideezSafe.Tests
 {
-    // Todo: Remove duplicate code from arrangement and assertions
     [TestClass]
     public class SettingsManagerTests
     {
@@ -66,6 +65,29 @@ namespace HideezSafe.Tests
             serializerMock.Setup(m => m.Deserialize<TestSettings>(GetAbsoluteFormattedPath())).Returns(GetSerializedSettings());
 
             return serializerMock;
+        }
+
+        // Assert step helpers
+        private void AssertAreAllNotNull(params object[] objects)
+        {
+            for (int i = 0; i < objects.Length; i++)
+            {
+                Assert.IsNotNull(objects[i]);
+            }
+        }
+
+        private void AssertAreAllEqual(bool allowNull, params object[] objects)
+        {
+            if (!allowNull)
+                AssertAreAllNotNull(objects);
+
+            for (int i = 0; i < objects.Length - 1; i++)
+            {
+                for (int j = i + 1; j < objects.Length; j++)
+                {
+                    Assert.AreEqual(objects[i], objects[j]);
+                }
+            }
         }
 
 
@@ -174,11 +196,12 @@ namespace HideezSafe.Tests
             var loadSettingsResult = await settingsManager.LoadSettingsAsync();
 
             // Assert
-            Assert.IsNotNull(settingsManager.Settings);
-            Assert.IsNotNull(loadSettingsResult);
-            Assert.AreEqual(loadSettingsResult, serializedSettings);
-            Assert.AreEqual(loadSettingsResult, settingsManager.Settings);
-            Assert.AreEqual(serializedSettings, settingsManager.Settings);
+            AssertAreAllEqual(false, settingsManager.Settings, loadSettingsResult, serializedSettings);
+            //Assert.IsNotNull(settingsManager.Settings);
+            //Assert.IsNotNull(loadSettingsResult);
+            //Assert.AreEqual(loadSettingsResult, serializedSettings);
+            //Assert.AreEqual(loadSettingsResult, settingsManager.Settings);
+            //Assert.AreEqual(serializedSettings, settingsManager.Settings);
         }
         
         [TestMethod]
@@ -207,12 +230,15 @@ namespace HideezSafe.Tests
             var saveSettingsResult = settingsManager.SaveSettings(GetSerializedSettings());
 
             // Assert
-            Assert.IsNotNull(settingsManager.Settings);
-            Assert.IsNotNull(saveSettingsResult);
+            //Assert.IsNotNull(settingsManager.Settings);
+            //Assert.IsNotNull(saveSettingsResult);
+
             Assert.AreNotEqual(defaultSettings, settingsManager.Settings);
-            Assert.AreEqual(saveSettingsResult, settingsManager.Settings);
-            Assert.AreEqual(saveSettingsResult, serializedSettings);
-            Assert.AreEqual(serializedSettings, settingsManager.Settings);
+
+            AssertAreAllEqual(false, settingsManager.Settings, serializedSettings, saveSettingsResult);
+            //Assert.AreEqual(saveSettingsResult, settingsManager.Settings);
+            //Assert.AreEqual(saveSettingsResult, serializedSettings);
+            //Assert.AreEqual(settingsManager.Settings, serializedSettings);
         }
 
         [TestMethod]
@@ -236,14 +262,18 @@ namespace HideezSafe.Tests
             var saveSettingsResult = settingsManager.SaveSettings(serializedSettings);
 
             // Assert
-            Assert.IsNotNull(settingsManager.Settings);
-            Assert.IsNotNull(saveSettingsResult);
-            Assert.AreEqual(loadSettingsResult, defaultSettings);
+            //Assert.IsNotNull(settingsManager.Settings);
+            //Assert.IsNotNull(saveSettingsResult);
+
+            Assert.AreEqual(defaultSettings, loadSettingsResult);
+
             Assert.AreNotEqual(defaultSettings, settingsManager.Settings);
-            Assert.AreNotEqual(saveSettingsResult, defaultSettings);
-            Assert.AreEqual(saveSettingsResult, settingsManager.Settings);
-            Assert.AreEqual(saveSettingsResult, serializedSettings);
-            Assert.AreEqual(serializedSettings, settingsManager.Settings);
+            Assert.AreNotEqual(defaultSettings, saveSettingsResult);
+
+            AssertAreAllEqual(false, settingsManager.Settings, serializedSettings, saveSettingsResult);
+            //Assert.AreEqual(saveSettingsResult, settingsManager.Settings);
+            //Assert.AreEqual(saveSettingsResult, serializedSettings);
+            //Assert.AreEqual(settingsManager.Settings, serializedSettings);
         }
 
         [TestMethod]
@@ -260,8 +290,11 @@ namespace HideezSafe.Tests
             // Assert
             Assert.IsNotNull(settingsManager.Settings);
             Assert.IsNotNull(loadSettingsResult);
+
             Assert.AreNotEqual(defaultSettings, loadSettingsResult);
+
             Assert.AreEqual(loadSettingsResult, settingsManager.Settings);
+
             Assert.AreNotEqual(defaultSettings, settingsManager.Settings);
         }
 
@@ -279,14 +312,17 @@ namespace HideezSafe.Tests
             var getSettingsResult = await settingsManager.GetSettingsAsync();
 
             // Assert
-            Assert.IsNotNull(settingsManager.Settings);
-            Assert.IsNotNull(getSettingsResult);
+            //Assert.IsNotNull(settingsManager.Settings);
+            //Assert.IsNotNull(getSettingsResult);
+
             Assert.AreNotEqual(defaultSettings, settingsManager.Settings);
             Assert.AreNotEqual(defaultSettings, loadSettingsResult);
             Assert.AreNotEqual(defaultSettings, getSettingsResult);
-            Assert.AreEqual(loadSettingsResult, settingsManager.Settings);
-            Assert.AreEqual(getSettingsResult, settingsManager.Settings);
-            Assert.AreEqual(loadSettingsResult, getSettingsResult);
+
+            AssertAreAllEqual(false, settingsManager.Settings, getSettingsResult, loadSettingsResult);
+            //Assert.AreEqual(getSettingsResult, settingsManager.Settings);
+            //Assert.AreEqual(loadSettingsResult, settingsManager.Settings);
+            //Assert.AreEqual(loadSettingsResult, getSettingsResult);
         }
 
         [TestMethod]
@@ -304,11 +340,13 @@ namespace HideezSafe.Tests
             var loadSettingsResult = await settingsManager.LoadSettingsAsync();
 
             // Assert
-            Assert.IsNotNull(settingsManager.Settings);
-            Assert.IsNotNull(loadSettingsResult);
-            Assert.AreEqual(defaultSettings, settingsManager.Settings);
-            Assert.AreEqual(loadSettingsResult, settingsManager.Settings);
-            Assert.AreEqual(defaultSettings, loadSettingsResult);
+            AssertAreAllEqual(false, defaultSettings, settingsManager.Settings, loadSettingsResult);
+            //Assert.IsNotNull(settingsManager.Settings);
+            //Assert.IsNotNull(loadSettingsResult);
+
+            //Assert.AreEqual(defaultSettings, settingsManager.Settings);
+            //Assert.AreEqual(defaultSettings, loadSettingsResult);
+            //Assert.AreEqual(settingsManager.Settings, loadSettingsResult);
         }
 
         [TestMethod]
@@ -326,11 +364,13 @@ namespace HideezSafe.Tests
             var getSettingsResult = await settingsManager.GetSettingsAsync();
 
             // Assert
-            Assert.IsNotNull(settingsManager.Settings);
-            Assert.IsNotNull(getSettingsResult);
-            Assert.AreEqual(defaultSettings, settingsManager.Settings);
-            Assert.AreEqual(getSettingsResult, settingsManager.Settings);
-            Assert.AreEqual(defaultSettings, getSettingsResult);
+            AssertAreAllEqual(false, defaultSettings, settingsManager.Settings, getSettingsResult);
+            //Assert.IsNotNull(settingsManager.Settings);
+            //Assert.IsNotNull(getSettingsResult);
+
+            //Assert.AreEqual(settingsManager.Settings, getSettingsResult);
+            //Assert.AreEqual(defaultSettings, settingsManager.Settings);
+            //Assert.AreEqual(defaultSettings, getSettingsResult);
         }
 
         [TestMethod]
@@ -365,6 +405,7 @@ namespace HideezSafe.Tests
             // Assert
             Assert.IsNotNull(settingsReference1);
             Assert.IsNotNull(settingsReference2);
+
             Assert.AreNotSame(settingsReference1, settingsReference2);
         }
 
@@ -385,6 +426,7 @@ namespace HideezSafe.Tests
             // Assert
             Assert.IsNotNull(settingsReference1);
             Assert.IsNotNull(settingsReference2);
+
             Assert.AreNotSame(settingsReference1, settingsReference2);
         }
 
