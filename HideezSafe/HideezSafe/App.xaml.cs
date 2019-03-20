@@ -9,12 +9,18 @@ using System.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HideezSafe.Properties;
-using HideezSafe.Utils;
+using HideezSafe.Utilities;
 using SingleInstanceApp;
 using System.Runtime.InteropServices;
 using HideezSafe.Modules;
 using GalaSoft.MvvmLight.Messaging;
 using NLog;
+using HideezSafe.ViewModels;
+using MvvmExtentions.EventAggregator;
+using Hardcodet.Wpf.TaskbarNotification;
+using System.Globalization;
+using System.Threading;
+using HideezSafe.Mvvm;
 
 namespace HideezSafe
 {
@@ -25,6 +31,8 @@ namespace HideezSafe
     {
         public static Logger logger;
         private IStartupHelper startupHelper;
+        private IMessenger messenger;
+        private IWindowsManager windowsManager;
 
         public static IUnityContainer Container { get; private set; }
 
@@ -39,17 +47,27 @@ namespace HideezSafe
             logger.Info("Version: {0}", Environment.Version);
             logger.Info("OS: {0}", Environment.OSVersion);
             logger.Info("Command: {0}", Environment.CommandLine);
-
-            InitializeDIContainer();
         }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
+            InitializeDIContainer();
+
+            // Init localization
+            CultureInfo culture = Settings.Default.Culture;
+            TranslationSource.Instance.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
+            messenger = Container.Resolve<IMessenger>();
+            Container.Resolve<ITaskbarIconManager>();
+
             logger.Info("Resolve DI container");
             startupHelper = Container.Resolve<IStartupHelper>();
             Container.Resolve<IWorkstationManager>();
+            windowsManager = Container.Resolve<IWindowsManager>();
 
             if (Settings.Default.FirstLaunch)
             {
@@ -83,15 +101,9 @@ namespace HideezSafe
             // ...
 
             logger.Info("Handle start of second instance");
+            windowsManager.ActivateMainWindow();
 
-            if (this.MainWindow.WindowState == WindowState.Minimized)
-            {
-                this.MainWindow.WindowState = WindowState.Normal;
-            }
-
-            this.MainWindow.Show();
-            this.MainWindow.Activate();
-
+            
             return true;
         }
 
@@ -114,6 +126,18 @@ namespace HideezSafe
             Container.RegisterInstance<IMessenger>(Messenger.Default, new ContainerControlledLifetimeManager());
 
             logger.Info("Finish initialize DI container");
+            Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
+
+            // Taskbar icon
+            Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
+            Container.RegisterType<IBalloonTipNotifyManager, BalloonTipNotifyManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IMenuFactory, MenuFactory>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<TaskbarIconViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ITaskbarIconManager, TaskbarIconManager>(new ContainerControlledLifetimeManager());
+
+            // Messenger
+            Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
         }
 
         private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)

@@ -14,6 +14,7 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -26,7 +27,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -49,11 +49,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
     <StartupObject>HideezSafe.App</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\Icon\Idle\64x64.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommonServiceLocator, Version=2.0.2.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
@@ -71,6 +75,12 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="Hardcodet.Wpf.TaskbarNotification, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.0.5\lib\net451\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
+    </Reference>
+    <Reference Include="MvvmExtentions, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmExtentions.1.2.0\lib\net452\MvvmExtentions.dll</HintPath>
+    </Reference>
     <Reference Include="SingleInstanceApp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SingleInstanceApp.0.1.0\lib\net45\SingleInstanceApp.dll</HintPath>
     </Reference>
@@ -78,6 +88,8 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
@@ -107,6 +119,9 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="XAMLMarkupExtensions, Version=1.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XAMLMarkupExtensions.1.5.1\lib\net452\XAMLMarkupExtensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Page Include="App.xaml">
@@ -129,10 +144,36 @@
     <Compile Include="Messages\Commands\LockPCCommand.cs" />
     <Compile Include="Modules\WorkstationManager\IWorkstationManager.cs" />
     <Compile Include="Modules\WorkstationManager\WorkstationManager.cs" />
+    <Compile Include="Modules\BalloonNotify\BalloonTipNotifyManager.cs" />
+    <Compile Include="Modules\BalloonNotify\IBalloonTipNotifyManager.cs" />
+    <Compile Include="Modules\HelpMenuFactory\IMenuFactory.cs" />
+    <Compile Include="Modules\HelpMenuFactory\MenuFactory.cs" />
+    <Compile Include="Modules\Localize\LocalizationAttribute.cs" />
+    <Compile Include="Modules\Localize\LocalizationExtension.cs" />
+    <Compile Include="Modules\TaskbarIconManager\IconState.cs" />
+    <Compile Include="Modules\TaskbarIconManager\ITaskbarIconManager.cs" />
+    <Compile Include="Modules\TaskbarIconManager\TaskbarIconDataSource.cs" />
+    <Compile Include="Modules\TaskbarIconManager\TaskbarIconManager.cs" />
+    <Compile Include="Mvvm\LocalizedObject.cs" />
+    <Compile Include="Modules\Localize\TranslationSource.cs" />
+    <Compile Include="Modules\WindowsManager\IWindowsManager.cs" />
+    <Compile Include="Modules\WindowsManager\WindowsManager.cs" />
+    <Compile Include="Mvvm\ObservableObject.cs" />
+    <Compile Include="Resources\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\App\AppHelper.cs" />
+    <Compile Include="Utilities\App\IAppHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\IStartupHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\StartupHelper.cs" />
     <Compile Include="Utilities\Win32Helper.cs" />
     <Compile Include="Version.cs" />
+    <Compile Include="ViewModels\LanguageMenuItemViewModel.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\MenuItemViewModel.cs" />
+    <Compile Include="ViewModels\TaskbarIconViewModel.cs" />
     <Compile Include="Views\MainWindowView.xaml.cs">
       <DependentUpon>MainWindowView.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -156,6 +197,13 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Strings.ru.resx" />
+    <EmbeddedResource Include="Resources\Strings.uk.resx" />
     <None Include="app.manifest" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -181,7 +229,6 @@
     <Folder Include="Converters\" />
     <Folder Include="DataTypes\" />
     <Folder Include="Models\" />
-    <Folder Include="ViewModels\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">
@@ -194,6 +241,31 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icon\Idle\Idle.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icon\Idle\128x128.ico" />
+    <Resource Include="Resources\Icon\Idle\16x16.ico" />
+    <Resource Include="Resources\Icon\Idle\32x32.ico" />
+    <Resource Include="Resources\Icon\Idle\48x48.ico" />
+    <Resource Include="Resources\Icon\Idle\64x64.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icon\Alert\Alert1.ico" />
+    <Resource Include="Resources\Icon\Idle\Idle1.ico" />
+    <Resource Include="Resources\Icon\NoCon\NoCon1.ico" />
+    <Resource Include="Resources\Icon\NoKeyAlert\NoKeyAlert1.ico" />
+    <Resource Include="Resources\Icon\NoKey\NoKey1.ico" />
+    <Resource Include="Resources\Icon\Sync\Sync1.ico" />
+    <Resource Include="Resources\Icon\Sync\Sync2.ico" />
+    <Resource Include="Resources\Icon\Sync\Sync3.ico" />
+    <Resource Include="Resources\Icon\Sync\Sync4.ico" />
+    <Resource Include="Resources\Icon\Sync\Sync5.ico" />
+    <Resource Include="Resources\Icon\Sync\Sync6.ico" />
+    <Resource Include="Resources\Icon\Sync\Sync7.ico" />
+    <Resource Include="Resources\Icon\Sync\Sync8.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
