@@ -1,15 +1,58 @@
-﻿<Window
+﻿<Metro:MetroWindow
     x:Class="HideezSafe.Views.MainWindowView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:controls="clr-namespace:HideezSafe.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:HideezSafe.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:modules="clr-namespace:HideezSafe.Modules"
-    Title="MainWindow"
+    Title="Hideez Safe"
     Width="800"
     Height="450"
-    Visibility="Hidden"
+    Visibility="Visible"
     mc:Ignorable="d">
-    <Grid />
-</Window>
+    <Grid
+        Background="{DynamicResource WindowTitleColorBrush}"
+        Focusable="False"
+        SnapsToDevicePixels="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition
+                x:Name="DeviceTreeColumn"
+                Width="400"
+                MinWidth="280"
+                MaxWidth="400" />
+            <ColumnDefinition Width="2" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80*" />
+            <RowDefinition Height="670*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel
+            Grid.Column="0"
+            Grid.Row="2"
+            Margin="15"
+            VerticalAlignment="Top"
+            Orientation="Horizontal">
+            <controls:StateControl
+                FalseToolTip="No connection to the server"
+                Header="HES"
+                State="False"
+                TrueToolTip="Connected to the server" />
+            <controls:StateControl
+                FalseToolTip="RFID reader disconnected"
+                Header="RFID"
+                State="True"
+                TrueToolTip="RFID reader connected" />
+            <controls:StateControl
+                FalseToolTip="Hideez Dongle disconnected"
+                Header="Dongle"
+                State="True"
+                TrueToolTip="Hideez Dongle connected" />
+        </StackPanel>
+    </Grid>
+</Metro:MetroWindow>
