@@ -2,6 +2,7 @@
 using HideezSafe.Messages;
 using HideezSafe.Utilities;
 using Microsoft.Win32;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +15,8 @@ namespace HideezSafe.Modules
 {
     class WorkstationManager : IWorkstationManager
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         public WorkstationManager(IMessenger messanger)
         {
             // Start listening command messages
@@ -46,8 +49,7 @@ namespace HideezSafe.Modules
             }
             catch (Exception ex)
             {
-                Debug.Assert(false);
-                Debug.WriteLine(ex);
+                logger.Error(ex);
             }
         }
 
@@ -59,8 +61,7 @@ namespace HideezSafe.Modules
             }
             catch (Exception ex)
             {
-                Debug.Assert(false);
-                Debug.WriteLine(ex);
+                logger.Error(ex);
             }
         }
 
