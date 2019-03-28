@@ -72,6 +72,9 @@
     <Reference Include="GalaSoft.MvvmLight.Platform, Version=5.4.1.0, Culture=neutral, PublicKeyToken=5f873c45e98af8a1, processorArchitecture=MSIL">
       <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.Platform.dll</HintPath>
     </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="Hardcodet.Wpf.TaskbarNotification, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.0.5\lib\net451\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
     </Reference>
@@ -82,13 +85,18 @@
       <HintPath>..\packages\SingleInstanceApp.0.1.0\lib\net45\SingleInstanceApp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
@@ -132,6 +140,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Messages\Commands\ForceShutdownCommand.cs" />
+    <Compile Include="Messages\Commands\LockPCCommand.cs" />
+    <Compile Include="Modules\WorkstationManager\IWorkstationManager.cs" />
+    <Compile Include="Modules\WorkstationManager\WorkstationManager.cs" />
     <Compile Include="Modules\BalloonNotify\BalloonTipNotifyManager.cs" />
     <Compile Include="Modules\BalloonNotify\IBalloonTipNotifyManager.cs" />
     <Compile Include="Modules\HelpMenuFactory\IMenuFactory.cs" />
@@ -156,6 +168,7 @@
     <Compile Include="Utilities\App\IAppHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\IStartupHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\StartupHelper.cs" />
+    <Compile Include="Utilities\Win32Helper.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="ViewModels\LanguageMenuItemViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
@@ -192,6 +205,13 @@
     <EmbeddedResource Include="Resources\Strings.ru.resx" />
     <EmbeddedResource Include="Resources\Strings.uk.resx" />
     <None Include="app.manifest" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -209,9 +229,6 @@
     <Folder Include="Converters\" />
     <Folder Include="DataTypes\" />
     <Folder Include="Models\" />
-    <Folder Include="Mvvm\MessagesHandlers\" />
-    <Folder Include="Mvvm\Messages\" />
-    <Folder Include="Utilities\WeakEvents\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">

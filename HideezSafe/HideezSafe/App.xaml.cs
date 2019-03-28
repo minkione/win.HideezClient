@@ -12,12 +12,13 @@ using HideezSafe.Properties;
 using HideezSafe.Utilities;
 using SingleInstanceApp;
 using System.Runtime.InteropServices;
-using HideezSafe.ViewModels;
 using HideezSafe.Modules;
+using GalaSoft.MvvmLight.Messaging;
+using NLog;
+using HideezSafe.ViewModels;
 using MvvmExtentions.EventAggregator;
 using Hardcodet.Wpf.TaskbarNotification;
 using System.Globalization;
-using GalaSoft.MvvmLight.Messaging;
 using System.Threading;
 using HideezSafe.Mvvm;
 
@@ -28,6 +29,7 @@ namespace HideezSafe
     /// </summary>
     public partial class App : Application, ISingleInstance
     {
+        public static Logger logger;
         private IStartupHelper startupHelper;
         private IMessenger messenger;
         private IWindowsManager windowsManager;
@@ -37,11 +39,20 @@ namespace HideezSafe
         public App()
         {
             AppDomain.CurrentDomain.UnhandledException += FatalExceptionHandler;
+
+            // LogManager.DisableLogging();
+            // LogManager.EnableLogging();
+            logger = LogManager.GetCurrentClassLogger();
+
+            logger.Info("Version: {0}", Environment.Version);
+            logger.Info("OS: {0}", Environment.OSVersion);
+            logger.Info("Command: {0}", Environment.CommandLine);
         }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
             InitializeDIContainer();
 
             // Init localization
@@ -53,7 +64,9 @@ namespace HideezSafe
             messenger = Container.Resolve<IMessenger>();
             Container.Resolve<ITaskbarIconManager>();
 
+            logger.Info("Resolve DI container");
             startupHelper = Container.Resolve<IStartupHelper>();
+            Container.Resolve<IWorkstationManager>();
             windowsManager = Container.Resolve<IWindowsManager>();
 
             if (Settings.Default.FirstLaunch)
@@ -87,22 +100,32 @@ namespace HideezSafe
             // handle command line arguments of second instance
             // ...
 
+            logger.Info("Handle start of second instance");
             windowsManager.ActivateMainWindow();
 
+            
             return true;
         }
 
         private void OnFirstLaunch()
         {
+            logger.Info("First launch");
             // add to startup with windows if first start app
-            startupHelper.AddToStartup();
+            bool resalt = startupHelper.AddToStartup();
+            logger.Info("Add app to startup: {0}", resalt);
         }
 
         private void InitializeDIContainer()
         {
             Container = new UnityContainer();
 
+            logger.Info("Start initialize DI container");
+
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IWorkstationManager, WorkstationManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterInstance<IMessenger>(Messenger.Default, new ContainerControlledLifetimeManager());
+
+            logger.Info("Finish initialize DI container");
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
 
@@ -119,8 +142,17 @@ namespace HideezSafe
 
         private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
-            // A simple entry in the event log will suffice for the time being
-            Environment.FailFast("Fatal error occured", e.ExceptionObject as Exception);
+            string message = "Fatal error occured";
+            Exception ex = e.ExceptionObject as Exception;
+
+            try
+            {
+                logger.Fatal(ex, message);
+            }
+            catch
+            {
+                Environment.FailFast(message, ex);
+            }
         }
     }
 }
