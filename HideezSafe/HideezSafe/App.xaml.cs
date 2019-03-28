@@ -16,7 +16,6 @@ using HideezSafe.Modules;
 using GalaSoft.MvvmLight.Messaging;
 using NLog;
 using HideezSafe.ViewModels;
-using MvvmExtentions.EventAggregator;
 using Hardcodet.Wpf.TaskbarNotification;
 using System.Globalization;
 using System.Threading;
