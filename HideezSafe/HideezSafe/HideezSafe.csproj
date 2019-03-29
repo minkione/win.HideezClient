@@ -147,7 +147,6 @@
     </Compile>
     <Compile Include="Messages\Commands\ForceShutdownCommand.cs" />
     <Compile Include="Messages\Commands\LockPCCommand.cs" />
-    <Compile Include="Modules\HelpMenuFactory\DelegateCommand.cs" />
     <Compile Include="Modules\ServiceCallbackMessanger\ServiceCallbackMessanger.cs" />
     <Compile Include="Modules\ServiceProxy\IServiceProxy.cs" />
     <Compile Include="Modules\ServiceProxy\ServiceNotConnectedException.cs" />
