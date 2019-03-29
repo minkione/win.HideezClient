@@ -23,6 +23,7 @@ using HideezSafe.Mvvm;
 using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules.ServiceCallbackMessanger;
+using HideezSafe.Modules.ServiceWatchdog;
 
 namespace HideezSafe
 {
@@ -35,6 +36,7 @@ namespace HideezSafe
         private IStartupHelper startupHelper;
         private IMessenger messenger;
         private IWindowsManager windowsManager;
+        private IServiceWatchdog serviceWatchdog;
 
         public static IUnityContainer Container { get; private set; }
 
@@ -42,8 +44,7 @@ namespace HideezSafe
         {
             AppDomain.CurrentDomain.UnhandledException += FatalExceptionHandler;
 
-            // LogManager.DisableLogging();
-            // LogManager.EnableLogging();
+            LogManager.EnableLogging();
             logger = LogManager.GetCurrentClassLogger();
 
             logger.Info("Version: {0}", Environment.Version);
@@ -70,6 +71,8 @@ namespace HideezSafe
             startupHelper = Container.Resolve<IStartupHelper>();
             Container.Resolve<IWorkstationManager>();
             windowsManager = Container.Resolve<IWindowsManager>();
+            serviceWatchdog = Container.Resolve<IServiceWatchdog>();
+            serviceWatchdog.Start();
 
             if (Settings.Default.FirstLaunch)
             {
@@ -133,6 +136,7 @@ namespace HideezSafe
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IHideezServiceCallback, ServiceCallbackMessanger>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IServiceWatchdog, ServiceWatchdog>(new ContainerControlledLifetimeManager());
 
             // Taskbar icon
             Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());

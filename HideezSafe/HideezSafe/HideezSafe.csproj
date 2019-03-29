@@ -151,6 +151,8 @@
     <Compile Include="Modules\ServiceProxy\IServiceProxy.cs" />
     <Compile Include="Modules\ServiceProxy\ServiceNotConnectedException.cs" />
     <Compile Include="Modules\ServiceProxy\ServiceProxy.cs" />
+    <Compile Include="Modules\ServiceWatchdog\IServiceWatchdog.cs" />
+    <Compile Include="Modules\ServiceWatchdog\ServiceWatchdog.cs" />
     <Compile Include="Modules\WorkstationManager\IWorkstationManager.cs" />
     <Compile Include="Modules\WorkstationManager\WorkstationManager.cs" />
     <Compile Include="Modules\BalloonNotify\BalloonTipNotifyManager.cs" />

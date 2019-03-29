@@ -15,7 +15,7 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        byte[] Ping(byte[] ping);
+        int Ping();
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]

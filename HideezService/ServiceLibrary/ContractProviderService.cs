@@ -17,7 +17,7 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public byte[] Ping(byte[] ping)
+        public int Ping()
         {
             throw new NotImplementedException();
         }

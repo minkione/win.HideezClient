@@ -3,21 +3,23 @@ using System.ServiceModel;
 using System.Threading.Tasks;
 using HideezSafe.HideezServiceReference;
 using NLog;
-using Unity;
 
 namespace HideezSafe.Modules.ServiceProxy
 {
     class ServiceProxy : IServiceProxy, IDisposable
     {
-        private Logger log = LogManager.GetCurrentClassLogger();
+        private readonly Logger log = LogManager.GetCurrentClassLogger();
+        private readonly IHideezServiceCallback callback;
+
         private HideezServiceClient service;
-        private IHideezServiceCallback callback;
 
         public event EventHandler Connected;
         public event EventHandler Disconnected;
 
-        [Dependency]
-        public IHideezServiceCallback Callback { get; private set; }
+        public ServiceProxy(IHideezServiceCallback callback)
+        {
+            this.callback = callback;
+        }
 
         public bool IsConnected
         {
@@ -53,14 +55,28 @@ namespace HideezSafe.Modules.ServiceProxy
 
                 try
                 {
-                    return await service.AttachClientAsync(new ServiceClientParameters()
+                    var attached = await service.AttachClientAsync(new ServiceClientParameters()
                     {
                         ClientType = ClientType.DesktopClient
                     });
+
+                    if (!attached)
+                    {
+                        UnsubscriveFromServiceEvents(service);
+                        CloseServiceConnection(service);
+                        service = null;
+                    }
+
+                    return attached;
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex);
+                    log.Error(ex.Message);
+
+                    UnsubscriveFromServiceEvents(service);
+                    CloseServiceConnection(service);
+                    service = null;
+
                     return false;
                 }
             });
@@ -98,7 +114,7 @@ namespace HideezSafe.Modules.ServiceProxy
             if (service == null)
                 return;
 
-            var clientChannel = (IClientChannel)service;
+            var clientChannel = service.InnerDuplexChannel;
             clientChannel.Opened += Connected;
             clientChannel.Closed += Disconnected;
             clientChannel.Faulted += Disconnected;
@@ -109,7 +125,7 @@ namespace HideezSafe.Modules.ServiceProxy
             if (service == null)
                 return;
 
-            var clientChannel = (IClientChannel)service;
+            var clientChannel = service.InnerDuplexChannel;
             clientChannel.Opened -= Connected;
             clientChannel.Closed -= Disconnected;
             clientChannel.Faulted -= Disconnected;

@@ -150,10 +150,10 @@ namespace HideezSafe.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/Ping", ReplyAction="http://tempuri.org/IHideezService/PingResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/PingHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        byte[] Ping([System.ServiceModel.MessageParameterAttribute(Name="ping")] byte[] ping1);
+        int Ping();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/Ping", ReplyAction="http://tempuri.org/IHideezService/PingResponse")]
-        System.Threading.Tasks.Task<byte[]> PingAsync(byte[] ping);
+        System.Threading.Tasks.Task<int> PingAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/Shutdown", ReplyAction="http://tempuri.org/IHideezService/ShutdownResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/ShutdownHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
@@ -214,12 +214,12 @@ namespace HideezSafe.HideezServiceReference {
             return base.Channel.DetachClientAsync();
         }
         
-        public byte[] Ping(byte[] ping1) {
-            return base.Channel.Ping(ping1);
+        public int Ping() {
+            return base.Channel.Ping();
         }
         
-        public System.Threading.Tasks.Task<byte[]> PingAsync(byte[] ping) {
-            return base.Channel.PingAsync(ping);
+        public System.Threading.Tasks.Task<int> PingAsync() {
+            return base.Channel.PingAsync();
         }
         
         public void Shutdown() {

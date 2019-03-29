@@ -1,5 +1,4 @@
 ﻿using NLog;
-using ServiceLibrary;
 using System;
 using System.ServiceModel;
 
@@ -7,23 +6,37 @@ namespace ServiceLibrary.Implementation
 {
     public class HideezService : IHideezService
     {
-        ServiceClientSessionManager sessionManager;
-        ServiceClientSession user;
+        static Logger log;
+
+        static bool initialized = false;
+        static object initializationLock = new object();
 
         public HideezService()
         {
-            LogManager.EnableLogging();
-
-            sessionManager = new ServiceClientSessionManager();
-            Log = LogManager.GetCurrentClassLogger();
-
-            Log.Info(">>>>>> Service started");
-            Log.Info("CLR Version: {0}", Environment.Version);
-            Log.Info("OS: {0}", Environment.OSVersion);
-            Log.Info("Command: {0}", Environment.CommandLine);
+            lock (initializationLock)
+            {
+                if (!initialized)
+                {
+                    Initialize();
+                    initialized = true;
+                }
+            }
         }
 
-        public static Logger Log { get; private set; }
+        private void Initialize()
+        {
+            LogManager.EnableLogging();
+
+            log = LogManager.GetCurrentClassLogger();
+            log.Info(">>>>>> Starting service");
+
+            log.Info("CLR Version: {0}", Environment.Version);
+            log.Info("OS: {0}", Environment.OSVersion);
+            log.Info("Command: {0}", Environment.CommandLine);
+
+            log.Info(">>>>>> Service started");
+        }
+
 
         #region Utils
         private void ThrowException(Exception ex)
@@ -66,19 +79,19 @@ namespace ServiceLibrary.Implementation
 
         private void Channel_Faulted(object sender, EventArgs e)
         {
-            Log.Debug(">>>>>> Channel_Faulted");
+            log.Debug(">>>>>> Channel_Faulted");
             DetachClient();
         }
 
         private void Channel_Closed(object sender, EventArgs e)
         {
-            Log.Debug(">>>>>> Channel_Closed");
+            log.Debug(">>>>>> Channel_Closed");
             DetachClient();
         }
 
         public bool AttachClient(ServiceClientParameters prm)
         {
-            Log.Debug(">>>>>> AttachClient " + prm.ClientType.ToString());
+            log.Debug(">>>>>> AttachClient " + prm.ClientType.ToString());
 
             OperationContext.Current.Channel.Closed += Channel_Closed;
             OperationContext.Current.Channel.Faulted += Channel_Faulted;
@@ -88,22 +101,17 @@ namespace ServiceLibrary.Implementation
 
         public void DetachClient()
         {
-            Log.Debug(">>>>>> DetachClient ");
-
-            if (user != null)
-            {
-                sessionManager.Remove(user);
-            }
+            log.Debug(">>>>>> DetachClient ");
         }
 
-        public byte[] Ping(byte[] ping)
+        public int Ping()
         {
-            return ping;
+            return 0;
         }
 
         public void Shutdown()
         {
-            Log.Debug(">>>>>> Shutdown service");
+            log.Debug(">>>>>> Shutdown service");
         }
     }
 }
