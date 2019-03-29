@@ -21,6 +21,9 @@ using Hardcodet.Wpf.TaskbarNotification;
 using System.Globalization;
 using System.Threading;
 using HideezSafe.Mvvm;
+using HideezSafe.Modules.ServiceProxy;
+using HideezSafe.HideezServiceReference;
+using HideezSafe.Modules.ServiceCallbackMessanger;
 
 namespace HideezSafe
 {
@@ -125,9 +128,12 @@ namespace HideezSafe
             Container.RegisterType<IWorkstationManager, WorkstationManager>(new ContainerControlledLifetimeManager());
             Container.RegisterInstance<IMessenger>(Messenger.Default, new ContainerControlledLifetimeManager());
 
-            logger.Info("Finish initialize DI container");
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
+
+            // Service
+            Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IHideezServiceCallback, ServiceCallbackMessanger>(new ContainerControlledLifetimeManager());
 
             // Taskbar icon
             Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
@@ -138,6 +144,8 @@ namespace HideezSafe
 
             // Messenger
             Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
+
+            logger.Info("Finish initialize DI container");
         }
 
         private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)

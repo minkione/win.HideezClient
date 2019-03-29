@@ -140,8 +140,18 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Connected Services\HideezServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Messages\Commands\ForceShutdownCommand.cs" />
     <Compile Include="Messages\Commands\LockPCCommand.cs" />
+    <Compile Include="Modules\HelpMenuFactory\DelegateCommand.cs" />
+    <Compile Include="Modules\ServiceCallbackMessanger\ServiceCallbackMessanger.cs" />
+    <Compile Include="Modules\ServiceProxy\IServiceProxy.cs" />
+    <Compile Include="Modules\ServiceProxy\ServiceNotConnectedException.cs" />
+    <Compile Include="Modules\ServiceProxy\ServiceProxy.cs" />
     <Compile Include="Modules\WorkstationManager\IWorkstationManager.cs" />
     <Compile Include="Modules\WorkstationManager\WorkstationManager.cs" />
     <Compile Include="Modules\BalloonNotify\BalloonTipNotifyManager.cs" />
@@ -205,10 +215,26 @@
     <EmbeddedResource Include="Resources\Strings.ru.resx" />
     <EmbeddedResource Include="Resources\Strings.uk.resx" />
     <None Include="app.manifest" />
+    <None Include="Connected Services\HideezServiceReference\configuration91.svcinfo" />
+    <None Include="Connected Services\HideezServiceReference\configuration.svcinfo" />
+    <None Include="Connected Services\HideezServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <Content Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <None Include="Connected Services\HideezServiceReference\service.wsdl" />
+    <None Include="Connected Services\HideezServiceReference\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\HideezServiceReference\service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\HideezServiceReference\ServiceLibrary.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -266,6 +292,12 @@
     <Resource Include="Resources\Icon\Sync\Sync6.ico" />
     <Resource Include="Resources\Icon\Sync\Sync7.ico" />
     <Resource Include="Resources\Icon\Sync\Sync8.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Connected Services\HideezServiceReference\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="ContractProviderService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsp:Policy wsu:Id="NetNamedPipeBinding_IHideezService_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1">
+        </msb:BinaryEncoding>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <msf:WindowsTransportSecurity xmlns:msf="http://schemas.microsoft.com/ws/2006/05/framing/policy">
+                  <msf:ProtectionLevel>EncryptAndSign</msf:ProtectionLevel>
+                </msf:WindowsTransportSecurity>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256>
+                </sp:Basic256>
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict>
+                </sp:Strict>
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+        <wsaw:UsingAddressing>
+        </wsaw:UsingAddressing>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import namespace="http://tempuri.org/" />
+      <xsd:import namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary" />
+      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IHideezService_AttachClient_InputMessage">
+    <wsdl:part name="parameters" element="tns:AttachClient" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_AttachClient_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AttachClientResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_AttachClient_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q1="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q1:HideezServiceFault" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_DetachClient_InputMessage">
+    <wsdl:part name="parameters" element="tns:DetachClient" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_DetachClient_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DetachClientResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_DetachClient_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q2="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q2:HideezServiceFault" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_Ping_InputMessage">
+    <wsdl:part name="parameters" element="tns:Ping" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_Ping_OutputMessage">
+    <wsdl:part name="parameters" element="tns:PingResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_Ping_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q3="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q3:HideezServiceFault" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_Shutdown_InputMessage">
+    <wsdl:part name="parameters" element="tns:Shutdown" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_Shutdown_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ShutdownResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_Shutdown_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q4="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q4:HideezServiceFault" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_LockWorkstationRequest_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:LockWorkstationRequest" />
+  </wsdl:message>
+  <wsdl:portType msc:usingSession="true" name="IHideezService">
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AttachClient">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/AttachClient" message="tns:IHideezService_AttachClient_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/AttachClientResponse" message="tns:IHideezService_AttachClient_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/AttachClientHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_AttachClient_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DetachClient">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/DetachClient" message="tns:IHideezService_DetachClient_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DetachClientResponse" message="tns:IHideezService_DetachClient_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/DetachClientHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_DetachClient_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="Ping">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/Ping" message="tns:IHideezService_Ping_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/PingResponse" message="tns:IHideezService_Ping_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/PingHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_Ping_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="Shutdown">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/Shutdown" message="tns:IHideezService_Shutdown_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ShutdownResponse" message="tns:IHideezService_Shutdown_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/ShutdownHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_Shutdown_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="LockWorkstationRequest">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/LockWorkstationRequest" message="tns:IHideezService_LockWorkstationRequest_OutputCallbackMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="NetNamedPipeBinding_IHideezService" type="tns:IHideezService">
+    <wsp:PolicyReference URI="#NetNamedPipeBinding_IHideezService_policy">
+    </wsp:PolicyReference>
+    <soap12:binding transport="http://schemas.microsoft.com/soap/named-pipe" />
+    <wsdl:operation name="AttachClient">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/AttachClient" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="DetachClient">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/DetachClient" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="Ping">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/Ping" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="Shutdown">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/Shutdown" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="LockWorkstationRequest">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/LockWorkstationRequest" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ContractProviderService">
+    <wsdl:port name="NetNamedPipeBinding_IHideezService" binding="tns:NetNamedPipeBinding_IHideezService">
+      <soap12:address location="net.pipe://localhost/HideezService/" />
+      <wsa10:EndpointReference>
+        <wsa10:Address>net.pipe://localhost/HideezService/</wsa10:Address>
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Dns>localhost</Dns>
+        </Identity>
+      </wsa10:EndpointReference>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
