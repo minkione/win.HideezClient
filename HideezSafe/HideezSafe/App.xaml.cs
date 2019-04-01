@@ -1,15 +1,14 @@
-﻿using Unity;
+﻿using HideezSafe.Models.Settings;
+using HideezSafe.Modules.SettingsManager;
+using HideezSafe.Utilities;
+using Unity;
 using Unity.Lifetime;
 using System;
-using System.Data;
-using System.Linq;
 using System.Windows;
-using System.Diagnostics;
 using System.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HideezSafe.Properties;
-using HideezSafe.Utilities;
 using SingleInstanceApp;
 using System.Runtime.InteropServices;
 using HideezSafe.Modules;
@@ -19,7 +18,8 @@ using HideezSafe.ViewModels;
 using Hardcodet.Wpf.TaskbarNotification;
 using System.Globalization;
 using System.Threading;
-using HideezSafe.Mvvm;
+using System.IO;
+using HideezSafe.Modules.FileSerializer;
 
 namespace HideezSafe
 {
@@ -54,11 +54,37 @@ namespace HideezSafe
 
             InitializeDIContainer();
 
-            // Init localization
-            CultureInfo culture = Settings.Default.Culture;
-            TranslationSource.Instance.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
+            // Init settings
+            ApplicationSettings settings = null;
+            ISettingsManager<ApplicationSettings> settingsManager = Container.Resolve<ISettingsManager<ApplicationSettings>>();
+
+            try
+            {
+                var task = Task.Run(async () => // Off Loading Load Programm Settings to non-UI thread
+                {
+                    var appSettingsDirectory = Path.GetDirectoryName(settingsManager.SettingsFilePath);
+                    if (!Directory.Exists(appSettingsDirectory))
+                        Directory.CreateDirectory(appSettingsDirectory);
+
+                    settings = await settingsManager.LoadSettingsAsync();
+                });
+                task.Wait(); // Block this to ensure that results are usable in next steps of sequence
+
+                // Init localization
+                var culture = new CultureInfo(settings.SelectedUiLanguage);
+                TranslationSource.Instance.CurrentCulture = culture;
+                Thread.CurrentThread.CurrentCulture = culture;
+                Thread.CurrentThread.CurrentUICulture = culture;
+            }
+            catch (Exception exp)
+            {
+                // Todo: log error with logger
+                Console.WriteLine("");
+                Console.WriteLine("Unexpected Error 1 in App.Application_Startup()");
+                Console.WriteLine("   Message:{0}", exp.Message);
+                Console.WriteLine("StackTrace:{0}", exp.StackTrace);
+                Console.WriteLine("");
+            }
 
             messenger = Container.Resolve<IMessenger>();
             Container.Resolve<ITaskbarIconManager>();
@@ -68,12 +94,12 @@ namespace HideezSafe
             Container.Resolve<IWorkstationManager>();
             windowsManager = Container.Resolve<IWindowsManager>();
 
-            if (Settings.Default.FirstLaunch)
+            if (settings.IsFirstLaunch)
             {
                 OnFirstLaunch();
 
-                Settings.Default.FirstLaunch = false;
-                Settings.Default.Save();
+                settings.IsFirstLaunch = false;
+                settingsManager.SaveSettings(settings);
             }
         }
 
@@ -127,6 +153,8 @@ namespace HideezSafe
             logger.Info("Finish initialize DI container");
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IFileSerializer, XmlFileSerializer>();
+            Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
 
             // Taskbar icon
             Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
@@ -137,6 +165,24 @@ namespace HideezSafe
 
             // Messenger
             Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
+        }
+
+        /// <summary>
+        /// Check if configuration file can be opened. File is deleted on error.
+        /// </summary>
+        private void HandleBrokenConfig()
+        {
+            try
+            {
+                ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            }
+            catch (ConfigurationErrorsException ex)
+            {
+                string filename = ex.Filename;
+
+                if (File.Exists(filename))
+                    File.Delete(filename);
+            }
         }
 
         private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)

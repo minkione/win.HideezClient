@@ -140,6 +140,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Settings\BaseSettings.cs" />
+    <Compile Include="Models\Settings\SettingAttribute.cs" />
+    <Compile Include="Modules\FileSerializer\IFileSerializer.cs" />
+    <Compile Include="Modules\FileSerializer\XmlFileSerializer.cs" />
+    <Compile Include="Modules\SettingsManager\ISettingsManager.cs" />
     <Compile Include="Messages\Commands\ForceShutdownCommand.cs" />
     <Compile Include="Messages\Commands\LockPCCommand.cs" />
     <Compile Include="Modules\WorkstationManager\IWorkstationManager.cs" />
@@ -168,6 +173,9 @@
     <Compile Include="Utilities\App\IAppHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\IStartupHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\StartupHelper.cs" />
+    <Compile Include="Models\Settings\ApplicationSettings.cs" />
+    <Compile Include="Modules\SettingsManager\SettingsManager.cs" />
+    <Compile Include="Utilities\Constants.cs" />
     <Compile Include="Utilities\Win32Helper.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="ViewModels\LanguageMenuItemViewModel.cs" />
@@ -229,6 +237,11 @@
     <Folder Include="Converters\" />
     <Folder Include="DataTypes\" />
     <Folder Include="Models\" />
+    <Folder Include="Modules\" />
+    <Folder Include="ViewModels\" />
+    <Folder Include="Mvvm\MessagesHandlers\" />
+    <Folder Include="Mvvm\Messages\" />
+    <Folder Include="Utilities\WeakEvents\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">
