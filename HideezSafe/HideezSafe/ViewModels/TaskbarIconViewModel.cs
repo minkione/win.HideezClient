@@ -1,7 +1,7 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.Modules;
 using HideezSafe.Mvvm;
-using MvvmExtentions.Commands;
+using MvvmExtensions.Commands;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Windows.Input;
