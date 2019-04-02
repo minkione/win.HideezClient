@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -8,6 +9,8 @@ namespace HideezSafe.Modules.FileSerializer
 {
     class XmlFileSerializer : IFileSerializer
     {
+        private readonly Logger log = LogManager.GetCurrentClassLogger();
+
         public T Deserialize<T>(string filePath) where T : new()
         {
             T model = default(T);
@@ -29,7 +32,7 @@ namespace HideezSafe.Modules.FileSerializer
                         }
                         catch (Exception e)
                         {
-                            // Todo: log error with logger
+                            log.Error(e.Message);
                         }
 
                         // Cleanup
@@ -39,7 +42,7 @@ namespace HideezSafe.Modules.FileSerializer
             }
             catch (Exception ex)
             {
-                // Todo: log error with logger
+                log.Error(ex.Message);
             }
 
             return model;

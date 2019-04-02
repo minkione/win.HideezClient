@@ -72,8 +72,15 @@
     <Reference Include="GalaSoft.MvvmLight.Platform, Version=5.4.1.0, Culture=neutral, PublicKeyToken=5f873c45e98af8a1, processorArchitecture=MSIL">
       <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.Platform.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="MvvmExtensions, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SimpleMvvmExtensions.1.2.1\lib\net45\MvvmExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="NHotkey, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NHotkey.1.2.1\lib\net20\NHotkey.dll</HintPath>
+    </Reference>
+    <Reference Include="NHotkey.Wpf, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NHotkey.Wpf.1.2.1\lib\net35\NHotkey.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
@@ -140,10 +147,27 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Messages\HotkeyPressedMessage.cs" />
+    <Compile Include="Messages\HotkeyStateChangedMessage.cs" />
+    <Compile Include="Messages\SettingsChangedMessage.cs" />
     <Compile Include="Models\Settings\BaseSettings.cs" />
+    <Compile Include="Models\Settings\HotkeySettings.cs" />
     <Compile Include="Models\Settings\SettingAttribute.cs" />
+    <Compile Include="Models\UserAction.cs" />
     <Compile Include="Modules\FileSerializer\IFileSerializer.cs" />
     <Compile Include="Modules\FileSerializer\XmlFileSerializer.cs" />
+    <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\Enums and Structs.cs" />
+    <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\Event Args.cs" />
+    <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\Event Handlers.cs" />
+    <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\Exceptions.cs" />
+    <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\Global Shortcut Manager.cs" />
+    <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\Helpers.cs" />
+    <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\HotKeyControl.cs" />
+    <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\HotKeys.cs" />
+    <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\Keys Enum.cs" />
+    <Compile Include="Modules\HotkeyManager\HotkeyManager.cs" />
+    <Compile Include="Modules\HotkeyManager\HotkeyState.cs" />
+    <Compile Include="Modules\HotkeyManager\IHotkeyManager.cs" />
     <Compile Include="Modules\SettingsManager\ISettingsManager.cs" />
     <Compile Include="Messages\Commands\ForceShutdownCommand.cs" />
     <Compile Include="Messages\Commands\LockPCCommand.cs" />
@@ -236,9 +260,6 @@
   <ItemGroup>
     <Folder Include="Converters\" />
     <Folder Include="DataTypes\" />
-    <Folder Include="Models\" />
-    <Folder Include="Modules\" />
-    <Folder Include="ViewModels\" />
     <Folder Include="Mvvm\MessagesHandlers\" />
     <Folder Include="Mvvm\Messages\" />
     <Folder Include="Utilities\WeakEvents\" />

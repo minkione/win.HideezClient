@@ -148,13 +148,14 @@ namespace HideezSafe
 
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IWorkstationManager, WorkstationManager>(new ContainerControlledLifetimeManager());
-            Container.RegisterInstance<IMessenger>(Messenger.Default, new ContainerControlledLifetimeManager());
-
+            Container.RegisterInstance(Messenger.Default, new ContainerControlledLifetimeManager());
             logger.Info("Finish initialize DI container");
+
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
             Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ISettingsManager<HotkeySettings>, SettingsManager<HotkeySettings>>(new ContainerControlledLifetimeManager());
 
             // Taskbar icon
             Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
