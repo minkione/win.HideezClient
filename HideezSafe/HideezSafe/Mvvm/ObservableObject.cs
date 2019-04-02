@@ -8,7 +8,7 @@ namespace HideezSafe.Mvvm
     /// <summary>
     /// A base class for objects that notify clients that a property value has changed.
     /// </summary>
-    class ObservableObject : PropertyChangedImplementation
+    public class ObservableObject : PropertyChangedImplementation
     {
         /// <summary>
         /// Assigns a new value to the property. Then, raises the PropertyChanged event if needed. 

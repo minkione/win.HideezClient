@@ -1,6 +1,6 @@
 ﻿using System.Windows.Data;
 
-namespace HideezSafe.Modules
+namespace HideezSafe.Modules.Localize
 {
     /// <summary>
     /// Binding localization key to resource localized.

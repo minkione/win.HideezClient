@@ -117,6 +117,39 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Button.Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Button.ChangePassword" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="Button.ComputerLocker" xml:space="preserve">
+    <value>Computer Locker</value>
+  </data>
+  <data name="Button.Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="Button.LockDistance" xml:space="preserve">
+    <value>Lock/unlock distance Bluetooth</value>
+  </data>
+  <data name="Button.Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Button.Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="DeviceType.Key" xml:space="preserve">
+    <value>Hideez key</value>
+  </data>
+  <data name="Dialog.ChangePass.Info" xml:space="preserve">
+    <value>The new password must be the same as your current system password</value>
+  </data>
+  <data name="Dialog.ChangePass.New" xml:space="preserve">
+    <value>New Pass</value>
+  </data>
+  <data name="Expander.NoDevice" xml:space="preserve">
+    <value>No connected device</value>
+  </data>
   <data name="Icon.DeviceNotConnected" xml:space="preserve">
     <value>Device is not connected</value>
   </data>
@@ -132,6 +165,27 @@ Device is not connected</value>
   </data>
   <data name="Icon.SynchronizationInProgress" xml:space="preserve">
     <value>Synchronization in progress</value>
+  </data>
+  <data name="LockPage.Description" xml:space="preserve">
+    <value>Lock and unlock the computer with a key or phone.                  Watch the video</value>
+  </data>
+  <data name="LockPage.Header" xml:space="preserve">
+    <value>Control your computer from anywhere</value>
+  </data>
+  <data name="LockPage.PasswordInfo" xml:space="preserve">
+    <value>Type your password for login into the system</value>
+  </data>
+  <data name="LockPage.PasswordLabel" xml:space="preserve">
+    <value>Password from PC</value>
+  </data>
+  <data name="LockSettingsPage.OneMeter" xml:space="preserve">
+    <value>1 meter</value>
+  </data>
+  <data name="LockSettingsPage.TenMeters" xml:space="preserve">
+    <value>10 meters</value>
+  </data>
+  <data name="LockSettingsPage.UnlockDistans" xml:space="preserve">
+    <value>Unlock distance: </value>
   </data>
   <data name="Menu.AddDevice" xml:space="preserve">
     <value>Add new device ...</value>
@@ -175,10 +229,40 @@ Device is not connected</value>
   <data name="Menu.VideoTutorial" xml:space="preserve">
     <value>Video tutorial</value>
   </data>
+  <data name="Status.Dongle" xml:space="preserve">
+    <value>Dongle</value>
+  </data>
+  <data name="Status.HES" xml:space="preserve">
+    <value>HES</value>
+  </data>
+  <data name="Status.RFID" xml:space="preserve">
+    <value>RFID</value>
+  </data>
+  <data name="Status.Tooltip.ConectedDongle" xml:space="preserve">
+    <value>Hideez Dongle connected</value>
+  </data>
+  <data name="Status.Tooltip.ConectedHES" xml:space="preserve">
+    <value>Connected to the server</value>
+  </data>
+  <data name="Status.Tooltip.ConectedRFID" xml:space="preserve">
+    <value>RFID reader connected</value>
+  </data>
+  <data name="Status.Tooltip.DisconectedDongle" xml:space="preserve">
+    <value>Hideez Dongle disconnected</value>
+  </data>
+  <data name="Status.Tooltip.DisconectedHES" xml:space="preserve">
+    <value>No connection to the server</value>
+  </data>
+  <data name="Status.Tooltip.DisconectedRFID" xml:space="preserve">
+    <value>RFID reader disconnected</value>
+  </data>
   <data name="Url.Legal" xml:space="preserve">
     <value>https://hideez.com/404</value>
   </data>
   <data name="Url.LiveChat" xml:space="preserve">
+    <value>https://hideez.com/404</value>
+  </data>
+  <data name="Url.LockVideoTutorial" xml:space="preserve">
     <value>https://hideez.com/404</value>
   </data>
   <data name="Url.RFIDUsage" xml:space="preserve">

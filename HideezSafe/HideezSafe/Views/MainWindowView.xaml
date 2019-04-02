@@ -5,54 +5,152 @@
     xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:controls="clr-namespace:HideezSafe.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:l="clr-namespace:HideezSafe.Modules.Localize"
     xmlns:local="clr-namespace:HideezSafe.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:modules="clr-namespace:HideezSafe.Modules"
+    xmlns:pagesview="clr-namespace:HideezSafe.PagesView"
     Title="Hideez Safe"
-    Width="800"
-    Height="450"
+    Width="1075"
+    Height="770"
+    MinWidth="1020"
+    MinHeight="700"
+    MaxWidth="1280"
+    MaxHeight="770"
+    Background="#F4FEFF"
+    DataContext="{Binding Main, Mode=OneWay, Source={StaticResource Locator}}"
+    FontFamily="{DynamicResource FontFamily}"
+    TitleCharacterCasing="Normal"
     Visibility="Visible"
+    WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     mc:Ignorable="d">
-    <Grid
-        Background="{DynamicResource WindowTitleColorBrush}"
-        Focusable="False"
-        SnapsToDevicePixels="True">
+
+    <Grid Focusable="False" SnapsToDevicePixels="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition
                 x:Name="DeviceTreeColumn"
-                Width="400"
+                Width="300"
                 MinWidth="280"
                 MaxWidth="400" />
-            <ColumnDefinition Width="2" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="80*" />
-            <RowDefinition Height="670*" />
-        </Grid.RowDefinitions>
+        <Grid Background="{DynamicResource WindowLeftColumBrush}">
 
-        <StackPanel
-            Grid.Column="0"
-            Grid.Row="2"
-            Margin="15"
-            VerticalAlignment="Top"
-            Orientation="Horizontal">
-            <controls:StateControl
-                FalseToolTip="No connection to the server"
-                Header="HES"
-                State="False"
-                TrueToolTip="Connected to the server" />
-            <controls:StateControl
-                FalseToolTip="RFID reader disconnected"
-                Header="RFID"
-                State="True"
-                TrueToolTip="RFID reader connected" />
-            <controls:StateControl
-                FalseToolTip="Hideez Dongle disconnected"
-                Header="Dongle"
-                State="True"
-                TrueToolTip="Hideez Dongle connected" />
-        </StackPanel>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <controls:DevicesExpander
+                VerticalAlignment="Top"
+                CurrentDevice="{Binding CurrentDevice}"
+                NoConnectedDebiceText="{l:Localization Expander.NoDevice}">
+                <controls:DevicesExpander.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Offset="0" Color="#0022446D" />
+                        <GradientStop Offset="1" Color="#5C22446D" />
+                    </LinearGradientBrush>
+                </controls:DevicesExpander.Background>
+            </controls:DevicesExpander>
+
+            <ItemsControl
+                Grid.Row="1"
+                Margin="-5,24,0,0"
+                Padding="0"
+                HorizontalAlignment="Center"
+                Focusable="False"
+                ItemsSource="{Binding StateControls}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <controls:StateControl
+                            Margin="5,0,0,0"
+                            FalseToolTip="{Binding FalseToolTip}"
+                            Header="{Binding Header}"
+                            State="{Binding Status}"
+                            TrueToolTip="{Binding TrueToolTip}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ToggleButton
+                Grid.Row="2"
+                Width="250"
+                Margin="0,24,0,24"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Background="Transparent"
+                Click="ToggleButton_Click"
+                ClipToBounds="True"
+                Command="{Binding ShowLokerCommand}"
+                CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
+                Content="{l:Localization Button.ComputerLocker}"
+                FocusVisualStyle="{x:Null}"
+                FontSize="14"
+                FontWeight="Light">
+                <ToggleButton.Template>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Grid Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Border
+                                Background="{DynamicResource NavyBlueBrush}"
+                                ClipToBounds="True"
+                                CornerRadius="4,0,0,4">
+                                <Border
+                                    x:Name="iconRect"
+                                    Background="{DynamicResource PinkBrush}"
+                                    ClipToBounds="True"
+                                    CornerRadius="4,0,0,4"
+                                    Opacity="0.5" />
+                            </Border>
+                            <iconPacks:PackIconFontAwesome
+                                Width="23"
+                                Height="18"
+                                Margin="15"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Kind="LaptopSolid" />
+                            <Border
+                                x:Name="textRect"
+                                Grid.Column="1"
+                                Background="{DynamicResource PinkBrush}"
+                                CornerRadius="0,4,4,0" />
+                            <ContentControl
+                                Grid.Column="1"
+                                Margin="20,5"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Content="{TemplateBinding Content}" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="textRect" Property="Background" Value="{DynamicResource NavyBlueBrush}" />
+                                <Setter TargetName="iconRect" Property="Background" Value="#0E3059" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </ToggleButton.Template>
+            </ToggleButton>
+        </Grid>
+
+        <!--  page content  -->
+        <Frame
+            Name="MainAPpFrame"
+            Grid.Column="1"
+            BorderThickness="0"
+            Focusable="False"
+            NavigationUIVisibility="Hidden"
+            Source="{Binding Path=DisplayPage, Mode=TwoWay}" />
+
     </Grid>
 </Metro:MetroWindow>

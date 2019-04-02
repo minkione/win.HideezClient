@@ -20,6 +20,7 @@ using System.Globalization;
 using GalaSoft.MvvmLight.Messaging;
 using System.Threading;
 using HideezSafe.Mvvm;
+using HideezSafe.Modules.Localize;
 
 namespace HideezSafe
 {
@@ -105,6 +106,7 @@ namespace HideezSafe
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
 
             // Taskbar icon
             Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());

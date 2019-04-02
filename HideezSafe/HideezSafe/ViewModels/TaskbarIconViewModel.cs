@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.Modules;
+using HideezSafe.Modules.Localize;
 using HideezSafe.Mvvm;
 using MvvmExtentions.Commands;
 using System.Collections.ObjectModel;
@@ -78,22 +79,22 @@ namespace HideezSafe.ViewModels
         {
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.ShowWindow));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.AddDevice));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.ChangePassword));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Lenguage));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.CheckForUpdates));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.LaunchOnStartup));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.UserManual));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.AddDevice));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.ChangePassword));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Lenguage));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.CheckForUpdates));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.LaunchOnStartup));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.UserManual));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.TechnicalSupport));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.LiveChat));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Legal));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.RFIDUsage));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.VideoTutorial));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.VideoTutorial));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.LogOff));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.LogOff));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Exit));
         }
     }

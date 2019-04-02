@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
+using HideezSafe.Modules.Localize;
 using HideezSafe.Properties;
 using HideezSafe.Utilities;
 using HideezSafe.ViewModels;

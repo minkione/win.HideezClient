@@ -117,6 +117,76 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Button.Cancel" xml:space="preserve">
+    <value>Отменить</value>
+  </data>
+  <data name="Button.ChangePassword" xml:space="preserve">
+    <value>Изменить пароль</value>
+  </data>
+  <data name="Button.ComputerLocker" xml:space="preserve">
+    <value>Блокировщик ПК</value>
+  </data>
+  <data name="Button.Done" xml:space="preserve">
+    <value>Готово</value>
+  </data>
+  <data name="Button.LockDistance" xml:space="preserve">
+    <value>Блокировки/разблокировки Bluetooth</value>
+  </data>
+  <data name="Button.Next" xml:space="preserve">
+    <value>Дальше</value>
+  </data>
+  <data name="Button.Save" xml:space="preserve">
+    <value>Сохранить</value>
+  </data>
+  <data name="DeviceType.Key" xml:space="preserve">
+    <value>Hideez key</value>
+  </data>
+  <data name="Dialog.ChangePass.Info" xml:space="preserve">
+    <value>Новый пароль должен совпадать с вашим текущим системным паролем.</value>
+  </data>
+  <data name="Dialog.ChangePass.New" xml:space="preserve">
+    <value>Новый пароль</value>
+  </data>
+  <data name="Expander.NoDevice" xml:space="preserve">
+    <value>Нет подключенного устройства</value>
+  </data>
+  <data name="Icon.DeviceNotConnected" xml:space="preserve">
+    <value>Устройство не подключено</value>
+  </data>
+  <data name="Icon.FailedConnectHideezService" xml:space="preserve">
+    <value>Не удается подключиться к сервису Hideez</value>
+  </data>
+  <data name="Icon.NewNotificationsAvailable" xml:space="preserve">
+    <value>Доступны новые уведомления</value>
+  </data>
+  <data name="Icon.NoKeyConnectionAlert" xml:space="preserve">
+    <value>Доступны новые уведомления
+Устройство не подключено</value>
+  </data>
+  <data name="Icon.SynchronizationInProgress" xml:space="preserve">
+    <value>Идет синхронизация</value>
+  </data>
+  <data name="LockPage.Description" xml:space="preserve">
+    <value>Блокировка и разблокировка компьютера с помощью ключа или телефона. Смотреть видео</value>
+  </data>
+  <data name="LockPage.Header" xml:space="preserve">
+    <value>Управляйте своим компьютером из любого места</value>
+  </data>
+  <data name="LockPage.PasswordInfo" xml:space="preserve">
+    <value>Введите свой пароль для входа в систему</value>
+  </data>
+  <data name="LockPage.PasswordLabel" xml:space="preserve">
+    <value>Пароль от ПК</value>
+  </data>
+  <data name="LockSettingsPage.OneMeter" xml:space="preserve">
+    <value>1 метр</value>
+  </data>
+  <data name="LockSettingsPage.TenMeters" xml:space="preserve">
+    <value>10 метров</value>
+  </data>
+  <data name="LockSettingsPage.UnlockDistans" xml:space="preserve">
+    <value>Расстояние разблокировки: </value>
+  </data>
   <data name="Menu.AddDevice" xml:space="preserve">
     <value>Добавить новое устройство ...</value>
   </data>
@@ -158,5 +228,50 @@
   </data>
   <data name="Menu.VideoTutorial" xml:space="preserve">
     <value>Видео инструкция</value>
+  </data>
+  <data name="Status.Dongle" xml:space="preserve">
+    <value>Dongle</value>
+  </data>
+  <data name="Status.HES" xml:space="preserve">
+    <value>HES</value>
+  </data>
+  <data name="Status.RFID" xml:space="preserve">
+    <value>RFID</value>
+  </data>
+  <data name="Status.Tooltip.ConectedDongle" xml:space="preserve">
+    <value>Hideez Dongle подключен</value>
+  </data>
+  <data name="Status.Tooltip.ConectedHES" xml:space="preserve">
+    <value>Подключен к серверу</value>
+  </data>
+  <data name="Status.Tooltip.ConectedRFID" xml:space="preserve">
+    <value>RFID считыватель подключен</value>
+  </data>
+  <data name="Status.Tooltip.DisconectedDongle" xml:space="preserve">
+    <value>Hideez Dongle отключен</value>
+  </data>
+  <data name="Status.Tooltip.DisconectedHES" xml:space="preserve">
+    <value>Нет подключения к серверу</value>
+  </data>
+  <data name="Status.Tooltip.DisconectedRFID" xml:space="preserve">
+    <value>RFID-ридер отключен</value>
+  </data>
+  <data name="Url.Legal" xml:space="preserve">
+    <value>https://hideez.com/404</value>
+  </data>
+  <data name="Url.LiveChat" xml:space="preserve">
+    <value>https://hideez.com/404</value>
+  </data>
+  <data name="Url.LockVideoTutorial" xml:space="preserve">
+    <value>https://hideez.com/404</value>
+  </data>
+  <data name="Url.RFIDUsage" xml:space="preserve">
+    <value>https://hideez.com/404</value>
+  </data>
+  <data name="Url.UserManual" xml:space="preserve">
+    <value>https://hideez.com/404</value>
+  </data>
+  <data name="Url.VideoTutorial" xml:space="preserve">
+    <value>https://hideez.com/404</value>
   </data>
 </root>
