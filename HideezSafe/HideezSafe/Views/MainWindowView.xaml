@@ -44,10 +44,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <controls:DevicesExpander
-                VerticalAlignment="Top"
-                CurrentDevice="{Binding CurrentDevice}"
-                NoConnectedDebiceText="{l:Localization Expander.NoDevice}">
+            <controls:DevicesExpander VerticalAlignment="Top">
                 <controls:DevicesExpander.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                         <GradientStop Offset="0" Color="#0022446D" />
@@ -72,10 +69,10 @@
                     <DataTemplate>
                         <controls:StateControl
                             Margin="5,0,0,0"
-                            FalseToolTip="{Binding FalseToolTip}"
+                            HasConnectionText="{Binding TrueToolTip}"
                             Header="{Binding Header}"
-                            State="{Binding Status}"
-                            TrueToolTip="{Binding TrueToolTip}" />
+                            NoConnectionText="{Binding FalseToolTip}"
+                            State="{Binding Status}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

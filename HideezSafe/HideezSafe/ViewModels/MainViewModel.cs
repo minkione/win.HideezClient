@@ -16,34 +16,14 @@ namespace HideezSafe.ViewModels
 {
     class MainViewModel : ObservableObject
     {
-        public MainViewModel()
-        {
-#if DEBUG
-            StateControls.Add(new StatusControlViewModel { Status = false, Header = "Status.HES", FalseToolTip = "Status.Tooltip.DisconectedHES", TrueToolTip = "Status.Tooltip.ConectedHES" });
-            StateControls.Add(new StatusControlViewModel { Status = true, Header = "Status.RFID", FalseToolTip = "Status.Tooltip.DisconectedRFID", TrueToolTip = "Status.Tooltip.ConectedRFID" });
-            StateControls.Add(new StatusControlViewModel { Status = true, Header = "Status.Dongle", FalseToolTip = "Status.Tooltip.DisconectedDongle", TrueToolTip = "Status.Tooltip.ConectedDongle" });
-
-            currentDevice = new DeviceViewModel("DeviceType.Key", "HedeezKeySimpleIMG", "8989");
-#endif
-        }
-
         #region Properties
 
         private Uri displayPage;
-        private DeviceViewModel currentDevice;
-
-        public IList<StatusControlViewModel> StateControls { get; } = new List<StatusControlViewModel>();
 
         public Uri DisplayPage
         {
             get { return displayPage; }
             set { Set(ref displayPage, value); }
-        }
-
-        public DeviceViewModel CurrentDevice
-        {
-            get { return currentDevice; }
-            set { Set(ref currentDevice, value); }
         }
 
         #endregion Properties

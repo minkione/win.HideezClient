@@ -21,7 +21,22 @@ namespace HideezSafe.ViewModels
 
         #region Property
 
+        private bool isConnected;
+        private int proximity;
+
         public string IcoKey { get; }
+
+        public bool IsConnected
+        {
+            get { return isConnected; }
+            set { Set(ref isConnected, value); }
+        }
+
+        public int Proximity
+        {
+            get { return proximity; }
+            set { Set(ref proximity, value); }
+        }
 
         #region Text
 

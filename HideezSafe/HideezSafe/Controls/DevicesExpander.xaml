@@ -4,6 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="clr-namespace:HideezSafe.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:l="clr-namespace:HideezSafe.Modules.Localize"
     xmlns:local="clr-namespace:HideezSafe.Controls"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -11,17 +13,44 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
+    <UserControl.DataContext>
+        <Binding
+            Mode="OneWay"
+            Path="DevicesExpander"
+            Source="{StaticResource Locator}" />
+    </UserControl.DataContext>
     <UserControl.Resources>
-        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:ProximityToOpacityConverter x:Key="ProximityToOpacityConverter" />
+        <converters:BooleanToVisibilityCollapsedConverter x:Key="BooleanToVisibilityCollapsedConverter" />
+        <converters:StringToResource x:Key="StringToResource" />
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <converters:NullToVisibilityCollapsedConverter x:Key="NullToVisibilityCollapsedConverter" />
     </UserControl.Resources>
 
-    <Grid>
+    <Grid Margin="16">
         <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Border Padding="16">
+        <TextBlock
+            Margin="0,0,0,16"
+            FontSize="18"
+            Text="{Binding OwnerName}" />
+
+        <TextBlock
+            Grid.Row="1"
+            FontSize="18"
+            Text="{l:Localization Expander.NoDevice}"
+            Visibility="{Binding CurrentDevice, Converter={StaticResource NullToVisibilityCollapsedConverter}}" />
+
+        <Border
+            Grid.Row="1"
+            DataContext="{Binding CurrentDevice}"
+            Visibility="{Binding Converter={StaticResource NullToVisibilityConverter}}">
+
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -41,26 +70,60 @@
                         x:Name="deviceIco"
                         Width="12"
                         Height="12"
-                        VerticalAlignment="Center" />
+                        VerticalAlignment="Center"
+                        Content="{Binding IcoKey, Converter={StaticResource StringToResource}}" />
                     <TextBlock
                         x:Name="deviceType"
                         Margin="5,0,0,0"
-                        VerticalAlignment="Center" />
+                        VerticalAlignment="Center"
+                        Text="{Binding TypeName}" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Orientation="Horizontal">
                     <TextBlock
                         x:Name="deviceName"
                         VerticalAlignment="Stretch"
-                        FontSize="18" />
-                    <ContentPresenter
+                        FontSize="18"
+                        Text="{Binding Name}" />
+                    <Grid
                         x:Name="connectionQuality"
+                        Grid.Row="1"
+                        Grid.Column="4"
+                        Width="24"
+                        Margin="8,0,0,0"
+                        Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Viewbox
+                            Width="Auto"
+                            Height="Auto"
+                            SnapsToDevicePixels="True">
+                            <Canvas Width="24.000" Height="24.000">
+                                <Path
+                                    Data="F1 M 5.000,16.000 L 7.000,16.000 L 7.000,20.000 L 5.000,20.000 L 5.000,16.000 Z"
+                                    Fill="#ffffffff"
+                                    Opacity="{Binding Proximity, Converter={StaticResource ProximityToOpacityConverter}, ConverterParameter=20}" />
+                                <Path
+                                    Data="F1 M 9.000,12.000 L 11.000,12.000 L 11.000,20.000 L 9.000,20.000 L 9.000,12.000 Z"
+                                    Fill="#ffffffff"
+                                    Opacity="{Binding Proximity, Converter={StaticResource ProximityToOpacityConverter}, ConverterParameter=40}" />
+                                <Path
+                                    Data="F1 M 13.000,8.000 L 15.000,8.000 L 15.000,20.000 L 13.000,20.000 L 13.000,8.000 Z"
+                                    Fill="#ffffffff"
+                                    Opacity="{Binding Proximity, Converter={StaticResource ProximityToOpacityConverter}, ConverterParameter=60}" />
+                                <Path
+                                    Data="F1 M 17.000,4.000 L 19.000,4.000 L 19.000,20.000 L 17.000,20.000 L 17.000,4.000 Z"
+                                    Fill="#ffffffff"
+                                    Opacity="{Binding Proximity, Converter={StaticResource ProximityToOpacityConverter}, ConverterParameter=80}" />
+                            </Canvas>
+                        </Viewbox>
+                    </Grid>
+                    <iconPacks:PackIconModern
+                        x:Name="noConnectionIco"
                         Width="18"
-                        Height="14"
                         Margin="8,0,0,0"
                         VerticalAlignment="Stretch"
-                        Content="{DynamicResource ConnectionQualityIMG}"
-                        Visibility="Collapsed" />
+                        Foreground="{DynamicResource DisconnectedBrush}"
+                        Kind="Connect"
+                        Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
                 </StackPanel>
 
                 <ToggleButton
@@ -91,6 +154,6 @@
                 </ToggleButton>
             </Grid>
         </Border>
-        <Grid Grid.Row="1" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibility}, ElementName=toggleButton}" />
+        <Grid Grid.Row="2" Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=toggleButton}" />
     </Grid>
 </UserControl>

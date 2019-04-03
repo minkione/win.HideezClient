@@ -148,7 +148,7 @@
     <value>Новий пароль</value>
   </data>
   <data name="Expander.NoDevice" xml:space="preserve">
-    <value>Немає підключеного пристрою</value>
+    <value>Немає пристрою</value>
   </data>
   <data name="Icon.DeviceNotConnected" xml:space="preserve">
     <value>Пристрій не підключено</value>
@@ -238,6 +238,9 @@
   <data name="Status.RFID" xml:space="preserve">
     <value>RFID</value>
   </data>
+  <data name="Status.Service" xml:space="preserve">
+    <value>Service</value>
+  </data>
   <data name="Status.Tooltip.ConectedDongle" xml:space="preserve">
     <value>Hideez Dongle з'єднаний</value>
   </data>
@@ -247,6 +250,9 @@
   <data name="Status.Tooltip.ConectedRFID" xml:space="preserve">
     <value>Зчитувач RFID підключений</value>
   </data>
+  <data name="Status.Tooltip.ConectedService" xml:space="preserve">
+    <value>Підключено до сервісу</value>
+  </data>
   <data name="Status.Tooltip.DisconectedDongle" xml:space="preserve">
     <value>Hideez Dongle відключений</value>
   </data>
@@ -255,6 +261,9 @@
   </data>
   <data name="Status.Tooltip.DisconectedRFID" xml:space="preserve">
     <value>Зчитувач RFID відключений</value>
+  </data>
+  <data name="Status.Tooltip.DisconectedService" xml:space="preserve">
+    <value>Немає підключення до сервісу</value>
   </data>
   <data name="Url.Legal" xml:space="preserve">
     <value>https://hideez.com/404</value>

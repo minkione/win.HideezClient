@@ -17,11 +17,11 @@ using System.Windows.Shapes;
 namespace HideezSafe.Controls
 {
     /// <summary>
-    /// Interaction logic for DevicesExpander.xaml
+    /// Interaction logic for ConnectivityIndicators.xaml
     /// </summary>
-    public partial class DevicesExpander : UserControl
+    public partial class ConnectivityIndicators : UserControl
     {
-        public DevicesExpander()
+        public ConnectivityIndicators()
         {
             InitializeComponent();
         }

@@ -39,5 +39,7 @@
     <SolidColorBrush x:Key="SliderBlueBrush" Color="#251BA2DC" />
 
     <SolidColorBrush x:Key="GrayBrush" Color="{StaticResource Gray}" />
-    
+
+    <SolidColorBrush x:Key="ConnectedBrush" Color="Green" />
+    <SolidColorBrush x:Key="DisconnectedBrush" Color="Red" />
 </ResourceDictionary>

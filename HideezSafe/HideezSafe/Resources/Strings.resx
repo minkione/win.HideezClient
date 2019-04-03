@@ -148,7 +148,7 @@
     <value>New Pass</value>
   </data>
   <data name="Expander.NoDevice" xml:space="preserve">
-    <value>No connected device</value>
+    <value>No device</value>
   </data>
   <data name="Icon.DeviceNotConnected" xml:space="preserve">
     <value>Device is not connected</value>
@@ -238,6 +238,9 @@ Device is not connected</value>
   <data name="Status.RFID" xml:space="preserve">
     <value>RFID</value>
   </data>
+  <data name="Status.Service" xml:space="preserve">
+    <value>Service</value>
+  </data>
   <data name="Status.Tooltip.ConectedDongle" xml:space="preserve">
     <value>Hideez Dongle connected</value>
   </data>
@@ -247,6 +250,9 @@ Device is not connected</value>
   <data name="Status.Tooltip.ConectedRFID" xml:space="preserve">
     <value>RFID reader connected</value>
   </data>
+  <data name="Status.Tooltip.ConectedService" xml:space="preserve">
+    <value>Connected to the service</value>
+  </data>
   <data name="Status.Tooltip.DisconectedDongle" xml:space="preserve">
     <value>Hideez Dongle disconnected</value>
   </data>
@@ -255,6 +261,9 @@ Device is not connected</value>
   </data>
   <data name="Status.Tooltip.DisconectedRFID" xml:space="preserve">
     <value>RFID reader disconnected</value>
+  </data>
+  <data name="Status.Tooltip.DisconectedService" xml:space="preserve">
+    <value>No connection to the service</value>
   </data>
   <data name="Url.Legal" xml:space="preserve">
     <value>https://hideez.com/404</value>

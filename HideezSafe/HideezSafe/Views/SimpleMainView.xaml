@@ -26,10 +26,7 @@
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <controls:DevicesExpander
-            VerticalAlignment="Top"
-            CurrentDevice="{Binding CurrentDevice}"
-            NoConnectedDebiceText="{l:Localization Expander.NoDevice}">
+        <controls:DevicesExpander VerticalAlignment="Top">
             <controls:DevicesExpander.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Offset="0" Color="#0022446D" />
@@ -38,30 +35,13 @@
             </controls:DevicesExpander.Background>
         </controls:DevicesExpander>
 
-        <ItemsControl
+        <controls:ConnectivityIndicators
             Grid.Row="1"
-            Margin="-5,24,0,24"
+            Margin="24"
             Padding="0"
-            HorizontalAlignment="Center"
+            HorizontalAlignment="Stretch"
             VerticalAlignment="Bottom"
-            Focusable="False"
-            ItemsSource="{Binding StateControls}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <controls:StateControl
-                        Margin="5,0,0,0"
-                        FalseToolTip="{Binding FalseToolTip}"
-                        Header="{Binding Header}"
-                        State="{Binding Status}"
-                        TrueToolTip="{Binding TrueToolTip}" />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            Focusable="False" />
 
     </Grid>
 </Metro:MetroWindow>

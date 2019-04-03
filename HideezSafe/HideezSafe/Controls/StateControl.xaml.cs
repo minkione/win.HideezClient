@@ -29,15 +29,15 @@ namespace HideezSafe.Controls
         {
             if (State)
             {
-                elipse.Fill = TrueBackground;
+                elipse.Fill = HasConnectionBackground;
                 icon.Kind = MahApps.Metro.IconPacks.PackIconOcticonsKind.Check;
-                ToolTip = TrueToolTip;
+                ToolTip = HasConnectionText;
             }
             else
             {
-                elipse.Fill = FalseBackground;
+                elipse.Fill = NoConnectionBackground;
                 icon.Kind = MahApps.Metro.IconPacks.PackIconOcticonsKind.X;
-                ToolTip = FalseToolTip;
+                ToolTip = NoConnectionText;
             }
         }
 
@@ -77,44 +77,44 @@ namespace HideezSafe.Controls
             DependencyProperty.Register(nameof(State), typeof(bool), typeof(StateControl)
                 , new PropertyMetadata(false, PropertyChangedCallback));
         
-        public Brush TrueBackground
+        public Brush HasConnectionBackground
         {
-            get { return (Brush)GetValue(TrueBackgroundProperty); }
-            set { SetValue(TrueBackgroundProperty, value); }
+            get { return (Brush)GetValue(HasConnectionBackgroundProperty); }
+            set { SetValue(HasConnectionBackgroundProperty, value); }
         }
 
-        public static readonly DependencyProperty TrueBackgroundProperty =
-            DependencyProperty.Register(nameof(TrueBackground), typeof(Brush), typeof(StateControl)
+        public static readonly DependencyProperty HasConnectionBackgroundProperty =
+            DependencyProperty.Register(nameof(HasConnectionBackground), typeof(Brush), typeof(StateControl)
                 , new PropertyMetadata(Brushes.Green, PropertyChangedCallback));
 
-        public Brush FalseBackground
+        public Brush NoConnectionBackground
         {
-            get { return (Brush)GetValue(FalseBackgroundProperty); }
-            set { SetValue(FalseBackgroundProperty, value); }
+            get { return (Brush)GetValue(NoConnectionBackgroundProperty); }
+            set { SetValue(NoConnectionBackgroundProperty, value); }
         }
 
-        public static readonly DependencyProperty FalseBackgroundProperty =
-            DependencyProperty.Register(nameof(FalseBackground), typeof(Brush), typeof(StateControl)
+        public static readonly DependencyProperty NoConnectionBackgroundProperty =
+            DependencyProperty.Register(nameof(NoConnectionBackground), typeof(Brush), typeof(StateControl)
                 , new PropertyMetadata(Brushes.Red, PropertyChangedCallback));
 
-        public string TrueToolTip
+        public string HasConnectionText
         {
-            get { return (string)GetValue(TrueToolTipProperty); }
-            set { SetValue(TrueToolTipProperty, value); }
+            get { return (string)GetValue(HasConnectionTextProperty); }
+            set { SetValue(HasConnectionTextProperty, value); }
         }
 
-        public static readonly DependencyProperty TrueToolTipProperty =
-            DependencyProperty.Register(nameof(TrueToolTip), typeof(string), typeof(StateControl)
+        public static readonly DependencyProperty HasConnectionTextProperty =
+            DependencyProperty.Register(nameof(HasConnectionText), typeof(string), typeof(StateControl)
                 , new PropertyMetadata("", PropertyChangedCallback));
 
-        public string FalseToolTip
+        public string NoConnectionText
         {
-            get { return (string)GetValue(FalsePopupProperty); }
-            set { SetValue(FalsePopupProperty, value); }
+            get { return (string)GetValue(NoConnectionTextProperty); }
+            set { SetValue(NoConnectionTextProperty, value); }
         }
 
-        public static readonly DependencyProperty FalsePopupProperty =
-            DependencyProperty.Register(nameof(FalseToolTip), typeof(string), typeof(StateControl)
+        public static readonly DependencyProperty NoConnectionTextProperty =
+            DependencyProperty.Register(nameof(NoConnectionText), typeof(string), typeof(StateControl)
                 , new PropertyMetadata("", PropertyChangedCallback));
     }
 }

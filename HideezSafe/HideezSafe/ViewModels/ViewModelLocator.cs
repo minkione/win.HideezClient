@@ -17,6 +17,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 using HideezSafe.PageViewModels;
 using System.ComponentModel;
+using System.Diagnostics;
 using Unity;
 using Unity.Lifetime;
 
@@ -49,6 +50,8 @@ namespace HideezSafe.ViewModels
             DIContainer.RegisterType<MainViewModel>(new ContainerControlledLifetimeManager());
             DIContainer.RegisterType<LoginSystemPageViewModel>();
             DIContainer.RegisterType<LockSettingsPageViewModel>();
+            DIContainer.RegisterType<IndicatorsViewModel>();
+            DIContainer.RegisterType<DevicesExpanderViewModel>();
         }
 
         public MainViewModel Main
@@ -64,6 +67,16 @@ namespace HideezSafe.ViewModels
         public LockSettingsPageViewModel LockSettingsPage
         {
             get { return DIContainer.Resolve<LockSettingsPageViewModel>(); }
+        }
+
+        public IndicatorsViewModel Indicators
+        {
+            get { return DIContainer.Resolve<IndicatorsViewModel>(); }
+        }
+
+        public DevicesExpanderViewModel DevicesExpander
+        {
+            get { return DIContainer.Resolve<DevicesExpanderViewModel>(); }
         }
     }
 }

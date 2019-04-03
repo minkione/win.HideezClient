@@ -59,6 +59,9 @@
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommonServiceLocator, Version=2.0.2.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
       <HintPath>..\packages\CommonServiceLocator.2.0.2\lib\net45\CommonServiceLocator.dll</HintPath>
@@ -128,12 +131,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
+      <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\BooleanToVisibilityCollapsedConverter.cs" />
+    <Compile Include="Converters\NullToVisibilityCollapsedConverter.cs" />
+    <Compile Include="Converters\NullToVisibilityConverter.cs" />
+    <Compile Include="Converters\ProximityToOpacityConverter.cs" />
+    <Compile Include="Converters\StringToResource.cs" />
+    <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
+    <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
+    <Compile Include="ViewModels\Controls\IndicatorsViewModel.cs" />
     <Compile Include="Views\SimpleMainView.xaml.cs">
       <DependentUpon>SimpleMainView.xaml</DependentUpon>
     </Compile>
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\ConnectivityIndicators.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\DevicesExpander.xaml">
       <SubType>Designer</SubType>
@@ -215,12 +233,11 @@
     <Compile Include="Utilities\AutoRunApp\IStartupHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\StartupHelper.cs" />
     <Compile Include="Version.cs" />
-    <Compile Include="ViewModels\DeviceViewModel.cs" />
-    <Compile Include="ViewModels\LanguageMenuItemViewModel.cs" />
+    <Compile Include="ViewModels\Controls\DeviceViewModel.cs" />
+    <Compile Include="ViewModels\Taskbar\LanguageMenuItemViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\MenuItemViewModel.cs" />
-    <Compile Include="ViewModels\StatusControlViewModel.cs" />
-    <Compile Include="ViewModels\TaskbarIconViewModel.cs" />
+    <Compile Include="ViewModels\Taskbar\MenuItemViewModel.cs" />
+    <Compile Include="ViewModels\Taskbar\TaskbarIconViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="Views\MainWindowView.xaml.cs">
       <DependentUpon>MainWindowView.xaml</DependentUpon>
@@ -272,9 +289,6 @@
   <ItemGroup>
     <Folder Include="DataTypes\" />
     <Folder Include="Models\" />
-    <Folder Include="Mvvm\MessagesHandlers\" />
-    <Folder Include="Mvvm\Messages\" />
-    <Folder Include="Utilities\WeakEvents\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">

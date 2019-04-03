@@ -7,7 +7,6 @@
     xmlns:local="clr-namespace:HideezSafe.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Name="userControl"
-    Width="80"
     Height="35"
     mc:Ignorable="d">
     <Grid>
@@ -25,14 +24,13 @@
                 x:Name="header"
                 Margin="10,10,-5,10"
                 HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Text="HES" />
+                VerticalAlignment="Center" />
             <Ellipse
                 x:Name="elipse"
                 Grid.Column="1"
                 Width="16"
                 Height="16"
-                HorizontalAlignment="Center"
+                HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 Fill="DarkRed" />
             <iconPacks:PackIconOcticons
