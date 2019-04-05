@@ -15,7 +15,10 @@ using System.Windows;
 [assembly: AssemblyCopyright("© 2019 Hideez Group Inc. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+
+// Required to enable automated testings
 [assembly: InternalsVisibleTo("HideezSafe.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from

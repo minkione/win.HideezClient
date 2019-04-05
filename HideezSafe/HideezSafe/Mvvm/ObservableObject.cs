@@ -1,4 +1,4 @@
-﻿using MvvmExtentions;
+﻿using MvvmExtensions.PropertyChangedMonitoring;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;

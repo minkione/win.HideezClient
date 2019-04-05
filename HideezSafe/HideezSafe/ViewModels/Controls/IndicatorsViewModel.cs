@@ -22,14 +22,12 @@ namespace HideezSafe.ViewModels
 
         public IndicatorsViewModel()
         {
-#if DEBUG
 
             Service = new ConnectionIndicatorViewModel
             {
                 Name = "Status.Service",
                 HasConnectionText = "Status.Tooltip.ConectedService",
                 NoConnectionText = "Status.Tooltip.DisconectedService",
-                State = true,
             };
 
             Indicators.Add(new ConnectionIndicatorViewModel
@@ -37,22 +35,27 @@ namespace HideezSafe.ViewModels
                 Name = "Status.HES",
                 HasConnectionText = "Status.Tooltip.ConectedHES",
                 NoConnectionText = "Status.Tooltip.DisconectedHES",
-                State = false,
             });
             Indicators.Add(new ConnectionIndicatorViewModel
             {
                 Name = "Status.RFID",
                 HasConnectionText = "Status.Tooltip.ConectedRFID",
                 NoConnectionText = "Status.Tooltip.DisconectedRFID",
-                State = true,
             });
             Indicators.Add(new ConnectionIndicatorViewModel
             {
                 Name = "Status.Dongle",
                 HasConnectionText = "Status.Tooltip.ConectedDongle",
                 NoConnectionText = "Status.Tooltip.DisconectedDongle",
-                State = true,
             });
+
+#if DEBUG
+
+            Service.State = true;
+
+            Indicators[0].State = true;
+            Indicators[1].State = false;
+            Indicators[2].State = false;
 
 #endif
         }

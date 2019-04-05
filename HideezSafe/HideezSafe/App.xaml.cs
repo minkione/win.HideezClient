@@ -1,24 +1,25 @@
-﻿using Unity;
+﻿using HideezSafe.Models.Settings;
+using HideezSafe.Modules.SettingsManager;
+using HideezSafe.Utilities;
+using Unity;
 using Unity.Lifetime;
 using System;
-using System.Data;
-using System.Linq;
 using System.Windows;
-using System.Diagnostics;
 using System.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HideezSafe.Properties;
-using HideezSafe.Utilities;
 using SingleInstanceApp;
 using System.Runtime.InteropServices;
-using HideezSafe.ViewModels;
 using HideezSafe.Modules;
-using MvvmExtentions.EventAggregator;
+using GalaSoft.MvvmLight.Messaging;
+using NLog;
+using HideezSafe.ViewModels;
 using Hardcodet.Wpf.TaskbarNotification;
 using System.Globalization;
-using GalaSoft.MvvmLight.Messaging;
 using System.Threading;
+using System.IO;
+using HideezSafe.Modules.FileSerializer;
 using HideezSafe.Mvvm;
 using HideezSafe.Modules.Localize;
 
@@ -29,6 +30,7 @@ namespace HideezSafe
     /// </summary>
     public partial class App : Application, ISingleInstance
     {
+        public static Logger logger;
         private IStartupHelper startupHelper;
         private IMessenger messenger;
         private IWindowsManager windowsManager;
@@ -38,31 +40,68 @@ namespace HideezSafe
         public App()
         {
             AppDomain.CurrentDomain.UnhandledException += FatalExceptionHandler;
+
+            // LogManager.DisableLogging();
+            // LogManager.EnableLogging();
+            logger = LogManager.GetCurrentClassLogger();
+
+            logger.Info("Version: {0}", Environment.Version);
+            logger.Info("OS: {0}", Environment.OSVersion);
+            logger.Info("Command: {0}", Environment.CommandLine);
         }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
             InitializeDIContainer();
 
-            // Init localization
-            CultureInfo culture = Settings.Default.Culture;
-            TranslationSource.Instance.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
+            // Init settings
+            ApplicationSettings settings = null;
+            ISettingsManager<ApplicationSettings> settingsManager = Container.Resolve<ISettingsManager<ApplicationSettings>>();
+
+            try
+            {
+                var task = Task.Run(async () => // Off Loading Load Programm Settings to non-UI thread
+                {
+                    var appSettingsDirectory = Path.GetDirectoryName(settingsManager.SettingsFilePath);
+                    if (!Directory.Exists(appSettingsDirectory))
+                        Directory.CreateDirectory(appSettingsDirectory);
+
+                    settings = await settingsManager.LoadSettingsAsync();
+                });
+                task.Wait(); // Block this to ensure that results are usable in next steps of sequence
+
+                // Init localization
+                var culture = new CultureInfo(settings.SelectedUiLanguage);
+                TranslationSource.Instance.CurrentCulture = culture;
+                Thread.CurrentThread.CurrentCulture = culture;
+                Thread.CurrentThread.CurrentUICulture = culture;
+            }
+            catch (Exception exp)
+            {
+                // Todo: log error with logger
+                Console.WriteLine("");
+                Console.WriteLine("Unexpected Error 1 in App.Application_Startup()");
+                Console.WriteLine("   Message:{0}", exp.Message);
+                Console.WriteLine("StackTrace:{0}", exp.StackTrace);
+                Console.WriteLine("");
+            }
 
             messenger = Container.Resolve<IMessenger>();
             Container.Resolve<ITaskbarIconManager>();
 
+            logger.Info("Resolve DI container");
             startupHelper = Container.Resolve<IStartupHelper>();
+            Container.Resolve<IWorkstationManager>();
             windowsManager = Container.Resolve<IWindowsManager>();
 
-            if (Settings.Default.FirstLaunch)
+            if (settings.IsFirstLaunch)
             {
                 OnFirstLaunch();
 
-                Settings.Default.FirstLaunch = false;
-                Settings.Default.Save();
+                settings.IsFirstLaunch = false;
+                settingsManager.SaveSettings(settings);
             }
         }
 
@@ -88,25 +127,37 @@ namespace HideezSafe
             // handle command line arguments of second instance
             // ...
 
+            logger.Info("Handle start of second instance");
             windowsManager.ActivateMainWindow();
 
+            
             return true;
         }
 
         private void OnFirstLaunch()
         {
+            logger.Info("First launch");
             // add to startup with windows if first start app
-            startupHelper.AddToStartup();
+            bool resalt = startupHelper.AddToStartup();
+            logger.Info("Add app to startup: {0}", resalt);
         }
 
         private void InitializeDIContainer()
         {
             Container = new UnityContainer();
 
+            logger.Info("Start initialize DI container");
+
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IWorkstationManager, WorkstationManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterInstance<IMessenger>(Messenger.Default, new ContainerControlledLifetimeManager());
+
+            logger.Info("Finish initialize DI container");
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IFileSerializer, XmlFileSerializer>();
+            Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
 
             // Taskbar icon
             Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
@@ -119,10 +170,37 @@ namespace HideezSafe
             Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
         }
 
+        /// <summary>
+        /// Check if configuration file can be opened. File is deleted on error.
+        /// </summary>
+        private void HandleBrokenConfig()
+        {
+            try
+            {
+                ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            }
+            catch (ConfigurationErrorsException ex)
+            {
+                string filename = ex.Filename;
+
+                if (File.Exists(filename))
+                    File.Delete(filename);
+            }
+        }
+
         private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
-            // A simple entry in the event log will suffice for the time being
-            Environment.FailFast("Fatal error occured", e.ExceptionObject as Exception);
+            string message = "Fatal error occured";
+            Exception ex = e.ExceptionObject as Exception;
+
+            try
+            {
+                logger.Fatal(ex, message);
+            }
+            catch
+            {
+                Environment.FailFast(message, ex);
+            }
         }
     }
 }

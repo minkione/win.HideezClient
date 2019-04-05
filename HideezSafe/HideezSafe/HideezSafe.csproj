@@ -81,6 +81,12 @@
     <Reference Include="Gu.Wpf.Adorners, Version=1.5.1.0, Culture=neutral, PublicKeyToken=6dfb64f9972bd31d, processorArchitecture=MSIL">
       <HintPath>..\packages\Gu.Wpf.Adorners.1.5.1.0\lib\net45\Gu.Wpf.Adorners.dll</HintPath>
     </Reference>
+    <Reference Include="MvvmExtensions, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SimpleMvvmExtensions.1.2.1\lib\net45\MvvmExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="Hardcodet.Wpf.TaskbarNotification, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.0.5\lib\net451\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
     </Reference>
@@ -97,13 +103,18 @@
       <HintPath>..\packages\SingleInstanceApp.0.1.0\lib\net45\SingleInstanceApp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\ControlzEx.3.0.2.4\lib\net45\System.Windows.Interactivity.dll</HintPath>
@@ -203,6 +214,15 @@
     <Compile Include="Dialogs\ChangePasswordDialog.xaml.cs">
       <DependentUpon>ChangePasswordDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\Settings\BaseSettings.cs" />
+    <Compile Include="Models\Settings\SettingAttribute.cs" />
+    <Compile Include="Modules\FileSerializer\IFileSerializer.cs" />
+    <Compile Include="Modules\FileSerializer\XmlFileSerializer.cs" />
+    <Compile Include="Modules\SettingsManager\ISettingsManager.cs" />
+    <Compile Include="Messages\Commands\ForceShutdownCommand.cs" />
+    <Compile Include="Messages\Commands\LockPCCommand.cs" />
+    <Compile Include="Modules\WorkstationManager\IWorkstationManager.cs" />
+    <Compile Include="Modules\WorkstationManager\WorkstationManager.cs" />
     <Compile Include="Modules\BalloonNotify\BalloonTipNotifyManager.cs" />
     <Compile Include="Modules\BalloonNotify\IBalloonTipNotifyManager.cs" />
     <Compile Include="Modules\DialogManager\DialogManager.cs" />
@@ -232,6 +252,10 @@
     <Compile Include="Utilities\App\IAppHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\IStartupHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\StartupHelper.cs" />
+    <Compile Include="Models\Settings\ApplicationSettings.cs" />
+    <Compile Include="Modules\SettingsManager\SettingsManager.cs" />
+    <Compile Include="Utilities\Constants.cs" />
+    <Compile Include="Utilities\Win32Helper.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="ViewModels\Controls\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Taskbar\LanguageMenuItemViewModel.cs" />
@@ -272,6 +296,13 @@
     <EmbeddedResource Include="Resources\Strings.ru.resx" />
     <EmbeddedResource Include="Resources\Strings.uk.resx" />
     <None Include="app.manifest" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
