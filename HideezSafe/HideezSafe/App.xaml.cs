@@ -20,6 +20,8 @@ using System.Globalization;
 using System.Threading;
 using System.IO;
 using HideezSafe.Modules.FileSerializer;
+using HideezSafe.Mvvm;
+using HideezSafe.Modules.Localize;
 
 namespace HideezSafe
 {
@@ -153,6 +155,7 @@ namespace HideezSafe
             logger.Info("Finish initialize DI container");
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
             Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
 

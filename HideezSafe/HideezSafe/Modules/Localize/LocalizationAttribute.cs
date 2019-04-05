@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HideezSafe.Modules
+namespace HideezSafe.Modules.Localize
 {
     /// <summary>
     /// Attribute for property who need localize.

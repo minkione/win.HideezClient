@@ -1,4 +1,5 @@
 ﻿using HideezSafe.Modules;
+using HideezSafe.Modules.Localize;
 using HideezSafe.Mvvm;
 using System.Collections.ObjectModel;
 using System.Windows.Input;

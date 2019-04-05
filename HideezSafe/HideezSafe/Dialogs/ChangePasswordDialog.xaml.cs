@@ -1,18 +1,12 @@
-﻿using HideezSafe.Modules;
-using HideezSafe.ViewModels;
-using MahApps.Metro.Controls;
+﻿using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
-using Unity;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -21,23 +15,23 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace HideezSafe.Views
+namespace HideezSafe.Dialogs
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for ChangePasswordDialog.xaml
     /// </summary>
-    public partial class MainWindowView : MetroWindow
+    public partial class ChangePasswordDialog : BaseMetroDialog
     {
-        public MainWindowView()
+        public ChangePasswordDialog()
         {
             InitializeComponent();
         }
 
-        private void ToggleButton_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is ToggleButton toggleButton && toggleButton.IsChecked != true)
+            if(Application.Current.MainWindow is MetroWindow metroWindow)
             {
-                toggleButton.IsChecked = true;
+                metroWindow.HideMetroDialogAsync(this);
             }
         }
     }
