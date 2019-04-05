@@ -3,7 +3,7 @@ using HideezSafe.Controls;
 using HideezSafe.Modules;
 using HideezSafe.Modules.Localize;
 using HideezSafe.Mvvm;
-using MvvmExtentions.Commands;
+using MvvmExtensions.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +35,7 @@ namespace HideezSafe.ViewModels
 
         #region Command
 
-        public ICommand ShowLokerCommand
+        public ICommand ShowLockerCommand
         {
             get
             {
@@ -44,7 +44,7 @@ namespace HideezSafe.ViewModels
                     CommandAction = x =>
                     {
                         if (x is bool isChecked && isChecked)
-                            OnShowLoker();
+                            OnShowLocker();
                     },
                 };
             }
@@ -52,7 +52,7 @@ namespace HideezSafe.ViewModels
 
         #endregion Command
 
-        private void OnShowLoker()
+        private void OnShowLocker()
         {
             ProcessNavRequest("LoginSystemPage");
         }

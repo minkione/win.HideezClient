@@ -96,9 +96,6 @@
     <Reference Include="MahApps.Metro.IconPacks, Version=2.3.0.4, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.IconPacks.2.3.0\lib\net46\MahApps.Metro.IconPacks.dll</HintPath>
     </Reference>
-    <Reference Include="MvvmExtentions, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MvvmExtentions.1.2.0\lib\net452\MvvmExtentions.dll</HintPath>
-    </Reference>
     <Reference Include="SingleInstanceApp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SingleInstanceApp.0.1.0\lib\net45\SingleInstanceApp.dll</HintPath>
     </Reference>
@@ -319,7 +316,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataTypes\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">

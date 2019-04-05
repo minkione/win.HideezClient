@@ -86,7 +86,7 @@
                 Background="Transparent"
                 Click="ToggleButton_Click"
                 ClipToBounds="True"
-                Command="{Binding ShowLokerCommand}"
+                Command="{Binding ShowLockerCommand}"
                 CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
                 Content="{l:Localization Button.ComputerLocker}"
                 FocusVisualStyle="{x:Null}"

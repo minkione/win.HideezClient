@@ -1,7 +1,7 @@
 ﻿using HideezSafe.Modules;
 using HideezSafe.Modules.Localize;
 using HideezSafe.Mvvm;
-using MvvmExtentions.Attributes;
+using MvvmExtensions.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;

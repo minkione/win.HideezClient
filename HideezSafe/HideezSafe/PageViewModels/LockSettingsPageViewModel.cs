@@ -1,7 +1,7 @@
 ﻿using HideezSafe.Modules;
 using HideezSafe.Mvvm;
 using MahApps.Metro.Controls.Dialogs;
-using MvvmExtentions.Commands;
+using MvvmExtensions.Commands;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

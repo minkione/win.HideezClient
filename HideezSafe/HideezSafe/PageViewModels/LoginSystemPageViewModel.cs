@@ -2,7 +2,7 @@
 using HideezSafe.Mvvm;
 using HideezSafe.Utilities;
 using HideezSafe.ViewModels;
-using MvvmExtentions.Commands;
+using MvvmExtensions.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
