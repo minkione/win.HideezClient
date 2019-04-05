@@ -61,7 +61,8 @@
     <Variable Name="LaunchTarget" Value="[InstallFolder]\HideezSafe.exe"/>
 
     <Chain DisableSystemRestore="yes">
-      <PackageGroupRef Id="NetFx462Web"/>
+      <!--Install .Net Framework 4.7.2-->
+      <PackageGroupRef Id="NetFx472Redist"/>
 
       <MsiPackage DisplayInternalUI="no" Name="setup_64" InstallCondition="VersionNT64" SourceFile="..\WiXSetup\bin\x64\Release\hideezsafe.msi" />
       <MsiPackage DisplayInternalUI="no" Name="setup_32" InstallCondition="NOT VersionNT64" SourceFile="..\WiXSetup\bin\Release\hideezsafe.msi" />

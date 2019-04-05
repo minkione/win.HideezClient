@@ -121,7 +121,7 @@
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Hideez Safe" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
 
-    <Property Id="WixShellExecTarget" Value="[#HideezUI.exe]" />
+    <Property Id="WixShellExecTarget" Value="[#HideezSafe.exe]" />
     <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes"/>
 
     <InstallExecuteSequence>
