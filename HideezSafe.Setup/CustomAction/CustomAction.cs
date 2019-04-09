@@ -11,7 +11,6 @@ namespace CustomAction
     {
         private interface IParameters
         {
-            string HostServerPort { get; }
             string HostServerAddress { get; }
             bool InstallDongleDriver { get; }
             bool InstallReaderDriver { get; }
@@ -22,13 +21,11 @@ namespace CustomAction
             public Parameters()
             {
                 HostServerAddress = "";
-                HostServerPort = "";
 
                 InstallDongleDriver = false;
                 InstallReaderDriver = false;
             }
 
-            public string HostServerPort { get; set; }
             public string HostServerAddress { get; set; }
             public bool InstallDongleDriver { get; set; }
             public bool InstallReaderDriver { get; set; }
@@ -67,12 +64,10 @@ namespace CustomAction
         private static bool IsValidParameters(IParameters parameters)
         {
             bool hasAddress = !string.IsNullOrEmpty(parameters.HostServerAddress);
-            bool hasPort = !string.IsNullOrEmpty(parameters.HostServerPort);
 
             bool isValidAddress = !hasAddress || Regex.IsMatch(parameters.HostServerAddress, $"^https://.+");
-            bool isValidPort = !hasPort || ushort.TryParse(parameters.HostServerPort, out ushort port);
 
-            return isValidAddress && isValidPort;
+            return isValidAddress;
         }
 
         private static bool TryParseParameters(Session session, out IParameters outParameters)
@@ -84,7 +79,6 @@ namespace CustomAction
             try
             {
                 parameters.HostServerAddress = session["HOSTSERVERADDRESS"];
-                parameters.HostServerPort = session["HOSTSERVERPORT"];
 
                 if (byte.TryParse(session["INSTALLDONGLEDRIVER"], out byte instalDongle))
                 {

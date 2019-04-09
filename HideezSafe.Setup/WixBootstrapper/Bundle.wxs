@@ -21,11 +21,6 @@
               bal:Overridable="yes"
               Hidden="yes"
               Type="string"/>
-    <Variable Name="HostServerPort"
-              Value=""
-              bal:Overridable="yes"
-              Hidden="yes"
-              Type="numeric"/>
     <Variable Name="InstallDongleDriver"
               bal:Overridable="yes"
               Type="numeric"
@@ -83,8 +78,6 @@
                   SourceFile="..\WiXSetup\bin\x64\Release\hideezsafe.msi">
         <MsiProperty Name="HOSTSERVERADDRESS"
                      Value="[HostServerAddress]" />
-        <MsiProperty Name="HOSTSERVERPORT"
-                     Value="[HostServerPort]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
                      Value="[InstallDongleDriver]" />
         <MsiProperty Name="INSTALLREADERDRIVER"
@@ -97,8 +90,6 @@
                   SourceFile="..\WiXSetup\bin\Release\hideezsafe.msi">
         <MsiProperty Name="HOSTSERVERADDRESS"
                      Value="[HostServerAddress]" />
-        <MsiProperty Name="HOSTSERVERPORT"
-                     Value="[HostServerPort]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
                      Value="[InstallDongleDriver]" />
         <MsiProperty Name="INSTALLREADERDRIVER"

@@ -9,7 +9,7 @@
 - собрать х64 релиз WiXBootstrapper
 
 Passing argument to bootstrapper
-	hideezsafe.exe HostServerAddress=https://HostName HostServerPort=8181 InstallDongleDriver=0 InstallReaderDriver=1
+	hideezsafe.exe HostServerAddress=https://HostName InstallDongleDriver=0 InstallReaderDriver=1
 
 Passing argument to MSI
-	hideezsafe.msi HOSTSERVERADDRESS=https://HostName HOSTSERVERPORT=8181 INSTALLDONGLEDRIVER=0 INSTALLREADERDRIVER=1
+	hideezsafe.msi HOSTSERVERADDRESS=https://HostName INSTALLDONGLEDRIVER=0 INSTALLREADERDRIVER=1
