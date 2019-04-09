@@ -28,11 +28,16 @@
 
 
     <!-- Languages: en(1033), de(1031), ua(1058), ru(1049) -->
-    <Package InstallerVersion="301" Compressed="yes" InstallScope="perMachine" Languages="1033"/>
+    <Package InstallerVersion="301"
+             Compressed="yes"
+             InstallScope="perMachine"
+             Languages="1033"/>
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed."/>
 
-    <Media Id="1" Cabinet="hideezsafe.cab" EmbedCab="yes" />
+    <Media Id="1"
+           Cabinet="hideezsafe.cab"
+           EmbedCab="yes" />
 
     <Icon Id="app.ico" SourceFile="32x32.ico"/>
     <Property Id="ARPPRODUCTICON" Value="app.ico" />
@@ -76,23 +81,30 @@
 
     <!--ApplicationProgramsFolder-->
     <DirectoryRef Id="ApplicationProgramsFolder">
-      <Component Id="ApplicationShortcut" Guid="{A148F126-2328-4036-812C-3E70104C3A23}">
+      <Component Id="ApplicationShortcut"
+                 Guid="{A148F126-2328-4036-812C-3E70104C3A23}">
         <Shortcut Id="ApplicationStartMenuShortcut"
-              Name="Hideez Safe"
-              Description="Hideez Safe's user interface"
-              Target="[#HideezSafe.exe]"
-              WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+                  Name="Hideez Safe"
+                  Description="Hideez Safe's user interface"
+                  Target="[#HideezSafe.exe]"
+                  WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
         <Shortcut Id="UninstallProduct"
-              Name="Uninstall Hideez Safe"
-              Description="Uninstalls Hideez Safe Application"
-              Target="$(var.PlatformSystemFolder)msiexec.exe"
-              Arguments="/x [ProductCode]"/>
-        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
-        <RegistryValue Root="HKCU" Key="Software\Hideez\Safeband" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+                  Name="Uninstall Hideez Safe"
+                  Description="Uninstalls Hideez Safe Application"
+                  Target="$(var.PlatformSystemFolder)msiexec.exe"
+                  Arguments="/x [ProductCode]"/>
+        <RemoveFolder Id="ApplicationProgramsFolder"
+                      On="uninstall"/>
+        <RegistryValue Root="HKCU"
+                       Key="Software\Hideez\Safeband"
+                       Name="installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
       </Component>
     </DirectoryRef>
 
-    
+
     <UI>
       <UIRef Id="WixUI_InstallDir" />
 
@@ -110,7 +122,9 @@
                Order="2">1</Publish>
 
       <!-- Application launch checkbox is checked by default -->
-      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction"
+      <Publish Dialog="ExitDialog"
+               Control="Finish"
+               Event="DoAction"
                Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
     </UI>
 
@@ -126,7 +140,18 @@
 
     <InstallExecuteSequence>
       <Custom Action="LaunchApplication" After="InstallFinalize">WIX_UPGRADE_DETECTED AND UILevel = 3</Custom>
-      <!-- Install upgrade and passive install-->
+      <!-- Install upgrade and passive install -->
+    </InstallExecuteSequence>
+
+    <InstallExecuteSequence>
+      <!--
+      How to detect different modes of installation.
+      http://alekdavis.blogspot.com/2013/05/wix-woes-what-is-your-installer-doing.html
+      -->
+      <!-- Run on initial installation only -->
+      <Custom Action="LaunchCustomAction" After="InstallFinalize">
+        NOT Installed
+      </Custom>
     </InstallExecuteSequence>
   </Product>
 
@@ -149,7 +174,7 @@
       <Component Id="GalaSoft.MvvmLight.Platform.dll" Guid="{595C60DE-B178-4DE2-9E82-2CF314F0FCAB}" Win64="$(var.Win64)">
         <File Id="GalaSoft.MvvmLight.Platform.dll" Name="GalaSoft.MvvmLight.Platform.dll" Source="$(var.HideezSafe_TargetDir)GalaSoft.MvvmLight.Platform.dll" />
       </Component>
-      
+
       <Component Id="Hardcodet.Wpf.TaskbarNotification.dll" Guid="{2F0858BD-425F-4C29-BA5C-B40E04441086}" Win64="$(var.Win64)">
         <File Id="Hardcodet.Wpf.TaskbarNotification.dll" Name="Hardcodet.Wpf.TaskbarNotification.dll" Source="$(var.HideezSafe_TargetDir)Hardcodet.Wpf.TaskbarNotification.dll" />
       </Component>
@@ -157,7 +182,7 @@
       <Component Id="HideezSafe.exe" Guid="{F963D64C-61C1-4540-B889-33E922AE25FC}" Win64="$(var.Win64)">
         <File Id="HideezSafe.exe" Name="HideezSafe.exe" Source="$(var.HideezSafe_TargetDir)HideezSafe.exe" />
       </Component>
-      
+
       <Component Id="MvvmExtensions.dll" Guid="{3C548096-625C-4EA0-9546-0A929705F98B}" Win64="$(var.Win64)">
         <File Id="MvvmExtensions.dll" Name="MvvmExtensions.dll" Source="$(var.HideezSafe_TargetDir)MvvmExtensions.dll" />
       </Component>
@@ -169,11 +194,11 @@
       <Component Id="NLog.config" Guid="{3F0D4A12-190A-4BB9-AB9D-3EC5697487FD}" Win64="$(var.Win64)">
         <File Id="NLog.config" Name="NLog.config" Source="$(var.HideezSafe_TargetDir)NLog.config" />
       </Component>
-      
+
       <Component Id="SingleInstanceApp.dll" Guid="{E7395408-A4A7-4CD0-AF2D-00DF167F1962}" Win64="$(var.Win64)">
         <File Id="SingleInstanceApp.dll" Name="SingleInstanceApp.dll" Source="$(var.HideezSafe_TargetDir)SingleInstanceApp.dll" />
       </Component>
-      
+
       <Component Id="System.Runtime.CompilerServices.Unsafe.dll" Guid="{15764EB6-3970-4625-BA8C-692DFFB0B2D4}" Win64="$(var.Win64)">
         <File Id="System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.HideezSafe_TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
       </Component>
@@ -193,15 +218,24 @@
       <Component Id="XAMLMarkupExtensions.dll" Guid="{1752DF5C-7458-4DB3-BC00-2D637868C605}" Win64="$(var.Win64)">
         <File Id="XAMLMarkupExtensions.dll" Name="XAMLMarkupExtensions.dll" Source="$(var.HideezSafe_TargetDir)XAMLMarkupExtensions.dll" />
       </Component>
-      
+
     </ComponentGroup>
+  </Fragment>
+
+
+  <!-- Custom Action -->
+  <Fragment>
+    <Binary Id="CustomActionSetup" SourceFile="$(var.CustomAction.TargetDir)CustomAction.CA.dll"/>
+    <CustomAction Id="LaunchCustomAction" BinaryKey="CustomActionSetup" DllEntry="InstallAction" Execute="immediate" Return="check"/>
   </Fragment>
 
   <!--ru-->
   <Fragment>
     <ComponentGroup Id="ru_files" Directory="ru">
       <Component Id="ru_HideezSafe.resources.dll" Guid="{5F0066D8-DFA9-4196-A047-8C66A5357586}">
-        <File Id="ru_HideezSafe.resources.dll" Name="HideezSafe.resources.dll" Source="$(var.HideezSafe_TargetDir)ru\HideezSafe.resources.dll" />
+        <File Id="ru_HideezSafe.resources.dll"
+              Name="HideezSafe.resources.dll"
+              Source="$(var.HideezSafe_TargetDir)ru\HideezSafe.resources.dll" />
       </Component>
     </ComponentGroup>
   </Fragment>
@@ -210,9 +244,11 @@
   <Fragment>
     <ComponentGroup Id="uk_files" Directory="uk">
       <Component Id="uk_HideezSafe.resources.dll" Guid="{6C626C6F-D6A6-4106-B700-620EA4954D25}">
-        <File Id="uk_HideezSafe.resources.dll" Name="HideezSafe.resources.dll" Source="$(var.HideezSafe_TargetDir)uk\HideezSafe.resources.dll" />
+        <File Id="uk_HideezSafe.resources.dll"
+              Name="HideezSafe.resources.dll"
+              Source="$(var.HideezSafe_TargetDir)uk\HideezSafe.resources.dll" />
       </Component>
     </ComponentGroup>
   </Fragment>
-  
+
 </Wix>

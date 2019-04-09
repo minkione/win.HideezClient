@@ -5,29 +5,43 @@
      xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
   <?include ..\WiXSetup\Include.wxi?>
 
-  <Bundle
-    Name="Hideez Safe"
-    Version="$(var.AppVersion)"
-    Manufacturer="$(var.Manufacturer)"
-    Copyright="$(var.Copyright)"
-    HelpUrl="$(var.HelpUrl)"
-    UpdateUrl="$(var.UpdateUrl)"
-    AboutUrl="$(var.AboutUrl)"
-    UpgradeCode="$(var.UpgradeCode)"
-    IconSourceFile="32x32.ico"
-    DisableModify="yes">
+  <Bundle Name="Hideez Safe"
+          Version="$(var.AppVersion)"
+          Manufacturer="$(var.Manufacturer)"
+          Copyright="$(var.Copyright)"
+          HelpUrl="$(var.HelpUrl)"
+          UpdateUrl="$(var.UpdateUrl)"
+          AboutUrl="$(var.AboutUrl)"
+          UpgradeCode="$(var.UpgradeCode)"
+          IconSourceFile="32x32.ico"
+          DisableModify="yes">
 
-    <Variable Name="EnableGACheckbox" Type="numeric" Value="0"/>
+    <Variable Name="HostServerAddress"
+              Value=""
+              bal:Overridable="yes"
+              Hidden="yes"
+              Type="string"/>
+    <Variable Name="HostServerPort"
+              Value=""
+              bal:Overridable="yes"
+              Hidden="yes"
+              Type="numeric"/>
+    <Variable Name="InstallDongleDriver"
+              bal:Overridable="yes"
+              Type="numeric"
+              Value="0" />
+    <Variable Name="InstallReaderDriver"
+              bal:Overridable="yes"
+              Type="numeric"
+              Value="0" />
 
-    <BootstrapperApplicationRef
-      Id="WixStandardBootstrapperApplication.RtfLicense">
-      <bal:WixStandardBootstrapperApplication
-        LicenseFile="Legal.rtf"
-        LogoFile="logo.bmp"
-        ThemeFile="Resources/HideezTheme.xml"
-        LocalizationFile="Resources/1033/en-us.wxl"
-        ShowFilesInUse="yes"
-        SuppressOptionsUI="yes"/>
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
+      <bal:WixStandardBootstrapperApplication LicenseFile="Legal.rtf"
+                                              LogoFile="logo.bmp"
+                                              ThemeFile="Resources/HideezTheme.xml"
+                                              LocalizationFile="Resources/1033/en-us.wxl"
+                                              ShowFilesInUse="yes"
+                                              SuppressOptionsUI="yes"/>
 
       <!-- Localization -->
       <!-- Translations are disabled until their strings are properly localized -->
@@ -43,29 +57,53 @@
       <Payload Id="thmx_en" Name="1033\thm.xml" Compressed="yes" SourceFile="Resources/HideezTheme.xml"/>
       <Payload Id="thmb_en" Name="1033\logo.png" Compressed="yes" SourceFile="Resources/1033/logo.png"/>
 
-
     </BootstrapperApplicationRef>
 
-    <!-- Prevent bootstrapper from installing if OS is lower than Windows 7-->
+    <!-- Prevent bootstrapper from installing if OS is lower than Windows 7 -->
     <bal:Condition Message="#(loc.UnsupportedOS)">
       <![CDATA[Installed OR (VersionNT >= v6.1)]]>
     </bal:Condition>
 
     <!-- Detect InstallFolder of the previous installation -->
-    <Variable
-        Name="InstallFolder"
-        Type="string"
-        Value="[$(var.BootstrapperPlatformProgramFilesFolder)]Hideez\Safe" />
+    <Variable Name="InstallFolder"
+              Type="string"
+              Value="[$(var.BootstrapperPlatformProgramFilesFolder)]Hideez\Safe" />
 
-    <!--Ask to launch application after install-->
-    <Variable Name="LaunchTarget" Value="[InstallFolder]\HideezSafe.exe"/>
+    <!-- Ask to launch application after install -->
+    <Variable Name="LaunchTarget"
+              Value="[InstallFolder]\HideezSafe.exe"/>
 
     <Chain DisableSystemRestore="yes">
-      <!--Install .Net Framework 4.7.2-->
+      <!-- Install .Net Framework 4.7.2 -->
       <PackageGroupRef Id="NetFx472Redist"/>
 
-      <MsiPackage DisplayInternalUI="no" Name="setup_64" InstallCondition="VersionNT64" SourceFile="..\WiXSetup\bin\x64\Release\hideezsafe.msi" />
-      <MsiPackage DisplayInternalUI="no" Name="setup_32" InstallCondition="NOT VersionNT64" SourceFile="..\WiXSetup\bin\Release\hideezsafe.msi" />
+      <MsiPackage DisplayInternalUI="no"
+                  Name="setup_64"
+                  InstallCondition="VersionNT64"
+                  SourceFile="..\WiXSetup\bin\x64\Release\hideezsafe.msi">
+        <MsiProperty Name="HOSTSERVERADDRESS"
+                     Value="[HostServerAddress]" />
+        <MsiProperty Name="HOSTSERVERPORT"
+                     Value="[HostServerPort]" />
+        <MsiProperty Name="INSTALLDONGLEDRIVER"
+                     Value="[InstallDongleDriver]" />
+        <MsiProperty Name="INSTALLREADERDRIVER"
+                     Value="[InstallReaderDriver]" />
+      </MsiPackage>
+
+      <MsiPackage DisplayInternalUI="no"
+                  Name="setup_32"
+                  InstallCondition="NOT VersionNT64"
+                  SourceFile="..\WiXSetup\bin\Release\hideezsafe.msi">
+        <MsiProperty Name="HOSTSERVERADDRESS"
+                     Value="[HostServerAddress]" />
+        <MsiProperty Name="HOSTSERVERPORT"
+                     Value="[HostServerPort]" />
+        <MsiProperty Name="INSTALLDONGLEDRIVER"
+                     Value="[InstallDongleDriver]" />
+        <MsiProperty Name="INSTALLREADERDRIVER"
+                     Value="[InstallReaderDriver]" />
+      </MsiPackage>
     </Chain>
   </Bundle>
 </Wix>
