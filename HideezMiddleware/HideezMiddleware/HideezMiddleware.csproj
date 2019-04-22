@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DA19D8C5-DAB6-4060-B393-BA18A4BE47BB}</ProjectGuid>
+    <ProjectGuid>{2A5ABF59-55EE-461B-8C6F-2A294481129B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceLibrary.Implementation</RootNamespace>
-    <AssemblyName>ServiceLibrary.Implementation</AssemblyName>
+    <RootNamespace>HideezMiddleware</RootNamespace>
+    <AssemblyName>HideezMiddleware</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -32,16 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,40 +42,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HideezService.cs" />
+    <Compile Include="CredentialProviderConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceClientSession.cs" />
-    <Compile Include="ServiceClientSessionManager.cs" />
+    <Compile Include="RfidServiceConnection.cs" />
+    <Compile Include="WorkstationUnlocker.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
-      <Project>{64cdff89-4bd1-40c8-a709-56df7b64b309}</Project>
+      <Project>{20dc9673-dca7-44f2-a8e3-d622a1944543}</Project>
       <Name>Communication</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\win.sdk\CsrBLE\CsrBLE.vcxproj">
-      <Project>{d274aa09-5b34-4450-a6fb-5a5a351c7b45}</Project>
-      <Name>CsrBLE</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\HideezMiddleware\HideezMiddleware\HideezMiddleware.csproj">
-      <Project>{2a5abf59-55ee-461b-8c6f-2a294481129b}</Project>
-      <Name>HideezMiddleware</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ServiceLibrary\ServiceLibrary.csproj">
-      <Project>{149c7fac-00ed-4e7d-aac2-d7fd91d969e2}</Project>
-      <Name>ServiceLibrary</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="HideezService_SDK.cs" />
-    <None Include="NLog.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

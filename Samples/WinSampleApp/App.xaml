@@ -1,0 +1,11 @@
+﻿<Application x:Class="WinSampleApp.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:WinSampleApp"
+             xmlns:converter="clr-namespace:WinSampleApp.Converter"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <converter:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converter:InvertBooleanToVisibilityConverter x:Key="InvertBooleanToVisibilityConverter" />
+    </Application.Resources>
+</Application>
