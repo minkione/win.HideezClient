@@ -79,9 +79,10 @@ namespace HideezSafe.Modules.ServiceWatchdog
             {
                 try
                 {
-                    var result = await serviceProxy.ConnectAsync();
-                    if (!result)
-                        await serviceProxy.DisconnectAsync();
+                    await serviceProxy.ConnectAsync();
+                    //var result = await serviceProxy.ConnectAsync();
+                    //if (!result)
+                    //    await serviceProxy.DisconnectAsync();
                 }
                 catch (Exception ex)
                 {

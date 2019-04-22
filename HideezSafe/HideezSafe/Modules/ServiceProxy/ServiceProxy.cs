@@ -1,7 +1,10 @@
 ﻿using System;
 using System.ServiceModel;
 using System.Threading.Tasks;
+using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.HideezServiceReference;
+using HideezSafe.Messages;
+using HideezSafe.Modules.ServiceCallbackMessanger;
 using NLog;
 
 namespace HideezSafe.Modules.ServiceProxy
@@ -10,15 +13,25 @@ namespace HideezSafe.Modules.ServiceProxy
     {
         private readonly Logger log = LogManager.GetCurrentClassLogger();
         private readonly IHideezServiceCallback callback;
+        private readonly IMessenger messenger;
 
         private HideezServiceClient service;
 
         public event EventHandler Connected;
         public event EventHandler Disconnected;
 
-        public ServiceProxy(IHideezServiceCallback callback)
+        public ServiceProxy(IHideezServiceCallback callback, IMessenger messenger)
         {
             this.callback = callback;
+            this.messenger = messenger;
+
+            this.Connected += ServiceProxy_ConnectionChanged;
+            this.Disconnected += ServiceProxy_ConnectionChanged;
+        }
+
+        private void ServiceProxy_ConnectionChanged(object sender, EventArgs e)
+        {
+            messenger.Send(new ConnectionServiceChangedMessage(IsConnected));
         }
 
         public bool IsConnected
@@ -46,7 +59,7 @@ namespace HideezSafe.Modules.ServiceProxy
             return Task.Run(async () =>
             {
                 if (service != null)
-                    return true;
+                    await DisconnectAsync();
 
                 var instanceContext = new InstanceContext(callback);
                 service = new HideezServiceClient(instanceContext);
@@ -62,9 +75,10 @@ namespace HideezSafe.Modules.ServiceProxy
 
                     if (!attached)
                     {
-                        UnsubscriveFromServiceEvents(service);
-                        CloseServiceConnection(service);
-                        service = null;
+                        await DisconnectAsync();
+                        //UnsubscriveFromServiceEvents(service);
+                        //CloseServiceConnection(service);
+                        //service = null;
                     }
 
                     return attached;
@@ -73,9 +87,10 @@ namespace HideezSafe.Modules.ServiceProxy
                 {
                     log.Error(ex.Message);
 
-                    UnsubscriveFromServiceEvents(service);
-                    CloseServiceConnection(service);
-                    service = null;
+                    await DisconnectAsync();
+                    //UnsubscriveFromServiceEvents(service);
+                    //CloseServiceConnection(service);
+                    //service = null;
 
                     return false;
                 }

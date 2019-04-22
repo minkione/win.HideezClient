@@ -1,6 +1,7 @@
 ﻿using NLog;
 using System;
 using System.ServiceModel;
+using System.Timers;
 
 namespace ServiceLibrary.Implementation
 {
@@ -50,8 +51,8 @@ namespace ServiceLibrary.Implementation
             }
             else
             {
-                    throw new FaultException<HideezServiceFault>(
-                        new HideezServiceFault(ex.Message, 6), ex.Message);
+                throw new FaultException<HideezServiceFault>(
+                    new HideezServiceFault(ex.Message, 6), ex.Message);
             }
         }
 

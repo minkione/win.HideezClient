@@ -79,6 +79,15 @@
   <wsdl:message name="IHideezService_LockWorkstationRequest_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:LockWorkstationRequest" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_ConnectionHESChangedRequest_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ConnectionHESChangedRequest" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_ConnectionRFIDChangedRequest_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ConnectionRFIDChangedRequest" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_ConnectionDongleChangedRequest_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ConnectionDongleChangedRequest" />
+  </wsdl:message>
   <wsdl:portType msc:usingSession="true" name="IHideezService">
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AttachClient">
       <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/AttachClient" message="tns:IHideezService_AttachClient_InputMessage" />
@@ -102,6 +111,15 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="LockWorkstationRequest">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/LockWorkstationRequest" message="tns:IHideezService_LockWorkstationRequest_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ConnectionHESChangedRequest">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ConnectionHESChangedRequest" message="tns:IHideezService_ConnectionHESChangedRequest_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ConnectionRFIDChangedRequest">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ConnectionRFIDChangedRequest" message="tns:IHideezService_ConnectionRFIDChangedRequest_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ConnectionDongleChangedRequest">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ConnectionDongleChangedRequest" message="tns:IHideezService_ConnectionDongleChangedRequest_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetNamedPipeBinding_IHideezService" type="tns:IHideezService">
@@ -158,6 +176,24 @@
     </wsdl:operation>
     <wsdl:operation name="LockWorkstationRequest">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/LockWorkstationRequest" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ConnectionHESChangedRequest">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/ConnectionHESChangedRequest" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ConnectionRFIDChangedRequest">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/ConnectionRFIDChangedRequest" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ConnectionDongleChangedRequest">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/ConnectionDongleChangedRequest" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

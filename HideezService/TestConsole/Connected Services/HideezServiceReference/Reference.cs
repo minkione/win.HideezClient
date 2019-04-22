@@ -49,6 +49,15 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/LockWorkstationRequest")]
         void LockWorkstationRequest();
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ConnectionHESChangedRequest")]
+        void ConnectionHESChangedRequest(bool isConnected);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ConnectionRFIDChangedRequest")]
+        void ConnectionRFIDChangedRequest(bool isConnected);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ConnectionDongleChangedRequest")]
+        void ConnectionDongleChangedRequest(bool isConnected);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]

@@ -104,6 +104,7 @@ namespace HideezSafe
             startupHelper = Container.Resolve<IStartupHelper>();
             Container.Resolve<IWorkstationManager>();
             windowsManager = Container.Resolve<IWindowsManager>();
+            Container.Resolve<IHideezServiceCallback>();
             serviceWatchdog = Container.Resolve<IServiceWatchdog>();
             serviceWatchdog.Start();
 

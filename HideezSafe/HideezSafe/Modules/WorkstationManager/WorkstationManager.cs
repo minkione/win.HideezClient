@@ -20,8 +20,8 @@ namespace HideezSafe.Modules
         public WorkstationManager(IMessenger messanger)
         {
             // Start listening command messages
-            messanger.Register<LockPCCommand>(this, LockPC);
-            messanger.Register<ForceShutdownCommand>(this, ForceShutdown);
+            messanger.Register<LockWorkstationMessage>(this, LockPC);
+            messanger.Register<ForceShutdownMessage>(this, ForceShutdown);
         }
 
         public void LockPC()
@@ -41,7 +41,7 @@ namespace HideezSafe.Modules
 
         #region Messages handlers
 
-        private void LockPC(LockPCCommand command)
+        private void LockPC(LockWorkstationMessage command)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace HideezSafe.Modules
             }
         }
 
-        private void ForceShutdown(ForceShutdownCommand command)
+        private void ForceShutdown(ForceShutdownMessage command)
         {
             try
             {

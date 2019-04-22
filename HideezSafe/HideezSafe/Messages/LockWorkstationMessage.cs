@@ -1,6 +1,6 @@
 ﻿namespace HideezSafe.Messages
 {
-    class ForceShutdownCommand
+    class LockWorkstationMessage
     {
     }
 }

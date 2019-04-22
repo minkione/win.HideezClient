@@ -1,4 +1,7 @@
-﻿using HideezSafe.Mvvm;
+﻿using GalaSoft.MvvmLight.Messaging;
+using HideezSafe.Messages;
+using HideezSafe.Modules.ServiceCallbackMessanger;
+using HideezSafe.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,6 +13,7 @@ namespace HideezSafe.ViewModels
 {
     class IndicatorsViewModel : ObservableObject
     {
+        private readonly IMessenger messenger;
         private ConnectionIndicatorViewModel service;
 
         public ConnectionIndicatorViewModel Service
@@ -20,8 +24,9 @@ namespace HideezSafe.ViewModels
 
         public ObservableCollection<ConnectionIndicatorViewModel> Indicators { get; } = new ObservableCollection<ConnectionIndicatorViewModel>();
 
-        public IndicatorsViewModel()
+        public IndicatorsViewModel(IMessenger messenger)
         {
+            this.messenger = messenger;
 
             Service = new ConnectionIndicatorViewModel
             {
@@ -30,34 +35,41 @@ namespace HideezSafe.ViewModels
                 NoConnectionText = "Status.Tooltip.DisconectedService",
             };
 
-            Indicators.Add(new ConnectionIndicatorViewModel
+            var connectionHES = new ConnectionIndicatorViewModel
             {
                 Name = "Status.HES",
                 HasConnectionText = "Status.Tooltip.ConectedHES",
                 NoConnectionText = "Status.Tooltip.DisconectedHES",
-            });
-            Indicators.Add(new ConnectionIndicatorViewModel
+            };
+            Indicators.Add(connectionHES);
+
+            var connectionRFID = new ConnectionIndicatorViewModel
             {
                 Name = "Status.RFID",
                 HasConnectionText = "Status.Tooltip.ConectedRFID",
                 NoConnectionText = "Status.Tooltip.DisconectedRFID",
-            });
-            Indicators.Add(new ConnectionIndicatorViewModel
+            };
+            Indicators.Add(connectionRFID);
+
+            var connectionDongle = new ConnectionIndicatorViewModel
             {
                 Name = "Status.Dongle",
                 HasConnectionText = "Status.Tooltip.ConectedDongle",
                 NoConnectionText = "Status.Tooltip.DisconectedDongle",
-            });
+            };
+            Indicators.Add(connectionDongle);
 
-#if DEBUG
+            messenger.Register<ConnectionServiceChangedMessage>(Service, c => Service.State = c.IsConnected, true);
+            messenger.Register<ConnectionDongleChangedMessage>(connectionDongle, c => connectionDongle.State = c.IsConnected, true);
+            messenger.Register<ConnectionRFIDChangedMessage>(connectionRFID, c => connectionRFID.State = c.IsConnected, true);
+            messenger.Register<ConnectionHESChangedMessage>(connectionHES, c => connectionHES.State = c.IsConnected, true);
 
-            Service.State = true;
-
-            Indicators[0].State = true;
-            Indicators[1].State = false;
-            Indicators[2].State = false;
-
-#endif
+//#if DEBUG
+            //Service.State = true;
+            //connectionDongle.State = true;
+            //connectionRFID.State = false;
+            //connectionHES.State = false;
+//#endif
         }
     }
 }

@@ -26,5 +26,14 @@ namespace ServiceLibrary
     {
         [OperationContract(IsOneWay = true)]
         void LockWorkstationRequest();
+
+        [OperationContract(IsOneWay = true)]
+        void ConnectionHESChangedRequest(bool isConnected);
+
+        [OperationContract(IsOneWay = true)]
+        void ConnectionRFIDChangedRequest(bool isConnected);
+
+        [OperationContract(IsOneWay = true)]
+        void ConnectionDongleChangedRequest(bool isConnected);
     }
 }

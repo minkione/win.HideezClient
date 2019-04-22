@@ -147,6 +147,13 @@
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Converters\ProximityToOpacityConverter.cs" />
     <Compile Include="Converters\StringToResource.cs" />
+    <Compile Include="Messages\ConnectionChangedMessage.cs" />
+    <Compile Include="Messages\ConnectionDongleChangedMessage.cs" />
+    <Compile Include="Messages\ConnectionHESChangedMessage.cs" />
+    <Compile Include="Messages\ConnectionRFIDChangedMessage.cs" />
+    <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
+    <Compile Include="Messages\ForceShutdownMessage.cs" />
+    <Compile Include="Messages\LockWorkstationMessage.cs" />
     <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
     <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
     <Compile Include="ViewModels\Controls\IndicatorsViewModel.cs" />
@@ -206,7 +213,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-	<Compile Include="Controls\DevicesExpander.xaml.cs">
+    <Compile Include="Controls\DevicesExpander.xaml.cs">
       <DependentUpon>DevicesExpander.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\StateControl.xaml.cs">
@@ -221,8 +228,6 @@
     <Compile Include="Modules\FileSerializer\IFileSerializer.cs" />
     <Compile Include="Modules\FileSerializer\XmlFileSerializer.cs" />
     <Compile Include="Modules\SettingsManager\ISettingsManager.cs" />
-    <Compile Include="Messages\Commands\ForceShutdownCommand.cs" />
-    <Compile Include="Messages\Commands\LockPCCommand.cs" />
     <Compile Include="Modules\ServiceCallbackMessanger\ServiceCallbackMessanger.cs" />
     <Compile Include="Modules\ServiceProxy\IServiceProxy.cs" />
     <Compile Include="Modules\ServiceProxy\ServiceNotConnectedException.cs" />
