@@ -5,7 +5,7 @@ using System.Timers;
 
 namespace ServiceLibrary.Implementation
 {
-    public class HideezService : IHideezService
+    public partial class HideezService : IHideezService
     {
         static Logger log;
 
@@ -35,9 +35,12 @@ namespace ServiceLibrary.Implementation
             log.Info("OS: {0}", Environment.OSVersion);
             log.Info("Command: {0}", Environment.CommandLine);
 
+            log.Info(">>>>>> Initialize SDK");
+            InitializeSDK();
+            log.Info(">>>>>> SDK Initialized");
+
             log.Info(">>>>>> Service started");
         }
-
 
         #region Utils
         private void ThrowException(Exception ex)
