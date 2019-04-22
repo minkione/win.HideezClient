@@ -4,6 +4,7 @@ namespace ServiceLibrary
 {
     /// <summary>
     /// This service is used to provide automatic contract generation for other projects
+    /// All interface members of IHideezService can be left as not implemented
     /// </summary>
     class ContractProviderService : IHideezService
     {

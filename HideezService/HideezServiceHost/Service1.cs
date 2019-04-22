@@ -27,14 +27,15 @@ namespace HideezServiceHost
 
                 serviceHost.Open();
 
-                // подключаемся к серверу, чтобы он стартовал
+                // Connect to service to initialize it
                 var callback = new HideezServiceCallbacks();
                 var instanceContext = new InstanceContext(callback);
 
                 var service = new HideezServiceClient(instanceContext);
+                // Todo: change client type to ServiceHost
                 await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.TestConsole });
 
-                // теперь можно отключиться
+                // Now we can disconnect
                 service.Close();
             }
             catch (Exception ex)
