@@ -1,0 +1,149 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:HideezSafe.Controls"
+    xmlns:local="clr-namespace:HideezSafe.Resources"
+    xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:tb="http://www.hardcodet.net/taskbar">
+    
+    <!--  Traybar menu icon  -->
+    <tb:TaskbarIcon
+        x:Key="TaskbarIcon"
+        DoubleClickCommand="{Binding ShowWindowCommand}"
+        IconSource="{Binding IconSource}"
+        ToolTipText="{Binding ToolTip}">
+        <!--  LeftClickCommand="{Binding ShowWindowCommand}"  -->
+
+        <tb:TaskbarIcon.ContextMenu>
+            <ContextMenu ItemsSource="{Binding MenuItems}">
+                <ContextMenu.ItemContainerStyle>
+                    <Style TargetType="{x:Type MenuItem}">
+                        <Setter Property="Padding" Value="5" />
+                        <Setter Property="Command" Value="{Binding Command}" />
+                        <Setter Property="Header" Value="{Binding Header}" />
+                        <Setter Property="IsChecked" Value="{Binding IsChecked}" />
+                        <Setter Property="IsCheckable" Value="{Binding IsCheckable}" />
+                        <Setter Property="ItemsSource" Value="{Binding MenuItems}" />
+                        <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate>
+                                            <Separator Margin="10,0,10,0" />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContextMenu.ItemContainerStyle>
+            </ContextMenu>
+        </tb:TaskbarIcon.ContextMenu>
+    </tb:TaskbarIcon>
+
+    <!--  Style TargetType StateControl  -->
+    <Style TargetType="controls:StateControl">
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Margin" Value="30,20,0,0" />
+    </Style>
+
+
+    <Style x:Key="PinkButton" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border
+                        x:Name="border"
+                        Padding="20,7"
+                        Background="{DynamicResource PinkBrush}"
+                        CornerRadius="4">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource PinkBrushIsMouseOver}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource PinkBrushIsPressed}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ButtonBlue" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border
+                        x:Name="border"
+                        Padding="20,7"
+                        Background="{DynamicResource BlueBrush}"
+                        CornerRadius="4">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource BlueBrushIsMouseOver}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource BlueBrushIsPressed}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  ToggleSwitch  -->
+    <Style x:Key="ToggleSwitch.Win10" TargetType="ToggleButton">
+        <Setter Property="Background" Value="{DynamicResource BlueBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border
+                        x:Name="border"
+                        Background="{Binding Background, RelativeSource={RelativeSource TemplatedParent}}"
+                        CornerRadius="10">
+                        <Ellipse
+                            x:Name="ellipse"
+                            Width="10"
+                            Height="10"
+                            Margin="5,0"
+                            HorizontalAlignment="Right"
+                            Fill="#F4FEFF" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter TargetName="ellipse" Property="HorizontalAlignment" Value="Left" />
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource PinkBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RangeSliderStyle" TargetType="{x:Type ma:RangeSlider}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="ma:SliderHelper.ThumbFillBrush" Value="{DynamicResource BlueBrush}" />
+        <Setter Property="ma:SliderHelper.ThumbFillDisabledBrush" Value="{DynamicResource SliderBlueBrush}" />
+        <Setter Property="ma:SliderHelper.ThumbFillHoverBrush" Value="{DynamicResource BlueBrushIsMouseOver}" />
+        <Setter Property="ma:SliderHelper.ThumbFillPressedBrush" Value="{DynamicResource BlueBrushIsPressed}" />
+        <Setter Property="ma:SliderHelper.TrackFillBrush" Value="{DynamicResource SliderBlueBrush}" />
+        <Setter Property="ma:SliderHelper.TrackFillDisabledBrush" Value="{DynamicResource SliderBlueBrush}" />
+        <Setter Property="ma:SliderHelper.TrackFillHoverBrush" Value="{DynamicResource SliderBlueBrush}" />
+        <Setter Property="ma:SliderHelper.TrackFillPressedBrush" Value="{DynamicResource SliderBlueBrush}" />
+        <Setter Property="ma:SliderHelper.TrackValueFillBrush" Value="{DynamicResource BlueBrush}" />
+        <Setter Property="ma:SliderHelper.TrackValueFillDisabledBrush" Value="{DynamicResource BlueBrush}" />
+        <Setter Property="ma:SliderHelper.TrackValueFillHoverBrush" Value="{DynamicResource BlueBrushIsMouseOver}" />
+        <Setter Property="ma:SliderHelper.TrackValueFillPressedBrush" Value="{DynamicResource BlueBrushIsPressed}" />
+    </Style>
+</ResourceDictionary>

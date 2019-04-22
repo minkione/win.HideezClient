@@ -93,7 +93,7 @@ namespace HideezSafe.Modules.ServiceWatchdog
             {
                 try
                 {
-                    var ping = await serviceProxy.GetService().PingAsync(new byte[2] { 1, 7 });
+                    var ping = await serviceProxy.GetService().PingAsync();
                 }
                 catch (Exception ex)
                 {

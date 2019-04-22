@@ -1,4 +1,5 @@
-﻿using HideezSafe.Properties;
+﻿using HideezSafe.Modules;
+using HideezSafe.Modules.Localize;
 using System;
 
 namespace HideezSafe.ViewModels
@@ -7,7 +8,7 @@ namespace HideezSafe.ViewModels
     {
         public override bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {
-            IsChecked = Header.Equals(Settings.Default.Culture.NativeName, StringComparison.OrdinalIgnoreCase);
+            IsChecked = Header.Equals(TranslationSource.Instance.CurrentCulture.NativeName, StringComparison.OrdinalIgnoreCase);
 
             return base.ReceiveWeakEvent(managerType, sender, e);
         }
