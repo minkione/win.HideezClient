@@ -18,15 +18,12 @@ namespace ServiceLibrary.Implementation
         private HesAppConnection _hesConnection;
         private RfidServiceConnection _rfidService;
 
-        public string BleAdapterState => _connectionManager?.State.ToString();
-        public string RfidAdapterState => "NA";
-
         private void InitializeSDK()
         {
             _log = new EventLogger("ExampleApp");
             //_connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
 
-            //_connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+            _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             //_connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
             //_connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
             //_connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
@@ -48,8 +45,8 @@ namespace ServiceLibrary.Implementation
 
             // RFID Service Connection ============================
             _rfidService = new RfidServiceConnection(_log);
+            _rfidService.RfidAdapterStateChanged += RFIDService_ReaderStateChanged;
             _rfidService.Start();
-
 
             // WorkstationUnlocker ==================================
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _credentialProviderConnection, _rfidService, _log);
@@ -57,10 +54,29 @@ namespace ServiceLibrary.Implementation
 
             // HES
             _hesConnection = new HesAppConnection(_deviceManager, "https://localhost:44371", _log);
+            _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
             _hesConnection.Connect();
 
             _connectionManager.Start();
             //_connectionManager.StartDiscovery();
+        }
+
+        void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
+        {
+            foreach (var client in SessionManager.Sessions)
+                client.Callbacks.ConnectionDongleChangedRequest(_connectionManager?.State == BluetoothAdapterState.PoweredOn);
+        }
+
+        void RFIDService_ReaderStateChanged(object sender, EventArgs e)
+        {
+            foreach (var client in SessionManager.Sessions)
+                client.Callbacks.ConnectionRFIDChangedRequest(_rfidService != null ? _rfidService.Connected : false);
+        }
+
+        void HES_ConnectionStateChanged(object sender, EventArgs e)
+        {
+            foreach (var client in SessionManager.Sessions)
+                client.Callbacks.ConnectionHESChangedRequest(_hesConnection?.State == HesConnectionState.Connected);
         }
 
         void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
@@ -79,8 +95,5 @@ namespace ServiceLibrary.Implementation
         {
         }
 
-        void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
-        {
-        }
     }
 }

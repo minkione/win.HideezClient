@@ -12,6 +12,8 @@ namespace ServiceLibrary.Implementation
         static bool initialized = false;
         static object initializationLock = new object();
 
+        static ServiceClientSessionManager SessionManager = new ServiceClientSessionManager(); 
+
         public HideezService()
         {
             lock (initializationLock)

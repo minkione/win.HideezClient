@@ -7,7 +7,9 @@ namespace ServiceLibrary.Implementation
 {
     class ServiceClientSessionManager
     {
-        readonly List<ServiceClientSession> sessions = new List<ServiceClientSession>();
+        readonly object sessionsLock = new object();
+
+        public IReadOnlyCollection<ServiceClientSession> Sessions { get; } = new List<ServiceClientSession>();
 
         public ServiceClientSessionManager()
         {
@@ -16,26 +18,26 @@ namespace ServiceLibrary.Implementation
         internal ServiceClientSession Add(ICallbacks callbacks)
         {
             var session = new ServiceClientSession(callbacks);
-            lock (sessions)
+            lock (sessionsLock)
             {
-                sessions.Add(session);
+                Sessions.Append(session);
             }
             return session;
         }
 
         internal void Remove(ServiceClientSession session)
         {
-            lock (sessions)
+            lock (sessionsLock)
             {
-                sessions.Remove(session);
+                (Sessions as List<ServiceClientSession>).Remove(session);
             }
         }
 
         ServiceClientSession GetSessionById(string id)
         {
-            lock (sessions)
+            lock (sessionsLock)
             {
-                return sessions.FirstOrDefault(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+                return Sessions.FirstOrDefault(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
             }
         }
     }

@@ -1,24 +1,17 @@
-﻿using ServiceLibrary;
-using System;
-using System.Timers;
+﻿using System;
 
 namespace ServiceLibrary.Implementation
 {
     class ServiceClientSession
     {
-        private readonly ICallbacks callbacks;
-
         public ServiceClientSession(ICallbacks callbacks)
         {
-            this.callbacks = callbacks;
+            this.Callbacks = callbacks;
             Id = new Guid().ToString();
         }
 
-        public string Id { get; }
+        public ICallbacks Callbacks { get; }
 
-        public void LockClientWorkstation()
-        {
-            callbacks.LockWorkstationRequest();
-        }
+        public string Id { get; }
     }
 }
