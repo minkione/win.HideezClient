@@ -76,6 +76,15 @@
   <wsdl:message name="IHideezService_Shutdown_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q4="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q4:HideezServiceFault" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_GetAdapterState_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAdapterState" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_GetAdapterState_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAdapterStateResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_GetAdapterState_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q5="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q5:HideezServiceFault" />
+  </wsdl:message>
   <wsdl:message name="IHideezService_LockWorkstationRequest_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:LockWorkstationRequest" />
   </wsdl:message>
@@ -108,6 +117,11 @@
       <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/Shutdown" message="tns:IHideezService_Shutdown_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ShutdownResponse" message="tns:IHideezService_Shutdown_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/ShutdownHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_Shutdown_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="GetAdapterState">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/GetAdapterState" message="tns:IHideezService_GetAdapterState_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/GetAdapterStateResponse" message="tns:IHideezService_GetAdapterState_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/GetAdapterStateHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_GetAdapterState_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="LockWorkstationRequest">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/LockWorkstationRequest" message="tns:IHideezService_LockWorkstationRequest_OutputCallbackMessage" />
@@ -164,6 +178,18 @@
     </wsdl:operation>
     <wsdl:operation name="Shutdown">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/Shutdown" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetAdapterState">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/GetAdapterState" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

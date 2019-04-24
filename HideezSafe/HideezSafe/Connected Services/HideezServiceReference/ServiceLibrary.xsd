@@ -20,4 +20,12 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="HideezServiceFault" nillable="true" type="tns:HideezServiceFault" />
+  <xs:simpleType name="Addapter">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HES" />
+      <xs:enumeration value="RFID" />
+      <xs:enumeration value="Dongle" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Addapter" nillable="true" type="tns:Addapter" />
 </xs:schema>

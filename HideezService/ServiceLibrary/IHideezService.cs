@@ -20,6 +20,10 @@ namespace ServiceLibrary
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         void Shutdown();
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        bool GetAdapterState(Addapter addapter);
     }
 
     public interface ICallbacks
@@ -35,5 +39,12 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void ConnectionDongleChangedRequest(bool isConnected);
+    }
+
+    public enum Addapter
+    {
+        HES,
+        RFID,
+        Dongle,
     }
 }

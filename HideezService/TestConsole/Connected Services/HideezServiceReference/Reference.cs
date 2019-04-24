@@ -42,6 +42,13 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/Shutdown", ReplyAction="http://tempuri.org/IHideezService/ShutdownResponse")]
         System.Threading.Tasks.Task ShutdownAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAdapterState", ReplyAction="http://tempuri.org/IHideezService/GetAdapterStateResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(ServiceLibrary.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetAdapterStateHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        bool GetAdapterState(ServiceLibrary.Addapter addapter);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAdapterState", ReplyAction="http://tempuri.org/IHideezService/GetAdapterStateResponse")]
+        System.Threading.Tasks.Task<bool> GetAdapterStateAsync(ServiceLibrary.Addapter addapter);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -118,6 +125,14 @@ namespace TestConsole.HideezServiceReference {
         
         public System.Threading.Tasks.Task ShutdownAsync() {
             return base.Channel.ShutdownAsync();
+        }
+        
+        public bool GetAdapterState(ServiceLibrary.Addapter addapter) {
+            return base.Channel.GetAdapterState(addapter);
+        }
+        
+        public System.Threading.Tasks.Task<bool> GetAdapterStateAsync(ServiceLibrary.Addapter addapter) {
+            return base.Channel.GetAdapterStateAsync(addapter);
         }
     }
 }

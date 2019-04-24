@@ -18,6 +18,11 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
+        public bool GetAdapterState(Addapter addapter)
+        {
+            throw new NotImplementedException();
+        }
+
         public int Ping()
         {
             throw new NotImplementedException();
