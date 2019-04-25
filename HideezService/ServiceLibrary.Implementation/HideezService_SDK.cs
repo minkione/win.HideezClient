@@ -2,13 +2,14 @@
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Proximity;
 using HideezMiddleware;
 using System;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation
 {
-    public partial class HideezService : IHideezService
+    public partial class HideezService : IHideezService, IWorkstationLocker
     {
         private EventLogger _log;
         private BleConnectionManager _connectionManager;
@@ -17,6 +18,7 @@ namespace ServiceLibrary.Implementation
         private WorkstationUnlocker _workstationUnlocker;
         private HesAppConnection _hesConnection;
         private RfidServiceConnection _rfidService;
+        private ProximityMonitorManager _proximityMonitorManager;
 
         private void InitializeSDK()
         {
@@ -56,6 +58,10 @@ namespace ServiceLibrary.Implementation
             _hesConnection = new HesAppConnection(_deviceManager, "https://localhost:44371", _log);
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
             _hesConnection.Connect();
+
+            // Proximity Monitor
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, this);
+            _proximityMonitorManager.Start();
 
             _connectionManager.Start();
             //_connectionManager.StartDiscovery();
@@ -110,5 +116,10 @@ namespace ServiceLibrary.Implementation
             }
         }
 
+        public void LockWorkstation()
+        {
+            foreach (var client in SessionManager.Sessions)
+                client.Callbacks.LockWorkstationRequest();
+        }
     }
 }
