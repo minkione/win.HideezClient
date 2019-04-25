@@ -1,4 +1,5 @@
 ﻿using HideezSafe.Modules;
+using HideezSafe.Modules.Localize;
 using System;
 
 namespace HideezSafe.ViewModels

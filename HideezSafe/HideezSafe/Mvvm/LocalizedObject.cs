@@ -4,13 +4,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using HideezSafe.Modules;
+using HideezSafe.Modules.Localize;
 
 namespace HideezSafe.Mvvm
 {
     /// <summary>
     /// A class provides localization extension.
     /// </summary>
-    class LocalizedObject : ObservableObject, IWeakEventListener
+    public class LocalizedObject : ObservableObject, IWeakEventListener
     {
         private List<string> localizeDependencies;
 

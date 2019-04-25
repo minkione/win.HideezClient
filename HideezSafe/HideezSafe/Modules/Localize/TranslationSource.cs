@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Resources;
 
-namespace HideezSafe.Modules
+namespace HideezSafe.Modules.Localize
 {
     /// <summary>
     /// A class that provide access to resource localized and manage one.
