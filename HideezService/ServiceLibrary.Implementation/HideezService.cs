@@ -119,10 +119,5 @@ namespace ServiceLibrary.Implementation
         {
             log.Debug(">>>>>> Shutdown service");
         }
-
-        public bool GetAdapterState(Addapter addapter)
-        {
-            return true;
-        }
     }
 }

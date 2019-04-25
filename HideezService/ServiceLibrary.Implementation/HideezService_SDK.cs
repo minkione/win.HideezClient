@@ -95,5 +95,20 @@ namespace ServiceLibrary.Implementation
         {
         }
 
+        public bool GetAdapterState(Addapter addapter)
+        {
+            switch (addapter)
+            {
+                case Addapter.Dongle:
+                    return _connectionManager?.State == BluetoothAdapterState.PoweredOn;
+                case Addapter.HES:
+                    return _hesConnection?.State == HesConnectionState.Connected;
+                case Addapter.RFID:
+                    return _rfidService != null ? _rfidService.Connected : false;
+                default:
+                    return false;
+            }
+        }
+
     }
 }
