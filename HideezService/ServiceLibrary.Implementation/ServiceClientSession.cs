@@ -7,7 +7,7 @@ namespace ServiceLibrary.Implementation
         public ServiceClientSession(ICallbacks callbacks)
         {
             this.Callbacks = callbacks;
-            Id = new Guid().ToString();
+            Id = Guid.NewGuid().ToString();
         }
 
         public ICallbacks Callbacks { get; }

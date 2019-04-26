@@ -20,7 +20,7 @@ namespace ServiceLibrary.Implementation
             var session = new ServiceClientSession(callbacks);
             lock (sessionsLock)
             {
-                Sessions.Append(session);
+                (Sessions as List<ServiceClientSession>).Add(session);
             }
             return session;
         }

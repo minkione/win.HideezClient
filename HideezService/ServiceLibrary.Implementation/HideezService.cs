@@ -12,7 +12,9 @@ namespace ServiceLibrary.Implementation
         static bool initialized = false;
         static object initializationLock = new object();
 
-        static ServiceClientSessionManager SessionManager = new ServiceClientSessionManager(); 
+        static ServiceClientSessionManager SessionManager = new ServiceClientSessionManager();
+
+        private ServiceClientSession client;
 
         public HideezService()
         {
@@ -99,6 +101,9 @@ namespace ServiceLibrary.Implementation
         {
             log.Debug(">>>>>> AttachClient " + prm.ClientType.ToString());
 
+            var callback = OperationContext.Current.GetCallbackChannel<ICallbacks>();
+            client = SessionManager.Add(callback);
+
             OperationContext.Current.Channel.Closed += Channel_Closed;
             OperationContext.Current.Channel.Faulted += Channel_Faulted;
 
@@ -108,6 +113,7 @@ namespace ServiceLibrary.Implementation
         public void DetachClient()
         {
             log.Debug(">>>>>> DetachClient ");
+            SessionManager.Remove(client);
         }
 
         public int Ping()

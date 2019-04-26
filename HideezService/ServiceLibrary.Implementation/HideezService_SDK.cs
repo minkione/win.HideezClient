@@ -11,33 +11,33 @@ namespace ServiceLibrary.Implementation
 {
     public partial class HideezService : IHideezService, IWorkstationLocker
     {
-        private EventLogger _log;
-        private BleConnectionManager _connectionManager;
-        private BleDeviceManager _deviceManager;
-        private CredentialProviderConnection _credentialProviderConnection;
-        private WorkstationUnlocker _workstationUnlocker;
-        private HesAppConnection _hesConnection;
-        private RfidServiceConnection _rfidService;
-        private ProximityMonitorManager _proximityMonitorManager;
+        static EventLogger _log;
+        static BleConnectionManager _connectionManager;
+        static BleDeviceManager _deviceManager;
+        static CredentialProviderConnection _credentialProviderConnection;
+        static WorkstationUnlocker _workstationUnlocker;
+        static HesAppConnection _hesConnection;
+        static RfidServiceConnection _rfidService;
+        static ProximityMonitorManager _proximityMonitorManager;
 
         private void InitializeSDK()
         {
             _log = new EventLogger("ExampleApp");
-            //_connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
+            _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
 
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            //_connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
-            //_connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
-            //_connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+            _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
+            _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
+            _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
 
             // COM =============================
             //var port = new ComConnection(log, "COM68", 9600);
             //port.Connect();
 
             // BLE ============================
-            //_deviceManager = new BleDeviceManager(_log, _connectionManager);
-            //_deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
-            //_deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
+            _deviceManager = new BleDeviceManager(_log, _connectionManager);
+            _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
+            _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
 
 
             // Named Pipes Server ==============================
@@ -51,11 +51,11 @@ namespace ServiceLibrary.Implementation
             _rfidService.Start();
 
             // WorkstationUnlocker ==================================
-            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _credentialProviderConnection, _rfidService, _log);
+            //_workstationUnlocker = new WorkstationUnlocker(_deviceManager, _credentialProviderConnection, _rfidService, _log);
 
 
             // HES
-            _hesConnection = new HesAppConnection(_deviceManager, "https://localhost:44371", _log);
+            _hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.241", _log);
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
             _hesConnection.Connect();
 
