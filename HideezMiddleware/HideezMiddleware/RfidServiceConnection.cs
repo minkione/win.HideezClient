@@ -11,10 +11,14 @@ namespace HideezMiddleware
 
     public class RfidServiceConnection : Logger
     {
+        const string readerStateParameter = "reader_available:";
         readonly PipeClient _pipeClient;
 
+        private bool _readerConnected = false;
+
         public event EventHandler<RfidReceivedEventArgs> RfidReceivedEvent;
-        public event EventHandler<EventArgs> RfidAdapterStateChanged;
+        public event EventHandler<EventArgs> RfidServiceStateChanged;
+        public event EventHandler<EventArgs> RfidReaderStateChanged;
 
         public RfidServiceConnection(ILog log)
             : base(nameof(RfidServiceConnection), log)
@@ -22,13 +26,26 @@ namespace HideezMiddleware
             _pipeClient = new PipeClient("hideezrfid", log);
         }
 
-        public bool Connected => _pipeClient.Connected;
+        public bool ServiceConnected => _pipeClient.Connected;
+
+        public bool ReaderConnected
+        {
+            get
+            {
+                return ServiceConnected && _readerConnected;
+            }
+            set
+            {
+                _readerConnected = value;
+                RfidReaderStateChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
         public void Start()
         {
-            _pipeClient.Run();
             _pipeClient.MessageReceivedEvent += PipeClient_MessageReceivedEvent;
             _pipeClient.PipeConnectionStateChanged += PipeClient_PipeStateChanged;
+            _pipeClient.Run();
         }
 
         public void Stop()
@@ -36,6 +53,7 @@ namespace HideezMiddleware
             if (_pipeClient != null)
             {
                 _pipeClient?.Stop();
+                ReaderConnected = false;
                 _pipeClient.MessageReceivedEvent -= PipeClient_MessageReceivedEvent;
                 _pipeClient.PipeConnectionStateChanged -= PipeClient_PipeStateChanged;
             }
@@ -43,12 +61,33 @@ namespace HideezMiddleware
 
         void PipeClient_MessageReceivedEvent(object sender, MessageReceivedEventArgs e)
         {
-            RfidReceivedEvent?.Invoke(this, new RfidReceivedEventArgs() { Rfid = e.Message });
+            if (e.Message.StartsWith(readerStateParameter))
+            {
+                var stringValue = GetValue(readerStateParameter, e.Message);
+                if (bool.TryParse(stringValue, out bool receivedReaderState))
+                {
+                    ReaderConnected = receivedReaderState;
+                    return;
+                }
+            }
+            else
+            {
+                RfidReceivedEvent?.Invoke(this, new RfidReceivedEventArgs() { Rfid = e.Message });
+            }
         }
 
         void PipeClient_PipeStateChanged(object sender, EventArgs args)
         {
-            RfidAdapterStateChanged?.Invoke(this, EventArgs.Empty);
+            RfidServiceStateChanged?.Invoke(this, EventArgs.Empty);
+            RfidReaderStateChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        string GetValue(string parameter, string message)
+        {
+            if (!message.Contains(parameter))
+                return string.Empty;
+
+            return message.Substring(message.IndexOf(parameter) + parameter.Length);
         }
     }
 }

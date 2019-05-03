@@ -47,7 +47,7 @@ namespace ServiceLibrary.Implementation
 
             // RFID Service Connection ============================
             _rfidService = new RfidServiceConnection(_log);
-            _rfidService.RfidAdapterStateChanged += RFIDService_ReaderStateChanged;
+            _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
             _rfidService.Start();
 
             // WorkstationUnlocker ==================================
@@ -76,7 +76,8 @@ namespace ServiceLibrary.Implementation
         void RFIDService_ReaderStateChanged(object sender, EventArgs e)
         {
             foreach (var client in SessionManager.Sessions)
-                client.Callbacks.ConnectionRFIDChangedRequest(_rfidService != null ? _rfidService.Connected : false);
+                client.Callbacks.ConnectionRFIDChangedRequest(_rfidService != null ? 
+                    _rfidService.ServiceConnected && _rfidService.ReaderConnected : false);
         }
 
         void HES_ConnectionStateChanged(object sender, EventArgs e)
@@ -110,7 +111,7 @@ namespace ServiceLibrary.Implementation
                 case Addapter.HES:
                     return _hesConnection?.State == HesConnectionState.Connected;
                 case Addapter.RFID:
-                    return _rfidService != null ? _rfidService.Connected : false;
+                    return _rfidService != null ? _rfidService.ServiceConnected && _rfidService.ReaderConnected : false;
                 default:
                     return false;
             }
