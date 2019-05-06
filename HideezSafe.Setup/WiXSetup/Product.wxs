@@ -6,6 +6,12 @@
   <?define HideezSafe_TargetDir=$(var.HideezSafe.TargetDir)?>
   <?define Setup_ProjectDir=$(var.ProjectDir)?>
 
+  <?define DPInst_SourceDir=$(var.Setup_ProjectDir)DPInst\?>
+  <?define CsrWin7_x64_SourceDir=$(var.DPInst_SourceDir)win7\win64\ ?>
+  <?define CsrWin7_x86_SourceDir=$(var.DPInst_SourceDir)win7\win32\ ?>
+  <?define CsrWin8_x64_SourceDir=$(var.DPInst_SourceDir)win8\win64\ ?>
+  <?define CsrWin8_x86_SourceDir=$(var.DPInst_SourceDir)win8\win32\ ?>
+
   <!-- Architecture specific path detection -->
   <?if $(var.Platform) = x64 ?>
   <?define Win64 = "yes" ?>
@@ -52,6 +58,12 @@
       <ComponentGroupRef Id="ru_files" />
       <ComponentGroupRef Id="uk_files" />
 
+      <ComponentGroupRef Id="CsrDriverShared" />
+      <ComponentGroupRef Id="CsrDriverWin7x64" />
+      <ComponentGroupRef Id="CsrDriverWin7x86" />
+      <ComponentGroupRef Id="CsrDriverWin8x64" />
+      <ComponentGroupRef Id="CsrDriverWin8x86" />
+
       <ComponentRef Id="ApplicationShortcut" />
       <!--<ComponentRef Id="ApplicationStartupComponent" />-->
 
@@ -61,11 +73,12 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="$(var.PlatformProgramFilesFolder)">
         <Directory Id="HideezFolder" Name="Hideez">
-          <Directory Id="INSTALLFOLDER" Name="Safe">
+          <Directory Id="INSTALLFOLDER" Name="Safe v3">
             <Directory Id="ru" Name="ru" />
             <Directory Id="uk" Name="uk" />
             <Directory Id="x64_" Name="x64" />
             <Directory Id="x86_" Name="x86" />
+            <Directory Id="csr" Name="driver" />
           </Directory>
         </Directory>
       </Directory>
@@ -125,7 +138,7 @@
       <Publish Dialog="ExitDialog"
                Control="Finish"
                Event="DoAction"
-               Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+               Value="LaunchInstalledApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
     </UI>
 
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
@@ -136,22 +149,27 @@
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
 
     <Property Id="WixShellExecTarget" Value="[#HideezSafe.exe]" />
-    <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes"/>
+
+    <CustomAction Id="AssignDriverInstallerProperty" Property="CSRDRIVERPATH" Value="[INSTALLFOLDER]driver\DPInst.exe" />
+    <CustomAction Id="LaunchInstalledApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
 
     <InstallExecuteSequence>
-      <Custom Action="LaunchApplication" After="InstallFinalize">WIX_UPGRADE_DETECTED AND UILevel = 3</Custom>
-      <!-- Install upgrade and passive install -->
-    </InstallExecuteSequence>
+      <!-- Set path to driver installator if option is checked -->
+      <Custom Action="AssignDriverInstallerProperty" After="CostFinalize" >
+        INSTALLDONGLEDRIVER
+      </Custom>
 
-    <InstallExecuteSequence>
-      <!--
-      How to detect different modes of installation.
-      http://alekdavis.blogspot.com/2013/05/wix-woes-what-is-your-installer-doing.html
-      -->
-      <!-- Run on initial installation only -->
-      <Custom Action="LaunchCustomAction" After="InstallFinalize">
+      <Custom Action="DataForSetupCustomComponentsAction" After="AssignDriverInstallerProperty" >
         NOT Installed
       </Custom>
+      
+      <!-- Setup CSR driver, HES address and other settings after initial installation -->
+      <Custom Action="SetupCustomComponentsAction" After="InstallFiles">
+        NOT Installed
+      </Custom>
+      
+      <!-- Launch application after upgrade and passive install -->
+      <Custom Action="LaunchInstalledApplication" After="InstallFinalize">WIX_UPGRADE_DETECTED AND UILevel = 3</Custom>
     </InstallExecuteSequence>
   </Product>
 
@@ -159,7 +177,7 @@
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
 
-      <Component Id="CommonServiceLocator.dll" Guid="{A95D69BF-9CBF-4B15-8CD1-E1E550AD8F1D}" Win64="$(var.Win64)">
+     <Component Id="CommonServiceLocator.dll" Guid="{A95D69BF-9CBF-4B15-8CD1-E1E550AD8F1D}" Win64="$(var.Win64)">
         <File Id="CommonServiceLocator.dll" Name="CommonServiceLocator.dll" Source="$(var.HideezSafe_TargetDir)CommonServiceLocator.dll" />
       </Component>
 
@@ -222,12 +240,91 @@
     </ComponentGroup>
   </Fragment>
 
-
-  <!-- Custom Action -->
+  <!-- CSR Driver -->
   <Fragment>
-    <Binary Id="CustomActionSetup" SourceFile="$(var.CustomAction.TargetDir)CustomAction.CA.dll"/>
-    <CustomAction Id="LaunchCustomAction" BinaryKey="CustomActionSetup" DllEntry="InstallAction" Execute="immediate" Return="check"/>
+    <ComponentGroup Id="CsrDriverShared" Directory="csr">
+      <Component Id="DPInst.xml" Permanent="no" Guid="{E5D9E610-9C05-43E6-9F0F-9ED3F8B6755B}">
+        <File Id="DPInst.xml" Name="DPInst.xml" Source="$(var.DPInst_SourceDir)DPInst.xml" />
+      </Component>
+      <Component Id="DPInst_x64.exe" Permanent="no" Guid="{44EAE128-BB8C-4706-8BC5-19193F7277A9}">
+        <Condition>VersionNT64</Condition>
+        <File Id="DPInst_x64.exe" Name="DPInst.exe" Source="$(var.DPInst_SourceDir)DPInst_x64.exe" />
+      </Component>
+      <Component Id="DPInst_x86.exe" Permanent="no" Guid="{F153641C-0C7A-4D82-A409-500808AE747D}">
+        <Condition>NOT VersionNT64</Condition>
+        <File Id="DPInst_x86.exe" Name="DPInst.exe" Source="$(var.DPInst_SourceDir)DPInst_x86.exe" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- win7 x64 -->
+    <ComponentGroup Id="CsrDriverWin7x64" Directory="csr">
+      <Component Id="csrbc_win7_x64.sys" Permanent="no" Guid="{64BE26F7-2B26-49EC-9CCB-93CBE71457E5}">
+        <Condition>VersionNT = 601 AND VersionNT64</Condition>
+        <File Id="csrbc_win7_x64.sys" Name="csrbc.sys" Source="$(var.CsrWin7_x64_SourceDir)csrbc.sys" />
+      </Component>
+      <Component Id="csrbluecoreusb_win7_x64.cat" Permanent="no" Guid="{1B635AED-BF04-4F71-BB5B-8F33CFA8A7E9}">
+        <Condition>VersionNT = 601 AND VersionNT64</Condition>
+        <File Id="csrbluecoreusb_win7_x64.cat" Name="csrbluecoreusb.cat" Source="$(var.CsrWin7_x64_SourceDir)csrbluecoreusb.cat" />
+      </Component>
+      <Component Id="CSRBlueCoreUSB_win7_x64.inf" Guid="{CB24A014-B374-4429-BE00-261C5F6C14AF}">
+        <Condition>VersionNT = 601 AND VersionNT64</Condition>
+        <File Id="CSRBlueCoreUSB_win7_x64.inf" Name="CSRBlueCoreUSB.inf" Source="$(var.CsrWin7_x64_SourceDir)CSRBlueCoreUSB.inf" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- win7 x86 -->
+    <ComponentGroup Id="CsrDriverWin7x86" Directory="csr">
+      <Component Id="csrbc_win7_x86.sys" Permanent="no" Guid="{86738B3B-E11F-4031-A0AC-9CF347ACE983}">
+        <Condition>VersionNT = 601 AND NOT VersionNT64</Condition>
+        <File Id="csrbc_win7_x86.sys" Name="csrbc.sys" Source="$(var.CsrWin7_x86_SourceDir)csrbc.sys" />
+      </Component>
+      <Component Id="csrbc2k_win7_x86.sys" Permanent="no" Guid="{4AF28ADC-F915-49FD-B534-56719368D48F}">
+        <Condition>VersionNT = 601 AND NOT VersionNT64</Condition>
+        <File Id="csrbc2k_win7_x86.sys" Name="csrbc2k.sys" Source="$(var.CsrWin7_x86_SourceDir)csrbc2k.sys" />
+      </Component>
+      <Component Id="csrbluecoreusb_win7_x86.cat" Permanent="no" Guid="{97B3C874-AB99-4E74-A4A7-54841BCE6532}">
+        <Condition>VersionNT = 601 AND NOT VersionNT64</Condition>
+        <File Id="csrbluecoreusb_win7_x86.sys" Name="csrbluecoreusb.cat" Source="$(var.CsrWin7_x86_SourceDir)csrbluecoreusb.cat" />
+      </Component>
+      <Component Id="CSRBLueCoreUSB_win7_x86.inf" Permanent="no" Guid="{1F51E63D-ABD1-4F2D-A751-FA9D63A4D1C8}">
+        <Condition>VersionNT = 601 AND NOT VersionNT64</Condition>
+        <File Id="CSRBlueCoreUSB_win7_x86.inf" Name="CSRBlueCoreUSB.inf" Source="$(var.CsrWin7_x86_SourceDir)CSRBlueCoreUSB.inf" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- win8 x64 -->
+    <ComponentGroup Id="CsrDriverWin8x64" Directory="csr">
+      <Component Id="csrbc_win8_x64.cat" Permanent="no" Guid="{524ADAD7-76AA-4A77-BBE0-777D2E4F49B4}">
+        <Condition>VersionNT >= 602 AND VersionNT64</Condition>
+        <File Id="csrbc_win8_x64.cat" Name="csrbc.cat" Source="$(var.CsrWin8_x64_SourceDir)csrbc.cat" />
+      </Component>
+      <Component Id="csrbc_win8_x64.inf" Permanent="no" Guid="{100FEA88-E370-45A5-8636-BDB64AA310DF}">
+        <Condition>VersionNT >= 602 AND VersionNT64</Condition>
+        <File Id="csrbc_win8_x64.inf" Name="csrbc.inf" Source="$(var.CsrWin8_x64_SourceDir)csrbc.inf" />
+      </Component>
+      <Component Id="csrbc_win8_x64.sys" Permanent="no" Guid="{579066A2-D22D-4E62-B6EA-4852660BF4DD}">
+        <Condition>VersionNT >= 602 AND VersionNT64</Condition>
+        <File Id="csrbc_win8_x64.sys" Name="csrbc.sys" Source="$(var.CsrWin8_x64_SourceDir)csrbc.sys" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- win8 x86 -->
+    <ComponentGroup Id="CsrDriverWin8x86" Directory="csr">
+      <Component Id="csrbc_win8_x86.cat" Permanent="no" Guid="{FB8C2F77-3C2E-4249-BD31-22FF2336DEE7}">
+        <Condition>VersionNT >= 602 AND NOT VersionNT64</Condition>
+        <File Id="csrbc_win8_x86.cat" Name="csrbc.cat" Source="$(var.CsrWin8_x86_SourceDir)csrbc.cat" />
+      </Component>
+      <Component Id="csrbc_win8_x86.inf" Permanent="no" Guid="{582BD3E2-39C6-4C7B-A970-69CE28584B62}">
+        <Condition>VersionNT >= 602 AND NOT VersionNT64</Condition>
+        <File Id="csrbc_win8_x86.inf" Name="csrbc.inf" Source="$(var.CsrWin8_x86_SourceDir)csrbc.inf" />
+      </Component>
+      <Component Id="csrbc_win8_x86.sys" Permanent="no" Guid="{43076818-25CF-4028-9807-67475A876FDF}">
+        <Condition>VersionNT >= 602 AND NOT VersionNT64</Condition>
+        <File Id="csrbc_win8_x86.sys" Name="csrbc.sys" Source="$(var.CsrWin8_x86_SourceDir)csrbc.sys" />
+      </Component>
+    </ComponentGroup>
   </Fragment>
+  <!-- End of CSR Driver -->
 
   <!--ru-->
   <Fragment>
@@ -251,4 +348,18 @@
     </ComponentGroup>
   </Fragment>
 
+  <!-- Custom Action - CSR Driver installation -->
+  <Fragment>
+    <CustomAction Id="DataForSetupCustomComponentsAction"
+                  Property="SetupCustomComponentsAction"
+                  Value="HesAddress=[HESADDRESS];InstallDongleDriver=[INSTALLDONGLEDRIVER];CsrDriverPath=[CSRDRIVERPATH]" />
+    <Binary Id="CustomActionSetup" SourceFile="$(var.CustomAction.TargetDir)CustomAction.CA.dll"/>
+    <CustomAction Id="SetupCustomComponentsAction" 
+                  BinaryKey="CustomActionSetup" 
+                  DllEntry="SetupCustomComponentsAction" 
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="check"/>
+  </Fragment>
+  
 </Wix>
