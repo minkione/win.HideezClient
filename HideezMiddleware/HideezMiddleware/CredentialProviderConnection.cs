@@ -1,4 +1,5 @@
-﻿using Hideez.SDK.Communication.Log;
+﻿using Hideez.SDK.Communication.Interfaces;
+using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.NamedPipes;
 using System;
 using System.Text;
@@ -15,7 +16,7 @@ namespace HideezMiddleware
         PasswordChangeCompleated = 5
     }
 
-    public class CredentialProviderConnection : Logger
+    public class CredentialProviderConnection : Logger, ICredentialProviderConnection
     {
         readonly PipeServer _pipeServer;
 

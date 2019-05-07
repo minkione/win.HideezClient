@@ -7,7 +7,9 @@ using System.Windows.Input;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.PasswordManager;
 using HideezMiddleware;
 
 namespace WinSampleApp.ViewModel
@@ -19,7 +21,9 @@ namespace WinSampleApp.ViewModel
         readonly BleDeviceManager _deviceManager;
         readonly CredentialProviderConnection _credentialProviderConnection;
         readonly WorkstationUnlocker _workstationUnlocker;
-        private HesAppConnection _hesConnection;
+        readonly HesAppConnection _hesConnection;
+        readonly RfidServiceConnection _rfidService;
+        byte _nextChannelNo = 2;
 
         public string BleAdapterState => _connectionManager?.State.ToString();
         public string RfidAdapterState => "NA";
@@ -59,8 +63,6 @@ namespace WinSampleApp.ViewModel
         }
 
         DiscoveredDeviceAddedEventArgs currentDiscoveredDevice;
-        private RfidServiceConnection _rfidService;
-
         public DiscoveredDeviceAddedEventArgs CurrentDiscoveredDevice
         {
             get
@@ -100,6 +102,25 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         BleAdapterStart(x);
+                    }
+                };
+            }
+        }
+
+
+        public ICommand UnlockByRfidCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return true;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        UnlockByRfid();
                     }
                 };
             }
@@ -195,6 +216,24 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand ConnectDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        ConnectDevice(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         public ICommand DisconnectDeviceCommand
         {
             get
@@ -225,7 +264,25 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        //InitDevice(CurrentDevice);
+                        InitDevice(CurrentDevice);
+                    }
+                };
+            }
+        }
+
+        public ICommand WriteDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        WriteDevice(CurrentDevice);
                     }
                 };
             }
@@ -262,6 +319,24 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         AddDeviceChannel(CurrentDevice);
+                    }
+                };
+            }
+        }
+
+        public ICommand RemoveDeviceChannelCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        RemoveDeviceChannel(CurrentDevice);
                     }
                 };
             }
@@ -333,14 +408,15 @@ namespace WinSampleApp.ViewModel
             _rfidService = new RfidServiceConnection(_log);
             _rfidService.Start();
 
-
-            // WorkstationUnlocker ==================================
-            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _credentialProviderConnection, _rfidService, _log);
-
-
             // HES
             _hesConnection = new HesAppConnection(_deviceManager, "https://localhost:44371", _log);
             _hesConnection.Connect();
+
+            // WorkstationUnlocker ==================================
+            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, _credentialProviderConnection, _rfidService, _log);
+
+
+
 
             _connectionManager.Start();
            // _connectionManager.StartDiscovery();
@@ -361,7 +437,9 @@ namespace WinSampleApp.ViewModel
                     Devices.Add(new DeviceViewModel(e.AddedDevice));
                 else if (e.RemovedDevice != null)
                 {
-                    var item = Devices.FirstOrDefault(x => x.Id == e.RemovedDevice.Id);
+                    var item = Devices.FirstOrDefault(x => x.Id == e.RemovedDevice.Id && 
+                                                           x.ChannelNo == e.RemovedDevice.ChannelNo);
+
                     if (item != null)
                         Devices.Remove(item);
                 }
@@ -430,22 +508,27 @@ namespace WinSampleApp.ViewModel
             _connectionManager.ConnectDiscoveredDeviceAsync(e.Id);
         }
 
-        void DisconnectDevice(DeviceViewModel device)
+        void ConnectDevice(DeviceViewModel device)
         {
-           // device.Connection.Disconnect();
+            device.Device.Connection.Connect();
         }
 
-        //async void InitDevice(DeviceViewModel device)
-        //{
-        //    try
-        //    {
-        //        await device.Device.Authenticate();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show(ex.Message);
-        //    }
-        //}
+        void DisconnectDevice(DeviceViewModel device)
+        {
+            device.Device.Connection.Disconnect();
+        }
+
+        async void InitDevice(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.Authenticate();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
         async void PingDevice(DeviceViewModel device)
         {
@@ -466,9 +549,39 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        async void WriteDevice(DeviceViewModel device)
+        {
+            try
+            {
+                var pm = new DevicePasswordManager(device.Device);
+                var account = new AccountRecord()
+                {
+                    Key = 15,
+                    Name = "My Google Account",
+                    Login = "admin@hideez.com",
+                    Password = "my_password",
+                    OtpSecret = "asdasd",
+                    Apps = "12431412412342134",
+                    Urls = "asdfasdfasdfasdfasdfasfds"
+                };
+
+                var key = await pm.SaveOrUpdateAccount(account.Key, account.Flags, account.Name, account.Password, account.Login, account.OtpSecret, account.Apps, account.Urls);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
         void AddDeviceChannel(DeviceViewModel currentDevice)
         {
-            //BleDevice newDevice = _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++);
+            BleDevice newDevice = _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++);
+        }
+
+        async void RemoveDeviceChannel(DeviceViewModel currentDevice)
+        {
+            await _deviceManager.RemoveChannel(currentDevice.Device);
+            _nextChannelNo--;
         }
 
         void Test()
@@ -528,6 +641,20 @@ namespace WinSampleApp.ViewModel
             try
             {
                 throw new NotImplementedException();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+
+        private async void UnlockByRfid()
+        {
+            try
+            {
+                // Todo: UnlockByRfid is marked as internal and is not accessible
+                //await _workstationUnlocker.UnlockByRfid("123");
             }
             catch (Exception ex)
             {
