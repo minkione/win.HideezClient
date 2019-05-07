@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>HideezSafe</RootNamespace>
     <AssemblyName>HideezSafe</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -29,6 +29,7 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -185,6 +186,13 @@
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Converters\ProximityToOpacityConverter.cs" />
     <Compile Include="Converters\StringToResource.cs" />
+    <Compile Include="Messages\ConnectionChangedMessage.cs" />
+    <Compile Include="Messages\ConnectionDongleChangedMessage.cs" />
+    <Compile Include="Messages\ConnectionHESChangedMessage.cs" />
+    <Compile Include="Messages\ConnectionRFIDChangedMessage.cs" />
+    <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
+    <Compile Include="Messages\ForceShutdownMessage.cs" />
+    <Compile Include="Messages\LockWorkstationMessage.cs" />
     <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
     <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
     <Compile Include="ViewModels\Controls\IndicatorsViewModel.cs" />
@@ -239,6 +247,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Connected Services\HideezServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Controls\DevicesExpander.xaml.cs">
       <DependentUpon>DevicesExpander.xaml</DependentUpon>
     </Compile>
@@ -254,8 +267,12 @@
     <Compile Include="Modules\FileSerializer\IFileSerializer.cs" />
     <Compile Include="Modules\FileSerializer\XmlFileSerializer.cs" />
     <Compile Include="Modules\SettingsManager\ISettingsManager.cs" />
-    <Compile Include="Messages\Commands\ForceShutdownCommand.cs" />
-    <Compile Include="Messages\Commands\LockPCCommand.cs" />
+    <Compile Include="Modules\ServiceCallbackMessanger\ServiceCallbackMessanger.cs" />
+    <Compile Include="Modules\ServiceProxy\IServiceProxy.cs" />
+    <Compile Include="Modules\ServiceProxy\ServiceNotConnectedException.cs" />
+    <Compile Include="Modules\ServiceProxy\ServiceProxy.cs" />
+    <Compile Include="Modules\ServiceWatchdog\IServiceWatchdog.cs" />
+    <Compile Include="Modules\ServiceWatchdog\ServiceWatchdog.cs" />
     <Compile Include="Modules\WorkstationManager\IWorkstationManager.cs" />
     <Compile Include="Modules\WorkstationManager\WorkstationManager.cs" />
     <Compile Include="Modules\BalloonNotify\BalloonTipNotifyManager.cs" />
@@ -333,10 +350,26 @@
     <EmbeddedResource Include="Resources\Strings.ru.resx" />
     <EmbeddedResource Include="Resources\Strings.uk.resx" />
     <None Include="app.manifest" />
+    <None Include="Connected Services\HideezServiceReference\configuration91.svcinfo" />
+    <None Include="Connected Services\HideezServiceReference\configuration.svcinfo" />
+    <None Include="Connected Services\HideezServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <Content Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <None Include="Connected Services\HideezServiceReference\service.wsdl" />
+    <None Include="Connected Services\HideezServiceReference\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\HideezServiceReference\service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\HideezServiceReference\ServiceLibrary.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -397,6 +430,12 @@
     <Resource Include="Resources\Icon\Sync\Sync6.ico" />
     <Resource Include="Resources\Icon\Sync\Sync7.ico" />
     <Resource Include="Resources\Icon\Sync\Sync8.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Connected Services\HideezServiceReference\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Computer.png" />

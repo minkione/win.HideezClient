@@ -4,11 +4,15 @@ using HideezSafe.Utilities;
 using Unity;
 using Unity.Lifetime;
 using System;
+using System.Data;
+using System.Linq;
 using System.Windows;
+using System.Diagnostics;
 using System.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HideezSafe.Properties;
+using HideezSafe.Utilities;
 using SingleInstanceApp;
 using System.Runtime.InteropServices;
 using HideezSafe.Modules;
@@ -21,7 +25,11 @@ using System.Threading;
 using System.IO;
 using HideezSafe.Modules.FileSerializer;
 using HideezSafe.Mvvm;
+using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Modules.Localize;
+using HideezSafe.HideezServiceReference;
+using HideezSafe.Modules.ServiceCallbackMessanger;
+using HideezSafe.Modules.ServiceWatchdog;
 
 namespace HideezSafe
 {
@@ -34,6 +42,7 @@ namespace HideezSafe
         private IStartupHelper startupHelper;
         private IMessenger messenger;
         private IWindowsManager windowsManager;
+        private IServiceWatchdog serviceWatchdog;
 
         public static IUnityContainer Container { get; private set; }
 
@@ -95,6 +104,9 @@ namespace HideezSafe
             startupHelper = Container.Resolve<IStartupHelper>();
             Container.Resolve<IWorkstationManager>();
             windowsManager = Container.Resolve<IWindowsManager>();
+            Container.Resolve<IHideezServiceCallback>();
+            serviceWatchdog = Container.Resolve<IServiceWatchdog>();
+            serviceWatchdog.Start();
 
             if (settings.IsFirstLaunch)
             {
@@ -159,6 +171,11 @@ namespace HideezSafe
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
             Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
 
+            // Service
+            Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IHideezServiceCallback, ServiceCallbackMessanger>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IServiceWatchdog, ServiceWatchdog>(new ContainerControlledLifetimeManager());
+
             // Taskbar icon
             Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
             Container.RegisterType<IBalloonTipNotifyManager, BalloonTipNotifyManager>(new ContainerControlledLifetimeManager());
@@ -168,6 +185,8 @@ namespace HideezSafe
 
             // Messenger
             Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
+
+            logger.Info("Finish initialize DI container");
         }
 
         /// <summary>
