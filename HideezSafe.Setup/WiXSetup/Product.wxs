@@ -4,6 +4,8 @@
   <?include Include.wxi?>
 
   <?define HideezSafe_TargetDir=$(var.HideezSafe.TargetDir)?>
+  <?define HideezServiceHost_TargetDir=$(var.HideezServiceHost.TargetDir)?>
+  <?define RfidService_TargetDir=$(var.RfidService.TargetDir)?>
   <?define Setup_ProjectDir=$(var.ProjectDir)?>
 
   <?define DPInst_SourceDir=$(var.Setup_ProjectDir)DPInst\?>
@@ -161,6 +163,80 @@
     </InstallExecuteSequence>
   </Product>
 
+  <!-- Hideez Service -->
+  <Fragment>
+    <ComponentGroup Id="HideezService" Directory="INSTALLFOLDER">
+      <Component Id="HideezServiceHost.exe" Guid="{FB54A20C-310F-474A-91E2-835AC3A34485}">
+        <File Id="HideezServiceHost.exe" Name="HideezServiceHost.exe" KeyPath="yes" Source="$(var.HideezServiceHost_TargetDir)HideezServiceHost.exe" />
+        <ServiceInstall
+          Id="si_HideezService"
+          Name="Hideez Service"
+          DisplayName ="Hideez Service"
+          Start="auto"
+          ErrorControl="normal"
+          Type="ownProcess"
+          Description="Provides communication with Hideez devices via BLE">
+          <ServiceConfig DelayedAutoStart="no" OnInstall="yes" />
+          <!-- 
+          Todo: Proper restart of the CSR module will allow us to configure
+          service failure actions properly
+          -->
+          <util:ServiceConfig
+            FirstFailureActionType="restart"
+            SecondFailureActionType="restart"
+            ThirdFailureActionType="restart"
+            RestartServiceDelayInSeconds="5"
+            ResetPeriodInDays="3"/>
+        </ServiceInstall>
+        <ServiceControl
+          Id="sc_HideezService"
+          Name="Hideez Service"
+          Start="install"
+          Stop="both"
+          Remove="uninstall"
+          Wait="yes" />
+      </Component>
+  
+      <!-- Hideez Service dependencies -->
+  
+    </ComponentGroup>
+  </Fragment>
+  
+  <!-- Rfid Service -->
+  <Fragment>
+    <ComponentGroup Id="RfidService" Directory="INSTALLFOLDER">
+      <Component Id="RfidService.exe" Guid="{91C5AEC8-1A43-482F-B18F-AAE44830D8B4}">
+        <File Id="RfidService.exe" Name="RfidService.exe" KeyPath="yes" Source="$(var.RfidService_TargetDir)RfidService.exe" />
+        <ServiceInstall
+          Id="si_RfidService"
+          Name="Rfid Service"
+          DisplayName ="Rfid Service"
+          Start="auto"
+          ErrorControl="normal"
+          Type="ownProcess"
+          Description="Communicates information received from RFID reader">
+          <ServiceConfig DelayedAutoStart="no" OnInstall="yes" />
+          <util:ServiceConfig
+            FirstFailureActionType="restart"
+            SecondFailureActionType="restart"
+            ThirdFailureActionType="none"
+            RestartServiceDelayInSeconds="5"
+            ResetPeriodInDays="1"/>
+        </ServiceInstall>
+        <ServiceControl
+          Id="sc_RfidService"
+          Name="Rfid Service"
+          Start="install"
+          Stop="both"
+          Remove="uninstall"
+          Wait="yes" />
+      </Component>
+  
+      <!-- Rfid Service dependencies -->    
+  
+    </ComponentGroup>
+  </Fragment>
+    
   <!--Programm Files-->
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
