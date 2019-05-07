@@ -65,7 +65,6 @@
       <ComponentGroupRef Id="CsrDriverWin8x86" />
 
       <ComponentRef Id="ApplicationShortcut" />
-      <!--<ComponentRef Id="ApplicationStartupComponent" />-->
 
     </Feature>
 
@@ -84,39 +83,28 @@
       </Directory>
 
       <Directory Id="ProgramMenuFolder">
-        <Directory Id="ApplicationProgramsFolder" Name="Hideez Safe"/>
+        <Directory Id="StartMenuProgramsFolder" Name="Hideez"/>
       </Directory>
 
       <Directory Id="$(var.PlatformSystemFolder)" />
-
-      <!--<Directory Id="StartupFolder" />-->
     </Directory>
 
-    <!--ApplicationProgramsFolder-->
-    <DirectoryRef Id="ApplicationProgramsFolder">
+    <!--Start menu shortcut-->
+    <DirectoryRef Id="StartMenuProgramsFolder">
       <Component Id="ApplicationShortcut"
-                 Guid="{A148F126-2328-4036-812C-3E70104C3A23}">
+                 Guid="{D9A5AE43-23E1-434A-9150-153672919CD9}">
+        
         <Shortcut Id="ApplicationStartMenuShortcut"
                   Name="Hideez Safe"
-                  Description="Hideez Safe's user interface"
                   Target="[#HideezSafe.exe]"
                   WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
-        <Shortcut Id="UninstallProduct"
-                  Name="Uninstall Hideez Safe"
-                  Description="Uninstalls Hideez Safe Application"
-                  Target="$(var.PlatformSystemFolder)msiexec.exe"
-                  Arguments="/x [ProductCode]"/>
-        <RemoveFolder Id="ApplicationProgramsFolder"
+        
+        <RemoveFolder Id="StartMenuProgramsFolder"
                       On="uninstall"/>
-        <RegistryValue Root="HKCU"
-                       Key="Software\Hideez\Safeband"
-                       Name="installed"
-                       Type="integer"
-                       Value="1"
-                       KeyPath="yes"/>
+      
+        <RegistryValue Root="HKCU" Key="Software\Hideez\Safe" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
     </DirectoryRef>
-
 
     <UI>
       <UIRef Id="WixUI_InstallDir" />
