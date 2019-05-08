@@ -4,10 +4,13 @@
   <?include Include.wxi?>
 
   <?define Setup_ProjectDir=$(var.ProjectDir)?>
+
+  <?define 32bit_Binaries_Dir=$(var.ProjectDir)..\..\Binaries\32rel\?>
+  <?define 64bit_Binaries_Dir=$(var.ProjectDir)..\..\Binaries\64rel\?>
+
   
   <?define Crypto_TargetDir=$(var.Crypto.TargetDir)?>
   <?define CsrBLE_TargetDir=$(var.CsrBLE.TargetDir)?>
-  <?define SRF32_TargetDir=$(var.Setup_ProjectDir)SRF32\?>
   <?define Communication_x86_TargetDir=$(var.Communication.ProjectDir)bin\x86\$(var.Communication.Configuration)\netstandard2.0\?>
   
   <?define HideezServiceHost_TargetDir=$(var.HideezServiceHost.TargetDir)?>
@@ -21,17 +24,20 @@
   <?define CsrWin8_x64_SourceDir=$(var.DPInst_SourceDir)win8\win64\ ?>
   <?define CsrWin8_x86_SourceDir=$(var.DPInst_SourceDir)win8\win32\ ?>
 
+  
   <!-- Architecture specific path detection -->
   <?if $(var.Platform) = x64 ?>
-  <?define Win64 = "yes" ?>
-  <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
-  <?define PlatformCommonFilesFolder = "CommonFiles64Folder" ?>
-  <?define PlatformSystemFolder = "System64Folder" ?>
+    <?define Win64 = "yes" ?>
+    <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+    <?define PlatformCommonFilesFolder = "CommonFiles64Folder" ?>
+    <?define PlatformSystemFolder = "System64Folder" ?>
+    <?define Binaries_Dir=$(var.64bit_Binaries_Dir)?>
   <?else ?>
-  <?define Win64 = "no" ?>
-  <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
-  <?define PlatformCommonFilesFolder = "CommonFilesFolder" ?>
-  <?define PlatformSystemFolder = "SystemFolder" ?>
+    <?define Win64 = "no" ?>
+    <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+    <?define PlatformCommonFilesFolder = "CommonFilesFolder" ?>
+    <?define PlatformSystemFolder = "SystemFolder" ?>
+    <?define Binaries_Dir=$(var.32bit_Binaries_Dir)?>
   <?endif ?>
 
   <Product Id="*"
@@ -66,6 +72,8 @@
 
       <ComponentGroupRef Id="RfidService" />
 
+      <ComponentGroupRef Id="CredentialProvider" />
+      
       <ComponentGroupRef Id="ProductComponents" />
 
       <ComponentGroupRef Id="ru_files" />
@@ -403,12 +411,42 @@
       </Component>
   
       <Component Id="SRF32.dll" Guid="{34E50D90-5B84-476C-922D-B05C91F55B5D}">
-        <File Id="SRF32.dll" Name="SRF32.dll" Source="$(var.SRF32_TargetDir)SRF32.dll" />
+        <File Id="SRF32.dll" Name="SRF32.dll" Source="$(var.32bit_Binaries_Dir)SRF32.dll" />
       </Component>
   
     </ComponentGroup>
   </Fragment>
     
+    <!--Credential Provider-->
+  <Fragment>
+    <ComponentGroup Id="CredentialProvider" Directory="$(var.PlatformSystemFolder)">
+
+      <Component Id="HideezCredentialProvider3.dll" Permanent="no" Guid="{7299ECC5-63F2-4AD8-A532-4E1858A35C4D}">
+        <File Id="HideezCredentialProvider3.dll" Name="HideezCredentialProvider3.dll" Source="$(var.Binaries_Dir)HideezCredentialProvider3.dll" />
+      </Component>
+      
+      <Component Id="RegistryEntries" Guid="{F0D151AC-0C65-4FC8-B023-FC5B70FE9550}">
+        
+        <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{B66379C8-92CD-422B-A3DA-5E733F8D07F5}">
+          <RegistryValue Type="string" Value="HideezCredentialProvider3" KeyPath="yes"/>
+        </RegistryKey>
+
+        <RegistryKey Root="HKCR" Key="CLSID\{B66379C8-92CD-422B-A3DA-5E733F8D07F5}">
+          <RegistryValue Type="string" Value="HideezCredentialProvider3" />
+        </RegistryKey>
+
+        <RegistryKey Root="HKCR" Key="CLSID\{B66379C8-92CD-422B-A3DA-5E733F8D07F5}\InprocServer32">
+          <RegistryValue Type="string" Value="HideezCredentialProvider3.dll" />
+          <RegistryValue Type="string" Name="ThreadingModel" Value="Apartment" />
+        </RegistryKey>
+      
+      </Component>
+    
+    </ComponentGroup>
+  </Fragment>
+  
+    
+      
   <!--Programm Files-->
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">      
