@@ -208,6 +208,16 @@
           Remove="uninstall"
           Wait="yes" />
       </Component>
+
+      <!-- 
+        NOTE: If registry value will be changed from [HESADDRESS], do not forget
+        to add writing of the value to custom action 'CustomActionSetup'
+        -->
+      <Component Id="HesAddressWriteToRegistry" Guid="{84CCAA09-3DA9-4753-982F-F1285F674A1E}">
+        <RegistryKey Root="HKLM" Key="SOFTWARE\Hideez\Safe" >
+          <RegistryValue Type="string" Name="hs3_hes_address" Value="[HESADDRESS]" />
+        </RegistryKey>
+      </Component>
   
       <!-- Hideez Service dependencies -->
       <!-- 

@@ -64,8 +64,6 @@ namespace CustomAction
                     session.Log("(CustomActions.InstallAction) terminated DPInst process");
                     return ActionResult.Failure;
                 }
-
-                // TODO: Save HES path to config
             }
             catch (Exception ex)
             {
@@ -83,7 +81,7 @@ namespace CustomAction
             bool hasAddress = !string.IsNullOrEmpty(parameters.HostServerAddress);
             session.Log("(CustomActions.IsValidParameters) Host address specified = {0}", hasAddress);
 
-            bool isValidAddress = !hasAddress || Regex.IsMatch(parameters.HostServerAddress, $"^https://.+");
+            bool isValidAddress = !hasAddress || Regex.IsMatch(parameters.HostServerAddress, $"^(http|https)://.+");
             session.Log("(CustomActions.IsValidParameters) HES address validated = {0}", isValidAddress);
 
             bool isValidDriverPath = !string.IsNullOrEmpty(parameters.CsrDriverInstallerPath) && File.Exists(parameters.CsrDriverInstallerPath);
