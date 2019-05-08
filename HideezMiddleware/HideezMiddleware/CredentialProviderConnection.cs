@@ -13,10 +13,11 @@ namespace HideezMiddleware
         Error = 2,
         UserList = 3,
         PasswordChange = 4,
-        PasswordChangeCompleated = 5
+        PasswordChangeCompleated = 5,
+        Notification = 6
     }
 
-    public class CredentialProviderConnection : Logger, ICredentialProviderConnection
+    public class CredentialProviderConnection : Logger
     {
         readonly PipeServer _pipeServer;
 
@@ -89,16 +90,22 @@ namespace HideezMiddleware
             await SendMessageAsync(CredentialProviderCommandCode.Logon, true, $"{login}\n123");
         }
 
-        public async Task SendLogonRequest(string login, string password)
+        public async Task SendLogonRequest(string login, string password, string prevPassword)
         {
             //WriteDebugLine($"SendLogonRequest ------------------------ {login}");
-            await SendMessageAsync(CredentialProviderCommandCode.Logon, true, $"{login}\n{password}");
+            await SendMessageAsync(CredentialProviderCommandCode.Logon, true, $"{login}\n{password}\n{prevPassword}");
         }
 
         public async Task SendError(string message)
         {
             WriteDebugLine($"SendError ------------------------ {message}");
             await SendMessageAsync(CredentialProviderCommandCode.Error, true, $"{DateTime.Now.ToShortTimeString()}: {message}");
+        }
+
+        public async Task SendNotification(string message)
+        {
+            WriteDebugLine($"SendNotification ------------------------ {message}");
+            await SendMessageAsync(CredentialProviderCommandCode.Notification, true, $"{DateTime.Now.ToShortTimeString()}: {message}");
         }
 
         async Task SendMessageAsync(CredentialProviderCommandCode code, bool isSuccess, string message)
