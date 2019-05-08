@@ -1,38 +1,31 @@
-﻿using HideezSafe.Mvvm;
-using System;
-using System.Collections.Generic;
+﻿using HideezSafe.Modules.DeviceManager;
+using HideezSafe.Mvvm;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HideezSafe.ViewModels
 {
     class DevicesExpanderViewModel : ObservableObject
     {
-        public DevicesExpanderViewModel()
-        {
-#if DEBUG
-            currentDevice = new DeviceViewModel("DeviceType.Key", "HedeezKeySimpleIMG", "8989")
-            {
-                IsConnected = false,
-                Proximity = 60,
-            };
+        readonly IDeviceManager deviceManager;
+        string ownerName;
 
-            OwnerName = "User@mail.com";
-#endif
+        public DevicesExpanderViewModel(IDeviceManager deviceManager)
+        {
+            this.deviceManager = deviceManager;
+            OwnerName = "... unspecified ...";
+            deviceManager.Devices.CollectionChanged += DeviceManagerDevices_CollectionChanged;
         }
 
         #region Properties
 
-        private DeviceViewModel currentDevice;
-        private string ownerName;
 
         public DeviceViewModel CurrentDevice
         {
-            get { return currentDevice; }
-            set { Set(ref currentDevice, value); }
+            get
+            {
+                return deviceManager.Devices.FirstOrDefault();
+            }
         }
-
 
         public string OwnerName
         {
@@ -41,5 +34,10 @@ namespace HideezSafe.ViewModels
         }
 
         #endregion Properties
+
+        private void DeviceManagerDevices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            NotifyPropertyChanged(nameof(CurrentDevice));
+        }
     }
 }

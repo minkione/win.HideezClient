@@ -1,12 +1,7 @@
-﻿using HideezSafe.Modules;
+﻿using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules.Localize;
 using HideezSafe.Mvvm;
 using MvvmExtensions.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HideezSafe.ViewModels
 {
@@ -19,12 +14,24 @@ namespace HideezSafe.ViewModels
             this.name = name;
         }
 
+        public DeviceViewModel(BleDeviceDTO device)
+        {
+            LoadFrom(device);
+        }
+
         #region Property
 
+        private string id;
         private bool isConnected;
         private int proximity;
 
         public string IcoKey { get; }
+
+        public string Id
+        {
+            get { return id; }
+            set { Set(ref id, value); }
+        }
 
         public bool IsConnected
         {
@@ -61,5 +68,11 @@ namespace HideezSafe.ViewModels
         #endregion Text
 
         #endregion Property
+
+        public void LoadFrom(BleDeviceDTO dto)
+        {
+            Id = dto.Id;
+            Name = dto.Name;
+        }
     }
 }

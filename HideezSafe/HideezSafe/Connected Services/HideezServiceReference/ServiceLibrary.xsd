@@ -36,7 +36,10 @@
   </xs:complexType>
   <xs:element name="ArrayOfBleDeviceDTO" nillable="true" type="tns:ArrayOfBleDeviceDTO" />
   <xs:complexType name="BleDeviceDTO">
-    <xs:sequence />
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+    </xs:sequence>
   </xs:complexType>
   <xs:element name="BleDeviceDTO" nillable="true" type="tns:BleDeviceDTO" />
 </xs:schema>

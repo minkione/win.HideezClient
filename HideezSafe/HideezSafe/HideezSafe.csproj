@@ -194,6 +194,8 @@
     <Compile Include="Messages\ForceShutdownMessage.cs" />
     <Compile Include="Messages\LockWorkstationMessage.cs" />
     <Compile Include="Messages\PairedDevicesCollectionChangedMessage.cs" />
+    <Compile Include="Modules\DeviceManager\DeviceManager.cs" />
+    <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
     <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
     <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
     <Compile Include="ViewModels\Controls\IndicatorsViewModel.cs" />
