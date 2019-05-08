@@ -48,6 +48,9 @@ namespace HideezMiddleware
                 // get MAC address from the HES
                 var info = await _hesConnection.GetInfoByRfid(rfid);
 
+                if (info == null)
+                    throw new Exception($"Device not found");
+
                 if (info.IdFromDevice == null)
                     throw new Exception($"Device '{info.DeviceSerialNo}' has not a primary account stored");
 
@@ -66,9 +69,9 @@ namespace HideezMiddleware
                     if (device == null)
                         throw new Exception($"Cannot connect device '{info.DeviceSerialNo}', '{info.DeviceMac}'");
                 }
-
-                await device.WaitAuthentication();
-
+                
+                await device.WaitAuthentication(timeout: 10_000);
+                
                 // get the login and password from the Hideez Key
                 string login = await device.ReadStorageAsString((byte)StorageTable.Logins, (ushort)info.IdFromDevice);
                 string pass = await device.ReadStorageAsString((byte)StorageTable.Passwords, (ushort)info.IdFromDevice);
@@ -78,6 +81,7 @@ namespace HideezMiddleware
 
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendLogonRequest(login, pass);
+                
             }
             catch (Exception ex)
             {

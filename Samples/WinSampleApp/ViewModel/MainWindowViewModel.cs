@@ -510,7 +510,14 @@ namespace WinSampleApp.ViewModel
 
         void ConnectDevice(DeviceViewModel device)
         {
-            device.Device.Connection.Connect();
+            try
+            {
+                device.Device.Connection.Connect();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         void DisconnectDevice(DeviceViewModel device)
