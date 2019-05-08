@@ -6,7 +6,9 @@ using Hideez.SDK.Communication.Proximity;
 using HideezMiddleware;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ServiceLibrary.Implementation
 {
@@ -34,10 +36,6 @@ namespace ServiceLibrary.Implementation
             _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
             _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
 
-            // COM =============================
-            //var port = new ComConnection(log, "COM68", 9600);
-            //port.Connect();
-
             // BLE ============================
             _deviceManager = new BleDeviceManager(_log, _connectionManager);
             _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
@@ -54,17 +52,16 @@ namespace ServiceLibrary.Implementation
             _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
             _rfidService.Start();
 
-            // WorkstationUnlocker ==================================
-            //_workstationUnlocker = new WorkstationUnlocker(_deviceManager, _credentialProviderConnection, _rfidService, _log);
-
-
-            // HES
-            // HKLM\SOFTWARE\Hideez\Safe\HESADDRESS
+            // HES ==================================
+            // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
             _hesConnection = new HesAppConnection(_deviceManager, GetHesAddress(), _log);
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
             _hesConnection.Connect();
 
-            // Proximity Monitor
+            // WorkstationUnlocker ==================================
+            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, _credentialProviderConnection, _rfidService, _log);
+
+            // Proximity Monitor ==================================
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, this);
             _proximityMonitorManager.Start();
 
@@ -75,24 +72,26 @@ namespace ServiceLibrary.Implementation
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
             foreach (var client in SessionManager.Sessions)
-                client.Callbacks.ConnectionDongleChangedRequest(_connectionManager?.State == BluetoothAdapterState.PoweredOn);
+                client.Callbacks.DongleConnectionStateChanged(_connectionManager?.State == BluetoothAdapterState.PoweredOn);
         }
 
         void RFIDService_ReaderStateChanged(object sender, EventArgs e)
         {
             foreach (var client in SessionManager.Sessions)
-                client.Callbacks.ConnectionRFIDChangedRequest(_rfidService != null ? 
+                client.Callbacks.RFIDConnectionStateChanged(_rfidService != null ? 
                     _rfidService.ServiceConnected && _rfidService.ReaderConnected : false);
         }
 
         void HES_ConnectionStateChanged(object sender, EventArgs e)
         {
             foreach (var client in SessionManager.Sessions)
-                client.Callbacks.ConnectionHESChangedRequest(_hesConnection?.State == HesConnectionState.Connected);
+                client.Callbacks.HESConnectionStateChanged(_hesConnection?.State == HesConnectionState.Connected);
         }
 
         void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
         {
+            foreach (var client in SessionManager.Sessions)
+                client.Callbacks.PairedDevicesCollectionChanged(GetPairedDevices());
         }
 
         void ConnectionManager_DiscoveredDeviceAdded(object sender, DiscoveredDeviceAddedEventArgs e)
@@ -107,15 +106,15 @@ namespace ServiceLibrary.Implementation
         {
         }
 
-        public bool GetAdapterState(Addapter addapter)
+        public bool GetAdapterState(Adapter addapter)
         {
             switch (addapter)
             {
-                case Addapter.Dongle:
+                case Adapter.Dongle:
                     return _connectionManager?.State == BluetoothAdapterState.PoweredOn;
-                case Addapter.HES:
+                case Adapter.HES:
                     return _hesConnection?.State == HesConnectionState.Connected;
-                case Addapter.RFID:
+                case Adapter.RFID:
                     return _rfidService != null ? _rfidService.ServiceConnected && _rfidService.ReaderConnected : false;
                 default:
                     return false;
@@ -126,6 +125,12 @@ namespace ServiceLibrary.Implementation
         {
             foreach (var client in SessionManager.Sessions)
                 client.Callbacks.LockWorkstationRequest();
+        }
+
+        public BleDeviceDTO[] GetPairedDevices()
+        {
+            var dto = _deviceManager.Devices.Select(d => new BleDeviceDTO(d)).ToArray();
+            return dto;
         }
 
         readonly string _hesAddressRegistryValueName = "hs3_hes_address";

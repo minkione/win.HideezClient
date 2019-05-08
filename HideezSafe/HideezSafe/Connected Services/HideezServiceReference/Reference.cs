@@ -63,10 +63,13 @@ namespace HideezSafe.HideezServiceReference {
     public enum ClientType : int {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        DesktopClient = 0,
+        ServiceHost = 0,
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        TestConsole = 1,
+        DesktopClient = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        TestConsole = 2,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -131,8 +134,8 @@ namespace HideezSafe.HideezServiceReference {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Addapter", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-    public enum Addapter : int {
+    [System.Runtime.Serialization.DataContractAttribute(Name="Adapter", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+    public enum Adapter : int {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         HES = 0,
@@ -142,6 +145,35 @@ namespace HideezSafe.HideezServiceReference {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         Dongle = 2,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BleDeviceDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+    [System.SerializableAttribute()]
+    public partial class BleDeviceDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -178,10 +210,17 @@ namespace HideezSafe.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAdapterState", ReplyAction="http://tempuri.org/IHideezService/GetAdapterStateResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetAdapterStateHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        bool GetAdapterState(HideezSafe.HideezServiceReference.Addapter addapter);
+        bool GetAdapterState(HideezSafe.HideezServiceReference.Adapter addapter);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAdapterState", ReplyAction="http://tempuri.org/IHideezService/GetAdapterStateResponse")]
-        System.Threading.Tasks.Task<bool> GetAdapterStateAsync(HideezSafe.HideezServiceReference.Addapter addapter);
+        System.Threading.Tasks.Task<bool> GetAdapterStateAsync(HideezSafe.HideezServiceReference.Adapter addapter);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetPairedDevices", ReplyAction="http://tempuri.org/IHideezService/GetPairedDevicesResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetPairedDevicesHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        HideezSafe.HideezServiceReference.BleDeviceDTO[] GetPairedDevices();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetPairedDevices", ReplyAction="http://tempuri.org/IHideezService/GetPairedDevicesResponse")]
+        System.Threading.Tasks.Task<HideezSafe.HideezServiceReference.BleDeviceDTO[]> GetPairedDevicesAsync();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -190,14 +229,20 @@ namespace HideezSafe.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/LockWorkstationRequest")]
         void LockWorkstationRequest();
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ConnectionHESChangedRequest")]
-        void ConnectionHESChangedRequest(bool isConnected);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HESConnectionStateChanged")]
+        void HESConnectionStateChanged(bool isConnected);
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ConnectionRFIDChangedRequest")]
-        void ConnectionRFIDChangedRequest(bool isConnected);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RFIDConnectionStateChanged")]
+        void RFIDConnectionStateChanged(bool isConnected);
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ConnectionDongleChangedRequest")]
-        void ConnectionDongleChangedRequest(bool isConnected);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DongleConnectionStateChanged")]
+        void DongleConnectionStateChanged(bool isConnected);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/PairedDevicesCollectionChanged")]
+        void PairedDevicesCollectionChanged(HideezSafe.HideezServiceReference.BleDeviceDTO[] devices);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/PairedDevicePropertyChanged")]
+        void PairedDevicePropertyChanged(HideezSafe.HideezServiceReference.BleDeviceDTO device);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -260,12 +305,20 @@ namespace HideezSafe.HideezServiceReference {
             return base.Channel.ShutdownAsync();
         }
         
-        public bool GetAdapterState(HideezSafe.HideezServiceReference.Addapter addapter) {
+        public bool GetAdapterState(HideezSafe.HideezServiceReference.Adapter addapter) {
             return base.Channel.GetAdapterState(addapter);
         }
         
-        public System.Threading.Tasks.Task<bool> GetAdapterStateAsync(HideezSafe.HideezServiceReference.Addapter addapter) {
+        public System.Threading.Tasks.Task<bool> GetAdapterStateAsync(HideezSafe.HideezServiceReference.Adapter addapter) {
             return base.Channel.GetAdapterStateAsync(addapter);
+        }
+        
+        public HideezSafe.HideezServiceReference.BleDeviceDTO[] GetPairedDevices() {
+            return base.Channel.GetPairedDevices();
+        }
+        
+        public System.Threading.Tasks.Task<HideezSafe.HideezServiceReference.BleDeviceDTO[]> GetPairedDevicesAsync() {
+            return base.Channel.GetPairedDevicesAsync();
         }
     }
 }

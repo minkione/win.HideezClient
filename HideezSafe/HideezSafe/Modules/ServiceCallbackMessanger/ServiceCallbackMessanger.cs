@@ -14,17 +14,17 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
             this.messenger = messenger;
         }
 
-        public void ConnectionDongleChangedRequest(bool isConnected)
+        public void DongleConnectionStateChanged(bool isConnected)
         {
             messenger.Send(new ConnectionDongleChangedMessage(isConnected));
         }
 
-        public void ConnectionHESChangedRequest(bool isConnected)
+        public void HESConnectionStateChanged(bool isConnected)
         {
             messenger.Send(new ConnectionHESChangedMessage(isConnected));
         }
 
-        public void ConnectionRFIDChangedRequest(bool isConnected)
+        public void RFIDConnectionStateChanged(bool isConnected)
         {
             messenger.Send(new ConnectionRFIDChangedMessage(isConnected));
         }
@@ -33,5 +33,17 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
         {
             messenger.Send(new LockWorkstationMessage());
         }
+
+        public void PairedDevicesCollectionChanged(BleDeviceDTO[] devices)
+        {
+            messenger.Send(new PairedDevicesCollectionChangedMessage(devices));
+        }
+
+        public void PairedDevicePropertyChanged(BleDeviceDTO device)
+        {
+            // Todo:
+            throw new System.NotImplementedException();
+        }
+
     }
 }

@@ -74,9 +74,9 @@ namespace HideezSafe.ViewModels
                     {
                         IHideezService hideezService = serviceProxy.GetService();
                         Service.State = serviceProxy.IsConnected;
-                        connectionDongle.State = await hideezService.GetAdapterStateAsync(Addapter.Dongle);
-                        connectionRFID.State = await hideezService.GetAdapterStateAsync(Addapter.RFID);
-                        connectionHES.State = await hideezService.GetAdapterStateAsync(Addapter.HES);
+                        connectionDongle.State = await hideezService.GetAdapterStateAsync(Adapter.Dongle);
+                        connectionRFID.State = await hideezService.GetAdapterStateAsync(Adapter.RFID);
+                        connectionHES.State = await hideezService.GetAdapterStateAsync(Adapter.HES);
                     }
                     else
                     {

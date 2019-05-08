@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ServiceLibrary
 {
@@ -18,7 +19,12 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public bool GetAdapterState(Addapter addapter)
+        public bool GetAdapterState(Adapter addapter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public BleDeviceDTO[] GetPairedDevices()
         {
             throw new NotImplementedException();
         }

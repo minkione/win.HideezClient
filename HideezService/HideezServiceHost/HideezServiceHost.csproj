@@ -175,6 +175,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Connected Services\HideezServiceReference\HideezServiceHost.HideezServiceReference.BleDeviceDTO.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
     <None Include="Connected Services\HideezServiceReference\service.wsdl" />
     <None Include="Connected Services\HideezServiceReference\service.xsd">
       <SubType>Designer</SubType>

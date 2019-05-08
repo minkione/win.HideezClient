@@ -1,4 +1,5 @@
-﻿using System.ServiceModel;
+﻿using System.Collections.Generic;
+using System.ServiceModel;
 
 namespace ServiceLibrary
 {
@@ -23,7 +24,11 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        bool GetAdapterState(Addapter addapter);
+        bool GetAdapterState(Adapter addapter);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        BleDeviceDTO[] GetPairedDevices();
     }
 
     public interface ICallbacks
@@ -32,16 +37,22 @@ namespace ServiceLibrary
         void LockWorkstationRequest();
 
         [OperationContract(IsOneWay = true)]
-        void ConnectionHESChangedRequest(bool isConnected);
+        void HESConnectionStateChanged(bool isConnected);
 
         [OperationContract(IsOneWay = true)]
-        void ConnectionRFIDChangedRequest(bool isConnected);
+        void RFIDConnectionStateChanged(bool isConnected);
 
         [OperationContract(IsOneWay = true)]
-        void ConnectionDongleChangedRequest(bool isConnected);
+        void DongleConnectionStateChanged(bool isConnected);
+
+        [OperationContract(IsOneWay = true)]
+        void PairedDevicesCollectionChanged(BleDeviceDTO[] devices);
+
+        [OperationContract(IsOneWay = true)]
+        void PairedDevicePropertyChanged(BleDeviceDTO device);
     }
 
-    public enum Addapter
+    public enum Adapter
     {
         HES,
         RFID,

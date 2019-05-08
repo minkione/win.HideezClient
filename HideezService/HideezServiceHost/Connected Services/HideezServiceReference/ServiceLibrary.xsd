@@ -21,12 +21,22 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="HideezServiceFault" nillable="true" type="tns:HideezServiceFault" />
-  <xs:simpleType name="Addapter">
+  <xs:simpleType name="Adapter">
     <xs:restriction base="xs:string">
       <xs:enumeration value="HES" />
       <xs:enumeration value="RFID" />
       <xs:enumeration value="Dongle" />
     </xs:restriction>
   </xs:simpleType>
-  <xs:element name="Addapter" nillable="true" type="tns:Addapter" />
+  <xs:element name="Adapter" nillable="true" type="tns:Adapter" />
+  <xs:complexType name="ArrayOfBleDeviceDTO">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="BleDeviceDTO" nillable="true" type="tns:BleDeviceDTO" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfBleDeviceDTO" nillable="true" type="tns:ArrayOfBleDeviceDTO" />
+  <xs:complexType name="BleDeviceDTO">
+    <xs:sequence />
+  </xs:complexType>
+  <xs:element name="BleDeviceDTO" nillable="true" type="tns:BleDeviceDTO" />
 </xs:schema>

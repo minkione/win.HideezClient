@@ -87,6 +87,8 @@ namespace TestConsole
                 var callback = new HideezServiceCallbacks();
                 var instanceContext = new InstanceContext(callback);
 
+                // NOTE: If an ambiguous reference error occurs, check that TestConsole DOES NOT have 
+                // a reference to 'ServiceLibrary'. There should be only 'ServiceLibrary.Implementation' ref
                 var service = new HideezServiceClient(instanceContext);
                 await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.TestConsole });
 

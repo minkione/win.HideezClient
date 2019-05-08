@@ -78,6 +78,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BleDeviceDTO.cs" />
     <Compile Include="ClientType.cs" />
     <Compile Include="ContractProviderService.cs" />
     <Compile Include="HideezServiceFault.cs" />
@@ -89,6 +90,12 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
+      <Project>{64cdff89-4bd1-40c8-a709-56df7b64b309}</Project>
+      <Name>Communication</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
