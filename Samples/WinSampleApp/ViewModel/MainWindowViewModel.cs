@@ -653,8 +653,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                // Todo: UnlockByRfid is marked as internal and is not accessible
-                //await _workstationUnlocker.UnlockByRfid("123");
+                await _workstationUnlocker.UnlockByRfid("123");
             }
             catch (Exception ex)
             {
