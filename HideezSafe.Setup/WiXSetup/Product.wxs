@@ -3,10 +3,17 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <?include Include.wxi?>
 
-  <?define HideezSafe_TargetDir=$(var.HideezSafe.TargetDir)?>
+  <?define Setup_ProjectDir=$(var.ProjectDir)?>
+  
+  <?define Crypto_TargetDir=$(var.Crypto.TargetDir)?>
+  <?define CsrBLE_TargetDir=$(var.CsrBLE.TargetDir)?>
+  <?define SRF32_TargetDir=$(var.Setup_ProjectDir)SRF32\?>
+  <?define Communication_x86_TargetDir=$(var.Communication.ProjectDir)bin\x86\$(var.Communication.Configuration)\netstandard2.0\?>
+  
   <?define HideezServiceHost_TargetDir=$(var.HideezServiceHost.TargetDir)?>
   <?define RfidService_TargetDir=$(var.RfidService.TargetDir)?>
-  <?define Setup_ProjectDir=$(var.ProjectDir)?>
+  
+  <?define HideezSafe_TargetDir=$(var.HideezSafe.TargetDir)?>
 
   <?define DPInst_SourceDir=$(var.Setup_ProjectDir)DPInst\?>
   <?define CsrWin7_x64_SourceDir=$(var.DPInst_SourceDir)win7\win64\ ?>
@@ -55,6 +62,10 @@
 
     <!-- Desktop Application Feature -->
     <Feature Id="ProductFeature" Title="Hideez Safe" Level="1">
+      <ComponentGroupRef Id="HideezService" />
+
+      <ComponentGroupRef Id="RfidService" />
+
       <ComponentGroupRef Id="ProductComponents" />
 
       <ComponentGroupRef Id="ru_files" />
@@ -80,6 +91,7 @@
             <Directory Id="x64_" Name="x64" />
             <Directory Id="x86_" Name="x86" />
             <Directory Id="csr" Name="driver" />
+            <Directory Id="rfid" Name="rfid" />
           </Directory>
         </Directory>
       </Directory>
@@ -198,13 +210,49 @@
       </Component>
   
       <!-- Hideez Service dependencies -->
-  
+      <!-- 
+      Because Service shares folder with main application
+      shared dependencies are omited in this component group
+      -->
+
+      <Component Id="HideezServiceHost.exe.config" Guid="{86540F4F-2BD5-4BDA-97D2-F76207811073}" Win64="$(var.Win64)">
+        <File Id="HideezServiceHost.exe.config" Name="HideezServiceHost.exe.config" Source="$(var.HideezServiceHost_TargetDir)HideezServiceHost.exe.config" />
+      </Component>
+
+      <Component Id="CsrBLE.dll" Guid="{8B202547-7773-4609-B7B9-8EFC28E7115D}" Win64="$(var.Win64)">
+        <File Id="CsrBLE.dll" Name="CsrBLE.dll" Source="$(var.CsrBLE_TargetDir)CsrBLE.dll" />
+      </Component>
+
+      <Component Id="Crypto.dll" Guid="{9505B474-F5BC-447F-AEFA-FBF2A59224AF}" Win64="$(var.Win64)">
+        <File Id="Crypto.dll" Name="Crypto.dll" Source="$(var.Crypto_TargetDir)Crypto.dll" />
+      </Component>
+
+      <Component Id="ServiceLibrary.dll" Guid="{6203C361-745D-4029-9FA7-D0EDA29B23F6}" Win64="$(var.Win64)">
+        <File Id="ServiceLibrary.dll" Name="ServiceLibrary.dll" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.dll" />
+      </Component>
+
+      <Component Id="ServiceLibrary.Implementation.dll" Guid="{C619B2FD-D8EF-4F01-B7EE-F1BE252B0891}" Win64="$(var.Win64)">
+        <File Id="ServiceLibrary.Implementation.dll" Name="ServiceLibrary.Implementation.dll" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.Implementation.dll" />
+      </Component>
+      
+      <Component Id="System.Collections.Immutable.dll" Guid="{FDBF83CD-7CED-4FB1-BAB3-71887F1A4B66}" Win64="$(var.Win64)">
+        <File Id="System.Collections.Immutable.dll" Name="System.Collections.Immutable.dll" Source="$(var.HideezServiceHost_TargetDir)System.Collections.Immutable.dll" />
+      </Component>
+      
+      <Component Id="Communication.dll" Guid="{C950D159-A3B2-4816-872F-5A7E6B0B7C32}" Win64="$(var.Win64)">
+        <File Id="Communication.dll" Name="Communication.dll" Source="$(var.HideezServiceHost_TargetDir)Communication.dll" />
+      </Component>
+
+      <Component Id="HideezMiddleware.dll" Guid="{6A0D681C-E36D-4C6E-B8DD-2F7ED5A26556}" Win64="$(var.Win64)">
+        <File Id="HideezMiddleware.dll" Name="HideezMiddleware.dll" Source="$(var.HideezServiceHost_TargetDir)HideezMiddleware.dll" />
+      </Component>
+      
     </ComponentGroup>
   </Fragment>
   
   <!-- Rfid Service -->
   <Fragment>
-    <ComponentGroup Id="RfidService" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="RfidService" Directory="rfid">
       <Component Id="RfidService.exe" Guid="{91C5AEC8-1A43-482F-B18F-AAE44830D8B4}">
         <File Id="RfidService.exe" Name="RfidService.exe" KeyPath="yes" Source="$(var.RfidService_TargetDir)RfidService.exe" />
         <ServiceInstall
@@ -233,18 +281,37 @@
       </Component>
   
       <!-- Rfid Service dependencies -->    
+      <!-- Even though all components may be specified as Win64=true, all of them are actually 32-bit -->
+      <Component Id="RfidService.exe.config" Guid="{C44BC368-C707-4296-AA03-A862688BA53F}">
+        <File Id="RfidService.exe.config" Name="RfidService.exe.config" Source="$(var.RfidService_TargetDir)RfidService.exe.config" />
+      </Component>
+
+      <Component Id="Rfid.Communication.dll" Guid="{DD0C2FAE-5DDB-4B5F-AEFD-6AE74B9E58E4}">
+        <File Id="Rfid.Communication.dll" Name="Communication.dll" Source="$(var.Communication_x86_TargetDir)Communication.dll" />
+      </Component>
+    
+      <Component Id="Rfid.System.Collections.Immutable.dll" Guid="{AEAED7FB-8912-45EC-97E0-F7FEDF0BA969}">
+        <File Id="Rfid.System.Collections.Immutable.dll" Name="System.Collections.Immutable.dll" Source="$(var.RfidService_TargetDir)System.Collections.Immutable.dll" />
+      </Component>
+  
+      <Component Id="SRF32.dll" Guid="{34E50D90-5B84-476C-922D-B05C91F55B5D}">
+        <File Id="SRF32.dll" Name="SRF32.dll" Source="$(var.SRF32_TargetDir)SRF32.dll" />
+      </Component>
   
     </ComponentGroup>
   </Fragment>
     
   <!--Programm Files-->
   <Fragment>
-    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">      
      <Component Id="CommonServiceLocator.dll" Guid="{A95D69BF-9CBF-4B15-8CD1-E1E550AD8F1D}" Win64="$(var.Win64)">
         <File Id="CommonServiceLocator.dll" Name="CommonServiceLocator.dll" Source="$(var.HideezSafe_TargetDir)CommonServiceLocator.dll" />
       </Component>
 
+      <Component Id="ControlzEx.dll" Guid="{166A2423-D8D6-464F-8676-6E9470E33AA3}" Win64="$(var.Win64)">
+        <File Id="ControlzEx.dll" Name="ControlzEx.dll" Source="$(var.HideezSafe_TargetDir)ControlzEx.dll" />
+      </Component>
+      
       <Component Id="GalaSoft.MvvmLight.dll" Guid="{0D9D78A8-558D-4493-A0B0-CC58ADEAA8D8}" Win64="$(var.Win64)">
         <File Id="GalaSoft.MvvmLight.dll" Name="GalaSoft.MvvmLight.dll" Source="$(var.HideezSafe_TargetDir)GalaSoft.MvvmLight.dll" />
       </Component>
@@ -257,6 +324,10 @@
         <File Id="GalaSoft.MvvmLight.Platform.dll" Name="GalaSoft.MvvmLight.Platform.dll" Source="$(var.HideezSafe_TargetDir)GalaSoft.MvvmLight.Platform.dll" />
       </Component>
 
+      <Component Id="Gu.Wpf.Adorners.dll" Guid="{AB435AAF-74FE-4FE0-AAD6-E543282B4250}" Win64="$(var.Win64)">
+        <File Id="Gu.Wpf.Adorners.dll" Name="Gu.Wpf.Adorners.dll" Source="$(var.HideezSafe_TargetDir)Gu.Wpf.Adorners.dll" />
+      </Component>
+        
       <Component Id="Hardcodet.Wpf.TaskbarNotification.dll" Guid="{2F0858BD-425F-4C29-BA5C-B40E04441086}" Win64="$(var.Win64)">
         <File Id="Hardcodet.Wpf.TaskbarNotification.dll" Name="Hardcodet.Wpf.TaskbarNotification.dll" Source="$(var.HideezSafe_TargetDir)Hardcodet.Wpf.TaskbarNotification.dll" />
       </Component>
@@ -265,6 +336,18 @@
         <File Id="HideezSafe.exe" Name="HideezSafe.exe" Source="$(var.HideezSafe_TargetDir)HideezSafe.exe" />
       </Component>
 
+      <Component Id="HideezSafe.exe.config" Guid="{768BF8DE-3F35-4960-8595-28540E87FF27}" Win64="$(var.Win64)">
+        <File Id="HideezSafe.exe.config" Name="HideezSafe.exe.config" Source="$(var.HideezSafe_TargetDir)HideezSafe.exe.config" />
+      </Component>
+        
+      <Component Id="MahApps.Metro.dll" Guid="{5FE85FF2-59D4-45D0-8E99-1A366993BA4D}" Win64="$(var.Win64)">
+        <File Id="MahApps.Metro.dll" Name="MahApps.Metro.dll" Source="$(var.HideezSafe_TargetDir)MahApps.Metro.dll" />
+      </Component>
+      
+      <Component Id="MahApps.Metro.IconPacks.dll" Guid="{4F3F52C5-6A08-4D80-B10E-6784FF5A401E}" Win64="$(var.Win64)">
+        <File Id="MahApps.Metro.IconPacks.dll" Name="MahApps.Metro.IconPacks.dll" Source="$(var.HideezSafe_TargetDir)MahApps.Metro.IconPacks.dll" />
+      </Component>
+        
       <Component Id="MvvmExtensions.dll" Guid="{3C548096-625C-4EA0-9546-0A929705F98B}" Win64="$(var.Win64)">
         <File Id="MvvmExtensions.dll" Name="MvvmExtensions.dll" Source="$(var.HideezSafe_TargetDir)MvvmExtensions.dll" />
       </Component>

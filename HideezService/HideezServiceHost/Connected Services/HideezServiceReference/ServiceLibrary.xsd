@@ -8,6 +8,7 @@
   <xs:element name="ServiceClientParameters" nillable="true" type="tns:ServiceClientParameters" />
   <xs:simpleType name="ClientType">
     <xs:restriction base="xs:string">
+      <xs:enumeration value="ServiceHost" />
       <xs:enumeration value="DesktopClient" />
       <xs:enumeration value="TestConsole" />
     </xs:restriction>

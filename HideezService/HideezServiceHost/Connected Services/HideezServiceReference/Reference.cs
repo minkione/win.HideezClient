@@ -63,10 +63,13 @@ namespace HideezServiceHost.HideezServiceReference {
     public enum ClientType : int {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        DesktopClient = 0,
+        ServiceHost = 0,
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        TestConsole = 1,
+        DesktopClient = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        TestConsole = 2,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]

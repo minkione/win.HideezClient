@@ -2,6 +2,7 @@
 {
     public enum ClientType
     {
+        ServiceHost,
         DesktopClient,
         TestConsole,
     }

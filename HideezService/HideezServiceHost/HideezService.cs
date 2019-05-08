@@ -7,11 +7,11 @@ using HideezServiceHost.HideezServiceReference;
 
 namespace HideezServiceHost
 {
-    public partial class Service1 : ServiceBase
+    public partial class HideezService : ServiceBase
     {
         ServiceHost serviceHost = null;
 
-        public Service1()
+        public HideezService()
         {
             InitializeComponent();
         }
@@ -20,7 +20,7 @@ namespace HideezServiceHost
         {
             try
             {
-                serviceHost = new ServiceHost(typeof(HideezService), new Uri("net.pipe://localhost/HideezService/"))
+                serviceHost = new ServiceHost(typeof(ServiceLibrary.Implementation.HideezService), new Uri("net.pipe://localhost/HideezService/"))
                 {
                     CloseTimeout = new TimeSpan(0, 0, 1),
                 };
@@ -32,8 +32,7 @@ namespace HideezServiceHost
                 var instanceContext = new InstanceContext(callback);
 
                 var service = new HideezServiceClient(instanceContext);
-                // Todo: change client type to ServiceHost
-                await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.TestConsole });
+                await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.ServiceHost });
 
                 // Now we can disconnect
                 service.Close();

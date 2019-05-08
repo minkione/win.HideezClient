@@ -59,6 +59,30 @@
     <Folder Include="Resources" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
+      <Name>Communication</Name>
+      <Project>{1b723099-c753-40d0-b7b2-add49d9e6f8f}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\win.sdk\Crypto\Crypto.vcxproj">
+      <Name>Crypto</Name>
+      <Project>{4d9026af-4a69-4a2b-a5be-97e7c6e31216}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\win.sdk\CsrBLE\CsrBLE.vcxproj">
+      <Name>CsrBLE</Name>
+      <Project>{d274aa09-5b34-4450-a6fb-5a5a351c7b45}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\win.sdk\RfidService\RfidService.csproj">
       <Name>RfidService</Name>
       <Project>{7b206a4f-ed60-4181-9be6-a6a117378378}</Project>

@@ -23,7 +23,10 @@ namespace ServiceLibrary.Implementation
         private void InitializeSDK()
         {
             _log = new EventLogger("ExampleApp");
-            _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
+
+            // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
+            var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+            _connectionManager = new BleConnectionManager(_log, $"{commonAppData}\\Hideez\\bonds");
 
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
@@ -55,6 +58,7 @@ namespace ServiceLibrary.Implementation
 
 
             // HES
+            // Todo: load HES address from registry
             _hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.241", _log);
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
             _hesConnection.Connect();
