@@ -41,7 +41,7 @@ namespace HideezMiddleware
             }
         }
 
-        internal async Task UnlockByRfid(string rfid)
+        public async Task UnlockByRfid(string rfid)
         {
             try
             {
