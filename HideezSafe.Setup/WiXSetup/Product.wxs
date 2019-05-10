@@ -190,7 +190,7 @@
         <File Id="HideezServiceHost.exe" Name="HideezServiceHost.exe" KeyPath="yes" Source="$(var.HideezServiceHost_TargetDir)HideezServiceHost.exe" />
         <ServiceInstall
           Id="si_HideezService"
-          Name="Hideez Service"
+          Name="HideezService"
           DisplayName ="Hideez Service"
           Start="auto"
           ErrorControl="normal"
@@ -373,7 +373,7 @@
         <File Id="RfidService.exe" Name="RfidService.exe" KeyPath="yes" Source="$(var.RfidService_TargetDir)RfidService.exe" />
         <ServiceInstall
           Id="si_RfidService"
-          Name="Rfid Service"
+          Name="RfidService"
           DisplayName ="Rfid Service"
           Start="auto"
           ErrorControl="normal"
