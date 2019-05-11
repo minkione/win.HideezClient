@@ -12,9 +12,9 @@ namespace ServiceLibrary
         }
 
         [DataMember]
-        public string Id { get; }
+        public string Id { get; set; }
 
         [DataMember]
-        public string Name { get; }
+        public string Name { get; set; }
     }
 }

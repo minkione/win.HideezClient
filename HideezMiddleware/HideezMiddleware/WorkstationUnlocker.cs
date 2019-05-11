@@ -53,7 +53,7 @@ namespace HideezMiddleware
                 if (info == null)
                     throw new Exception($"Device not found");
 
-                if (info.IdFromDevice == null)
+                if (info.IdFromDevice == null && !info.NeedUpdatePrimaryAccount)
                     throw new Exception($"Device '{info.DeviceSerialNo}' has not a primary account stored");
 
                 //info.DeviceMac = "D0:A8:9E:6B:CD:8D";
