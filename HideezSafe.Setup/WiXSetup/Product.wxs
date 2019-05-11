@@ -210,7 +210,7 @@
         </ServiceInstall>
         <ServiceControl
           Id="sc_HideezService"
-          Name="Hideez Service"
+          Name="HideezService"
           Start="install"
           Stop="both"
           Remove="uninstall"
@@ -389,7 +389,7 @@
         </ServiceInstall>
         <ServiceControl
           Id="sc_RfidService"
-          Name="Rfid Service"
+          Name="RfidService"
           Start="install"
           Stop="both"
           Remove="uninstall"
