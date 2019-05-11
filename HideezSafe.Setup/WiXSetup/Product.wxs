@@ -100,6 +100,7 @@
             <Directory Id="x86_" Name="x86" />
             <Directory Id="csr" Name="driver" />
             <Directory Id="rfid" Name="rfid" />
+            <Directory Id="service" Name="service" />
           </Directory>
         </Directory>
       </Directory>
@@ -185,7 +186,7 @@
 
   <!-- Hideez Service -->
   <Fragment>
-    <ComponentGroup Id="HideezService" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="HideezService" Directory="service">
       <Component Id="HideezServiceHost.exe" Guid="{FB54A20C-310F-474A-91E2-835AC3A34485}">
         <File Id="HideezServiceHost.exe" Name="HideezServiceHost.exe" KeyPath="yes" Source="$(var.HideezServiceHost_TargetDir)HideezServiceHost.exe" />
         <ServiceInstall
@@ -226,143 +227,157 @@
           <RegistryValue Type="string" Name="hs3_hes_address" Value="[HESADDRESS]" />
         </RegistryKey>
       </Component>
-  
-      <!-- Hideez Service dependencies -->
-      <!-- 
-      Because Service shares folder with main application
-      shared dependencies are omited in this component group
-      -->
-
-      <Component Id="HideezServiceHost.exe.config" Guid="{86540F4F-2BD5-4BDA-97D2-F76207811073}" Win64="$(var.Win64)">
-        <File Id="HideezServiceHost.exe.config" Name="HideezServiceHost.exe.config" Source="$(var.HideezServiceHost_TargetDir)HideezServiceHost.exe.config" />
-      </Component>
-
-      <Component Id="CsrBLE.dll" Guid="{8B202547-7773-4609-B7B9-8EFC28E7115D}" Win64="$(var.Win64)">
-        <File Id="CsrBLE.dll" Name="CsrBLE.dll" Source="$(var.CsrBLE_TargetDir)CsrBLE.dll" />
-      </Component>
-
-      <Component Id="Crypto.dll" Guid="{9505B474-F5BC-447F-AEFA-FBF2A59224AF}" Win64="$(var.Win64)">
-        <File Id="Crypto.dll" Name="Crypto.dll" Source="$(var.Crypto_TargetDir)Crypto.dll" />
-      </Component>
-
-      <Component Id="ServiceLibrary.dll" Guid="{6203C361-745D-4029-9FA7-D0EDA29B23F6}" Win64="$(var.Win64)">
-        <File Id="ServiceLibrary.dll" Name="ServiceLibrary.dll" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.dll" />
-      </Component>
+      <!-- -->
       
-      <Component Id="ServiceLibrary.dll.config" Guid="{26627888-CD1B-473B-B004-71A5A16C5DF8}" Win64="$(var.Win64)">
-        <File Id="ServiceLibrary.dll.config" Name="ServiceLibrary.dll.config" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.dll.config" />
+      <Component Id="HideezService.Crypto.dll" Guid="{93E3D49F-2F34-4D64-B832-AFFDF6C530F4}" Win64="$(var.Win64)">
+        <File Id="HideezService.Crypto.dll" Name="Crypto.dll" Source="$(var.Crypto_TargetDir)Crypto.dll" />
+      </Component>
+        
+      <!-- Generated -->
+      <Component Id="HideezService.Communication.dll" Guid="{60B8A4DC-BA22-4370-9921-361D7375B0AA}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Communication.dll" Name="Communication.dll" Source="$(var.HideezServiceHost_TargetDir)Communication.dll" />
       </Component>
 
-      <Component Id="ServiceLibrary.Implementation.dll" Guid="{C619B2FD-D8EF-4F01-B7EE-F1BE252B0891}" Win64="$(var.Win64)">
-        <File Id="ServiceLibrary.Implementation.dll" Name="ServiceLibrary.Implementation.dll" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.Implementation.dll" />
-      </Component>
-      
-      <Component Id="System.Collections.Immutable.dll" Guid="{FDBF83CD-7CED-4FB1-BAB3-71887F1A4B66}" Win64="$(var.Win64)">
-        <File Id="System.Collections.Immutable.dll" Name="System.Collections.Immutable.dll" Source="$(var.HideezServiceHost_TargetDir)System.Collections.Immutable.dll" />
-      </Component>
-      
-      <Component Id="Communication.dll" Guid="{C950D159-A3B2-4816-872F-5A7E6B0B7C32}" Win64="$(var.Win64)">
-        <File Id="Communication.dll" Name="Communication.dll" Source="$(var.HideezServiceHost_TargetDir)Communication.dll" />
+      <Component Id="HideezService.CsrBLE.dll" Guid="{1F20EC54-A317-4FCF-84CC-6379B5B83F9C}" Win64="$(var.Win64)">
+	      <File Id="HideezService.CsrBLE.dll" Name="CsrBLE.dll" Source="$(var.HideezServiceHost_TargetDir)CsrBLE.dll" />
       </Component>
 
-      <Component Id="HideezMiddleware.dll" Guid="{6A0D681C-E36D-4C6E-B8DD-2F7ED5A26556}" Win64="$(var.Win64)">
-        <File Id="HideezMiddleware.dll" Name="HideezMiddleware.dll" Source="$(var.HideezServiceHost_TargetDir)HideezMiddleware.dll" />
-      </Component>
-    
-      <!-- generated -->
-
-      <Component Id="Microsoft.AspNetCore.Connections.Abstractions.dll" Guid="{1733795F-7584-41E6-AA7A-C88B63103566}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.AspNetCore.Connections.Abstractions.dll" Name="Microsoft.AspNetCore.Connections.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.Connections.Abstractions.dll" />
+      <Component Id="HideezService.HideezMiddleware.dll" Guid="{91C1E445-F1C6-40C9-862C-49FEAFD0D49D}" Win64="$(var.Win64)">
+	      <File Id="HideezService.HideezMiddleware.dll" Name="HideezMiddleware.dll" Source="$(var.HideezServiceHost_TargetDir)HideezMiddleware.dll" />
       </Component>
 
-      <Component Id="Microsoft.AspNetCore.Http.Connections.Client.dll" Guid="{EF4A6938-C76C-47C3-8B25-E7D4AC02D57E}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.AspNetCore.Http.Connections.Client.dll" Name="Microsoft.AspNetCore.Http.Connections.Client.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.Http.Connections.Client.dll" />
+      <Component Id="HideezService.HideezServiceHost.exe.config" Guid="{FF95906D-A7D5-40ED-8E15-5AEDAE6C0129}" Win64="$(var.Win64)">
+	      <File Id="HideezService.HideezServiceHost.exe.config" Name="HideezServiceHost.exe.config" Source="$(var.HideezServiceHost_TargetDir)HideezServiceHost.exe.config" />
       </Component>
 
-      <Component Id="Microsoft.AspNetCore.Http.Connections.Common.dll" Guid="{61217671-B6E5-46E7-A1C4-A05889CFD547}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.AspNetCore.Http.Connections.Common.dll" Name="Microsoft.AspNetCore.Http.Connections.Common.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.Http.Connections.Common.dll" />
+      <Component Id="HideezService.Microsoft.AspNetCore.Connections.Abstractions.dll" Guid="{5F2C9F7E-D249-446F-A5CD-68AE6531AF61}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.Connections.Abstractions.dll" Name="Microsoft.AspNetCore.Connections.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.Connections.Abstractions.dll" />
       </Component>
 
-      <Component Id="Microsoft.AspNetCore.Http.Features.dll" Guid="{DF0AFB8C-B6E2-4DBE-8F4A-7CF3CA802759}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.AspNetCore.Http.Features.dll" Name="Microsoft.AspNetCore.Http.Features.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.Http.Features.dll" />
+      <Component Id="HideezService.Microsoft.AspNetCore.Http.Connections.Client.dll" Guid="{AFA06BA1-4ECC-4D01-ABF5-3CD778E138F8}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.Http.Connections.Client.dll" Name="Microsoft.AspNetCore.Http.Connections.Client.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.Http.Connections.Client.dll" />
       </Component>
 
-      <Component Id="Microsoft.AspNetCore.SignalR.Client.Core.dll" Guid="{649BDDA7-BE02-47E6-BB00-D8B876527D1E}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.AspNetCore.SignalR.Client.Core.dll" Name="Microsoft.AspNetCore.SignalR.Client.Core.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Client.Core.dll" />
+      <Component Id="HideezService.Microsoft.AspNetCore.Http.Connections.Common.dll" Guid="{49D735F8-B91F-4788-91CE-5DAFD3483E18}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.Http.Connections.Common.dll" Name="Microsoft.AspNetCore.Http.Connections.Common.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.Http.Connections.Common.dll" />
       </Component>
 
-      <Component Id="Microsoft.AspNetCore.SignalR.Client.dll" Guid="{18B733F5-9648-4889-A1FB-1DA8DDAC82C6}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.AspNetCore.SignalR.Client.dll" Name="Microsoft.AspNetCore.SignalR.Client.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Client.dll" />
+      <Component Id="HideezService.Microsoft.AspNetCore.Http.Features.dll" Guid="{E18FCCF6-A0CA-40EA-95A6-84847F0B713E}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.Http.Features.dll" Name="Microsoft.AspNetCore.Http.Features.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.Http.Features.dll" />
       </Component>
 
-      <Component Id="Microsoft.AspNetCore.SignalR.Common.dll" Guid="{706AEC19-D793-43F4-B835-5CE6A599D6F5}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.AspNetCore.SignalR.Common.dll" Name="Microsoft.AspNetCore.SignalR.Common.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Common.dll" />
+      <Component Id="HideezService.Microsoft.AspNetCore.SignalR.Client.Core.dll" Guid="{86F53B63-BC9B-4A5D-9AB3-1B608C9593BC}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.SignalR.Client.Core.dll" Name="Microsoft.AspNetCore.SignalR.Client.Core.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Client.Core.dll" />
       </Component>
 
-      <Component Id="Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Guid="{BB1628F2-78B1-4671-B240-D1EAF00EC46F}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Name="Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Protocols.Json.dll" />
+      <Component Id="HideezService.Microsoft.AspNetCore.SignalR.Client.dll" Guid="{82F234C0-B014-44F1-9757-C206EDF0DC8D}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.SignalR.Client.dll" Name="Microsoft.AspNetCore.SignalR.Client.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Client.dll" />
       </Component>
 
-      <Component Id="Microsoft.Extensions.Configuration.Abstractions.dll" Guid="{F32492BC-2F77-42D3-BF57-5B2FF46CA2CB}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.Extensions.Configuration.Abstractions.dll" Name="Microsoft.Extensions.Configuration.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Configuration.Abstractions.dll" />
+      <Component Id="HideezService.Microsoft.AspNetCore.SignalR.Common.dll" Guid="{C5D675F8-E1DE-4080-9904-2F3C05A2EEA0}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.SignalR.Common.dll" Name="Microsoft.AspNetCore.SignalR.Common.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Common.dll" />
       </Component>
 
-      <Component Id="Microsoft.Extensions.Configuration.Binder.dll" Guid="{35FAF08F-3767-4F63-A7E9-562217FBABB3}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.Extensions.Configuration.Binder.dll" Name="Microsoft.Extensions.Configuration.Binder.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Configuration.Binder.dll" />
+      <Component Id="HideezService.Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Guid="{07F56A41-4A52-46B6-AC94-CA546FB7912F}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Name="Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Protocols.Json.dll" />
       </Component>
 
-      <Component Id="Microsoft.Extensions.Configuration.dll" Guid="{0026A110-9583-4C34-BC62-35F9DDA6BE3F}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.Extensions.Configuration.dll" Name="Microsoft.Extensions.Configuration.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Configuration.dll" />
+      <Component Id="HideezService.Microsoft.Extensions.Configuration.Abstractions.dll" Guid="{6BB680C2-8BDA-45BA-B81C-C83C062E9E56}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Configuration.Abstractions.dll" Name="Microsoft.Extensions.Configuration.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Configuration.Abstractions.dll" />
       </Component>
 
-      <Component Id="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Guid="{5ACE3489-060A-4634-B24B-F72C47FD63B0}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      <Component Id="HideezService.Microsoft.Extensions.Configuration.Binder.dll" Guid="{34D46F5A-B56D-4077-98C8-BC04E6FCBC94}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Configuration.Binder.dll" Name="Microsoft.Extensions.Configuration.Binder.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Configuration.Binder.dll" />
       </Component>
 
-      <Component Id="Microsoft.Extensions.DependencyInjection.dll" Guid="{600C76DD-340A-421D-A17E-F3BA6016E181}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.Extensions.DependencyInjection.dll" Name="Microsoft.Extensions.DependencyInjection.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.DependencyInjection.dll" />
+      <Component Id="HideezService.Microsoft.Extensions.Configuration.dll" Guid="{616C38F1-07D3-42C8-B36A-AD2A8D79F0FC}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Configuration.dll" Name="Microsoft.Extensions.Configuration.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Configuration.dll" />
       </Component>
 
-      <Component Id="Microsoft.Extensions.Logging.Abstractions.dll" Guid="{8324EE26-7411-45AB-800E-5BBAC4978B0B}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.Extensions.Logging.Abstractions.dll" Name="Microsoft.Extensions.Logging.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Logging.Abstractions.dll" />
+      <Component Id="HideezService.Microsoft.Extensions.DependencyInjection.Abstractions.dll" Guid="{2B4D4A35-8163-4855-836C-CD9E6C1E1A15}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.DependencyInjection.Abstractions.dll" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
       </Component>
 
-      <Component Id="Microsoft.Extensions.Logging.dll" Guid="{FB160FB1-44E1-49C4-A254-A0DDC58CD1FA}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.Extensions.Logging.dll" Name="Microsoft.Extensions.Logging.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Logging.dll" />
+      <Component Id="HideezService.Microsoft.Extensions.DependencyInjection.dll" Guid="{807B1D9E-D473-4341-8AF7-067DAC318383}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.DependencyInjection.dll" Name="Microsoft.Extensions.DependencyInjection.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.DependencyInjection.dll" />
       </Component>
 
-      <Component Id="Microsoft.Extensions.Options.dll" Guid="{7FCA3698-3B66-4975-AC4E-40D816920529}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.Extensions.Options.dll" Name="Microsoft.Extensions.Options.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Options.dll" />
+      <Component Id="HideezService.Microsoft.Extensions.Logging.Abstractions.dll" Guid="{6791E3E6-E49B-4AC2-AEDC-EBBE8C7AB961}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Logging.Abstractions.dll" Name="Microsoft.Extensions.Logging.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Logging.Abstractions.dll" />
       </Component>
 
-      <Component Id="Microsoft.Extensions.Primitives.dll" Guid="{E3C38ED3-192F-4609-925C-C2D3F3EC3FA7}" Win64="$(var.Win64)">
-	      <File Id="Microsoft.Extensions.Primitives.dll" Name="Microsoft.Extensions.Primitives.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Primitives.dll" />
+      <Component Id="HideezService.Microsoft.Extensions.Logging.dll" Guid="{5A1AA5F9-394F-4408-9AC7-0010160295C3}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Logging.dll" Name="Microsoft.Extensions.Logging.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Logging.dll" />
       </Component>
 
-      <Component Id="Newtonsoft.Json.dll" Guid="{80CEEF38-5EFB-4F8D-B8C8-86E0B0B05443}" Win64="$(var.Win64)">
-	      <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.HideezServiceHost_TargetDir)Newtonsoft.Json.dll" />
+      <Component Id="HideezService.Microsoft.Extensions.Options.dll" Guid="{01D22131-2CF1-41AF-830D-BE8A96A106A8}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Options.dll" Name="Microsoft.Extensions.Options.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Options.dll" />
       </Component>
 
-      <Component Id="System.IO.Pipelines.dll" Guid="{A4411ECA-73AD-4AA5-859D-E22D71240286}" Win64="$(var.Win64)">
-	      <File Id="System.IO.Pipelines.dll" Name="System.IO.Pipelines.dll" Source="$(var.HideezServiceHost_TargetDir)System.IO.Pipelines.dll" />
+      <Component Id="HideezService.Microsoft.Extensions.Primitives.dll" Guid="{1C177A1A-ADAE-4795-AFCB-0B5D2D1ED833}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Primitives.dll" Name="Microsoft.Extensions.Primitives.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Primitives.dll" />
       </Component>
 
-      <Component Id="System.Memory.dll" Guid="{EA33A204-0A43-4B23-843C-5758EFABB139}" Win64="$(var.Win64)">
-	      <File Id="System.Memory.dll" Name="System.Memory.dll" Source="$(var.HideezServiceHost_TargetDir)System.Memory.dll" />
+      <Component Id="HideezService.Newtonsoft.Json.dll" Guid="{250D350B-3CD8-4F25-B28E-6F31F6C8FC31}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.HideezServiceHost_TargetDir)Newtonsoft.Json.dll" />
       </Component>
 
-      <Component Id="System.Numerics.Vectors.dll" Guid="{F6A9C3FF-23C8-43F7-A8FD-2AD7599833CF}" Win64="$(var.Win64)">
-	      <File Id="System.Numerics.Vectors.dll" Name="System.Numerics.Vectors.dll" Source="$(var.HideezServiceHost_TargetDir)System.Numerics.Vectors.dll" />
+      <Component Id="HideezService.NLog.config" Guid="{58CA5238-F54C-4D8E-89C2-6D18B512189B}" Win64="$(var.Win64)">
+	      <File Id="HideezService.NLog.config" Name="NLog.config" Source="$(var.HideezServiceHost_TargetDir)NLog.config" />
       </Component>
 
-      <Component Id="System.Threading.Channels.dll" Guid="{CDD16BDB-C737-4B1D-8D50-6BB66BCFA678}" Win64="$(var.Win64)">
-	      <File Id="System.Threading.Channels.dll" Name="System.Threading.Channels.dll" Source="$(var.HideezServiceHost_TargetDir)System.Threading.Channels.dll" />
+      <Component Id="HideezService.NLog.dll" Guid="{BFB79138-6938-48B4-AE0A-A1E59A9BE402}" Win64="$(var.Win64)">
+	      <File Id="HideezService.NLog.dll" Name="NLog.dll" Source="$(var.HideezServiceHost_TargetDir)NLog.dll" />
       </Component>
 
-      <Component Id="System.Threading.Tasks.Extensions.dll" Guid="{334A479F-F4E4-483F-A470-0299EFE9DC8B}" Win64="$(var.Win64)">
-	      <File Id="System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.HideezServiceHost_TargetDir)System.Threading.Tasks.Extensions.dll" />
+      <Component Id="HideezService.ServiceLibrary.dll" Guid="{8B4691B4-ED4E-4680-9E0C-CB315639EBC9}" Win64="$(var.Win64)">
+	      <File Id="HideezService.ServiceLibrary.dll" Name="ServiceLibrary.dll" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.dll" />
       </Component>
-      
+
+      <Component Id="HideezService.ServiceLibrary.dll.config" Guid="{5553ADED-5C17-41D4-BD8E-42B042D869A1}" Win64="$(var.Win64)">
+	      <File Id="HideezService.ServiceLibrary.dll.config" Name="ServiceLibrary.dll.config" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.dll.config" />
+      </Component>
+
+      <Component Id="HideezService.ServiceLibrary.Implementation.dll" Guid="{1BFB0C0F-9742-4790-BD3F-507DF4C37870}" Win64="$(var.Win64)">
+	      <File Id="HideezService.ServiceLibrary.Implementation.dll" Name="ServiceLibrary.Implementation.dll" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.Implementation.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Buffers.dll" Guid="{E3E6B1EB-E722-4E19-8B4A-0CD7ADA80EBB}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Buffers.dll" Name="System.Buffers.dll" Source="$(var.HideezServiceHost_TargetDir)System.Buffers.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Collections.Immutable.dll" Guid="{052AFDF4-83DD-4D5F-A171-62FB61FF27F1}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Collections.Immutable.dll" Name="System.Collections.Immutable.dll" Source="$(var.HideezServiceHost_TargetDir)System.Collections.Immutable.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.ComponentModel.Annotations.dll" Guid="{3DC85BC3-A6F7-4D47-BC2B-8EFA1E0C0966}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.ComponentModel.Annotations.dll" Name="System.ComponentModel.Annotations.dll" Source="$(var.HideezServiceHost_TargetDir)System.ComponentModel.Annotations.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.IO.Pipelines.dll" Guid="{75682E59-B79C-478E-B4BC-21FCFE905601}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.IO.Pipelines.dll" Name="System.IO.Pipelines.dll" Source="$(var.HideezServiceHost_TargetDir)System.IO.Pipelines.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Memory.dll" Guid="{FCD82922-DFF5-464D-8DB1-A256D8B3D742}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Memory.dll" Name="System.Memory.dll" Source="$(var.HideezServiceHost_TargetDir)System.Memory.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Numerics.Vectors.dll" Guid="{B360FFBE-A426-4BC7-9F3E-E98027380846}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Numerics.Vectors.dll" Name="System.Numerics.Vectors.dll" Source="$(var.HideezServiceHost_TargetDir)System.Numerics.Vectors.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Runtime.CompilerServices.Unsafe.dll" Guid="{569FB82F-8C31-43AF-8B13-95427130804E}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.HideezServiceHost_TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Threading.Channels.dll" Guid="{11AFEC0F-201B-4690-9DB8-69E3AC0E2361}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Threading.Channels.dll" Name="System.Threading.Channels.dll" Source="$(var.HideezServiceHost_TargetDir)System.Threading.Channels.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Threading.Tasks.Extensions.dll" Guid="{E18EBF8F-D20A-44E4-9AF3-00CF1678852C}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.HideezServiceHost_TargetDir)System.Threading.Tasks.Extensions.dll" />
+      </Component>
+
     </ComponentGroup>
   </Fragment>
   
@@ -444,90 +459,94 @@
     
     </ComponentGroup>
   </Fragment>
-  
-    
       
-  <!--Programm Files-->
+  <!--Install Directory / Main application-->
   <Fragment>
-    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">      
-     <Component Id="CommonServiceLocator.dll" Guid="{A95D69BF-9CBF-4B15-8CD1-E1E550AD8F1D}" Win64="$(var.Win64)">
-        <File Id="CommonServiceLocator.dll" Name="CommonServiceLocator.dll" Source="$(var.HideezSafe_TargetDir)CommonServiceLocator.dll" />
-      </Component>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
 
-      <Component Id="ControlzEx.dll" Guid="{166A2423-D8D6-464F-8676-6E9470E33AA3}" Win64="$(var.Win64)">
-        <File Id="ControlzEx.dll" Name="ControlzEx.dll" Source="$(var.HideezSafe_TargetDir)ControlzEx.dll" />
+      <Component Id="Crypto.dll" Guid="{63655150-2668-445A-A18A-A9B042DB8F54}" Win64="$(var.Win64)">
+        <File Id="Crypto.dll" Name="Crypto.dll" Source="$(var.Crypto_TargetDir)Crypto.dll" />
       </Component>
       
-      <Component Id="GalaSoft.MvvmLight.dll" Guid="{0D9D78A8-558D-4493-A0B0-CC58ADEAA8D8}" Win64="$(var.Win64)">
-        <File Id="GalaSoft.MvvmLight.dll" Name="GalaSoft.MvvmLight.dll" Source="$(var.HideezSafe_TargetDir)GalaSoft.MvvmLight.dll" />
+      <!-- Generated -->
+      <Component Id="CommonServiceLocator.dll" Guid="{CD697ED0-D146-4143-B2E6-1E1A096FA7F2}" Win64="$(var.Win64)">
+	      <File Id="CommonServiceLocator.dll" Name="CommonServiceLocator.dll" Source="$(var.HideezSafe_TargetDir)CommonServiceLocator.dll" />
       </Component>
 
-      <Component Id="GalaSoft.MvvmLight.Extras.dll" Guid="{8C5D98A2-2238-4553-A2E5-9BD8EFF7802A}" Win64="$(var.Win64)">
-        <File Id="GalaSoft.MvvmLight.Extras.dll" Name="GalaSoft.MvvmLight.Extras.dll" Source="$(var.HideezSafe_TargetDir)GalaSoft.MvvmLight.Extras.dll" />
+      <Component Id="ControlzEx.dll" Guid="{53130A88-D5A9-4DDE-A254-3985F397A230}" Win64="$(var.Win64)">
+	      <File Id="ControlzEx.dll" Name="ControlzEx.dll" Source="$(var.HideezSafe_TargetDir)ControlzEx.dll" />
       </Component>
 
-      <Component Id="GalaSoft.MvvmLight.Platform.dll" Guid="{595C60DE-B178-4DE2-9E82-2CF314F0FCAB}" Win64="$(var.Win64)">
-        <File Id="GalaSoft.MvvmLight.Platform.dll" Name="GalaSoft.MvvmLight.Platform.dll" Source="$(var.HideezSafe_TargetDir)GalaSoft.MvvmLight.Platform.dll" />
+      <Component Id="GalaSoft.MvvmLight.dll" Guid="{F13DC48F-85C3-432A-AD74-D409924DE1DB}" Win64="$(var.Win64)">
+	      <File Id="GalaSoft.MvvmLight.dll" Name="GalaSoft.MvvmLight.dll" Source="$(var.HideezSafe_TargetDir)GalaSoft.MvvmLight.dll" />
       </Component>
 
-      <Component Id="Gu.Wpf.Adorners.dll" Guid="{AB435AAF-74FE-4FE0-AAD6-E543282B4250}" Win64="$(var.Win64)">
-        <File Id="Gu.Wpf.Adorners.dll" Name="Gu.Wpf.Adorners.dll" Source="$(var.HideezSafe_TargetDir)Gu.Wpf.Adorners.dll" />
-      </Component>
-        
-      <Component Id="Hardcodet.Wpf.TaskbarNotification.dll" Guid="{2F0858BD-425F-4C29-BA5C-B40E04441086}" Win64="$(var.Win64)">
-        <File Id="Hardcodet.Wpf.TaskbarNotification.dll" Name="Hardcodet.Wpf.TaskbarNotification.dll" Source="$(var.HideezSafe_TargetDir)Hardcodet.Wpf.TaskbarNotification.dll" />
+      <Component Id="GalaSoft.MvvmLight.Extras.dll" Guid="{1FF76CEC-2D89-483F-B88F-570A631924D0}" Win64="$(var.Win64)">
+	      <File Id="GalaSoft.MvvmLight.Extras.dll" Name="GalaSoft.MvvmLight.Extras.dll" Source="$(var.HideezSafe_TargetDir)GalaSoft.MvvmLight.Extras.dll" />
       </Component>
 
-      <Component Id="HideezSafe.exe" Guid="{F963D64C-61C1-4540-B889-33E922AE25FC}" Win64="$(var.Win64)">
-        <File Id="HideezSafe.exe" Name="HideezSafe.exe" Source="$(var.HideezSafe_TargetDir)HideezSafe.exe" />
+      <Component Id="GalaSoft.MvvmLight.Platform.dll" Guid="{A40280FA-48CD-450E-9461-142B9BA54068}" Win64="$(var.Win64)">
+	      <File Id="GalaSoft.MvvmLight.Platform.dll" Name="GalaSoft.MvvmLight.Platform.dll" Source="$(var.HideezSafe_TargetDir)GalaSoft.MvvmLight.Platform.dll" />
       </Component>
 
-      <Component Id="HideezSafe.exe.config" Guid="{768BF8DE-3F35-4960-8595-28540E87FF27}" Win64="$(var.Win64)">
-        <File Id="HideezSafe.exe.config" Name="HideezSafe.exe.config" Source="$(var.HideezSafe_TargetDir)HideezSafe.exe.config" />
-      </Component>
-        
-      <Component Id="MahApps.Metro.dll" Guid="{5FE85FF2-59D4-45D0-8E99-1A366993BA4D}" Win64="$(var.Win64)">
-        <File Id="MahApps.Metro.dll" Name="MahApps.Metro.dll" Source="$(var.HideezSafe_TargetDir)MahApps.Metro.dll" />
-      </Component>
-      
-      <Component Id="MahApps.Metro.IconPacks.dll" Guid="{4F3F52C5-6A08-4D80-B10E-6784FF5A401E}" Win64="$(var.Win64)">
-        <File Id="MahApps.Metro.IconPacks.dll" Name="MahApps.Metro.IconPacks.dll" Source="$(var.HideezSafe_TargetDir)MahApps.Metro.IconPacks.dll" />
-      </Component>
-        
-      <Component Id="MvvmExtensions.dll" Guid="{3C548096-625C-4EA0-9546-0A929705F98B}" Win64="$(var.Win64)">
-        <File Id="MvvmExtensions.dll" Name="MvvmExtensions.dll" Source="$(var.HideezSafe_TargetDir)MvvmExtensions.dll" />
+      <Component Id="Gu.Wpf.Adorners.dll" Guid="{D123B299-E2AA-4E6D-8C90-76449D818EEF}" Win64="$(var.Win64)">
+	      <File Id="Gu.Wpf.Adorners.dll" Name="Gu.Wpf.Adorners.dll" Source="$(var.HideezSafe_TargetDir)Gu.Wpf.Adorners.dll" />
       </Component>
 
-      <Component Id="NLog.dll" Guid="{625004D9-8D3A-49F7-936D-F94160BE5286}" Win64="$(var.Win64)">
-        <File Id="NLog.dll" Name="NLog.dll" Source="$(var.HideezSafe_TargetDir)NLog.dll" />
+      <Component Id="Hardcodet.Wpf.TaskbarNotification.dll" Guid="{3DC454AF-328E-4184-98DA-C0A5F23D29D4}" Win64="$(var.Win64)">
+	      <File Id="Hardcodet.Wpf.TaskbarNotification.dll" Name="Hardcodet.Wpf.TaskbarNotification.dll" Source="$(var.HideezSafe_TargetDir)Hardcodet.Wpf.TaskbarNotification.dll" />
       </Component>
 
-      <Component Id="NLog.config" Guid="{3F0D4A12-190A-4BB9-AB9D-3EC5697487FD}" Win64="$(var.Win64)">
-        <File Id="NLog.config" Name="NLog.config" Source="$(var.HideezSafe_TargetDir)NLog.config" />
+      <Component Id="HideezSafe.exe" Guid="{CFEB4558-66CE-4046-9F54-44218E4B8888}" Win64="$(var.Win64)">
+	      <File Id="HideezSafe.exe" Name="HideezSafe.exe" Source="$(var.HideezSafe_TargetDir)HideezSafe.exe" />
       </Component>
 
-      <Component Id="SingleInstanceApp.dll" Guid="{E7395408-A4A7-4CD0-AF2D-00DF167F1962}" Win64="$(var.Win64)">
-        <File Id="SingleInstanceApp.dll" Name="SingleInstanceApp.dll" Source="$(var.HideezSafe_TargetDir)SingleInstanceApp.dll" />
+      <Component Id="HideezSafe.exe.config" Guid="{F69B06AC-86B8-4244-8C00-D22F31035E9F}" Win64="$(var.Win64)">
+	      <File Id="HideezSafe.exe.config" Name="HideezSafe.exe.config" Source="$(var.HideezSafe_TargetDir)HideezSafe.exe.config" />
       </Component>
 
-      <Component Id="System.Runtime.CompilerServices.Unsafe.dll" Guid="{15764EB6-3970-4625-BA8C-692DFFB0B2D4}" Win64="$(var.Win64)">
-        <File Id="System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.HideezSafe_TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
+      <Component Id="MahApps.Metro.dll" Guid="{7AB2D849-38F2-4E21-9AC8-4E2497C60734}" Win64="$(var.Win64)">
+	      <File Id="MahApps.Metro.dll" Name="MahApps.Metro.dll" Source="$(var.HideezSafe_TargetDir)MahApps.Metro.dll" />
       </Component>
 
-      <Component Id="System.Windows.Interactivity.dll" Guid="{E8743384-66B6-4553-B617-8B329563D49C}" Win64="$(var.Win64)">
-        <File Id="System.Windows.Interactivity.dll" Name="System.Windows.Interactivity.dll" Source="$(var.HideezSafe_TargetDir)System.Windows.Interactivity.dll" />
+      <Component Id="MahApps.Metro.IconPacks.dll" Guid="{13C19D92-5816-4315-8AFE-247969E6E0D3}" Win64="$(var.Win64)">
+	      <File Id="MahApps.Metro.IconPacks.dll" Name="MahApps.Metro.IconPacks.dll" Source="$(var.HideezSafe_TargetDir)MahApps.Metro.IconPacks.dll" />
       </Component>
 
-      <Component Id="Unity.Abstractions.dll" Guid="{F4D594F4-51CA-412E-BFE2-565DDB1CF0D9}" Win64="$(var.Win64)">
-        <File Id="Unity.Abstractions.dll" Name="Unity.Abstractions.dll" Source="$(var.HideezSafe_TargetDir)Unity.Abstractions.dll" />
+      <Component Id="MvvmExtensions.dll" Guid="{593AD8DC-9AEB-4EAF-8699-B9550FC1420D}" Win64="$(var.Win64)">
+	      <File Id="MvvmExtensions.dll" Name="MvvmExtensions.dll" Source="$(var.HideezSafe_TargetDir)MvvmExtensions.dll" />
       </Component>
 
-      <Component Id="Unity.Container.dll" Guid="{F7E9DA42-1258-4AAF-9359-5FC797D74017}" Win64="$(var.Win64)">
-        <File Id="Unity.Container.dll" Name="Unity.Container.dll" Source="$(var.HideezSafe_TargetDir)Unity.Container.dll" />
+      <Component Id="NLog.config" Guid="{90C30FA3-D866-4829-B380-E82D39F7FBC9}" Win64="$(var.Win64)">
+	      <File Id="NLog.config" Name="NLog.config" Source="$(var.HideezSafe_TargetDir)NLog.config" />
       </Component>
 
-      <Component Id="XAMLMarkupExtensions.dll" Guid="{1752DF5C-7458-4DB3-BC00-2D637868C605}" Win64="$(var.Win64)">
-        <File Id="XAMLMarkupExtensions.dll" Name="XAMLMarkupExtensions.dll" Source="$(var.HideezSafe_TargetDir)XAMLMarkupExtensions.dll" />
+      <Component Id="NLog.dll" Guid="{46769438-F37C-466A-9C83-1F35BEB4C604}" Win64="$(var.Win64)">
+	      <File Id="NLog.dll" Name="NLog.dll" Source="$(var.HideezSafe_TargetDir)NLog.dll" />
+      </Component>
+
+      <Component Id="SingleInstanceApp.dll" Guid="{5D8817D7-B2CC-4A3C-866D-9532C3E89BD9}" Win64="$(var.Win64)">
+	      <File Id="SingleInstanceApp.dll" Name="SingleInstanceApp.dll" Source="$(var.HideezSafe_TargetDir)SingleInstanceApp.dll" />
+      </Component>
+
+      <Component Id="System.Runtime.CompilerServices.Unsafe.dll" Guid="{EF85B0AB-4DE3-45A8-8AB6-B787D413CFCE}" Win64="$(var.Win64)">
+	      <File Id="System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.HideezSafe_TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
+      </Component>
+
+      <Component Id="System.Windows.Interactivity.dll" Guid="{9C1BA4AD-1C48-4DB9-8F99-6CCB89118A98}" Win64="$(var.Win64)">
+	      <File Id="System.Windows.Interactivity.dll" Name="System.Windows.Interactivity.dll" Source="$(var.HideezSafe_TargetDir)System.Windows.Interactivity.dll" />
+      </Component>
+
+      <Component Id="Unity.Abstractions.dll" Guid="{E7CED019-EF33-4BDB-8EBD-B997CA320717}" Win64="$(var.Win64)">
+	      <File Id="Unity.Abstractions.dll" Name="Unity.Abstractions.dll" Source="$(var.HideezSafe_TargetDir)Unity.Abstractions.dll" />
+      </Component>
+
+      <Component Id="Unity.Container.dll" Guid="{A90BB65A-CB93-41EE-AFB4-F544DD506BAD}" Win64="$(var.Win64)">
+	      <File Id="Unity.Container.dll" Name="Unity.Container.dll" Source="$(var.HideezSafe_TargetDir)Unity.Container.dll" />
+      </Component>
+
+      <Component Id="XAMLMarkupExtensions.dll" Guid="{F003800A-C6B8-46B8-A1A1-97F0A09A8331}" Win64="$(var.Win64)">
+	      <File Id="XAMLMarkupExtensions.dll" Name="XAMLMarkupExtensions.dll" Source="$(var.HideezSafe_TargetDir)XAMLMarkupExtensions.dll" />
       </Component>
 
     </ComponentGroup>
