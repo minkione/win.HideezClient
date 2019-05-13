@@ -41,8 +41,7 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
 
         public void PairedDevicePropertyChanged(BleDeviceDTO device)
         {
-            // Todo:
-            throw new System.NotImplementedException();
+            messenger.Send(new DevicePropertiesUpdatedMessage(device));
         }
 
     }

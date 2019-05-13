@@ -23,13 +23,27 @@ namespace HideezSafe.Modules.DeviceManager
             this.serviceProxy = serviceProxy;
 
             messanger.Register<PairedDevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
-            // Reminder for the future
-            //messanger.Register<DevicePropertiesUpdatedMessage>(this, );
-            //messanger.Register<DeviceProximityUpdatedMessage>(this, );
+            messanger.Register<DevicePropertiesUpdatedMessage>(this, OnDevicePropertiesUpdated);
+            messanger.Register<DeviceProximityUpdatedMessage>(this, OnDeviceProximityUpdated);
             serviceProxy.Disconnected += ServiceProxy_ConnectionStateChanged;
             serviceProxy.Connected += ServiceProxy_ConnectionStateChanged;
 
-            Task.Run(() => UpdateDevicesProc());
+            Task.Run(UpdateDevicesProc);
+        }
+
+        private void OnDeviceProximityUpdated(DeviceProximityUpdatedMessage obj)
+        {
+            DeviceViewModel deviceVM = FindDevice(obj.Device);
+            if(deviceVM != null)
+            {
+                // TODO:
+                // deviceVM.Proximity = obj.Device.Proximity
+            }
+        }
+
+        private void OnDevicePropertiesUpdated(DevicePropertiesUpdatedMessage obj)
+        {
+            FindDevice(obj.Device)?.LoadFrom(obj.Device);
         }
 
         public ObservableCollection<DeviceViewModel> Devices { get; } = new ObservableCollection<DeviceViewModel>();
@@ -111,7 +125,7 @@ namespace HideezSafe.Modules.DeviceManager
                     }
                     else
                     {
-                        Application.Current?.Dispatcher.Invoke(async () =>
+                        Application.Current?.Dispatcher.Invoke(() =>
                         {
                             DeviceViewModel dvm = null;
 
@@ -172,7 +186,7 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        async void UpdateDevicesProc()
+        async Task UpdateDevicesProc()
         {
             while (true)
             {
