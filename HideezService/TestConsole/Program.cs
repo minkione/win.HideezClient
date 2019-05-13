@@ -66,6 +66,23 @@ namespace TestConsole
                 serviceHost = new ServiceHost(typeof(HideezService),
                                     new Uri("net.pipe://localhost/HideezService/"));
 
+                // Enable debug information behavior
+                ServiceDebugBehavior debug = serviceHost.Description.Behaviors.Find<ServiceDebugBehavior>();
+
+                // if not found - add behavior with setting turned on 
+                if (debug == null)
+                {
+                    serviceHost.Description.Behaviors.Add(new ServiceDebugBehavior() { IncludeExceptionDetailInFaults = true });
+                }
+                else
+                {
+                    // make sure setting is turned ON
+                    if (!debug.IncludeExceptionDetailInFaults)
+                    {
+                        debug.IncludeExceptionDetailInFaults = true;
+                    }
+                }
+
                 serviceHost.Open();
 
                 Console.WriteLine("running...");
