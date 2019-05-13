@@ -5,6 +5,7 @@ using Microsoft.Deployment.WindowsInstaller;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using Microsoft.Win32;
 
 namespace CustomAction
 {
@@ -35,6 +36,12 @@ namespace CustomAction
         public static ActionResult SetupCustomComponentsAction(Session session)
         {
             session.Log("(CustomActions.InstallAction) enter.");
+
+            if (!AreParametersSet(session))
+            {
+                session.Log("(CustomAction.InstallAction) Parameters are empty. Skip custom action.");
+                return ActionResult.Success;
+            }
 
             if (!TryParseParameters(session, out IParameters parameters))
             {
@@ -90,6 +97,36 @@ namespace CustomAction
             bool validated = isValidAddress && isValidDriverPath;
 
             return validated;
+        }
+
+        private static bool AreParametersSet(Session session)
+        {
+            var containsKeys = session.CustomActionData.ContainsKey("HesAddress") 
+                && session.CustomActionData.ContainsKey("InstallDongleDriver");
+
+            if (containsKeys)
+            {
+                session.Log("(CustomActions.AreParametersSet) Keys detected");
+                var containsValues = !string.IsNullOrEmpty(session.CustomActionData["HesAddress"]) 
+                    || !string.IsNullOrEmpty(session.CustomActionData["InstallDongleDriver"]);
+                if (containsValues)
+                {
+                    session.Log("(CustomActions.AreParametersSet) At least one key contains value");
+                    // At least one parameter is set
+                    return true;
+                }
+                else
+                {
+                    session.Log("(CustomActions.AreParametersSet) Keys values are null or empty");
+                    return false;
+                }
+            }
+            else
+            {
+                session.Log("(CustomActions.AreParametersSet) Keys not found");
+                return false;
+            }
+
         }
 
         private static bool TryParseParameters(Session session, out IParameters outParameters)
