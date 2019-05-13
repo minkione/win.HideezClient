@@ -9,7 +9,8 @@ namespace HideezSafe.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return ((bool)value == true) ? Visibility.Visible : Visibility.Collapsed;
+            Visibility visibility = ((bool)value == true) ? Visibility.Visible : Visibility.Collapsed;
+            return visibility;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

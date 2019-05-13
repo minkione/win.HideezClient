@@ -7,8 +7,9 @@ namespace HideezSafe.ViewModels
 {
     public class DeviceViewModel : LocalizedObject
     {
-        public DeviceViewModel(string typeName, string icoKey, string name)
+        public DeviceViewModel(string owner, string typeName, string icoKey, string name)
         {
+            this.ownerName = owner;
             this.typeNameKey = typeName;
             this.IcoKey = icoKey;
             this.name = name;
@@ -49,6 +50,13 @@ namespace HideezSafe.ViewModels
 
         private string name;
         private string typeNameKey;
+        private string ownerName = "... unspecified ...";
+
+        public string OwnerName
+        {
+            get { return ownerName; }
+            set { Set(ref ownerName, value); }
+        }
 
         [Localization]
         [DependsOn(nameof(TypeName))]

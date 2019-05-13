@@ -1,5 +1,6 @@
 ﻿using HideezSafe.Modules.DeviceManager;
 using HideezSafe.Mvvm;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace HideezSafe.ViewModels
@@ -7,37 +8,23 @@ namespace HideezSafe.ViewModels
     class DevicesExpanderViewModel : ObservableObject
     {
         readonly IDeviceManager deviceManager;
-        string ownerName;
 
         public DevicesExpanderViewModel(IDeviceManager deviceManager)
         {
             this.deviceManager = deviceManager;
-            OwnerName = "... unspecified ...";
-            deviceManager.Devices.CollectionChanged += DeviceManagerDevices_CollectionChanged;
         }
 
         #region Properties
 
 
-        public DeviceViewModel CurrentDevice
+        public ObservableCollection<DeviceViewModel> Devices
         {
             get
             {
-                return deviceManager.Devices.FirstOrDefault();
+                return deviceManager.Devices;
             }
         }
 
-        public string OwnerName
-        {
-            get { return ownerName; }
-            set { Set(ref ownerName, value); }
-        }
-
         #endregion Properties
-
-        private void DeviceManagerDevices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            NotifyPropertyChanged(nameof(CurrentDevice));
-        }
     }
 }

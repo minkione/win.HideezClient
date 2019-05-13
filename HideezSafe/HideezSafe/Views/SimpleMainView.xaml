@@ -22,8 +22,8 @@
     mc:Ignorable="d">
     <Grid VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <controls:DevicesExpander VerticalAlignment="Top">

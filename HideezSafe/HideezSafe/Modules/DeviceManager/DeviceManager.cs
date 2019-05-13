@@ -32,7 +32,7 @@ namespace HideezSafe.Modules.DeviceManager
             Task.Run(() => UpdateDevicesProc());
         }
 
-        public ObservableCollection<DeviceViewModel> Devices => new ObservableCollection<DeviceViewModel>();
+        public ObservableCollection<DeviceViewModel> Devices { get; } = new ObservableCollection<DeviceViewModel>();
 
         private void ServiceProxy_ConnectionStateChanged(object sender, EventArgs e)
         {
