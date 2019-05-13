@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using System.IO;
+using System.Diagnostics;
 
 namespace ServiceLibrary.Implementation
 {
@@ -29,7 +31,10 @@ namespace ServiceLibrary.Implementation
 
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            _connectionManager = new BleConnectionManager(_log, $"{commonAppData}\\Hideez\\bonds");
+            var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
+            // TODO: Bonds file deletion is temporary for current use case
+            TryDeleteBondsFile(bondsFilePath);
+            _connectionManager = new BleConnectionManager(_log, bondsFilePath);
 
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
@@ -57,6 +62,7 @@ namespace ServiceLibrary.Implementation
             _hesConnection = new HesAppConnection(_deviceManager, GetHesAddress(), _log);
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
             _hesConnection.Connect();
+            
 
             // WorkstationUnlocker ==================================
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, _credentialProviderConnection, _rfidService, _log);
@@ -66,7 +72,6 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager.Start();
 
             _connectionManager.Start();
-            //_connectionManager.StartDiscovery();
         }
 
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
@@ -155,7 +160,36 @@ namespace ServiceLibrary.Implementation
             if (value is string == false)
                 throw new FormatException($"{_hesAddressRegistryValueName} could not be cast to string. Check that its value has REG_SZ type");
 
-            return value as string;
+            var address = value as string;
+
+            if (string.IsNullOrWhiteSpace(address))
+                throw new ArgumentNullException($"{_hesAddressRegistryValueName} value is null or empty. Please specify HES address in registry under value {_hesAddressRegistryValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Safe ");
+
+            if (Uri.TryCreate(address, UriKind.Absolute, out Uri outUri)
+                && (outUri.Scheme == Uri.UriSchemeHttp || outUri.Scheme == Uri.UriSchemeHttps))
+            {
+                return address;
+            }
+            else
+            {
+                throw new ArgumentException($"Specified HES address: ('{address}'), " +
+                    $"is not a correct absolute uri");
+            }
+        }
+
+        private void TryDeleteBondsFile(string bondsFilePath)
+        {
+            try
+            {
+                if (File.Exists(bondsFilePath))
+                    File.Delete(bondsFilePath);
+            }
+            catch (Exception ex)
+            {
+                // Couldn't delete bonds file
+                // Stable execution is not guaranteed
+                log.Error(ex);
+            }
         }
     }
 }

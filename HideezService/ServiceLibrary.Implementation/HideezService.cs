@@ -30,20 +30,35 @@ namespace ServiceLibrary.Implementation
 
         private void Initialize()
         {
-            LogManager.EnableLogging();
+            try
+            {
+                LogManager.EnableLogging();
 
-            log = LogManager.GetCurrentClassLogger();
-            log.Info(">>>>>> Starting service");
+                log = LogManager.GetCurrentClassLogger();
+                log.Info(">>>>>> Starting service");
 
-            log.Info("CLR Version: {0}", Environment.Version);
-            log.Info("OS: {0}", Environment.OSVersion);
-            log.Info("Command: {0}", Environment.CommandLine);
+                log.Info("CLR Version: {0}", Environment.Version);
+                log.Info("OS: {0}", Environment.OSVersion);
+                log.Info("Command: {0}", Environment.CommandLine);
 
-            log.Info(">>>>>> Initialize SDK");
-            InitializeSDK();
-            log.Info(">>>>>> SDK Initialized");
+                log.Info(">>>>>> Initialize SDK");
+                InitializeSDK();
+                log.Info(">>>>>> SDK Initialized");
 
-            log.Info(">>>>>> Service started");
+                log.Info(">>>>>> Service started");
+            }
+            catch (Exception ex)
+            {
+                log.Error("Hideez Service has encountered an error during initialization." +
+                    Environment.NewLine +
+                    "The error must be resolved until service operation can be resumed. " +
+                    Environment.NewLine +
+                    "The service will not restart automatically.");
+                log.Error(ex);
+
+                // Exit code 0 prevents automatic service restart trigger on exit
+                Environment.Exit(0);
+            }
         }
 
         #region Utils
