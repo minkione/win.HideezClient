@@ -6,15 +6,13 @@ using Hideez.SDK.Communication.Proximity;
 using HideezMiddleware;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
 
 namespace ServiceLibrary.Implementation
 {
     public partial class HideezService : IHideezService, IWorkstationLocker
     {
-        static EventLogger _log;
+        static ILog _log;
         static BleConnectionManager _connectionManager;
         static BleDeviceManager _deviceManager;
         static CredentialProviderConnection _credentialProviderConnection;
@@ -25,12 +23,14 @@ namespace ServiceLibrary.Implementation
 
         private void InitializeSDK()
         {
-            _log = new EventLogger("ExampleApp");
+            //_log = new EventLogger("ExampleApp");
+            _log = new NLogger();
 
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            _connectionManager = new BleConnectionManager(_log, $"{commonAppData}\\Hideez\\bonds");
+            var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
 
+            _connectionManager = new BleConnectionManager(_log, bondsFilePath);
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
             _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
@@ -52,21 +52,30 @@ namespace ServiceLibrary.Implementation
             _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
             _rfidService.Start();
 
-            // HES ==================================
-            // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
-            _hesConnection = new HesAppConnection(_deviceManager, GetHesAddress(), _log);
-            _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
-            _hesConnection.Connect();
+            try
+            {
+                // HES ==================================
+                // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
+                _hesConnection = new HesAppConnection(_deviceManager, GetHesAddress(), _log);
+                _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
+                _hesConnection.Connect();
+            }
+            catch (Exception ex)
+            {
+                log.Error("Hideez Service has encountered an error during HES connection init." +
+                    Environment.NewLine +
+                    "New connection establishment will be attempted after service restart");
+                log.Error(ex);
+            }
 
             // WorkstationUnlocker ==================================
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, _credentialProviderConnection, _rfidService, _log);
 
             // Proximity Monitor ==================================
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, this);
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, this, _log);
             _proximityMonitorManager.Start();
 
             _connectionManager.Start();
-            //_connectionManager.StartDiscovery();
         }
 
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
@@ -155,7 +164,21 @@ namespace ServiceLibrary.Implementation
             if (value is string == false)
                 throw new FormatException($"{_hesAddressRegistryValueName} could not be cast to string. Check that its value has REG_SZ type");
 
-            return value as string;
+            var address = value as string;
+
+            if (string.IsNullOrWhiteSpace(address))
+                throw new ArgumentNullException($"{_hesAddressRegistryValueName} value is null or empty. Please specify HES address in registry under value {_hesAddressRegistryValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Safe ");
+
+            if (Uri.TryCreate(address, UriKind.Absolute, out Uri outUri)
+                && (outUri.Scheme == Uri.UriSchemeHttp || outUri.Scheme == Uri.UriSchemeHttps))
+            {
+                return address;
+            }
+            else
+            {
+                throw new ArgumentException($"Specified HES address: ('{address}'), " +
+                    $"is not a correct absolute uri");
+            }
         }
     }
 }

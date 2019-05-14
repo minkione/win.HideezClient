@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -27,6 +28,8 @@ namespace WinSampleApp.ViewModel
 
         public string BleAdapterState => _connectionManager?.State.ToString();
         public string RfidAdapterState => "NA";
+        public string ConectByMacAddress { get; set; } = "D0:A8:9E:6B:CD:8D";
+
 
         bool bleAdapterDiscovering;
         public bool BleAdapterDiscovering
@@ -89,23 +92,23 @@ namespace WinSampleApp.ViewModel
         //public IReadOnlyList<IDevice> Devices => _deviceManager.Devices;
 
         #region Commands
-        public ICommand BleAdapterStartCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return _connectionManager.State == BluetoothAdapterState.PoweredOn;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        BleAdapterStart(x);
-                    }
-                };
-            }
-        }
+        //public ICommand BleAdapterStartCommand
+        //{
+        //    get
+        //    {
+        //        return new DelegateCommand
+        //        {
+        //            CanExecuteFunc = () =>
+        //            {
+        //                return _connectionManager.State == BluetoothAdapterState.PoweredOn;
+        //            },
+        //            CommandAction = (x) =>
+        //            {
+        //                BleAdapterStart(x);
+        //            }
+        //        };
+        //    }
+        //}
 
 
         public ICommand UnlockByRfidCommand
@@ -211,6 +214,23 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         ConnectDiscoveredDevice(CurrentDiscoveredDevice);
+                    }
+                };
+            }
+        }
+        public ICommand ConnectBondedDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return true;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        ConnectDeviceByMac(ConectByMacAddress);
                     }
                 };
             }
@@ -474,10 +494,10 @@ namespace WinSampleApp.ViewModel
             NotifyPropertyChanged(nameof(BleAdapterState));
         }
 
-        void BleAdapterStart(object param)
-        {
-            _connectionManager.Start();
-        }
+        //void BleAdapterStart(object param)
+        //{
+        //    _connectionManager.Start();
+        //}
 
         void StartDiscovery()
         {
@@ -506,6 +526,25 @@ namespace WinSampleApp.ViewModel
         void ConnectDiscoveredDevice(DiscoveredDeviceAddedEventArgs e)
         {
             _connectionManager.ConnectDiscoveredDeviceAsync(e.Id);
+        }
+
+        async void ConnectDeviceByMac(string mac)
+        {
+            try
+            {
+                Debug.WriteLine($"Waiting Device connectin {mac} ..........................");
+
+                var device = await _deviceManager.ConnectByMac(mac, timeout: 10_000);
+
+                if (device != null)
+                    Debug.WriteLine($"Device connected {device.Name} ++++++++++++++++++++++++");
+                else
+                    Debug.WriteLine($"Device NOT connected --------------------------");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         void ConnectDevice(DeviceViewModel device)

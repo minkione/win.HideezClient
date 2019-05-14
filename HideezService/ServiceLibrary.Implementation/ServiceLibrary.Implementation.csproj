@@ -69,13 +69,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HideezService.cs" />
+    <Compile Include="NLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceClientSession.cs" />
     <Compile Include="ServiceClientSessionManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
-      <Project>{64cdff89-4bd1-40c8-a709-56df7b64b309}</Project>
+      <Project>{bf57e350-d719-47a1-950a-7b6a08e58bd7}</Project>
       <Name>Communication</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\win.sdk\CsrBLE\CsrBLE.vcxproj">

@@ -63,7 +63,7 @@ namespace HideezMiddleware
                 if (device == null)
                 {
                     // connect Hideez Key with the MAC
-                    device = await _deviceManager.ConnectByMac(mac);
+                    device = await _deviceManager.ConnectByMac(mac, timeout: 10_000);
 
                     if (device == null)
                         throw new Exception($"Cannot connect device '{info.DeviceSerialNo}', '{info.DeviceMac}'");
@@ -78,7 +78,7 @@ namespace HideezMiddleware
                 string prevPass = ""; //todo
 
                 if (login == null || pass == null)
-                    throw new Exception($"Cannot read login and password from device '{info.DeviceSerialNo}'");
+                    throw new Exception($"Cannot read login or password from device '{info.DeviceSerialNo}'");
 
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendLogonRequest(login, pass, prevPass);
