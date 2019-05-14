@@ -34,7 +34,7 @@ namespace HideezSafe.Modules.DeviceManager
 
             Task.Run(UpdateDevices);
 
-            //Devices.Add(new DeviceViewModel("user1@hideez.com", "Hideez key", "HedeezKeySimpleIMG", "8989"));
+            //Devices.Add(new DeviceViewModel("user1@hideez.com", "Hideez key", "HedeezKeySimpleIMG", "8989") { Proximity = 13 });
             //Devices.Add(new DeviceViewModel("user2@hideez.com", "Hideez key", "HedeezKeySimpleIMG", "7777") { IsConnected = true, Proximity = 50 });
         }
 
