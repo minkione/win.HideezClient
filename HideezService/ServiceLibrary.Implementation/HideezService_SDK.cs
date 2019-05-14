@@ -6,17 +6,13 @@ using Hideez.SDK.Communication.Proximity;
 using HideezMiddleware;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
-using System.IO;
-using System.Diagnostics;
 
 namespace ServiceLibrary.Implementation
 {
     public partial class HideezService : IHideezService, IWorkstationLocker
     {
-        static EventLogger _log;
+        static ILog _log;
         static BleConnectionManager _connectionManager;
         static BleDeviceManager _deviceManager;
         static CredentialProviderConnection _credentialProviderConnection;
@@ -27,7 +23,8 @@ namespace ServiceLibrary.Implementation
 
         private void InitializeSDK()
         {
-            _log = new EventLogger("ExampleApp");
+            //_log = new EventLogger("ExampleApp");
+            _log = new NLogger();
 
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
@@ -75,8 +72,8 @@ namespace ServiceLibrary.Implementation
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, _credentialProviderConnection, _rfidService, _log);
 
             // Proximity Monitor ==================================
-            //_proximityMonitorManager = new ProximityMonitorManager(_deviceManager, this);
-            //_proximityMonitorManager.Start();
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, this, _log);
+            _proximityMonitorManager.Start();
 
             _connectionManager.Start();
         }
