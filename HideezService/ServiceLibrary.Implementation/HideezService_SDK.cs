@@ -32,10 +32,8 @@ namespace ServiceLibrary.Implementation
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
-            // TODO: Bonds file deletion is temporary for current use case
-            TryDeleteBondsFile(bondsFilePath);
-            _connectionManager = new BleConnectionManager(_log, bondsFilePath);
 
+            _connectionManager = new BleConnectionManager(_log, bondsFilePath);
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
             _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
@@ -57,19 +55,28 @@ namespace ServiceLibrary.Implementation
             _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
             _rfidService.Start();
 
-            // HES ==================================
-            // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
-            _hesConnection = new HesAppConnection(_deviceManager, GetHesAddress(), _log);
-            _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
-            _hesConnection.Connect();
-            
+            try
+            {
+                // HES ==================================
+                // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
+                _hesConnection = new HesAppConnection(_deviceManager, GetHesAddress(), _log);
+                _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
+                _hesConnection.Connect();
+            }
+            catch (Exception ex)
+            {
+                log.Error("Hideez Service has encountered an error during HES connection init." +
+                    Environment.NewLine +
+                    "New connection establishment will be attempted after service restart");
+                log.Error(ex);
+            }
 
             // WorkstationUnlocker ==================================
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, _credentialProviderConnection, _rfidService, _log);
 
             // Proximity Monitor ==================================
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, this);
-            _proximityMonitorManager.Start();
+            //_proximityMonitorManager = new ProximityMonitorManager(_deviceManager, this);
+            //_proximityMonitorManager.Start();
 
             _connectionManager.Start();
         }
@@ -174,21 +181,6 @@ namespace ServiceLibrary.Implementation
             {
                 throw new ArgumentException($"Specified HES address: ('{address}'), " +
                     $"is not a correct absolute uri");
-            }
-        }
-
-        private void TryDeleteBondsFile(string bondsFilePath)
-        {
-            try
-            {
-                if (File.Exists(bondsFilePath))
-                    File.Delete(bondsFilePath);
-            }
-            catch (Exception ex)
-            {
-                // Couldn't delete bonds file
-                // Stable execution is not guaranteed
-                log.Error(ex);
             }
         }
     }
