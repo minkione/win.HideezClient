@@ -63,7 +63,7 @@ namespace HideezMiddleware
                 if (device == null)
                 {
                     // connect Hideez Key with the MAC
-                    device = await _deviceManager.ConnectByMac(mac);
+                    device = await _deviceManager.ConnectByMac(mac, timeout: 10_000);
 
                     if (device == null)
                         throw new Exception($"Cannot connect device '{info.DeviceSerialNo}', '{info.DeviceMac}'");
