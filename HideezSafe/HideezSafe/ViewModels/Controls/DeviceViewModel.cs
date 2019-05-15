@@ -7,14 +7,6 @@ namespace HideezSafe.ViewModels
 {
     public class DeviceViewModel : LocalizedObject
     {
-        public DeviceViewModel(string owner, string typeName, string icoKey, string name)
-        {
-            this.ownerName = owner;
-            this.typeNameKey = typeName;
-            this.IcoKey = icoKey;
-            this.name = name;
-        }
-
         public DeviceViewModel(BleDeviceDTO device)
         {
             LoadFrom(device);
@@ -24,9 +16,9 @@ namespace HideezSafe.ViewModels
 
         private string id;
         private bool isConnected;
-        private int proximity;
+        private double proximity;
 
-        public string IcoKey { get; }
+        public string IcoKey { get; } = "HedeezKeySimpleIMG";
 
         public string Id
         {
@@ -40,7 +32,7 @@ namespace HideezSafe.ViewModels
             set { Set(ref isConnected, value); }
         }
 
-        public int Proximity
+        public double Proximity
         {
             get { return proximity; }
             set { Set(ref proximity, value); }
@@ -49,8 +41,8 @@ namespace HideezSafe.ViewModels
         #region Text
 
         private string name;
-        private string typeNameKey;
-        private string ownerName = "... unspecified ...";
+        private string typeNameKey = "Hideez key";
+        private string ownerName;
 
         public string OwnerName
         {
@@ -59,10 +51,9 @@ namespace HideezSafe.ViewModels
         }
 
         [Localization]
-        [DependsOn(nameof(TypeName))]
         public string Name
         {
-            get { return $"{L(typeNameKey)} - {name}"; }
+            get { return name; }
             set { Set(ref name, value); }
         }
 
@@ -81,6 +72,9 @@ namespace HideezSafe.ViewModels
         {
             Id = dto.Id;
             Name = dto.Name;
+            Proximity = dto.Proximity;
+            OwnerName = dto.Owner ?? "...unspecified...";
+            this.IsConnected = dto.IsConnected;
         }
     }
 }

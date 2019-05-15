@@ -38,7 +38,10 @@
   <xs:complexType name="BleDeviceDTO">
     <xs:sequence>
       <xs:element minOccurs="0" name="Id" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsConnected" type="xs:boolean" />
       <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Owner" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Proximity" type="xs:double" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="BleDeviceDTO" nillable="true" type="tns:BleDeviceDTO" />

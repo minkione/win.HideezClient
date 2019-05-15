@@ -8,7 +8,7 @@ namespace HideezSafe.Converters
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            object resource = Application.Current.FindResource(value as string);
+            object resource = Application.Current.TryFindResource(value as string);
             return resource;
         }
 

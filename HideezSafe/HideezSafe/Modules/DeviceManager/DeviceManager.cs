@@ -28,7 +28,6 @@ namespace HideezSafe.Modules.DeviceManager
 
             messanger.Register<PairedDevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
             messanger.Register<DevicePropertiesUpdatedMessage>(this, OnDevicePropertiesUpdated);
-            messanger.Register<DeviceProximityUpdatedMessage>(this, OnDeviceProximityUpdated);
             serviceProxy.Disconnected += ServiceProxy_ConnectionStateChanged;
             serviceProxy.Connected += ServiceProxy_ConnectionStateChanged;
 
@@ -51,16 +50,6 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        private void OnDeviceProximityUpdated(DeviceProximityUpdatedMessage obj)
-        {
-            DeviceViewModel deviceVM = FindDevice(obj.Device);
-            if (deviceVM != null)
-            {
-                // TODO: Set proximity
-                // deviceVM.Proximity = obj.Device.Proximity
-            }
-        }
-
         private void OnDevicePropertiesUpdated(DevicePropertiesUpdatedMessage obj)
         {
             FindDevice(obj.Device)?.LoadFrom(obj.Device);
@@ -70,7 +59,7 @@ namespace HideezSafe.Modules.DeviceManager
 
         private void ServiceProxy_ConnectionStateChanged(object sender, EventArgs e)
         {
-            UpdateDevices().Wait();
+            UpdateDevices();
         }
 
         void OnDevicesCollectionChanged(PairedDevicesCollectionChangedMessage message)
@@ -110,6 +99,7 @@ namespace HideezSafe.Modules.DeviceManager
             if (!serviceProxy.IsConnected)
             {
                 ServiceDisconnected();
+                // ClearDevicesCollection();
             }
             else
             {
