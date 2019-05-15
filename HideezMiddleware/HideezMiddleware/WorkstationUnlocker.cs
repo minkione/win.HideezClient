@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
@@ -12,11 +13,16 @@ namespace HideezMiddleware
         readonly CredentialProviderConnection _credentialProviderConnection;
         readonly RfidServiceConnection _rfidService;
         readonly HesAppConnection _hesConnection;
+        readonly IBleConnectionManager _connectionManager;
+
+        readonly ConcurrentDictionary<string, Guid> _pendingUnlocks =
+            new ConcurrentDictionary<string, Guid>();
 
         public WorkstationUnlocker(BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
             CredentialProviderConnection credentialProviderConnection,
             RfidServiceConnection rfidService,
+            IBleConnectionManager connectionManager,
             ILog log)
             : base(nameof(WorkstationUnlocker), log)
         {
@@ -24,8 +30,33 @@ namespace HideezMiddleware
             _hesConnection = hesConnection;
             _credentialProviderConnection = credentialProviderConnection;
             _rfidService = rfidService;
+            _connectionManager = connectionManager;
 
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
+            _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
+        }
+
+        async void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
+        {
+            try
+            {
+                if (e.Rssi > -25)
+                {
+                    var newGuid = Guid.NewGuid();
+                    var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);
+
+                    if (guid == newGuid)
+                    {
+                        await UnlockByMac(e.Id);
+                        _pendingUnlocks.TryRemove(e.Id, out Guid removed);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+                _pendingUnlocks.TryRemove(e.Id, out Guid removed);
+            }
         }
 
         async void RfidService_RfidReceivedEvent(object sender, RfidReceivedEventArgs e)
@@ -38,6 +69,65 @@ namespace HideezMiddleware
             {
                 WriteLine(ex);
             }
+        }
+
+        public async Task UnlockByMac(string mac)
+        {
+            try
+            {
+                //await _credentialProviderConnection.SendNotification("Connecting device...");
+
+                string deviceId = mac.Replace(":", "");
+
+                var device = await _deviceManager.ConnectByMac(mac, timeout: 20_000);
+                if (device == null)
+                    throw new Exception($"Cannot connect device '{mac}'");
+
+                await device.WaitAuthentication(timeout: 10_000);
+
+                //todo - wait for primary account update?
+
+                ushort primaryAccountKey = await GetPrimaryAccountKey(mac, device);
+                if (primaryAccountKey == 0)
+                    throw new Exception($"Device '{mac}' has not a primary account stored");
+
+
+                // get the login and password from the Hideez Key
+                string login = await device.ReadStorageAsString((byte)StorageTable.Logins, primaryAccountKey);
+                string pass = await device.ReadStorageAsString((byte)StorageTable.Passwords, primaryAccountKey);
+                string prevPass = ""; //todo
+
+                if (login == null || pass == null)
+                    throw new Exception($"Cannot read login or password from device '{mac}'");
+
+                // send credentials to the Credential Provider to unlock the PC
+                await _credentialProviderConnection.SendLogonRequest(login, pass, prevPass);
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+                await _credentialProviderConnection.SendError(ex.Message);
+                throw;
+            }
+        }
+
+        static async Task<ushort> GetPrimaryAccountKey(string mac, BleDevice device)
+        {
+            string primaryAccountKeyString = await device.ReadStorageAsString((byte)StorageTable.Config, (ushort)StorageConfigItem.PrimaryAccountKey);
+            if (string.IsNullOrEmpty(primaryAccountKeyString))
+                return 0;
+            try
+            {
+                ushort primaryAccountKey = Convert.ToUInt16(primaryAccountKeyString);
+                return primaryAccountKey;
+            }
+            catch (FormatException)
+            {
+            }
+            catch (OverflowException)
+            {
+            }
+            return 0;
         }
 
         public async Task UnlockByRfid(string rfid)

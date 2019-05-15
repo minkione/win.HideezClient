@@ -8,7 +8,6 @@ using System.Windows.Input;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
-using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezMiddleware;
@@ -408,6 +407,7 @@ namespace WinSampleApp.ViewModel
             _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
             _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
             _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+            _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
 
             // COM =============================
             //var port = new ComConnection(log, "COM68", 9600);
@@ -433,13 +433,12 @@ namespace WinSampleApp.ViewModel
             _hesConnection.Connect();
 
             // WorkstationUnlocker ==================================
-            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, _credentialProviderConnection, _rfidService, _log);
-
-
+            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, 
+                _credentialProviderConnection, _rfidService, _connectionManager, _log);
 
 
             _connectionManager.Start();
-           // _connectionManager.StartDiscovery();
+            _connectionManager.StartDiscovery();
         }
 
         internal void Close()
@@ -466,9 +465,19 @@ namespace WinSampleApp.ViewModel
             });
         }
 
+        void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
+        {
+            //Debug.WriteLine($"{e.Id} - {e.Rssi}");
+            //if (e.Rssi > -25)
+            //{
+            //    Debug.WriteLine($"-------------- {e.Id} - {e.Rssi}");
+            //    ConnectDeviceByMac(e.Id);
+            //}
+        }
+
         void ConnectionManager_DiscoveredDeviceAdded(object sender, DiscoveredDeviceAddedEventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Application.Current?.Dispatcher.Invoke(() =>
             {
                 DiscoveredDevices.Add(e);
             });
@@ -608,10 +617,14 @@ namespace WinSampleApp.ViewModel
                     Password = "my_password",
                     OtpSecret = "asdasd",
                     Apps = "12431412412342134",
-                    Urls = "asdfasdfasdfasdfasdfasfds"
+                    Urls = "asdfasdfasdfasdfasdfasfds",
+                    IsPrimary = false
                 };
 
-                var key = await pm.SaveOrUpdateAccount(account.Key, account.Flags, account.Name, account.Password, account.Login, account.OtpSecret, account.Apps, account.Urls);
+                var key = await pm.SaveOrUpdateAccount(account.Key, account.Flags, account.Name, 
+                    account.Password, account.Login, account.OtpSecret, 
+                    account.Apps, account.Urls,
+                    account.IsPrimary);
             }
             catch (Exception ex)
             {
