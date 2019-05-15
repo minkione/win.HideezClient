@@ -7,6 +7,7 @@ using HideezMiddleware;
 using Microsoft.Win32;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation
 {
@@ -115,9 +116,9 @@ namespace ServiceLibrary.Implementation
         {
         }
 
-        public bool GetAdapterState(Adapter addapter)
+        public bool GetAdapterState(Adapter adapter)
         {
-            switch (addapter)
+            switch (adapter)
             {
                 case Adapter.Dongle:
                     return _connectionManager?.State == BluetoothAdapterState.PoweredOn;
@@ -178,6 +179,31 @@ namespace ServiceLibrary.Implementation
             {
                 throw new ArgumentException($"Specified HES address: ('{address}'), " +
                     $"is not a correct absolute uri");
+            }
+        }
+
+        public void OnSessionChange(bool sessionLocked)
+        {
+            log.Info($"Session change called: {sessionLocked};  client {client.ClientType.ToString()}");
+            // This operation contract can only be used by ServiceHost or TestConsole 
+            // Other clients are prohibited from using it
+            if (client.ClientType == ClientType.ServiceHost || client.ClientType == ClientType.TestConsole)
+            {
+                /*
+                Task.Run(async () =>
+                {
+                    if (sessionLocked)
+                    {
+                        // Todo: disconnect all devices
+                    }
+                });
+                */
+            }
+            else
+            {
+                /*
+                throw new NotSupportedException();
+                */
             }
         }
     }

@@ -242,10 +242,10 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAdapterState", ReplyAction="http://tempuri.org/IHideezService/GetAdapterStateResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetAdapterStateHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        bool GetAdapterState(HideezServiceHost.HideezServiceReference.Adapter addapter);
+        bool GetAdapterState(HideezServiceHost.HideezServiceReference.Adapter adapter);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAdapterState", ReplyAction="http://tempuri.org/IHideezService/GetAdapterStateResponse")]
-        System.Threading.Tasks.Task<bool> GetAdapterStateAsync(HideezServiceHost.HideezServiceReference.Adapter addapter);
+        System.Threading.Tasks.Task<bool> GetAdapterStateAsync(HideezServiceHost.HideezServiceReference.Adapter adapter);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetPairedDevices", ReplyAction="http://tempuri.org/IHideezService/GetPairedDevicesResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetPairedDevicesHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
@@ -253,6 +253,13 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetPairedDevices", ReplyAction="http://tempuri.org/IHideezService/GetPairedDevicesResponse")]
         System.Threading.Tasks.Task<HideezServiceHost.HideezServiceReference.BleDeviceDTO[]> GetPairedDevicesAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/OnSessionChange", ReplyAction="http://tempuri.org/IHideezService/OnSessionChangeResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/OnSessionChangeHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void OnSessionChange(bool sessionLocked);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/OnSessionChange", ReplyAction="http://tempuri.org/IHideezService/OnSessionChangeResponse")]
+        System.Threading.Tasks.Task OnSessionChangeAsync(bool sessionLocked);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -337,12 +344,12 @@ namespace HideezServiceHost.HideezServiceReference {
             return base.Channel.ShutdownAsync();
         }
         
-        public bool GetAdapterState(HideezServiceHost.HideezServiceReference.Adapter addapter) {
-            return base.Channel.GetAdapterState(addapter);
+        public bool GetAdapterState(HideezServiceHost.HideezServiceReference.Adapter adapter) {
+            return base.Channel.GetAdapterState(adapter);
         }
         
-        public System.Threading.Tasks.Task<bool> GetAdapterStateAsync(HideezServiceHost.HideezServiceReference.Adapter addapter) {
-            return base.Channel.GetAdapterStateAsync(addapter);
+        public System.Threading.Tasks.Task<bool> GetAdapterStateAsync(HideezServiceHost.HideezServiceReference.Adapter adapter) {
+            return base.Channel.GetAdapterStateAsync(adapter);
         }
         
         public HideezServiceHost.HideezServiceReference.BleDeviceDTO[] GetPairedDevices() {
@@ -351,6 +358,14 @@ namespace HideezServiceHost.HideezServiceReference {
         
         public System.Threading.Tasks.Task<HideezServiceHost.HideezServiceReference.BleDeviceDTO[]> GetPairedDevicesAsync() {
             return base.Channel.GetPairedDevicesAsync();
+        }
+        
+        public void OnSessionChange(bool sessionLocked) {
+            base.Channel.OnSessionChange(sessionLocked);
+        }
+        
+        public System.Threading.Tasks.Task OnSessionChangeAsync(bool sessionLocked) {
+            return base.Channel.OnSessionChangeAsync(sessionLocked);
         }
     }
 }

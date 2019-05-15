@@ -29,6 +29,11 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
+        public void OnSessionChange(bool sessionLocked)
+        {
+            throw new NotImplementedException();
+        }
+
         public int Ping()
         {
             throw new NotImplementedException();

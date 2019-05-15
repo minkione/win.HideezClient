@@ -24,11 +24,16 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        bool GetAdapterState(Adapter addapter);
+        bool GetAdapterState(Adapter adapter);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         BleDeviceDTO[] GetPairedDevices();
+
+        // Contract is only for testconsole and hostservice
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void OnSessionChange(bool sessionLocked);
     }
 
     public interface ICallbacks

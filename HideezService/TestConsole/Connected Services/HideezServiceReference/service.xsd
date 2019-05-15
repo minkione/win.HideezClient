@@ -50,7 +50,7 @@
   <xs:element name="GetAdapterState">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="addapter" type="q2:Adapter" />
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="adapter" type="q2:Adapter" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -71,6 +71,18 @@
       <xs:sequence>
         <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="GetPairedDevicesResult" nillable="true" type="q3:ArrayOfBleDeviceDTO" />
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="OnSessionChange">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sessionLocked" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="OnSessionChangeResponse">
+    <xs:complexType>
+      <xs:sequence />
     </xs:complexType>
   </xs:element>
   <xs:element name="LockWorkstationRequest">

@@ -10,6 +10,7 @@ namespace HideezServiceHost
     public partial class HideezService : ServiceBase
     {
         ServiceHost serviceHost = null;
+        HideezServiceClient service = null;
 
         public HideezService()
         {
@@ -34,8 +35,9 @@ namespace HideezServiceHost
                 var service = new HideezServiceClient(instanceContext);
                 await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.ServiceHost });
 
-                // Now we can disconnect
-                service.Close();
+                // Disconnect is no longer possible, we need to maintain connection with the service we 
+                // are hosting to notify about session change
+                //service.Close();
             }
             catch (Exception ex)
             {
@@ -52,8 +54,8 @@ namespace HideezServiceHost
                 var callback = new HideezServiceCallbacks();
                 var instanceContext = new InstanceContext(callback);
 
-                var service = new HideezServiceClient(instanceContext);
-                service.ShutdownAsync();
+                service = new HideezServiceClient(instanceContext);
+                service.ShutdownAsync().Wait();
 
                 // close the host
                 if (serviceHost.State == CommunicationState.Faulted)
@@ -68,6 +70,21 @@ namespace HideezServiceHost
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
+            }
+        }
+
+        // https://stackoverflow.com/questions/44980/programmatically-determine-a-duration-of-a-locked-workstation
+        protected override void OnSessionChange(SessionChangeDescription sessionChangeDescription)
+        {
+            if (sessionChangeDescription.Reason == SessionChangeReason.SessionLock)
+            {
+                // Session locked
+                service?.OnSessionChange(true);
+            }
+            else if (sessionChangeDescription.Reason == SessionChangeReason.SessionUnlock)
+            {
+                // Session unlocked
+                service?.OnSessionChange(false);
             }
         }
     }
