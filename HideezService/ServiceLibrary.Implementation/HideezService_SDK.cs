@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation
 {
-    public partial class HideezService : IHideezService, IWorkstationLocker
+    public partial class HideezService : IHideezService
     {
         static ILog _log;
         static BleConnectionManager _connectionManager;
@@ -21,6 +21,7 @@ namespace ServiceLibrary.Implementation
         static HesAppConnection _hesConnection;
         static RfidServiceConnection _rfidService;
         static ProximityMonitorManager _proximityMonitorManager;
+        static IWorkstationLocker _workstationLocker;
 
         private void InitializeSDK()
         {
@@ -74,8 +75,11 @@ namespace ServiceLibrary.Implementation
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, 
                 _credentialProviderConnection, _rfidService, _connectionManager, _log);
 
+            // WorkstationLocker
+            _workstationLocker = new WorkstationWtsapiLocker();
+
             // Proximity Monitor ==================================
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, this, _log);
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _workstationLocker, _log);
             _proximityMonitorManager.Start();
 
             _connectionManager.Start();
@@ -138,12 +142,6 @@ namespace ServiceLibrary.Implementation
                 default:
                     return false;
             }
-        }
-
-        public void LockWorkstation()
-        {
-            //foreach (var client in SessionManager.Sessions)
-            //    client.Callbacks.LockWorkstationRequest();
         }
 
         public BleDeviceDTO[] GetPairedDevices()
