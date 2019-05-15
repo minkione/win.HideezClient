@@ -408,6 +408,7 @@ namespace WinSampleApp.ViewModel
             _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
             _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
             _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+            _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
 
             // COM =============================
             //var port = new ComConnection(log, "COM68", 9600);
@@ -466,9 +467,19 @@ namespace WinSampleApp.ViewModel
             });
         }
 
+        void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
+        {
+            Debug.WriteLine($"{e.Id} - {e.Rssi}");
+            if (e.Rssi > -25)
+            {
+                Debug.WriteLine($"-------------- {e.Id} - {e.Rssi}");
+                ConnectDeviceByMac(e.Id);
+            }
+        }
+
         void ConnectionManager_DiscoveredDeviceAdded(object sender, DiscoveredDeviceAddedEventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Application.Current?.Dispatcher.Invoke(() =>
             {
                 DiscoveredDevices.Add(e);
             });
