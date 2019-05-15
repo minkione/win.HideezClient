@@ -71,13 +71,15 @@ namespace ServiceLibrary.Implementation
             }
 
             // WorkstationUnlocker ==================================
-            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, _credentialProviderConnection, _rfidService, _log);
+            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, 
+                _credentialProviderConnection, _rfidService, _connectionManager, _log);
 
             // Proximity Monitor ==================================
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, this, _log);
             _proximityMonitorManager.Start();
 
             _connectionManager.Start();
+            _connectionManager.StartDiscovery();
         }
 
         private void _deviceManager_DevicePropertyChanged(object sender, DevicePropertyChangedEventArgs e)
