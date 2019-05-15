@@ -3,65 +3,68 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
+using System.Windows.Threading;
 using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.HideezServiceReference;
 using HideezSafe.Messages;
 using HideezSafe.Modules.ServiceProxy;
+using HideezSafe.Utilities;
 using HideezSafe.ViewModels;
 using NLog;
+using System.Linq;
 
 namespace HideezSafe.Modules.DeviceManager
 {
-    class DeviceManager : IDeviceManager
+    public class DeviceManager : IDeviceManager
     {
         readonly Logger log = LogManager.GetCurrentClassLogger();
         readonly IServiceProxy serviceProxy;
-        private int deviceUpdateLoopRunning = 0;
 
         public DeviceManager(IMessenger messanger, IServiceProxy serviceProxy)
         {
+            Devices = new ObservableCollection<DeviceViewModel>();
             this.serviceProxy = serviceProxy;
 
             messanger.Register<PairedDevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
-            // Reminder for the future
-            //messanger.Register<DevicePropertiesUpdatedMessage>(this, );
-            //messanger.Register<DeviceProximityUpdatedMessage>(this, );
+            messanger.Register<DevicePropertiesUpdatedMessage>(this, OnDevicePropertiesUpdated);
             serviceProxy.Disconnected += ServiceProxy_ConnectionStateChanged;
             serviceProxy.Connected += ServiceProxy_ConnectionStateChanged;
 
-            Task.Run(() => UpdateDevicesProc());
+            Task.Run(UpdateDevices);
+
+            //Devices.Add(new DeviceViewModel("user1@hideez.com", "Hideez key", "HedeezKeySimpleIMG", "8989") { Proximity = 13 });
+            //Devices.Add(new DeviceViewModel("user2@hideez.com", "Hideez key", "HedeezKeySimpleIMG", "7777") { IsConnected = true, Proximity = 50 });
         }
 
-        public ObservableCollection<DeviceViewModel> Devices => new ObservableCollection<DeviceViewModel>();
+        private Dispatcher Dispatcher
+        {
+            get
+            {
+                if (Application.Current != null)
+                {
+                    return Application.Current.Dispatcher;
+                }
+
+                return Dispatcher.CurrentDispatcher;
+            }
+        }
+
+        private void OnDevicePropertiesUpdated(DevicePropertiesUpdatedMessage obj)
+        {
+            FindDevice(obj.Device)?.LoadFrom(obj.Device);
+        }
+
+        public ObservableCollection<DeviceViewModel> Devices { get; } = new ObservableCollection<DeviceViewModel>();
 
         private void ServiceProxy_ConnectionStateChanged(object sender, EventArgs e)
         {
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await UpdateDevices();
-                }
-                catch (Exception ex)
-                {
-                    log.Error(ex);
-                }
-            });
+            UpdateDevices();
         }
 
         void OnDevicesCollectionChanged(PairedDevicesCollectionChangedMessage message)
         {
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await UpdateDevices();
-                }
-                catch (Exception ex)
-                {
-                    log.Error(ex);
-                }
-            });
+            UpdateDevices(message.Devices);
         }
 
         void ClearDevicesCollection()
@@ -72,10 +75,7 @@ namespace HideezSafe.Modules.DeviceManager
                 {
                     try
                     {
-                        if (Application.Current != null)
-                            Application.Current.Dispatcher.Invoke(() => Devices.Clear());
-                        else
-                            Devices.Clear();
+                        Dispatcher.Invoke(Devices.Clear);
                     }
                     catch (Exception ex)
                     {
@@ -85,22 +85,32 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        async Task UpdateDevices()
+        private void ServiceDisconnected()
+        {
+            foreach (var device in Devices)
+            {
+                device.IsConnected = false;
+                device.Proximity = 0;
+            }
+        }
+
+        private async Task UpdateDevices()
         {
             if (!serviceProxy.IsConnected)
             {
-                foreach (var device in Devices)
-                {
-                    device.IsConnected = false;
-                    device.Proximity = 0;
-                }
-
-                return;
+                ServiceDisconnected();
+                // ClearDevicesCollection();
             }
+            else
+            {
+                UpdateDevices(await serviceProxy.GetService().GetPairedDevicesAsync());
+            }
+        }
+
+        private void UpdateDevices(BleDeviceDTO[] serverDevices)
+        {
             try
             {
-                BleDeviceDTO[] serverDevices = await serviceProxy.GetService().GetPairedDevicesAsync();
-
                 // update device's properties. If device does not exists, create it
                 foreach (var item in serverDevices)
                 {
@@ -111,7 +121,7 @@ namespace HideezSafe.Modules.DeviceManager
                     }
                     else
                     {
-                        Application.Current?.Dispatcher.Invoke(async () =>
+                        Dispatcher.Invoke(() =>
                         {
                             DeviceViewModel dvm = null;
 
@@ -130,66 +140,19 @@ namespace HideezSafe.Modules.DeviceManager
                 }
 
                 // delete device from UI if its deleted from service
-                if (serverDevices.Length != Devices.Count)
+                foreach (var clientDevice in
+                    Devices.Where(d => serverDevices.FirstOrDefault(dto => dto.Id == d.Id) == null)
+                    .ToArray())
                 {
-                    foreach (var clientDevice in Devices)
+                    lock (Devices)
                     {
-                        bool exists = false;
-                        foreach (var serviceDevice in serverDevices)
-                        {
-                            if (serviceDevice.Id == clientDevice.Id)
-                                exists = true;
-                        }
-
-                        if (!exists)
-                        {
-                            lock (Devices)
-                            {
-                                Application.Current?.Dispatcher.Invoke(() => Devices.Remove(clientDevice));
-                                break;
-                            }
-                        }
+                        Dispatcher.Invoke(() => Devices.Remove(clientDevice));
                     }
                 }
             }
             catch (Exception ex)
             {
                 log.Error(ex);
-            }
-        }
-
-        void UpdateDevice(BleDeviceDTO deviceDto)
-        {
-            try
-            {
-                var device = FindDevice(deviceDto);
-                if (device != null)
-                    device.LoadFrom(deviceDto);
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex);
-            }
-        }
-
-        async void UpdateDevicesProc()
-        {
-            while (true)
-            {
-                try
-                {
-                    if (deviceUpdateLoopRunning > 0)
-                        await UpdateDevices();
-                }
-                catch (Exception ex)
-                {
-                    log.Error(ex);
-                    ClearDevicesCollection();
-                }
-                finally
-                {
-                    await Task.Delay(1000);
-                }
             }
         }
 
@@ -202,24 +165,8 @@ namespace HideezSafe.Modules.DeviceManager
         {
             lock (Devices)
             {
-                foreach (var item in Devices)
-                {
-                    if (item.Id == deviceId)
-                        return item;
-                }
+                return Devices.FirstOrDefault(d => d.Id == deviceId);
             }
-
-            return null;
-        }
-
-        public void StartDeviceUpdateLoop()
-        {
-            Interlocked.Increment(ref deviceUpdateLoopRunning);
-        }
-
-        public void StopDeviceUpdateLoop()
-        {
-            Interlocked.Decrement(ref deviceUpdateLoopRunning);
         }
     }
 }

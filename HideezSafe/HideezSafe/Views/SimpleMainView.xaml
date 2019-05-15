@@ -20,10 +20,11 @@
     Visibility="Hidden"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     mc:Ignorable="d">
+
     <Grid VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <controls:DevicesExpander VerticalAlignment="Top">
@@ -42,6 +43,16 @@
             HorizontalAlignment="Stretch"
             VerticalAlignment="Bottom"
             Focusable="False" />
+
+        <TextBlock
+            Margin="40"
+            Padding="5"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Background="Red"
+            FontSize="45"
+            Text="{Binding DevicesExpander.Devices[0].Proximity, Source={StaticResource Locator}}"
+            Visibility="Visible" />
 
     </Grid>
 </Metro:MetroWindow>

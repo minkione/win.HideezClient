@@ -8,7 +8,7 @@ namespace HideezSafe.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            int proximity = (int)value;
+            double proximity = (double)value;
             int limit = System.Convert.ToInt32(parameter);
             if (proximity > limit)
                 return 1.0;

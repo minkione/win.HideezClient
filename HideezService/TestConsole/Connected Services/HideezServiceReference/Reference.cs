@@ -160,7 +160,16 @@ namespace TestConsole.HideezServiceReference {
         private string IdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsConnectedField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string OwnerField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private double ProximityField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -186,6 +195,19 @@ namespace TestConsole.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsConnected {
+            get {
+                return this.IsConnectedField;
+            }
+            set {
+                if ((this.IsConnectedField.Equals(value) != true)) {
+                    this.IsConnectedField = value;
+                    this.RaisePropertyChanged("IsConnected");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string Name {
             get {
                 return this.NameField;
@@ -194,6 +216,32 @@ namespace TestConsole.HideezServiceReference {
                 if ((object.ReferenceEquals(this.NameField, value) != true)) {
                     this.NameField = value;
                     this.RaisePropertyChanged("Name");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Owner {
+            get {
+                return this.OwnerField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.OwnerField, value) != true)) {
+                    this.OwnerField = value;
+                    this.RaisePropertyChanged("Owner");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public double Proximity {
+            get {
+                return this.ProximityField;
+            }
+            set {
+                if ((this.ProximityField.Equals(value) != true)) {
+                    this.ProximityField = value;
+                    this.RaisePropertyChanged("Proximity");
                 }
             }
         }

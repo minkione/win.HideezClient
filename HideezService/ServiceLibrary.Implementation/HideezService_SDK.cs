@@ -41,6 +41,7 @@ namespace ServiceLibrary.Implementation
             _deviceManager = new BleDeviceManager(_log, _connectionManager);
             _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
             _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
+            _deviceManager.DevicePropertyChanged += _deviceManager_DevicePropertyChanged;
 
 
             // Named Pipes Server ==============================
@@ -77,6 +78,12 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager.Start();
 
             _connectionManager.Start();
+        }
+
+        private void _deviceManager_DevicePropertyChanged(object sender, DevicePropertyChangedEventArgs e)
+        {
+            foreach (var client in SessionManager.Sessions)
+                client.Callbacks.PairedDevicePropertyChanged(new BleDeviceDTO(e.Device));
         }
 
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
@@ -133,8 +140,8 @@ namespace ServiceLibrary.Implementation
 
         public void LockWorkstation()
         {
-            foreach (var client in SessionManager.Sessions)
-                client.Callbacks.LockWorkstationRequest();
+            //foreach (var client in SessionManager.Sessions)
+            //    client.Callbacks.LockWorkstationRequest();
         }
 
         public BleDeviceDTO[] GetPairedDevices()
