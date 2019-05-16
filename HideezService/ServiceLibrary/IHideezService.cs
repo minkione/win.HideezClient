@@ -33,6 +33,11 @@ namespace ServiceLibrary
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         void EnableMonitoringProximity(string deviceId, bool enable);
+
+        // Contract is only for testconsole and hostservice
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void OnSessionChange(bool sessionLocked);
     }
 
     public interface ICallbacks

@@ -15,9 +15,9 @@ namespace ServiceLibrary.Implementation
         {
         }
 
-        internal ServiceClientSession Add(ICallbacks callbacks)
+        internal ServiceClientSession Add(ClientType type, ICallbacks callbacks)
         {
-            var session = new ServiceClientSession(callbacks);
+            var session = new ServiceClientSession(type, callbacks);
             lock (sessionsLock)
             {
                 (Sessions as List<ServiceClientSession>).Add(session);

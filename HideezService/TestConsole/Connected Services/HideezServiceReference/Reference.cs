@@ -309,6 +309,13 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EnableMonitoringProximity", ReplyAction="http://tempuri.org/IHideezService/EnableMonitoringProximityResponse")]
         System.Threading.Tasks.Task EnableMonitoringProximityAsync(string deviceId, bool enable);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/OnSessionChange", ReplyAction="http://tempuri.org/IHideezService/OnSessionChangeResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/OnSessionChangeHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void OnSessionChange(bool sessionLocked);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/OnSessionChange", ReplyAction="http://tempuri.org/IHideezService/OnSessionChangeResponse")]
+        System.Threading.Tasks.Task OnSessionChangeAsync(bool sessionLocked);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -418,6 +425,14 @@ namespace TestConsole.HideezServiceReference {
         
         public System.Threading.Tasks.Task EnableMonitoringProximityAsync(string deviceId, bool enable) {
             return base.Channel.EnableMonitoringProximityAsync(deviceId, enable);
+        }
+        
+        public void OnSessionChange(bool sessionLocked) {
+            base.Channel.OnSessionChange(sessionLocked);
+        }
+        
+        public System.Threading.Tasks.Task OnSessionChangeAsync(bool sessionLocked) {
+            return base.Channel.OnSessionChangeAsync(sessionLocked);
         }
     }
 }

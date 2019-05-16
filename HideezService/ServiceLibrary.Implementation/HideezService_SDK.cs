@@ -7,10 +7,11 @@ using HideezMiddleware;
 using Microsoft.Win32;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation
 {
-    public partial class HideezService : IHideezService, IWorkstationLocker
+    public partial class HideezService : IHideezService
     {
         static ILog _log;
         static BleConnectionManager _connectionManager;
@@ -20,6 +21,7 @@ namespace ServiceLibrary.Implementation
         static HesAppConnection _hesConnection;
         static RfidServiceConnection _rfidService;
         static ProximityMonitorManager _proximityMonitorManager;
+        static IWorkstationLocker _workstationLocker;
 
         private void InitializeSDK()
         {
@@ -69,13 +71,18 @@ namespace ServiceLibrary.Implementation
             }
 
             // WorkstationUnlocker ==================================
-            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, _credentialProviderConnection, _rfidService, _log);
+            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, 
+                _credentialProviderConnection, _rfidService, _connectionManager, _log);
+
+            // WorkstationLocker
+            _workstationLocker = new WorkstationWtsapiLocker();
 
             // Proximity Monitor ==================================
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, this, _log);
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _workstationLocker, _log);
             _proximityMonitorManager.Start();
 
             _connectionManager.Start();
+            _connectionManager.StartDiscovery();
         }
 
         private void _deviceManager_DevicePropertyChanged(object sender, DevicePropertyChangedEventArgs e)
@@ -147,9 +154,9 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public bool GetAdapterState(Adapter addapter)
+        public bool GetAdapterState(Adapter adapter)
         {
-            switch (addapter)
+            switch (adapter)
             {
                 case Adapter.Dongle:
                     return _connectionManager?.State == BluetoothAdapterState.PoweredOn;
@@ -160,12 +167,6 @@ namespace ServiceLibrary.Implementation
                 default:
                     return false;
             }
-        }
-
-        public void LockWorkstation()
-        {
-            //foreach (var client in SessionManager.Sessions)
-            //    client.Callbacks.LockWorkstationRequest();
         }
 
         public BleDeviceDTO[] GetPairedDevices()
@@ -210,6 +211,31 @@ namespace ServiceLibrary.Implementation
             {
                 throw new ArgumentException($"Specified HES address: ('{address}'), " +
                     $"is not a correct absolute uri");
+            }
+        }
+
+        public void OnSessionChange(bool sessionLocked)
+        {
+            log.Info($"Session change called: {sessionLocked};  client {client.ClientType.ToString()}");
+            // This operation contract can only be used by ServiceHost or TestConsole 
+            // Other clients are prohibited from using it
+            if (client.ClientType == ClientType.ServiceHost || client.ClientType == ClientType.TestConsole)
+            {
+                /*
+                Task.Run(async () =>
+                {
+                    if (sessionLocked)
+                    {
+                        // Todo: disconnect all devices
+                    }
+                });
+                */
+            }
+            else
+            {
+                /*
+                throw new NotSupportedException();
+                */
             }
         }
     }

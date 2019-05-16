@@ -109,10 +109,6 @@ namespace HideezSafe.Modules
 
         private void OnMainWindowVisibleChanged(bool isVisivle)
         {
-            if (IsMainWindowVisible == isVisivle)
-                return;
-
-            IsMainWindowVisible = isVisivle;
             try
             {
                 MainWindowVisibleChanged?.Invoke(this, isVisivle);

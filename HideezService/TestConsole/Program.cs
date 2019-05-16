@@ -1,4 +1,5 @@
-﻿using ServiceLibrary;
+﻿using Microsoft.Win32;
+using ServiceLibrary;
 using ServiceLibrary.Implementation;
 using System;
 using System.ServiceModel;
@@ -11,12 +12,14 @@ namespace TestConsole
 {
     class Program
     {
-        private static ServiceHost serviceHost;
+        static ServiceHost serviceHost;
+        static HideezServiceClient service;
 
         static void Main(string[] args)
         {
             try
             {
+                SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
                 ThreadPool.QueueUserWorkItem(ConnectToHideezService);
 
                 while (true)
@@ -25,8 +28,7 @@ namespace TestConsole
                     if (line == "q" || line == "exit")
                     {
                         Console.WriteLine("exiting...");
-
-                        ShutdownService().Wait();
+                        service.ShutdownAsync().Wait();
 
                         if (serviceHost.State == CommunicationState.Faulted)
                         {
@@ -46,17 +48,6 @@ namespace TestConsole
             {
                 Console.WriteLine(ex.Message);
             }
-        }
-
-        private static async Task ShutdownService()
-        {
-            // ask service to finish all works and close all connections
-            var callback = new HideezServiceCallbacks();
-            var instanceContext = new InstanceContext(callback);
-
-            var service = new HideezServiceClient(instanceContext);
-
-            await service.ShutdownAsync();
         }
 
         private async static void ConnectToHideezService(Object param)
@@ -106,15 +97,30 @@ namespace TestConsole
 
                 // NOTE: If an ambiguous reference error occurs, check that TestConsole DOES NOT have 
                 // a reference to 'ServiceLibrary'. There should be only 'ServiceLibrary.Implementation' ref
-                var service = new HideezServiceClient(instanceContext);
+                service = new HideezServiceClient(instanceContext);
                 await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.TestConsole });
 
-                // теперь можно отключиться
-                service.Close();
+                // Disconnect is no longer possible, we need to maintain connection with the service we 
+                // are hosting to notify about session change
+                //service.Close();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+            }
+        }
+
+        protected static void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            if (e.Reason == SessionSwitchReason.SessionLock)
+            {
+                // Session locked
+                service?.OnSessionChange(true);
+            }
+            else if (e.Reason == SessionSwitchReason.SessionUnlock)
+            {
+                // Session unlocked
+                service?.OnSessionChange(false);
             }
         }
     }

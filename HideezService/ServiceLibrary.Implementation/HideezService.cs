@@ -1,7 +1,7 @@
 ﻿using NLog;
 using System;
 using System.ServiceModel;
-using System.Timers;
+using System.Linq;
 
 namespace ServiceLibrary.Implementation
 {
@@ -77,27 +77,6 @@ namespace ServiceLibrary.Implementation
                     new HideezServiceFault(ex.Message, 6), ex.Message);
             }
         }
-
-        //private void ThrowException(string message, HideezErrorCode code)
-        //{
-        //    throw new FaultException<HideezServiceFault>(
-        //        new HideezServiceFault(message, (int)code), message);
-        //}
-
-        private void WriteLine(Exception ex)
-        {
-            //HideezCore.WriteLine(name, ex, LogErrorSeverity.Error);
-        }
-
-        private void WriteDebugLine(Exception ex)
-        {
-            //HideezCore.WriteDebugLine(name, ex, LogErrorSeverity.Error);
-        }
-
-        private void WriteDebugLine(string line)
-        {
-            //HideezCore.WriteDebugLine(name, line, LogErrorSeverity.Information);
-        }
         #endregion
 
         private void Channel_Faulted(object sender, EventArgs e)
@@ -116,8 +95,20 @@ namespace ServiceLibrary.Implementation
         {
             log.Debug(">>>>>> AttachClient " + prm.ClientType.ToString());
 
+            // Limit to one ServiceHost / TestConsole connection
+            if (prm.ClientType == ClientType.TestConsole || 
+                prm.ClientType == ClientType.ServiceHost)
+            {
+                if (SessionManager.Sessions.Any(s => 
+                s.ClientType == ClientType.ServiceHost || 
+                s.ClientType == ClientType.TestConsole))
+                {
+                    throw new Exception("Service does not support more than one connected ServiceHost or TestConsole client");
+                }
+            }
+
             var callback = OperationContext.Current.GetCallbackChannel<ICallbacks>();
-            client = SessionManager.Add(callback);
+            client = SessionManager.Add(prm.ClientType, callback);
 
             OperationContext.Current.Channel.Closed += Channel_Closed;
             OperationContext.Current.Channel.Faulted += Channel_Faulted;
@@ -139,6 +130,7 @@ namespace ServiceLibrary.Implementation
         public void Shutdown()
         {
             log.Debug(">>>>>> Shutdown service");
+            // Todo: shutdown service in a clean way
         }
     }
 }

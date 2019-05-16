@@ -4,11 +4,14 @@ namespace ServiceLibrary.Implementation
 {
     class ServiceClientSession
     {
-        public ServiceClientSession(ICallbacks callbacks)
+        public ServiceClientSession(ClientType type, ICallbacks callbacks)
         {
-            this.Callbacks = callbacks;
+            ClientType = type;
+            Callbacks = callbacks;
             Id = Guid.NewGuid().ToString();
         }
+
+        public ClientType ClientType { get; set; }
 
         public ICallbacks Callbacks { get; }
 
