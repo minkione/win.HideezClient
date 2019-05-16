@@ -32,7 +32,19 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void EnableMonitoringProximity(string deviceId, bool enable);
+        void EnableMonitoringProximity(string deviceId);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void DisableMonitoringProximity(string deviceId);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void EnableMonitoringDeviceProperties(string deviceId);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void DisableMonitoringDeviceProperties(string deviceId);
 
         // Contract is only for testconsole and hostservice
         [OperationContract]

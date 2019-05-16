@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ServiceLibrary.Implementation
 {
@@ -16,5 +17,8 @@ namespace ServiceLibrary.Implementation
         public ICallbacks Callbacks { get; }
 
         public string Id { get; }
+
+        public IDictionary<string, bool> IsEnabledPropertyMonitoring { get; } = new Dictionary<string, bool>();
+        public IDictionary<string, bool> IsEnabledProximityMonitoring { get; } = new Dictionary<string, bool>();
     }
 }
