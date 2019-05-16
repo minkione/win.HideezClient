@@ -30,6 +30,22 @@ namespace ServiceLibrary
         [FaultContract(typeof(HideezServiceFault))]
         BleDeviceDTO[] GetPairedDevices();
 
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void EnableMonitoringProximity(string deviceId);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void DisableMonitoringProximity(string deviceId);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void EnableMonitoringDeviceProperties(string deviceId);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void DisableMonitoringDeviceProperties(string deviceId);
+
         // Contract is only for testconsole and hostservice
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
@@ -55,6 +71,9 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void PairedDevicePropertyChanged(BleDeviceDTO device);
+
+        [OperationContract(IsOneWay = true)]
+        void ProximityChanged(string deviceId, double proximity);
     }
 
     public enum Adapter

@@ -19,6 +19,26 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
+        public void DisableMonitoringDeviceProperties(string deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DisableMonitoringProximity(string deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EnableMonitoringDeviceProperties(string deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EnableMonitoringProximity(string deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool GetAdapterState(Adapter addapter)
         {
             throw new NotImplementedException();

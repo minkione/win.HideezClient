@@ -38,11 +38,17 @@
             FontSize="18"
             Text="{l:Localization Expander.NoDevice}"
             Visibility="{Binding ElementName=devicesList, Path=HasItems, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-        <ScrollViewer HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Auto">
-            <ItemsControl x:Name="devicesList" ItemsSource="{Binding Devices}">
+        <ScrollViewer
+            HorizontalAlignment="Stretch"
+            Focusable="False"
+            VerticalScrollBarVisibility="Auto">
+            <ItemsControl
+                x:Name="devicesList"
+                Focusable="False"
+                ItemsSource="{Binding Devices}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid Margin="0,5">
+                        <Grid Margin="0,5" Focusable="False">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />

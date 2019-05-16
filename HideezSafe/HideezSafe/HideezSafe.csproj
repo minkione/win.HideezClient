@@ -192,6 +192,7 @@
     <Compile Include="Messages\ConnectionRFIDChangedMessage.cs" />
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
     <Compile Include="Messages\DevicePropertiesUpdatedMessage.cs" />
+    <Compile Include="Messages\DeviceProximityChangedMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
     <Compile Include="Messages\LockWorkstationMessage.cs" />
     <Compile Include="Messages\PairedDevicesCollectionChangedMessage.cs" />

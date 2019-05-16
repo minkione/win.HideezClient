@@ -42,7 +42,8 @@ namespace ServiceLibrary.Implementation
             _deviceManager = new BleDeviceManager(_log, _connectionManager);
             _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
             _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
-            _deviceManager.DevicePropertyChanged += _deviceManager_DevicePropertyChanged;
+            _deviceManager.DeviceRemoved += _deviceManager_DeviceRemoved;
+            _deviceManager.DeviceAdded += _deviceManager_DeviceAdded;
 
 
             // Named Pipes Server ==============================
@@ -72,7 +73,7 @@ namespace ServiceLibrary.Implementation
             }
 
             // WorkstationUnlocker ==================================
-            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, 
+            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
                 _credentialProviderConnection, _rfidService, _connectionManager, _log);
 
             // WorkstationLocker
@@ -84,6 +85,33 @@ namespace ServiceLibrary.Implementation
 
             _connectionManager.Start();
             _connectionManager.StartDiscovery();
+        }
+
+        private void _deviceManager_DeviceAdded(object sender, DeviceCollectionChangedEventArgs e)
+        {
+            var bleDevice = e.AddedDevice;
+
+            if (bleDevice != null)
+            {
+                // event is only subscribed to once
+                bleDevice.ProximityChanged -= BleDevice_ProximityChanged;
+                bleDevice.ProximityChanged += BleDevice_ProximityChanged;
+
+                // event is only subscribed to once
+                bleDevice.PropertyChanged -= BleDevice_PropertyChanged;
+                bleDevice.PropertyChanged += BleDevice_PropertyChanged;
+            }
+        }
+
+        private void _deviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
+        {
+            var bleDevice = e.RemovedDevice;
+
+            if (bleDevice != null)
+            {
+                bleDevice.ProximityChanged -= BleDevice_ProximityChanged;
+                bleDevice.PropertyChanged -= BleDevice_PropertyChanged;
+            }
         }
 
         private void _deviceManager_DevicePropertyChanged(object sender, DevicePropertyChangedEventArgs e)
@@ -101,7 +129,7 @@ namespace ServiceLibrary.Implementation
         void RFIDService_ReaderStateChanged(object sender, EventArgs e)
         {
             foreach (var client in SessionManager.Sessions)
-                client.Callbacks.RFIDConnectionStateChanged(_rfidService != null ? 
+                client.Callbacks.RFIDConnectionStateChanged(_rfidService != null ?
                     _rfidService.ServiceConnected && _rfidService.ReaderConnected : false);
         }
 
@@ -128,6 +156,77 @@ namespace ServiceLibrary.Implementation
         void ConnectionManager_DiscoveryStopped(object sender, EventArgs e)
         {
         }
+
+        #region proximity monitoring
+
+        private void BleDevice_ProximityChanged(object sender, EventArgs e)
+        {
+            if (sender is BleDevice bleDevice)
+            {
+                foreach (var c in SessionManager.Sessions
+                    // if has key for device id and enabled monitoring for this id
+                    .Where(s => s.IsEnabledProximityMonitoring.TryGetValue(bleDevice.Id, out bool isEnabled) && isEnabled))
+                {
+                    c.Callbacks.ProximityChanged(bleDevice.Id, bleDevice.Proximity);
+                }
+            }
+        }
+
+        public void EnableMonitoringProximity(string deviceId)
+        {
+            ChangeIsEnabledProximityMonitoring(deviceId, true);
+        }
+
+        public void DisableMonitoringProximity(string deviceId)
+        {
+            ChangeIsEnabledProximityMonitoring(deviceId, false);
+        }
+
+        private void ChangeIsEnabledProximityMonitoring(string deviceId, bool isEnabled)
+        {
+            if (client != null)
+            {
+                client.IsEnabledProximityMonitoring[deviceId] = isEnabled;
+            }
+        }
+
+        #endregion
+
+        #region Device Properties Monitoring
+
+
+        private void BleDevice_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (sender is BleDevice bleDevice)
+            {
+                foreach (var c in SessionManager.Sessions
+                    // if has key for device id and enabled monitoring for this id
+                    .Where(s => s.IsEnabledPropertyMonitoring.TryGetValue(bleDevice.Id, out bool isEnabled) && isEnabled))
+                {
+                    c.Callbacks.PairedDevicePropertyChanged(new BleDeviceDTO(bleDevice));
+                }
+            }
+        }
+
+        public void EnableMonitoringDeviceProperties(string deviceId)
+        {
+            ChangeIsEnabledDevicePropertiesMonitoring(deviceId, true);
+        }
+
+        public void DisableMonitoringDeviceProperties(string deviceId)
+        {
+            ChangeIsEnabledDevicePropertiesMonitoring(deviceId, false);
+        }
+
+        private void ChangeIsEnabledDevicePropertiesMonitoring(string deviceId, bool isEnabled)
+        {
+            if (client != null)
+            {
+                client.IsEnabledPropertyMonitoring[deviceId] = isEnabled;
+            }
+        }
+
+        #endregion
 
         public bool GetAdapterState(Adapter adapter)
         {
