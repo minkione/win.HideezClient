@@ -43,7 +43,7 @@ namespace HideezSafe.Modules.DeviceManager
             Task.Run(UpdateDevicesAsync);
         }
 
-        public async Task EnableMonitoringProximityAsync(bool enable)
+        public async Task SwitchMonitoringDeviceProximityAsync(bool enable)
         {
             foreach (var device in Devices)
             {
@@ -58,7 +58,7 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        public async Task EnableMonitoringDevicePropertiesAsync(bool enable)
+        public async Task SwitchMonitoringDevicePropertiesAsync(bool enable)
         {
             foreach (var device in Devices)
             {
@@ -130,7 +130,7 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        private void ServiceDisconnected()
+        private void OnServiceDisconnected()
         {
             foreach (var device in Devices)
             {
@@ -143,7 +143,7 @@ namespace HideezSafe.Modules.DeviceManager
         {
             if (!serviceProxy.IsConnected)
             {
-                ServiceDisconnected();
+                OnServiceDisconnected();
                 // ClearDevicesCollection();
             }
             else
@@ -195,8 +195,8 @@ namespace HideezSafe.Modules.DeviceManager
                     }
                 }
 
-                await EnableMonitoringProximityAsync(windowsManager.IsMainWindowVisible);
-                await EnableMonitoringDevicePropertiesAsync(windowsManager.IsMainWindowVisible);
+                await SwitchMonitoringDeviceProximityAsync(windowsManager.IsMainWindowVisible);
+                await SwitchMonitoringDevicePropertiesAsync(windowsManager.IsMainWindowVisible);
             }
             catch (Exception ex)
             {

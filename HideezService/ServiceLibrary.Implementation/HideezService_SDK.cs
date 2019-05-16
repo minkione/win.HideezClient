@@ -91,27 +91,27 @@ namespace ServiceLibrary.Implementation
         {
             var bleDevice = e.AddedDevice;
 
-            if (bleDevice == null)
-                return;
+            if (bleDevice != null)
+            {
+                // event is only subscribed to once
+                bleDevice.ProximityChanged -= BleDevice_ProximityChanged;
+                bleDevice.ProximityChanged += BleDevice_ProximityChanged;
 
-            // event is only subscribed to once
-            bleDevice.ProximityChanged -= BleDevice_ProximityChanged;
-            bleDevice.ProximityChanged += BleDevice_ProximityChanged;
-
-            // event is only subscribed to once
-            bleDevice.PropertyChanged -= BleDevice_PropertyChanged;
-            bleDevice.PropertyChanged += BleDevice_PropertyChanged;
+                // event is only subscribed to once
+                bleDevice.PropertyChanged -= BleDevice_PropertyChanged;
+                bleDevice.PropertyChanged += BleDevice_PropertyChanged;
+            }
         }
 
         private void _deviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
         {
             var bleDevice = e.RemovedDevice;
 
-            if (bleDevice == null)
-                return;
-
-            bleDevice.ProximityChanged -= BleDevice_ProximityChanged;
-            bleDevice.PropertyChanged -= BleDevice_PropertyChanged;
+            if (bleDevice != null)
+            {
+                bleDevice.ProximityChanged -= BleDevice_ProximityChanged;
+                bleDevice.PropertyChanged -= BleDevice_PropertyChanged;
+            }
         }
 
         private void _deviceManager_DevicePropertyChanged(object sender, DevicePropertyChangedEventArgs e)
