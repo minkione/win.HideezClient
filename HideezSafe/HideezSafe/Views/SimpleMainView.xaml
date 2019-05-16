@@ -44,7 +44,7 @@
             VerticalAlignment="Bottom"
             Focusable="False" />
 
-        <TextBlock
+        <!--<TextBlock
             Margin="40"
             Padding="5"
             HorizontalAlignment="Right"
@@ -52,7 +52,7 @@
             Background="Red"
             FontSize="45"
             Text="{Binding DevicesExpander.Devices[0].Proximity, Source={StaticResource Locator}}"
-            Visibility="Visible" />
+            Visibility="Visible" />-->
 
     </Grid>
 </Metro:MetroWindow>

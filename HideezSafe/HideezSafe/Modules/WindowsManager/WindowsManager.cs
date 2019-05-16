@@ -80,15 +80,15 @@ namespace HideezSafe.Modules
 
         private void SubscribeToMainWindowEvent()
         {
-            MainWindow.Deactivated += MainWindow_Deactivated;
-            MainWindow.Activated += MainWindow_Activated;
+            //MainWindow.Deactivated += MainWindow_Deactivated;
+            //MainWindow.Activated += MainWindow_Activated;
             MainWindow.IsVisibleChanged += MainWindow_IsVisibleChanged;
         }
 
         private void UnsubscribeToMainWindowEvent()
         {
-            MainWindow.Deactivated -= MainWindow_Deactivated;
-            MainWindow.Activated -= MainWindow_Activated;
+            //MainWindow.Deactivated -= MainWindow_Deactivated;
+            //MainWindow.Activated -= MainWindow_Activated;
             MainWindow.IsVisibleChanged -= MainWindow_IsVisibleChanged;
         }
 
