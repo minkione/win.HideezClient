@@ -94,6 +94,15 @@
   <wsdl:message name="IHideezService_GetPairedDevices_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q6="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q6:HideezServiceFault" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_EnableMonitoringProximity_InputMessage">
+    <wsdl:part name="parameters" element="tns:EnableMonitoringProximity" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_EnableMonitoringProximity_OutputMessage">
+    <wsdl:part name="parameters" element="tns:EnableMonitoringProximityResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_EnableMonitoringProximity_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q7="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q7:HideezServiceFault" />
+  </wsdl:message>
   <wsdl:message name="IHideezService_LockWorkstationRequest_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:LockWorkstationRequest" />
   </wsdl:message>
@@ -111,6 +120,9 @@
   </wsdl:message>
   <wsdl:message name="IHideezService_PairedDevicePropertyChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:PairedDevicePropertyChanged" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_ProximityChanged_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ProximityChanged" />
   </wsdl:message>
   <wsdl:portType msc:usingSession="true" name="IHideezService">
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AttachClient">
@@ -143,6 +155,11 @@
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/GetPairedDevicesResponse" message="tns:IHideezService_GetPairedDevices_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/GetPairedDevicesHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_GetPairedDevices_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="EnableMonitoringProximity">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/EnableMonitoringProximity" message="tns:IHideezService_EnableMonitoringProximity_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/EnableMonitoringProximityResponse" message="tns:IHideezService_EnableMonitoringProximity_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/EnableMonitoringProximityHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_EnableMonitoringProximity_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="LockWorkstationRequest">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/LockWorkstationRequest" message="tns:IHideezService_LockWorkstationRequest_OutputCallbackMessage" />
     </wsdl:operation>
@@ -160,6 +177,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="PairedDevicePropertyChanged">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/PairedDevicePropertyChanged" message="tns:IHideezService_PairedDevicePropertyChanged_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ProximityChanged">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ProximityChanged" message="tns:IHideezService_ProximityChanged_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetNamedPipeBinding_IHideezService" type="tns:IHideezService">
@@ -238,6 +258,18 @@
         <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
+    <wsdl:operation name="EnableMonitoringProximity">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/EnableMonitoringProximity" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
     <wsdl:operation name="LockWorkstationRequest">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/LockWorkstationRequest" style="document" />
       <wsdl:output>
@@ -270,6 +302,12 @@
     </wsdl:operation>
     <wsdl:operation name="PairedDevicePropertyChanged">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/PairedDevicePropertyChanged" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProximityChanged">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/ProximityChanged" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

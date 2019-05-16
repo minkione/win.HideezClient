@@ -62,5 +62,11 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
         {
             return $"Id: {device.Id}, Name: {device.Name}, Owner: {device.Owner}, Proximity: {device.Proximity}, IsConnected: {device.IsConnected}";
         }
+
+        public void ProximityChanged(string deviceId, double proximity)
+        {
+            messenger.Send(new DeviceProximityChangedMessage(deviceId, proximity));
+            log.Info($"Device proximity changed. DeviceId: {deviceId}, Proximity: {proximity}");
+        }
     }
 }

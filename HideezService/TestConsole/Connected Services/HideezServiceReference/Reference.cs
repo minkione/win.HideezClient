@@ -290,10 +290,10 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAdapterState", ReplyAction="http://tempuri.org/IHideezService/GetAdapterStateResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetAdapterStateHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        bool GetAdapterState(TestConsole.HideezServiceReference.Adapter addapter);
+        bool GetAdapterState(TestConsole.HideezServiceReference.Adapter adapter);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAdapterState", ReplyAction="http://tempuri.org/IHideezService/GetAdapterStateResponse")]
-        System.Threading.Tasks.Task<bool> GetAdapterStateAsync(TestConsole.HideezServiceReference.Adapter addapter);
+        System.Threading.Tasks.Task<bool> GetAdapterStateAsync(TestConsole.HideezServiceReference.Adapter adapter);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetPairedDevices", ReplyAction="http://tempuri.org/IHideezService/GetPairedDevicesResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetPairedDevicesHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
@@ -301,6 +301,14 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetPairedDevices", ReplyAction="http://tempuri.org/IHideezService/GetPairedDevicesResponse")]
         System.Threading.Tasks.Task<TestConsole.HideezServiceReference.BleDeviceDTO[]> GetPairedDevicesAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EnableMonitoringProximity", ReplyAction="http://tempuri.org/IHideezService/EnableMonitoringProximityResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/EnableMonitoringProximityHideezServiceFaultFaul" +
+            "t", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void EnableMonitoringProximity(string deviceId, bool enable);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EnableMonitoringProximity", ReplyAction="http://tempuri.org/IHideezService/EnableMonitoringProximityResponse")]
+        System.Threading.Tasks.Task EnableMonitoringProximityAsync(string deviceId, bool enable);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -323,6 +331,9 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/PairedDevicePropertyChanged")]
         void PairedDevicePropertyChanged(TestConsole.HideezServiceReference.BleDeviceDTO device);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ProximityChanged")]
+        void ProximityChanged(string deviceId, double proximity);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -385,12 +396,12 @@ namespace TestConsole.HideezServiceReference {
             return base.Channel.ShutdownAsync();
         }
         
-        public bool GetAdapterState(TestConsole.HideezServiceReference.Adapter addapter) {
-            return base.Channel.GetAdapterState(addapter);
+        public bool GetAdapterState(TestConsole.HideezServiceReference.Adapter adapter) {
+            return base.Channel.GetAdapterState(adapter);
         }
         
-        public System.Threading.Tasks.Task<bool> GetAdapterStateAsync(TestConsole.HideezServiceReference.Adapter addapter) {
-            return base.Channel.GetAdapterStateAsync(addapter);
+        public System.Threading.Tasks.Task<bool> GetAdapterStateAsync(TestConsole.HideezServiceReference.Adapter adapter) {
+            return base.Channel.GetAdapterStateAsync(adapter);
         }
         
         public TestConsole.HideezServiceReference.BleDeviceDTO[] GetPairedDevices() {
@@ -399,6 +410,14 @@ namespace TestConsole.HideezServiceReference {
         
         public System.Threading.Tasks.Task<TestConsole.HideezServiceReference.BleDeviceDTO[]> GetPairedDevicesAsync() {
             return base.Channel.GetPairedDevicesAsync();
+        }
+        
+        public void EnableMonitoringProximity(string deviceId, bool enable) {
+            base.Channel.EnableMonitoringProximity(deviceId, enable);
+        }
+        
+        public System.Threading.Tasks.Task EnableMonitoringProximityAsync(string deviceId, bool enable) {
+            return base.Channel.EnableMonitoringProximityAsync(deviceId, enable);
         }
     }
 }

@@ -18,16 +18,18 @@ namespace HideezSafe.Modules.DeviceManager
 {
     public class DeviceManager : IDeviceManager
     {
-        readonly Logger log = LogManager.GetCurrentClassLogger();
-        readonly IServiceProxy serviceProxy;
+        private readonly Logger log = LogManager.GetCurrentClassLogger();
+        private readonly IServiceProxy serviceProxy;
 
-        public DeviceManager(IMessenger messanger, IServiceProxy serviceProxy)
+        public DeviceManager(IMessenger messanger, IServiceProxy serviceProxy, IWindowsManager windowsManager)
         {
             Devices = new ObservableCollection<DeviceViewModel>();
             this.serviceProxy = serviceProxy;
+            windowsManager.MainWindowVisibleChanged += WindowsManager_ActivatedStateMainWindowChanged;
 
             messanger.Register<PairedDevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
             messanger.Register<DevicePropertiesUpdatedMessage>(this, OnDevicePropertiesUpdated);
+            messanger.Register<DeviceProximityChangedMessage>(this, OnProximityChanged);
             serviceProxy.Disconnected += ServiceProxy_ConnectionStateChanged;
             serviceProxy.Connected += ServiceProxy_ConnectionStateChanged;
 
@@ -35,6 +37,36 @@ namespace HideezSafe.Modules.DeviceManager
 
             //Devices.Add(new DeviceViewModel("user1@hideez.com", "Hideez key", "HedeezKeySimpleIMG", "8989") { Proximity = 13 });
             //Devices.Add(new DeviceViewModel("user2@hideez.com", "Hideez key", "HedeezKeySimpleIMG", "7777") { IsConnected = true, Proximity = 50 });
+        }
+
+        private void WindowsManager_ActivatedStateMainWindowChanged(object sender, bool isVisible)
+        {
+            EnableMonitoringProximityAsync(isVisible);
+        }
+
+        public async Task EnableMonitoringProximityAsync(bool enable)
+        {
+            foreach (var device in Devices)
+            {
+                await serviceProxy.GetService().EnableMonitoringProximityAsync(device.Id, enable);
+            }
+        }
+
+        public void EnableMonitoringProximity(bool enable)
+        {
+            foreach (var device in Devices)
+            {
+                serviceProxy.GetService().EnableMonitoringProximity(device.Id, enable);
+            }
+        }
+
+        private void OnProximityChanged(DeviceProximityChangedMessage obj)
+        {
+            var device = FindDevice(obj.DeviceId);
+            if (device != null)
+            {
+                device.Proximity = obj.Proximity;
+            }
         }
 
         private Dispatcher Dispatcher

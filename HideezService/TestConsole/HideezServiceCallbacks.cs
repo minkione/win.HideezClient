@@ -27,5 +27,9 @@ namespace TestConsole
         public void PairedDevicesCollectionChanged(BleDeviceDTO[] devicesCollection)
         {
         }
+
+        public void ProximityChanged(string deviceId, double proximity)
+        {
+        }
     }
 }

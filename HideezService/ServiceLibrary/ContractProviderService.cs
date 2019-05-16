@@ -19,12 +19,22 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
+        public void EnableMonitoringProximity(string deviceId, bool enable)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool GetAdapterState(Adapter addapter)
         {
             throw new NotImplementedException();
         }
 
         public BleDeviceDTO[] GetPairedDevices()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnSessionChange(bool sessionLocked)
         {
             throw new NotImplementedException();
         }

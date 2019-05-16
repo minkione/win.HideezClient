@@ -40,7 +40,6 @@ namespace ServiceLibrary.Implementation
             _deviceManager = new BleDeviceManager(_log, _connectionManager);
             _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
             _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
-            _deviceManager.DevicePropertyChanged += _deviceManager_DevicePropertyChanged;
 
 
             // Named Pipes Server ==============================
@@ -120,6 +119,32 @@ namespace ServiceLibrary.Implementation
 
         void ConnectionManager_DiscoveryStopped(object sender, EventArgs e)
         {
+        }
+
+        public void EnableMonitoringProximity(string deviceId, bool enable)
+        {
+            BleDevice bleDevice = _deviceManager.Devices.FirstOrDefault(d => d.Id == deviceId);
+
+            if (bleDevice == null)
+                return;
+
+            if (enable)
+            {
+                bleDevice.ProximityChanged += BleDevice_ProximityChanged;
+            }
+            else
+            {
+                bleDevice.ProximityChanged -= BleDevice_ProximityChanged;
+            }
+        }
+
+        private void BleDevice_ProximityChanged(object sender, EventArgs e)
+        {
+            if (sender is BleDevice bleDevice)
+            {
+                foreach (var c in SessionManager.Sessions)
+                    c.Callbacks.ProximityChanged(bleDevice.Id, bleDevice.Proximity);
+            }
         }
 
         public bool GetAdapterState(Adapter addapter)

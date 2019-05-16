@@ -24,11 +24,15 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        bool GetAdapterState(Adapter addapter);
+        bool GetAdapterState(Adapter adapter);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         BleDeviceDTO[] GetPairedDevices();
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void EnableMonitoringProximity(string deviceId, bool enable);
     }
 
     public interface ICallbacks
@@ -50,6 +54,9 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void PairedDevicePropertyChanged(BleDeviceDTO device);
+
+        [OperationContract(IsOneWay = true)]
+        void ProximityChanged(string deviceId, double proximity);
     }
 
     public enum Adapter
