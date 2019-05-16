@@ -396,6 +396,24 @@ namespace WinSampleApp.ViewModel
                 };
             }
         }
+
+        public ICommand BoostDeviceRssiCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        BoostDeviceRssi(CurrentDevice);
+                    }
+                };
+            }
+        }
         #endregion
 
         public MainWindowViewModel()
@@ -707,6 +725,17 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        async void BoostDeviceRssi(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.BoostRssi(100, 15);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
         private async void UnlockByRfid()
         {
