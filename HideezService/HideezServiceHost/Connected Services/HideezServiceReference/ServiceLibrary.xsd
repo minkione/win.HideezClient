@@ -29,17 +29,20 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="Adapter" nillable="true" type="tns:Adapter" />
-  <xs:complexType name="ArrayOfBleDeviceDTO">
+  <xs:complexType name="ArrayOfDeviceDTO">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="BleDeviceDTO" nillable="true" type="tns:BleDeviceDTO" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="DeviceDTO" nillable="true" type="tns:DeviceDTO" />
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="ArrayOfBleDeviceDTO" nillable="true" type="tns:ArrayOfBleDeviceDTO" />
-  <xs:complexType name="BleDeviceDTO">
+  <xs:element name="ArrayOfDeviceDTO" nillable="true" type="tns:ArrayOfDeviceDTO" />
+  <xs:complexType name="DeviceDTO">
     <xs:sequence>
       <xs:element minOccurs="0" name="Id" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsConnected" type="xs:boolean" />
       <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Owner" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Proximity" type="xs:double" />
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="BleDeviceDTO" nillable="true" type="tns:BleDeviceDTO" />
+  <xs:element name="DeviceDTO" nillable="true" type="tns:DeviceDTO" />
 </xs:schema>

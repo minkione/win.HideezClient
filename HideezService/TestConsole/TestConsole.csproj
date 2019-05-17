@@ -167,7 +167,7 @@
     <None Include="Connected Services\HideezServiceReference\ServiceLibrary.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Connected Services\HideezServiceReference\TestConsole.HideezServiceReference.BleDeviceDTO.datasource">
+    <None Include="Connected Services\HideezServiceReference\TestConsole.HideezServiceReference.DeviceDTO.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="packages.config" />

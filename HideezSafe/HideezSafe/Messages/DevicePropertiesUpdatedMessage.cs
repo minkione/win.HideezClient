@@ -9,11 +9,11 @@ namespace HideezSafe.Messages
 {
     class DevicePropertiesUpdatedMessage
     {
-        public DevicePropertiesUpdatedMessage(BleDeviceDTO device)
+        public DevicePropertiesUpdatedMessage(DeviceDTO device)
         {
             this.Device = device;
         }
 
-        public BleDeviceDTO Device { get; set; }
+        public DeviceDTO Device { get; set; }
     }
 }

@@ -69,7 +69,7 @@
   <xs:element name="GetPairedDevicesResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="GetPairedDevicesResult" nillable="true" type="q3:ArrayOfBleDeviceDTO" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="GetPairedDevicesResult" nillable="true" type="q3:ArrayOfDeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -162,14 +162,14 @@
   <xs:element name="PairedDevicesCollectionChanged">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="devices" nillable="true" type="q4:ArrayOfBleDeviceDTO" />
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="devices" nillable="true" type="q4:ArrayOfDeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="PairedDevicePropertyChanged">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q5:BleDeviceDTO" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q5:DeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

@@ -28,7 +28,7 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        BleDeviceDTO[] GetPairedDevices();
+        DeviceDTO[] GetPairedDevices();
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
@@ -67,10 +67,10 @@ namespace ServiceLibrary
         void DongleConnectionStateChanged(bool isConnected);
 
         [OperationContract(IsOneWay = true)]
-        void PairedDevicesCollectionChanged(BleDeviceDTO[] devices);
+        void PairedDevicesCollectionChanged(DeviceDTO[] devices);
 
         [OperationContract(IsOneWay = true)]
-        void PairedDevicePropertyChanged(BleDeviceDTO device);
+        void PairedDevicePropertyChanged(DeviceDTO device);
 
         [OperationContract(IsOneWay = true)]
         void ProximityChanged(string deviceId, double proximity);

@@ -152,7 +152,7 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        private async Task UpdateDevicesAsync(BleDeviceDTO[] serverDevices)
+        private async Task UpdateDevicesAsync(DeviceDTO[] serverDevices)
         {
             try
             {
@@ -204,7 +204,7 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        public DeviceViewModel FindDevice(BleDeviceDTO deviceDto)
+        public DeviceViewModel FindDevice(DeviceDTO deviceDto)
         {
             return FindDevice(deviceDto.Id);
         }

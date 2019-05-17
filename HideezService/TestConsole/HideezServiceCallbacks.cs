@@ -20,11 +20,11 @@ namespace TestConsole
         {
         }
 
-        public void PairedDevicePropertyChanged(BleDeviceDTO device)
+        public void PairedDevicePropertyChanged(DeviceDTO device)
         {
         }
 
-        public void PairedDevicesCollectionChanged(BleDeviceDTO[] devicesCollection)
+        public void PairedDevicesCollectionChanged(DeviceDTO[] devicesCollection)
         {
         }
 

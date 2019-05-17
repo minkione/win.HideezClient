@@ -357,7 +357,7 @@
     <None Include="app.manifest" />
     <None Include="Connected Services\HideezServiceReference\configuration91.svcinfo" />
     <None Include="Connected Services\HideezServiceReference\configuration.svcinfo" />
-    <None Include="Connected Services\HideezServiceReference\HideezSafe.HideezServiceReference.BleDeviceDTO.datasource">
+    <None Include="Connected Services\HideezServiceReference\HideezSafe.HideezServiceReference.DeviceDTO.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Connected Services\HideezServiceReference\Reference.svcmap">

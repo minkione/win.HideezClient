@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 
 namespace HideezMiddleware
@@ -111,7 +112,7 @@ namespace HideezMiddleware
             }
         }
 
-        static async Task<ushort> GetPrimaryAccountKey(string mac, BleDevice device)
+        static async Task<ushort> GetPrimaryAccountKey(string mac, IDevice device)
         {
             string primaryAccountKeyString = await device.ReadStorageAsString((byte)StorageTable.Config, (ushort)StorageConfigItem.PrimaryAccountKey);
             if (string.IsNullOrEmpty(primaryAccountKeyString))

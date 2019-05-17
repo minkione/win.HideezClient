@@ -4,11 +4,11 @@ namespace HideezSafe.Messages
 {
     class PairedDevicesCollectionChangedMessage
     {
-        public PairedDevicesCollectionChangedMessage(BleDeviceDTO[] devices)
+        public PairedDevicesCollectionChangedMessage(DeviceDTO[] devices)
         {
             Devices = devices;
         }
 
-        public BleDeviceDTO[] Devices { get; }
+        public DeviceDTO[] Devices { get; }
     }
 }

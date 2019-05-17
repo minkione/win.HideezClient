@@ -7,7 +7,7 @@ namespace HideezSafe.ViewModels
 {
     public class DeviceViewModel : LocalizedObject
     {
-        public DeviceViewModel(BleDeviceDTO device)
+        public DeviceViewModel(DeviceDTO device)
         {
             LoadFrom(device);
         }
@@ -68,7 +68,7 @@ namespace HideezSafe.ViewModels
 
         #endregion Property
 
-        public void LoadFrom(BleDeviceDTO dto)
+        public void LoadFrom(DeviceDTO dto)
         {
             Id = dto.Id;
             Name = dto.Name;

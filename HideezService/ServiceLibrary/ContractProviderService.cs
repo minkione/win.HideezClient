@@ -44,7 +44,7 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public BleDeviceDTO[] GetPairedDevices()
+        public DeviceDTO[] GetPairedDevices()
         {
             throw new NotImplementedException();
         }

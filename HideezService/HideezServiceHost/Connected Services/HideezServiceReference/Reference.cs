@@ -149,9 +149,9 @@ namespace HideezServiceHost.HideezServiceReference {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BleDeviceDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="DeviceDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
     [System.SerializableAttribute()]
-    public partial class BleDeviceDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+    public partial class DeviceDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
@@ -160,7 +160,16 @@ namespace HideezServiceHost.HideezServiceReference {
         private string IdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsConnectedField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string OwnerField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private double ProximityField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -186,6 +195,19 @@ namespace HideezServiceHost.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsConnected {
+            get {
+                return this.IsConnectedField;
+            }
+            set {
+                if ((this.IsConnectedField.Equals(value) != true)) {
+                    this.IsConnectedField = value;
+                    this.RaisePropertyChanged("IsConnected");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string Name {
             get {
                 return this.NameField;
@@ -194,6 +216,32 @@ namespace HideezServiceHost.HideezServiceReference {
                 if ((object.ReferenceEquals(this.NameField, value) != true)) {
                     this.NameField = value;
                     this.RaisePropertyChanged("Name");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Owner {
+            get {
+                return this.OwnerField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.OwnerField, value) != true)) {
+                    this.OwnerField = value;
+                    this.RaisePropertyChanged("Owner");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public double Proximity {
+            get {
+                return this.ProximityField;
+            }
+            set {
+                if ((this.ProximityField.Equals(value) != true)) {
+                    this.ProximityField = value;
+                    this.RaisePropertyChanged("Proximity");
                 }
             }
         }
@@ -249,10 +297,42 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetPairedDevices", ReplyAction="http://tempuri.org/IHideezService/GetPairedDevicesResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetPairedDevicesHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        HideezServiceHost.HideezServiceReference.BleDeviceDTO[] GetPairedDevices();
+        HideezServiceHost.HideezServiceReference.DeviceDTO[] GetPairedDevices();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetPairedDevices", ReplyAction="http://tempuri.org/IHideezService/GetPairedDevicesResponse")]
-        System.Threading.Tasks.Task<HideezServiceHost.HideezServiceReference.BleDeviceDTO[]> GetPairedDevicesAsync();
+        System.Threading.Tasks.Task<HideezServiceHost.HideezServiceReference.DeviceDTO[]> GetPairedDevicesAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EnableMonitoringProximity", ReplyAction="http://tempuri.org/IHideezService/EnableMonitoringProximityResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/EnableMonitoringProximityHideezServiceFaultFaul" +
+            "t", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void EnableMonitoringProximity(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EnableMonitoringProximity", ReplyAction="http://tempuri.org/IHideezService/EnableMonitoringProximityResponse")]
+        System.Threading.Tasks.Task EnableMonitoringProximityAsync(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisableMonitoringProximity", ReplyAction="http://tempuri.org/IHideezService/DisableMonitoringProximityResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/DisableMonitoringProximityHideezServiceFaultFau" +
+            "lt", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void DisableMonitoringProximity(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisableMonitoringProximity", ReplyAction="http://tempuri.org/IHideezService/DisableMonitoringProximityResponse")]
+        System.Threading.Tasks.Task DisableMonitoringProximityAsync(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EnableMonitoringDeviceProperties", ReplyAction="http://tempuri.org/IHideezService/EnableMonitoringDevicePropertiesResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/EnableMonitoringDevicePropertiesHideezServiceFa" +
+            "ultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void EnableMonitoringDeviceProperties(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EnableMonitoringDeviceProperties", ReplyAction="http://tempuri.org/IHideezService/EnableMonitoringDevicePropertiesResponse")]
+        System.Threading.Tasks.Task EnableMonitoringDevicePropertiesAsync(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisableMonitoringDeviceProperties", ReplyAction="http://tempuri.org/IHideezService/DisableMonitoringDevicePropertiesResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/DisableMonitoringDevicePropertiesHideezServiceF" +
+            "aultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void DisableMonitoringDeviceProperties(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisableMonitoringDeviceProperties", ReplyAction="http://tempuri.org/IHideezService/DisableMonitoringDevicePropertiesResponse")]
+        System.Threading.Tasks.Task DisableMonitoringDevicePropertiesAsync(string deviceId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/OnSessionChange", ReplyAction="http://tempuri.org/IHideezService/OnSessionChangeResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/OnSessionChangeHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
@@ -278,10 +358,13 @@ namespace HideezServiceHost.HideezServiceReference {
         void DongleConnectionStateChanged(bool isConnected);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/PairedDevicesCollectionChanged")]
-        void PairedDevicesCollectionChanged(HideezServiceHost.HideezServiceReference.BleDeviceDTO[] devices);
+        void PairedDevicesCollectionChanged(HideezServiceHost.HideezServiceReference.DeviceDTO[] devices);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/PairedDevicePropertyChanged")]
-        void PairedDevicePropertyChanged(HideezServiceHost.HideezServiceReference.BleDeviceDTO device);
+        void PairedDevicePropertyChanged(HideezServiceHost.HideezServiceReference.DeviceDTO device);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ProximityChanged")]
+        void ProximityChanged(string deviceId, double proximity);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -352,12 +435,44 @@ namespace HideezServiceHost.HideezServiceReference {
             return base.Channel.GetAdapterStateAsync(adapter);
         }
         
-        public HideezServiceHost.HideezServiceReference.BleDeviceDTO[] GetPairedDevices() {
+        public HideezServiceHost.HideezServiceReference.DeviceDTO[] GetPairedDevices() {
             return base.Channel.GetPairedDevices();
         }
         
-        public System.Threading.Tasks.Task<HideezServiceHost.HideezServiceReference.BleDeviceDTO[]> GetPairedDevicesAsync() {
+        public System.Threading.Tasks.Task<HideezServiceHost.HideezServiceReference.DeviceDTO[]> GetPairedDevicesAsync() {
             return base.Channel.GetPairedDevicesAsync();
+        }
+        
+        public void EnableMonitoringProximity(string deviceId) {
+            base.Channel.EnableMonitoringProximity(deviceId);
+        }
+        
+        public System.Threading.Tasks.Task EnableMonitoringProximityAsync(string deviceId) {
+            return base.Channel.EnableMonitoringProximityAsync(deviceId);
+        }
+        
+        public void DisableMonitoringProximity(string deviceId) {
+            base.Channel.DisableMonitoringProximity(deviceId);
+        }
+        
+        public System.Threading.Tasks.Task DisableMonitoringProximityAsync(string deviceId) {
+            return base.Channel.DisableMonitoringProximityAsync(deviceId);
+        }
+        
+        public void EnableMonitoringDeviceProperties(string deviceId) {
+            base.Channel.EnableMonitoringDeviceProperties(deviceId);
+        }
+        
+        public System.Threading.Tasks.Task EnableMonitoringDevicePropertiesAsync(string deviceId) {
+            return base.Channel.EnableMonitoringDevicePropertiesAsync(deviceId);
+        }
+        
+        public void DisableMonitoringDeviceProperties(string deviceId) {
+            base.Channel.DisableMonitoringDeviceProperties(deviceId);
+        }
+        
+        public System.Threading.Tasks.Task DisableMonitoringDevicePropertiesAsync(string deviceId) {
+            return base.Channel.DisableMonitoringDevicePropertiesAsync(deviceId);
         }
         
         public void OnSessionChange(bool sessionLocked) {

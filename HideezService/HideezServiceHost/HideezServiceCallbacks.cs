@@ -26,11 +26,11 @@ namespace HideezServiceHost
         {
         }
 
-        public void PairedDevicePropertyChanged(BleDeviceDTO device)
+        public void PairedDevicePropertyChanged(DeviceDTO device)
         {
         }
 
-        public void PairedDevicesCollectionChanged(BleDeviceDTO[] devices)
+        public void PairedDevicesCollectionChanged(DeviceDTO[] devices)
         {
         }
     }

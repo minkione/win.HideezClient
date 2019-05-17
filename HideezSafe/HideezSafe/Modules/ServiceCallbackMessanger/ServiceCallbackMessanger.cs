@@ -41,7 +41,7 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
             log.Info($"Lock workstation request");
         }
 
-        public void PairedDevicesCollectionChanged(BleDeviceDTO[] devices)
+        public void PairedDevicesCollectionChanged(DeviceDTO[] devices)
         {
             messenger.Send(new PairedDevicesCollectionChangedMessage(devices));
             StringBuilder devicesInfo = new StringBuilder();
@@ -52,13 +52,13 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
             log.Info($"Paired devices collection changed. {devicesInfo}");
         }
 
-        public void PairedDevicePropertyChanged(BleDeviceDTO device)
+        public void PairedDevicePropertyChanged(DeviceDTO device)
         {
             messenger.Send(new DevicePropertiesUpdatedMessage(device));
             log.Info($"Paired device property changed. {GetDeviceInfo(device)}");
         }
 
-        private string GetDeviceInfo(BleDeviceDTO device)
+        private string GetDeviceInfo(DeviceDTO device)
         {
             return $"Id: {device.Id}, Name: {device.Name}, Owner: {device.Owner}, Proximity: {device.Proximity}, IsConnected: {device.IsConnected}";
         }

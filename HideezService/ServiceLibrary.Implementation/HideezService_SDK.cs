@@ -1,6 +1,7 @@
 ﻿using Hideez.CsrBLE;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
 using HideezMiddleware;
@@ -89,35 +90,29 @@ namespace ServiceLibrary.Implementation
 
         private void _deviceManager_DeviceAdded(object sender, DeviceCollectionChangedEventArgs e)
         {
-            var bleDevice = e.AddedDevice;
+            var device = e.AddedDevice;
 
-            if (bleDevice != null)
+            if (device != null)
             {
                 // event is only subscribed to once
-                bleDevice.ProximityChanged -= BleDevice_ProximityChanged;
-                bleDevice.ProximityChanged += BleDevice_ProximityChanged;
+                device.ProximityChanged -= device_ProximityChanged;
+                device.ProximityChanged += device_ProximityChanged;
 
                 // event is only subscribed to once
-                bleDevice.PropertyChanged -= BleDevice_PropertyChanged;
-                bleDevice.PropertyChanged += BleDevice_PropertyChanged;
+                device.PropertyChanged -= device_PropertyChanged;
+                device.PropertyChanged += device_PropertyChanged;
             }
         }
 
         private void _deviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
         {
-            var bleDevice = e.RemovedDevice;
+            var device = e.RemovedDevice;
 
-            if (bleDevice != null)
+            if (device != null)
             {
-                bleDevice.ProximityChanged -= BleDevice_ProximityChanged;
-                bleDevice.PropertyChanged -= BleDevice_PropertyChanged;
+                device.ProximityChanged -= device_ProximityChanged;
+                device.PropertyChanged -= device_PropertyChanged;
             }
-        }
-
-        private void _deviceManager_DevicePropertyChanged(object sender, DevicePropertyChangedEventArgs e)
-        {
-            foreach (var client in SessionManager.Sessions)
-                client.Callbacks.PairedDevicePropertyChanged(new BleDeviceDTO(e.Device));
         }
 
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
@@ -159,15 +154,15 @@ namespace ServiceLibrary.Implementation
 
         #region proximity monitoring
 
-        private void BleDevice_ProximityChanged(object sender, EventArgs e)
+        private void device_ProximityChanged(object sender, EventArgs e)
         {
-            if (sender is BleDevice bleDevice)
+            if (sender is IDevice device)
             {
                 foreach (var c in SessionManager.Sessions
                     // if has key for device id and enabled monitoring for this id
-                    .Where(s => s.IsEnabledProximityMonitoring.TryGetValue(bleDevice.Id, out bool isEnabled) && isEnabled))
+                    .Where(s => s.IsEnabledProximityMonitoring.TryGetValue(device.Id, out bool isEnabled) && isEnabled))
                 {
-                    c.Callbacks.ProximityChanged(bleDevice.Id, bleDevice.Proximity);
+                    c.Callbacks.ProximityChanged(device.Id, device.Proximity);
                 }
             }
         }
@@ -195,15 +190,15 @@ namespace ServiceLibrary.Implementation
         #region Device Properties Monitoring
 
 
-        private void BleDevice_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (sender is BleDevice bleDevice)
+            if (sender is IDevice device)
             {
                 foreach (var c in SessionManager.Sessions
                     // if has key for device id and enabled monitoring for this id
-                    .Where(s => s.IsEnabledPropertyMonitoring.TryGetValue(bleDevice.Id, out bool isEnabled) && isEnabled))
+                    .Where(s => s.IsEnabledPropertyMonitoring.TryGetValue(device.Id, out bool isEnabled) && isEnabled))
                 {
-                    c.Callbacks.PairedDevicePropertyChanged(new BleDeviceDTO(bleDevice));
+                    c.Callbacks.PairedDevicePropertyChanged(new DeviceDTO(device));
                 }
             }
         }
@@ -243,9 +238,9 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public BleDeviceDTO[] GetPairedDevices()
+        public DeviceDTO[] GetPairedDevices()
         {
-            var dto = _deviceManager.Devices.Select(d => new BleDeviceDTO(d)).ToArray();
+            var dto = _deviceManager.Devices.Select(d => new DeviceDTO(d)).ToArray();
             return dto;
         }
 

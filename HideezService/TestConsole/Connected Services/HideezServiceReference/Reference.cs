@@ -149,9 +149,9 @@ namespace TestConsole.HideezServiceReference {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BleDeviceDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="DeviceDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
     [System.SerializableAttribute()]
-    public partial class BleDeviceDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+    public partial class DeviceDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
@@ -297,10 +297,10 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetPairedDevices", ReplyAction="http://tempuri.org/IHideezService/GetPairedDevicesResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetPairedDevicesHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        TestConsole.HideezServiceReference.BleDeviceDTO[] GetPairedDevices();
+        TestConsole.HideezServiceReference.DeviceDTO[] GetPairedDevices();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetPairedDevices", ReplyAction="http://tempuri.org/IHideezService/GetPairedDevicesResponse")]
-        System.Threading.Tasks.Task<TestConsole.HideezServiceReference.BleDeviceDTO[]> GetPairedDevicesAsync();
+        System.Threading.Tasks.Task<TestConsole.HideezServiceReference.DeviceDTO[]> GetPairedDevicesAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EnableMonitoringProximity", ReplyAction="http://tempuri.org/IHideezService/EnableMonitoringProximityResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/EnableMonitoringProximityHideezServiceFaultFaul" +
@@ -358,10 +358,10 @@ namespace TestConsole.HideezServiceReference {
         void DongleConnectionStateChanged(bool isConnected);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/PairedDevicesCollectionChanged")]
-        void PairedDevicesCollectionChanged(TestConsole.HideezServiceReference.BleDeviceDTO[] devices);
+        void PairedDevicesCollectionChanged(TestConsole.HideezServiceReference.DeviceDTO[] devices);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/PairedDevicePropertyChanged")]
-        void PairedDevicePropertyChanged(TestConsole.HideezServiceReference.BleDeviceDTO device);
+        void PairedDevicePropertyChanged(TestConsole.HideezServiceReference.DeviceDTO device);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ProximityChanged")]
         void ProximityChanged(string deviceId, double proximity);
@@ -435,11 +435,11 @@ namespace TestConsole.HideezServiceReference {
             return base.Channel.GetAdapterStateAsync(adapter);
         }
         
-        public TestConsole.HideezServiceReference.BleDeviceDTO[] GetPairedDevices() {
+        public TestConsole.HideezServiceReference.DeviceDTO[] GetPairedDevices() {
             return base.Channel.GetPairedDevices();
         }
         
-        public System.Threading.Tasks.Task<TestConsole.HideezServiceReference.BleDeviceDTO[]> GetPairedDevicesAsync() {
+        public System.Threading.Tasks.Task<TestConsole.HideezServiceReference.DeviceDTO[]> GetPairedDevicesAsync() {
             return base.Channel.GetPairedDevicesAsync();
         }
         

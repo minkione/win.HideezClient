@@ -1,12 +1,13 @@
 ﻿using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Interfaces;
 using System.Runtime.Serialization;
 
 namespace ServiceLibrary
 {
     [DataContract]
-    public class BleDeviceDTO
+    public class DeviceDTO
     {
-        public BleDeviceDTO(BleDevice device)
+        public DeviceDTO(IDevice device)
         {
             this.Id = device.Id;
             this.Name = device.Name;
