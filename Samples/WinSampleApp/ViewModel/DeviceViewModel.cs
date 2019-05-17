@@ -1,11 +1,12 @@
 ﻿using System;
 using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Interfaces;
 
 namespace WinSampleApp.ViewModel
 {
     public class DeviceViewModel : ViewModelBase
     {
-        public BleDevice Device { get; }
+        public IDevice Device { get; }
 
         public string Id => Device.Id;
         public string Name => Device.Name;
@@ -13,7 +14,7 @@ namespace WinSampleApp.ViewModel
         public bool IsConnected => Device.IsConnected;
         public int ChannelNo => Device.ChannelNo;
 
-        public DeviceViewModel(BleDevice device)
+        public DeviceViewModel(IDevice device)
         {
             Device = device;
 

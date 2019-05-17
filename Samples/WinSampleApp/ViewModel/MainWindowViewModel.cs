@@ -8,6 +8,7 @@ using System.Windows.Input;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezMiddleware;
@@ -608,7 +609,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                var pm = new DevicePasswordManager(device.Device);
+                var pm = new DevicePasswordManager((IDeviceStorage)device.Device);
                 var account = new AccountRecord()
                 {
                     Key = 15,
@@ -634,12 +635,12 @@ namespace WinSampleApp.ViewModel
 
         void AddDeviceChannel(DeviceViewModel currentDevice)
         {
-            BleDevice newDevice = _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++);
+            IDevice newDevice = _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++);
         }
 
         async void RemoveDeviceChannel(DeviceViewModel currentDevice)
         {
-            await _deviceManager.RemoveChannel(currentDevice.Device);
+            await _deviceManager.Remove(currentDevice.Device);
             _nextChannelNo--;
         }
 
