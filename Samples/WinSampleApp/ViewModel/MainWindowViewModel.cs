@@ -627,7 +627,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                var pm = new DevicePasswordManager(device.Device);
+                var pm = new DevicePasswordManager((IDeviceStorage)device.Device);
                 var account = new AccountRecord()
                 {
                     Key = 15,

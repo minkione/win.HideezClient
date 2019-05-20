@@ -112,9 +112,9 @@ namespace HideezMiddleware
             }
         }
 
-        static async Task<ushort> GetPrimaryAccountKey(string mac, IDevice device)
+        static async Task<ushort> GetPrimaryAccountKey(string mac, IDeviceStorage storage)
         {
-            string primaryAccountKeyString = await device.ReadStorageAsString((byte)StorageTable.Config, (ushort)StorageConfigItem.PrimaryAccountKey);
+            string primaryAccountKeyString = await storage.ReadStorageAsString((byte)StorageTable.Config, (ushort)StorageConfigItem.PrimaryAccountKey);
             if (string.IsNullOrEmpty(primaryAccountKeyString))
                 return 0;
             try
@@ -144,7 +144,7 @@ namespace HideezMiddleware
                 if (info == null)
                     throw new Exception($"Device not found");
 
-                if (info.IdFromDevice == null && !info.NeedUpdatePrimaryAccount)
+                if (info.IdFromDevice == null)
                     throw new Exception($"Device '{info.DeviceSerialNo}' has not a primary account stored");
 
                 //info.DeviceMac = "D0:A8:9E:6B:CD:8D";

@@ -1,4 +1,5 @@
 ﻿using System;
+using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Interfaces;
 
 namespace WinSampleApp.ViewModel
