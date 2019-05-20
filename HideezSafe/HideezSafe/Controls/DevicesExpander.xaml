@@ -136,6 +136,10 @@
                                     Foreground="{DynamicResource DisconnectedBrush}"
                                     Kind="Connect"
                                     Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                                <TextBlock
+                                    VerticalAlignment="Stretch"
+                                    FontSize="18"
+                                    Text="{Binding Proximity, StringFormat='{}{0,3}%'}" />
                             </StackPanel>
 
                             <ToggleButton

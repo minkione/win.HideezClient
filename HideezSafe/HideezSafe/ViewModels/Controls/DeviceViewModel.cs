@@ -29,7 +29,14 @@ namespace HideezSafe.ViewModels
         public bool IsConnected
         {
             get { return isConnected; }
-            set { Set(ref isConnected, value); }
+            set
+            {
+                Set(ref isConnected, value);
+                if (!isConnected)
+                {
+                    Proximity = 0;
+                }
+            }
         }
 
         public double Proximity
