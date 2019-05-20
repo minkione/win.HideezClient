@@ -1,7 +1,7 @@
 ﻿using NLog;
 using System;
 using System.ServiceModel;
-using System.Timers;
+using System.Linq;
 
 namespace ServiceLibrary.Implementation
 {
@@ -30,20 +30,35 @@ namespace ServiceLibrary.Implementation
 
         private void Initialize()
         {
-            LogManager.EnableLogging();
+            try
+            {
+                LogManager.EnableLogging();
 
-            log = LogManager.GetCurrentClassLogger();
-            log.Info(">>>>>> Starting service");
+                log = LogManager.GetCurrentClassLogger();
+                log.Info(">>>>>> Starting service");
 
-            log.Info("CLR Version: {0}", Environment.Version);
-            log.Info("OS: {0}", Environment.OSVersion);
-            log.Info("Command: {0}", Environment.CommandLine);
+                log.Info("CLR Version: {0}", Environment.Version);
+                log.Info("OS: {0}", Environment.OSVersion);
+                log.Info("Command: {0}", Environment.CommandLine);
 
-            log.Info(">>>>>> Initialize SDK");
-            InitializeSDK();
-            log.Info(">>>>>> SDK Initialized");
+                log.Info(">>>>>> Initialize SDK");
+                InitializeSDK();
+                log.Info(">>>>>> SDK Initialized");
 
-            log.Info(">>>>>> Service started");
+                log.Info(">>>>>> Service started");
+            }
+            catch (Exception ex)
+            {
+                log.Error("Hideez Service has encountered an error during initialization." +
+                    Environment.NewLine +
+                    "The error must be resolved until service operation can be resumed. " +
+                    Environment.NewLine +
+                    "The service will not restart automatically.");
+                log.Error(ex);
+
+                // Exit code 0 prevents automatic service restart trigger on exit
+                Environment.Exit(0);
+            }
         }
 
         #region Utils
@@ -61,27 +76,6 @@ namespace ServiceLibrary.Implementation
                 throw new FaultException<HideezServiceFault>(
                     new HideezServiceFault(ex.Message, 6), ex.Message);
             }
-        }
-
-        //private void ThrowException(string message, HideezErrorCode code)
-        //{
-        //    throw new FaultException<HideezServiceFault>(
-        //        new HideezServiceFault(message, (int)code), message);
-        //}
-
-        private void WriteLine(Exception ex)
-        {
-            //HideezCore.WriteLine(name, ex, LogErrorSeverity.Error);
-        }
-
-        private void WriteDebugLine(Exception ex)
-        {
-            //HideezCore.WriteDebugLine(name, ex, LogErrorSeverity.Error);
-        }
-
-        private void WriteDebugLine(string line)
-        {
-            //HideezCore.WriteDebugLine(name, line, LogErrorSeverity.Information);
         }
         #endregion
 
@@ -101,8 +95,20 @@ namespace ServiceLibrary.Implementation
         {
             log.Debug(">>>>>> AttachClient " + prm.ClientType.ToString());
 
+            // Limit to one ServiceHost / TestConsole connection
+            if (prm.ClientType == ClientType.TestConsole || 
+                prm.ClientType == ClientType.ServiceHost)
+            {
+                if (SessionManager.Sessions.Any(s => 
+                s.ClientType == ClientType.ServiceHost || 
+                s.ClientType == ClientType.TestConsole))
+                {
+                    throw new Exception("Service does not support more than one connected ServiceHost or TestConsole client");
+                }
+            }
+
             var callback = OperationContext.Current.GetCallbackChannel<ICallbacks>();
-            client = SessionManager.Add(callback);
+            client = SessionManager.Add(prm.ClientType, callback);
 
             OperationContext.Current.Channel.Closed += Channel_Closed;
             OperationContext.Current.Channel.Faulted += Channel_Faulted;
@@ -124,6 +130,7 @@ namespace ServiceLibrary.Implementation
         public void Shutdown()
         {
             log.Debug(">>>>>> Shutdown service");
+            // Todo: shutdown service in a clean way
         }
     }
 }

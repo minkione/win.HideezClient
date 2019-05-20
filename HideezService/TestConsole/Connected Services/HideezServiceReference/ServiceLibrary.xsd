@@ -21,12 +21,28 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="HideezServiceFault" nillable="true" type="tns:HideezServiceFault" />
-  <xs:simpleType name="Addapter">
+  <xs:simpleType name="Adapter">
     <xs:restriction base="xs:string">
       <xs:enumeration value="HES" />
       <xs:enumeration value="RFID" />
       <xs:enumeration value="Dongle" />
     </xs:restriction>
   </xs:simpleType>
-  <xs:element name="Addapter" nillable="true" type="tns:Addapter" />
+  <xs:element name="Adapter" nillable="true" type="tns:Adapter" />
+  <xs:complexType name="ArrayOfDeviceDTO">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="DeviceDTO" nillable="true" type="tns:DeviceDTO" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfDeviceDTO" nillable="true" type="tns:ArrayOfDeviceDTO" />
+  <xs:complexType name="DeviceDTO">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsConnected" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Owner" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Proximity" type="xs:double" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DeviceDTO" nillable="true" type="tns:DeviceDTO" />
 </xs:schema>

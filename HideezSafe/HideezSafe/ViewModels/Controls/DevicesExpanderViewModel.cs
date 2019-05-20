@@ -1,43 +1,30 @@
-﻿using HideezSafe.Mvvm;
-using System;
-using System.Collections.Generic;
+﻿using HideezSafe.Modules.DeviceManager;
+using HideezSafe.Mvvm;
+using HideezSafe.Utilities;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HideezSafe.ViewModels
 {
     class DevicesExpanderViewModel : ObservableObject
     {
-        public DevicesExpanderViewModel()
-        {
-#if DEBUG
-            currentDevice = new DeviceViewModel("DeviceType.Key", "HedeezKeySimpleIMG", "8989")
-            {
-                IsConnected = false,
-                Proximity = 60,
-            };
+        readonly IDeviceManager deviceManager;
 
-            OwnerName = "User@mail.com";
-#endif
+        public DevicesExpanderViewModel(IDeviceManager deviceManager)
+        {
+            this.deviceManager = deviceManager;
         }
 
         #region Properties
 
-        private DeviceViewModel currentDevice;
-        private string ownerName;
 
-        public DeviceViewModel CurrentDevice
+        public ObservableCollection<DeviceViewModel> Devices
         {
-            get { return currentDevice; }
-            set { Set(ref currentDevice, value); }
-        }
-
-
-        public string OwnerName
-        {
-            get { return ownerName; }
-            set { Set(ref ownerName, value); }
+            get
+            {
+                return deviceManager.Devices;
+            }
         }
 
         #endregion Properties

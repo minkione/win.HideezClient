@@ -14,15 +14,27 @@ namespace HideezServiceHost
         {
         }
 
-        public void ConnectionDongleChangedRequest(bool isConnected)
+        public void DongleConnectionStateChanged(bool isConnected)
         {
         }
 
-        public void ConnectionHESChangedRequest(bool isConnected)
+        public void HESConnectionStateChanged(bool isConnected)
         {
         }
 
-        public void ConnectionRFIDChangedRequest(bool isConnected)
+        public void RFIDConnectionStateChanged(bool isConnected)
+        {
+        }
+
+        public void PairedDevicePropertyChanged(DeviceDTO device)
+        {
+        }
+
+        public void PairedDevicesCollectionChanged(DeviceDTO[] devices)
+        {
+        }
+
+        public void ProximityChanged(string deviceId, double proximity)
         {
         }
     }

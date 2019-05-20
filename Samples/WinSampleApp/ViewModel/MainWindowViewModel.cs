@@ -17,7 +17,7 @@ namespace WinSampleApp.ViewModel
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        readonly EventLogger _log;
+        readonly ILog _log;
         readonly BleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
         readonly CredentialProviderConnection _credentialProviderConnection;
@@ -397,11 +397,29 @@ namespace WinSampleApp.ViewModel
                 };
             }
         }
+
+        public ICommand BoostDeviceRssiCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        BoostDeviceRssi(CurrentDevice);
+                    }
+                };
+            }
+        }
         #endregion
 
         public MainWindowViewModel()
         {
-            _log = new EventLogger("ExampleApp");
+            _log = new ConsoleLogger();
             _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
 
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
@@ -430,7 +448,7 @@ namespace WinSampleApp.ViewModel
             _rfidService.Start();
 
             // HES
-            _hesConnection = new HesAppConnection(_deviceManager, "https://localhost:44371", _log);
+            _hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.241", _log);
             _hesConnection.Connect();
 
             // WorkstationUnlocker ==================================
@@ -708,6 +726,17 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        async void BoostDeviceRssi(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.BoostRssi(100, 15);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
         private async void UnlockByRfid()
         {

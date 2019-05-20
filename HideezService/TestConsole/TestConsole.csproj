@@ -167,6 +167,9 @@
     <None Include="Connected Services\HideezServiceReference\ServiceLibrary.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Connected Services\HideezServiceReference\TestConsole.HideezServiceReference.DeviceDTO.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -176,10 +179,6 @@
     <ProjectReference Include="..\ServiceLibrary.Implementation\ServiceLibrary.Implementation.csproj">
       <Project>{DA19D8C5-DAB6-4060-B393-BA18A4BE47BB}</Project>
       <Name>ServiceLibrary.Implementation</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ServiceLibrary\ServiceLibrary.csproj">
-      <Project>{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}</Project>
-      <Name>ServiceLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -9,7 +9,7 @@ namespace HideezSafe.Utilities
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), 
             "Hideez", 
             "Safe", 
-            "v2", 
+            "v3", 
             "Settings");
 
         public static string DefaultSettingsFileName { get; } = "usersettings.xml";

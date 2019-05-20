@@ -30,6 +30,7 @@ using HideezSafe.Modules.Localize;
 using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules.ServiceCallbackMessanger;
 using HideezSafe.Modules.ServiceWatchdog;
+using HideezSafe.Modules.DeviceManager;
 
 namespace HideezSafe
 {
@@ -43,6 +44,7 @@ namespace HideezSafe
         private IMessenger messenger;
         private IWindowsManager windowsManager;
         private IServiceWatchdog serviceWatchdog;
+        private IDeviceManager deviceManager;
 
         public static IUnityContainer Container { get; private set; }
 
@@ -107,6 +109,7 @@ namespace HideezSafe
             Container.Resolve<IHideezServiceCallback>();
             serviceWatchdog = Container.Resolve<IServiceWatchdog>();
             serviceWatchdog.Start();
+            deviceManager = Container.Resolve<IDeviceManager>();
 
             if (settings.IsFirstLaunch)
             {
@@ -170,6 +173,7 @@ namespace HideezSafe
             Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
             Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IDeviceManager, DeviceManager>(new ContainerControlledLifetimeManager());
 
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());

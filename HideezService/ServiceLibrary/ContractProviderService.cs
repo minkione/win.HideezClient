@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ServiceLibrary
 {
@@ -18,7 +19,37 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public bool GetAdapterState(Addapter addapter)
+        public void DisableMonitoringDeviceProperties(string deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DisableMonitoringProximity(string deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EnableMonitoringDeviceProperties(string deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EnableMonitoringProximity(string deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool GetAdapterState(Adapter addapter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DeviceDTO[] GetPairedDevices()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnSessionChange(bool sessionLocked)
         {
             throw new NotImplementedException();
         }

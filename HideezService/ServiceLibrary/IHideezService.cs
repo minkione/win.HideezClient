@@ -1,4 +1,5 @@
-﻿using System.ServiceModel;
+﻿using System.Collections.Generic;
+using System.ServiceModel;
 
 namespace ServiceLibrary
 {
@@ -23,7 +24,32 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        bool GetAdapterState(Addapter addapter);
+        bool GetAdapterState(Adapter adapter);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        DeviceDTO[] GetPairedDevices();
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void EnableMonitoringProximity(string deviceId);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void DisableMonitoringProximity(string deviceId);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void EnableMonitoringDeviceProperties(string deviceId);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void DisableMonitoringDeviceProperties(string deviceId);
+
+        // Contract is only for testconsole and hostservice
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void OnSessionChange(bool sessionLocked);
     }
 
     public interface ICallbacks
@@ -32,16 +58,25 @@ namespace ServiceLibrary
         void LockWorkstationRequest();
 
         [OperationContract(IsOneWay = true)]
-        void ConnectionHESChangedRequest(bool isConnected);
+        void HESConnectionStateChanged(bool isConnected);
 
         [OperationContract(IsOneWay = true)]
-        void ConnectionRFIDChangedRequest(bool isConnected);
+        void RFIDConnectionStateChanged(bool isConnected);
 
         [OperationContract(IsOneWay = true)]
-        void ConnectionDongleChangedRequest(bool isConnected);
+        void DongleConnectionStateChanged(bool isConnected);
+
+        [OperationContract(IsOneWay = true)]
+        void PairedDevicesCollectionChanged(DeviceDTO[] devices);
+
+        [OperationContract(IsOneWay = true)]
+        void PairedDevicePropertyChanged(DeviceDTO device);
+
+        [OperationContract(IsOneWay = true)]
+        void ProximityChanged(string deviceId, double proximity);
     }
 
-    public enum Addapter
+    public enum Adapter
     {
         HES,
         RFID,

@@ -1,6 +1,7 @@
 ﻿using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.NamedPipes;
 using System;
+using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
@@ -61,23 +62,32 @@ namespace HideezMiddleware
 
         void PipeClient_MessageReceivedEvent(object sender, MessageReceivedEventArgs e)
         {
-            if (e.Message.StartsWith(readerStateParameter))
+            if (!string.IsNullOrWhiteSpace(e.Message))
             {
-                var stringValue = GetValue(readerStateParameter, e.Message);
-                if (bool.TryParse(stringValue, out bool receivedReaderState))
+                if (e.Message.StartsWith(readerStateParameter))
                 {
-                    ReaderConnected = receivedReaderState;
-                    return;
+                    var stringValue = GetValue(readerStateParameter, e.Message);
+                    if (bool.TryParse(stringValue, out bool receivedReaderState))
+                    {
+                        ReaderConnected = receivedReaderState;
+                        return;
+                    }
                 }
-            }
-            else
-            {
-                RfidReceivedEvent?.Invoke(this, new RfidReceivedEventArgs() { Rfid = e.Message });
+                else
+                {
+                    RfidReceivedEvent?.Invoke(this, new RfidReceivedEventArgs() { Rfid = e.Message });
+                }
             }
         }
 
         void PipeClient_PipeStateChanged(object sender, EventArgs args)
         {
+            if (_pipeClient.Connected)
+            {
+                try { _pipeClient.SendMessage("updatestate" + '\n'); }
+                catch (Exception) { }
+            }
+
             RfidServiceStateChanged?.Invoke(this, EventArgs.Empty);
             RfidReaderStateChanged?.Invoke(this, EventArgs.Empty);
         }

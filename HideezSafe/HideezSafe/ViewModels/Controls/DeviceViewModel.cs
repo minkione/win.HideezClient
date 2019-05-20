@@ -1,38 +1,45 @@
-﻿using HideezSafe.Modules;
+﻿using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules.Localize;
 using HideezSafe.Mvvm;
 using MvvmExtensions.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HideezSafe.ViewModels
 {
     public class DeviceViewModel : LocalizedObject
     {
-        public DeviceViewModel(string typeName, string icoKey, string name)
+        public DeviceViewModel(DeviceDTO device)
         {
-            this.typeNameKey = typeName;
-            this.IcoKey = icoKey;
-            this.name = name;
+            LoadFrom(device);
         }
 
         #region Property
 
+        private string id;
         private bool isConnected;
-        private int proximity;
+        private double proximity;
 
-        public string IcoKey { get; }
+        public string IcoKey { get; } = "HedeezKeySimpleIMG";
+
+        public string Id
+        {
+            get { return id; }
+            set { Set(ref id, value); }
+        }
 
         public bool IsConnected
         {
             get { return isConnected; }
-            set { Set(ref isConnected, value); }
+            set
+            {
+                Set(ref isConnected, value);
+                if (!isConnected)
+                {
+                    Proximity = 0;
+                }
+            }
         }
 
-        public int Proximity
+        public double Proximity
         {
             get { return proximity; }
             set { Set(ref proximity, value); }
@@ -41,13 +48,19 @@ namespace HideezSafe.ViewModels
         #region Text
 
         private string name;
-        private string typeNameKey;
+        private string typeNameKey = "Hideez key";
+        private string ownerName;
+
+        public string OwnerName
+        {
+            get { return ownerName; }
+            set { Set(ref ownerName, value); }
+        }
 
         [Localization]
-        [DependsOn(nameof(TypeName))]
         public string Name
         {
-            get { return $"{L(typeNameKey)} - {name}"; }
+            get { return name; }
             set { Set(ref name, value); }
         }
 
@@ -61,5 +74,14 @@ namespace HideezSafe.ViewModels
         #endregion Text
 
         #endregion Property
+
+        public void LoadFrom(DeviceDTO dto)
+        {
+            Id = dto.Id;
+            Name = dto.Name;
+            Proximity = dto.Proximity;
+            OwnerName = dto.Owner ?? "...unspecified...";
+            this.IsConnected = dto.IsConnected;
+        }
     }
 }
