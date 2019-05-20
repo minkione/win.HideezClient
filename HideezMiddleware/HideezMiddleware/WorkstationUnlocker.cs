@@ -76,7 +76,7 @@ namespace HideezMiddleware
         {
             try
             {
-                //await _credentialProviderConnection.SendNotification("Connecting device...");
+                await _credentialProviderConnection.SendNotification("Connecting device...");
 
                 string deviceId = mac.Replace(":", "");
 
@@ -135,8 +135,7 @@ namespace HideezMiddleware
         {
             try
             {
-                //await _credentialProviderConnection.SendNotification("Connecting device...");
-
+                await _credentialProviderConnection.SendNotification("Connecting device...");
 
                 // get MAC address from the HES
                 var info = await _hesConnection.GetInfoByRfid(rfid);
