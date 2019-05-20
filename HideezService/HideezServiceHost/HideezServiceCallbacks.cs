@@ -33,5 +33,9 @@ namespace HideezServiceHost
         public void PairedDevicesCollectionChanged(DeviceDTO[] devices)
         {
         }
+
+        public void ProximityChanged(string deviceId, double proximity)
+        {
+        }
     }
 }
