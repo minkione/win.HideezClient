@@ -17,7 +17,7 @@ namespace WinSampleApp.ViewModel
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        readonly ILog _log;
+        readonly EventLogger _log;
         readonly BleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
         readonly CredentialProviderConnection _credentialProviderConnection;
@@ -419,7 +419,7 @@ namespace WinSampleApp.ViewModel
 
         public MainWindowViewModel()
         {
-            _log = new ConsoleLogger();
+            _log = new EventLogger("ExampleApp");
             _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
 
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;

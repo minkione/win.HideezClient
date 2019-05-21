@@ -35,12 +35,6 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
             log.Info($"RFID connection state changed: {isConnected}");
         }
 
-        public void LockWorkstationRequest()
-        {
-            messenger.Send(new LockWorkstationMessage());
-            log.Info($"Lock workstation request");
-        }
-
         public void PairedDevicesCollectionChanged(DeviceDTO[] devices)
         {
             messenger.Send(new PairedDevicesCollectionChangedMessage(devices));
@@ -67,6 +61,18 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
         {
             messenger.Send(new DeviceProximityChangedMessage(deviceId, proximity));
             log.Info($"Device proximity changed. DeviceId: {deviceId}, Proximity: {proximity}");
+        }
+
+        public void LockWorkstationRequest()
+        {
+            messenger.Send(new LockWorkstationMessage());
+            log.Info($"Lock workstation request");
+        }
+
+        public void ActivateWorkstationScreenRequest()
+        {
+            messenger.Send(new ActivateScreenMessage());
+            log.Info($"Activate screen request");
         }
     }
 }

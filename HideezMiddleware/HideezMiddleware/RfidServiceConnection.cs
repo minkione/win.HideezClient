@@ -1,7 +1,6 @@
 ﻿using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.NamedPipes;
 using System;
-using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
