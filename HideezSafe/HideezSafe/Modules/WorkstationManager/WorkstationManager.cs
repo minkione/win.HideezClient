@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.Messages;
+using HideezSafe.Modules.SessionStateMonitor;
 using HideezSafe.Utilities;
 using NLog;
 using System;
@@ -12,9 +13,12 @@ namespace HideezSafe.Modules
     {
         readonly Logger logger = LogManager.GetCurrentClassLogger();
         readonly IInputSimulator inputSimulator = new InputSimulator();
+        readonly ISessionStateMonitor sessionStateMonitor;
 
-        public WorkstationManager(IMessenger messanger)
+        public WorkstationManager(IMessenger messanger, ISessionStateMonitor sessionStateMonitor)
         {
+            this.sessionStateMonitor = sessionStateMonitor;
+
             // Start listening command messages
             messanger.Register<LockWorkstationMessage>(this, LockPC);
             messanger.Register<ForceShutdownMessage>(this, ForceShutdown);
@@ -38,9 +42,13 @@ namespace HideezSafe.Modules
 
         public void ActivateScreen()
         {
-            // Should trigger activation of the screen in credential provider with 0 impact on user
-            inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F24);
-            inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F24);
+            if (sessionStateMonitor.CurrentState == SessionState.Locked ||
+                sessionStateMonitor.CurrentState == SessionState.Unknown)
+            {
+                // Should trigger activation of the screen in credential provider with 0 impact on user
+                inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F24);
+                inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F24);
+            }
         }
 
         #region Messages handlers

@@ -202,6 +202,8 @@
     <Compile Include="Messages\PairedDevicesCollectionChangedMessage.cs" />
     <Compile Include="Modules\DeviceManager\DeviceManager.cs" />
     <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
+    <Compile Include="Modules\SessionStateMonitor\ISessionStateMonitor.cs" />
+    <Compile Include="Modules\SessionStateMonitor\SessionStateMonitor.cs" />
     <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
     <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
     <Compile Include="ViewModels\Controls\IndicatorsViewModel.cs" />
