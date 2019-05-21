@@ -1,17 +1,10 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Runtime.InteropServices;
 
 namespace HideezSafe.Modules.SessionStateMonitor
 {
     class SessionStateMonitor : ISessionStateMonitor
     {
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern IntPtr OpenInputDesktop(uint dwFlags, bool fInherit, uint dwDesiredAccess);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern bool CloseDesktop(IntPtr hDesktop);
-
         SessionState currentState = SessionState.Unknown;
         DateTime lastStateSwitchTime = DateTime.UtcNow;
 

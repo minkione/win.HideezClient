@@ -563,6 +563,10 @@
       <Component Id="XAMLMarkupExtensions.dll" Guid="{F003800A-C6B8-46B8-A1A1-97F0A09A8331}" Win64="$(var.Win64)">
 	      <File Id="XAMLMarkupExtensions.dll" Name="XAMLMarkupExtensions.dll" Source="$(var.HideezSafe_TargetDir)XAMLMarkupExtensions.dll" />
       </Component>
+      
+      <Component Id="WindowsInput.dll" Guid="{350D1D36-EBAE-4540-97A0-03DF027C0A85}" Win64="$(var.Win64)">
+        <File Id="WindowsInput.dll" Name="WindowsInput.dll" Source="$(var.HideezSafe_TargetDir)WindowsInput.dll" />
+      </Component>
 
     </ComponentGroup>
   </Fragment>
