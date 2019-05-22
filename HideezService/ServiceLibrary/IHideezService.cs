@@ -58,6 +58,9 @@ namespace ServiceLibrary
         void LockWorkstationRequest();
 
         [OperationContract(IsOneWay = true)]
+        void ActivateWorkstationScreenRequest();
+
+        [OperationContract(IsOneWay = true)]
         void HESConnectionStateChanged(bool isConnected);
 
         [OperationContract(IsOneWay = true)]

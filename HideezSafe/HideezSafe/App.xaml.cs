@@ -31,6 +31,7 @@ using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules.ServiceCallbackMessanger;
 using HideezSafe.Modules.ServiceWatchdog;
 using HideezSafe.Modules.DeviceManager;
+using HideezSafe.Modules.SessionStateMonitor;
 
 namespace HideezSafe
 {
@@ -174,6 +175,7 @@ namespace HideezSafe
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
             Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IDeviceManager, DeviceManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ISessionStateMonitor, SessionStateMonitor>(new ContainerControlledLifetimeManager());
 
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());

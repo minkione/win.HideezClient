@@ -23,6 +23,7 @@ namespace ServiceLibrary.Implementation
         static RfidServiceConnection _rfidService;
         static ProximityMonitorManager _proximityMonitorManager;
         static IWorkstationLocker _workstationLocker;
+        static IScreenActivator _screenActivator;
 
         private void InitializeSDK()
         {
@@ -73,14 +74,18 @@ namespace ServiceLibrary.Implementation
                 log.Error(ex);
             }
 
-            // WorkstationUnlocker ==================================
+
+            // ScreenActivator ==================================
+            _screenActivator = new UiScreenActivator(SessionManager);
+
+            // WorkstationUnlocker 
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
-                _credentialProviderConnection, _rfidService, _connectionManager, _log);
+                _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, _log);
 
-            // WorkstationLocker
-            _workstationLocker = new WorkstationWtsapiLocker();
+            // WorkstationLocker ==================================
+            _workstationLocker = new UiWorkstationLocker(SessionManager);
 
-            // Proximity Monitor ==================================
+            // Proximity Monitor 
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _workstationLocker, _log);
             _proximityMonitorManager.Start();
 

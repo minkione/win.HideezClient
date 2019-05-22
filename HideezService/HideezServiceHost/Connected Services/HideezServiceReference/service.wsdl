@@ -142,6 +142,9 @@
   <wsdl:message name="IHideezService_LockWorkstationRequest_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:LockWorkstationRequest" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_ActivateWorkstationScreenRequest_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ActivateWorkstationScreenRequest" />
+  </wsdl:message>
   <wsdl:message name="IHideezService_HESConnectionStateChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:HESConnectionStateChanged" />
   </wsdl:message>
@@ -218,6 +221,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="LockWorkstationRequest">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/LockWorkstationRequest" message="tns:IHideezService_LockWorkstationRequest_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ActivateWorkstationScreenRequest">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ActivateWorkstationScreenRequest" message="tns:IHideezService_ActivateWorkstationScreenRequest_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="HESConnectionStateChanged">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/HESConnectionStateChanged" message="tns:IHideezService_HESConnectionStateChanged_OutputCallbackMessage" />
@@ -376,6 +382,12 @@
     </wsdl:operation>
     <wsdl:operation name="LockWorkstationRequest">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/LockWorkstationRequest" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ActivateWorkstationScreenRequest">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/ActivateWorkstationScreenRequest" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

@@ -4,5 +4,6 @@
     {
         void ForceShutdown();
         void LockPC();
+        void ActivateScreen();
     }
 }

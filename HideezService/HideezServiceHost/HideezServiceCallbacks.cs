@@ -37,5 +37,9 @@ namespace HideezServiceHost
         public void ProximityChanged(string deviceId, double proximity)
         {
         }
+
+        public void ActivateWorkstationScreenRequest()
+        {
+        }
     }
 }

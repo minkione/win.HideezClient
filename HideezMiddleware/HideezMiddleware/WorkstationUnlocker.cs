@@ -15,6 +15,7 @@ namespace HideezMiddleware
         readonly RfidServiceConnection _rfidService;
         readonly HesAppConnection _hesConnection;
         readonly IBleConnectionManager _connectionManager;
+        readonly IScreenActivator _screenActivator;
 
         readonly ConcurrentDictionary<string, Guid> _pendingUnlocks =
             new ConcurrentDictionary<string, Guid>();
@@ -24,6 +25,7 @@ namespace HideezMiddleware
             CredentialProviderConnection credentialProviderConnection,
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
+            IScreenActivator screenActivator,
             ILog log)
             : base(nameof(WorkstationUnlocker), log)
         {
@@ -32,6 +34,7 @@ namespace HideezMiddleware
             _credentialProviderConnection = credentialProviderConnection;
             _rfidService = rfidService;
             _connectionManager = connectionManager;
+            _screenActivator = screenActivator;
 
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
@@ -76,6 +79,7 @@ namespace HideezMiddleware
         {
             try
             {
+                ActivateWorkstationScreen();
                 await _credentialProviderConnection.SendNotification("Connecting device...");
 
                 string deviceId = mac.Replace(":", "");
@@ -135,6 +139,7 @@ namespace HideezMiddleware
         {
             try
             {
+                ActivateWorkstationScreen();
                 await _credentialProviderConnection.SendNotification("Connecting device...");
 
                 // get MAC address from the HES
@@ -143,7 +148,7 @@ namespace HideezMiddleware
                 if (info == null)
                     throw new Exception($"Device not found");
 
-                if (info.IdFromDevice == null)
+                if (info.IdFromDevice == null && !info.NeedUpdatePrimaryAccount)
                     throw new Exception($"Device '{info.DeviceSerialNo}' has not a primary account stored");
 
                 //info.DeviceMac = "D0:A8:9E:6B:CD:8D";
@@ -195,6 +200,11 @@ namespace HideezMiddleware
             }
 
             throw new Exception($"Update of the primary account is timed out");
+        }
+
+        async void ActivateWorkstationScreen()
+        {
+            await Task.Run(() => { _screenActivator.ActivateScreen(); });
         }
     }
 }

@@ -348,6 +348,9 @@ namespace HideezSafe.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/LockWorkstationRequest")]
         void LockWorkstationRequest();
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ActivateWorkstationScreenRequest")]
+        void ActivateWorkstationScreenRequest();
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HESConnectionStateChanged")]
         void HESConnectionStateChanged(bool isConnected);
         

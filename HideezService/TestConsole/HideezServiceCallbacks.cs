@@ -31,5 +31,9 @@ namespace TestConsole
         public void ProximityChanged(string deviceId, double proximity)
         {
         }
+
+        public void ActivateWorkstationScreenRequest()
+        {
+        }
     }
 }
