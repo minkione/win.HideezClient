@@ -449,11 +449,11 @@ namespace WinSampleApp.ViewModel
 
             // HES
             _hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.241", _log);
-            _hesConnection.Connect();
+            //_hesConnection.Connect();
 
             // WorkstationUnlocker ==================================
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, 
-                _credentialProviderConnection, _rfidService, _connectionManager, _log);
+                _credentialProviderConnection, _rfidService, _connectionManager, null, _log);
 
 
             _connectionManager.Start();
