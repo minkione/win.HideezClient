@@ -195,7 +195,7 @@ namespace ServiceLibrary.Implementation
         #region Device Properties Monitoring
 
 
-        private void device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void device_PropertyChanged(object sender, string e)
         {
             if (sender is IDevice device)
             {
