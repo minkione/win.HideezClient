@@ -151,10 +151,21 @@ namespace TestConsole.HideezServiceReference {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="DeviceDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
     [System.SerializableAttribute()]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.ServiceClientParameters))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.ClientType))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.Adapter))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.DeviceDTO[]))]
     public partial class DeviceDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int BatteryField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private object DeviceInfoField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string IdField;
@@ -178,6 +189,32 @@ namespace TestConsole.HideezServiceReference {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Battery {
+            get {
+                return this.BatteryField;
+            }
+            set {
+                if ((this.BatteryField.Equals(value) != true)) {
+                    this.BatteryField = value;
+                    this.RaisePropertyChanged("Battery");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public object DeviceInfo {
+            get {
+                return this.DeviceInfoField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.DeviceInfoField, value) != true)) {
+                    this.DeviceInfoField = value;
+                    this.RaisePropertyChanged("DeviceInfo");
+                }
             }
         }
         

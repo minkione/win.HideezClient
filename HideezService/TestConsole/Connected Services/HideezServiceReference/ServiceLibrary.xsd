@@ -37,6 +37,8 @@
   <xs:element name="ArrayOfDeviceDTO" nillable="true" type="tns:ArrayOfDeviceDTO" />
   <xs:complexType name="DeviceDTO">
     <xs:sequence>
+      <xs:element minOccurs="0" name="Battery" type="xs:int" />
+      <xs:element minOccurs="0" name="DeviceInfo" nillable="true" type="xs:anyType" />
       <xs:element minOccurs="0" name="Id" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="IsConnected" type="xs:boolean" />
       <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />

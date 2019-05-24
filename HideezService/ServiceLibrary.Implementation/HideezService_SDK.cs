@@ -106,6 +106,12 @@ namespace ServiceLibrary.Implementation
                 // event is only subscribed to once
                 device.PropertyChanged -= device_PropertyChanged;
                 device.PropertyChanged += device_PropertyChanged;
+
+                device.Connected -= device_Connected;
+                device.Connected += device_Connected;
+
+                device.DeviceInfoChanged -= Device_DeviceInfoChanged;
+                device.DeviceInfoChanged += Device_DeviceInfoChanged;
             }
         }
 
@@ -117,6 +123,8 @@ namespace ServiceLibrary.Implementation
             {
                 device.ProximityChanged -= device_ProximityChanged;
                 device.PropertyChanged -= device_PropertyChanged;
+                device.Connected -= device_Connected;
+                device.DeviceInfoChanged -= Device_DeviceInfoChanged;
             }
         }
 
@@ -157,7 +165,7 @@ namespace ServiceLibrary.Implementation
         {
         }
 
-        #region proximity monitoring
+        #region Device proximity monitoring
 
         private void device_ProximityChanged(object sender, EventArgs e)
         {
@@ -192,18 +200,30 @@ namespace ServiceLibrary.Implementation
 
         #endregion
 
-        #region Device Properties Monitoring
+        #region Device properties monitoring
 
 
         private void device_PropertyChanged(object sender, string e)
         {
             if (sender is IDevice device)
             {
-                foreach (var c in SessionManager.Sessions
+                foreach (var client in SessionManager.Sessions
                     // if has key for device id and enabled monitoring for this id
                     .Where(s => s.IsEnabledPropertyMonitoring.TryGetValue(device.Id, out bool isEnabled) && isEnabled))
                 {
-                    c.Callbacks.PairedDevicePropertyChanged(new DeviceDTO(device));
+                    client.Callbacks.PairedDevicePropertyChanged(new DeviceDTO(device));
+                }
+            }
+        }
+
+        private void Device_DeviceInfoChanged(object sender, EventArgs e)
+        {
+            if (sender is IDevice device)
+            {
+                foreach (var client in SessionManager.Sessions
+                    .Where(s => s.IsEnabledPropertyMonitoring.TryGetValue(device.Id, out bool isEnabled) && isEnabled))
+                {
+                    client.Callbacks.PairedDevicePropertyChanged(new DeviceDTO(device));
                 }
             }
         }
@@ -227,6 +247,14 @@ namespace ServiceLibrary.Implementation
         }
 
         #endregion
+
+        private async void device_Connected(object sender, EventArgs e)
+        {
+            if (sender is IDevice device)
+            {
+                await device.LoadDeviceInfo();
+            }
+        }
 
         public bool GetAdapterState(Adapter adapter)
         {
