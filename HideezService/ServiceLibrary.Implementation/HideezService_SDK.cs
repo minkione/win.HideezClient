@@ -252,7 +252,7 @@ namespace ServiceLibrary.Implementation
         {
             if (sender is IDevice device)
             {
-                await device.LoadDeviceInfo();
+                await device.LoadAndSetDeviceInfoAsync();
             }
         }
 
