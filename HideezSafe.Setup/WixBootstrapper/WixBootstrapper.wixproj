@@ -77,7 +77,7 @@
     <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent />
+    <PostBuildEvent>if $(SolutionName) == HideezSafe.Setup call "$(SolutionDir)\scripts\sign_bootstrapper.bat" $(TargetPath) "Hideez Safe"</PostBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
