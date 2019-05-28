@@ -89,7 +89,6 @@ namespace WinSampleApp.ViewModel
         public ObservableCollection<DeviceViewModel> Devices { get; }
             = new ObservableCollection<DeviceViewModel>();
 
-        //public IReadOnlyList<IDevice> Devices => _deviceManager.Devices;
 
         #region Commands
         //public ICommand BleAdapterStartCommand
@@ -445,7 +444,7 @@ namespace WinSampleApp.ViewModel
 
             // RFID Service Connection ============================
             _rfidService = new RfidServiceConnection(_log);
-            _rfidService.Start();
+            //_rfidService.Start();
 
             // HES
             _hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.241", _log);
