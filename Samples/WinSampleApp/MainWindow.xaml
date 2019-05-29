@@ -73,6 +73,12 @@
                         <RowDefinition Height="25"/>
                         <RowDefinition Height="25"/>
                         <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
@@ -93,6 +99,24 @@
 
                     <TextBlock Grid.Row="4" Grid.Column="0" Text="Channel: " />
                     <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding CurrentDevice.ChannelNo}" FontWeight="Bold" />
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Serial No: " />
+                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding CurrentDevice.SerialNo}" FontWeight="Bold" />
+
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="FirmwareVersion: " />
+                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding CurrentDevice.FirmwareVersion}" FontWeight="Bold" />
+
+                    <TextBlock Grid.Row="7" Grid.Column="0" Text="BootloaderVersion: " />
+                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding CurrentDevice.BootloaderVersion}" FontWeight="Bold" />
+
+                    <TextBlock Grid.Row="8" Grid.Column="0" Text="StorageTotalSize: " />
+                    <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding CurrentDevice.StorageTotalSize}" FontWeight="Bold" />
+
+                    <TextBlock Grid.Row="9" Grid.Column="0" Text="StorageFreeSize: " />
+                    <TextBlock Grid.Row="9" Grid.Column="1" Text="{Binding CurrentDevice.StorageFreeSize}" FontWeight="Bold" />
+
+                    <TextBlock Grid.Row="10" Grid.Column="0" Text="IsInitialized: " />
+                    <TextBlock Grid.Row="10" Grid.Column="1" Text="{Binding CurrentDevice.IsInitialized}" FontWeight="Bold" />
                 </Grid>
                 <StackPanel Margin="10">
                     <Label>Tests:</Label>

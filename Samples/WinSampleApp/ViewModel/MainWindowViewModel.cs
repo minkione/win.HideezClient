@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -485,10 +484,10 @@ namespace WinSampleApp.ViewModel
 
         void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
-            //Debug.WriteLine($"{e.Id} - {e.Rssi}");
+            //_log.WriteLine("MainVM", $"{e.Id} - {e.Rssi}");
             //if (e.Rssi > -25)
             //{
-            //    Debug.WriteLine($"-------------- {e.Id} - {e.Rssi}");
+            //    _log.WriteLine("MainVM", $"-------------- {e.Id} - {e.Rssi}");
             //    ConnectDeviceByMac(e.Id);
             //}
         }
@@ -559,14 +558,14 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                Debug.WriteLine($"Waiting Device connectin {mac} ..........................");
+                _log.WriteLine("MainVM", $"Waiting Device connectin {mac} ..........................");
 
                 var device = await _deviceManager.ConnectByMac(mac, timeout: 10_000);
 
                 if (device != null)
-                    Debug.WriteLine($"Device connected {device.Name} ++++++++++++++++++++++++");
+                    _log.WriteLine("MainVM", $"Device connected {device.Name} ++++++++++++++++++++++++");
                 else
-                    Debug.WriteLine($"Device NOT connected --------------------------");
+                    _log.WriteLine("MainVM", $"Device NOT connected --------------------------");
             }
             catch (Exception ex)
             {
@@ -650,9 +649,9 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        void AddDeviceChannel(DeviceViewModel currentDevice)
+        async void AddDeviceChannel(DeviceViewModel currentDevice)
         {
-            IDevice newDevice = _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++);
+            IDevice newDevice = await _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++);
         }
 
         async void RemoveDeviceChannel(DeviceViewModel currentDevice)
