@@ -47,7 +47,7 @@ namespace HideezMiddleware
             if (resourceSet == null)
             {
                 isValid = false;
-                log.Error($"Has not resource for culture: {culture.EnglishName}");
+                log.Error($"Has no resource for culture: {culture.EnglishName}");
             }
 
             var errorCodes = Enum.GetNames(typeof(HideezErrorCode));
@@ -73,7 +73,7 @@ namespace HideezMiddleware
                 else if (string.IsNullOrWhiteSpace(str))
                 {
                     isValid = false;
-                    log.Error($"Value for HideezErrorCode cannot be empty. HideezErrorCode: {errCode}, culture: {culture.EnglishName}");
+                    log.Error($"Value for HideezErrorCode cannot be empty or white space. HideezErrorCode: {errCode}, culture: {culture.EnglishName}");
                 }
             }
 
