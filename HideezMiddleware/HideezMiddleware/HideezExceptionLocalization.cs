@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication;
 using HideezMiddleware.Resources;
+using NLog;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,34 +16,49 @@ namespace HideezMiddleware
 {
     public static class HideezExceptionLocalization
     {
+
+        private static readonly ILogger log = LogManager.GetCurrentClassLogger();
+
         public static CultureInfo Culture
         {
             get { return ErrorCode.Culture; }
             set { ErrorCode.Culture = value; }
         }
 
-        public static void VerifyResourcesForErrorCode(params string[] cultureNames)
+
+        public static bool VerifyResourcesForErrorCode(params string[] cultureNames)
         {
+            bool isValid = true;
             foreach (string cultureName in cultureNames)
             {
-                VerifyResourcesForErrorCode(new CultureInfo(cultureName));
+                isValid |= VerifyResourcesForErrorCode(new CultureInfo(cultureName));
             }
+
+            return isValid;
         }
 
-        public static void VerifyResourcesForErrorCode(CultureInfo culture)
+        public static bool VerifyResourcesForErrorCode(CultureInfo culture)
         {
+            bool isValid = true;
+            // English culture read from default resource
             ResourceSet resourceSet = ErrorCode.ResourceManager
                 .GetResourceSet(culture, true, culture.EnglishName.StartsWith("en", StringComparison.InvariantCultureIgnoreCase));
 
             if (resourceSet == null)
-                throw new Exception($"Has not resource for culture: {culture.EnglishName}");
+            {
+                isValid = false;
+                log.Error($"Has not resource for culture: {culture.EnglishName}");
+            }
 
             var errorCodes = Enum.GetNames(typeof(HideezErrorCode));
 
             foreach (DictionaryEntry entry in resourceSet)
             {
                 if (!errorCodes.Contains(entry.Key.ToString()))
-                    throw new Exception($"Resource contains key not suported in enum HideezErrorCode. Key: {entry.Key.ToString()}, culture: {culture.EnglishName}");
+                {
+                    isValid = false;
+                    log.Error($"Resource contains key not suported in enum HideezErrorCode. Key: {entry.Key.ToString()}, culture: {culture.EnglishName}");
+                }
             }
 
             foreach (var errCode in errorCodes)
@@ -50,12 +66,18 @@ namespace HideezMiddleware
                 string str = resourceSet.GetString(errCode);
 
                 if (str == null)
-                    throw new Exception($"HideezErrorCode is not set into resource. HideezErrorCode: {errCode}, culture: {culture.EnglishName}");
-                else if (string.Empty == str)
-                    throw new Exception($"Value for HideezErrorCode cannot be empty. HideezErrorCode: {errCode}, culture: {culture.EnglishName}");
-                else if (str.All(Char.IsWhiteSpace))
-                    throw new Exception($"Value for HideezErrorCode cannot be white space. HideezErrorCode: {errCode}, culture: {culture.EnglishName}");
+                {
+                    isValid = false;
+                    log.Error($"HideezErrorCode is not set into resource. HideezErrorCode: {errCode}, culture: {culture.EnglishName}");
+                }
+                else if (string.IsNullOrWhiteSpace(str))
+                {
+                    isValid = false;
+                    log.Error($"Value for HideezErrorCode cannot be empty. HideezErrorCode: {errCode}, culture: {culture.EnglishName}");
+                }
             }
+
+            return isValid;
         }
 
         public static string GetErrorAsString(HideezErrorCode hideezErrorCode, CultureInfo culture = null)
