@@ -90,24 +90,6 @@ namespace WinSampleApp.ViewModel
 
 
         #region Commands
-        //public ICommand BleAdapterStartCommand
-        //{
-        //    get
-        //    {
-        //        return new DelegateCommand
-        //        {
-        //            CanExecuteFunc = () =>
-        //            {
-        //                return _connectionManager.State == BluetoothAdapterState.PoweredOn;
-        //            },
-        //            CommandAction = (x) =>
-        //            {
-        //                BleAdapterStart(x);
-        //            }
-        //        };
-        //    }
-        //}
-
 
         public ICommand UnlockByRfidCommand
         {
@@ -265,24 +247,6 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         DisconnectDevice(CurrentDevice);
-                    }
-                };
-            }
-        }
-
-        public ICommand InitDeviceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        InitDevice(CurrentDevice);
                     }
                 };
             }
@@ -520,11 +484,6 @@ namespace WinSampleApp.ViewModel
             NotifyPropertyChanged(nameof(BleAdapterState));
         }
 
-        //void BleAdapterStart(object param)
-        //{
-        //    _connectionManager.Start();
-        //}
-
         void StartDiscovery()
         {
             //DiscoveredDevices.Clear();
@@ -544,9 +503,16 @@ namespace WinSampleApp.ViewModel
             DiscoveredDevices.Clear();
         }
 
-        void RemoveAllDevices(object x)
+        async void RemoveAllDevices(object x)
         {
-            _deviceManager.RemoveAll();
+            try
+            {
+                await _deviceManager.RemoveAll();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         void ConnectDiscoveredDevice(DiscoveredDeviceAddedEventArgs e)
@@ -590,18 +556,6 @@ namespace WinSampleApp.ViewModel
             device.Device.Connection.Disconnect();
         }
 
-        async void InitDevice(DeviceViewModel device)
-        {
-            try
-            {
-                await device.Device.Authenticate();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
         async void PingDevice(DeviceViewModel device)
         {
             try
@@ -625,6 +579,8 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
+                var readResult = await device.Device.ReadStorage(35, 15);
+
                 var pm = new DevicePasswordManager((IDeviceStorage)device.Device);
                 var account = new AccountRecord()
                 {
@@ -651,7 +607,7 @@ namespace WinSampleApp.ViewModel
 
         async void AddDeviceChannel(DeviceViewModel currentDevice)
         {
-            IDevice newDevice = await _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++);
+            IDevice newDevice = await _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++, isRemote: false);
         }
 
         async void RemoveDeviceChannel(DeviceViewModel currentDevice)
@@ -712,7 +668,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        private void SendHes()
+        void SendHes()
         {
             try
             {
@@ -736,7 +692,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        private async void UnlockByRfid()
+        async void UnlockByRfid()
         {
             try
             {
