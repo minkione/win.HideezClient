@@ -1,23 +1,20 @@
 ﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Resources;
-using NLog;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Resources;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
-    public static class HideezExceptionLocalization
+    public class HideezExceptionLocalization : Logger
     {
-
-        private static readonly ILogger log = LogManager.GetCurrentClassLogger();
+        public HideezExceptionLocalization(ILog log) 
+            : base("Exception Localization", log)
+        {
+        }
 
         public static CultureInfo Culture
         {
@@ -26,7 +23,7 @@ namespace HideezMiddleware
         }
 
 
-        public static bool VerifyResourcesForErrorCode(params string[] cultureNames)
+        public bool VerifyResourcesForErrorCode(params string[] cultureNames)
         {
             bool isValid = true;
             foreach (string cultureName in cultureNames)
@@ -37,7 +34,7 @@ namespace HideezMiddleware
             return isValid;
         }
 
-        public static bool VerifyResourcesForErrorCode(CultureInfo culture)
+        public bool VerifyResourcesForErrorCode(CultureInfo culture)
         {
             bool isValid = true;
             // English culture read from default resource
@@ -47,7 +44,7 @@ namespace HideezMiddleware
             if (resourceSet == null)
             {
                 isValid = false;
-                log.Error($"Has no resource for culture: {culture.EnglishName}");
+                WriteLine($"Has no resource for culture: {culture.EnglishName}", LogErrorSeverity.Warning);
             }
 
             var errorCodes = Enum.GetNames(typeof(HideezErrorCode));
@@ -57,7 +54,8 @@ namespace HideezMiddleware
                 if (!errorCodes.Contains(entry.Key.ToString()))
                 {
                     isValid = false;
-                    log.Error($"Resource contains key not suported in enum HideezErrorCode. Key: {entry.Key.ToString()}, culture: {culture.EnglishName}");
+                    WriteLine($"Resource contains key not suported in enum HideezErrorCode. " +
+                        $"Key: {entry.Key.ToString()}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
                 }
             }
 
@@ -68,24 +66,26 @@ namespace HideezMiddleware
                 if (str == null)
                 {
                     isValid = false;
-                    log.Error($"HideezErrorCode is not set into resource. HideezErrorCode: {errCode}, culture: {culture.EnglishName}");
+                    WriteLine($"HideezErrorCode is not set into resource. " +
+                        $"HideezErrorCode: {errCode}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
                 }
                 else if (string.IsNullOrWhiteSpace(str))
                 {
                     isValid = false;
-                    log.Error($"Value for HideezErrorCode cannot be empty or white space. HideezErrorCode: {errCode}, culture: {culture.EnglishName}");
+                    WriteLine($"Value for HideezErrorCode cannot be empty or white space. " +
+                        $"HideezErrorCode: {errCode}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
                 }
             }
 
             return isValid;
         }
 
-        public static string GetErrorAsString(HideezErrorCode hideezErrorCode, CultureInfo culture = null)
+        public string GetErrorAsString(HideezErrorCode hideezErrorCode, CultureInfo culture = null)
         {
             return ErrorCode.ResourceManager.GetString(hideezErrorCode.ToString(), culture ?? ErrorCode.Culture);
         }
 
-        public static string GetErrorAsString(HideezException exception, CultureInfo culture = null)
+        public string GetErrorAsString(HideezException exception, CultureInfo culture = null)
         {
             string localizedStr = ErrorCode.ResourceManager.GetString(exception.ErrorCode.ToString(), culture ?? ErrorCode.Culture);
 
