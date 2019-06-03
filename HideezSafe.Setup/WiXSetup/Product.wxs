@@ -9,7 +9,6 @@
   <?define 64bit_Binaries_Dir=$(var.ProjectDir)..\..\Binaries\64rel\?>
 
   
-  <?define Crypto_TargetDir=$(var.Crypto.TargetDir)?>
   <?define CsrBLE_TargetDir=$(var.CsrBLE.TargetDir)?>
   <?define Communication_x86_TargetDir=$(var.Communication.ProjectDir)bin\x86\$(var.Communication.Configuration)\netstandard2.0\?>
   
@@ -245,7 +244,7 @@
       <!-- -->
       
       <Component Id="HideezService.Crypto.dll" Guid="{93E3D49F-2F34-4D64-B832-AFFDF6C530F4}" Win64="$(var.Win64)">
-        <File Id="HideezService.Crypto.dll" Name="Crypto.dll" Source="$(var.Crypto_TargetDir)Crypto.dll" />
+        <File Id="HideezService.Crypto.dll" Name="Crypto.dll" Source="$(var.Binaries_Dir)Crypto.dll" />
       </Component>
         
       <!-- Generated -->
@@ -435,10 +434,6 @@
       <Component Id="Rfid.Communication.dll" Guid="{DD0C2FAE-5DDB-4B5F-AEFD-6AE74B9E58E4}">
         <File Id="Rfid.Communication.dll" Name="Communication.dll" Source="$(var.Communication_x86_TargetDir)Communication.dll" />
       </Component>
-    
-      <Component Id="Rfid.System.Collections.Immutable.dll" Guid="{AEAED7FB-8912-45EC-97E0-F7FEDF0BA969}">
-        <File Id="Rfid.System.Collections.Immutable.dll" Name="System.Collections.Immutable.dll" Source="$(var.RfidService_TargetDir)System.Collections.Immutable.dll" />
-      </Component>
   
       <Component Id="SRF32.dll" Guid="{34E50D90-5B84-476C-922D-B05C91F55B5D}">
         <File Id="SRF32.dll" Name="SRF32.dll" Source="$(var.32bit_Binaries_Dir)SRF32.dll" />
@@ -480,7 +475,7 @@
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
 
       <Component Id="Crypto.dll" Guid="{63655150-2668-445A-A18A-A9B042DB8F54}" Win64="$(var.Win64)">
-        <File Id="Crypto.dll" Name="Crypto.dll" Source="$(var.Crypto_TargetDir)Crypto.dll" />
+        <File Id="Crypto.dll" Name="Crypto.dll" Source="$(var.Binaries_Dir)Crypto.dll" />
       </Component>
       
       <!-- Generated -->

@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
+using System;
 using System.Runtime.Serialization;
 
 namespace ServiceLibrary
@@ -13,7 +14,6 @@ namespace ServiceLibrary
             Proximity = device.Proximity;
             IsConnected = device.IsConnected;
             Battery = device.Battery;
-            DeviceInfo = device.DeviceInfo;
         }
 
         [DataMember]
@@ -35,6 +35,21 @@ namespace ServiceLibrary
         public int Battery { get; set; }
 
         [DataMember]
-        public IDeviceInfo DeviceInfo { get; set; }
+        public string SerialNo { get; set; }
+
+        [DataMember]
+        public Version FirmwareVersion { get; private set; }
+
+        [DataMember]
+        public Version BootloaderVersion { get; private set; }
+
+        [DataMember]
+        public uint StorageTotalSize { get; private set; }
+
+        [DataMember]
+        public uint StorageFreeSize { get; private set; }
+
+        [DataMember]
+        public bool IsInitialized { get; private set; }
     }
 }

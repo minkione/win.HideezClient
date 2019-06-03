@@ -151,11 +151,6 @@ namespace TestConsole.HideezServiceReference {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="DeviceDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
     [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.ServiceClientParameters))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.ClientType))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.Adapter))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.DeviceDTO[]))]
     public partial class DeviceDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
@@ -165,13 +160,19 @@ namespace TestConsole.HideezServiceReference {
         private int BatteryField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private object DeviceInfoField;
+        private System.Version BootloaderVersionField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Version FirmwareVersionField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string IdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsConnectedField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsInitializedField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NameField;
@@ -181,6 +182,15 @@ namespace TestConsole.HideezServiceReference {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private double ProximityField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string SerialNoField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private uint StorageFreeSizeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private uint StorageTotalSizeField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -206,14 +216,27 @@ namespace TestConsole.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public object DeviceInfo {
+        public System.Version BootloaderVersion {
             get {
-                return this.DeviceInfoField;
+                return this.BootloaderVersionField;
             }
             set {
-                if ((object.ReferenceEquals(this.DeviceInfoField, value) != true)) {
-                    this.DeviceInfoField = value;
-                    this.RaisePropertyChanged("DeviceInfo");
+                if ((object.ReferenceEquals(this.BootloaderVersionField, value) != true)) {
+                    this.BootloaderVersionField = value;
+                    this.RaisePropertyChanged("BootloaderVersion");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Version FirmwareVersion {
+            get {
+                return this.FirmwareVersionField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FirmwareVersionField, value) != true)) {
+                    this.FirmwareVersionField = value;
+                    this.RaisePropertyChanged("FirmwareVersion");
                 }
             }
         }
@@ -240,6 +263,19 @@ namespace TestConsole.HideezServiceReference {
                 if ((this.IsConnectedField.Equals(value) != true)) {
                     this.IsConnectedField = value;
                     this.RaisePropertyChanged("IsConnected");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsInitialized {
+            get {
+                return this.IsInitializedField;
+            }
+            set {
+                if ((this.IsInitializedField.Equals(value) != true)) {
+                    this.IsInitializedField = value;
+                    this.RaisePropertyChanged("IsInitialized");
                 }
             }
         }
@@ -279,6 +315,45 @@ namespace TestConsole.HideezServiceReference {
                 if ((this.ProximityField.Equals(value) != true)) {
                     this.ProximityField = value;
                     this.RaisePropertyChanged("Proximity");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SerialNo {
+            get {
+                return this.SerialNoField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.SerialNoField, value) != true)) {
+                    this.SerialNoField = value;
+                    this.RaisePropertyChanged("SerialNo");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public uint StorageFreeSize {
+            get {
+                return this.StorageFreeSizeField;
+            }
+            set {
+                if ((this.StorageFreeSizeField.Equals(value) != true)) {
+                    this.StorageFreeSizeField = value;
+                    this.RaisePropertyChanged("StorageFreeSize");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public uint StorageTotalSize {
+            get {
+                return this.StorageTotalSizeField;
+            }
+            set {
+                if ((this.StorageTotalSizeField.Equals(value) != true)) {
+                    this.StorageTotalSizeField = value;
+                    this.RaisePropertyChanged("StorageTotalSize");
                 }
             }
         }

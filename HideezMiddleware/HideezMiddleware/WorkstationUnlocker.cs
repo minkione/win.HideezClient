@@ -88,7 +88,7 @@ namespace HideezMiddleware
                 if (device == null)
                     throw new Exception($"Cannot connect device '{mac}'");
 
-                await device.WaitAuthentication(timeout: 10_000);
+                await device.WaitInitialization(timeout: 10_000);
 
                 //todo - wait for primary account update?
 
@@ -154,7 +154,7 @@ namespace HideezMiddleware
                 //info.DeviceMac = "D0:A8:9E:6B:CD:8D";
                 string mac = info.DeviceMac.Replace(":", "");
 
-                var device = _deviceManager.Find(mac);
+                var device = _deviceManager.Find(mac, channelNo: 1);
                 if (device == null)
                 {
                     // connect Hideez Key with the MAC
@@ -164,12 +164,12 @@ namespace HideezMiddleware
                         throw new Exception($"Cannot connect device '{info.DeviceSerialNo}', '{info.DeviceMac}'");
                 }
                 
-                await device.WaitAuthentication(timeout: 10_000);
+                await device.WaitInitialization(timeout: 10_000);
                 await WaitForPrimaryAccountUpdate(rfid, info);
                 
                 // get the login and password from the Hideez Key
-                string login = await device.ReadStorageAsString((byte)StorageTable.Logins, (ushort)info.IdFromDevice);
-                string pass = await device.ReadStorageAsString((byte)StorageTable.Passwords, (ushort)info.IdFromDevice);
+                string login = await device.ReadStorageAsString((byte)StorageTable.Logins, info.IdFromDevice);
+                string pass = await device.ReadStorageAsString((byte)StorageTable.Passwords, info.IdFromDevice);
                 string prevPass = ""; //todo
 
                 if (login == null || pass == null)

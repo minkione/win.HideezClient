@@ -104,14 +104,8 @@ namespace ServiceLibrary.Implementation
                 device.ProximityChanged += device_ProximityChanged;
 
                 // event is only subscribed to once
-                device.PropertyChanged -= device_PropertyChanged;
-                device.PropertyChanged += device_PropertyChanged;
-
-                device.Connected -= device_Connected;
-                device.Connected += device_Connected;
-
-                device.DeviceInfoChanged -= Device_DeviceInfoChanged;
-                device.DeviceInfoChanged += Device_DeviceInfoChanged;
+                device.PropertyChanged -= Device_PropertyChanged;
+                device.PropertyChanged += Device_PropertyChanged;
             }
         }
 
@@ -122,9 +116,7 @@ namespace ServiceLibrary.Implementation
             if (device != null)
             {
                 device.ProximityChanged -= device_ProximityChanged;
-                device.PropertyChanged -= device_PropertyChanged;
-                device.Connected -= device_Connected;
-                device.DeviceInfoChanged -= Device_DeviceInfoChanged;
+                device.PropertyChanged -= Device_PropertyChanged;
             }
         }
 
@@ -200,10 +192,9 @@ namespace ServiceLibrary.Implementation
 
         #endregion
 
-        #region Device properties monitoring
+        #region Device Properties Monitoring
 
-
-        private void device_PropertyChanged(object sender, string e)
+        private void Device_PropertyChanged(object sender,string propertyName)
         {
             if (sender is IDevice device)
             {
@@ -247,14 +238,6 @@ namespace ServiceLibrary.Implementation
         }
 
         #endregion
-
-        private async void device_Connected(object sender, EventArgs e)
-        {
-            if (sender is IDevice device)
-            {
-                await device.LoadAndSetDeviceInfoAsync();
-            }
-        }
 
         public bool GetAdapterState(Adapter adapter)
         {

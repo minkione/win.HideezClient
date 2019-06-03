@@ -1,5 +1,4 @@
 ﻿using System;
-using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Interfaces;
 
 namespace WinSampleApp.ViewModel
@@ -13,6 +12,13 @@ namespace WinSampleApp.ViewModel
         public string Mac => Device.Mac;
         public bool IsConnected => Device.IsConnected;
         public int ChannelNo => Device.ChannelNo;
+
+        public string SerialNo => Device.SerialNo;
+        public Version FirmwareVersion => Device.FirmwareVersion;
+        public Version BootloaderVersion => Device.BootloaderVersion;
+        public uint StorageTotalSize => Device.StorageTotalSize;
+        public uint StorageFreeSize => Device.StorageFreeSize;
+        public bool IsInitialized => Device.IsInitialized;
 
         public DeviceViewModel(IDevice device)
         {

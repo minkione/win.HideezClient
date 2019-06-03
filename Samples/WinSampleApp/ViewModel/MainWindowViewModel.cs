@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -91,24 +90,6 @@ namespace WinSampleApp.ViewModel
 
 
         #region Commands
-        //public ICommand BleAdapterStartCommand
-        //{
-        //    get
-        //    {
-        //        return new DelegateCommand
-        //        {
-        //            CanExecuteFunc = () =>
-        //            {
-        //                return _connectionManager.State == BluetoothAdapterState.PoweredOn;
-        //            },
-        //            CommandAction = (x) =>
-        //            {
-        //                BleAdapterStart(x);
-        //            }
-        //        };
-        //    }
-        //}
-
 
         public ICommand UnlockByRfidCommand
         {
@@ -266,24 +247,6 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         DisconnectDevice(CurrentDevice);
-                    }
-                };
-            }
-        }
-
-        public ICommand InitDeviceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        InitDevice(CurrentDevice);
                     }
                 };
             }
@@ -485,10 +448,10 @@ namespace WinSampleApp.ViewModel
 
         void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
-            //Debug.WriteLine($"{e.Id} - {e.Rssi}");
+            //_log.WriteLine("MainVM", $"{e.Id} - {e.Rssi}");
             //if (e.Rssi > -25)
             //{
-            //    Debug.WriteLine($"-------------- {e.Id} - {e.Rssi}");
+            //    _log.WriteLine("MainVM", $"-------------- {e.Id} - {e.Rssi}");
             //    ConnectDeviceByMac(e.Id);
             //}
         }
@@ -521,11 +484,6 @@ namespace WinSampleApp.ViewModel
             NotifyPropertyChanged(nameof(BleAdapterState));
         }
 
-        //void BleAdapterStart(object param)
-        //{
-        //    _connectionManager.Start();
-        //}
-
         void StartDiscovery()
         {
             //DiscoveredDevices.Clear();
@@ -545,9 +503,16 @@ namespace WinSampleApp.ViewModel
             DiscoveredDevices.Clear();
         }
 
-        void RemoveAllDevices(object x)
+        async void RemoveAllDevices(object x)
         {
-            _deviceManager.RemoveAll();
+            try
+            {
+                await _deviceManager.RemoveAll();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         void ConnectDiscoveredDevice(DiscoveredDeviceAddedEventArgs e)
@@ -559,14 +524,14 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                Debug.WriteLine($"Waiting Device connectin {mac} ..........................");
+                _log.WriteLine("MainVM", $"Waiting Device connectin {mac} ..........................");
 
                 var device = await _deviceManager.ConnectByMac(mac, timeout: 10_000);
 
                 if (device != null)
-                    Debug.WriteLine($"Device connected {device.Name} ++++++++++++++++++++++++");
+                    _log.WriteLine("MainVM", $"Device connected {device.Name} ++++++++++++++++++++++++");
                 else
-                    Debug.WriteLine($"Device NOT connected --------------------------");
+                    _log.WriteLine("MainVM", $"Device NOT connected --------------------------");
             }
             catch (Exception ex)
             {
@@ -589,18 +554,6 @@ namespace WinSampleApp.ViewModel
         void DisconnectDevice(DeviceViewModel device)
         {
             device.Device.Connection.Disconnect();
-        }
-
-        async void InitDevice(DeviceViewModel device)
-        {
-            try
-            {
-                await device.Device.Authenticate();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
         }
 
         async void PingDevice(DeviceViewModel device)
@@ -626,6 +579,8 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
+                var readResult = await device.Device.ReadStorage(35, 15);
+
                 var pm = new DevicePasswordManager((IDeviceStorage)device.Device);
                 var account = new AccountRecord()
                 {
@@ -650,9 +605,9 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        void AddDeviceChannel(DeviceViewModel currentDevice)
+        async void AddDeviceChannel(DeviceViewModel currentDevice)
         {
-            IDevice newDevice = _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++);
+            IDevice newDevice = await _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++, isRemote: false);
         }
 
         async void RemoveDeviceChannel(DeviceViewModel currentDevice)
@@ -713,7 +668,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        private void SendHes()
+        void SendHes()
         {
             try
             {
@@ -737,7 +692,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        private async void UnlockByRfid()
+        async void UnlockByRfid()
         {
             try
             {
