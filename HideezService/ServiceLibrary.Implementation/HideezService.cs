@@ -135,23 +135,5 @@ namespace ServiceLibrary.Implementation
             // Todo: shutdown service in a clean way
         }
 
-
-        public void SaveCredential(string deviceId, string login, string password)
-        {
-            log.Debug($">>>>>> Save credential.");
-            // Todo: Save credential
-        }
-
-        public void DisconnectDevice(string deviceId)
-        {
-            _deviceManager.Devices.FirstOrDefault(d => d.Id == deviceId)?.Connection.Disconnect();
-        }
-
-        public async void RemoveDevice(string deviceId)
-        {
-            var device = _deviceManager.Devices.FirstOrDefault(d => d.Id == deviceId);
-            if (device != null)
-                await _deviceManager.Remove(device);
-        }
     }
 }
