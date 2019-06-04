@@ -50,6 +50,10 @@ namespace ServiceLibrary
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         void OnSessionChange(bool sessionLocked);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void SaveCredential(string deviceId, string login, string password);
     }
 
     public interface ICallbacks

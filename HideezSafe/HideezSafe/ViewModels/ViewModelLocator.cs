@@ -52,6 +52,7 @@ namespace HideezSafe.ViewModels
             DIContainer.RegisterType<LockSettingsPageViewModel>();
             DIContainer.RegisterType<IndicatorsViewModel>();
             DIContainer.RegisterType<DevicesExpanderViewModel>();
+            DIContainer.RegisterType<AddCredentialViewModel>();
         }
 
         public MainViewModel Main
@@ -77,6 +78,11 @@ namespace HideezSafe.ViewModels
         public DevicesExpanderViewModel DevicesExpander
         {
             get { return DIContainer.Resolve<DevicesExpanderViewModel>(); }
+        }
+
+        public AddCredentialViewModel AddCredential
+        {
+            get { return DIContainer.Resolve<AddCredentialViewModel>(); }
         }
     }
 }

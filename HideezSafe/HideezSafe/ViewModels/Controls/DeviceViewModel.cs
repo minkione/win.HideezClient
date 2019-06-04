@@ -1,14 +1,20 @@
 ﻿using HideezSafe.HideezServiceReference;
+using HideezSafe.Modules;
 using HideezSafe.Modules.Localize;
 using HideezSafe.Mvvm;
 using MvvmExtensions.Attributes;
+using MvvmExtensions.Commands;
+using System.Windows.Input;
 
 namespace HideezSafe.ViewModels
 {
     public class DeviceViewModel : LocalizedObject
     {
-        public DeviceViewModel(DeviceDTO device)
+        private readonly IWindowsManager windowsManager;
+
+        public DeviceViewModel(DeviceDTO device, IWindowsManager windowsManager)
         {
+            this.windowsManager = windowsManager;
             LoadFrom(device);
         }
 
@@ -83,5 +89,23 @@ namespace HideezSafe.ViewModels
             OwnerName = dto.Owner ?? "...unspecified...";
             this.IsConnected = dto.IsConnected;
         }
+
+        #region Command
+
+        public ICommand AddCredentialCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        windowsManager.ShowDialogAddCredential(this.Id);
+                    },
+                };
+            }
+        }
+
+        #endregion
     }
 }

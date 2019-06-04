@@ -340,6 +340,13 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/OnSessionChange", ReplyAction="http://tempuri.org/IHideezService/OnSessionChangeResponse")]
         System.Threading.Tasks.Task OnSessionChangeAsync(bool sessionLocked);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SaveCredential", ReplyAction="http://tempuri.org/IHideezService/SaveCredentialResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/SaveCredentialHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void SaveCredential(string deviceId, string login, string password);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SaveCredential", ReplyAction="http://tempuri.org/IHideezService/SaveCredentialResponse")]
+        System.Threading.Tasks.Task SaveCredentialAsync(string deviceId, string login, string password);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -484,6 +491,14 @@ namespace HideezServiceHost.HideezServiceReference {
         
         public System.Threading.Tasks.Task OnSessionChangeAsync(bool sessionLocked) {
             return base.Channel.OnSessionChangeAsync(sessionLocked);
+        }
+        
+        public void SaveCredential(string deviceId, string login, string password) {
+            base.Channel.SaveCredential(deviceId, login, password);
+        }
+        
+        public System.Threading.Tasks.Task SaveCredentialAsync(string deviceId, string login, string password) {
+            return base.Channel.SaveCredentialAsync(deviceId, login, password);
         }
     }
 }

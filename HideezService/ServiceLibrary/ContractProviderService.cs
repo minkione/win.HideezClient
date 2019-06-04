@@ -59,6 +59,11 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
+        public void SaveCredential(string deviceId, string login, string password)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Shutdown()
         {
             throw new NotImplementedException();
