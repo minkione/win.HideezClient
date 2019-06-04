@@ -1,17 +1,7 @@
 ﻿using MahApps.Metro.Controls;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace HideezSafe.Views
 {
@@ -31,7 +21,7 @@ namespace HideezSafe.Views
             {
                 if (passwordBox.SecurePassword.Length > 0)
                 {
-                    passwordBox.BorderBrush = null;
+                    passwordBox.ClearValue(BorderBrushProperty);
                 }
                 else
                 {
@@ -51,7 +41,7 @@ namespace HideezSafe.Views
                 }
                 else
                 {
-                    comboBox.BorderBrush = null;
+                    comboBox.ClearValue(BorderBrushProperty);
                 }
             }
         }

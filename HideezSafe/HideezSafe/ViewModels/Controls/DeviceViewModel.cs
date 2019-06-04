@@ -100,7 +100,7 @@ namespace HideezSafe.ViewModels
                 {
                     CommandAction = x =>
                     {
-                        windowsManager.ShowDialogAddCredential(this.Id);
+                        windowsManager.ShowDialogAddCredential(this.Name, this.Id);
                     },
                 };
             }

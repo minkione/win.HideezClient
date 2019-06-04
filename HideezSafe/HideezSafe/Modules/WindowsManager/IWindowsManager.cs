@@ -12,7 +12,7 @@ namespace HideezSafe.Modules
         Task ActivateMainWindowAsync();
         event EventHandler<bool> MainWindowVisibleChanged;
         bool IsMainWindowVisible { get; }
-        void ShowDialogAddCredential(string deviceId);
+        void ShowDialogAddCredential(string deviceName, string deviceId);
         void ShowError(string message);
         void ShowWarning(string message);
     }

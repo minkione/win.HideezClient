@@ -1,14 +1,8 @@
 ﻿using HideezSafe.Mvvm;
 using HideezSafe.ViewModels;
 using HideezSafe.Views;
-using MahApps.Metro.Controls;
-using MahApps.Metro.Controls.Dialogs;
 using NLog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -124,12 +118,13 @@ namespace HideezSafe.Modules
             }
         }
 
-        public void ShowDialogAddCredential(string deviceId)
+        public void ShowDialogAddCredential(string deviceName, string deviceId)
         {
             var addCredentialWindow = new AddCredentialView();
             if (addCredentialWindow.DataContext is AddCredentialViewModel viewModel)
             {
                 viewModel.DeviceId = deviceId;
+                viewModel.DeviceName = deviceName;
             }
             addCredentialWindow.ShowDialog();
         }
