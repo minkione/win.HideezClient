@@ -138,5 +138,10 @@ namespace HideezSafe.Modules
         {
             MessageBox.Show(message, LocalizedObject.L("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
+
+        public void ShowWarning(string message)
+        {
+            MessageBox.Show(message, LocalizedObject.L("Warning"), MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 }

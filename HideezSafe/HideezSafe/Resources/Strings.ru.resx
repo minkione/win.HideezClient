@@ -150,6 +150,9 @@
   <data name="Error" xml:space="preserve">
     <value>Ошибка</value>
   </data>
+  <data name="Error.FillAllFields" xml:space="preserve">
+    <value>Заполните все поля.</value>
+  </data>
   <data name="Error.SaveCredential" xml:space="preserve">
     <value>Ошибка сохранения учетных данных.</value>
   </data>
@@ -294,5 +297,8 @@
   </data>
   <data name="Url.VideoTutorial" xml:space="preserve">
     <value>https://hideez.com/404</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Предупреждение</value>
   </data>
 </root>

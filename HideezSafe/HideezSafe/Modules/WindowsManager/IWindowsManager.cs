@@ -14,5 +14,6 @@ namespace HideezSafe.Modules
         bool IsMainWindowVisible { get; }
         void ShowDialogAddCredential(string deviceId);
         void ShowError(string message);
+        void ShowWarning(string message);
     }
 }

@@ -71,29 +71,7 @@ namespace HideezSafe.ViewModels
                     {
                         if (x is AddCredentialView view)
                         {
-                            IsInProgress = true;
-                            var login = SelectedLogin;
-                            var pass = view.passwordBox.Password;
-
-
-                            Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    await serviceProxy.GetService().SaveCredentialAsync(DeviceId, login, pass);
-
-                                    IsInProgress = false;
-                                }
-                                catch(Exception ex)
-                                {
-                                    windowsManager.ShowError(LocalizedObject.L("Error.SaveCredential"));
-
-                                }
-                                finally
-                                {
-                                    Application.Current.Dispatcher.Invoke(view.Close);
-                                }
-                            });
+                            SaveCredential(view);
                         }
                     },
                 };
@@ -154,5 +132,38 @@ namespace HideezSafe.ViewModels
         public string DeviceId { get; set; }
 
         #endregion Properties
+
+        private void SaveCredential(AddCredentialView view)
+        {
+            if (view.passwordBox.SecurePassword.Length == 0 || string.IsNullOrWhiteSpace(SelectedLogin))
+            {
+                windowsManager.ShowWarning(LocalizedObject.L("Error.FillAllFields"));
+            }
+            else
+            {
+                IsInProgress = true;
+                var login = SelectedLogin;
+                var pass = view.passwordBox.Password;
+
+
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        await serviceProxy.GetService().SaveCredentialAsync(DeviceId, login, pass);
+
+                        IsInProgress = false;
+                    }
+                    catch (Exception ex)
+                    {
+                        windowsManager.ShowError(LocalizedObject.L("Error.SaveCredential"));
+                    }
+                    finally
+                    {
+                        Application.Current.Dispatcher.Invoke(view.Close);
+                    }
+                });
+            }
+        }
     }
 }
