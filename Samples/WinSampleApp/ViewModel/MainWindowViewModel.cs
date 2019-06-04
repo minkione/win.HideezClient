@@ -407,11 +407,14 @@ namespace WinSampleApp.ViewModel
 
             // RFID Service Connection ============================
             _rfidService = new RfidServiceConnection(_log);
-            //_rfidService.Start();
+            _rfidService.Start();
 
             // HES
-            _hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.241", _log);
-            //_hesConnection.Connect();
+            //_hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.241", _log);
+            //_hesConnection = new HesAppConnection(_deviceManager, "https://localhost:44371", _log);
+            _hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.107", _log);
+
+            _hesConnection.Connect();
 
             // WorkstationUnlocker ==================================
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, 

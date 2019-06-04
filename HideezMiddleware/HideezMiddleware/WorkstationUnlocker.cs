@@ -92,7 +92,7 @@ namespace HideezMiddleware
 
                 //todo - wait for primary account update?
 
-                ushort primaryAccountKey = await GetPrimaryAccountKey(mac, device);
+                ushort primaryAccountKey = await GetPrimaryAccountKey(device);
                 if (primaryAccountKey == 0)
                     throw new Exception($"Device '{mac}' has not a primary account stored");
 
@@ -116,11 +116,12 @@ namespace HideezMiddleware
             }
         }
 
-        static async Task<ushort> GetPrimaryAccountKey(string mac, IDeviceStorage storage)
+        static async Task<ushort> GetPrimaryAccountKey(IDeviceStorage storage)
         {
             string primaryAccountKeyString = await storage.ReadStorageAsString((byte)StorageTable.Config, (ushort)StorageConfigItem.PrimaryAccountKey);
             if (string.IsNullOrEmpty(primaryAccountKeyString))
                 return 0;
+
             try
             {
                 ushort primaryAccountKey = Convert.ToUInt16(primaryAccountKeyString);
@@ -151,14 +152,11 @@ namespace HideezMiddleware
                 if (info.IdFromDevice == 0 && !info.NeedUpdatePrimaryAccount)
                     throw new Exception($"Device '{info.DeviceSerialNo}' has not a primary account stored");
 
-                //info.DeviceMac = "D0:A8:9E:6B:CD:8D";
-                string mac = info.DeviceMac.Replace(":", "");
-
-                var device = _deviceManager.Find(mac, channelNo: 1);
+                var device = _deviceManager.Find(info.DeviceMac, channelNo: 1);
                 if (device == null)
                 {
-                    // connect Hideez Key with the MAC
-                    device = await _deviceManager.ConnectByMac(mac, timeout: 10_000);
+                    // connect Hideez Key
+                    device = await _deviceManager.ConnectByMac(info.DeviceMac, timeout: 10_000);
 
                     if (device == null)
                         throw new Exception($"Cannot connect device '{info.DeviceSerialNo}', '{info.DeviceMac}'");
@@ -173,7 +171,7 @@ namespace HideezMiddleware
                 string prevPass = ""; //todo
 
                 if (login == null || pass == null)
-                    throw new Exception($"Cannot read login or password from device '{info.DeviceSerialNo}'");
+                    throw new Exception($"Cannot read login or password from the device '{info.DeviceSerialNo}'");
 
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendLogonRequest(login, pass, prevPass);
@@ -199,7 +197,7 @@ namespace HideezMiddleware
                 await Task.Delay(3000);
             }
 
-            throw new Exception($"Update of the primary account is timed out");
+            throw new Exception($"Update of the primary account has been timed out");
         }
 
         async void ActivateWorkstationScreen()
