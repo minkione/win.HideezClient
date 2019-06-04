@@ -99,7 +99,7 @@ namespace HideezSafe.ViewModels
         {
             if (view.passwordBox.SecurePassword.Length == 0 || string.IsNullOrWhiteSpace(SelectedLogin))
             {
-                windowsManager.ShowWarning(LocalizedObject.L("Error.FillAllFields"));
+                windowsManager.ShowWarning($"Login or password cannot be empty");
             }
             else
             {
@@ -118,7 +118,7 @@ namespace HideezSafe.ViewModels
                     }
                     catch (Exception ex)
                     {
-                        windowsManager.ShowError(ex.Message);
+                        windowsManager.ShowError($"An : {ex.Message}");
                     }
                     finally
                     {
