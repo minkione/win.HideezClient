@@ -347,6 +347,20 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SaveCredential", ReplyAction="http://tempuri.org/IHideezService/SaveCredentialResponse")]
         System.Threading.Tasks.Task SaveCredentialAsync(string deviceId, string login, string password);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisconnectDevice", ReplyAction="http://tempuri.org/IHideezService/DisconnectDeviceResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/DisconnectDeviceHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void DisconnectDevice(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisconnectDevice", ReplyAction="http://tempuri.org/IHideezService/DisconnectDeviceResponse")]
+        System.Threading.Tasks.Task DisconnectDeviceAsync(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoveDevice", ReplyAction="http://tempuri.org/IHideezService/RemoveDeviceResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/RemoveDeviceHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void RemoveDevice(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoveDevice", ReplyAction="http://tempuri.org/IHideezService/RemoveDeviceResponse")]
+        System.Threading.Tasks.Task RemoveDeviceAsync(string deviceId);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -499,6 +513,22 @@ namespace HideezServiceHost.HideezServiceReference {
         
         public System.Threading.Tasks.Task SaveCredentialAsync(string deviceId, string login, string password) {
             return base.Channel.SaveCredentialAsync(deviceId, login, password);
+        }
+        
+        public void DisconnectDevice(string deviceId) {
+            base.Channel.DisconnectDevice(deviceId);
+        }
+        
+        public System.Threading.Tasks.Task DisconnectDeviceAsync(string deviceId) {
+            return base.Channel.DisconnectDeviceAsync(deviceId);
+        }
+        
+        public void RemoveDevice(string deviceId) {
+            base.Channel.RemoveDevice(deviceId);
+        }
+        
+        public System.Threading.Tasks.Task RemoveDeviceAsync(string deviceId) {
+            return base.Channel.RemoveDeviceAsync(deviceId);
         }
     }
 }

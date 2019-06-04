@@ -192,15 +192,19 @@
                                 Background="Transparent"
                                 BorderThickness="0"
                                 FocusVisualStyle="{x:Null}"
-                                Orientation="Vertical"
-                                Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                Orientation="Vertical" >
                                 <mah:DropDownButton.Icon>
                                     <iconPacks:PackIconOcticons Foreground="White" Kind="KebabVertical" />
                                 </mah:DropDownButton.Icon>
                                 <mah:DropDownButton.Items>
-                                    <MenuItem Command="{Binding AddCredentialCommand}" Header="{l:Localization Menu.SavePCPassword}" />
-                                    <MenuItem Command="{Binding DisconnectDeviceCommand}" Header="{l:Localization Menu.DisconnectDevice}" />
-                                    <MenuItem Command="{Binding RemoveDeviceCommand}" Header="{l:Localization Menu.RemoveDevice}" />
+                                    <MenuItem Command="{Binding AddCredentialCommand}" 
+                                              Header="{l:Localization Menu.SavePCPassword}" 
+                                              IsEnabled="{Binding IsConnected}" />
+                                    <MenuItem Command="{Binding DisconnectDeviceCommand}" 
+                                              Header="{l:Localization Menu.DisconnectDevice}" 
+                                              IsEnabled="{Binding IsConnected}" />
+                                    <MenuItem Command="{Binding RemoveDeviceCommand}" 
+                                              Header="{l:Localization Menu.RemoveDevice}" />
                                 </mah:DropDownButton.Items>
                             </mah:DropDownButton>
 

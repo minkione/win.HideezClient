@@ -176,7 +176,7 @@ namespace HideezSafe.Modules.DeviceManager
 
                                 if (device == null)
                                 {
-                                    dvm = new DeviceViewModel(item, windowsManager);
+                                    dvm = new DeviceViewModel(item, windowsManager, serviceProxy);
                                     Devices.Add(dvm);
                                 }
                             }

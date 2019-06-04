@@ -1,20 +1,23 @@
 ﻿using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules;
 using HideezSafe.Modules.Localize;
+using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Mvvm;
-using MvvmExtensions.Attributes;
 using MvvmExtensions.Commands;
+using System;
 using System.Windows.Input;
 
 namespace HideezSafe.ViewModels
 {
     public class DeviceViewModel : LocalizedObject
     {
-        private readonly IWindowsManager windowsManager;
+        readonly IWindowsManager windowsManager;
+        readonly IServiceProxy serviceProxy;
 
-        public DeviceViewModel(DeviceDTO device, IWindowsManager windowsManager)
+        public DeviceViewModel(DeviceDTO device, IWindowsManager windowsManager, IServiceProxy serviceProxy)
         {
             this.windowsManager = windowsManager;
+            this.serviceProxy = serviceProxy;
             LoadFrom(device);
         }
 
@@ -114,7 +117,11 @@ namespace HideezSafe.ViewModels
                 {
                     CommandAction = x =>
                     {
-                        System.Windows.MessageBox.Show("DisconnectDeviceCommand");
+                        try
+                        {
+                            serviceProxy.GetService().DisconnectDevice(Id);
+                        }
+                        catch (Exception) { }
                     },
                 };
             }
@@ -128,7 +135,11 @@ namespace HideezSafe.ViewModels
                 {
                     CommandAction = x =>
                     {
-                        System.Windows.MessageBox.Show("RemoveDeviceCommand");
+                        try
+                        {
+                            serviceProxy.GetService().RemoveDevice(Id);
+                        }
+                        catch (Exception) { }
                     },
                 };
             }

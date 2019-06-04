@@ -54,6 +54,14 @@ namespace ServiceLibrary
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         void SaveCredential(string deviceId, string login, string password);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void DisconnectDevice(string deviceId);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void RemoveDevice(string deviceId);
     }
 
     public interface ICallbacks

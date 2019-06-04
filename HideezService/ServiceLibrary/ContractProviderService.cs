@@ -29,6 +29,11 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
+        public void DisconnectDevice(string deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
         public void EnableMonitoringDeviceProperties(string deviceId)
         {
             throw new NotImplementedException();
@@ -55,6 +60,11 @@ namespace ServiceLibrary
         }
 
         public int Ping()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveDevice(string deviceId)
         {
             throw new NotImplementedException();
         }
