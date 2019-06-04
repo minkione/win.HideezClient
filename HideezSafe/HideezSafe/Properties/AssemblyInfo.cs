@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -7,12 +6,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Hideez Safe")]
-[assembly: AssemblyDescription("Hideez Safe")]
+[assembly: AssemblyTitle("Hideez Safe 3")]
+[assembly: AssemblyDescription("Hideez Safe 3")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Hideez Group Inc.")]
-[assembly: AssemblyProduct("Hideez Safe")]
-[assembly: AssemblyCopyright("© 2019 Hideez Group Inc. All rights reserved.")]
+[assembly: AssemblyProduct("Hideez Safe 3")]
+[assembly: AssemblyCopyright("© 2017-2019 Hideez Group Inc. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
