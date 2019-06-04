@@ -12,7 +12,6 @@ using System.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HideezSafe.Properties;
-using HideezSafe.Utilities;
 using SingleInstanceApp;
 using System.Runtime.InteropServices;
 using HideezSafe.Modules;

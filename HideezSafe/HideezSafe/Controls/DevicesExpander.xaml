@@ -20,12 +20,14 @@
             Source="{StaticResource Locator}" />
     </UserControl.DataContext>
     <UserControl.Resources>
-        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <converters:ProximityToOpacityConverter x:Key="ProximityToOpacityConverter" />
-        <converters:BooleanToVisibilityCollapsedConverter x:Key="BooleanToVisibilityCollapsedConverter" />
-        <converters:StringToResource x:Key="StringToResource" />
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-        <converters:NullToVisibilityCollapsedConverter x:Key="NullToVisibilityCollapsedConverter" />
+        <ResourceDictionary>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:ProximityToOpacityConverter x:Key="ProximityToOpacityConverter" />
+            <converters:BooleanToVisibilityCollapsedConverter x:Key="BooleanToVisibilityCollapsedConverter" />
+            <converters:StringToResource x:Key="StringToResource" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:NullToVisibilityCollapsedConverter x:Key="NullToVisibilityCollapsedConverter" />
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Margin="16">
@@ -171,13 +173,36 @@
                                 </ToggleButton.Template>
                             </ToggleButton>
 
-                            <Button
+                            <!--<Button
                                 Grid.Row="4"
                                 Margin="0,10,0,10"
-                                Command="{Binding AddCredentialCommand}"
-                                Content="{l:Localization Button.ChangePassword}"
+                                Content=""
                                 Style="{DynamicResource ButtonBlue}"
-                                Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}" />-->
+
+
+                            <mah:DropDownButton
+                                Grid.RowSpan="5"
+                                Grid.ColumnSpan="3"
+                                Margin="2,2,2,2"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                ArrowMouseOverBrush="Transparent"
+                                ArrowVisibility="Collapsed"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                FocusVisualStyle="{x:Null}"
+                                Orientation="Vertical"
+                                Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <mah:DropDownButton.Icon>
+                                    <iconPacks:PackIconOcticons Foreground="White" Kind="KebabVertical" />
+                                </mah:DropDownButton.Icon>
+                                <mah:DropDownButton.Items>
+                                    <MenuItem Command="{Binding AddCredentialCommand}" Header="{l:Localization Menu.SavePCPassword}" />
+                                    <MenuItem Command="{Binding DisconnectDeviceCommand}" Header="{l:Localization Menu.DisconnectDevice}" />
+                                    <MenuItem Command="{Binding RemoveDeviceCommand}" Header="{l:Localization Menu.RemoveDevice}" />
+                                </mah:DropDownButton.Items>
+                            </mah:DropDownButton>
 
                             <Grid
                                 Grid.Row="4"

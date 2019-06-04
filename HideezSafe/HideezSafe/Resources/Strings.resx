@@ -211,6 +211,9 @@ Device is not connected</value>
   <data name="Menu.CheckForUpdates" xml:space="preserve">
     <value>Check for updates</value>
   </data>
+  <data name="Menu.DisconnectDevice" xml:space="preserve">
+    <value>Disconnect device</value>
+  </data>
   <data name="Menu.Exit" xml:space="preserve">
     <value>Exit</value>
   </data>
@@ -229,8 +232,14 @@ Device is not connected</value>
   <data name="Menu.LogOff" xml:space="preserve">
     <value>Log off</value>
   </data>
+  <data name="Menu.RemoveDevice" xml:space="preserve">
+    <value>Remove device</value>
+  </data>
   <data name="Menu.RFIDUsage" xml:space="preserve">
     <value>RFID usage</value>
+  </data>
+  <data name="Menu.SavePCPassword" xml:space="preserve">
+    <value>Save PC password</value>
   </data>
   <data name="Menu.ShowWindow" xml:space="preserve">
     <value>Open Hideez Safe</value>

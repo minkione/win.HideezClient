@@ -211,6 +211,9 @@
   <data name="Menu.CheckForUpdates" xml:space="preserve">
     <value>Проверьте наличие обновлений</value>
   </data>
+  <data name="Menu.DisconnectDevice" xml:space="preserve">
+    <value>Отключить устройство</value>
+  </data>
   <data name="Menu.Exit" xml:space="preserve">
     <value>Выход</value>
   </data>
@@ -229,8 +232,14 @@
   <data name="Menu.LogOff" xml:space="preserve">
     <value>Выйти из аккаунта</value>
   </data>
+  <data name="Menu.RemoveDevice" xml:space="preserve">
+    <value>Удалить устройство</value>
+  </data>
   <data name="Menu.RFIDUsage" xml:space="preserve">
     <value>Использование RFID</value>
+  </data>
+  <data name="Menu.SavePCPassword" xml:space="preserve">
+    <value>Сохранить пароль ПК</value>
   </data>
   <data name="Menu.ShowWindow" xml:space="preserve">
     <value>Открыть Hideez Safe</value>

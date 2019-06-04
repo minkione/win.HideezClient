@@ -6,7 +6,7 @@
     xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:tb="http://www.hardcodet.net/taskbar">
-    
+
     <!--  Traybar menu icon  -->
     <tb:TaskbarIcon
         x:Key="TaskbarIcon"

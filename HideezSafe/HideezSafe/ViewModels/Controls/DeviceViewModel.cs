@@ -106,6 +106,34 @@ namespace HideezSafe.ViewModels
             }
         }
 
+        public ICommand DisconnectDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        System.Windows.MessageBox.Show("DisconnectDeviceCommand");
+                    },
+                };
+            }
+        }
+
+        public ICommand RemoveDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        System.Windows.MessageBox.Show("RemoveDeviceCommand");
+                    },
+                };
+            }
+        }
+
         #endregion
     }
 }

@@ -121,6 +121,7 @@ namespace HideezSafe.Modules
         public void ShowDialogAddCredential(string deviceName, string deviceId)
         {
             var addCredentialWindow = new AddCredentialView();
+            addCredentialWindow.Owner = MainWindow;
             if (addCredentialWindow.DataContext is AddCredentialViewModel viewModel)
             {
                 viewModel.DeviceId = deviceId;
