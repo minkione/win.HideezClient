@@ -8,7 +8,7 @@
     xmlns:l="clr-namespace:HideezSafe.Modules.Localize"
     xmlns:local="clr-namespace:HideezSafe.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="Hideez Safe"
+    Title="{Binding Version, StringFormat=Hideez Safe ({0})}"
     Width="310"
     Height="250"
     MinWidth="310"

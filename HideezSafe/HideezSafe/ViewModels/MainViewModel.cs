@@ -1,15 +1,7 @@
-﻿using GalaSoft.MvvmLight.Command;
-using HideezSafe.Controls;
-using HideezSafe.Modules;
-using HideezSafe.Modules.Localize;
-using HideezSafe.Mvvm;
+﻿using HideezSafe.Mvvm;
 using MvvmExtensions.Commands;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
+using System.Reflection;
 using System.Windows.Input;
 
 namespace HideezSafe.ViewModels
@@ -24,6 +16,14 @@ namespace HideezSafe.ViewModels
         {
             get { return displayPage; }
             set { Set(ref displayPage, value); }
+        }
+
+        public string Version
+        {
+            get
+            {
+                return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            }
         }
 
         #endregion Properties
