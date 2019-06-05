@@ -2,6 +2,8 @@
 using System;
 using System.ServiceModel;
 using System.Linq;
+using System.Threading;
+using Hideez.SDK.Communication.Interfaces;
 
 namespace ServiceLibrary.Implementation
 {
@@ -96,11 +98,11 @@ namespace ServiceLibrary.Implementation
             log.Debug(">>>>>> AttachClient " + prm.ClientType.ToString());
 
             // Limit to one ServiceHost / TestConsole connection
-            if (prm.ClientType == ClientType.TestConsole || 
+            if (prm.ClientType == ClientType.TestConsole ||
                 prm.ClientType == ClientType.ServiceHost)
             {
-                if (SessionManager.Sessions.Any(s => 
-                s.ClientType == ClientType.ServiceHost || 
+                if (SessionManager.Sessions.Any(s =>
+                s.ClientType == ClientType.ServiceHost ||
                 s.ClientType == ClientType.TestConsole))
                 {
                     throw new Exception("Service does not support more than one connected ServiceHost or TestConsole client");
@@ -132,5 +134,6 @@ namespace ServiceLibrary.Implementation
             log.Debug(">>>>>> Shutdown service");
             // Todo: shutdown service in a clean way
         }
+
     }
 }

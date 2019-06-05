@@ -147,6 +147,15 @@
   <data name="Dialog.ChangePass.New" xml:space="preserve">
     <value>New Pass</value>
   </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Error.FillAllFields" xml:space="preserve">
+    <value>Fill all fields.</value>
+  </data>
+  <data name="Error.SaveCredential" xml:space="preserve">
+    <value>Error save credential.</value>
+  </data>
   <data name="Expander.NoDevice" xml:space="preserve">
     <value>No device</value>
   </data>
@@ -165,6 +174,12 @@ Device is not connected</value>
   </data>
   <data name="Icon.SynchronizationInProgress" xml:space="preserve">
     <value>Synchronization in progress</value>
+  </data>
+  <data name="Label.Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Label.Password" xml:space="preserve">
+    <value>Password</value>
   </data>
   <data name="LockPage.Description" xml:space="preserve">
     <value>Lock and unlock the computer with a key or phone.                  Watch the video</value>
@@ -196,6 +211,9 @@ Device is not connected</value>
   <data name="Menu.CheckForUpdates" xml:space="preserve">
     <value>Check for updates</value>
   </data>
+  <data name="Menu.DisconnectDevice" xml:space="preserve">
+    <value>Disconnect device</value>
+  </data>
   <data name="Menu.Exit" xml:space="preserve">
     <value>Exit</value>
   </data>
@@ -214,8 +232,14 @@ Device is not connected</value>
   <data name="Menu.LogOff" xml:space="preserve">
     <value>Log off</value>
   </data>
+  <data name="Menu.RemoveDevice" xml:space="preserve">
+    <value>Remove device</value>
+  </data>
   <data name="Menu.RFIDUsage" xml:space="preserve">
     <value>RFID usage</value>
+  </data>
+  <data name="Menu.SavePCPassword" xml:space="preserve">
+    <value>Save PC password</value>
   </data>
   <data name="Menu.ShowWindow" xml:space="preserve">
     <value>Open Hideez Safe</value>
@@ -282,5 +306,17 @@ Device is not connected</value>
   </data>
   <data name="Url.VideoTutorial" xml:space="preserve">
     <value>https://hideez.com/404</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Menu.Logs" xml:space="preserve">
+    <value>Logs</value>
+  </data>
+  <data name="Menu.Logs.OpenClientFolder" xml:space="preserve">
+    <value>Client Logs</value>
+  </data>
+  <data name="Menu.Logs.OpenServiceFolder" xml:space="preserve">
+    <value>Service Logs</value>
   </data>
 </root>

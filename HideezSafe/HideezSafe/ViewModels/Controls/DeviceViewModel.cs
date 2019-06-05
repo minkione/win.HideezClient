@@ -1,14 +1,23 @@
 ﻿using HideezSafe.HideezServiceReference;
+using HideezSafe.Modules;
 using HideezSafe.Modules.Localize;
+using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Mvvm;
-using MvvmExtensions.Attributes;
+using MvvmExtensions.Commands;
+using System;
+using System.Windows.Input;
 
 namespace HideezSafe.ViewModels
 {
     public class DeviceViewModel : LocalizedObject
     {
-        public DeviceViewModel(DeviceDTO device)
+        readonly IWindowsManager windowsManager;
+        readonly IServiceProxy serviceProxy;
+
+        public DeviceViewModel(DeviceDTO device, IWindowsManager windowsManager, IServiceProxy serviceProxy)
         {
+            this.windowsManager = windowsManager;
+            this.serviceProxy = serviceProxy;
             LoadFrom(device);
         }
 
@@ -83,5 +92,59 @@ namespace HideezSafe.ViewModels
             OwnerName = dto.Owner ?? "...unspecified...";
             this.IsConnected = dto.IsConnected;
         }
+
+        #region Command
+
+        public ICommand AddCredentialCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        windowsManager.ShowDialogAddCredential(this.Name, this.Id);
+                    },
+                };
+            }
+        }
+
+        public ICommand DisconnectDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        try
+                        {
+                            serviceProxy.GetService().DisconnectDevice(Id);
+                        }
+                        catch (Exception) { }
+                    },
+                };
+            }
+        }
+
+        public ICommand RemoveDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        try
+                        {
+                            serviceProxy.GetService().RemoveDevice(Id);
+                        }
+                        catch (Exception) { }
+                    },
+                };
+            }
+        }
+
+        #endregion
     }
 }

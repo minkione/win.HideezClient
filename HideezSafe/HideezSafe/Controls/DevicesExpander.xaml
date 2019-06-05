@@ -20,12 +20,14 @@
             Source="{StaticResource Locator}" />
     </UserControl.DataContext>
     <UserControl.Resources>
-        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <converters:ProximityToOpacityConverter x:Key="ProximityToOpacityConverter" />
-        <converters:BooleanToVisibilityCollapsedConverter x:Key="BooleanToVisibilityCollapsedConverter" />
-        <converters:StringToResource x:Key="StringToResource" />
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-        <converters:NullToVisibilityCollapsedConverter x:Key="NullToVisibilityCollapsedConverter" />
+        <ResourceDictionary>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:ProximityToOpacityConverter x:Key="ProximityToOpacityConverter" />
+            <converters:BooleanToVisibilityCollapsedConverter x:Key="BooleanToVisibilityCollapsedConverter" />
+            <converters:StringToResource x:Key="StringToResource" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:NullToVisibilityCollapsedConverter x:Key="NullToVisibilityCollapsedConverter" />
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Margin="16">
@@ -54,6 +56,7 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
@@ -73,7 +76,8 @@
                             <TextBlock
                                 Grid.Row="1"
                                 FontSize="18"
-                                Text="{Binding OwnerName}" />
+                                Text="{Binding OwnerName}"
+                                Visibility="Collapsed" />
                             <StackPanel
                                 Grid.Row="2"
                                 Margin="0,9,0,5"
@@ -168,6 +172,32 @@
                                     </ControlTemplate>
                                 </ToggleButton.Template>
                             </ToggleButton>
+
+                            <mah:DropDownButton
+                                Grid.RowSpan="5"
+                                Grid.ColumnSpan="3"
+                                Margin="2,2,2,2"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                ArrowVisibility="Collapsed"
+                                ItemContainerStyle="{StaticResource MenuItemStyle}"
+                                Orientation="Vertical"
+                                Style="{DynamicResource LightDropDownButtonStyle}">
+                                <mah:DropDownButton.Icon>
+                                    <iconPacks:PackIconOcticons Foreground="White" Kind="KebabVertical" />
+                                </mah:DropDownButton.Icon>
+                                <mah:DropDownButton.Items>
+                                    <MenuItem
+                                        Command="{Binding AddCredentialCommand}"
+                                        Header="{l:Localization Menu.SavePCPassword}"
+                                        IsEnabled="{Binding IsConnected}" />
+                                    <MenuItem
+                                        Command="{Binding DisconnectDeviceCommand}"
+                                        Header="{l:Localization Menu.DisconnectDevice}"
+                                        IsEnabled="{Binding IsConnected}" />
+                                    <MenuItem Command="{Binding RemoveDeviceCommand}" Header="{l:Localization Menu.RemoveDevice}" />
+                                </mah:DropDownButton.Items>
+                            </mah:DropDownButton>
 
                             <Grid
                                 Grid.Row="4"

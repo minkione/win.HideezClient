@@ -27,6 +27,8 @@
 
     <Color x:Key="Gray">#6E89A4</Color>
 
+    <SolidColorBrush x:Key="MenuBackground" Color="#0E5F93" />
+
     <SolidColorBrush x:Key="PinkBrush" Color="{StaticResource Pink}" />
     <SolidColorBrush x:Key="PinkBrushIsMouseOver" Color="{StaticResource LightPink}" />
     <SolidColorBrush x:Key="PinkBrushIsPressed" Color="{StaticResource DarkPink}" />

@@ -203,9 +203,15 @@
     <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
     <Compile Include="Modules\SessionStateMonitor\ISessionStateMonitor.cs" />
     <Compile Include="Modules\SessionStateMonitor\SessionStateMonitor.cs" />
+    <Compile Include="Utilities\LocalToMSAccountConverter.cs" />
+    <Compile Include="Utilities\LogManagement.cs" />
+    <Compile Include="ViewModels\AddCredentialViewModel.cs" />
     <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
     <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
     <Compile Include="ViewModels\Controls\IndicatorsViewModel.cs" />
+    <Compile Include="Views\AddCredentialView.xaml.cs">
+      <DependentUpon>AddCredentialView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SimpleMainView.xaml.cs">
       <DependentUpon>SimpleMainView.xaml</DependentUpon>
     </Compile>
@@ -246,6 +252,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Resources\Dictionaries\SVG.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\AddCredentialView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -353,8 +363,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Strings.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Strings.ru.resx" />

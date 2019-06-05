@@ -1,4 +1,5 @@
 ﻿using HideezSafe.ViewModels;
+using MahApps.Metro.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;

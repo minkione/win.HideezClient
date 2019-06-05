@@ -19,6 +19,7 @@ namespace HideezSafe.Modules
         Lenguage,
         Separator,
         LaunchOnStartup,
+        GetLogsSubmenu,
     }
 
     interface IMenuFactory

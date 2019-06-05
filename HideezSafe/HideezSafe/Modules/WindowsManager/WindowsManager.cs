@@ -1,9 +1,8 @@
-﻿using NLog;
+﻿using HideezSafe.Mvvm;
+using HideezSafe.ViewModels;
+using HideezSafe.Views;
+using NLog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -48,7 +47,7 @@ namespace HideezSafe.Modules
             get { return isMainWindowVisible; }
             private set
             {
-                if(isMainWindowVisible != value)
+                if (isMainWindowVisible != value)
                 {
                     isMainWindowVisible = value;
                     OnMainWindowVisibleChanged(isMainWindowVisible);
@@ -59,7 +58,6 @@ namespace HideezSafe.Modules
         private Window MainWindow { get { return Application.Current.MainWindow; } }
 
         private Dispatcher UIDispatcher { get { return Application.Current.Dispatcher; } }
-
 
         private void OnActivateMainWindow()
         {
@@ -117,7 +115,29 @@ namespace HideezSafe.Modules
             catch (Exception ex)
             {
                 log.Error(ex.Message);
-            } 
+            }
+        }
+
+        public void ShowDialogAddCredential(string deviceName, string deviceId)
+        {
+            var addCredentialWindow = new AddCredentialView();
+            addCredentialWindow.Owner = MainWindow;
+            if (addCredentialWindow.DataContext is AddCredentialViewModel viewModel)
+            {
+                viewModel.DeviceId = deviceId;
+                viewModel.DeviceName = deviceName;
+            }
+            addCredentialWindow.ShowDialog();
+        }
+
+        public void ShowError(string message)
+        {
+            MessageBox.Show(message, LocalizedObject.L("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        public void ShowWarning(string message)
+        {
+            MessageBox.Show(message, LocalizedObject.L("Warning"), MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 }
