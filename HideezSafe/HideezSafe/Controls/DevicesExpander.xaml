@@ -173,38 +173,29 @@
                                 </ToggleButton.Template>
                             </ToggleButton>
 
-                            <!--<Button
-                                Grid.Row="4"
-                                Margin="0,10,0,10"
-                                Content=""
-                                Style="{DynamicResource ButtonBlue}"
-                                Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}" />-->
-
-
                             <mah:DropDownButton
                                 Grid.RowSpan="5"
                                 Grid.ColumnSpan="3"
                                 Margin="2,2,2,2"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom"
-                                ArrowMouseOverBrush="Transparent"
                                 ArrowVisibility="Collapsed"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                FocusVisualStyle="{x:Null}"
-                                Orientation="Vertical" >
+                                ItemContainerStyle="{StaticResource MenuItemStyle}"
+                                Orientation="Vertical"
+                                Style="{DynamicResource LightDropDownButtonStyle}">
                                 <mah:DropDownButton.Icon>
                                     <iconPacks:PackIconOcticons Foreground="White" Kind="KebabVertical" />
                                 </mah:DropDownButton.Icon>
                                 <mah:DropDownButton.Items>
-                                    <MenuItem Command="{Binding AddCredentialCommand}" 
-                                              Header="{l:Localization Menu.SavePCPassword}" 
-                                              IsEnabled="{Binding IsConnected}" />
-                                    <MenuItem Command="{Binding DisconnectDeviceCommand}" 
-                                              Header="{l:Localization Menu.DisconnectDevice}" 
-                                              IsEnabled="{Binding IsConnected}" />
-                                    <MenuItem Command="{Binding RemoveDeviceCommand}" 
-                                              Header="{l:Localization Menu.RemoveDevice}" />
+                                    <MenuItem
+                                        Command="{Binding AddCredentialCommand}"
+                                        Header="{l:Localization Menu.SavePCPassword}"
+                                        IsEnabled="{Binding IsConnected}" />
+                                    <MenuItem
+                                        Command="{Binding DisconnectDeviceCommand}"
+                                        Header="{l:Localization Menu.DisconnectDevice}"
+                                        IsEnabled="{Binding IsConnected}" />
+                                    <MenuItem Command="{Binding RemoveDeviceCommand}" Header="{l:Localization Menu.RemoveDevice}" />
                                 </mah:DropDownButton.Items>
                             </mah:DropDownButton>
 

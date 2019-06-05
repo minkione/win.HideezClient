@@ -7,6 +7,216 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:tb="http://www.hardcodet.net/taskbar">
 
+    <!--  DropDownItemCommandContainerStyle  -->
+    <Style x:Key="MenuItemStyle" TargetType="{x:Type MenuItem}">
+        <Setter Property="Padding" Value="5" />
+    </Style>
+
+    <!--  LightButtonDropDownStyle  -->
+    <Style
+        x:Key="LightButtonDropDownStyle"
+        BasedOn="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+        TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="{DynamicResource WhiteColorBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource BlackColorBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border
+                        x:Name="Border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="0"
+                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                        <ContentPresenter
+                            x:Name="PART_ContentPresenter"
+                            Margin="{TemplateBinding Padding}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            RecognizesAccessKey="True" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Border" Property="BorderBrush" Value="Transparent" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="#0f6ba3" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="#117abb" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource GrayBrush10}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  LightDropDownButtonStyle  -->
+    <Style x:Key="LightDropDownButtonStyle" TargetType="{x:Type ma:DropDownButton}">
+        <Setter Property="ButtonStyle" Value="{StaticResource LightButtonDropDownStyle}" />
+        <Setter Property="MenuStyle" Value="{DynamicResource MetroContextMenu}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource BlackColorBrush}" />
+        <Setter Property="ArrowBrush" Value="{DynamicResource BlackColorBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BlackColorBrush}" />
+        <Setter Property="FontFamily" Value="{DynamicResource ContentFontFamily}" />
+        <Setter Property="FontSize" Value="{DynamicResource ContentFontSize}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="FocusVisualStyle">
+            <Setter.Value>
+                <Style>
+                    <Setter Property="Control.Template">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <Rectangle
+                                    Margin="1"
+                                    SnapsToDevicePixels="True"
+                                    Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+                                    StrokeDashArray="1 2"
+                                    StrokeThickness="1" />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="ArrowVisibility" Value="Collapsed" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ma:DropDownButton}">
+                    <Border
+                        x:Name="PART_Border"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                        UseLayoutRounding="True">
+                        <Button
+                            x:Name="PART_Button"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            Command="{TemplateBinding Command}"
+                            CommandParameter="{TemplateBinding CommandParameter}"
+                            CommandTarget="{TemplateBinding CommandTarget}"
+                            FocusVisualStyle="{TemplateBinding FocusVisualStyle}"
+                            Foreground="{TemplateBinding Foreground}"
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                            Style="{TemplateBinding ButtonStyle}">
+                            <Button.ContextMenu>
+                                <ContextMenu
+                                    x:Name="PART_Menu"
+                                    MinWidth="{TemplateBinding ActualWidth}"
+                                    Background="{DynamicResource MenuBackground}"
+                                    DisplayMemberPath="{TemplateBinding DisplayMemberPath}"
+                                    IsOpen="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                    ItemContainerStyle="{TemplateBinding ItemContainerStyle}"
+                                    ItemContainerStyleSelector="{TemplateBinding ItemContainerStyleSelector}"
+                                    ItemStringFormat="{TemplateBinding ItemStringFormat}"
+                                    ItemTemplate="{TemplateBinding ItemTemplate}"
+                                    ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                    ItemsSource="{TemplateBinding ItemsSource}"
+                                    StaysOpen="False"
+                                    Style="{TemplateBinding MenuStyle}" />
+
+                            </Button.ContextMenu>
+                            <DockPanel
+                                x:Name="PART_Content"
+                                Focusable="False"
+                                LastChildFill="True">
+                                <Rectangle
+                                    x:Name="PART_Rectangle"
+                                    Width="10"
+                                    Height="6"
+                                    Margin="0,0,3,0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    DockPanel.Dock="Right"
+                                    Fill="{TemplateBinding ArrowBrush}"
+                                    UseLayoutRounding="False"
+                                    Visibility="{TemplateBinding ArrowVisibility}">
+                                    <Rectangle.OpacityMask>
+                                        <VisualBrush Stretch="Fill">
+                                            <VisualBrush.Visual>
+                                                <Canvas
+                                                    Width="18"
+                                                    Height="18"
+                                                    Clip="F1M0,0L48,0 48,48 0,48 0,0"
+                                                    UseLayoutRounding="False">
+                                                    <Path
+                                                        Canvas.Left="14.9063"
+                                                        Canvas.Top="15.75"
+                                                        Width="18"
+                                                        Height="16"
+                                                        Data="F1M23.9063,25L25.9063,23 32.9063,15.75 32.9063,22.25 23.9062,31.75 14.9063,22.25 14.9063,15.75 21.9063,23 23.9063,25z"
+                                                        Fill="{DynamicResource BlackColorBrush}"
+                                                        Stretch="Fill" />
+                                                </Canvas>
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                                <StackPanel
+                                    x:Name="PART_ContentOrientation"
+                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                    Focusable="False"
+                                    Orientation="Horizontal">
+                                    <ContentPresenter
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Content="{TemplateBinding Icon}"
+                                        ContentTemplate="{TemplateBinding IconTemplate}"
+                                        Focusable="False"
+                                        RecognizesAccessKey="True"
+                                        UseLayoutRounding="False" />
+                                    <ma:ContentControlEx
+                                        x:Name="PART_ButtonContent"
+                                        Margin="3"
+                                        Padding="{TemplateBinding Padding}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        Content="{Binding Content, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        ContentCharacterCasing="{Binding (ma:ControlsHelper.ContentCharacterCasing), RelativeSource={RelativeSource TemplatedParent}}"
+                                        ContentStringFormat="{TemplateBinding ItemStringFormat}"
+                                        ContentTemplate="{TemplateBinding ItemTemplate}"
+                                        RecognizesAccessKey="True"
+                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                        UseLayoutRounding="False" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Button>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Content" Value="{x:Null}">
+                            <Setter TargetName="PART_ButtonContent" Property="Margin" Value="0" />
+                        </Trigger>
+                        <Trigger Property="Orientation" Value="Vertical">
+                            <Setter TargetName="PART_Rectangle" Property="DockPanel.Dock" Value="Bottom" />
+                            <Setter TargetName="PART_Rectangle" Property="Margin" Value="0,0,0,3" />
+                            <Setter TargetName="PART_ContentOrientation" Property="Orientation" Value="Vertical" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  Traybar menu icon  -->
     <tb:TaskbarIcon
         x:Key="TaskbarIcon"
@@ -16,10 +226,9 @@
         <!--  LeftClickCommand="{Binding ShowWindowCommand}"  -->
 
         <tb:TaskbarIcon.ContextMenu>
-            <ContextMenu ItemsSource="{Binding MenuItems}">
+            <ContextMenu Background="{DynamicResource MenuBackground}" ItemsSource="{Binding MenuItems}">
                 <ContextMenu.ItemContainerStyle>
-                    <Style TargetType="{x:Type MenuItem}">
-                        <Setter Property="Padding" Value="5" />
+                    <Style BasedOn="{StaticResource MenuItemStyle}" TargetType="{x:Type MenuItem}">
                         <Setter Property="Command" Value="{Binding Command}" />
                         <Setter Property="Header" Value="{Binding Header}" />
                         <Setter Property="IsChecked" Value="{Binding IsChecked}" />
