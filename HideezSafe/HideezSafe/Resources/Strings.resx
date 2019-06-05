@@ -310,4 +310,13 @@ Device is not connected</value>
   <data name="Warning" xml:space="preserve">
     <value>Warning</value>
   </data>
+  <data name="Menu.Logs" xml:space="preserve">
+    <value>Logs</value>
+  </data>
+  <data name="Menu.Logs.OpenClientFolder" xml:space="preserve">
+    <value>Client Logs</value>
+  </data>
+  <data name="Menu.Logs.OpenServiceFolder" xml:space="preserve">
+    <value>Service Logs</value>
+  </data>
 </root>

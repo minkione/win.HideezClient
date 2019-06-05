@@ -11,6 +11,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
+using NLog;
+using System.IO;
+using NLog.Layouts;
 
 namespace HideezSafe.Modules
 {
@@ -65,6 +68,8 @@ namespace HideezSafe.Modules
                     return GetLanguages();
                 case MenuItemType.LaunchOnStartup:
                     return GetLaunchOnStartup();
+                case MenuItemType.GetLogsSubmenu:
+                    return GetLogsSubmenu();
                 case MenuItemType.Separator:
                 default:
                     return null;
@@ -145,5 +150,60 @@ namespace HideezSafe.Modules
                 }
             };
         }
+
+        private MenuItemViewModel GetLogsSubmenu()
+        {
+            var logsMenu = new MenuItemViewModel { Header = "Menu.Logs", };
+            logsMenu.MenuItems = new ObservableCollection<MenuItemViewModel>();
+
+            try
+            {
+                var openClientLogsFolderItem = new MenuItemViewModel
+                {
+                    Header = "Menu.Logs.OpenClientFolder",
+                    Command = new DelegateCommand
+                    {
+                        CommandAction = x =>
+                        {
+                            try
+                            {
+                                var logsPath = LogManager.Configuration.Variables["logDir"].Text;
+                                var fullPath = LogManagement.GetTargetFolder(logsPath);
+                                Process.Start(fullPath);
+                            }
+                            catch (Exception) { }
+                        }
+                    }
+                };
+                var openServiceLogsFolderItem = new MenuItemViewModel
+                {
+                    Header = "Menu.Logs.OpenServiceFolder",
+                    Command = new DelegateCommand
+                    {
+                        CommandAction = x =>
+                        {
+                            try
+                            {
+                                var logsPath = LogManager.Configuration.Variables["serviceLogDir"].Text;
+                                var fullPath = LogManagement.GetTargetFolder(logsPath);
+                                Process.Start(fullPath);
+                            }
+                            catch (Exception) { }
+                        }
+                    }
+                };
+
+                logsMenu.MenuItems.Add(openClientLogsFolderItem);
+                logsMenu.MenuItems.Add(openServiceLogsFolderItem);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                Debug.Assert(false);
+            }
+
+            return logsMenu;
+        }
+
     }
 }

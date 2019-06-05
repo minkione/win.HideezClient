@@ -94,6 +94,8 @@ namespace HideezSafe.ViewModels
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.RFIDUsage));
             // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.VideoTutorial));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
+            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.GetLogsSubmenu));
+            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
             // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.LogOff));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Exit));
         }
