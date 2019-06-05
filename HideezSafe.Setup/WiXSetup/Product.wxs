@@ -166,6 +166,16 @@
                Value="LaunchInstalledApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
     </UI>
 
+    <!-- Preserve saved HES Address on updates -->
+    <Property Id="SAVEDHESADDRESS" Secure="yes">
+      <RegistrySearch Id="FindSavedHESADDRESS"
+                      Root="HKLM"
+                      Key="SOFTWARE\Hideez\Safe"
+                      Name="hs3_hes_address"
+                      Type="raw" />
+    </Property>
+    <!-- ... -->
+
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
 
     <!--<WixVariable Id="WixUILicenseRtf" Value="Copyright.rtf" />-->
@@ -200,6 +210,8 @@
 
   <!-- Hideez Service -->
   <Fragment>
+    <SetProperty Id="HESADDRESS" After="CostFinalize" Value="[SAVEDHESADDRESS]">Not HESADDRESS</SetProperty>
+
     <ComponentGroup Id="HideezService" Directory="service">
       <Component Id="HideezServiceHost.exe" Guid="{FB54A20C-310F-474A-91E2-835AC3A34485}">
         <File Id="HideezServiceHost.exe" Name="HideezServiceHost.exe" KeyPath="yes" Source="$(var.HideezServiceHost_TargetDir)HideezServiceHost.exe" />
