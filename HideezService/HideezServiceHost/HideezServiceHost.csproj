@@ -188,6 +188,9 @@
     <None Include="Connected Services\HideezServiceReference\ServiceLibrary.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Connected Services\HideezServiceReference\System.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

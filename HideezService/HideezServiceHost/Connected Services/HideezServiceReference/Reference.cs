@@ -157,10 +157,22 @@ namespace HideezServiceHost.HideezServiceReference {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int BatteryField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Version BootloaderVersionField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Version FirmwareVersionField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string IdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsConnectedField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsInitializedField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NameField;
@@ -171,6 +183,15 @@ namespace HideezServiceHost.HideezServiceReference {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private double ProximityField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string SerialNoField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private uint StorageFreeSizeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private uint StorageTotalSizeField;
+        
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
             get {
@@ -178,6 +199,45 @@ namespace HideezServiceHost.HideezServiceReference {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Battery {
+            get {
+                return this.BatteryField;
+            }
+            set {
+                if ((this.BatteryField.Equals(value) != true)) {
+                    this.BatteryField = value;
+                    this.RaisePropertyChanged("Battery");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Version BootloaderVersion {
+            get {
+                return this.BootloaderVersionField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.BootloaderVersionField, value) != true)) {
+                    this.BootloaderVersionField = value;
+                    this.RaisePropertyChanged("BootloaderVersion");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Version FirmwareVersion {
+            get {
+                return this.FirmwareVersionField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FirmwareVersionField, value) != true)) {
+                    this.FirmwareVersionField = value;
+                    this.RaisePropertyChanged("FirmwareVersion");
+                }
             }
         }
         
@@ -203,6 +263,19 @@ namespace HideezServiceHost.HideezServiceReference {
                 if ((this.IsConnectedField.Equals(value) != true)) {
                     this.IsConnectedField = value;
                     this.RaisePropertyChanged("IsConnected");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsInitialized {
+            get {
+                return this.IsInitializedField;
+            }
+            set {
+                if ((this.IsInitializedField.Equals(value) != true)) {
+                    this.IsInitializedField = value;
+                    this.RaisePropertyChanged("IsInitialized");
                 }
             }
         }
@@ -242,6 +315,45 @@ namespace HideezServiceHost.HideezServiceReference {
                 if ((this.ProximityField.Equals(value) != true)) {
                     this.ProximityField = value;
                     this.RaisePropertyChanged("Proximity");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SerialNo {
+            get {
+                return this.SerialNoField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.SerialNoField, value) != true)) {
+                    this.SerialNoField = value;
+                    this.RaisePropertyChanged("SerialNo");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public uint StorageFreeSize {
+            get {
+                return this.StorageFreeSizeField;
+            }
+            set {
+                if ((this.StorageFreeSizeField.Equals(value) != true)) {
+                    this.StorageFreeSizeField = value;
+                    this.RaisePropertyChanged("StorageFreeSize");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public uint StorageTotalSize {
+            get {
+                return this.StorageTotalSizeField;
+            }
+            set {
+                if ((this.StorageTotalSizeField.Equals(value) != true)) {
+                    this.StorageTotalSizeField = value;
+                    this.RaisePropertyChanged("StorageTotalSize");
                 }
             }
         }

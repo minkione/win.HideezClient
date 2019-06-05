@@ -1,5 +1,5 @@
-﻿using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.Interfaces;
+﻿using Hideez.SDK.Communication.Interfaces;
+using System;
 using System.Runtime.Serialization;
 
 namespace ServiceLibrary
@@ -9,10 +9,11 @@ namespace ServiceLibrary
     {
         public DeviceDTO(IDevice device)
         {
-            this.Id = device.Id;
-            this.Name = device.Name;
-            this.Proximity = device.Proximity;
-            this.IsConnected = device.IsConnected;
+            Id = device.Id;
+            Name = device.Name;
+            Proximity = device.Proximity;
+            IsConnected = device.IsConnected;
+            Battery = device.Battery;
         }
 
         [DataMember]
@@ -29,5 +30,26 @@ namespace ServiceLibrary
 
         [DataMember]
         public bool IsConnected { get; set; }
+
+        [DataMember]
+        public int Battery { get; set; }
+
+        [DataMember]
+        public string SerialNo { get; set; }
+
+        [DataMember]
+        public Version FirmwareVersion { get; private set; }
+
+        [DataMember]
+        public Version BootloaderVersion { get; private set; }
+
+        [DataMember]
+        public uint StorageTotalSize { get; private set; }
+
+        [DataMember]
+        public uint StorageFreeSize { get; private set; }
+
+        [DataMember]
+        public bool IsInitialized { get; private set; }
     }
 }

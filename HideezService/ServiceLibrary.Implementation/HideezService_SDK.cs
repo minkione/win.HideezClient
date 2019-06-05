@@ -158,7 +158,7 @@ namespace ServiceLibrary.Implementation
         {
         }
 
-        #region proximity monitoring
+        #region Device proximity monitoring
 
         private void device_ProximityChanged(object sender, EventArgs e)
         {
@@ -199,11 +199,23 @@ namespace ServiceLibrary.Implementation
         {
             if (sender is IDevice device)
             {
-                foreach (var c in SessionManager.Sessions
+                foreach (var client in SessionManager.Sessions
                     // if has key for device id and enabled monitoring for this id
                     .Where(s => s.IsEnabledPropertyMonitoring.TryGetValue(device.Id, out bool isEnabled) && isEnabled))
                 {
-                    c.Callbacks.PairedDevicePropertyChanged(new DeviceDTO(device));
+                    client.Callbacks.PairedDevicePropertyChanged(new DeviceDTO(device));
+                }
+            }
+        }
+
+        private void Device_DeviceInfoChanged(object sender, EventArgs e)
+        {
+            if (sender is IDevice device)
+            {
+                foreach (var client in SessionManager.Sessions
+                    .Where(s => s.IsEnabledPropertyMonitoring.TryGetValue(device.Id, out bool isEnabled) && isEnabled))
+                {
+                    client.Callbacks.PairedDevicePropertyChanged(new DeviceDTO(device));
                 }
             }
         }
