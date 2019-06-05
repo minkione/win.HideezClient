@@ -411,8 +411,8 @@ namespace WinSampleApp.ViewModel
 
             // HES
             //_hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.241", _log);
-            //_hesConnection = new HesAppConnection(_deviceManager, "https://localhost:44371", _log);
-            _hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.107", _log);
+            _hesConnection = new HesAppConnection(_deviceManager, "https://localhost:44371", _log);
+            //_hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.107", _log);
 
             _hesConnection.Connect();
 

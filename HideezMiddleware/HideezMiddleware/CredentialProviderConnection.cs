@@ -105,7 +105,11 @@ namespace HideezMiddleware
         public async Task SendNotification(string message)
         {
             WriteDebugLine($"SendNotification ------------------------ {message}");
-            await SendMessageAsync(CredentialProviderCommandCode.Notification, true, $"{DateTime.Now.ToShortTimeString()}: {message}");
+
+            string formattedMessage = "";
+            if (!string.IsNullOrEmpty(message))
+                formattedMessage = $"{DateTime.Now.ToShortTimeString()}: {message}";
+            await SendMessageAsync(CredentialProviderCommandCode.Notification, true, formattedMessage);
         }
 
         async Task SendMessageAsync(CredentialProviderCommandCode code, bool isSuccess, string message)
