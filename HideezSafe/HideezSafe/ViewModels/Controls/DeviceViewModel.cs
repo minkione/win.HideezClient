@@ -5,6 +5,7 @@ using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Mvvm;
 using MvvmExtensions.Commands;
 using System;
+using System.Windows;
 using System.Windows.Input;
 
 namespace HideezSafe.ViewModels
@@ -117,11 +118,7 @@ namespace HideezSafe.ViewModels
                 {
                     CommandAction = x =>
                     {
-                        try
-                        {
-                            serviceProxy.GetService().DisconnectDevice(Id);
-                        }
-                        catch (Exception) { }
+                        OnDisconnectDevice();
                     },
                 };
             }
@@ -135,16 +132,45 @@ namespace HideezSafe.ViewModels
                 {
                     CommandAction = x =>
                     {
-                        try
-                        {
-                            serviceProxy.GetService().RemoveDevice(Id);
-                        }
-                        catch (Exception) { }
+                        OnRemoveDevice();
                     },
                 };
             }
         }
 
         #endregion
+
+        private async void OnDisconnectDevice()
+        {
+            try
+            {
+                var result = MessageBox.Show(
+                    $"Are you sure you want to disconnect {Name}?", 
+                    $"Disconnect {Name}", 
+                    MessageBoxButton.YesNo, 
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                    await serviceProxy.GetService().DisconnectDeviceAsync(Id);
+            }
+            catch (Exception) { }
+        }
+
+        private async void OnRemoveDevice()
+        {
+            try
+            {
+                var result = MessageBox.Show(
+                    $"Are you sure you want to remove {Name}?{Environment.NewLine}Note: All manually stored data will be lost!", 
+                    $"Remove {Name}", 
+                    MessageBoxButton.YesNo, 
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                    await serviceProxy.GetService().RemoveDeviceAsync(Id);
+            }
+            catch (Exception) { }
+        }
+
     }
 }
