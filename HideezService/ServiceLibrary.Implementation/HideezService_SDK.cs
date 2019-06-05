@@ -3,6 +3,7 @@ using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Proximity;
 using HideezMiddleware;
 using Microsoft.Win32;
@@ -313,19 +314,24 @@ namespace ServiceLibrary.Implementation
         }
 
 
-        public void SaveCredential(string deviceId, string login, string password)
+        public async void SaveCredential(string deviceId, string login, string password)
         {
-            
+            var device = _deviceManager.Find(deviceId);
+            if (device != null)
+            {
+                var dpm = new DevicePasswordManager(device);
+                await dpm.SavePcUnlockCredentials(login, password);
+            }
         }
 
         public void DisconnectDevice(string deviceId)
         {
-            _deviceManager.Devices.FirstOrDefault(d => d.Id == deviceId)?.Connection.Disconnect();
+            _deviceManager.Find(deviceId)?.Connection.Disconnect();
         }
 
         public async void RemoveDevice(string deviceId)
         {
-            var device = _deviceManager.Devices.FirstOrDefault(d => d.Id == deviceId);
+            var device = _deviceManager.Find(deviceId);
             if (device != null)
                 await _deviceManager.Remove(device);
         }
