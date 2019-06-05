@@ -5,6 +5,7 @@ using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Utils;
 
 namespace HideezMiddleware
 {
@@ -80,56 +81,26 @@ namespace HideezMiddleware
             try
             {
                 ActivateWorkstationScreen();
-                await _credentialProviderConnection.SendNotification("Connecting device...");
 
                 string deviceId = mac.Replace(":", "");
 
+                await _credentialProviderConnection.SendNotification("Connecting to the device...");
                 var device = await _deviceManager.ConnectByMac(mac, timeout: 20_000);
                 if (device == null)
                     throw new Exception($"Cannot connect device '{mac}'");
 
+                await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
                 await device.WaitInitialization(timeout: 10_000);
 
                 //todo - wait for primary account update?
 
-                string login = null;
-                string pass = null;
-                string prevPass = "";
-
-                ushort primaryAccountKey = await GetPrimaryAccountKey(device);
-                if (primaryAccountKey == 0)
-                {
-                    var credentials = await device.ReadStorageAsString(
-                        (byte)StorageTable.BondVirtualTable1, 
-                        (ushort)BondVirtualTable1Item.PcUnlockCredentials);
-
-                    var parts = credentials.Split('\n');
-                    if (parts.Length >= 2)
-                    {
-                        login = parts[0];
-                        pass = parts[1];
-                    }
-                    if (parts.Length >= 3)
-                    {
-                        prevPass = parts[2];
-                    }
-
-                    if (login == null || pass == null)
-                        throw new Exception($"Device '{mac}' has not a primary account stored");
-                }
-                else
-                {
-                    // get the login and password from the Hideez Key
-                    login = await device.ReadStorageAsString((byte)StorageTable.Logins, primaryAccountKey);
-                    pass = await device.ReadStorageAsString((byte)StorageTable.Passwords, primaryAccountKey);
-                    prevPass = ""; //todo
-
-                    if (login == null || pass == null)
-                        throw new Exception($"Cannot read login or password from device '{mac}'");
-                }
+                await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
+                ushort primaryAccountKey = 0x0000;// await GetPrimaryAccountKey(device);
+                var credentials = await GetCredentials(device, primaryAccountKey);
 
                 // send credentials to the Credential Provider to unlock the PC
-                await _credentialProviderConnection.SendLogonRequest(login, pass, prevPass);
+                await _credentialProviderConnection.SendNotification("Unlocking the PC...");
+                await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
             }
             catch (Exception ex)
             {
@@ -145,7 +116,7 @@ namespace HideezMiddleware
             try
             {
                 ActivateWorkstationScreen();
-                await _credentialProviderConnection.SendNotification("Connecting device...");
+                await _credentialProviderConnection.SendNotification("Connecting to the HES server...");
 
                 // get MAC address from the HES
                 var info = await _hesConnection.GetInfoByRfid(rfid);
@@ -153,26 +124,24 @@ namespace HideezMiddleware
                 if (info == null)
                     throw new Exception($"Device not found");
 
-                if (info.IdFromDevice == 0 && !info.NeedUpdatePrimaryAccount)
-                    throw new Exception($"Device '{info.DeviceSerialNo}' has not a primary account stored");
-
+                await _credentialProviderConnection.SendNotification("Connecting to the device...");
                 var device = await _deviceManager.ConnectByMac(info.DeviceMac, timeout: 20_000);
                 if (device == null)
                     throw new Exception($"Cannot connect device '{info.DeviceMac}'");
 
+                await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
                 await device.WaitInitialization(timeout: 10_000);
-                await WaitForPrimaryAccountUpdate(rfid, info);
-                
-                // get the login and password from the Hideez Key
-                string login = await device.ReadStorageAsString((byte)StorageTable.Logins, info.IdFromDevice);
-                string pass = await device.ReadStorageAsString((byte)StorageTable.Passwords, info.IdFromDevice);
-                string prevPass = ""; //todo
 
-                if (login == null || pass == null)
-                    throw new Exception($"Cannot read login or password from the device '{info.DeviceSerialNo}'");
+                await _credentialProviderConnection.SendNotification("Waiting for the primary account update...");
+                await WaitForPrimaryAccountUpdate(rfid, info);
+
+                await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
+                var credentials = await GetCredentials(device, info.IdFromDevice);
+
 
                 // send credentials to the Credential Provider to unlock the PC
-                await _credentialProviderConnection.SendLogonRequest(login, pass, prevPass);
+                await _credentialProviderConnection.SendNotification("Unlocking the PC...");
+                await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
             }
             catch (Exception ex)
             {
@@ -217,6 +186,47 @@ namespace HideezMiddleware
             {
             }
             return 0;
+        }
+
+        async Task<Credentials> GetCredentials(IDevice device, ushort key)
+        {
+            Credentials credentials;
+
+            if (key == 0)
+            {
+                var str = await device.ReadStorageAsString(
+                    (byte)StorageTable.BondVirtualTable1,
+                    (ushort)BondVirtualTable1Item.PcUnlockCredentials);
+
+                if (str != null)
+                {
+                    var parts = str.Split('\n');
+                    if (parts.Length >= 2)
+                    {
+                        credentials.Login = parts[0];
+                        credentials.Password = parts[1];
+                    }
+                    if (parts.Length >= 3)
+                    {
+                        credentials.PreviousPassword = parts[2];
+                    }
+                }
+
+                if (credentials.IsEmpty)
+                    throw new Exception($"Device '{device.SerialNo}' has not a primary account stored");
+            }
+            else
+            {
+                // get the login and password from the Hideez Key
+                credentials.Login = await device.ReadStorageAsString((byte)StorageTable.Logins, key);
+                credentials.Password = await device.ReadStorageAsString((byte)StorageTable.Passwords, key);
+                credentials.PreviousPassword = ""; //todo
+
+                if (credentials.IsEmpty)
+                    throw new Exception($"Cannot read login or password from the device '{device.SerialNo}'");
+            }
+
+            return credentials;
         }
 
         async void ActivateWorkstationScreen()
