@@ -46,8 +46,8 @@ namespace HideezSafe.Modules
                 sessionStateMonitor.CurrentState == SessionState.Unknown)
             {
                 // Should trigger activation of the screen in credential provider with 0 impact on user
-                inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F24);
-                inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F24);
+                inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.ESCAPE);
+                inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.ESCAPE);
             }
         }
 
