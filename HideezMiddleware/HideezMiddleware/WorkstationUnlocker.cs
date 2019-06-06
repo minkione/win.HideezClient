@@ -95,7 +95,7 @@ namespace HideezMiddleware
                 //todo - wait for primary account update?
 
                 await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
-                ushort primaryAccountKey = 0x0000;// await GetPrimaryAccountKey(device);
+                ushort primaryAccountKey = await GetPrimaryAccountKey(device);
                 var credentials = await GetCredentials(device, primaryAccountKey);
 
                 // send credentials to the Credential Provider to unlock the PC
