@@ -85,37 +85,37 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="ID: " />
-                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentDevice.Id}" FontWeight="Bold" />
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CurrentDevice.Id, Mode=OneWay}" IsReadOnly="True" />
                     
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Name: " />
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CurrentDevice.Name}" FontWeight="Bold" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CurrentDevice.Name, Mode=OneWay}" IsReadOnly="True" />
 
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="MAC: " />
-                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CurrentDevice.Mac}" FontWeight="Bold" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CurrentDevice.Mac, Mode=OneWay}" IsReadOnly="True" />
 
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="Connected: " />
-                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CurrentDevice.IsConnected}" FontWeight="Bold" />
+                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CurrentDevice.IsConnected, Mode=OneWay}" IsReadOnly="True" />
 
                     <TextBlock Grid.Row="4" Grid.Column="0" Text="Channel: " />
-                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding CurrentDevice.ChannelNo}" FontWeight="Bold" />
+                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding CurrentDevice.ChannelNo, Mode=OneWay}" IsReadOnly="True" />
 
                     <TextBlock Grid.Row="5" Grid.Column="0" Text="Serial No: " />
-                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding CurrentDevice.SerialNo}" FontWeight="Bold" />
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding CurrentDevice.SerialNo, Mode=OneWay}" IsReadOnly="True" />
 
                     <TextBlock Grid.Row="6" Grid.Column="0" Text="FirmwareVersion: " />
-                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding CurrentDevice.FirmwareVersion}" FontWeight="Bold" />
+                    <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding CurrentDevice.FirmwareVersion, Mode=OneWay}" IsReadOnly="True" />
 
                     <TextBlock Grid.Row="7" Grid.Column="0" Text="BootloaderVersion: " />
-                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding CurrentDevice.BootloaderVersion}" FontWeight="Bold" />
+                    <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding CurrentDevice.BootloaderVersion, Mode=OneWay}" IsReadOnly="True" />
 
                     <TextBlock Grid.Row="8" Grid.Column="0" Text="StorageTotalSize: " />
-                    <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding CurrentDevice.StorageTotalSize}" FontWeight="Bold" />
+                    <TextBox Grid.Row="8" Grid.Column="1" Text="{Binding CurrentDevice.StorageTotalSize, Mode=OneWay}" IsReadOnly="True" />
 
                     <TextBlock Grid.Row="9" Grid.Column="0" Text="StorageFreeSize: " />
-                    <TextBlock Grid.Row="9" Grid.Column="1" Text="{Binding CurrentDevice.StorageFreeSize}" FontWeight="Bold" />
+                    <TextBox Grid.Row="9" Grid.Column="1" Text="{Binding CurrentDevice.StorageFreeSize, Mode=OneWay}" IsReadOnly="True" />
 
                     <TextBlock Grid.Row="10" Grid.Column="0" Text="IsInitialized: " />
-                    <TextBlock Grid.Row="10" Grid.Column="1" Text="{Binding CurrentDevice.IsInitialized}" FontWeight="Bold" />
+                    <TextBox Grid.Row="10" Grid.Column="1" Text="{Binding CurrentDevice.IsInitialized, Mode=OneWay}" IsReadOnly="True" />
                 </Grid>
                 <StackPanel Margin="10">
                     <Label>Tests:</Label>

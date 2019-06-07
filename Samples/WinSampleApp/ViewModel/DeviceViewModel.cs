@@ -26,7 +26,13 @@ namespace WinSampleApp.ViewModel
 
             Device.ConnectionStateChanged += (object sender, EventArgs e) 
                 => NotifyPropertyChanged(nameof(IsConnected));
+
+            Device.PropertyChanged += Device_PropertyChanged;
         }
 
+        private void Device_PropertyChanged(object sender, string e)
+        {
+            NotifyPropertyChanged(e);
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Hideez.SDK.Communication.Interfaces;
-using Hideez.SDK.Communication.Log;
+﻿using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.NamedPipes;
 using System;
 using System.Text;
@@ -14,18 +13,40 @@ namespace HideezMiddleware
         UserList = 3,
         PasswordChange = 4,
         PasswordChangeCompleated = 5,
-        Notification = 6
+        Notification = 6,
+        Status = 7,
     }
 
     public class CredentialProviderConnection : Logger
     {
+        bool connected = false;
         readonly PipeServer _pipeServer;
+
+        public event EventHandler<EventArgs> ConnectionStateChanged;
 
         public CredentialProviderConnection(ILog log)
             : base(nameof(CredentialProviderConnection), log)
         {
             _pipeServer = new PipeServer("hideezsafe3", log);
             _pipeServer.MessageReceivedEvent += PipeServer_MessageReceivedEvent;
+            _pipeServer.ClientConnectedEvent += PipeServer_ClientConnectedEvent;
+            _pipeServer.ClientDisconnectedEvent += PipeServer_ClientDisconnectedEvent;
+        }
+        
+        public bool Connected
+        {
+            get
+            {
+                return connected;
+            }
+            set
+            {
+                if (connected != value)
+                {
+                    connected = value;
+                    ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
         }
 
         public void Start()
@@ -83,6 +104,16 @@ namespace HideezMiddleware
             }
         }
 
+        void PipeServer_ClientConnectedEvent(object sender, ClientConnectedEventArgs e)
+        {
+            Connected = true;
+        }
+
+        void PipeServer_ClientDisconnectedEvent(object sender, ClientDisconnectedEventArgs e)
+        {
+            Connected = false;
+        }
+
         async void OnLogonRequestByLoginName(string login)
         {
             WriteDebugLine($"LogonWorkstationAsync ------------------------ {login}");
@@ -110,6 +141,12 @@ namespace HideezMiddleware
             if (!string.IsNullOrEmpty(message))
                 formattedMessage = $"{DateTime.Now.ToShortTimeString()}: {message}";
             await SendMessageAsync(CredentialProviderCommandCode.Notification, true, formattedMessage);
+        }
+
+        public async Task SendStatus(string statusMessage)
+        {
+            WriteDebugLine($"SendStatus ------------------------ {statusMessage}");
+            await SendMessageAsync(CredentialProviderCommandCode.Status, true, statusMessage);
         }
 
         async Task SendMessageAsync(CredentialProviderCommandCode code, bool isSuccess, string message)
