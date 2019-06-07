@@ -124,7 +124,7 @@ namespace ServiceLibrary.Implementation
 
         public void DetachClient()
         {
-            _log.Debug(">>>>>> DetachClient ");
+            _log.Debug($">>>>>> DetachClient {_client?.ClientType}");
             SessionManager.Remove(_client);
         }
 

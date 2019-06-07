@@ -132,12 +132,14 @@ namespace HideezSafe.Modules
 
         public void ShowError(string message)
         {
-            MessageBox.Show(message, LocalizedObject.L("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+            var title = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
+            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         public void ShowWarning(string message)
         {
-            MessageBox.Show(message, LocalizedObject.L("Warning"), MessageBoxButton.OK, MessageBoxImage.Warning);
+            var title = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
+            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 }

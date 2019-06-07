@@ -104,7 +104,7 @@ namespace HideezSafe.ViewModels
                 {
                     CommandAction = x =>
                     {
-                        windowsManager.ShowDialogAddCredential(this.Name, this.Id);
+                        windowsManager.ShowDialogAddCredential(Name, Id);
                     },
                 };
             }
@@ -153,7 +153,10 @@ namespace HideezSafe.ViewModels
                 if (result == MessageBoxResult.Yes)
                     await serviceProxy.GetService().DisconnectDeviceAsync(Id);
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                windowsManager.ShowError(ex.Message);
+            }
         }
 
         private async void OnRemoveDevice()
@@ -169,7 +172,10 @@ namespace HideezSafe.ViewModels
                 if (result == MessageBoxResult.Yes)
                     await serviceProxy.GetService().RemoveDeviceAsync(Id);
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                windowsManager.ShowError(ex.Message);
+            }
         }
 
     }

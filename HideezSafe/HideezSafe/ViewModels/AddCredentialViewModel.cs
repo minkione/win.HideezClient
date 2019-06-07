@@ -97,35 +97,39 @@ namespace HideezSafe.ViewModels
 
         private void SaveCredential(AddCredentialView view)
         {
-            if (view.passwordBox.SecurePassword.Length == 0 || string.IsNullOrWhiteSpace(SelectedLogin))
+            if (string.IsNullOrWhiteSpace(SelectedLogin))
             {
-                windowsManager.ShowWarning($"Login or password cannot be empty");
+                windowsManager.ShowWarning($"Login cannot be empty");
+                return;
             }
-            else
+
+            if (view.passwordBox.SecurePassword.Length == 0)
             {
-                IsInProgress = true;
-                var login = SelectedLogin;
-                var pass = view.passwordBox.Password;
+                windowsManager.ShowWarning($"Password cannot be empty");
+                return;
+            }
 
+            IsInProgress = true;
+            var login = SelectedLogin;
+            var pass = view.passwordBox.Password;
 
-                Task.Run(async () =>
+            Task.Run(async () =>
+            {
+                try
                 {
-                    try
-                    {
-                        await serviceProxy.GetService().SaveCredentialAsync(DeviceId, login, pass);
-
-                        IsInProgress = false;
-                    }
-                    catch (Exception ex)
-                    {
-                        windowsManager.ShowError($"An : {ex.Message}");
-                    }
-                    finally
-                    {
-                        Application.Current.Dispatcher.Invoke(view.Close);
-                    }
-                });
-            }
+                    await serviceProxy.GetService().SaveCredentialAsync(DeviceId, login, pass);
+                    IsInProgress = false;
+                    Application.Current.Dispatcher.Invoke(view.Close);
+                }
+                catch (Exception ex)
+                {
+                    windowsManager.ShowError($"An error occured while saving credentials:{Environment.NewLine}{ex.Message}");
+                }
+                finally
+                {
+                    IsInProgress = false;
+                }
+            });
         }
     }
 }

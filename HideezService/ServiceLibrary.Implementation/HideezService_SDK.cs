@@ -404,7 +404,6 @@ namespace ServiceLibrary.Implementation
 
         public async Task SaveCredentialAsync(string deviceId, string login, string password)
         {
-
             try
             {
                 var device = _deviceManager.Find(deviceId);
