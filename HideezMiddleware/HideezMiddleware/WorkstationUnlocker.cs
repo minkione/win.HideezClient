@@ -33,7 +33,6 @@ namespace HideezMiddleware
             : base(nameof(WorkstationUnlocker), log)
         {
             _deviceManager = deviceManager;
-            _hesConnection = hesConnection;
             _credentialProviderConnection = credentialProviderConnection;
             _rfidService = rfidService;
             _connectionManager = connectionManager;
@@ -46,7 +45,12 @@ namespace HideezMiddleware
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
+
+            if (_hesConnection != null)
+            {
+                _hesConnection = hesConnection;
+                _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
+            }
         }
 
         #region Status notification
@@ -198,6 +202,9 @@ namespace HideezMiddleware
                 ActivateWorkstationScreen();
                 await _credentialProviderConnection.SendNotification("Connecting to the HES server...");
 
+                if (_hesConnection == null)
+                    throw new Exception("Cannot connect device. Not connected to the HES.");
+
                 // get MAC address from the HES
                 var info = await _hesConnection.GetInfoByRfid(rfid);
 
@@ -234,6 +241,9 @@ namespace HideezMiddleware
 
         async Task WaitForPrimaryAccountUpdate(string rfid, UserInfo info)
         {
+            if (_hesConnection == null)
+                throw new Exception("Cannot update primary account. Not connected to the HES.");
+
             if (info.NeedUpdatePrimaryAccount == false)
                 return;
 

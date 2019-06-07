@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ServiceModel;
+using System.Threading.Tasks;
 
 namespace ServiceLibrary
 {
@@ -53,7 +54,7 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void SaveCredential(string deviceId, string login, string password);
+        Task SaveCredentialAsync(string deviceId, string login, string password);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
@@ -61,7 +62,7 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void RemoveDevice(string deviceId);
+        Task RemoveDeviceAsync(string deviceId);
     }
 
     public interface ICallbacks

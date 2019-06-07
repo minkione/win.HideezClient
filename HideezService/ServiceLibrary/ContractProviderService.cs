@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ServiceLibrary
 {
@@ -64,12 +65,12 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public void RemoveDevice(string deviceId)
+        public Task SaveCredentialAsync(string deviceId, string login, string password)
         {
             throw new NotImplementedException();
         }
 
-        public void SaveCredential(string deviceId, string login, string password)
+        public Task RemoveDeviceAsync(string deviceId)
         {
             throw new NotImplementedException();
         }
