@@ -201,6 +201,9 @@
     <Compile Include="Messages\PairedDevicesCollectionChangedMessage.cs" />
     <Compile Include="Modules\DeviceManager\DeviceManager.cs" />
     <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
+    <Compile Include="Modules\Remote\IRemoteDeviceFactory.cs" />
+    <Compile Include="Modules\Remote\RemoteDeviceConnection.cs" />
+    <Compile Include="Modules\Remote\RemoteDeviceFactory.cs" />
     <Compile Include="Modules\SessionStateMonitor\ISessionStateMonitor.cs" />
     <Compile Include="Modules\SessionStateMonitor\SessionStateMonitor.cs" />
     <Compile Include="Utilities\LocalToMSAccountConverter.cs" />
@@ -465,6 +468,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\BackgroundForPage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
+      <Project>{20B97AF9-6422-4678-900B-0610ED1D2517}</Project>
+      <Name>Communication</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

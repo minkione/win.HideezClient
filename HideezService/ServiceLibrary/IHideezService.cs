@@ -64,7 +64,7 @@ namespace ServiceLibrary
         Task RemoveDeviceAsync(string deviceId);
 
         [OperationContract]
-        [FaultContract(typeof(HideezServiceFault)]
+        [FaultContract(typeof(HideezServiceFault))]
         Task<string> EstablishRemoteDeviceConnection(string mac, byte channelNo);
 
         [OperationContract]

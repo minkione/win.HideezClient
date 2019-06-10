@@ -473,6 +473,38 @@ namespace HideezSafe.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoveDevice", ReplyAction="http://tempuri.org/IHideezService/RemoveDeviceResponse")]
         System.Threading.Tasks.Task RemoveDeviceAsync(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnection", ReplyAction="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnectionResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnectionHideezServiceFau" +
+            "ltFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        string EstablishRemoteDeviceConnection(string mac, byte channelNo);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnection", ReplyAction="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnectionResponse")]
+        System.Threading.Tasks.Task<string> EstablishRemoteDeviceConnectionAsync(string mac, byte channelNo);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandHideezServiceFaultF" +
+            "ault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        byte[] RemoteConnection_AuthCommand(string connectionId, byte[] data);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandResponse")]
+        System.Threading.Tasks.Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommandResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommandHideezServiceFaul" +
+            "tFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        byte[] RemoteConnection_RemoteCommand(string connectionId, byte[] data);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommandResponse")]
+        System.Threading.Tasks.Task<byte[]> RemoteConnection_RemoteCommandAsync(string connectionId, byte[] data);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannel", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_ResetChannelResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannelHideezServiceFault" +
+            "Fault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void RemoteConnection_ResetChannel(string connectionId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannel", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_ResetChannelResponse")]
+        System.Threading.Tasks.Task RemoteConnection_ResetChannelAsync(string connectionId);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -641,6 +673,38 @@ namespace HideezSafe.HideezServiceReference {
         
         public System.Threading.Tasks.Task RemoveDeviceAsync(string deviceId) {
             return base.Channel.RemoveDeviceAsync(deviceId);
+        }
+        
+        public string EstablishRemoteDeviceConnection(string mac, byte channelNo) {
+            return base.Channel.EstablishRemoteDeviceConnection(mac, channelNo);
+        }
+        
+        public System.Threading.Tasks.Task<string> EstablishRemoteDeviceConnectionAsync(string mac, byte channelNo) {
+            return base.Channel.EstablishRemoteDeviceConnectionAsync(mac, channelNo);
+        }
+        
+        public byte[] RemoteConnection_AuthCommand(string connectionId, byte[] data) {
+            return base.Channel.RemoteConnection_AuthCommand(connectionId, data);
+        }
+        
+        public System.Threading.Tasks.Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data) {
+            return base.Channel.RemoteConnection_AuthCommandAsync(connectionId, data);
+        }
+        
+        public byte[] RemoteConnection_RemoteCommand(string connectionId, byte[] data) {
+            return base.Channel.RemoteConnection_RemoteCommand(connectionId, data);
+        }
+        
+        public System.Threading.Tasks.Task<byte[]> RemoteConnection_RemoteCommandAsync(string connectionId, byte[] data) {
+            return base.Channel.RemoteConnection_RemoteCommandAsync(connectionId, data);
+        }
+        
+        public void RemoteConnection_ResetChannel(string connectionId) {
+            base.Channel.RemoteConnection_ResetChannel(connectionId);
+        }
+        
+        public System.Threading.Tasks.Task RemoteConnection_ResetChannelAsync(string connectionId) {
+            return base.Channel.RemoteConnection_ResetChannelAsync(connectionId);
         }
     }
 }

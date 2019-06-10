@@ -79,5 +79,25 @@ namespace ServiceLibrary
         {
             throw new NotImplementedException();
         }
+
+        public Task<string> EstablishRemoteDeviceConnection(string mac, byte channelNo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<byte[]> RemoteConnection_RemoteCommandAsync(string connectionId, byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoteConnection_ResetChannelAsync(string connectionId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
