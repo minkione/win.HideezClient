@@ -1,32 +1,33 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.HideezServiceReference;
 using HideezSafe.Messages;
 using HideezSafe.Modules.ServiceProxy;
-using HideezSafe.Utilities;
 using HideezSafe.ViewModels;
 using NLog;
 using System.Linq;
+using Hideez.SDK.Communication.Remote;
 
 namespace HideezSafe.Modules.DeviceManager
 {
-    public class DeviceManager : IDeviceManager
+    class DeviceManager : IDeviceManager
     {
         private readonly Logger log = LogManager.GetCurrentClassLogger();
         private readonly IServiceProxy serviceProxy;
         private readonly IWindowsManager windowsManager;
+        readonly IRemoteDeviceFactory _remoteDeviceFactory;
 
-        public DeviceManager(IMessenger messanger, IServiceProxy serviceProxy, IWindowsManager windowsManager)
+        public DeviceManager(IMessenger messanger, IServiceProxy serviceProxy, 
+            IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory)
         {
             Devices = new ObservableCollection<DeviceViewModel>();
             this.serviceProxy = serviceProxy;
             this.windowsManager = windowsManager;
+            _remoteDeviceFactory = remoteDeviceFactory;
             windowsManager.MainWindowVisibleChanged += WindowsManager_ActivatedStateMainWindowChanged;
 
             messanger.Register<PairedDevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
@@ -37,6 +38,10 @@ namespace HideezSafe.Modules.DeviceManager
 
             Task.Run(UpdateDevicesAsync);
         }
+
+        public ObservableCollection<DeviceViewModel> Devices { get; } = new ObservableCollection<DeviceViewModel>();
+
+        public ObservableCollection<RemoteDevice> RemoteDevices { get; } = new ObservableCollection<RemoteDevice>();
 
         private void WindowsManager_ActivatedStateMainWindowChanged(object sender, bool isVisible)
         {
@@ -99,8 +104,6 @@ namespace HideezSafe.Modules.DeviceManager
         {
             FindDevice(obj.Device)?.LoadFrom(obj.Device);
         }
-
-        public ObservableCollection<DeviceViewModel> Devices { get; } = new ObservableCollection<DeviceViewModel>();
 
         private void ServiceProxy_ConnectionStateChanged(object sender, EventArgs e)
         {
@@ -180,7 +183,14 @@ namespace HideezSafe.Modules.DeviceManager
                                     Devices.Add(dvm);
                                 }
                             }
+
                         });
+
+                        if (device == null)
+                        {
+                            var remDev = await _remoteDeviceFactory.CreateRemoteDevice(item.Mac, 4);
+                            RemoteDevices.Add(remDev);
+                        }
                     }
                 }
 

@@ -175,6 +175,9 @@ namespace TestConsole.HideezServiceReference {
         private bool IsInitializedField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string MacField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -276,6 +279,19 @@ namespace TestConsole.HideezServiceReference {
                 if ((this.IsInitializedField.Equals(value) != true)) {
                     this.IsInitializedField = value;
                     this.RaisePropertyChanged("IsInitialized");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Mac {
+            get {
+                return this.MacField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.MacField, value) != true)) {
+                    this.MacField = value;
+                    this.RaisePropertyChanged("Mac");
                 }
             }
         }

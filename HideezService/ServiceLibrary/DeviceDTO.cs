@@ -14,6 +14,13 @@ namespace ServiceLibrary
             Proximity = device.Proximity;
             IsConnected = device.IsConnected;
             Battery = device.Battery;
+            SerialNo = device.SerialNo;
+            Mac = device.Mac;
+            FirmwareVersion = device.FirmwareVersion;
+            BootloaderVersion = device.BootloaderVersion;
+            StorageTotalSize = device.StorageTotalSize;
+            StorageFreeSize = device.StorageFreeSize;
+            IsInitialized = device.IsInitialized;
         }
 
         [DataMember]
@@ -38,6 +45,9 @@ namespace ServiceLibrary
         public string SerialNo { get; set; }
 
         [DataMember]
+        public string Mac { get; set; }
+
+        [DataMember]
         public Version FirmwareVersion { get; private set; }
 
         [DataMember]
@@ -51,5 +61,8 @@ namespace ServiceLibrary
 
         [DataMember]
         public bool IsInitialized { get; private set; }
+
+        [DataMember]
+        public bool IsRemote { get; private set; }
     }
 }
