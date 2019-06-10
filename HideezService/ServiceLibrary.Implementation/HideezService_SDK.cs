@@ -2,9 +2,9 @@
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
-using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Proximity;
+using Hideez.SDK.Communication.WCF;
 using HideezMiddleware;
 using Microsoft.Win32;
 using System;
@@ -24,6 +24,7 @@ namespace ServiceLibrary.Implementation
         static ProximityMonitorManager _proximityMonitorManager;
         static IWorkstationLocker _workstationLocker;
         static IScreenActivator _screenActivator;
+        static WcfDeviceFactory _wcfDeviceManager;
 
         void InitializeSDK()
         {
@@ -46,6 +47,8 @@ namespace ServiceLibrary.Implementation
             _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
             _deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
 
+            // WCF ============================
+            _wcfDeviceManager = new WcfDeviceFactory(_deviceManager, sdkLogger);
 
             // Named Pipes Server ==============================
             _credentialProviderConnection = new CredentialProviderConnection(sdkLogger);

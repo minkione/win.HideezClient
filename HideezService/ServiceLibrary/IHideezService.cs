@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary
@@ -63,6 +62,22 @@ namespace ServiceLibrary
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         Task RemoveDeviceAsync(string deviceId);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault)]
+        Task<string> EstablishRemoteDeviceConnection(string mac, byte channelNo);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        Task<byte[]> RemoteConnection_RemoteCommandAsync(string connectionId, byte[] data);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        Task RemoteConnection_ResetChannelAsync(string connectionId);
     }
 
     public interface ICallbacks
