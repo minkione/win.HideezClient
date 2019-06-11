@@ -14,6 +14,7 @@ using System.Windows;
 using NLog;
 using System.IO;
 using NLog.Layouts;
+using System.Threading.Tasks;
 
 namespace HideezSafe.Modules
 {
@@ -24,16 +25,18 @@ namespace HideezSafe.Modules
         private readonly IWindowsManager windowsManager;
         private readonly IAppHelper appHelper;
         private readonly ISettingsManager<ApplicationSettings> settingsManager;
+        private readonly ISupportMailContentGenerator supportMailContentGenerator;
 
         public MenuFactory(IMessenger messenger, IStartupHelper startupHelper
             , IWindowsManager windowsManager, IAppHelper appHelper,
-            ISettingsManager<ApplicationSettings> settingsManager)
+            ISettingsManager<ApplicationSettings> settingsManager, ISupportMailContentGenerator supportMailContentGenerator)
         {
             this.messenger = messenger;
             this.startupHelper = startupHelper;
             this.windowsManager = windowsManager;
             this.appHelper = appHelper;
             this.settingsManager = settingsManager;
+            this.supportMailContentGenerator = supportMailContentGenerator;
         }
 
         public MenuItemViewModel GetMenuItem(MenuItemType type)
@@ -51,7 +54,7 @@ namespace HideezSafe.Modules
                 case MenuItemType.UserManual:
                     return GetViewModel("Menu.UserManual", x => OnOpenUrl("Url.UserManual"));
                 case MenuItemType.TechnicalSupport:
-                    return GetViewModel("Menu.TechnicalSupport", x => throw new NotImplementedException());
+                    return GetViewModel("Menu.TechnicalSupport", x => OnTechSupportAsync("SupportMail"));
                 case MenuItemType.LiveChat:
                     return GetViewModel("Menu.LiveChat", x => OnOpenUrl("Url.LiveChat"));
                 case MenuItemType.Legal:
@@ -74,6 +77,13 @@ namespace HideezSafe.Modules
                 default:
                     return null;
             }
+        }
+
+        private async Task OnTechSupportAsync(string techSupportUriKey)
+        {
+            string techSupportUri = TranslationSource.Instance[techSupportUriKey];
+            var mail = await supportMailContentGenerator.GenerateSupportMail(techSupportUri);
+            appHelper.OpenUrl(mail);
         }
 
         private void OnOpenUrl(string urlKey)
