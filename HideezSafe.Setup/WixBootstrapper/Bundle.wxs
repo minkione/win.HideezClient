@@ -62,7 +62,7 @@
     <!-- Detect InstallFolder of the previous installation -->
     <Variable Name="InstallFolder"
               Type="string"
-              Value="[$(var.BootstrapperPlatformProgramFilesFolder)]Hideez\Safe" />
+              Value="[$(var.BootstrapperPlatformProgramFilesFolder)]Hideez\Safe v3" />
 
     <!-- Ask to launch application after install -->
     <Variable Name="LaunchTarget"
