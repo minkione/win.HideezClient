@@ -556,7 +556,7 @@ namespace WinSampleApp.ViewModel
 
         void DisconnectDevice(DeviceViewModel device)
         {
-            device.Device.Connection.Disconnect();
+            device.Device.Disconnect();
         }
 
         async void PingDevice(DeviceViewModel device)
