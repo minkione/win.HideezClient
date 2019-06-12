@@ -54,7 +54,7 @@ namespace HideezSafe.Modules
                 case MenuItemType.UserManual:
                     return GetViewModel("Menu.UserManual", x => OnOpenUrl("Url.UserManual"));
                 case MenuItemType.TechnicalSupport:
-                    return GetViewModel("Menu.TechnicalSupport", x => OnTechSupportAsync("SupportMail"));
+                    return GetViewModel("Menu.TechnicalSupport", x => Task.Run(() => OnTechSupportAsync("SupportMail")));
                 case MenuItemType.LiveChat:
                     return GetViewModel("Menu.LiveChat", x => OnOpenUrl("Url.LiveChat"));
                 case MenuItemType.Legal:

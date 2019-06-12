@@ -380,7 +380,7 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
     <None Include="Connected Services\HideezServiceReference\service.wsdl" />
