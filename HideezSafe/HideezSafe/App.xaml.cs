@@ -188,6 +188,8 @@ namespace HideezSafe
             Container.RegisterType<TaskbarIconViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ITaskbarIconManager, TaskbarIconManager>(new ContainerControlledLifetimeManager());
 
+            Container.RegisterType<ISupportMailContentGenerator, SupportMailContentGenerator>(new ContainerControlledLifetimeManager());
+
             // Messenger
             Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
 
