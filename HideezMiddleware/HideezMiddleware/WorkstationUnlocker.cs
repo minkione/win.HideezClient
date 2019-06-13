@@ -16,9 +16,10 @@ namespace HideezMiddleware
         readonly BleDeviceManager _deviceManager;
         readonly CredentialProviderConnection _credentialProviderConnection;
         readonly RfidServiceConnection _rfidService;
-        readonly HesAppConnection _hesConnection;
         readonly IBleConnectionManager _connectionManager;
         readonly IScreenActivator _screenActivator;
+
+        HesAppConnection _hesConnection;
 
         readonly ConcurrentDictionary<string, Guid> _pendingUnlocks =
             new ConcurrentDictionary<string, Guid>();
@@ -45,6 +46,17 @@ namespace HideezMiddleware
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+
+            SetHes(hesConnection);
+        }
+
+        public void SetHes(HesAppConnection hesConnection)
+        {
+            if (_hesConnection != null)
+            {
+                _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
+                _hesConnection = null;
+            }
 
             if (hesConnection != null)
             {
@@ -323,5 +335,7 @@ namespace HideezMiddleware
         {
             await Task.Run(() => { _screenActivator?.ActivateScreen(); });
         }
+
+
     }
 }

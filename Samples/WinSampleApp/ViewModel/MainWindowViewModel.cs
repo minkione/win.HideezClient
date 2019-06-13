@@ -23,14 +23,20 @@ namespace WinSampleApp.ViewModel
         readonly BleDeviceManager _deviceManager;
         readonly CredentialProviderConnection _credentialProviderConnection;
         readonly WorkstationUnlocker _workstationUnlocker;
-        readonly HesAppConnection _hesConnection;
         readonly RfidServiceConnection _rfidService;
+
+        HesAppConnection _hesConnection;
         byte _nextChannelNo = 2;
 
         public string BleAdapterState => _connectionManager?.State.ToString();
-        public string RfidAdapterState => "NA";
         public string ConectByMacAddress { get; set; } = "D0:A8:9E:6B:CD:8D";
 
+        public string RfidAdapterState => "NA";
+        public string RfidAddress { get; set; }
+
+        public string HesAddress { get; set; }
+        public string HesState => _hesConnection?.State.ToString();
+        
 
         bool bleAdapterDiscovering;
         public bool BleAdapterDiscovering
@@ -92,6 +98,41 @@ namespace WinSampleApp.ViewModel
 
 
         #region Commands
+        public ICommand ConnectHesCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return true;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        ConnectHes();
+                    }
+                };
+            }
+        }
+
+        public ICommand DisconnectHesCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return true;
+                    },
+                    CommandAction = async (x) =>
+                    {
+                        await DisconnectHes();
+                    }
+                };
+            }
+        }
 
         public ICommand UnlockByRfidCommand
         {
@@ -344,24 +385,6 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        public ICommand SendHesCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        SendHes();
-                    }
-                };
-            }
-        }
-
         public ICommand BoostDeviceRssiCommand
         {
             get
@@ -402,6 +425,8 @@ namespace WinSampleApp.ViewModel
 
         public MainWindowViewModel()
         {
+            HesAddress = "https://localhost:44371";
+
             _log = new EventLogger("ExampleApp");
             _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
 
@@ -430,12 +455,6 @@ namespace WinSampleApp.ViewModel
             _rfidService = new RfidServiceConnection(_log);
             _rfidService.Start();
 
-            // HES
-            //_hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.241", _log);
-            _hesConnection = new HesAppConnection(_deviceManager, "https://localhost:44371", _log);
-            //_hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.249", _log);
-
-            //_hesConnection.Connect();
 
             // WorkstationUnlocker ==================================
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, 
@@ -446,9 +465,69 @@ namespace WinSampleApp.ViewModel
             _connectionManager.StartDiscovery();
         }
 
-        internal void Close()
+        async void ConnectHes()
         {
-            _connectionManager?.Shutdown();
+            try
+            {
+                // HES
+                //_hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.241", _log);
+                //_hesConnection = new HesAppConnection(_deviceManager, "https://localhost:44371", _log);
+                //_hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.249", _log);
+
+                await DisconnectHes();
+
+                if (!string.IsNullOrEmpty(HesAddress))
+                {
+                    _hesConnection = new HesAppConnection(_deviceManager, HesAddress, _log);
+
+                    _hesConnection.Start();
+
+                    _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
+
+                    _workstationUnlocker.SetHes(_hesConnection);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                NotifyPropertyChanged(nameof(HesState));
+            }
+        }
+
+        async Task DisconnectHes()
+        {
+            try
+            {
+                if (_hesConnection != null)
+                {
+                    _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
+                    await _hesConnection.Stop();
+                    _hesConnection = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                NotifyPropertyChanged(nameof(HesState));
+            }
+        }
+
+        void HesConnection_HubConnectionStateChanged(object sender, EventArgs e)
+        {
+            NotifyPropertyChanged(nameof(HesState));
+        }
+
+        internal async void Close()
+        {
+            if (_hesConnection != null)
+                await _hesConnection.Stop();
+            _connectionManager?.Stop();
             _rfidService?.Stop();
             _credentialProviderConnection?.Stop();
         }
@@ -694,18 +773,6 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        void SendHes()
-        {
-            try
-            {
-                throw new NotImplementedException();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
         async void BoostDeviceRssi(DeviceViewModel device)
         {
             try
@@ -722,14 +789,13 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await _workstationUnlocker.UnlockByRfid("123");
+                await _workstationUnlocker.UnlockByRfid(RfidAddress);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
         }
-
 
         async void UpdateFw(DeviceViewModel device)
         {
