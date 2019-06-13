@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
@@ -107,7 +108,7 @@ namespace HideezMiddleware
                         case BluetoothAdapterState.LoadingKnownDevices:
                             break;
                         default:
-                            statuses.Add($"Bluetooth not available ({_connectionManager.State})");
+                            statuses.Add($"Bluetooth not available (state: {_connectionManager.State})");
                             break;
                     }
 
@@ -198,6 +199,14 @@ namespace HideezMiddleware
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
             }
+            catch (HideezException ex)
+            {
+                var message = HideezExceptionLocalization.GetErrorAsString(ex);
+                WriteLine(message);
+                await _credentialProviderConnection.SendNotification("");
+                await _credentialProviderConnection.SendError(message);
+                throw;
+            }
             catch (Exception ex)
             {
                 WriteLine(ex);
@@ -241,6 +250,14 @@ namespace HideezMiddleware
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+            }
+            catch (HideezException ex)
+            {
+                var message = HideezExceptionLocalization.GetErrorAsString(ex);
+                WriteLine(message);
+                await _credentialProviderConnection.SendNotification("");
+                await _credentialProviderConnection.SendError(message);
+                throw;
             }
             catch (Exception ex)
             {

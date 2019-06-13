@@ -8,6 +8,7 @@ using Hideez.SDK.Communication.Proximity;
 using HideezMiddleware;
 using Microsoft.Win32;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -28,6 +29,12 @@ namespace ServiceLibrary.Implementation
         void InitializeSDK()
         {
             var sdkLogger = new NLogger();
+
+#if DEBUG
+            _log.Info(">>>>>> Verifying error codes:");
+            var _hideezExceptionLocalization = new HideezExceptionLocalization(sdkLogger);
+            _hideezExceptionLocalization.VerifyResourcesForErrorCode(CultureInfo.CurrentCulture);
+#endif
 
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);

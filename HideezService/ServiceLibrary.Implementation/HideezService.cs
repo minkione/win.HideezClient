@@ -4,6 +4,8 @@ using System.ServiceModel;
 using System.Linq;
 using System.Threading;
 using Hideez.SDK.Communication.Interfaces;
+using HideezMiddleware;
+using Hideez.SDK.Communication;
 
 namespace ServiceLibrary.Implementation
 {
@@ -41,6 +43,7 @@ namespace ServiceLibrary.Implementation
                 _log.Info("OS: {0}", Environment.OSVersion);
                 _log.Info("Command: {0}", Environment.CommandLine);
 
+
                 _log.Info(">>>>>> Initialize SDK");
                 InitializeSDK();
                 _log.Info(">>>>>> SDK Initialized");
@@ -67,21 +70,36 @@ namespace ServiceLibrary.Implementation
             if (ex is AggregateException agg)
             {
                 var baseEx = agg.GetBaseException();
-
-                throw new FaultException<HideezServiceFault>(
-                    new HideezServiceFault(baseEx.Message, 6), baseEx.Message);
+                if (baseEx is HideezException hideezEx)
+                {
+                    throw new FaultException<HideezServiceFault>(
+                        new HideezServiceFault(HideezExceptionLocalization.GetErrorAsString(hideezEx), (int)hideezEx.ErrorCode), hideezEx.Message);
+                }
+                else
+                {
+                    throw new FaultException<HideezServiceFault>(
+                        new HideezServiceFault(baseEx.Message, (int)HideezErrorCode.GenericException), baseEx.Message);
+                }
             }
             else
             {
-                throw new FaultException<HideezServiceFault>(
-                    new HideezServiceFault(ex.Message, 6), ex.Message);
+                if (ex is HideezException hideezEx)
+                {
+                    throw new FaultException<HideezServiceFault>(
+                        new HideezServiceFault(HideezExceptionLocalization.GetErrorAsString(hideezEx), (int)hideezEx.ErrorCode), hideezEx.Message);
+                }
+                else
+                {
+                    throw new FaultException<HideezServiceFault>(
+                        new HideezServiceFault(ex.Message, (int)HideezErrorCode.GenericException), ex.Message);
+                }
             }
         }
 
         void LogException(Exception ex)
         {
-            _log.Error(ex.StackTrace);
             _log.Error(ex);
+            _log.Error(ex.StackTrace);
         }
         #endregion
 
