@@ -146,6 +146,15 @@
                                     Text="{Binding Proximity, StringFormat='{}{0,3}%'}" />
                             </StackPanel>
 
+                            <TextBlock
+                                Grid.Row="4"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                FontSize="14"
+                                Opacity="0.5"
+                                Margin="0,-4,0,0"
+                                Text="{Binding SerialNo}" />
+
                             <ToggleButton
                                 x:Name="toggleButton"
                                 Grid.Row="1"
@@ -174,7 +183,7 @@
                             </ToggleButton>
 
                             <mah:DropDownButton
-                                Grid.RowSpan="5"
+                                Grid.RowSpan="4"
                                 Grid.ColumnSpan="3"
                                 Margin="2,2,2,2"
                                 HorizontalAlignment="Right"
