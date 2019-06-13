@@ -13,6 +13,8 @@ namespace ServiceLibrary
             Name = device.Name;
             Proximity = device.Proximity;
             IsConnected = device.IsConnected;
+            IsBoot = device.IsBoot;
+            IsRemote = device.IsRemote;
             Battery = device.Battery;
             SerialNo = device.SerialNo;
             FirmwareVersion = device.FirmwareVersion;
@@ -38,6 +40,12 @@ namespace ServiceLibrary
         public bool IsConnected { get; set; }
 
         [DataMember]
+        public bool IsBoot { get; private set; }
+
+        [DataMember]
+        public bool IsRemote { get; private set; }
+
+        [DataMember]
         public int Battery { get; set; }
 
         [DataMember]
@@ -57,5 +65,6 @@ namespace ServiceLibrary
 
         [DataMember]
         public bool IsInitialized { get; private set; }
+
     }
 }

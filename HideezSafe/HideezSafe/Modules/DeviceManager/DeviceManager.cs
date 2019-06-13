@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.HideezServiceReference;
 using HideezSafe.Messages;
 using HideezSafe.Modules.ServiceProxy;
-using HideezSafe.Utilities;
 using HideezSafe.ViewModels;
 using NLog;
 using System.Linq;
@@ -152,17 +149,20 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        private async Task UpdateDevicesAsync(DeviceDTO[] serverDevices)
+        private async Task UpdateDevicesAsync(DeviceDTO[] serviceDevices)
         {
             try
             {
+                // Ignore remote devices
+                var realDevices = serviceDevices.Where(d => !d.IsRemote);
+
                 // update device's properties. If device does not exists, create it
-                foreach (var item in serverDevices)
+                foreach (var deviceDto in realDevices)
                 {
-                    var device = FindDevice(item);
+                    var device = FindDevice(deviceDto);
                     if (device != null)
                     {
-                        device.LoadFrom(item);
+                        device.LoadFrom(deviceDto);
                     }
                     else
                     {
@@ -172,11 +172,11 @@ namespace HideezSafe.Modules.DeviceManager
 
                             lock (Devices)
                             {
-                                device = FindDevice(item);
+                                device = FindDevice(deviceDto);
 
                                 if (device == null)
                                 {
-                                    dvm = new DeviceViewModel(item, windowsManager, serviceProxy);
+                                    dvm = new DeviceViewModel(deviceDto, windowsManager, serviceProxy);
                                     Devices.Add(dvm);
                                 }
                             }
@@ -186,7 +186,7 @@ namespace HideezSafe.Modules.DeviceManager
 
                 // delete device from UI if its deleted from service
                 foreach (var clientDevice in
-                    Devices.Where(d => serverDevices.FirstOrDefault(dto => dto.Id == d.Id) == null)
+                    Devices.Where(d => realDevices.FirstOrDefault(dto => dto.Id == d.Id) == null)
                     .ToArray())
                 {
                     lock (Devices)
