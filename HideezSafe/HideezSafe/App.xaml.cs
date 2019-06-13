@@ -31,6 +31,7 @@ using HideezSafe.Modules.ServiceCallbackMessanger;
 using HideezSafe.Modules.ServiceWatchdog;
 using HideezSafe.Modules.DeviceManager;
 using HideezSafe.Modules.SessionStateMonitor;
+using HideezSafe.Modules.ActionHandler;
 
 namespace HideezSafe
 {
@@ -110,6 +111,7 @@ namespace HideezSafe
             serviceWatchdog = Container.Resolve<IServiceWatchdog>();
             serviceWatchdog.Start();
             deviceManager = Container.Resolve<IDeviceManager>();
+            Container.Resolve<UserActionHandler>();
 
             if (settings.IsFirstLaunch)
             {
@@ -190,6 +192,12 @@ namespace HideezSafe
 
             // Messenger
             Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
+
+            // Input
+            Container.RegisterType<UserActionHandler>();
+            Container.RegisterType<InputOtp>();
+            Container.RegisterType<InputPassword>();
+            Container.RegisterType<InputLogin>();
 
             logger.Info("Finish initialize DI container");
         }

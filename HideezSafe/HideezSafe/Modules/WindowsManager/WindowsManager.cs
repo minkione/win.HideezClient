@@ -1,10 +1,12 @@
-﻿using HideezSafe.Mvvm;
+﻿using HideezSafe.Modules.ActionHandler;
+using HideezSafe.Mvvm;
 using HideezSafe.ViewModels;
 using HideezSafe.Views;
 using NLog;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Linq;
 using System.Windows.Threading;
 
 namespace HideezSafe.Modules
@@ -140,6 +142,12 @@ namespace HideezSafe.Modules
         {
             var title = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
             MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        public Task<Account> SelectAccountAsync(Account[] accounts)
+        {
+            // TODO: implement select account logic
+            throw new NotImplementedException();
         }
     }
 }

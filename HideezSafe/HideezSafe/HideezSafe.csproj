@@ -122,6 +122,16 @@
     <Reference Include="Hardcodet.Wpf.TaskbarNotification, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\HideezSafe.Setup\packages\Hardcodet.NotifyIcon.Wpf.1.0.5\lib\net451\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
     </Reference>
+    <Reference Include="Hideez.ARS, Version=1.3.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hideez.ARS.1.3.1\lib\net45\Hideez.ARS.dll</HintPath>
+    </Reference>
+    <Reference Include="Hideez.ISM, Version=1.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hideez.ISM.1.2.2\lib\net45\Hideez.ISM.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.UIAutomationClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hideez.ISM.1.2.2\lib\net45\Interop.UIAutomationClient.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="MahApps.Metro, Version=1.6.5.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\HideezSafe.Setup\packages\MahApps.Metro.1.6.5\lib\net47\MahApps.Metro.dll</HintPath>
     </Reference>
@@ -163,6 +173,9 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="UIAComWrapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hideez.ISM.1.2.2\lib\net45\UIAComWrapper.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Abstractions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
       <HintPath>..\..\HideezSafe.Setup\packages\Unity.5.9.7\lib\net47\Unity.Abstractions.dll</HintPath>
     </Reference>
@@ -197,14 +210,34 @@
     <Compile Include="Messages\DevicePropertiesUpdatedMessage.cs" />
     <Compile Include="Messages\DeviceProximityChangedMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
+    <Compile Include="Messages\InputMessage\InputLoginMessage.cs" />
+    <Compile Include="Messages\InputMessage\InputMessageBase.cs" />
+    <Compile Include="Messages\InputMessage\InputOtpMessage.cs" />
+    <Compile Include="Messages\InputMessage\InputPasswordMessage.cs" />
     <Compile Include="Messages\LockWorkstationMessage.cs" />
     <Compile Include="Messages\PairedDevicesCollectionChangedMessage.cs" />
+    <Compile Include="Modules\ActionHandler\Account.cs" />
+    <Compile Include="Modules\ActionHandler\Exception\AccountException.cs" />
+    <Compile Include="Modules\ActionHandler\Exception\FieldNotSecureException.cs" />
+    <Compile Include="Modules\ActionHandler\Exception\LoginNotFoundException.cs" />
+    <Compile Include="Modules\ActionHandler\Exception\OtpNotFoundException.cs" />
+    <Compile Include="Modules\ActionHandler\Exception\PasswordNotFoundException.cs" />
+    <Compile Include="Modules\ActionHandler\IInputAlgorithm.cs" />
+    <Compile Include="Modules\ActionHandler\InputBase.cs" />
+    <Compile Include="Modules\ActionHandler\InputHelper.cs" />
+    <Compile Include="Modules\ActionHandler\InputLogin.cs" />
+    <Compile Include="Modules\ActionHandler\InputOtp.cs" />
+    <Compile Include="Modules\ActionHandler\InputPassword.cs" />
+    <Compile Include="Modules\ActionHandler\ITemporaryCacheAccount.cs" />
+    <Compile Include="Modules\ActionHandler\UserActionHandler.cs" />
     <Compile Include="Modules\DeviceManager\DeviceManager.cs" />
     <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
+    <Compile Include="Modules\Exception\HideezSafeException.cs" />
     <Compile Include="Modules\SessionStateMonitor\ISessionStateMonitor.cs" />
     <Compile Include="Modules\SessionStateMonitor\SessionStateMonitor.cs" />
     <Compile Include="Utilities\LocalToMSAccountConverter.cs" />
     <Compile Include="Utilities\LogManagement.cs" />
+    <Compile Include="Utilities\TemporaryCache.cs" />
     <Compile Include="ViewModels\AddCredentialViewModel.cs" />
     <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
     <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
