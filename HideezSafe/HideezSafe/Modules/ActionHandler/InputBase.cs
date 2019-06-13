@@ -62,8 +62,7 @@ namespace HideezSafe.Modules.ActionHandler
 
                 if (BeforeCondition())
                 {
-                    Account[] accounts = null; //TODO: Get accounts for AppInfo
-                    // = await serviceProxy.Service.GetPmAccountsByAppInfoAsync(AppInfoConverter.ToDTO(currentAppInfo));
+                    Account[] accounts = await GetPmAccountsByAppInfoAsync(currentAppInfo);
                     accounts = FilterAccounts(accounts, devicesId);
 
                     if (!accounts.Any()) // No accounts for current application
@@ -95,7 +94,14 @@ namespace HideezSafe.Modules.ActionHandler
             finally
             {
                 inputCache.ClearInputFieldCache();
+                currentAppInfo = null;
             }
+        }
+
+        private Task<Account[]> GetPmAccountsByAppInfoAsync(AppInfo appInfo)
+        {
+            //TODO: Get accounts for AppInfo
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -162,10 +168,9 @@ namespace HideezSafe.Modules.ActionHandler
         /// <summary>
         /// Simulate press key Enter
         /// </summary>
-        protected async Task SimulateEnterAsync()
+        protected void SimulateEnter()
         {
-            ApplicationSettings settings = await settingsManager.GetSettingsAsync();
-            if (settings.AddEnterAfterInput)
+            if (settingsManager.Settings.AddEnterAfterInput)
                 inputHandler.SimulateEnterKeyPress();
         }
 

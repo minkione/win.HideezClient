@@ -36,7 +36,7 @@ namespace HideezSafe.Modules.ActionHandler
                 if (otp != null)
                 {
                     await SimulateInput(otp);
-                    await SimulateEnterAsync();
+                    SimulateEnter();
                     SetCache(account);
                     return true;
                 }

@@ -36,7 +36,7 @@ namespace HideezSafe.Modules.ActionHandler
                 if (password != null)
                 {
                     await SimulateInput(password);
-                    await SimulateEnterAsync();
+                    SimulateEnter();
                     SetCache(account);
                     return true;
                 }
