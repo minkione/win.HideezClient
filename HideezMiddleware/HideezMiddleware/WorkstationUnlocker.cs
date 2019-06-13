@@ -106,7 +106,7 @@ namespace HideezMiddleware
                         statuses.Add("RFID reader not connected");
 
                     // Server
-                    if (_hesConnection.State == HesConnectionState.Disconnected)
+                    if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
                         statuses.Add("HES not connected");
 
                     if (statuses.Count > 0)
