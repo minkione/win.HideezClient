@@ -19,10 +19,9 @@ namespace HideezMiddleware
 
     public class CredentialProviderConnection : Logger
     {
-        bool connected = false;
         readonly PipeServer _pipeServer;
 
-        public event EventHandler<EventArgs> ConnectionStateChanged;
+        public event EventHandler<EventArgs> OnProviderConnected;
 
         public CredentialProviderConnection(ILog log)
             : base(nameof(CredentialProviderConnection), log)
@@ -30,23 +29,6 @@ namespace HideezMiddleware
             _pipeServer = new PipeServer("hideezsafe3", log);
             _pipeServer.MessageReceivedEvent += PipeServer_MessageReceivedEvent;
             _pipeServer.ClientConnectedEvent += PipeServer_ClientConnectedEvent;
-            _pipeServer.ClientDisconnectedEvent += PipeServer_ClientDisconnectedEvent;
-        }
-        
-        public bool Connected
-        {
-            get
-            {
-                return connected;
-            }
-            set
-            {
-                if (connected != value)
-                {
-                    connected = value;
-                    ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
-                }
-            }
         }
 
         public void Start()
@@ -106,12 +88,7 @@ namespace HideezMiddleware
 
         void PipeServer_ClientConnectedEvent(object sender, ClientConnectedEventArgs e)
         {
-            Connected = true;
-        }
-
-        void PipeServer_ClientDisconnectedEvent(object sender, ClientDisconnectedEventArgs e)
-        {
-            Connected = false;
+            OnProviderConnected?.Invoke(this, EventArgs.Empty);
         }
 
         async void OnLogonRequestByLoginName(string login)

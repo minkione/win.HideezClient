@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
@@ -42,7 +43,7 @@ namespace HideezMiddleware
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
 
-            _credentialProviderConnection.ConnectionStateChanged += _credentialProviderConnection_ConnectionStateChanged;
+            _credentialProviderConnection.OnProviderConnected += _credentialProviderConnection_OnProviderConnected;
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
@@ -67,7 +68,7 @@ namespace HideezMiddleware
 
         #region Status notification
 
-        void _credentialProviderConnection_ConnectionStateChanged(object sender, EventArgs e)
+        void _credentialProviderConnection_OnProviderConnected(object sender, EventArgs e)
         {
             SendStatusToCredentialProvider();
         }
@@ -96,36 +97,33 @@ namespace HideezMiddleware
         {
             try
             {
-                if (_credentialProviderConnection.Connected)
+                var statuses = new List<string>();
+
+                // Bluetooth
+                switch (_connectionManager.State)
                 {
-                    var statuses = new List<string>();
-
-                    // Bluetooth
-                    switch (_connectionManager.State)
-                    {
-                        case BluetoothAdapterState.PoweredOn:
-                        case BluetoothAdapterState.LoadingKnownDevices:
-                            break;
-                        default:
-                            statuses.Add($"Bluetooth not available ({_connectionManager.State})");
-                            break;
-                    }
-
-                    // RFID
-                    if (!_rfidService.ServiceConnected)
-                        statuses.Add("RFID service not connected");
-                    else if (!_rfidService.ReaderConnected)
-                        statuses.Add("RFID reader not connected");
-
-                    // Server
-                    if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
-                        statuses.Add("HES not connected");
-
-                    if (statuses.Count > 0)
-                        await _credentialProviderConnection.SendStatus($"ERROR: {string.Join("; ", statuses)}");
-                    else
-                        await _credentialProviderConnection.SendStatus(string.Empty);
+                    case BluetoothAdapterState.PoweredOn:
+                    case BluetoothAdapterState.LoadingKnownDevices:
+                        break;
+                    default:
+                        statuses.Add($"Bluetooth not available (state: {_connectionManager.State})");
+                        break;
                 }
+
+                // RFID
+                if (!_rfidService.ServiceConnected)
+                    statuses.Add("RFID service not connected");
+                else if (!_rfidService.ReaderConnected)
+                    statuses.Add("RFID reader not connected");
+
+                // Server
+                if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
+                    statuses.Add("HES not connected");
+
+                if (statuses.Count > 0)
+                    await _credentialProviderConnection.SendStatus($"ERROR: {string.Join("; ", statuses)}");
+                else
+                    await _credentialProviderConnection.SendStatus(string.Empty);
             }
             catch (Exception ex)
             {

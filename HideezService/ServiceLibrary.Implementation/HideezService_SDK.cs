@@ -49,7 +49,6 @@ namespace ServiceLibrary.Implementation
 
             // Named Pipes Server ==============================
             _credentialProviderConnection = new CredentialProviderConnection(sdkLogger);
-            _credentialProviderConnection.Start();
 
 
             // RFID Service Connection ============================
@@ -80,6 +79,8 @@ namespace ServiceLibrary.Implementation
             // WorkstationUnlocker 
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
                 _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, sdkLogger);
+
+            _credentialProviderConnection.Start();
 
             // WorkstationLocker ==================================
             _workstationLocker = new UiWorkstationLocker(SessionManager);
