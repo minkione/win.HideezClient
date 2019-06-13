@@ -6,9 +6,11 @@ using System.Windows;
 using System.Windows.Input;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.FW;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.LongOperations;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezMiddleware;
 
@@ -377,6 +379,25 @@ namespace WinSampleApp.ViewModel
                 };
             }
         }
+
+        public ICommand UpdateFwCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        UpdateFw(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         #endregion
 
         public MainWindowViewModel()
@@ -414,7 +435,7 @@ namespace WinSampleApp.ViewModel
             _hesConnection = new HesAppConnection(_deviceManager, "https://localhost:44371", _log);
             //_hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.249", _log);
 
-            _hesConnection.Connect();
+            //_hesConnection.Connect();
 
             // WorkstationUnlocker ==================================
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, 
@@ -708,5 +729,21 @@ namespace WinSampleApp.ViewModel
                 MessageBox.Show(ex.Message);
             }
         }
+
+
+        async void UpdateFw(DeviceViewModel device)
+        {
+            try
+            {
+                var lo = new LongOperation(1);
+                var fu = new FirmwareImageUploader(@"d:\fw\HK3_fw_v3.0.2.img", _log);
+                await fu.RunAsync(false, device.Device, lo);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
     }
 }
