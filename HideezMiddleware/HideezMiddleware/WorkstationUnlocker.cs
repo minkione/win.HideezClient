@@ -46,7 +46,7 @@ namespace HideezMiddleware
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
 
-            if (_hesConnection != null)
+            if (hesConnection != null)
             {
                 _hesConnection = hesConnection;
                 _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;

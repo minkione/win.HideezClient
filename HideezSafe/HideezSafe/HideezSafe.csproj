@@ -203,6 +203,8 @@
     <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
     <Compile Include="Modules\SessionStateMonitor\ISessionStateMonitor.cs" />
     <Compile Include="Modules\SessionStateMonitor\SessionStateMonitor.cs" />
+    <Compile Include="Modules\SupportMailContentGenerator\ISupportMailContentGenerator.cs" />
+    <Compile Include="Modules\SupportMailContentGenerator\SupportMailContentGenerator.cs" />
     <Compile Include="Utilities\LocalToMSAccountConverter.cs" />
     <Compile Include="Utilities\LogManagement.cs" />
     <Compile Include="ViewModels\AddCredentialViewModel.cs" />
@@ -378,7 +380,7 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
     <None Include="Connected Services\HideezServiceReference\service.wsdl" />

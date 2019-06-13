@@ -14,6 +14,12 @@ namespace ServiceLibrary
             Proximity = device.Proximity;
             IsConnected = device.IsConnected;
             Battery = device.Battery;
+            SerialNo = device.SerialNo;
+            FirmwareVersion = device.FirmwareVersion;
+            BootloaderVersion = device.BootloaderVersion;
+            StorageTotalSize = device.StorageTotalSize;
+            StorageFreeSize = device.StorageFreeSize;
+            IsInitialized = device.IsInitialized;
         }
 
         [DataMember]

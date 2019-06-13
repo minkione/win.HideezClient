@@ -290,16 +290,16 @@ Device is not connected</value>
     <value>No connection to the service</value>
   </data>
   <data name="Url.Legal" xml:space="preserve">
-    <value>https://hideez.com/404</value>
+    <value>https://hideez.com/pages/warranty</value>
   </data>
   <data name="Url.LiveChat" xml:space="preserve">
-    <value>https://hideez.com/404</value>
+    <value>https://hideez.com/pages/intercom_en</value>
   </data>
   <data name="Url.LockVideoTutorial" xml:space="preserve">
     <value>https://hideez.com/404</value>
   </data>
   <data name="Url.RFIDUsage" xml:space="preserve">
-    <value>https://hideez.com/404</value>
+    <value>https://intercom.help/hideez/hideez-enterprise-server</value>
   </data>
   <data name="Url.UserManual" xml:space="preserve">
     <value>https://hideez.com/404</value>
@@ -318,5 +318,11 @@ Device is not connected</value>
   </data>
   <data name="Menu.Logs.OpenServiceFolder" xml:space="preserve">
     <value>Service Logs</value>
+  </data>
+  <data name="SupportMail" xml:space="preserve">
+    <value>support@hideez.com</value>
+  </data>
+  <data name="SupportMailUri" xml:space="preserve">
+    <value>mailto:support@hideez.com</value>
   </data>
 </root>
