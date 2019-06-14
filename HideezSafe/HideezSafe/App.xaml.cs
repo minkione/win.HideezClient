@@ -32,6 +32,8 @@ using HideezSafe.Modules.ServiceWatchdog;
 using HideezSafe.Modules.DeviceManager;
 using HideezSafe.Modules.SessionStateMonitor;
 using HideezSafe.Modules.ActionHandler;
+using Hideez.ISM;
+using WindowsInput;
 
 namespace HideezSafe
 {
@@ -162,7 +164,9 @@ namespace HideezSafe
         private void InitializeDIContainer()
         {
             Container = new UnityContainer();
-
+#if DEBUG
+            Container.AddExtension(new Diagnostic());
+#endif
             logger.Info("Start initialize DI container");
 
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
@@ -197,6 +201,10 @@ namespace HideezSafe
 
             // Input
             Container.RegisterType<UserActionHandler>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IInputCache, InputCache>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IInputHandler, InputHandler>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IInputSimulator, InputSimulator>(new ContainerControlledLifetimeManager());
+            Container.RegisterInstance(typeof(ITemporaryCacheAccount), new TemporaryCacheAccount(TimeSpan.FromMinutes(1)), new ContainerControlledLifetimeManager());
             Container.RegisterType<InputOtp>();
             Container.RegisterType<InputPassword>();
             Container.RegisterType<InputLogin>();
