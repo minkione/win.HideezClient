@@ -176,9 +176,7 @@ namespace HideezMiddleware
 
                 string deviceId = mac.Replace(":", "");
 
-                //await _credentialProviderConnection.SendStatus("Status: OK");
                 await _credentialProviderConnection.SendNotification("Connecting to the device...");
-                await Task.Delay(3000);
                 var device = await _deviceManager.ConnectByMac(mac, timeout: 20_000);
                 if (device == null)
                     throw new Exception($"Cannot connect device '{mac}'");
@@ -186,7 +184,6 @@ namespace HideezMiddleware
                 await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
                 await device.WaitInitialization(timeout: 10_000);
 
-                //todo - wait for primary account update?
 
                 await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
                 ushort primaryAccountKey = await GetPrimaryAccountKey(device);
