@@ -43,7 +43,7 @@ namespace HideezMiddleware
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
 
-            _credentialProviderConnection.ConnectionStateChanged += _credentialProviderConnection_ConnectionStateChanged;
+            _credentialProviderConnection.OnProviderConnected += _credentialProviderConnection_OnProviderConnected;
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
@@ -68,7 +68,7 @@ namespace HideezMiddleware
 
         #region Status notification
 
-        void _credentialProviderConnection_ConnectionStateChanged(object sender, EventArgs e)
+        void _credentialProviderConnection_OnProviderConnected(object sender, EventArgs e)
         {
             SendStatusToCredentialProvider();
         }
@@ -97,36 +97,33 @@ namespace HideezMiddleware
         {
             try
             {
-                if (_credentialProviderConnection.Connected)
+                var statuses = new List<string>();
+
+                // Bluetooth
+                switch (_connectionManager.State)
                 {
-                    var statuses = new List<string>();
-
-                    // Bluetooth
-                    switch (_connectionManager.State)
-                    {
-                        case BluetoothAdapterState.PoweredOn:
-                        case BluetoothAdapterState.LoadingKnownDevices:
-                            break;
-                        default:
-                            statuses.Add($"Bluetooth not available (state: {_connectionManager.State})");
-                            break;
-                    }
-
-                    // RFID
-                    if (!_rfidService.ServiceConnected)
-                        statuses.Add("RFID service not connected");
-                    else if (!_rfidService.ReaderConnected)
-                        statuses.Add("RFID reader not connected");
-
-                    // Server
-                    if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
-                        statuses.Add("HES not connected");
-
-                    if (statuses.Count > 0)
-                        await _credentialProviderConnection.SendStatus($"ERROR: {string.Join("; ", statuses)}");
-                    else
-                        await _credentialProviderConnection.SendStatus(string.Empty);
+                    case BluetoothAdapterState.PoweredOn:
+                    case BluetoothAdapterState.LoadingKnownDevices:
+                        break;
+                    default:
+                        statuses.Add($"Bluetooth not available (state: {_connectionManager.State})");
+                        break;
                 }
+
+                // RFID
+                if (!_rfidService.ServiceConnected)
+                    statuses.Add("RFID service not connected");
+                else if (!_rfidService.ReaderConnected)
+                    statuses.Add("RFID reader not connected");
+
+                // Server
+                if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
+                    statuses.Add("HES not connected");
+
+                if (statuses.Count > 0)
+                    await _credentialProviderConnection.SendStatus($"ERROR: {string.Join("; ", statuses)}");
+                else
+                    await _credentialProviderConnection.SendStatus(string.Empty);
             }
             catch (Exception ex)
             {
@@ -179,9 +176,7 @@ namespace HideezMiddleware
 
                 string deviceId = mac.Replace(":", "");
 
-                //await _credentialProviderConnection.SendStatus("Status: OK");
                 await _credentialProviderConnection.SendNotification("Connecting to the device...");
-                await Task.Delay(3000);
                 var device = await _deviceManager.ConnectByMac(mac, timeout: 20_000);
                 if (device == null)
                     throw new Exception($"Cannot connect device '{mac}'");
@@ -189,7 +184,6 @@ namespace HideezMiddleware
                 await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
                 await device.WaitInitialization(timeout: 10_000);
 
-                //todo - wait for primary account update?
 
                 await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
                 ushort primaryAccountKey = await GetPrimaryAccountKey(device);

@@ -14,7 +14,7 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "WixBootstrapper", "WixBoots
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HideezServiceHost", "..\HideezService\HideezServiceHost\HideezServiceHost.csproj", "{62E8A93B-25EC-4927-8E38-6E166FB06F9E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RfidService", "..\..\win.sdk\RfidService\RfidService.csproj", "{7B206A4F-ED60-4181-9BE6-A6A117378378}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RfidService", "..\RfidService\RfidService\RfidService.csproj", "{7B206A4F-ED60-4181-9BE6-A6A117378378}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CsrBLE", "..\..\win.sdk\CsrBLE\CsrBLE.vcxproj", "{D274AA09-5B34-4450-A6FB-5A5A351C7B45}"
 	ProjectSection(ProjectDependencies) = postProject
