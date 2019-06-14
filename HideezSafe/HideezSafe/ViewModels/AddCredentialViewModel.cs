@@ -1,4 +1,5 @@
-﻿using HideezSafe.Modules;
+﻿using HideezSafe.HideezServiceReference;
+using HideezSafe.Modules;
 using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Mvvm;
 using HideezSafe.Utilities;
@@ -10,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management;
 using System.Security.Principal;
+using System.ServiceModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -120,6 +122,10 @@ namespace HideezSafe.ViewModels
                     await serviceProxy.GetService().SaveCredentialAsync(DeviceId, login, pass);
                     IsInProgress = false;
                     Application.Current.Dispatcher.Invoke(view.Close);
+                }
+                catch (FaultException<HideezServiceFault> ex)
+                {
+                    windowsManager.ShowError($"An error occured while saving credentials:{Environment.NewLine}{ex.FormattedMessage()}");
                 }
                 catch (Exception ex)
                 {

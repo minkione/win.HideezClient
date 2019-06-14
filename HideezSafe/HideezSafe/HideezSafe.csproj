@@ -205,6 +205,7 @@
     <Compile Include="Modules\SessionStateMonitor\SessionStateMonitor.cs" />
     <Compile Include="Modules\SupportMailContentGenerator\ISupportMailContentGenerator.cs" />
     <Compile Include="Modules\SupportMailContentGenerator\SupportMailContentGenerator.cs" />
+    <Compile Include="Utilities\FaultExceptionExtension.cs" />
     <Compile Include="Utilities\LocalToMSAccountConverter.cs" />
     <Compile Include="Utilities\LogManagement.cs" />
     <Compile Include="ViewModels\AddCredentialViewModel.cs" />
