@@ -334,4 +334,7 @@ Device is not connected</value>
   <data name="SupportMailUri" xml:space="preserve">
     <value>mailto:support@hideez.com</value>
   </data>
+  <data name="Exception.FieldNotSecure" xml:space="preserve">
+    <value>Password entry cancelled. Field not protected.</value>
+  </data>
 </root>

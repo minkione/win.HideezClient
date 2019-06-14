@@ -196,7 +196,7 @@ namespace HideezSafe
             Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
 
             // Input
-            Container.RegisterType<UserActionHandler>();
+            Container.RegisterType<UserActionHandler>(new ContainerControlledLifetimeManager());
             Container.RegisterType<InputOtp>();
             Container.RegisterType<InputPassword>();
             Container.RegisterType<InputLogin>();
