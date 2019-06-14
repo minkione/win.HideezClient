@@ -2,8 +2,6 @@
 using System;
 using System.ServiceModel;
 using System.Linq;
-using System.Threading;
-using Hideez.SDK.Communication.Interfaces;
 
 namespace ServiceLibrary.Implementation
 {
@@ -30,6 +28,8 @@ namespace ServiceLibrary.Implementation
 
         void Initialize()
         {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
             try
             {
                 LogManager.EnableLogging();
@@ -139,5 +139,28 @@ namespace ServiceLibrary.Implementation
             // Todo: shutdown service in a clean way
         }
 
+        void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            try
+            {
+                LogManager.EnableLogging();
+
+                var fatalLogger = _log ?? LogManager.GetCurrentClassLogger();
+
+                fatalLogger.Fatal(e.ExceptionObject as Exception);
+                LogManager.Flush();
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    Environment.FailFast("An error occured while handling fatal error", e.ExceptionObject as Exception);
+                }
+                catch (Exception exc)
+                {
+                    Environment.FailFast("An error occured while handling an error during fatal error handling", exc);
+                }
+            }
+        }
     }
 }
