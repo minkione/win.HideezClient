@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ServiceLibraryImplementation")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("RFID Service")]
+[assembly: AssemblyDescription("RFID Service")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Hideez Group Inc.")]
-[assembly: AssemblyProduct("ServiceLibraryImplementation")]
+[assembly: AssemblyProduct("RFID Service")]
 [assembly: AssemblyCopyright("© 2019 Hideez Group Inc. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("da19d8c5-dab6-4060-b393-ba18a4be47bb")]
+[assembly: Guid("7b206a4f-ed60-4181-9be6-a6a117378378")]
 
 // Version information for an assembly consists of the following four values:
 //
