@@ -76,15 +76,22 @@ namespace HideezServiceHost
         // https://stackoverflow.com/questions/44980/programmatically-determine-a-duration-of-a-locked-workstation
         protected override void OnSessionChange(SessionChangeDescription sessionChangeDescription)
         {
-            if (sessionChangeDescription.Reason == SessionChangeReason.SessionLock)
+            try
             {
-                // Session locked
-                service?.OnSessionChange(true);
+                if (sessionChangeDescription.Reason == SessionChangeReason.SessionLock)
+                {
+                    // Session locked
+                    service?.OnSessionChange(true);
+                }
+                else if (sessionChangeDescription.Reason == SessionChangeReason.SessionUnlock)
+                {
+                    // Session unlocked
+                    service?.OnSessionChange(false);
+                }
             }
-            else if (sessionChangeDescription.Reason == SessionChangeReason.SessionUnlock)
+            catch (Exception ex)
             {
-                // Session unlocked
-                service?.OnSessionChange(false);
+                Debug.WriteLine($"Error on session switch: {ex.Message}");
             }
         }
     }

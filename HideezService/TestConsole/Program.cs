@@ -112,15 +112,22 @@ namespace TestConsole
 
         protected static void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
-            if (e.Reason == SessionSwitchReason.SessionLock)
+            try
             {
-                // Session locked
-                service?.OnSessionChange(true);
+                if (e.Reason == SessionSwitchReason.SessionLock)
+                {
+                    // Session locked
+                    service?.OnSessionChange(true);
+                }
+                else if (e.Reason == SessionSwitchReason.SessionUnlock)
+                {
+                    // Session unlocked
+                    service?.OnSessionChange(false);
+                }
             }
-            else if (e.Reason == SessionSwitchReason.SessionUnlock)
+            catch (Exception ex)
             {
-                // Session unlocked
-                service?.OnSessionChange(false);
+                Console.WriteLine($"Error on session switch: {ex.Message}");
             }
         }
     }
