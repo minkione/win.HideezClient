@@ -28,6 +28,7 @@ namespace HideezSafe.ViewModels
         private bool isConnected;
         private double proximity;
         private string serialNo;
+        private string mac;
 
         public string IcoKey { get; } = "HedeezKeySimpleIMG";
 
@@ -60,6 +61,12 @@ namespace HideezSafe.ViewModels
         {
             get { return serialNo; }
             set { Set(ref serialNo, value); }
+        }
+
+        public string Mac
+        {
+            get { return mac; }
+            set { Set(ref mac, value); }
         }
 
         #region Text
@@ -99,6 +106,7 @@ namespace HideezSafe.ViewModels
             Proximity = dto.Proximity;
             OwnerName = dto.Owner ?? "...unspecified...";
             SerialNo = dto.SerialNo;
+            Mac = dto.Mac;
             this.IsConnected = dto.IsConnected;
         }
 

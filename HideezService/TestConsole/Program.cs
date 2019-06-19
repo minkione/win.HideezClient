@@ -98,11 +98,11 @@ namespace TestConsole
                 // NOTE: If an ambiguous reference error occurs, check that TestConsole DOES NOT have 
                 // a reference to 'ServiceLibrary'. There should be only 'ServiceLibrary.Implementation' ref
                 service = new HideezServiceClient(instanceContext);
+                instanceContext.Faulted += InstanceContext_Faulted;
                 await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.TestConsole });
 
-                // Disconnect is no longer possible, we need to maintain connection with the service we 
-                // are hosting to notify about session change
-                //service.Close();
+                // Disconnect from service
+                // service.Close();
             }
             catch (Exception ex)
             {
@@ -110,17 +110,28 @@ namespace TestConsole
             }
         }
 
+        private static void InstanceContext_Faulted(object sender, EventArgs e)
+        {
+        }
+
         protected static void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
-            if (e.Reason == SessionSwitchReason.SessionLock)
+            try
             {
-                // Session locked
-                service?.OnSessionChange(true);
+                if (e.Reason == SessionSwitchReason.SessionLock)
+                {
+                    // Session locked
+                    service.OnSessionChange(true);
+                }
+                else if (e.Reason == SessionSwitchReason.SessionUnlock)
+                {
+                    // Session unlocked
+                    service.OnSessionChange(false);
+                }
             }
-            else if (e.Reason == SessionSwitchReason.SessionUnlock)
+            catch (Exception ex)
             {
-                // Session unlocked
-                service?.OnSessionChange(false);
+                Console.WriteLine($"Error on session switch: {ex.Message}");
             }
         }
     }

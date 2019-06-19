@@ -1,16 +1,45 @@
 ﻿using Hideez.SDK.Communication.WCF;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation
 {
     public partial class HideezService : IHideezService
     {
+        List<IWcfDevice> RemoteWcfDevices = new List<IWcfDevice>();
+
         public async Task<string> EstablishRemoteDeviceConnection(string mac, byte channelNo)
         {
             var connection = await _wcfDeviceManager.EstablishRemoteDeviceConnection(mac, channelNo);
-
+            RemoteWcfDevices.Add(connection);
+            connection.RssiReceived += Connection_RssiReceived;
+            connection.BatteryChanged += Connection_BatteryChanged;
             return connection.Id;
+        }
+
+        private void Connection_RssiReceived(object sender, double rssi)
+        {
+            try
+            {
+                _client.Callbacks.RemoteConnection_RssiReceived(_client.Id, rssi);
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
+        }
+
+        private void Connection_BatteryChanged(object sender, int battery)
+        {
+            try
+            {
+                _client.Callbacks.RemoteConnection_BatteryChanged(_client.Id, battery);
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
         }
 
         public async Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data)
@@ -63,7 +92,6 @@ namespace ServiceLibrary.Implementation
                 ThrowException(ex);
             }
         }
-
 
     }
 }

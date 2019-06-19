@@ -52,7 +52,6 @@ namespace ServiceLibrary.Implementation
 
             // Named Pipes Server ==============================
             _credentialProviderConnection = new CredentialProviderConnection(sdkLogger);
-            _credentialProviderConnection.Start();
 
 
             // RFID Service Connection ============================
@@ -66,7 +65,7 @@ namespace ServiceLibrary.Implementation
                 // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
                 _hesConnection = new HesAppConnection(_deviceManager, GetHesAddress(), sdkLogger);
                 _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
-                _hesConnection.Connect();
+                _hesConnection.Start();
             }
             catch (Exception ex)
             {
@@ -83,6 +82,8 @@ namespace ServiceLibrary.Implementation
             // WorkstationUnlocker 
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
                 _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, sdkLogger);
+
+            _credentialProviderConnection.Start();
 
             // WorkstationLocker ==================================
             _workstationLocker = new UiWorkstationLocker(SessionManager);
@@ -165,7 +166,7 @@ namespace ServiceLibrary.Implementation
 
         #region Device proximity monitoring
 
-        void Device_ProximityChanged(object sender, EventArgs e)
+        void Device_ProximityChanged(object sender, int proximity)
         {
             if (sender is IDevice device)
             {
@@ -427,7 +428,7 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                _deviceManager.Find(deviceId)?.Connection.Disconnect();
+                _deviceManager.Find(deviceId)?.Disconnect();
             }
             catch (Exception ex)
             {

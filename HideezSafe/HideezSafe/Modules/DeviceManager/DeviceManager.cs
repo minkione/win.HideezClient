@@ -155,17 +155,20 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        private async Task UpdateDevicesAsync(DeviceDTO[] serverDevices)
+        private async Task UpdateDevicesAsync(DeviceDTO[] serviceDevices)
         {
             try
             {
+                // Ignore remote devices
+                var realDevices = serviceDevices.Where(d => !d.IsRemote);
+
                 // update device's properties. If device does not exists, create it
-                foreach (var item in serverDevices)
+                foreach (var deviceDto in realDevices)
                 {
-                    var device = FindDevice(item);
+                    var device = FindDevice(deviceDto);
                     if (device != null)
                     {
-                        device.LoadFrom(item);
+                        device.LoadFrom(deviceDto);
                     }
                     else
                     {
@@ -175,11 +178,11 @@ namespace HideezSafe.Modules.DeviceManager
 
                             lock (Devices)
                             {
-                                device = FindDevice(item);
+                                device = FindDevice(deviceDto);
 
                                 if (device == null)
                                 {
-                                    dvm = new DeviceViewModel(item, windowsManager, serviceProxy);
+                                    dvm = new DeviceViewModel(deviceDto, windowsManager, serviceProxy);
                                     Devices.Add(dvm);
                                 }
                             }
@@ -187,16 +190,21 @@ namespace HideezSafe.Modules.DeviceManager
                         });
 
                         if (device == null)
-                        {
-                            var remDev = await _remoteDeviceFactory.CreateRemoteDevice(item.Mac, 4);
-                            RemoteDevices.Add(remDev);
-                        }
+                        {  
+                            if (deviceDto.IsConnected)
+                            {
+                                var remDev = await _remoteDeviceFactory.CreateRemoteDevice(deviceDto.Mac, 2);
+                                RemoteDevices.Add(remDev);
+                                await remDev.Authenticate(2);
+                                await remDev.WaitAuthentication(20_000);
+                            }
+                         }
                     }
                 }
 
                 // delete device from UI if its deleted from service
                 foreach (var clientDevice in
-                    Devices.Where(d => serverDevices.FirstOrDefault(dto => dto.Id == d.Id) == null)
+                    Devices.Where(d => realDevices.FirstOrDefault(dto => dto.Id == d.Id) == null)
                     .ToArray())
                 {
                     lock (Devices)

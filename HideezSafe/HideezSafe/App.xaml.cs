@@ -50,10 +50,9 @@ namespace HideezSafe
 
         public App()
         {
-            AppDomain.CurrentDomain.UnhandledException += FatalExceptionHandler;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            // LogManager.DisableLogging();
-            // LogManager.EnableLogging();
+            LogManager.EnableLogging();
             logger = LogManager.GetCurrentClassLogger();
 
             logger.Info("Version: {0}", Environment.Version);
@@ -215,18 +214,27 @@ namespace HideezSafe
             }
         }
 
-        private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+        void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            string message = "Fatal error occured";
-            Exception ex = e.ExceptionObject as Exception;
-
             try
             {
-                logger.Fatal(ex, message);
+                LogManager.EnableLogging();
+
+                var fatalLogger = logger ?? LogManager.GetCurrentClassLogger();
+
+                fatalLogger.Fatal(e.ExceptionObject as Exception);
+                LogManager.Flush();
             }
-            catch
+            catch (Exception)
             {
-                Environment.FailFast(message, ex);
+                try
+                {
+                    Environment.FailFast("An error occured while handling fatal error", e.ExceptionObject as Exception);
+                }
+                catch (Exception exc)
+                {
+                    Environment.FailFast("An error occured while handling an error during fatal error handling", exc);
+                }
             }
         }
     }

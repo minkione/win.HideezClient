@@ -75,14 +75,6 @@
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\win.sdk\RfidService\RfidService.csproj">
-      <Name>RfidService</Name>
-      <Project>{7b206a4f-ed60-4181-9be6-a6a117378378}</Project>
-      <Private>True</Private>
-      <DoNotHarvest>True</DoNotHarvest>
-      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
-      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
-    </ProjectReference>
     <ProjectReference Include="..\..\HideezSafe\HideezSafe\HideezSafe.csproj">
       <Name>HideezSafe</Name>
       <Project>{ea300b43-b917-49d1-9d84-a13f43398246}</Project>
@@ -94,6 +86,14 @@
     <ProjectReference Include="..\..\HideezService\HideezServiceHost\HideezServiceHost.csproj">
       <Name>HideezServiceHost</Name>
       <Project>{62e8a93b-25ec-4927-8e38-6e166fb06f9e}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\..\RfidService\RfidService\RfidService.csproj">
+      <Name>RfidService</Name>
+      <Project>{7b206a4f-ed60-4181-9be6-a6a117378378}</Project>
       <Private>True</Private>
       <DoNotHarvest>True</DoNotHarvest>
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>

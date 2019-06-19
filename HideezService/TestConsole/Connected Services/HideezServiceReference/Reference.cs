@@ -169,10 +169,16 @@ namespace TestConsole.HideezServiceReference {
         private string IdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsBootField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsConnectedField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsInitializedField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsRemoteField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string MacField;
@@ -258,6 +264,19 @@ namespace TestConsole.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsBoot {
+            get {
+                return this.IsBootField;
+            }
+            set {
+                if ((this.IsBootField.Equals(value) != true)) {
+                    this.IsBootField = value;
+                    this.RaisePropertyChanged("IsBoot");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public bool IsConnected {
             get {
                 return this.IsConnectedField;
@@ -279,6 +298,19 @@ namespace TestConsole.HideezServiceReference {
                 if ((this.IsInitializedField.Equals(value) != true)) {
                     this.IsInitializedField = value;
                     this.RaisePropertyChanged("IsInitialized");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsRemote {
+            get {
+                return this.IsRemoteField;
+            }
+            set {
+                if ((this.IsRemoteField.Equals(value) != true)) {
+                    this.IsRemoteField = value;
+                    this.RaisePropertyChanged("IsRemote");
                 }
             }
         }

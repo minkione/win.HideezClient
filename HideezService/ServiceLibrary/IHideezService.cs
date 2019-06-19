@@ -105,6 +105,12 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void ProximityChanged(string deviceId, double proximity);
+
+        [OperationContract(IsOneWay = true)]
+        void RemoteConnection_RssiReceived(string connectionId, double rssi);
+
+        [OperationContract(IsOneWay = true)]
+        void RemoteConnection_BatteryChanged(string connectioNid, int battery);
     }
 
     public enum Adapter
