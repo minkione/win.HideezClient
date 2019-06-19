@@ -21,7 +21,7 @@ namespace HideezSafe.Modules.DeviceManager
         private readonly IWindowsManager windowsManager;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
 
-        public DeviceManager(IMessenger messanger, IServiceProxy serviceProxy, 
+        public DeviceManager(IMessenger messenger, IServiceProxy serviceProxy, 
             IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory)
         {
             Devices = new ObservableCollection<DeviceViewModel>();
@@ -30,9 +30,10 @@ namespace HideezSafe.Modules.DeviceManager
             _remoteDeviceFactory = remoteDeviceFactory;
             windowsManager.MainWindowVisibleChanged += WindowsManager_ActivatedStateMainWindowChanged;
 
-            messanger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
-            //messanger.Register<DevicePropertiesUpdatedMessage>(this, OnDevicePropertiesUpdated);
-            //messanger.Register<DeviceProximityChangedMessage>(this, OnProximityChanged);
+            messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
+            messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
+            messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
+
             serviceProxy.Disconnected += ServiceProxy_ConnectionStateChanged;
             serviceProxy.Connected += ServiceProxy_ConnectionStateChanged;
 
@@ -66,10 +67,22 @@ namespace HideezSafe.Modules.DeviceManager
             Task.Run(UpdateDevicesAsync);
         }
 
+
         void OnDevicesCollectionChanged(DevicesCollectionChangedMessage message)
         {
-            Task.Run(()=> UpdateDevicesAsync(message.Devices));
+            Task.Run(()=> UpdateDevices(message.Devices));
         }
+
+        void OnDeviceConnectionStateChanged(DeviceConnectionStateChangedMessage obj)
+        {
+            Task.Run(() => UpdateDevicesAsync());
+        }
+
+        void OnDeviceInitialized(DeviceInitializedMessage obj)
+        {
+            Task.Run(() => UpdateDevicesAsync());
+        }
+
 
         void ClearDevicesCollection()
         {
@@ -94,7 +107,7 @@ namespace HideezSafe.Modules.DeviceManager
             foreach (var device in Devices)
             {
                 device.IsConnected = false;
-                device.Proximity = 0;
+                device.CloseRemoteDeviceConnection();
             }
         }
 
@@ -103,7 +116,7 @@ namespace HideezSafe.Modules.DeviceManager
             if (!serviceProxy.IsConnected)
             {
                 OnServiceDisconnected();
-                // ClearDevicesCollection();
+                ClearDevicesCollection();
             }
             else
             {
@@ -112,7 +125,7 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        private async Task UpdateDevicesAsync(DeviceDTO[] serviceDevices)
+        private void UpdateDevices(DeviceDTO[] serviceDevices)
         {
             try
             {
@@ -136,7 +149,7 @@ namespace HideezSafe.Modules.DeviceManager
 
                                 if (device == null)
                                 {
-                                    dvm = new DeviceViewModel(deviceDto, windowsManager, serviceProxy);
+                                    dvm = new DeviceViewModel(deviceDto, windowsManager, serviceProxy, _remoteDeviceFactory);
                                     Devices.Add(dvm);
                                 }
                             }

@@ -1,10 +1,13 @@
-﻿using HideezSafe.HideezServiceReference;
+﻿using Hideez.SDK.Communication.Remote;
+using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules;
 using HideezSafe.Modules.Localize;
 using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Mvvm;
 using MvvmExtensions.Commands;
+using NLog;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -12,23 +15,34 @@ namespace HideezSafe.ViewModels
 {
     public class DeviceViewModel : LocalizedObject
     {
-        readonly IWindowsManager windowsManager;
-        readonly IServiceProxy serviceProxy;
+        readonly ILogger _log = LogManager.GetCurrentClassLogger();
+        readonly IWindowsManager _windowsManager;
+        readonly IServiceProxy _serviceProxy;
+        readonly IRemoteDeviceFactory _remoteDeviceFactory;
 
-        public DeviceViewModel(DeviceDTO device, IWindowsManager windowsManager, IServiceProxy serviceProxy)
+        string id;
+        string name;
+        string ownerName;
+        bool isConnected;
+        string serialNo;
+        double proximity;
+        int battery;
+
+        string typeNameKey = "Hideez key";
+
+        RemoteDevice RemoteDevice;
+
+        public DeviceViewModel(DeviceDTO device, IWindowsManager windowsManager, 
+            IServiceProxy serviceProxy, IRemoteDeviceFactory remoteDeviceFactory)
         {
-            this.windowsManager = windowsManager;
-            this.serviceProxy = serviceProxy;
+            _windowsManager = windowsManager;
+            _serviceProxy = serviceProxy;
+            _remoteDeviceFactory = remoteDeviceFactory;
             LoadFrom(device);
         }
 
-        #region Property
-
-        private string id;
-        private bool isConnected;
-        private double proximity;
-        private string serialNo;
-
+        #region Properties
+        
         public string IcoKey { get; } = "HedeezKeySimpleIMG";
 
         public string Id
@@ -46,6 +60,7 @@ namespace HideezSafe.ViewModels
                 if (!isConnected)
                 {
                     Proximity = 0;
+                    CloseRemoteDeviceConnection();
                 }
             }
         }
@@ -56,22 +71,22 @@ namespace HideezSafe.ViewModels
             set { Set(ref proximity, value); }
         }
 
-        public string SerialNo
+        public int Battery
         {
-            get { return serialNo; }
-            set { Set(ref serialNo, value); }
+            get { return battery; }
+            set { Set(ref battery, value); }
         }
-
-        #region Text
-
-        private string name;
-        private string typeNameKey = "Hideez key";
-        private string ownerName;
 
         public string OwnerName
         {
             get { return ownerName; }
             set { Set(ref ownerName, value); }
+        }
+
+        public string SerialNo
+        {
+            get { return serialNo; }
+            set { Set(ref serialNo, value); }
         }
 
         [Localization]
@@ -88,20 +103,9 @@ namespace HideezSafe.ViewModels
             set { Set(ref typeNameKey, value); }
         }
 
-        #endregion Text
-
         #endregion Property
 
-        public void LoadFrom(DeviceDTO dto)
-        {
-            id = dto.Id;
-            Name = dto.Name;
-            OwnerName = dto.Owner ?? "...unspecified...";
-            SerialNo = dto.SerialNo;
-            IsConnected = dto.IsConnected;
-        }
-
-        #region Command
+        #region Commands
 
         public ICommand AddCredentialCommand
         {
@@ -111,7 +115,7 @@ namespace HideezSafe.ViewModels
                 {
                     CommandAction = x =>
                     {
-                        windowsManager.ShowDialogAddCredential(this);
+                        _windowsManager.ShowDialogAddCredential(this);
                     },
                 };
             }
@@ -147,7 +151,16 @@ namespace HideezSafe.ViewModels
 
         #endregion
 
-        private async void OnDisconnectDevice()
+        public void LoadFrom(DeviceDTO dto)
+        {
+            id = dto.Id;
+            Name = dto.Name;
+            OwnerName = dto.Owner ?? "...unspecified...";
+            IsConnected = dto.IsConnected;
+            SerialNo = dto.SerialNo;
+        }
+
+        async void OnDisconnectDevice()
         {
             try
             {
@@ -158,15 +171,15 @@ namespace HideezSafe.ViewModels
                     MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
-                    await serviceProxy.GetService().DisconnectDeviceAsync(Id);
+                    await _serviceProxy.GetService().DisconnectDeviceAsync(Id);
             }
             catch (Exception ex)
             {
-                windowsManager.ShowError(ex.Message);
+                _windowsManager.ShowError(ex.Message);
             }
         }
 
-        private async void OnRemoveDevice()
+        async void OnRemoveDevice()
         {
             try
             {
@@ -177,13 +190,59 @@ namespace HideezSafe.ViewModels
                     MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
-                    await serviceProxy.GetService().RemoveDeviceAsync(Id);
+                    await _serviceProxy.GetService().RemoveDeviceAsync(Id);
             }
             catch (Exception ex)
             {
-                windowsManager.ShowError(ex.Message);
+                _windowsManager.ShowError(ex.Message);
             }
         }
 
+
+        public async Task EstablishRemoteDeviceConnection()
+        {
+            CloseRemoteDeviceConnection();
+
+            RemoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, 2);
+            await RemoteDevice.Authenticate(2);
+            await RemoteDevice.WaitAuthentication(20_000);
+            await RemoteDevice.Initialize(10_000);
+
+            if (RemoteDevice.SerialNo != SerialNo)
+            {
+                _serviceProxy.GetService().RemoveDevice(RemoteDevice.DeviceId);
+                throw new Exception("Remote device serial number does not match enumerated serial number");
+            }
+
+            RemoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
+            RemoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
+
+            Proximity = RemoteDevice.Proximity;
+            Battery = RemoteDevice.Battery;
+        }
+
+        public void CloseRemoteDeviceConnection()
+        {
+            if (RemoteDevice != null)
+            {
+                RemoteDevice.ProximityChanged -= RemoteDevice_ProximityChanged;
+                RemoteDevice.BatteryChanged -= RemoteDevice_BatteryChanged;
+
+                RemoteDevice = null;
+
+                NotifyPropertyChanged(nameof(Proximity));
+                NotifyPropertyChanged(nameof(Battery));
+            }
+        }
+
+        void RemoteDevice_ProximityChanged(object sender, int proximity)
+        {
+            Proximity = proximity;
+        }
+
+        void RemoteDevice_BatteryChanged(object sender, int battery)
+        {
+            Battery = battery;
+        }
     }
 }

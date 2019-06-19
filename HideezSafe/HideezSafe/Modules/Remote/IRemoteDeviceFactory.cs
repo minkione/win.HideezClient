@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace HideezSafe.Modules
 {
-    interface IRemoteDeviceFactory
+    public interface IRemoteDeviceFactory
     {
-        Task<RemoteDevice> CreateRemoteDevice(string mac, byte channelNo);
+        Task<RemoteDevice> CreateRemoteDeviceAsync(string serialNo, byte channelNo);
     }
 }

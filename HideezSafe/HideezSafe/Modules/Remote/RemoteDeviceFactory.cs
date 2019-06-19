@@ -16,9 +16,9 @@ namespace HideezSafe.Modules
             _messenger = messenger;
         }
 
-        public async Task<RemoteDevice> CreateRemoteDevice(string mac, byte channelNo)
+        public async Task<RemoteDevice> CreateRemoteDeviceAsync(string serialNo, byte channelNo)
         {
-            var connectionId = await _serviceProxy.GetService().EstablishRemoteDeviceConnectionAsync(mac, channelNo);
+            var connectionId = await _serviceProxy.GetService().EstablishRemoteDeviceConnectionAsync(serialNo, channelNo);
 
             var remoteConnection = new RemoteDeviceConnection(_serviceProxy, _messenger);
 
