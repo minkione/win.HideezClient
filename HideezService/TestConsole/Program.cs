@@ -1,11 +1,9 @@
 ﻿using Microsoft.Win32;
-using ServiceLibrary;
 using ServiceLibrary.Implementation;
 using System;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Threading;
-using System.Threading.Tasks;
 using TestConsole.HideezServiceReference;
 
 namespace TestConsole

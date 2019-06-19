@@ -4,11 +4,19 @@ namespace TestConsole
 {
     class HideezServiceCallbacks : IHideezServiceCallback
     {
-        public void LockWorkstationRequest()
+        public void ActivateWorkstationScreenRequest()
         {
         }
 
-        public void RFIDConnectionStateChanged(bool isConnected)
+        public void DeviceConnectionStateChanged(DeviceDTO device)
+        {
+        }
+
+        public void DeviceInitialized(DeviceDTO device)
+        {
+        }
+
+        public void DevicesCollectionChanged(DeviceDTO[] devices)
         {
         }
 
@@ -20,19 +28,19 @@ namespace TestConsole
         {
         }
 
-        public void PairedDevicePropertyChanged(DeviceDTO device)
+        public void LockWorkstationRequest()
         {
         }
 
-        public void PairedDevicesCollectionChanged(DeviceDTO[] devicesCollection)
+        public void RemoteConnection_BatteryChanged(string connectioNid, int battery)
         {
         }
 
-        public void ProximityChanged(string deviceId, double proximity)
+        public void RemoteConnection_RssiReceived(string connectionId, double rssi)
         {
         }
 
-        public void ActivateWorkstationScreenRequest()
+        public void RFIDConnectionStateChanged(bool isConnected)
         {
         }
     }

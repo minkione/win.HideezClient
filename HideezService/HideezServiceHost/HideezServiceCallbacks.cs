@@ -10,7 +10,19 @@ namespace HideezServiceHost
 
         // If new callback is added to interface, create empty implementation without any logic
 
-        public void LockWorkstationRequest()
+        public void ActivateWorkstationScreenRequest()
+        {
+        }
+
+        public void DeviceConnectionStateChanged(DeviceDTO device)
+        {
+        }
+
+        public void DeviceInitialized(DeviceDTO device)
+        {
+        }
+
+        public void DevicesCollectionChanged(DeviceDTO[] devices)
         {
         }
 
@@ -22,23 +34,19 @@ namespace HideezServiceHost
         {
         }
 
+        public void LockWorkstationRequest()
+        {
+        }
+
+        public void RemoteConnection_BatteryChanged(string connectioNid, int battery)
+        {
+        }
+
+        public void RemoteConnection_RssiReceived(string connectionId, double rssi)
+        {
+        }
+
         public void RFIDConnectionStateChanged(bool isConnected)
-        {
-        }
-
-        public void PairedDevicePropertyChanged(DeviceDTO device)
-        {
-        }
-
-        public void PairedDevicesCollectionChanged(DeviceDTO[] devices)
-        {
-        }
-
-        public void ProximityChanged(string deviceId, double proximity)
-        {
-        }
-
-        public void ActivateWorkstationScreenRequest()
         {
         }
     }

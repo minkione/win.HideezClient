@@ -30,9 +30,9 @@ namespace HideezSafe.Modules.DeviceManager
             _remoteDeviceFactory = remoteDeviceFactory;
             windowsManager.MainWindowVisibleChanged += WindowsManager_ActivatedStateMainWindowChanged;
 
-            messanger.Register<PairedDevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
-            messanger.Register<DevicePropertiesUpdatedMessage>(this, OnDevicePropertiesUpdated);
-            messanger.Register<DeviceProximityChangedMessage>(this, OnProximityChanged);
+            messanger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
+            //messanger.Register<DevicePropertiesUpdatedMessage>(this, OnDevicePropertiesUpdated);
+            //messanger.Register<DeviceProximityChangedMessage>(this, OnProximityChanged);
             serviceProxy.Disconnected += ServiceProxy_ConnectionStateChanged;
             serviceProxy.Connected += ServiceProxy_ConnectionStateChanged;
 
@@ -48,45 +48,6 @@ namespace HideezSafe.Modules.DeviceManager
             Task.Run(UpdateDevicesAsync);
         }
 
-        public async Task SwitchMonitoringDeviceProximityAsync(bool enable)
-        {
-            foreach (var device in Devices)
-            {
-                if (enable)
-                {
-                    await serviceProxy.GetService().EnableMonitoringProximityAsync(device.Id);
-                }
-                else
-                {
-                    await serviceProxy.GetService().DisableMonitoringProximityAsync(device.Id);
-                }
-            }
-        }
-
-        public async Task SwitchMonitoringDevicePropertiesAsync(bool enable)
-        {
-            foreach (var device in Devices)
-            {
-                if (enable)
-                {
-                    await serviceProxy.GetService().EnableMonitoringDevicePropertiesAsync(device.Id);
-                }
-                else
-                {
-                    await serviceProxy.GetService().DisableMonitoringDevicePropertiesAsync(device.Id);
-                }
-            }
-        }
-
-        private void OnProximityChanged(DeviceProximityChangedMessage obj)
-        {
-            var device = FindDevice(obj.DeviceId);
-            if (device != null)
-            {
-                device.Proximity = obj.Proximity;
-            }
-        }
-
         private Dispatcher Dispatcher
         {
             get
@@ -100,17 +61,12 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        private void OnDevicePropertiesUpdated(DevicePropertiesUpdatedMessage obj)
-        {
-            FindDevice(obj.Device)?.LoadFrom(obj.Device);
-        }
-
         private void ServiceProxy_ConnectionStateChanged(object sender, EventArgs e)
         {
             Task.Run(UpdateDevicesAsync);
         }
 
-        void OnDevicesCollectionChanged(PairedDevicesCollectionChangedMessage message)
+        void OnDevicesCollectionChanged(DevicesCollectionChangedMessage message)
         {
             Task.Run(()=> UpdateDevicesAsync(message.Devices));
         }
@@ -151,7 +107,8 @@ namespace HideezSafe.Modules.DeviceManager
             }
             else
             {
-                await UpdateDevicesAsync(await serviceProxy.GetService().GetPairedDevicesAsync());
+                var devices = await serviceProxy.GetService().GetDevicesAsync();
+                await UpdateDevicesAsync();
             }
         }
 
@@ -159,11 +116,8 @@ namespace HideezSafe.Modules.DeviceManager
         {
             try
             {
-                // Ignore remote devices
-                var realDevices = serviceDevices.Where(d => !d.IsRemote);
-
                 // update device's properties. If device does not exists, create it
-                foreach (var deviceDto in realDevices)
+                foreach (var deviceDto in serviceDevices)
                 {
                     var device = FindDevice(deviceDto);
                     if (device != null)
@@ -188,23 +142,12 @@ namespace HideezSafe.Modules.DeviceManager
                             }
 
                         });
-
-                        if (device == null)
-                        {  
-                            if (deviceDto.IsConnected)
-                            {
-                                var remDev = await _remoteDeviceFactory.CreateRemoteDevice(deviceDto.Mac, 2);
-                                RemoteDevices.Add(remDev);
-                                await remDev.Authenticate(2);
-                                await remDev.WaitAuthentication(20_000);
-                            }
-                         }
                     }
                 }
 
                 // delete device from UI if its deleted from service
                 foreach (var clientDevice in
-                    Devices.Where(d => realDevices.FirstOrDefault(dto => dto.Id == d.Id) == null)
+                    Devices.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null)
                     .ToArray())
                 {
                     lock (Devices)
@@ -212,9 +155,6 @@ namespace HideezSafe.Modules.DeviceManager
                         Dispatcher.Invoke(() => Devices.Remove(clientDevice));
                     }
                 }
-
-                await SwitchMonitoringDeviceProximityAsync(windowsManager.IsMainWindowVisible);
-                await SwitchMonitoringDevicePropertiesAsync(windowsManager.IsMainWindowVisible);
             }
             catch (Exception ex)
             {
@@ -224,14 +164,14 @@ namespace HideezSafe.Modules.DeviceManager
 
         public DeviceViewModel FindDevice(DeviceDTO deviceDto)
         {
-            return FindDevice(deviceDto.Id);
+            return FindDevice(deviceDto.SerialNo);
         }
 
-        public DeviceViewModel FindDevice(string deviceId)
+        public DeviceViewModel FindDevice(string serialNo)
         {
             lock (Devices)
             {
-                return Devices.FirstOrDefault(d => d.Id == deviceId);
+                return Devices.FirstOrDefault(d => d.SerialNo == serialNo);
             }
         }
     }

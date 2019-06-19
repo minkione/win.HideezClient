@@ -45,14 +45,9 @@
       <xs:element minOccurs="0" name="IsBoot" type="xs:boolean" />
       <xs:element minOccurs="0" name="IsConnected" type="xs:boolean" />
       <xs:element minOccurs="0" name="IsInitialized" type="xs:boolean" />
-      <xs:element minOccurs="0" name="IsRemote" type="xs:boolean" />
-      <xs:element minOccurs="0" name="Mac" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Owner" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Proximity" type="xs:double" />
       <xs:element minOccurs="0" name="SerialNo" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="StorageFreeSize" type="xs:unsignedInt" />
-      <xs:element minOccurs="0" name="StorageTotalSize" type="xs:unsignedInt" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="DeviceDTO" nillable="true" type="tns:DeviceDTO" />

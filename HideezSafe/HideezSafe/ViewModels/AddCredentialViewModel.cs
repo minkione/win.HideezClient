@@ -48,9 +48,7 @@ namespace HideezSafe.ViewModels
             }
         }
 
-        public string DeviceName { get; set; }
-
-        public string DeviceId { get; set; }
+        public DeviceViewModel Device { get; set; }
 
         public ObservableCollection<string> Logins { get; }
 
@@ -117,7 +115,8 @@ namespace HideezSafe.ViewModels
             {
                 try
                 {
-                    await serviceProxy.GetService().SaveCredentialAsync(DeviceId, login, pass);
+                    // Todo: Save credentials async
+                    //await serviceProxy.GetService().SaveCredentialAsync(SerialNo, login, pass);
                     IsInProgress = false;
                     Application.Current.Dispatcher.Invoke(view.Close);
                 }
