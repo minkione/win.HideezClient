@@ -39,14 +39,14 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             Assert.IsTrue(deviceManager.Devices.Count == 1);
             await serviceProxy.DisconnectAsync();
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 1);
+            Assert.IsTrue(deviceManager.Devices.Count == 0);
 
             await serviceProxy.ConnectAsync();
             await Task.Delay(500);
             Assert.IsTrue(deviceManager.Devices.Count == 1);
             await serviceProxy.DisconnectAsync();
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 1);
+            Assert.IsTrue(deviceManager.Devices.Count == 0);
         }
 
         [TestMethod()]
@@ -68,18 +68,21 @@ namespace HideezSafe.Modules.DeviceManager.Tests
                 {
                     Id = "DCD777B8882D",
                     Name = "8877",
+                    SerialNo = "0"
                 });
                 devices.Add(new DeviceDTO
                 {
                     Id = "000777B8882D",
                     Name = "8447",
+                    SerialNo = "1"
                 });
                 devices.Add(new DeviceDTO
                 {
                     Id = "0007HJK8882D",
                     Name = "8421",
+                    SerialNo = "2"
                 });
-                messenger.Send(new PairedDevicesCollectionChangedMessage(devices.ToArray()));
+                messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
             });
 
             await Task.Delay(500);
@@ -89,7 +92,7 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             {
                 devices.RemoveAt(0);
             });
-            messenger.Send(new PairedDevicesCollectionChangedMessage(devices.ToArray()));
+            messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
 
             await Task.Delay(500);
             Assert.IsTrue(deviceManager.Devices.Count == 2);
@@ -98,7 +101,7 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             {
                 devices.Clear();
             });
-            messenger.Send(new PairedDevicesCollectionChangedMessage(devices.ToArray()));
+            messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
 
             await Task.Delay(500);
             Assert.IsTrue(deviceManager.Devices.Count == 0);
@@ -120,6 +123,7 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             {
                 Id = "CD4D46777E19",
                 Name = "8989",
+                SerialNo = "0"
             });
 
             bool res = await serviceProxy.ConnectAsync();
@@ -131,8 +135,9 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             {
                 Id = "DCD777B8D52D",
                 Name = "7777",
+                SerialNo = "1"
             });
-            messenger.Send(new PairedDevicesCollectionChangedMessage(devices.ToArray()));
+            messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
 
             await Task.Run(() =>
             {
@@ -140,20 +145,22 @@ namespace HideezSafe.Modules.DeviceManager.Tests
                 {
                     Id = "DCD777B8882D",
                     Name = "8877",
+                    SerialNo = "2"
                 });
                 devices.Add(new DeviceDTO
                 {
                     Id = "000777B8882D",
                     Name = "8447",
+                    SerialNo = "3"
                 });
-                messenger.Send(new PairedDevicesCollectionChangedMessage(devices.ToArray()));
+                messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
             });
 
             await Task.Delay(500);
             Assert.IsTrue(deviceManager.Devices.Count == 4);
 
             devices.RemoveAt(0);
-            messenger.Send(new PairedDevicesCollectionChangedMessage(devices.ToArray()));
+            messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
             await Task.Delay(500);
             Assert.IsTrue(deviceManager.Devices.Count == 3);
 
@@ -161,19 +168,19 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             {
                 devices.RemoveAt(0);
             });
-            messenger.Send(new PairedDevicesCollectionChangedMessage(devices.ToArray()));
+            messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
             await Task.Delay(500);
             Assert.IsTrue(deviceManager.Devices.Count == 2);
 
             await serviceProxy.DisconnectAsync();
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 2);
+            Assert.IsTrue(deviceManager.Devices.Count == 0);
         }
 
         private IHideezService GetHideezService()
         {
             var hideezService = new Mock<IHideezService>();
-            hideezService.Setup(s => s.GetPairedDevicesAsync()).ReturnsAsync(() => devices.ToArray());
+            hideezService.Setup(s => s.GetDevicesAsync()).ReturnsAsync(() => devices.ToArray());
             return hideezService.Object;
         }
 
@@ -196,7 +203,7 @@ namespace HideezSafe.Modules.DeviceManager.Tests
 
         private IDeviceManager GetDeviceManager(IMessenger messanger, IServiceProxy serviceProxy)
         {
-            return new DeviceManager(messanger, serviceProxy, new Mock<IWindowsManager>().Object);
+            return new DeviceManager(messanger, serviceProxy, new Mock<IWindowsManager>().Object, new Mock<IRemoteDeviceFactory>().Object);
         }
 
         private IMessenger GetMessenger()

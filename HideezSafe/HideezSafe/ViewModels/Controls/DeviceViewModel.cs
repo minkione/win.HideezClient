@@ -1,4 +1,5 @@
-﻿using Hideez.SDK.Communication.Remote;
+﻿using GalaSoft.MvvmLight.Messaging;
+using Hideez.SDK.Communication.Remote;
 using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules;
 using HideezSafe.Modules.Localize;
@@ -27,8 +28,8 @@ namespace HideezSafe.ViewModels
         string serialNo;
         double proximity;
         int battery;
-
-        string typeNameKey = "Hideez key";
+        bool isInitializing;
+        bool isInitialized;
 
         RemoteDevice RemoteDevice;
 
@@ -45,10 +46,19 @@ namespace HideezSafe.ViewModels
         
         public string IcoKey { get; } = "HedeezKeySimpleIMG";
 
+        [Localization]
+        public string TypeName { get; } = "Hideez key";
+
         public string Id
         {
             get { return id; }
             set { Set(ref id, value); }
+        }
+
+        public string Name
+        {
+            get { return name; }
+            set { Set(ref name, value); }
         }
 
         public bool IsConnected
@@ -89,18 +99,16 @@ namespace HideezSafe.ViewModels
             set { Set(ref serialNo, value); }
         }
 
-        [Localization]
-        public string Name
+        public bool IsInitializing
         {
-            get { return name; }
-            set { Set(ref name, value); }
+            get { return isInitializing; }
+            private set { Set(ref isInitializing, value); }
         }
 
-        [Localization]
-        public string TypeName
+        public bool IsInitialized
         {
-            get { return L(typeNameKey); }
-            set { Set(ref typeNameKey, value); }
+            get { return isInitialized; }
+            private set { Set(ref isInitialized, value); }
         }
 
         #endregion Property
@@ -198,27 +206,39 @@ namespace HideezSafe.ViewModels
             }
         }
 
-
         public async Task EstablishRemoteDeviceConnection()
         {
-            CloseRemoteDeviceConnection();
+            IsInitializing = true;
 
-            RemoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, 2);
-            await RemoteDevice.Authenticate(2);
-            await RemoteDevice.WaitAuthentication(20_000);
-            await RemoteDevice.Initialize(10_000);
-
-            if (RemoteDevice.SerialNo != SerialNo)
+            try
             {
-                _serviceProxy.GetService().RemoveDevice(RemoteDevice.DeviceId);
-                throw new Exception("Remote device serial number does not match enumerated serial number");
+                CloseRemoteDeviceConnection();
+
+                RemoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, 2);
+                await RemoteDevice.Authenticate(2);
+                await RemoteDevice.WaitAuthentication(20_000);
+                await RemoteDevice.Initialize(5_000);
+
+                if (RemoteDevice.SerialNo != SerialNo)
+                {
+                    _serviceProxy.GetService().RemoveDevice(RemoteDevice.DeviceId);
+                    throw new Exception("Remote device serial number does not match enumerated serial number");
+                }
+
+                RemoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
+                RemoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
+
+                Proximity = RemoteDevice.Proximity;
+                Battery = RemoteDevice.Battery;
+                IsInitialized = true;
+                IsInitializing = false;
             }
-
-            RemoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
-            RemoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
-
-            Proximity = RemoteDevice.Proximity;
-            Battery = RemoteDevice.Battery;
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                await Task.Delay(5000);
+                await EstablishRemoteDeviceConnection();
+            }
         }
 
         public void CloseRemoteDeviceConnection()
@@ -230,8 +250,8 @@ namespace HideezSafe.ViewModels
 
                 RemoteDevice = null;
 
-                NotifyPropertyChanged(nameof(Proximity));
-                NotifyPropertyChanged(nameof(Battery));
+                Battery = 0;
+                Proximity = 0;
             }
         }
 

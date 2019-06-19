@@ -91,10 +91,10 @@ namespace ServiceLibrary
         void DeviceInitialized(DeviceDTO device);
 
         [OperationContract(IsOneWay = true)]
-        void RemoteConnection_RssiReceived(string connectionId, double rssi);
+        void RemoteConnection_RssiReceived(string serialNo, double rssi);
 
         [OperationContract(IsOneWay = true)]
-        void RemoteConnection_BatteryChanged(string connectioNid, int battery);
+        void RemoteConnection_BatteryChanged(string serialNo, int battery);
     }
 
     public enum Adapter

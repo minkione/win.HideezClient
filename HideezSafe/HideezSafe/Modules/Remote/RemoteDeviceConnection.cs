@@ -48,13 +48,19 @@ namespace HideezSafe.Modules
 
         void OnRssiReceivedMessage(Remote_RssiReceivedMessage msg)
         {
-            if (msg.ConnectionId == RemoteDevice.DeviceId)
+            if (string.IsNullOrWhiteSpace(msg.SerialNo))
+                return;
+
+            if (msg.SerialNo == RemoteDevice.SerialNo)
                 RssiReceived?.Invoke(this, msg.Rssi);
         }
 
         void OnBatteryChangedMessage(Remote_BatteryChangedMessage msg)
         {
-            if (msg.ConnectionId == RemoteDevice.DeviceId)
+            if (string.IsNullOrWhiteSpace(msg.SerialNo))
+                return;
+
+            if (msg.SerialNo == RemoteDevice.SerialNo)
                 BatteryChanged?.Invoke(this, msg.Battery);
         }
     }

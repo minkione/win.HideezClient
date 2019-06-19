@@ -221,7 +221,7 @@
   <xs:element name="RemoteConnection_RssiReceived">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="connectionId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="rssi" type="xs:double" />
       </xs:sequence>
     </xs:complexType>
@@ -229,7 +229,7 @@
   <xs:element name="RemoteConnection_BatteryChanged">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="connectioNid" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="battery" type="xs:int" />
       </xs:sequence>
     </xs:complexType>

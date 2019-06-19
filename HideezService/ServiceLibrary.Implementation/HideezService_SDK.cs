@@ -123,6 +123,7 @@ namespace ServiceLibrary.Implementation
                 {
                     device.RssiReceived -= RemoteConnection_RssiReceived;
                     device.BatteryChanged -= RemoteConnection_BatteryChanged;
+                    RemoteWcfDevices.Remove((IWcfDevice)device);
                 }
             }
         }
@@ -369,7 +370,13 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                _client.Callbacks.RemoteConnection_RssiReceived(_client.Id, rssi);
+                if (RemoteWcfDevices.Count > 0)
+                {
+                    if (sender is IWcfDevice wcfDevice)
+                    {
+                        _client.Callbacks.RemoteConnection_RssiReceived(wcfDevice.SerialNo, rssi);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -381,7 +388,13 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                _client.Callbacks.RemoteConnection_BatteryChanged(_client.Id, battery);
+                if (RemoteWcfDevices.Count > 0)
+                {
+                    if (sender is IWcfDevice wcfDevice)
+                    {
+                        _client.Callbacks.RemoteConnection_BatteryChanged(wcfDevice.SerialNo, battery);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -412,7 +425,7 @@ namespace ServiceLibrary.Implementation
             try
             {
                 var wcfDevice = (IWcfDevice)_deviceManager.Find(connectionId);
-
+                
                 var response = await wcfDevice.OnRemoteCommandAsync(data);
 
                 return response;

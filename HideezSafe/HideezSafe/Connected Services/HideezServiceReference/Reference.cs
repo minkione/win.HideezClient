@@ -70,6 +70,9 @@ namespace HideezSafe.HideezServiceReference {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         TestConsole = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        RemoteDeviceConnection = 3,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -464,10 +467,10 @@ namespace HideezSafe.HideezServiceReference {
         void DeviceInitialized(HideezSafe.HideezServiceReference.DeviceDTO device);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_RssiReceived")]
-        void RemoteConnection_RssiReceived(string connectionId, double rssi);
+        void RemoteConnection_RssiReceived(string serialNo, double rssi);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_BatteryChanged")]
-        void RemoteConnection_BatteryChanged(string connectioNid, int battery);
+        void RemoteConnection_BatteryChanged(string serialNo, int battery);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]

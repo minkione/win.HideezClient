@@ -12,6 +12,7 @@
       <xs:enumeration value="ServiceHost" />
       <xs:enumeration value="DesktopClient" />
       <xs:enumeration value="TestConsole" />
+      <xs:enumeration value="RemoteDeviceConnection" />
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="ClientType" nillable="true" type="tns:ClientType" />

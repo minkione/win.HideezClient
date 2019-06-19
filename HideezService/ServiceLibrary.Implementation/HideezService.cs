@@ -126,8 +126,6 @@ namespace ServiceLibrary.Implementation
         {
             _log.Debug($">>>>>> DetachClient {_client?.ClientType}");
             SessionManager.Remove(_client);
-            foreach (var device in RemoteWcfDevices)
-                await device.OnResetChannelAsync();
         }
 
         public int Ping()

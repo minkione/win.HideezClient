@@ -54,27 +54,27 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
 
         public void DeviceConnectionStateChanged(DeviceDTO device)
         {
-            log.Info($"Device ({device.SerialNo}) connection state changed to: {device.IsConnected}");
+            log.Info($"Device ({device.Id}) connection state changed to: {device.IsConnected}");
             messenger.Send(new DeviceConnectionStateChangedMessage(device));
         }
 
         public void DeviceInitialized(DeviceDTO device)
         {
-            log.Info($"Device ({device.SerialNo}) is initialized");
+            log.Info($"Device ({device.Id}) is initialized");
             messenger.Send(new DeviceInitializedMessage(device));
         }
 
-        public void RemoteConnection_RssiReceived(string connectionId, double rssi)
+        public void RemoteConnection_RssiReceived(string serialNo, double rssi)
         {
             // to many messages are printed into log due to the line bellow
             //log.Info($"Remote ({connectionId}) rssi received ({rssi})");
-            messenger.Send(new Remote_RssiReceivedMessage(connectionId, rssi));
+            messenger.Send(new Remote_RssiReceivedMessage(serialNo, rssi));
         }
 
-        public void RemoteConnection_BatteryChanged(string connectionId, int battery)
+        public void RemoteConnection_BatteryChanged(string serialNo, int battery)
         {
-            log.Info($"Remote ({connectionId}) battery changed to {battery}");
-            messenger.Send(new Remote_BatteryChangedMessage(connectionId, battery));
+            log.Info($"Remote ({serialNo}) battery changed to {battery}");
+            messenger.Send(new Remote_BatteryChangedMessage(serialNo, battery));
         }
     }
 }

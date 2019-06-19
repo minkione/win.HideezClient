@@ -2,13 +2,13 @@
 {
     class Remote_RssiReceivedMessage
     {
-        public Remote_RssiReceivedMessage(string connectionId, double rssi)
+        public Remote_RssiReceivedMessage(string serialNo, double rssi)
         {
-            ConnectionId = connectionId;
+            SerialNo = serialNo;
             Rssi = rssi;
         }
 
-        public string ConnectionId { get; }
+        public string SerialNo { get; }
 
         public double Rssi { get; }
     }

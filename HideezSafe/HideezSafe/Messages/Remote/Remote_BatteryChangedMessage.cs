@@ -2,13 +2,13 @@
 {
     class Remote_BatteryChangedMessage
     {
-        public Remote_BatteryChangedMessage(string connectionId, int battery)
+        public Remote_BatteryChangedMessage(string serialNo, int battery)
         {
-            ConnectionId = connectionId;
+            SerialNo = serialNo;
             Battery = battery;
         }
 
-        public string ConnectionId { get; }
+        public string SerialNo { get; }
 
         public int Battery { get; }
     }
