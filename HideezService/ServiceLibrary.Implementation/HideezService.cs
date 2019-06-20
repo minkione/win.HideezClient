@@ -118,14 +118,16 @@ namespace ServiceLibrary.Implementation
 
             OperationContext.Current.Channel.Closed += Channel_Closed;
             OperationContext.Current.Channel.Faulted += Channel_Faulted;
+            SessionManager.SessionClosed += SessionManager_SessionClosed;
 
             return true;
         }
 
-        public async void DetachClient()
+        public void DetachClient()
         {
             _log.Debug($">>>>>> DetachClient {_client?.ClientType}");
             SessionManager.Remove(_client);
+            SessionManager.SessionClosed -= SessionManager_SessionClosed;
         }
 
         public int Ping()

@@ -75,7 +75,12 @@ namespace HideezSafe.Modules.DeviceManager
                 {
                     var dvm = FindDevice(message.Device.Id);
                     if (dvm != null)
-                        dvm.IsConnected = message.Device.IsConnected;
+                    {
+                        dvm.LoadFrom(message.Device);
+
+                        if (message.Device.IsInitialized && dvm.IsConnected)
+                            TryCreateRemoteDevice(dvm);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -95,7 +100,7 @@ namespace HideezSafe.Modules.DeviceManager
                     {
                         dvm.LoadFrom(message.Device);
 
-                        if (dvm.IsConnected)
+                        if (message.Device.IsInitialized && dvm.IsConnected)
                             TryCreateRemoteDevice(dvm);
                     }
                 }
@@ -108,19 +113,13 @@ namespace HideezSafe.Modules.DeviceManager
 
         DeviceViewModel FindDevice(string id)
         {
-            lock (devicesLock)
-            {
-                return Devices.FirstOrDefault(d => d.Id == id);
-            }
+            return Devices.ToArray().FirstOrDefault(d => d.Id == id);
         }
 
         void ClearDevicesCollection()
         {
-            lock (devicesLock)
-            {
-                foreach (var dvm in Devices.ToArray())
-                    RemoveDevice(dvm);
-            }
+            foreach (var dvm in Devices.ToArray())
+                RemoveDevice(dvm);
         }
 
         async Task EnumerateDevices()
@@ -180,6 +179,7 @@ namespace HideezSafe.Modules.DeviceManager
             lock (devicesLock)
             {
                 Devices.Remove(dvm);
+                dvm.CloseRemoteDeviceConnection();
             }
             // todo: close RemoveDevice connection and stop connection establishment that is in progress
         }

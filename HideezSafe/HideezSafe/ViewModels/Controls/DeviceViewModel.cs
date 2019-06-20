@@ -208,37 +208,56 @@ namespace HideezSafe.ViewModels
 
         public async Task EstablishRemoteDeviceConnection()
         {
+            if (IsInitializing || IsInitialized)
+                return;
+
             IsInitializing = true;
 
-            try
+            const int AUTH_CHANNEL = 2;
+            const int AUTH_WAIT = 20_000;
+            const int INIT_WAIT = 5_000;
+            const int RETRY_DELAY = 2_500;
+
+            do
             {
-                CloseRemoteDeviceConnection();
-
-                RemoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, 2);
-                await RemoteDevice.Authenticate(2);
-                await RemoteDevice.WaitAuthentication(20_000);
-                await RemoteDevice.Initialize(5_000);
-
-                if (RemoteDevice.SerialNo != SerialNo)
+                try
                 {
-                    _serviceProxy.GetService().RemoveDevice(RemoteDevice.DeviceId);
-                    throw new Exception("Remote device serial number does not match enumerated serial number");
+                    CloseRemoteDeviceConnection();
+
+                    IsInitializing = true;
+
+                    RemoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, AUTH_CHANNEL);
+                    if (RemoteDevice == null)
+                    {
+                        await Task.Delay(RETRY_DELAY);
+                        continue;
+                    }
+
+                    await RemoteDevice.Authenticate(AUTH_CHANNEL);
+                    await RemoteDevice.WaitAuthentication(AUTH_WAIT);
+                    await RemoteDevice.Initialize(INIT_WAIT);
+
+                    if (RemoteDevice.SerialNo != SerialNo)
+                    {
+                        _serviceProxy.GetService().RemoveDevice(RemoteDevice.DeviceId);
+                        throw new Exception("Remote device serial number does not match enumerated serial number");
+                    }
+
+                    RemoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
+                    RemoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
+
+                    Proximity = RemoteDevice.Proximity;
+                    Battery = RemoteDevice.Battery;
+                    IsInitialized = true;
+                    IsInitializing = false;
                 }
-
-                RemoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
-                RemoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
-
-                Proximity = RemoteDevice.Proximity;
-                Battery = RemoteDevice.Battery;
-                IsInitialized = true;
-                IsInitializing = false;
+                catch (Exception ex)
+                {
+                    _log.Error(ex);
+                    await Task.Delay(RETRY_DELAY);
+                }
             }
-            catch (Exception ex)
-            {
-                _log.Error(ex);
-                await Task.Delay(5000);
-                await EstablishRemoteDeviceConnection();
-            }
+            while (IsInitializing);
         }
 
         public void CloseRemoteDeviceConnection()
@@ -252,6 +271,9 @@ namespace HideezSafe.ViewModels
 
                 Battery = 0;
                 Proximity = 0;
+
+                IsInitialized = false;
+                isInitializing = false;
             }
         }
 

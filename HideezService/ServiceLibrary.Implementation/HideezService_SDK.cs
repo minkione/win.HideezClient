@@ -119,12 +119,8 @@ namespace ServiceLibrary.Implementation
                 device.ConnectionStateChanged -= Device_ConnectionStateChanged;
                 device.Initialized -= Device_Initialized;
 
-                if (device is IWcfDevice)
-                {
-                    device.RssiReceived -= RemoteConnection_RssiReceived;
-                    device.BatteryChanged -= RemoteConnection_BatteryChanged;
-                    RemoteWcfDevices.Remove((IWcfDevice)device);
-                }
+                if (device is IWcfDevice wcfDevice)
+                    UnsubscribeFromWcfDeviceEvents(wcfDevice);
             }
         }
 
@@ -201,6 +197,18 @@ namespace ServiceLibrary.Implementation
             }
         }
 
+        async void SessionManager_SessionClosed(object sender, ServiceClientSession e)
+        {
+            if (_client.Id == e.Id)
+            {
+                foreach (var wcfDevice in RemoteWcfDevices.ToArray())
+                {
+                    await _deviceManager.Remove(wcfDevice);
+                    UnsubscribeFromWcfDeviceEvents(wcfDevice);
+                }
+            }
+
+        }
         #endregion
 
         public bool GetAdapterState(Adapter adapter)
@@ -334,7 +342,7 @@ namespace ServiceLibrary.Implementation
             {
                 var device = _deviceManager.Find(id);
                 if (device != null)
-                    await _deviceManager.Remove(device);
+                    await _deviceManager.RemoveAll(device.Connection);
             }
             catch (Exception ex)
             {
@@ -345,18 +353,23 @@ namespace ServiceLibrary.Implementation
 
 
         #region Remote device management
+        // This collection is unique for each client
         List<IWcfDevice> RemoteWcfDevices = new List<IWcfDevice>();
 
         public async Task<string> EstablishRemoteDeviceConnection(string serialNo, byte channelNo)
         {
             try
             {
-                var device = _deviceManager.FindBySerialNo(serialNo, 1);
-                var connection = await _wcfDeviceManager.EstablishRemoteDeviceConnection(device.Mac, channelNo);
-                RemoteWcfDevices.Add(connection);
-                connection.RssiReceived += RemoteConnection_RssiReceived;
-                connection.BatteryChanged += RemoteConnection_BatteryChanged;
-                return connection.Id;
+                var wcfDevice = (IWcfDevice)_deviceManager.FindBySerialNo(serialNo, 2);
+                if (wcfDevice == null)
+                {
+                    var device = _deviceManager.FindBySerialNo(serialNo, 1);
+                    wcfDevice = await _wcfDeviceManager.EstablishRemoteDeviceConnection(device.Mac, channelNo);
+
+                    SubscribeToWcfDeviceEvents(wcfDevice);
+                }
+
+                return wcfDevice.Id;
             }
             catch (Exception ex)
             {
@@ -364,6 +377,20 @@ namespace ServiceLibrary.Implementation
                 ThrowException(ex);
                 return null; // this line is unreachable
             }
+        }
+
+        void SubscribeToWcfDeviceEvents(IWcfDevice wcfDevice)
+        {
+            RemoteWcfDevices.Add(wcfDevice);
+            wcfDevice.RssiReceived += RemoteConnection_RssiReceived;
+            wcfDevice.BatteryChanged += RemoteConnection_BatteryChanged;
+        }
+
+        void UnsubscribeFromWcfDeviceEvents(IWcfDevice wcfDevice)
+        {
+            wcfDevice.RssiReceived -= RemoteConnection_RssiReceived;
+            wcfDevice.BatteryChanged -= RemoteConnection_BatteryChanged;
+            RemoteWcfDevices.Remove(wcfDevice);
         }
 
         void RemoteConnection_RssiReceived(object sender, double rssi)
