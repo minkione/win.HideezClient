@@ -1,4 +1,4 @@
-﻿using GalaSoft.MvvmLight.Messaging;
+﻿using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Remote;
 using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules;
@@ -20,6 +20,7 @@ namespace HideezSafe.ViewModels
         readonly IWindowsManager _windowsManager;
         readonly IServiceProxy _serviceProxy;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
+        RemoteDevice _remoteDevice;
 
         string id;
         string name;
@@ -31,8 +32,6 @@ namespace HideezSafe.ViewModels
         bool isInitializing;
         bool isInitialized;
 
-        RemoteDevice RemoteDevice;
-
         public DeviceViewModel(DeviceDTO device, IWindowsManager windowsManager, 
             IServiceProxy serviceProxy, IRemoteDeviceFactory remoteDeviceFactory)
         {
@@ -43,7 +42,15 @@ namespace HideezSafe.ViewModels
         }
 
         #region Properties
-        
+
+        public IDeviceStorage Storage
+        {
+            get
+            {
+                return _remoteDevice;
+            }
+        }
+
         public string IcoKey { get; } = "HedeezKeySimpleIMG";
 
         [Localization]
@@ -226,28 +233,28 @@ namespace HideezSafe.ViewModels
 
                     IsInitializing = true;
 
-                    RemoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, AUTH_CHANNEL);
-                    if (RemoteDevice == null)
+                    _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, AUTH_CHANNEL);
+                    if (_remoteDevice == null)
                     {
                         await Task.Delay(RETRY_DELAY);
                         continue;
                     }
 
-                    await RemoteDevice.Authenticate(AUTH_CHANNEL);
-                    await RemoteDevice.WaitAuthentication(AUTH_WAIT);
-                    await RemoteDevice.Initialize(INIT_WAIT);
+                    await _remoteDevice.Authenticate(AUTH_CHANNEL);
+                    await _remoteDevice.WaitAuthentication(AUTH_WAIT);
+                    await _remoteDevice.Initialize(INIT_WAIT);
 
-                    if (RemoteDevice.SerialNo != SerialNo)
+                    if (_remoteDevice.SerialNo != SerialNo)
                     {
-                        _serviceProxy.GetService().RemoveDevice(RemoteDevice.DeviceId);
+                        _serviceProxy.GetService().RemoveDevice(_remoteDevice.DeviceId);
                         throw new Exception("Remote device serial number does not match enumerated serial number");
                     }
 
-                    RemoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
-                    RemoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
+                    _remoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
+                    _remoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
 
-                    Proximity = RemoteDevice.Proximity;
-                    Battery = RemoteDevice.Battery;
+                    Proximity = _remoteDevice.Proximity;
+                    Battery = _remoteDevice.Battery;
                     IsInitialized = true;
                     IsInitializing = false;
                 }
@@ -262,12 +269,12 @@ namespace HideezSafe.ViewModels
 
         public void CloseRemoteDeviceConnection()
         {
-            if (RemoteDevice != null)
+            if (_remoteDevice != null)
             {
-                RemoteDevice.ProximityChanged -= RemoteDevice_ProximityChanged;
-                RemoteDevice.BatteryChanged -= RemoteDevice_BatteryChanged;
+                _remoteDevice.ProximityChanged -= RemoteDevice_ProximityChanged;
+                _remoteDevice.BatteryChanged -= RemoteDevice_BatteryChanged;
 
-                RemoteDevice = null;
+                _remoteDevice = null;
 
                 Battery = 0;
                 Proximity = 0;
@@ -286,5 +293,6 @@ namespace HideezSafe.ViewModels
         {
             Battery = battery;
         }
+
     }
 }

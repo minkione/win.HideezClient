@@ -199,12 +199,14 @@
                                     <MenuItem
                                         Command="{Binding AddCredentialCommand}"
                                         Header="{l:Localization Menu.SavePCPassword}"
-                                        IsEnabled="{Binding IsConnected}" />
+                                        IsEnabled="{Binding IsInitialized}" />
                                     <MenuItem
                                         Command="{Binding DisconnectDeviceCommand}"
                                         Header="{l:Localization Menu.DisconnectDevice}"
                                         IsEnabled="{Binding IsConnected}" />
-                                    <MenuItem Command="{Binding RemoveDeviceCommand}" Header="{l:Localization Menu.RemoveDevice}" />
+                                    <MenuItem 
+                                        Command="{Binding RemoveDeviceCommand}" 
+                                        Header="{l:Localization Menu.RemoveDevice}" />
                                 </mah:DropDownButton.Items>
                             </mah:DropDownButton>
 
