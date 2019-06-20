@@ -93,7 +93,6 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _workstationLocker, sdkLogger);
             _proximityMonitorManager.Start();
 
-            _connectionManager.Start();
             _connectionManager.StartDiscovery();
         }
 
