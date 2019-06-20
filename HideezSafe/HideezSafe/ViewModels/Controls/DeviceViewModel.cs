@@ -8,6 +8,7 @@ using HideezSafe.Mvvm;
 using MvvmExtensions.Commands;
 using NLog;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -213,58 +214,70 @@ namespace HideezSafe.ViewModels
             }
         }
 
+        int remoteConnectionEstablishment = 0;
         public async Task EstablishRemoteDeviceConnection()
         {
-            if (IsInitializing || IsInitialized)
+            if (IsInitialized)
                 return;
 
-            IsInitializing = true;
-
-            const int AUTH_CHANNEL = 2;
-            const int AUTH_WAIT = 20_000;
-            const int INIT_WAIT = 5_000;
-            const int RETRY_DELAY = 2_500;
-
-            do
+            if (Interlocked.CompareExchange(ref remoteConnectionEstablishment, 1, 0) == 0)
             {
+                IsInitializing = true;
+
+                const int AUTH_CHANNEL = 2;
+                const int AUTH_WAIT = 20_000;
+                const int INIT_WAIT = 5_000;
+                const int RETRY_DELAY = 2_500;
+
                 try
                 {
-                    CloseRemoteDeviceConnection();
-
-                    IsInitializing = true;
-
-                    _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, AUTH_CHANNEL);
-                    if (_remoteDevice == null)
+                    while (IsInitializing)
                     {
-                        await Task.Delay(RETRY_DELAY);
-                        continue;
+                        try
+                        {
+                            _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, AUTH_CHANNEL);
+                            if (_remoteDevice == null)
+                            {
+                                if (IsInitializing)
+                                    await Task.Delay(RETRY_DELAY);
+
+                                continue;
+                            }
+
+                            await _remoteDevice.Authenticate(AUTH_CHANNEL);
+                            await _remoteDevice.WaitAuthentication(AUTH_WAIT);
+                            await _remoteDevice.Initialize(INIT_WAIT);
+
+                            if (_remoteDevice.SerialNo != SerialNo)
+                            {
+                                _serviceProxy.GetService().RemoveDevice(_remoteDevice.DeviceId);
+                                throw new Exception("Remote device serial number does not match enumerated serial number");
+                            }
+
+                            _remoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
+                            _remoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
+
+                            Proximity = _remoteDevice.Proximity;
+                            Battery = _remoteDevice.Battery;
+
+                            IsInitialized = true;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.Error(ex);
+
+                            if (IsInitializing)
+                                await Task.Delay(RETRY_DELAY);
+                        }
                     }
-
-                    await _remoteDevice.Authenticate(AUTH_CHANNEL);
-                    await _remoteDevice.WaitAuthentication(AUTH_WAIT);
-                    await _remoteDevice.Initialize(INIT_WAIT);
-
-                    if (_remoteDevice.SerialNo != SerialNo)
-                    {
-                        _serviceProxy.GetService().RemoveDevice(_remoteDevice.DeviceId);
-                        throw new Exception("Remote device serial number does not match enumerated serial number");
-                    }
-
-                    _remoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
-                    _remoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
-
-                    Proximity = _remoteDevice.Proximity;
-                    Battery = _remoteDevice.Battery;
-                    IsInitialized = true;
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref remoteConnectionEstablishment, 0);
                     IsInitializing = false;
                 }
-                catch (Exception ex)
-                {
-                    _log.Error(ex);
-                    await Task.Delay(RETRY_DELAY);
-                }
             }
-            while (IsInitializing);
         }
 
         public void CloseRemoteDeviceConnection()

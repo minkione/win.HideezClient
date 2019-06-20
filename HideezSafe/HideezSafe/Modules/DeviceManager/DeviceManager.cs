@@ -181,7 +181,6 @@ namespace HideezSafe.Modules.DeviceManager
                 Devices.Remove(dvm);
                 dvm.CloseRemoteDeviceConnection();
             }
-            // todo: close RemoveDevice connection and stop connection establishment that is in progress
         }
 
         void RemoveDevice(DeviceViewModel dvm)
