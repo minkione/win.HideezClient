@@ -10,11 +10,13 @@ using System.Threading.Tasks;
 using System.Windows;
 using HideezSafe.Modules.SettingsManager;
 using HideezSafe.Models.Settings;
+using HideezSafe.Modules.Localize;
 
 namespace HideezSafe.Modules.ActionHandler
 {
     class UserActionHandler
     {
+        private readonly INotifier notifier;
         private readonly IWindowsManager windowsManager;
         private readonly IMessenger messenger;
         protected readonly ISettingsManager<ApplicationSettings> settingsManager;
@@ -22,7 +24,7 @@ namespace HideezSafe.Modules.ActionHandler
         private readonly InputPassword inputPassword;
         private readonly InputOtp inputOtp;
 
-        public UserActionHandler(IWindowsManager windowsManager, IMessenger messenger, ISettingsManager<ApplicationSettings> settingsManager, InputLogin inputLogin, InputPassword inputPassword, InputOtp inputOtp)
+        public UserActionHandler(INotifier notifier, IWindowsManager windowsManager, IMessenger messenger, ISettingsManager<ApplicationSettings> settingsManager, InputLogin inputLogin, InputPassword inputPassword, InputOtp inputOtp)
         {
             this.windowsManager = windowsManager;
             this.messenger = messenger;
@@ -60,12 +62,11 @@ namespace HideezSafe.Modules.ActionHandler
             }
             catch (AccountException ex) when (ex is LoginNotFoundException || ex is PasswordNotFoundException || ex is OtpNotFoundException)
             {
-                windowsManager.ShowError(ex.Message);
-                // TODO: implement logic if not found data for account
+                notifier.ShowError(TranslationSource.Instance["AppName"], string.Format(TranslationSource.Instance["Exception.AccountNotFound"], ex.AppInfo.Title));
             }
             catch (FieldNotSecureException) // Assume that precondition failed because field is not secure
             {
-                windowsManager.ShowError(Localize.TranslationSource.Instance["Exception.FieldNotSecure"]);
+                notifier.ShowError(TranslationSource.Instance["AppName"], TranslationSource.Instance["Exception.FieldNotSecure"]);
             }
             catch (Exception ex)
             {
