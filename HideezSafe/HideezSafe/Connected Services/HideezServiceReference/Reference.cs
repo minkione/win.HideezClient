@@ -70,6 +70,9 @@ namespace HideezSafe.HideezServiceReference {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         TestConsole = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        RemoteDeviceConnection = 3,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -178,25 +181,13 @@ namespace HideezSafe.HideezServiceReference {
         private bool IsInitializedField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool IsRemoteField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string OwnerField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private double ProximityField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string SerialNoField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private uint StorageFreeSizeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private uint StorageTotalSizeField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -300,19 +291,6 @@ namespace HideezSafe.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsRemote {
-            get {
-                return this.IsRemoteField;
-            }
-            set {
-                if ((this.IsRemoteField.Equals(value) != true)) {
-                    this.IsRemoteField = value;
-                    this.RaisePropertyChanged("IsRemote");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
         public string Name {
             get {
                 return this.NameField;
@@ -339,19 +317,6 @@ namespace HideezSafe.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public double Proximity {
-            get {
-                return this.ProximityField;
-            }
-            set {
-                if ((this.ProximityField.Equals(value) != true)) {
-                    this.ProximityField = value;
-                    this.RaisePropertyChanged("Proximity");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
         public string SerialNo {
             get {
                 return this.SerialNoField;
@@ -360,32 +325,6 @@ namespace HideezSafe.HideezServiceReference {
                 if ((object.ReferenceEquals(this.SerialNoField, value) != true)) {
                     this.SerialNoField = value;
                     this.RaisePropertyChanged("SerialNo");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public uint StorageFreeSize {
-            get {
-                return this.StorageFreeSizeField;
-            }
-            set {
-                if ((this.StorageFreeSizeField.Equals(value) != true)) {
-                    this.StorageFreeSizeField = value;
-                    this.RaisePropertyChanged("StorageFreeSize");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public uint StorageTotalSize {
-            get {
-                return this.StorageTotalSizeField;
-            }
-            set {
-                if ((this.StorageTotalSizeField.Equals(value) != true)) {
-                    this.StorageTotalSizeField = value;
-                    this.RaisePropertyChanged("StorageTotalSize");
                 }
             }
         }
@@ -439,44 +378,12 @@ namespace HideezSafe.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAdapterState", ReplyAction="http://tempuri.org/IHideezService/GetAdapterStateResponse")]
         System.Threading.Tasks.Task<bool> GetAdapterStateAsync(HideezSafe.HideezServiceReference.Adapter adapter);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetPairedDevices", ReplyAction="http://tempuri.org/IHideezService/GetPairedDevicesResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetPairedDevicesHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        HideezSafe.HideezServiceReference.DeviceDTO[] GetPairedDevices();
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetDevices", ReplyAction="http://tempuri.org/IHideezService/GetDevicesResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetDevicesHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        HideezSafe.HideezServiceReference.DeviceDTO[] GetDevices();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetPairedDevices", ReplyAction="http://tempuri.org/IHideezService/GetPairedDevicesResponse")]
-        System.Threading.Tasks.Task<HideezSafe.HideezServiceReference.DeviceDTO[]> GetPairedDevicesAsync();
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EnableMonitoringProximity", ReplyAction="http://tempuri.org/IHideezService/EnableMonitoringProximityResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/EnableMonitoringProximityHideezServiceFaultFaul" +
-            "t", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        void EnableMonitoringProximity(string deviceId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EnableMonitoringProximity", ReplyAction="http://tempuri.org/IHideezService/EnableMonitoringProximityResponse")]
-        System.Threading.Tasks.Task EnableMonitoringProximityAsync(string deviceId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisableMonitoringProximity", ReplyAction="http://tempuri.org/IHideezService/DisableMonitoringProximityResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/DisableMonitoringProximityHideezServiceFaultFau" +
-            "lt", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        void DisableMonitoringProximity(string deviceId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisableMonitoringProximity", ReplyAction="http://tempuri.org/IHideezService/DisableMonitoringProximityResponse")]
-        System.Threading.Tasks.Task DisableMonitoringProximityAsync(string deviceId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EnableMonitoringDeviceProperties", ReplyAction="http://tempuri.org/IHideezService/EnableMonitoringDevicePropertiesResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/EnableMonitoringDevicePropertiesHideezServiceFa" +
-            "ultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        void EnableMonitoringDeviceProperties(string deviceId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EnableMonitoringDeviceProperties", ReplyAction="http://tempuri.org/IHideezService/EnableMonitoringDevicePropertiesResponse")]
-        System.Threading.Tasks.Task EnableMonitoringDevicePropertiesAsync(string deviceId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisableMonitoringDeviceProperties", ReplyAction="http://tempuri.org/IHideezService/DisableMonitoringDevicePropertiesResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/DisableMonitoringDevicePropertiesHideezServiceF" +
-            "aultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        void DisableMonitoringDeviceProperties(string deviceId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisableMonitoringDeviceProperties", ReplyAction="http://tempuri.org/IHideezService/DisableMonitoringDevicePropertiesResponse")]
-        System.Threading.Tasks.Task DisableMonitoringDevicePropertiesAsync(string deviceId);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetDevices", ReplyAction="http://tempuri.org/IHideezService/GetDevicesResponse")]
+        System.Threading.Tasks.Task<HideezSafe.HideezServiceReference.DeviceDTO[]> GetDevicesAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/OnSessionChange", ReplyAction="http://tempuri.org/IHideezService/OnSessionChangeResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/OnSessionChangeHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
@@ -485,26 +392,51 @@ namespace HideezSafe.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/OnSessionChange", ReplyAction="http://tempuri.org/IHideezService/OnSessionChangeResponse")]
         System.Threading.Tasks.Task OnSessionChangeAsync(bool sessionLocked);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SaveCredential", ReplyAction="http://tempuri.org/IHideezService/SaveCredentialResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/SaveCredentialHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        void SaveCredential(string deviceId, string login, string password);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SaveCredential", ReplyAction="http://tempuri.org/IHideezService/SaveCredentialResponse")]
-        System.Threading.Tasks.Task SaveCredentialAsync(string deviceId, string login, string password);
-        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisconnectDevice", ReplyAction="http://tempuri.org/IHideezService/DisconnectDeviceResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/DisconnectDeviceHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        void DisconnectDevice(string deviceId);
+        void DisconnectDevice(string id);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisconnectDevice", ReplyAction="http://tempuri.org/IHideezService/DisconnectDeviceResponse")]
-        System.Threading.Tasks.Task DisconnectDeviceAsync(string deviceId);
+        System.Threading.Tasks.Task DisconnectDeviceAsync(string id);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoveDevice", ReplyAction="http://tempuri.org/IHideezService/RemoveDeviceResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/RemoveDeviceHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        void RemoveDevice(string deviceId);
+        void RemoveDevice(string id);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoveDevice", ReplyAction="http://tempuri.org/IHideezService/RemoveDeviceResponse")]
-        System.Threading.Tasks.Task RemoveDeviceAsync(string deviceId);
+        System.Threading.Tasks.Task RemoveDeviceAsync(string id);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnection", ReplyAction="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnectionResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnectionHideezServiceFau" +
+            "ltFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        string EstablishRemoteDeviceConnection(string serialNo, byte channelNo);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnection", ReplyAction="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnectionResponse")]
+        System.Threading.Tasks.Task<string> EstablishRemoteDeviceConnectionAsync(string serialNo, byte channelNo);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandHideezServiceFaultF" +
+            "ault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        byte[] RemoteConnection_AuthCommand(string connectionId, byte[] data);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandResponse")]
+        System.Threading.Tasks.Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommandResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommandHideezServiceFaul" +
+            "tFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        byte[] RemoteConnection_RemoteCommand(string connectionId, byte[] data);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommandResponse")]
+        System.Threading.Tasks.Task<byte[]> RemoteConnection_RemoteCommandAsync(string connectionId, byte[] data);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannel", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_ResetChannelResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannelHideezServiceFault" +
+            "Fault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void RemoteConnection_ResetChannel(string connectionId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannel", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_ResetChannelResponse")]
+        System.Threading.Tasks.Task RemoteConnection_ResetChannelAsync(string connectionId);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -525,14 +457,20 @@ namespace HideezSafe.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DongleConnectionStateChanged")]
         void DongleConnectionStateChanged(bool isConnected);
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/PairedDevicesCollectionChanged")]
-        void PairedDevicesCollectionChanged(HideezSafe.HideezServiceReference.DeviceDTO[] devices);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DevicesCollectionChanged")]
+        void DevicesCollectionChanged(HideezSafe.HideezServiceReference.DeviceDTO[] devices);
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/PairedDevicePropertyChanged")]
-        void PairedDevicePropertyChanged(HideezSafe.HideezServiceReference.DeviceDTO device);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceConnectionStateChanged")]
+        void DeviceConnectionStateChanged(HideezSafe.HideezServiceReference.DeviceDTO device);
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ProximityChanged")]
-        void ProximityChanged(string deviceId, double proximity);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceInitialized")]
+        void DeviceInitialized(HideezSafe.HideezServiceReference.DeviceDTO device);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_RssiReceived")]
+        void RemoteConnection_RssiReceived(string serialNo, double rssi);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_BatteryChanged")]
+        void RemoteConnection_BatteryChanged(string serialNo, int battery);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -603,44 +541,12 @@ namespace HideezSafe.HideezServiceReference {
             return base.Channel.GetAdapterStateAsync(adapter);
         }
         
-        public HideezSafe.HideezServiceReference.DeviceDTO[] GetPairedDevices() {
-            return base.Channel.GetPairedDevices();
+        public HideezSafe.HideezServiceReference.DeviceDTO[] GetDevices() {
+            return base.Channel.GetDevices();
         }
         
-        public System.Threading.Tasks.Task<HideezSafe.HideezServiceReference.DeviceDTO[]> GetPairedDevicesAsync() {
-            return base.Channel.GetPairedDevicesAsync();
-        }
-        
-        public void EnableMonitoringProximity(string deviceId) {
-            base.Channel.EnableMonitoringProximity(deviceId);
-        }
-        
-        public System.Threading.Tasks.Task EnableMonitoringProximityAsync(string deviceId) {
-            return base.Channel.EnableMonitoringProximityAsync(deviceId);
-        }
-        
-        public void DisableMonitoringProximity(string deviceId) {
-            base.Channel.DisableMonitoringProximity(deviceId);
-        }
-        
-        public System.Threading.Tasks.Task DisableMonitoringProximityAsync(string deviceId) {
-            return base.Channel.DisableMonitoringProximityAsync(deviceId);
-        }
-        
-        public void EnableMonitoringDeviceProperties(string deviceId) {
-            base.Channel.EnableMonitoringDeviceProperties(deviceId);
-        }
-        
-        public System.Threading.Tasks.Task EnableMonitoringDevicePropertiesAsync(string deviceId) {
-            return base.Channel.EnableMonitoringDevicePropertiesAsync(deviceId);
-        }
-        
-        public void DisableMonitoringDeviceProperties(string deviceId) {
-            base.Channel.DisableMonitoringDeviceProperties(deviceId);
-        }
-        
-        public System.Threading.Tasks.Task DisableMonitoringDevicePropertiesAsync(string deviceId) {
-            return base.Channel.DisableMonitoringDevicePropertiesAsync(deviceId);
+        public System.Threading.Tasks.Task<HideezSafe.HideezServiceReference.DeviceDTO[]> GetDevicesAsync() {
+            return base.Channel.GetDevicesAsync();
         }
         
         public void OnSessionChange(bool sessionLocked) {
@@ -651,28 +557,52 @@ namespace HideezSafe.HideezServiceReference {
             return base.Channel.OnSessionChangeAsync(sessionLocked);
         }
         
-        public void SaveCredential(string deviceId, string login, string password) {
-            base.Channel.SaveCredential(deviceId, login, password);
+        public void DisconnectDevice(string id) {
+            base.Channel.DisconnectDevice(id);
         }
         
-        public System.Threading.Tasks.Task SaveCredentialAsync(string deviceId, string login, string password) {
-            return base.Channel.SaveCredentialAsync(deviceId, login, password);
+        public System.Threading.Tasks.Task DisconnectDeviceAsync(string id) {
+            return base.Channel.DisconnectDeviceAsync(id);
         }
         
-        public void DisconnectDevice(string deviceId) {
-            base.Channel.DisconnectDevice(deviceId);
+        public void RemoveDevice(string id) {
+            base.Channel.RemoveDevice(id);
         }
         
-        public System.Threading.Tasks.Task DisconnectDeviceAsync(string deviceId) {
-            return base.Channel.DisconnectDeviceAsync(deviceId);
+        public System.Threading.Tasks.Task RemoveDeviceAsync(string id) {
+            return base.Channel.RemoveDeviceAsync(id);
         }
         
-        public void RemoveDevice(string deviceId) {
-            base.Channel.RemoveDevice(deviceId);
+        public string EstablishRemoteDeviceConnection(string serialNo, byte channelNo) {
+            return base.Channel.EstablishRemoteDeviceConnection(serialNo, channelNo);
         }
         
-        public System.Threading.Tasks.Task RemoveDeviceAsync(string deviceId) {
-            return base.Channel.RemoveDeviceAsync(deviceId);
+        public System.Threading.Tasks.Task<string> EstablishRemoteDeviceConnectionAsync(string serialNo, byte channelNo) {
+            return base.Channel.EstablishRemoteDeviceConnectionAsync(serialNo, channelNo);
+        }
+        
+        public byte[] RemoteConnection_AuthCommand(string connectionId, byte[] data) {
+            return base.Channel.RemoteConnection_AuthCommand(connectionId, data);
+        }
+        
+        public System.Threading.Tasks.Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data) {
+            return base.Channel.RemoteConnection_AuthCommandAsync(connectionId, data);
+        }
+        
+        public byte[] RemoteConnection_RemoteCommand(string connectionId, byte[] data) {
+            return base.Channel.RemoteConnection_RemoteCommand(connectionId, data);
+        }
+        
+        public System.Threading.Tasks.Task<byte[]> RemoteConnection_RemoteCommandAsync(string connectionId, byte[] data) {
+            return base.Channel.RemoteConnection_RemoteCommandAsync(connectionId, data);
+        }
+        
+        public void RemoteConnection_ResetChannel(string connectionId) {
+            base.Channel.RemoteConnection_ResetChannel(connectionId);
+        }
+        
+        public System.Threading.Tasks.Task RemoteConnection_ResetChannelAsync(string connectionId) {
+            return base.Channel.RemoteConnection_ResetChannelAsync(connectionId);
         }
     }
 }

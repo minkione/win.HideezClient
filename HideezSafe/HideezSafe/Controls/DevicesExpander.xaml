@@ -9,6 +9,7 @@
     xmlns:local="clr-namespace:HideezSafe.Controls"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ext="clr-namespace:MvvmExtensions.Converters;assembly=MvvmExtensions"
     VerticalContentAlignment="Center"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -21,12 +22,13 @@
     </UserControl.DataContext>
     <UserControl.Resources>
         <ResourceDictionary>
-            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <ext:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <ext:InvertBooleanToVisibilityConverter x:Key="InvertBooleanToVisibilityConverter" />
+            <ext:MultiBoolAndConverter x:Key="MultiBoolAndConverter" />
+            <ext:MultiBoolOrConverter x:Key="MultiBoolOrConverter" />
+            <ext:InvertBooleanConverter x:Key="InvertBooleanConverter" />
             <converters:ProximityToOpacityConverter x:Key="ProximityToOpacityConverter" />
-            <converters:BooleanToVisibilityCollapsedConverter x:Key="BooleanToVisibilityCollapsedConverter" />
             <converters:StringToResource x:Key="StringToResource" />
-            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-            <converters:NullToVisibilityCollapsedConverter x:Key="NullToVisibilityCollapsedConverter" />
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -39,7 +41,7 @@
         <TextBlock
             FontSize="18"
             Text="{l:Localization Expander.NoDevice}"
-            Visibility="{Binding ElementName=devicesList, Path=HasItems, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+            Visibility="{Binding ElementName=devicesList, Path=HasItems, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
         <ScrollViewer
             HorizontalAlignment="Stretch"
             Focusable="False"
@@ -106,8 +108,8 @@
                                     Grid.Row="1"
                                     Grid.Column="4"
                                     Width="24"
-                                    Margin="8,0,0,0"
-                                    Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    Margin="6,0,0,0"
+                                    Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <Viewbox
                                         Width="Auto"
                                         Height="Auto"
@@ -134,25 +136,53 @@
                                 </Grid>
                                 <iconPacks:PackIconModern
                                     x:Name="noConnectionIco"
-                                    Width="18"
-                                    Height="24"
-                                    Margin="8,0,0,0"
+                                    Width="16"
+                                    Height="22"
+                                    Margin="8,0,0,2"
                                     Foreground="{DynamicResource DisconnectedBrush}"
                                     Kind="Connect"
-                                    Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                                    Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
                                 <TextBlock
                                     VerticalAlignment="Stretch"
                                     FontSize="18"
-                                    Text="{Binding Proximity, StringFormat='{}{0,3}%'}" />
+                                    Text="{Binding Proximity, StringFormat='{}{0,3}%'}" 
+                                    Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                <Grid Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel Visibility="{Binding IsInitialized, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
+                                                Orientation="Horizontal">
+                                        <iconPacks:PackIconModern
+                                            x:Name="ConnectingIco"
+                                            Width="16"
+                                            Height="22"
+                                            Margin="8,0,0,2"
+                                            Foreground="{DynamicResource InitializingBrush}"
+                                            Kind="Disconnect" />
+                                        <iconPacks:PackIconOcticons
+                                            x:Name="Sync"
+                                            Width="16"
+                                            Height="22"
+                                            Margin="8,0,0,2"
+                                            Foreground="{DynamicResource InitializingBrush}"
+                                            Kind="Sync" />
+                                        <!--<iconPacks:PackIconMaterial
+                                            x:Name="cloud"
+                                            Width="16"
+                                            Height="22"
+                                            Margin="8,0,0,2"
+                                            Foreground="{DynamicResource InitializingBrush}"
+                                            Kind="CloudSync" />-->
+                                    </StackPanel>
+                                </Grid>
                             </StackPanel>
 
                             <TextBlock
                                 Grid.Row="4"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Top"
-                                FontSize="14"
+                                FontSize="12"
                                 Opacity="0.5"
-                                Margin="0,-4,0,0"
+                                Margin="0,-2,0,0"
                                 Text="{Binding SerialNo}" />
 
                             <ToggleButton
@@ -199,12 +229,14 @@
                                     <MenuItem
                                         Command="{Binding AddCredentialCommand}"
                                         Header="{l:Localization Menu.SavePCPassword}"
-                                        IsEnabled="{Binding IsConnected}" />
+                                        IsEnabled="{Binding IsInitialized}" />
                                     <MenuItem
                                         Command="{Binding DisconnectDeviceCommand}"
                                         Header="{l:Localization Menu.DisconnectDevice}"
                                         IsEnabled="{Binding IsConnected}" />
-                                    <MenuItem Command="{Binding RemoveDeviceCommand}" Header="{l:Localization Menu.RemoveDevice}" />
+                                    <MenuItem 
+                                        Command="{Binding RemoveDeviceCommand}" 
+                                        Header="{l:Localization Menu.RemoveDevice}" />
                                 </mah:DropDownButton.Items>
                             </mah:DropDownButton>
 

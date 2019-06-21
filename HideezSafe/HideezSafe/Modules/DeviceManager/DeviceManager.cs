@@ -10,76 +10,19 @@ using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.ViewModels;
 using NLog;
 using System.Linq;
+using Hideez.SDK.Communication.Remote;
 
 namespace HideezSafe.Modules.DeviceManager
 {
-    public class DeviceManager : IDeviceManager
+    class DeviceManager : IDeviceManager
     {
-        private readonly Logger log = LogManager.GetCurrentClassLogger();
-        private readonly IServiceProxy serviceProxy;
-        private readonly IWindowsManager windowsManager;
+        private readonly Logger _log = LogManager.GetCurrentClassLogger();
+        private readonly IServiceProxy _serviceProxy;
+        private readonly IWindowsManager _windowsManager;
+        readonly IRemoteDeviceFactory _remoteDeviceFactory;
 
-        public DeviceManager(IMessenger messanger, IServiceProxy serviceProxy, IWindowsManager windowsManager)
-        {
-            Devices = new ObservableCollection<DeviceViewModel>();
-            this.serviceProxy = serviceProxy;
-            this.windowsManager = windowsManager;
-            windowsManager.MainWindowVisibleChanged += WindowsManager_ActivatedStateMainWindowChanged;
-
-            messanger.Register<PairedDevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
-            messanger.Register<DevicePropertiesUpdatedMessage>(this, OnDevicePropertiesUpdated);
-            messanger.Register<DeviceProximityChangedMessage>(this, OnProximityChanged);
-            serviceProxy.Disconnected += ServiceProxy_ConnectionStateChanged;
-            serviceProxy.Connected += ServiceProxy_ConnectionStateChanged;
-
-            Task.Run(UpdateDevicesAsync);
-        }
-
-        private void WindowsManager_ActivatedStateMainWindowChanged(object sender, bool isVisible)
-        {
-            Task.Run(UpdateDevicesAsync);
-        }
-
-        public async Task SwitchMonitoringDeviceProximityAsync(bool enable)
-        {
-            foreach (var device in Devices)
-            {
-                if (enable)
-                {
-                    await serviceProxy.GetService().EnableMonitoringProximityAsync(device.Id);
-                }
-                else
-                {
-                    await serviceProxy.GetService().DisableMonitoringProximityAsync(device.Id);
-                }
-            }
-        }
-
-        public async Task SwitchMonitoringDevicePropertiesAsync(bool enable)
-        {
-            foreach (var device in Devices)
-            {
-                if (enable)
-                {
-                    await serviceProxy.GetService().EnableMonitoringDevicePropertiesAsync(device.Id);
-                }
-                else
-                {
-                    await serviceProxy.GetService().DisableMonitoringDevicePropertiesAsync(device.Id);
-                }
-            }
-        }
-
-        private void OnProximityChanged(DeviceProximityChangedMessage obj)
-        {
-            var device = FindDevice(obj.DeviceId);
-            if (device != null)
-            {
-                device.Proximity = obj.Proximity;
-            }
-        }
-
-        private Dispatcher Dispatcher
+        // Required for unit tests because during tests Application.Current is null
+        Dispatcher Dispatcher
         {
             get
             {
@@ -92,129 +35,172 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        private void OnDevicePropertiesUpdated(DevicePropertiesUpdatedMessage obj)
+        public DeviceManager(IMessenger messenger, IServiceProxy serviceProxy, 
+            IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory)
         {
-            FindDevice(obj.Device)?.LoadFrom(obj.Device);
+            Devices = new ObservableCollection<DeviceViewModel>();
+            _serviceProxy = serviceProxy;
+            _windowsManager = windowsManager;
+            _remoteDeviceFactory = remoteDeviceFactory;
+
+            messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
+            messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
+            messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
+
+            _serviceProxy.Disconnected += ServiceProxy_ConnectionStateChanged;
+            _serviceProxy.Connected += ServiceProxy_ConnectionStateChanged;
         }
 
+        readonly object devicesLock = new object();
         public ObservableCollection<DeviceViewModel> Devices { get; } = new ObservableCollection<DeviceViewModel>();
 
-        private void ServiceProxy_ConnectionStateChanged(object sender, EventArgs e)
+        async void ServiceProxy_ConnectionStateChanged(object sender, EventArgs e)
         {
-            Task.Run(UpdateDevicesAsync);
+            if (!_serviceProxy.IsConnected)
+                ClearDevicesCollection();
+            else
+                await EnumerateDevices();
         }
 
-        void OnDevicesCollectionChanged(PairedDevicesCollectionChangedMessage message)
+        void OnDevicesCollectionChanged(DevicesCollectionChangedMessage message)
         {
-            Task.Run(()=> UpdateDevicesAsync(message.Devices));
+            Task.Run(EnumerateDevices);
+        }
+
+        void OnDeviceConnectionStateChanged(DeviceConnectionStateChangedMessage message)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    var dvm = FindDevice(message.Device.Id);
+                    if (dvm != null)
+                    {
+                        dvm.LoadFrom(message.Device);
+
+                        if (message.Device.IsInitialized && dvm.IsConnected)
+                            TryCreateRemoteDevice(dvm);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log.Error(ex);
+                }
+            });
+        }
+
+        void OnDeviceInitialized(DeviceInitializedMessage message)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    var dvm = FindDevice(message.Device.Id);
+                    if (dvm != null)
+                    {
+                        dvm.LoadFrom(message.Device);
+
+                        if (message.Device.IsInitialized && dvm.IsConnected)
+                            TryCreateRemoteDevice(dvm);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log.Error(ex);
+                }
+            });
+        }
+
+        DeviceViewModel FindDevice(string id)
+        {
+            return Devices.ToArray().FirstOrDefault(d => d.Id == id);
         }
 
         void ClearDevicesCollection()
         {
-            lock (Devices)
-            {
-                if (Devices.Count > 0)
-                {
-                    try
-                    {
-                        Dispatcher.Invoke(Devices.Clear);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error(ex);
-                    }
-                }
-            }
+            foreach (var dvm in Devices.ToArray())
+                RemoveDevice(dvm);
         }
 
-        private void OnServiceDisconnected()
-        {
-            foreach (var device in Devices)
-            {
-                device.IsConnected = false;
-                device.Proximity = 0;
-            }
-        }
-
-        private async Task UpdateDevicesAsync()
-        {
-            if (!serviceProxy.IsConnected)
-            {
-                OnServiceDisconnected();
-                // ClearDevicesCollection();
-            }
-            else
-            {
-                await UpdateDevicesAsync(await serviceProxy.GetService().GetPairedDevicesAsync());
-            }
-        }
-
-        private async Task UpdateDevicesAsync(DeviceDTO[] serviceDevices)
+        async Task EnumerateDevices()
         {
             try
             {
-                // Ignore remote devices
-                var realDevices = serviceDevices.Where(d => !d.IsRemote);
+                var serviceDevices = await _serviceProxy.GetService().GetDevicesAsync();
 
-                // update device's properties. If device does not exists, create it
-                foreach (var deviceDto in realDevices)
+                // Create device if it does not exist in UI
+                foreach (var deviceDto in serviceDevices)
                 {
-                    var device = FindDevice(deviceDto);
-                    if (device != null)
-                    {
-                        device.LoadFrom(deviceDto);
-                    }
-                    else
+                    var device = FindDevice(deviceDto.Id);
+                    if (device == null)
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            DeviceViewModel dvm = null;
 
-                            lock (Devices)
+                            DeviceViewModel dvm;
+
+                            lock (devicesLock)
                             {
-                                device = FindDevice(deviceDto);
-
-                                if (device == null)
-                                {
-                                    dvm = new DeviceViewModel(deviceDto, windowsManager, serviceProxy);
-                                    Devices.Add(dvm);
-                                }
+                                dvm = new DeviceViewModel(deviceDto, _windowsManager, _serviceProxy, _remoteDeviceFactory);
+                                Devices.Add(dvm);
                             }
+
+                            if (deviceDto.IsInitialized && dvm.IsConnected)
+                                TryCreateRemoteDevice(dvm);
                         });
                     }
                 }
 
                 // delete device from UI if its deleted from service
-                foreach (var clientDevice in
-                    Devices.Where(d => realDevices.FirstOrDefault(dto => dto.Id == d.Id) == null)
-                    .ToArray())
+                DeviceViewModel[] missingDevices;
+                lock (devicesLock)
                 {
-                    lock (Devices)
-                    {
-                        Dispatcher.Invoke(() => Devices.Remove(clientDevice));
-                    }
+                    missingDevices = Devices.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
                 }
-
-                await SwitchMonitoringDeviceProximityAsync(windowsManager.IsMainWindowVisible);
-                await SwitchMonitoringDevicePropertiesAsync(windowsManager.IsMainWindowVisible);
+                RemoveDevices(missingDevices);
             }
             catch (Exception ex)
             {
-                log.Error(ex);
+                _log.Error(ex);
             }
         }
 
-        public DeviceViewModel FindDevice(DeviceDTO deviceDto)
+        async void TryCreateRemoteDevice(DeviceViewModel dvm)
         {
-            return FindDevice(deviceDto.Id);
+            if (!dvm.IsInitialized && !dvm.IsInitializing)
+                await dvm.EstablishRemoteDeviceConnection();
         }
 
-        public DeviceViewModel FindDevice(string deviceId)
+        /// <summary>
+        /// Note: Must be executed on STA thread
+        /// </summary>
+        void RemoveDeviceSynchronously(DeviceViewModel dvm)
         {
-            lock (Devices)
+            lock (devicesLock)
             {
-                return Devices.FirstOrDefault(d => d.Id == deviceId);
+                Devices.Remove(dvm);
+                dvm.CloseRemoteDeviceConnection();
             }
+        }
+
+        void RemoveDevice(DeviceViewModel dvm)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                RemoveDeviceSynchronously(dvm);
+            });
+        }
+
+        void RemoveDevices(DeviceViewModel[] dvms)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                for (int i = 0; i < dvms.Length; i++)
+                {
+                    // Avoid invoking dispatcher from inside the dispatcher
+                    RemoveDeviceSynchronously(dvms[i]);
+                }
+            });
         }
     }
 }
