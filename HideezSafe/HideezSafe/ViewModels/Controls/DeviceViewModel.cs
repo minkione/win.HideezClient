@@ -244,7 +244,7 @@ namespace HideezSafe.ViewModels
                                 continue;
                             }
 
-                            await _remoteDevice.Authenticate(AUTH_CHANNEL);
+                            await _remoteDevice.Authenticate(AUTH_CHANNEL, null);
                             await _remoteDevice.WaitAuthentication(AUTH_WAIT);
                             await _remoteDevice.Initialize(INIT_WAIT);
 
