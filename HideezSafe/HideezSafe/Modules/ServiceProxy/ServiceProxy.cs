@@ -118,10 +118,13 @@ namespace HideezSafe.Modules.ServiceProxy
             if (service == null)
                 return;
 
-            if (service.State != CommunicationState.Faulted)
-                service.Close();
-            else
-                service.Abort();
+            Task.Run(() =>
+            {
+                if (service.State != CommunicationState.Faulted)
+                    service.Close();
+                else
+                    service.Abort();
+            });
         }
 
         private void SubscriveToServiceEvents(HideezServiceClient service)

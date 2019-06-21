@@ -35,6 +35,7 @@ using HideezSafe.Modules.ActionHandler;
 using Hideez.ISM;
 using WindowsInput;
 using HideezSafe.PageViewModels;
+using HideezSafe.Modules.HotkeyManager;
 
 namespace HideezSafe
 {
@@ -49,15 +50,15 @@ namespace HideezSafe
         private IWindowsManager windowsManager;
         private IServiceWatchdog serviceWatchdog;
         private IDeviceManager deviceManager;
+        private IHotkeyManager hotkeyManager;
 
         public static IUnityContainer Container { get; private set; }
 
         public App()
         {
-            AppDomain.CurrentDomain.UnhandledException += FatalExceptionHandler;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            // LogManager.DisableLogging();
-            // LogManager.EnableLogging();
+            LogManager.EnableLogging();
             logger = LogManager.GetCurrentClassLogger();
 
             logger.Info("Version: {0}", Environment.Version);
@@ -115,6 +116,8 @@ namespace HideezSafe
             serviceWatchdog.Start();
             deviceManager = Container.Resolve<IDeviceManager>();
             Container.Resolve<UserActionHandler>();
+            hotkeyManager = Container.Resolve<IHotkeyManager>();
+            hotkeyManager.Enabled = true;
 
             if (settings.IsFirstLaunch)
             {
@@ -185,19 +188,27 @@ namespace HideezSafe
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IWorkstationManager, WorkstationManager>(new ContainerControlledLifetimeManager());
             Container.RegisterInstance<IMessenger>(Messenger.Default, new ContainerControlledLifetimeManager());
-            
+
+            logger.Info("Finish initialize DI container");
+
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
-            Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IDeviceManager, DeviceManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ISessionStateMonitor, SessionStateMonitor>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ISupportMailContentGenerator, SupportMailContentGenerator>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
+
+            // Settings
+            Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ISettingsManager<HotkeySettings>, SettingsManager<HotkeySettings>>(new ContainerControlledLifetimeManager());
 
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IHideezServiceCallback, ServiceCallbackMessanger>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IServiceWatchdog, ServiceWatchdog>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IRemoteDeviceFactory, RemoteDeviceFactory>(new ContainerControlledLifetimeManager());
 
             // Taskbar icon
             Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
@@ -206,7 +217,6 @@ namespace HideezSafe
             Container.RegisterType<TaskbarIconViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ITaskbarIconManager, TaskbarIconManager>(new ContainerControlledLifetimeManager());
 
-            Container.RegisterType<ISupportMailContentGenerator, SupportMailContentGenerator>(new ContainerControlledLifetimeManager());
 
             // Messenger
             Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
@@ -245,18 +255,27 @@ namespace HideezSafe
             }
         }
 
-        private void FatalExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+        void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            string message = "Fatal error occured";
-            Exception ex = e.ExceptionObject as Exception;
-
             try
             {
-                logger.Fatal(ex, message);
+                LogManager.EnableLogging();
+
+                var fatalLogger = logger ?? LogManager.GetCurrentClassLogger();
+
+                fatalLogger.Fatal(e.ExceptionObject as Exception);
+                LogManager.Flush();
             }
-            catch
+            catch (Exception)
             {
-                Environment.FailFast(message, ex);
+                try
+                {
+                    Environment.FailFast("An error occured while handling fatal error", e.ExceptionObject as Exception);
+                }
+                catch (Exception exc)
+                {
+                    Environment.FailFast("An error occured while handling an error during fatal error handling", exc);
+                }
             }
         }
     }

@@ -80,15 +80,11 @@ namespace HideezSafe.Modules
 
         private void SubscribeToMainWindowEvent()
         {
-            //MainWindow.Deactivated += MainWindow_Deactivated;
-            //MainWindow.Activated += MainWindow_Activated;
             MainWindow.IsVisibleChanged += MainWindow_IsVisibleChanged;
         }
 
         private void UnsubscribeToMainWindowEvent()
         {
-            //MainWindow.Deactivated -= MainWindow_Deactivated;
-            //MainWindow.Activated -= MainWindow_Activated;
             MainWindow.IsVisibleChanged -= MainWindow_IsVisibleChanged;
         }
 
@@ -120,14 +116,13 @@ namespace HideezSafe.Modules
             }
         }
 
-        public void ShowDialogAddCredential(string deviceName, string deviceId)
+        public void ShowDialogAddCredential(DeviceViewModel device)
         {
             var addCredentialWindow = new AddCredentialView();
             addCredentialWindow.Owner = MainWindow;
             if (addCredentialWindow.DataContext is AddCredentialViewModel viewModel)
             {
-                viewModel.DeviceId = deviceId;
-                viewModel.DeviceName = deviceName;
+                viewModel.Device = device;
             }
             addCredentialWindow.ShowDialog();
         }

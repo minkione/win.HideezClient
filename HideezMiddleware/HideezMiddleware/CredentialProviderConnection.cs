@@ -1,8 +1,8 @@
-﻿using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.NamedPipes;
-using System;
+﻿using System;
 using System.Text;
 using System.Threading.Tasks;
+using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.NamedPipes;
 
 namespace HideezMiddleware
 {
@@ -19,10 +19,9 @@ namespace HideezMiddleware
 
     public class CredentialProviderConnection : Logger
     {
-        bool connected = false;
         readonly PipeServer _pipeServer;
 
-        public event EventHandler<EventArgs> ConnectionStateChanged;
+        public event EventHandler<EventArgs> OnProviderConnected;
 
         public CredentialProviderConnection(ILog log)
             : base(nameof(CredentialProviderConnection), log)
@@ -30,23 +29,6 @@ namespace HideezMiddleware
             _pipeServer = new PipeServer("hideezsafe3", log);
             _pipeServer.MessageReceivedEvent += PipeServer_MessageReceivedEvent;
             _pipeServer.ClientConnectedEvent += PipeServer_ClientConnectedEvent;
-            _pipeServer.ClientDisconnectedEvent += PipeServer_ClientDisconnectedEvent;
-        }
-        
-        public bool Connected
-        {
-            get
-            {
-                return connected;
-            }
-            set
-            {
-                if (connected != value)
-                {
-                    connected = value;
-                    ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
-                }
-            }
         }
 
         public void Start()
@@ -89,12 +71,10 @@ namespace HideezMiddleware
             }
             else if (code == 5)
             {
-                WriteDebugLine($"OnPasswordChangeEnd !!!!!!!!!!!!!!!!!!!!!!!!!!! ");
                 string prms = Encoding.Unicode.GetString(buf, 4, len - 4);
                 var strings = prms.Split('\n');
                 if (strings.Length == 3)
                 {
-                    WriteDebugLine($"OnPasswordChangeEnd !!!!!!!!!!!!!!!!!!!!!!!!!!! 222 ");
                     //OnPasswordChangeEnd(strings[0], strings[1], strings[2]);
                 }
                 else
@@ -106,46 +86,40 @@ namespace HideezMiddleware
 
         void PipeServer_ClientConnectedEvent(object sender, ClientConnectedEventArgs e)
         {
-            Connected = true;
-        }
-
-        void PipeServer_ClientDisconnectedEvent(object sender, ClientDisconnectedEventArgs e)
-        {
-            Connected = false;
+            OnProviderConnected?.Invoke(this, EventArgs.Empty);
         }
 
         async void OnLogonRequestByLoginName(string login)
         {
-            WriteDebugLine($"LogonWorkstationAsync ------------------------ {login}");
-            //todo
-            await SendMessageAsync(CredentialProviderCommandCode.Logon, true, $"{login}\n123");
+            WriteLine($"LogonWorkstationAsync: {login}");
+            await SendMessageAsync(CredentialProviderCommandCode.Logon, true, $"{login}");
         }
 
         public async Task SendLogonRequest(string login, string password, string prevPassword)
         {
-            //WriteDebugLine($"SendLogonRequest ------------------------ {login}");
+            WriteLine($"SendLogonRequest: {login}");
             await SendMessageAsync(CredentialProviderCommandCode.Logon, true, $"{login}\n{password}\n{prevPassword}");
         }
 
         public async Task SendError(string message)
         {
-            WriteDebugLine($"SendError ------------------------ {message}");
+            WriteLine($"SendError: {message}");
             await SendMessageAsync(CredentialProviderCommandCode.Error, true, $"{DateTime.Now.ToShortTimeString()}: {message}");
         }
 
         public async Task SendNotification(string message)
         {
-            WriteDebugLine($"SendNotification ------------------------ {message}");
+            WriteLine($"SendNotification: {message}");
 
             string formattedMessage = "";
             if (!string.IsNullOrEmpty(message))
-                formattedMessage = $"{DateTime.Now.ToShortTimeString()}: {message}";
+                formattedMessage = $"{DateTime.Now.ToLongTimeString()}: {message}";
             await SendMessageAsync(CredentialProviderCommandCode.Notification, true, formattedMessage);
         }
 
         public async Task SendStatus(string statusMessage)
         {
-            WriteDebugLine($"SendStatus ------------------------ {statusMessage}");
+            WriteLine($"SendStatus: {statusMessage}");
             await SendMessageAsync(CredentialProviderCommandCode.Status, true, statusMessage);
         }
 
@@ -165,7 +139,7 @@ namespace HideezMiddleware
                     buf[0] = 0x20;
 
                     // is success flag
-                    buf[1] = isSuccess ? (byte)1 : (byte)0;
+                    buf[1] = (byte)(isSuccess ? 1 : 0);
 
                     // command code
                     byte[] bCode = BitConverter.GetBytes((int)code);

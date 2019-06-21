@@ -61,64 +61,16 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="GetPairedDevices">
+  <xs:element name="GetDevices">
     <xs:complexType>
       <xs:sequence />
     </xs:complexType>
   </xs:element>
-  <xs:element name="GetPairedDevicesResponse">
+  <xs:element name="GetDevicesResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="GetPairedDevicesResult" nillable="true" type="q3:ArrayOfDeviceDTO" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="GetDevicesResult" nillable="true" type="q3:ArrayOfDeviceDTO" />
       </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="EnableMonitoringProximity">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="EnableMonitoringProximityResponse">
-    <xs:complexType>
-      <xs:sequence />
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="DisableMonitoringProximity">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="DisableMonitoringProximityResponse">
-    <xs:complexType>
-      <xs:sequence />
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="EnableMonitoringDeviceProperties">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="EnableMonitoringDevicePropertiesResponse">
-    <xs:complexType>
-      <xs:sequence />
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="DisableMonitoringDeviceProperties">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="DisableMonitoringDevicePropertiesResponse">
-    <xs:complexType>
-      <xs:sequence />
     </xs:complexType>
   </xs:element>
   <xs:element name="OnSessionChange">
@@ -133,24 +85,10 @@
       <xs:sequence />
     </xs:complexType>
   </xs:element>
-  <xs:element name="SaveCredential">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="login" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="SaveCredentialResponse">
-    <xs:complexType>
-      <xs:sequence />
-    </xs:complexType>
-  </xs:element>
   <xs:element name="DisconnectDevice">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="id" nillable="true" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -162,11 +100,68 @@
   <xs:element name="RemoveDevice">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="id" nillable="true" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="RemoveDeviceResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="EstablishRemoteDeviceConnection">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="channelNo" type="xs:unsignedByte" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="EstablishRemoteDeviceConnectionResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="EstablishRemoteDeviceConnectionResult" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoteConnection_AuthCommand">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="connectionId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="data" nillable="true" type="xs:base64Binary" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoteConnection_AuthCommandResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="RemoteConnection_AuthCommandResult" nillable="true" type="xs:base64Binary" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoteConnection_RemoteCommand">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="connectionId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="data" nillable="true" type="xs:base64Binary" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoteConnection_RemoteCommandResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="RemoteConnection_RemoteCommandResult" nillable="true" type="xs:base64Binary" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoteConnection_ResetChannel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="connectionId" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoteConnection_ResetChannelResponse">
     <xs:complexType>
       <xs:sequence />
     </xs:complexType>
@@ -202,25 +197,40 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="PairedDevicesCollectionChanged">
+  <xs:element name="DevicesCollectionChanged">
     <xs:complexType>
       <xs:sequence>
         <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="devices" nillable="true" type="q4:ArrayOfDeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="PairedDevicePropertyChanged">
+  <xs:element name="DeviceConnectionStateChanged">
     <xs:complexType>
       <xs:sequence>
         <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q5:DeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="ProximityChanged">
+  <xs:element name="DeviceInitialized">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="proximity" type="xs:double" />
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q6:DeviceDTO" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoteConnection_RssiReceived">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="rssi" type="xs:double" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoteConnection_BatteryChanged">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="battery" type="xs:int" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

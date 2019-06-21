@@ -9,7 +9,7 @@ namespace HideezSafe.Modules.FileSerializer
 {
     class XmlFileSerializer : IFileSerializer
     {
-        ILogger _log = LogManager.GetCurrentClassLogger();
+        private readonly Logger log = LogManager.GetCurrentClassLogger();
 
         public T Deserialize<T>(string filePath) where T : new()
         {
@@ -32,7 +32,7 @@ namespace HideezSafe.Modules.FileSerializer
                         }
                         catch (Exception e)
                         {
-                            _log.Error(e);
+                            log.Error(e.Message);
                         }
 
                         // Cleanup
@@ -42,7 +42,7 @@ namespace HideezSafe.Modules.FileSerializer
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                log.Error(ex.Message);
             }
 
             return model;

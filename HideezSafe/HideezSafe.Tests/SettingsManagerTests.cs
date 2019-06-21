@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using GalaSoft.MvvmLight.Messaging;
+using HideezSafe.Messages;
 using HideezSafe.Models.Settings;
 using HideezSafe.Modules.FileSerializer;
 using HideezSafe.Modules.SettingsManager;
@@ -41,7 +43,7 @@ namespace HideezSafe.Tests
 
         private SettingsManager<TestSettings> SetupSettingsManager()
         {
-            return new SettingsManager<TestSettings>
+            return new SettingsManager<TestSettings>()
             {
                 SettingsFilePath = GetAbsoluteFormattedPath()
             };
@@ -49,7 +51,7 @@ namespace HideezSafe.Tests
 
         private SettingsManager<TestSettings> SetupSettingsManager(IFileSerializer fileSerializer)
         {
-            return new SettingsManager<TestSettings>
+            return new SettingsManager<TestSettings>()
             {
                 FileSerializer = fileSerializer,
                 SettingsFilePath = GetAbsoluteFormattedPath()
@@ -430,5 +432,36 @@ namespace HideezSafe.Tests
             Assert.AreNotSame(settingsReference1, settingsReference2);
         }
 
+        [TestMethod]
+        public async Task LoadSettings_SettingsNotLoaded_MessengerCalled()
+        {
+            // Arrange
+            var messengerMock = new Mock<IMessenger>();
+            var serializer = SetupFileSerializerMock();
+            var settingsManager = SetupSettingsManager(serializer.Object);
+            settingsManager.Messenger = messengerMock.Object;
+
+            // Act
+            await settingsManager.LoadSettingsAsync();
+
+            // Assert
+            messengerMock.Verify(m => m.Send(It.IsAny<SettingsChangedMessage<TestSettings>>()));
+        }
+
+        [TestMethod]
+        public async Task GetSettings_SettingsNotLoaded_MessengerCalled()
+        {
+            // Arrange
+            var messengerMock = new Mock<IMessenger>();
+            var serializer = SetupFileSerializerMock();
+            var settingsManager = SetupSettingsManager(serializer.Object);
+            settingsManager.Messenger = messengerMock.Object;
+
+            // Act
+            await settingsManager.GetSettingsAsync();
+
+            // Assert
+            messengerMock.Verify(m => m.Send(It.IsAny<SettingsChangedMessage<TestSettings>>()));
+        }
     }
 }

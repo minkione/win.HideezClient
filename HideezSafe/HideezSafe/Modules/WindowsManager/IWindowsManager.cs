@@ -1,4 +1,5 @@
-﻿using HideezSafe.Modules.ActionHandler;
+﻿using HideezSafe.ViewModels;
+using HideezSafe.Modules.ActionHandler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace HideezSafe.Modules
         Task ActivateMainWindowAsync();
         event EventHandler<bool> MainWindowVisibleChanged;
         bool IsMainWindowVisible { get; }
-        void ShowDialogAddCredential(string deviceName, string deviceId);
+        void ShowDialogAddCredential(DeviceViewModel device);
         void ShowError(string message);
         void ShowWarning(string message);
         Task<Account> SelectAccountAsync(Account[] accounts);

@@ -1,5 +1,4 @@
-﻿using ServiceLibrary;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,6 +7,8 @@ namespace ServiceLibrary.Implementation
     class ServiceClientSessionManager
     {
         readonly object sessionsLock = new object();
+
+        public event EventHandler<ServiceClientSession> SessionClosed;
 
         public IReadOnlyCollection<ServiceClientSession> Sessions { get; } = new List<ServiceClientSession>();
 
@@ -31,6 +32,7 @@ namespace ServiceLibrary.Implementation
             {
                 (Sessions as List<ServiceClientSession>).Remove(session);
             }
+            SessionClosed?.Invoke(this, session);
         }
 
         ServiceClientSession GetSessionById(string id)

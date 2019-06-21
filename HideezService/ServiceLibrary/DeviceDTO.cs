@@ -11,14 +11,12 @@ namespace ServiceLibrary
         {
             Id = device.Id;
             Name = device.Name;
-            Proximity = device.Proximity;
             IsConnected = device.IsConnected;
+            IsBoot = device.IsBoot;
             Battery = device.Battery;
             SerialNo = device.SerialNo;
             FirmwareVersion = device.FirmwareVersion;
             BootloaderVersion = device.BootloaderVersion;
-            StorageTotalSize = device.StorageTotalSize;
-            StorageFreeSize = device.StorageFreeSize;
             IsInitialized = device.IsInitialized;
         }
 
@@ -29,31 +27,25 @@ namespace ServiceLibrary
         public string Name { get; set; }
 
         [DataMember]
-        public string Owner { get; set; }
+        public string SerialNo { get; set; }
 
         [DataMember]
-        public double Proximity { get; set; }
+        public string Owner { get; set; }
 
         [DataMember]
         public bool IsConnected { get; set; }
 
         [DataMember]
-        public int Battery { get; set; }
+        public bool IsBoot { get; private set; }
 
         [DataMember]
-        public string SerialNo { get; set; }
+        public int Battery { get; set; }
 
         [DataMember]
         public Version FirmwareVersion { get; private set; }
 
         [DataMember]
         public Version BootloaderVersion { get; private set; }
-
-        [DataMember]
-        public uint StorageTotalSize { get; private set; }
-
-        [DataMember]
-        public uint StorageFreeSize { get; private set; }
 
         [DataMember]
         public bool IsInitialized { get; private set; }
