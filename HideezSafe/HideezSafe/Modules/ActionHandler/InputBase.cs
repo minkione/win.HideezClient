@@ -67,7 +67,7 @@ namespace HideezSafe.Modules.ActionHandler
 
                     if (!accounts.Any()) // No accounts for current application
                     {
-                        NotFoundAccounts(currentAppInfo, devicesId);
+                        OnAccountNotFoundError(currentAppInfo, devicesId);
                     }
                     else if (accounts.Length == 1) // Single account for current application
                     {
@@ -114,16 +114,16 @@ namespace HideezSafe.Modules.ActionHandler
         {
             if (!await InputAccountAsync(account))
             {
-                NotFoundAccounts(currentAppInfo, new[] { account.DeviceId });
+                OnAccountNotFoundError(currentAppInfo, new[] { account.DeviceId });
             }
         }
 
         /// <summary>
-        /// Show a message or other action if no any accounts found
+        /// Show a message or other action when account for target app is missing
         /// </summary>
-        /// <param name="appInfo">AppInfo for not found account</param>
+        /// <param name="appInfo">AppInfo of app for which an account is missing</param>
         /// <param name="devicesId">Devices on which the search was performed</param>
-        protected abstract void NotFoundAccounts(AppInfo appInfo, string[] devicesId);
+        protected abstract void OnAccountNotFoundError(AppInfo appInfo, string[] devicesId);
 
         /// <summary>
         /// Processing input data

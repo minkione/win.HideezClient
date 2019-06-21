@@ -45,7 +45,7 @@ namespace HideezSafe.Modules.ActionHandler
         /// </summary>
         /// <param name="appInfo">AppInfo for new account</param>
         /// <param name="devicesId">Devices on which the search was performed</param>
-        protected override void NotFoundAccounts(AppInfo appInfo, string[] devicesId)
+        protected override void OnAccountNotFoundError(AppInfo appInfo, string[] devicesId)
         {
             throw new LoginNotFoundException(string.Format(TranslationSource.Instance["Exception.LoginNotFound"], appInfo.Title), appInfo, devicesId);
         }

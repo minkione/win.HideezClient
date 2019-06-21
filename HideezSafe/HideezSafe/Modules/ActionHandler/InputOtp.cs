@@ -54,7 +54,7 @@ namespace HideezSafe.Modules.ActionHandler
         /// <summary>
         /// Throw InputException "No One Account With OTP"
         /// </summary>
-        protected override void NotFoundAccounts(AppInfo appInfo, string[] devicesId)
+        protected override void OnAccountNotFoundError(AppInfo appInfo, string[] devicesId)
         {
             throw new OtpNotFoundException(string.Format(TranslationSource.Instance["Exception.NoOneAccountWithOtp"], appInfo.Title), appInfo, devicesId);
         }

@@ -1,41 +1,39 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.Messages;
-using HideezSafe.Modules.DeviceManager;
 using System;
-using Unity;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using HideezSafe.Modules.SettingsManager;
-using HideezSafe.Models.Settings;
 using HideezSafe.Modules.Localize;
 
 namespace HideezSafe.Modules.ActionHandler
 {
+    /// <summary>
+    /// Responsible for receiving user action requests and routing them for execution
+    /// </summary>
     class UserActionHandler
     {
-        private readonly INotifier notifier;
-        private readonly IWindowsManager windowsManager;
-        private readonly IMessenger messenger;
-        protected readonly ISettingsManager<ApplicationSettings> settingsManager;
-        private readonly InputLogin inputLogin;
-        private readonly InputPassword inputPassword;
-        private readonly InputOtp inputOtp;
+        readonly INotifier notifier;
+        readonly IWindowsManager windowsManager;
+        readonly InputLogin inputLogin;
+        readonly InputPassword inputPassword;
+        readonly InputOtp inputOtp;
 
-        public UserActionHandler(INotifier notifier, IWindowsManager windowsManager, IMessenger messenger, ISettingsManager<ApplicationSettings> settingsManager, InputLogin inputLogin, InputPassword inputPassword, InputOtp inputOtp)
+        public UserActionHandler(INotifier notifier, 
+            IWindowsManager windowsManager, 
+            IMessenger messenger, 
+            InputLogin inputLogin, 
+            InputPassword inputPassword, 
+            InputOtp inputOtp)
         {
+            this.notifier = notifier;
             this.windowsManager = windowsManager;
-            this.messenger = messenger;
-            this.settingsManager = settingsManager;
+
             this.inputLogin = inputLogin;
             this.inputPassword = inputPassword;
             this.inputOtp = inputOtp;
 
-            this.messenger.Register<InputLoginMessage>(this, InputLoginMessageHandler);
-            this.messenger.Register<InputPasswordMessage>(this, InputPasswordMessageHandler);
-            this.messenger.Register<InputOtpMessage>(this, InputOtpMessageHandler);
+            messenger.Register<InputLoginMessage>(this, InputLoginMessageHandler);
+            messenger.Register<InputPasswordMessage>(this, InputPasswordMessageHandler);
+            messenger.Register<InputOtpMessage>(this, InputOtpMessageHandler);
         }
 
         private void InputLoginMessageHandler(InputLoginMessage message)

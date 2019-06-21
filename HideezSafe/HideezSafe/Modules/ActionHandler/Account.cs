@@ -1,35 +1,26 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HideezSafe.Modules.ActionHandler
+﻿namespace HideezSafe.Modules.ActionHandler
 {
     public class Account
     {
-        public Account(string deviceId, ushort key, string name, string login, bool hasOtpSecret, string app, string url)
+        public Account(string deviceId, ushort key, string name, string login, bool hasOtpSecret, string[] apps, string[] urls)
         {
-            this.DeviceId = deviceId;
-            this.Key = key;
-            this.Name = name;
+            DeviceId = deviceId;
+            Key = key;
+            Name = name;
 
-            this.App = app;
-            this.Url = url;
+            Apps = apps;
+            Urls = urls;
 
-            this.Login = login;
-            this.HasOtpSecret = hasOtpSecret;
+            Login = login;
+            HasOtpSecret = hasOtpSecret;
         }
 
         public string DeviceId { get; }
         public ushort Key { get; }
         public string Name { get; }
 
-        public bool IsForWebApp { get { return !string.IsNullOrWhiteSpace(Url); } }
-
-        public string App { get; }
-        public string Url { get; }
+        public string[] Apps { get; }
+        public string[] Urls { get; }
 
         public string Login { get; }
         public bool HasOtpSecret { get; }
@@ -38,10 +29,10 @@ namespace HideezSafe.Modules.ActionHandler
         {
             if (obj is Account accountObj)
             {
-                return this.Name == accountObj.Name
-                        && this.App == accountObj.App
-                        && this.Url == accountObj.Url
-                        && this.Login == accountObj.Login;
+                return Name == accountObj.Name
+                        && Apps == accountObj.Apps
+                        && Urls == accountObj.Urls
+                        && Login == accountObj.Login;
             }
 
             return false;
@@ -49,7 +40,7 @@ namespace HideezSafe.Modules.ActionHandler
 
         public override int GetHashCode()
         {
-            return $"{Name}{App}{Url}{Login}".GetHashCode(); 
+            return $"{Name}{string.Join("", Apps)}{string.Join("", Urls)}{Login}".GetHashCode(); 
         }
     }
 }
