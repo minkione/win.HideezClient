@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -879,7 +880,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await device.Device.Link("passphrase");
+                await device.Device.Link(Encoding.UTF8.GetBytes("passphrase"));
             }
             catch (Exception ex)
             {
@@ -891,7 +892,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await device.Device.StorageKey("passphrase");
+                await device.Device.StorageKey(Encoding.UTF8.GetBytes("passphrase"));
             }
             catch (Exception ex)
             {
@@ -903,7 +904,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await device.Device.Wipe("passphrase");
+                await device.Device.Wipe(Encoding.UTF8.GetBytes("passphrase"));
             }
             catch (Exception ex)
             {

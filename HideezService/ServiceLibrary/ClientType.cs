@@ -5,5 +5,6 @@
         ServiceHost,
         DesktopClient,
         TestConsole,
+        RemoteDeviceConnection,
     }
 }

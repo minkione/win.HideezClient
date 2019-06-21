@@ -201,16 +201,21 @@
     <Compile Include="Messages\ConnectionHESChangedMessage.cs" />
     <Compile Include="Messages\ConnectionRFIDChangedMessage.cs" />
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
-    <Compile Include="Messages\DevicePropertiesUpdatedMessage.cs" />
-    <Compile Include="Messages\DeviceProximityChangedMessage.cs" />
+    <Compile Include="Messages\DeviceConnectionStateChangedMessage.cs" />
+    <Compile Include="Messages\DeviceInitializedMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
     <Compile Include="Messages\HotkeyPressedMessage.cs" />
     <Compile Include="Messages\HotkeyStateChangedMessage.cs" />
     <Compile Include="Messages\LockWorkstationMessage.cs" />
-    <Compile Include="Messages\PairedDevicesCollectionChangedMessage.cs" />
+    <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
+    <Compile Include="Messages\Remote\Remote_BatteryChangedMessage.cs" />
+    <Compile Include="Messages\Remote\Remote_RssiReceivedMessage.cs" />
     <Compile Include="Messages\SettingsChangedMessage.cs" />
     <Compile Include="Modules\DeviceManager\DeviceManager.cs" />
     <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
+    <Compile Include="Modules\Remote\IRemoteDeviceFactory.cs" />
+    <Compile Include="Modules\Remote\RemoteDeviceConnection.cs" />
+    <Compile Include="Modules\Remote\RemoteDeviceFactory.cs" />
     <Compile Include="Modules\SessionStateMonitor\ISessionStateMonitor.cs" />
     <Compile Include="Modules\SessionStateMonitor\SessionStateMonitor.cs" />
     <Compile Include="Modules\SupportMailContentGenerator\ISupportMailContentGenerator.cs" />
@@ -491,6 +496,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\BackgroundForPage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
+      <Project>{20B97AF9-6422-4678-900B-0610ED1D2517}</Project>
+      <Name>Communication</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

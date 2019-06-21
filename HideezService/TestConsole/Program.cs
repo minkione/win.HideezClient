@@ -1,11 +1,9 @@
 ﻿using Microsoft.Win32;
-using ServiceLibrary;
 using ServiceLibrary.Implementation;
 using System;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Threading;
-using System.Threading.Tasks;
 using TestConsole.HideezServiceReference;
 
 namespace TestConsole
@@ -98,16 +96,20 @@ namespace TestConsole
                 // NOTE: If an ambiguous reference error occurs, check that TestConsole DOES NOT have 
                 // a reference to 'ServiceLibrary'. There should be only 'ServiceLibrary.Implementation' ref
                 service = new HideezServiceClient(instanceContext);
+                instanceContext.Faulted += InstanceContext_Faulted;
                 await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.TestConsole });
 
-                // Disconnect is no longer possible, we need to maintain connection with the service we 
-                // are hosting to notify about session change
-                //service.Close();
+                // Disconnect from service
+                // service.Close();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+
+        private static void InstanceContext_Faulted(object sender, EventArgs e)
+        {
         }
 
         protected static void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
@@ -117,12 +119,12 @@ namespace TestConsole
                 if (e.Reason == SessionSwitchReason.SessionLock)
                 {
                     // Session locked
-                    service?.OnSessionChange(true);
+                    service.OnSessionChange(true);
                 }
                 else if (e.Reason == SessionSwitchReason.SessionUnlock)
                 {
                     // Session unlocked
-                    service?.OnSessionChange(false);
+                    service.OnSessionChange(false);
                 }
             }
             catch (Exception ex)
