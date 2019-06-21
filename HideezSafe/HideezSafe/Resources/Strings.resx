@@ -117,6 +117,48 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Button.Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Button.ChangePassword" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="Button.ComputerLocker" xml:space="preserve">
+    <value>Computer Locker</value>
+  </data>
+  <data name="Button.Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="Button.LockDistance" xml:space="preserve">
+    <value>Lock/unlock distance Bluetooth</value>
+  </data>
+  <data name="Button.Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Button.Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="DeviceType.Key" xml:space="preserve">
+    <value>Hideez key</value>
+  </data>
+  <data name="Dialog.ChangePass.Info" xml:space="preserve">
+    <value>The new password must be the same as your current system password</value>
+  </data>
+  <data name="Dialog.ChangePass.New" xml:space="preserve">
+    <value>New Pass</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Error.FillAllFields" xml:space="preserve">
+    <value>Fill all fields.</value>
+  </data>
+  <data name="Error.SaveCredential" xml:space="preserve">
+    <value>Error save credential.</value>
+  </data>
+  <data name="Expander.NoDevice" xml:space="preserve">
+    <value>No device</value>
+  </data>
   <data name="Icon.DeviceNotConnected" xml:space="preserve">
     <value>Device is not connected</value>
   </data>
@@ -133,6 +175,33 @@ Device is not connected</value>
   <data name="Icon.SynchronizationInProgress" xml:space="preserve">
     <value>Synchronization in progress</value>
   </data>
+  <data name="Label.Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Label.Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="LockPage.Description" xml:space="preserve">
+    <value>Lock and unlock the computer with a key or phone.                  Watch the video</value>
+  </data>
+  <data name="LockPage.Header" xml:space="preserve">
+    <value>Control your computer from anywhere</value>
+  </data>
+  <data name="LockPage.PasswordInfo" xml:space="preserve">
+    <value>Type your password for login into the system</value>
+  </data>
+  <data name="LockPage.PasswordLabel" xml:space="preserve">
+    <value>Password from PC</value>
+  </data>
+  <data name="LockSettingsPage.OneMeter" xml:space="preserve">
+    <value>1 meter</value>
+  </data>
+  <data name="LockSettingsPage.TenMeters" xml:space="preserve">
+    <value>10 meters</value>
+  </data>
+  <data name="LockSettingsPage.UnlockDistans" xml:space="preserve">
+    <value>Unlock distance: </value>
+  </data>
   <data name="Menu.AddDevice" xml:space="preserve">
     <value>Add new device ...</value>
   </data>
@@ -141,6 +210,9 @@ Device is not connected</value>
   </data>
   <data name="Menu.CheckForUpdates" xml:space="preserve">
     <value>Check for updates</value>
+  </data>
+  <data name="Menu.DisconnectDevice" xml:space="preserve">
+    <value>Disconnect device</value>
   </data>
   <data name="Menu.Exit" xml:space="preserve">
     <value>Exit</value>
@@ -160,8 +232,14 @@ Device is not connected</value>
   <data name="Menu.LogOff" xml:space="preserve">
     <value>Log off</value>
   </data>
+  <data name="Menu.RemoveDevice" xml:space="preserve">
+    <value>Remove device</value>
+  </data>
   <data name="Menu.RFIDUsage" xml:space="preserve">
     <value>RFID usage</value>
+  </data>
+  <data name="Menu.SavePCPassword" xml:space="preserve">
+    <value>Save PC password</value>
   </data>
   <data name="Menu.ShowWindow" xml:space="preserve">
     <value>Open Hideez Safe</value>
@@ -175,19 +253,76 @@ Device is not connected</value>
   <data name="Menu.VideoTutorial" xml:space="preserve">
     <value>Video tutorial</value>
   </data>
+  <data name="Status.Dongle" xml:space="preserve">
+    <value>Dongle</value>
+  </data>
+  <data name="Status.HES" xml:space="preserve">
+    <value>HES</value>
+  </data>
+  <data name="Status.RFID" xml:space="preserve">
+    <value>RFID</value>
+  </data>
+  <data name="Status.Service" xml:space="preserve">
+    <value>Service</value>
+  </data>
+  <data name="Status.Tooltip.ConectedDongle" xml:space="preserve">
+    <value>Hideez Dongle connected</value>
+  </data>
+  <data name="Status.Tooltip.ConectedHES" xml:space="preserve">
+    <value>Connected to the server</value>
+  </data>
+  <data name="Status.Tooltip.ConectedRFID" xml:space="preserve">
+    <value>RFID reader connected</value>
+  </data>
+  <data name="Status.Tooltip.ConectedService" xml:space="preserve">
+    <value>Connected to the service</value>
+  </data>
+  <data name="Status.Tooltip.DisconectedDongle" xml:space="preserve">
+    <value>Hideez Dongle disconnected</value>
+  </data>
+  <data name="Status.Tooltip.DisconectedHES" xml:space="preserve">
+    <value>No connection to the server</value>
+  </data>
+  <data name="Status.Tooltip.DisconectedRFID" xml:space="preserve">
+    <value>RFID reader disconnected</value>
+  </data>
+  <data name="Status.Tooltip.DisconectedService" xml:space="preserve">
+    <value>No connection to the service</value>
+  </data>
   <data name="Url.Legal" xml:space="preserve">
-    <value>https://hideez.com/404</value>
+    <value>https://hideez.com/pages/warranty</value>
   </data>
   <data name="Url.LiveChat" xml:space="preserve">
+    <value>https://hideez.com/pages/intercom_en</value>
+  </data>
+  <data name="Url.LockVideoTutorial" xml:space="preserve">
     <value>https://hideez.com/404</value>
   </data>
   <data name="Url.RFIDUsage" xml:space="preserve">
-    <value>https://hideez.com/404</value>
+    <value>https://intercom.help/hideez/hideez-enterprise-server</value>
   </data>
   <data name="Url.UserManual" xml:space="preserve">
     <value>https://hideez.com/404</value>
   </data>
   <data name="Url.VideoTutorial" xml:space="preserve">
     <value>https://hideez.com/404</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Menu.Logs" xml:space="preserve">
+    <value>Logs</value>
+  </data>
+  <data name="Menu.Logs.OpenClientFolder" xml:space="preserve">
+    <value>Client Logs</value>
+  </data>
+  <data name="Menu.Logs.OpenServiceFolder" xml:space="preserve">
+    <value>Service Logs</value>
+  </data>
+  <data name="SupportMail" xml:space="preserve">
+    <value>support@hideez.com</value>
+  </data>
+  <data name="SupportMailUri" xml:space="preserve">
+    <value>mailto:support@hideez.com</value>
   </data>
 </root>

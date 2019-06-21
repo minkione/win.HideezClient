@@ -1,27 +1,28 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.Messages;
+using HideezSafe.Modules.SessionStateMonitor;
 using HideezSafe.Utilities;
-using Microsoft.Win32;
 using NLog;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using WindowsInput;
 
 namespace HideezSafe.Modules
 {
     class WorkstationManager : IWorkstationManager
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        readonly Logger logger = LogManager.GetCurrentClassLogger();
+        readonly IInputSimulator inputSimulator = new InputSimulator();
+        readonly ISessionStateMonitor sessionStateMonitor;
 
-        public WorkstationManager(IMessenger messanger)
+        public WorkstationManager(IMessenger messanger, ISessionStateMonitor sessionStateMonitor)
         {
+            this.sessionStateMonitor = sessionStateMonitor;
+
             // Start listening command messages
-            messanger.Register<LockPCCommand>(this, LockPC);
-            messanger.Register<ForceShutdownCommand>(this, ForceShutdown);
+            messanger.Register<LockWorkstationMessage>(this, LockPC);
+            messanger.Register<ForceShutdownMessage>(this, ForceShutdown);
+            messanger.Register<ActivateScreenMessage>(this, ActivateScreen);
         }
 
         public void LockPC()
@@ -39,9 +40,20 @@ namespace HideezSafe.Modules
             Process.Start(process);
         }
 
+        public void ActivateScreen()
+        {
+            if (sessionStateMonitor.CurrentState == SessionState.Locked ||
+                sessionStateMonitor.CurrentState == SessionState.Unknown)
+            {
+                // Should trigger activation of the screen in credential provider with 0 impact on user
+                inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.ESCAPE);
+                inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.ESCAPE);
+            }
+        }
+
         #region Messages handlers
 
-        private void LockPC(LockPCCommand command)
+        private void LockPC(LockWorkstationMessage command)
         {
             try
             {
@@ -53,7 +65,7 @@ namespace HideezSafe.Modules
             }
         }
 
-        private void ForceShutdown(ForceShutdownCommand command)
+        private void ForceShutdown(ForceShutdownMessage command)
         {
             try
             {
@@ -65,6 +77,17 @@ namespace HideezSafe.Modules
             }
         }
 
+        private void ActivateScreen(ActivateScreenMessage command)
+        {
+            try
+            {
+                ActivateScreen();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex);
+            }
+        }
         #endregion Messages handlers
     }
 }

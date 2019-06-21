@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.Models.Settings;
 using HideezSafe.Modules.SettingsManager;
+using HideezSafe.Modules.Localize;
 using HideezSafe.Properties;
 using HideezSafe.Utilities;
 using HideezSafe.ViewModels;
@@ -10,6 +11,10 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
+using NLog;
+using System.IO;
+using NLog.Layouts;
+using System.Threading.Tasks;
 
 namespace HideezSafe.Modules
 {
@@ -20,16 +25,18 @@ namespace HideezSafe.Modules
         private readonly IWindowsManager windowsManager;
         private readonly IAppHelper appHelper;
         private readonly ISettingsManager<ApplicationSettings> settingsManager;
+        private readonly ISupportMailContentGenerator supportMailContentGenerator;
 
         public MenuFactory(IMessenger messenger, IStartupHelper startupHelper
             , IWindowsManager windowsManager, IAppHelper appHelper,
-            ISettingsManager<ApplicationSettings> settingsManager)
+            ISettingsManager<ApplicationSettings> settingsManager, ISupportMailContentGenerator supportMailContentGenerator)
         {
             this.messenger = messenger;
             this.startupHelper = startupHelper;
             this.windowsManager = windowsManager;
             this.appHelper = appHelper;
             this.settingsManager = settingsManager;
+            this.supportMailContentGenerator = supportMailContentGenerator;
         }
 
         public MenuItemViewModel GetMenuItem(MenuItemType type)
@@ -47,7 +54,7 @@ namespace HideezSafe.Modules
                 case MenuItemType.UserManual:
                     return GetViewModel("Menu.UserManual", x => OnOpenUrl("Url.UserManual"));
                 case MenuItemType.TechnicalSupport:
-                    return GetViewModel("Menu.TechnicalSupport", x => throw new NotImplementedException());
+                    return GetViewModel("Menu.TechnicalSupport", x => Task.Run(() => OnTechSupportAsync("SupportMail")));
                 case MenuItemType.LiveChat:
                     return GetViewModel("Menu.LiveChat", x => OnOpenUrl("Url.LiveChat"));
                 case MenuItemType.Legal:
@@ -64,10 +71,19 @@ namespace HideezSafe.Modules
                     return GetLanguages();
                 case MenuItemType.LaunchOnStartup:
                     return GetLaunchOnStartup();
+                case MenuItemType.GetLogsSubmenu:
+                    return GetLogsSubmenu();
                 case MenuItemType.Separator:
                 default:
                     return null;
             }
+        }
+
+        private async Task OnTechSupportAsync(string techSupportUriKey)
+        {
+            string techSupportUri = TranslationSource.Instance[techSupportUriKey];
+            var mail = await supportMailContentGenerator.GenerateSupportMail(techSupportUri);
+            appHelper.OpenUrl(mail);
         }
 
         private void OnOpenUrl(string urlKey)
@@ -144,5 +160,60 @@ namespace HideezSafe.Modules
                 }
             };
         }
+
+        private MenuItemViewModel GetLogsSubmenu()
+        {
+            var logsMenu = new MenuItemViewModel { Header = "Menu.Logs", };
+            logsMenu.MenuItems = new ObservableCollection<MenuItemViewModel>();
+
+            try
+            {
+                var openClientLogsFolderItem = new MenuItemViewModel
+                {
+                    Header = "Menu.Logs.OpenClientFolder",
+                    Command = new DelegateCommand
+                    {
+                        CommandAction = x =>
+                        {
+                            try
+                            {
+                                var logsPath = LogManager.Configuration.Variables["logDir"].Text;
+                                var fullPath = LogManagement.GetTargetFolder(logsPath);
+                                Process.Start(fullPath);
+                            }
+                            catch (Exception) { }
+                        }
+                    }
+                };
+                var openServiceLogsFolderItem = new MenuItemViewModel
+                {
+                    Header = "Menu.Logs.OpenServiceFolder",
+                    Command = new DelegateCommand
+                    {
+                        CommandAction = x =>
+                        {
+                            try
+                            {
+                                var logsPath = LogManager.Configuration.Variables["serviceLogDir"].Text;
+                                var fullPath = LogManagement.GetTargetFolder(logsPath);
+                                Process.Start(fullPath);
+                            }
+                            catch (Exception) { }
+                        }
+                    }
+                };
+
+                logsMenu.MenuItems.Add(openClientLogsFolderItem);
+                logsMenu.MenuItems.Add(openServiceLogsFolderItem);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                Debug.Assert(false);
+            }
+
+            return logsMenu;
+        }
+
     }
 }

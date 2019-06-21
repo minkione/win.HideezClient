@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace HideezSafe.Modules
 {
-    interface IWindowsManager
+    public interface IWindowsManager
     {
         void ActivateMainWindow();
         Task ActivateMainWindowAsync();
+        event EventHandler<bool> MainWindowVisibleChanged;
+        bool IsMainWindowVisible { get; }
+        void ShowDialogAddCredential(string deviceName, string deviceId);
+        void ShowError(string message);
+        void ShowWarning(string message);
     }
 }
