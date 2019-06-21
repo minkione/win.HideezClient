@@ -1,8 +1,11 @@
 ﻿using HideezSafe.Modules;
+using MahApps.Metro.Controls;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
@@ -10,39 +13,58 @@ namespace HideezSafe.Controls
 {
     public abstract class NotificationBase : UserControl
     {
+        private readonly object lockObj = new object();
+        private bool closing = false;
+        private bool result = false;
         private DispatcherTimer timer;
-        private readonly NotificationOptions options;
 
         protected NotificationBase(NotificationOptions options)
         {
-            this.options = options;
+            Options = options;
             Loaded += OnLoaded;
         }
 
         public event EventHandler Closed;
+        public event EventHandler Closing;
+
+        public bool Result
+        {
+            get { return result; }
+            protected set
+            {
+                result = value;
+                Close();
+            }
+        }
+
+        public NotificationOptions Options { get; }
 
         public NotificationPosition Position
         {
             get
             {
-                return options != null ? options.Position : NotificationPosition.Normal;
+                return Options.Position;
             }
         }
 
         public void Close()
         {
-            BeginAnimation("HideNotificationAnimation");
-
-            Task.Run(async () =>
+            lock (lockObj)
             {
-                await Task.Delay(((Duration)FindResource("AnimationHideTime")).TimeSpan);
-                await App.Current.Dispatcher.InvokeAsync(() => Closed?.Invoke(this, EventArgs.Empty));
-            });
-        }
+                if (!closing)
+                {
+                    Closing?.Invoke(this, EventArgs.Empty);
 
-        private void NotificationBase_LostFocus(object sender, RoutedEventArgs e)
-        {
-            Close();
+                    closing = true;
+                    BeginAnimation("HideNotificationAnimation");
+
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(((Duration)FindResource("AnimationHideTime")).TimeSpan);
+                        await App.Current.Dispatcher.InvokeAsync(() => Closed?.Invoke(this, EventArgs.Empty));
+                    });
+                }
+            }
         }
 
         private void BeginAnimation(string storyboardName)
@@ -58,25 +80,17 @@ namespace HideezSafe.Controls
             Style = (Style)FindResource("NotificationStyle");
             BeginAnimation("ShowNotificationAnimation");
 
-            if (options.SetFocus)
+            if (Options.SetFocus)
             {
+                Focusable = true;
                 Focus();
             }
 
-            if (options.CloseWhenLostFocus)
-            {
-                LostKeyboardFocus -= NotificationBase_LostFocus;
-                LostFocus -= NotificationBase_LostFocus;
-
-                LostKeyboardFocus += NotificationBase_LostFocus;
-                LostFocus += NotificationBase_LostFocus;
-            }
-
-            if (options.CloseTimeout != TimeSpan.Zero && timer == null)
+            if (Options.CloseTimeout != TimeSpan.Zero && timer == null)
             {
                 timer = new DispatcherTimer
                 {
-                    Interval = options.CloseTimeout
+                    Interval = Options.CloseTimeout
                 };
 
                 timer.Tick += Timer_Tick; ;

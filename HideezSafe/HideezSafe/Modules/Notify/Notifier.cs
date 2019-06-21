@@ -1,4 +1,5 @@
 ﻿using HideezSafe.Controls;
+using HideezSafe.Modules.ActionHandler;
 using HideezSafe.ViewModels;
 using HideezSafe.Views;
 using System;
@@ -60,6 +61,34 @@ namespace HideezSafe.Modules
                 notificationsWindow.Show();
                 isInitialised = true;
             }
+        }
+
+        public Task<Account> SelectAccount(Account[] accounts)
+        {
+            if (!isInitialised)
+                Initialise();
+
+            TaskCompletionSource<Account> completionSource = new TaskCompletionSource<Account>();
+
+            var viewModel = new AccountSelectorViewModel(accounts);
+            AccountSelector notification = new AccountSelector(new NotificationOptions { SetFocus = true, CloseWhenDeactivate = true, Position = NotificationPosition.Bottom, })
+            {
+                DataContext = viewModel,
+            };
+            notificationsContainer.AddNotification(notification, true);
+            notification.Closing += (sender, e) =>
+            {
+                if (notification.Result)
+                {
+                    completionSource.SetResult(viewModel.SelectedAccount.Account);
+                }
+                else
+                {
+                    completionSource.SetResult(null);
+                }
+            };
+
+            return completionSource.Task;
         }
     }
 }

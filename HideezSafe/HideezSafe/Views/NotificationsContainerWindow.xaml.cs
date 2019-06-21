@@ -1,4 +1,5 @@
-﻿using HideezSafe.Utilities;
+﻿using HideezSafe.Controls;
+using HideezSafe.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -36,6 +37,16 @@ namespace HideezSafe.Views
         private void NotificationsContainerWindow_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             UpdateWindowContainer();
+        }
+
+        protected override void OnDeactivated(EventArgs e)
+        {
+            base.OnDeactivated(e);
+
+            foreach (var item in notifyItems.Items.Cast<NotificationBase>().Where(n => n.Options.CloseWhenDeactivate))
+            {
+                item.Close();
+            }
         }
 
         private void UpdateWindowContainer()

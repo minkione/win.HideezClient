@@ -7,14 +7,14 @@ namespace HideezSafe.ViewModels
 {
     class NotificationsContainerViewModel
     {
-        private readonly int maxCountNotification = 10;
+        private readonly int maxCountNotification = 7;
         private readonly Queue<NotificationBase> notifications = new Queue<NotificationBase>();
 
         public ObservableCollection<NotificationBase> Items { get; } = new ObservableCollection<NotificationBase>();
 
-        public void AddNotification(NotificationBase notificationBase)
+        public void AddNotification(NotificationBase notificationBase, bool addForce = false)
         {
-            if (Items.Count < maxCountNotification)
+            if (Items.Count < maxCountNotification || addForce)
             {
                 Add(notificationBase);
             }

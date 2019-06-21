@@ -200,6 +200,11 @@
     <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Notification\AccountSelector\AccountSelector.xaml.cs">
+      <DependentUpon>AccountSelector.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Notification\AccountSelector\AccountSelectorViewModel.cs" />
+    <Compile Include="Controls\Notification\AccountSelector\AccountViewModel.cs" />
     <Compile Include="Controls\Notification\IconType.cs" />
     <Compile Include="Converters\BooleanToVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\NullToVisibilityCollapsedConverter.cs" />
@@ -286,6 +291,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\DevicesExpander.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Notification\AccountSelector\AccountSelector.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
