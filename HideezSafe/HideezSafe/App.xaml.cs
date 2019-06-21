@@ -34,6 +34,7 @@ using HideezSafe.Modules.SessionStateMonitor;
 using HideezSafe.Modules.ActionHandler;
 using Hideez.ISM;
 using WindowsInput;
+using HideezSafe.PageViewModels;
 
 namespace HideezSafe
 {
@@ -169,11 +170,22 @@ namespace HideezSafe
 #endif
             logger.Info("Start initialize DI container");
 
+            #region ViewModels
+
+            Container.RegisterType<MainViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<LoginSystemPageViewModel>();
+            Container.RegisterType<LockSettingsPageViewModel>();
+            Container.RegisterType<IndicatorsViewModel>();
+            Container.RegisterType<DevicesExpanderViewModel>();
+            Container.RegisterType<AddCredentialViewModel>();
+            Container.RegisterType<NotificationsContainerViewModel>(new ContainerControlledLifetimeManager());
+
+            #endregion ViewModels
+
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IWorkstationManager, WorkstationManager>(new ContainerControlledLifetimeManager());
             Container.RegisterInstance<IMessenger>(Messenger.Default, new ContainerControlledLifetimeManager());
-
-            logger.Info("Finish initialize DI container");
+            
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
@@ -209,7 +221,10 @@ namespace HideezSafe
             Container.RegisterType<InputPassword>();
             Container.RegisterType<InputLogin>();
 
+            Container.RegisterType<INotifier, Notifier>(new ContainerControlledLifetimeManager());
+
             logger.Info("Finish initialize DI container");
+
         }
 
         /// <summary>

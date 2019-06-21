@@ -46,13 +46,6 @@ namespace HideezSafe.ViewModels
             {
                 DIContainer = App.Container;
             }
-
-            DIContainer.RegisterType<MainViewModel>(new ContainerControlledLifetimeManager());
-            DIContainer.RegisterType<LoginSystemPageViewModel>();
-            DIContainer.RegisterType<LockSettingsPageViewModel>();
-            DIContainer.RegisterType<IndicatorsViewModel>();
-            DIContainer.RegisterType<DevicesExpanderViewModel>();
-            DIContainer.RegisterType<AddCredentialViewModel>();
         }
 
         public MainViewModel Main
@@ -83,6 +76,11 @@ namespace HideezSafe.ViewModels
         public AddCredentialViewModel AddCredential
         {
             get { return DIContainer.Resolve<AddCredentialViewModel>(); }
+        }
+
+        public NotificationsContainerViewModel NotificationsContainer
+        {
+            get { return DIContainer.Resolve<NotificationsContainerViewModel>(); }
         }
     }
 }

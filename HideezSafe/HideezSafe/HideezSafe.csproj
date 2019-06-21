@@ -182,9 +182,9 @@
     <Reference Include="Unity.Container, Version=5.9.7.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
       <HintPath>..\..\HideezSafe.Setup\packages\Unity.5.9.7\lib\net47\Unity.Container.dll</HintPath>
     </Reference>
-    <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
     <Reference Include="WindowsInput, Version=0.2.0.0, Culture=neutral, PublicKeyToken=9b287f7dc5073cad, processorArchitecture=MSIL">
       <HintPath>..\..\HideezSafe.Setup\packages\WindowsInput.0.2.0.0\lib\net20\WindowsInput.dll</HintPath>
     </Reference>
@@ -196,6 +196,7 @@
     <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Notification\IconType.cs" />
     <Compile Include="Converters\BooleanToVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\NullToVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
@@ -234,6 +235,19 @@
     <Compile Include="Modules\DeviceManager\DeviceManager.cs" />
     <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
     <Compile Include="Modules\Exception\HideezSafeException.cs" />
+    <Compile Include="Controls\Notification\NotificationBase.cs" />
+    <Compile Include="Modules\Notify\INotifier.cs" />
+    <Compile Include="Modules\Notify\NotificationOptions.cs" />
+    <Compile Include="Modules\Notify\NotificationPosition.cs" />
+    <Compile Include="Modules\Notify\Notifier.cs" />
+    <Compile Include="ViewModels\Notification\NotificationsContainerViewModel.cs" />
+    <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
+      <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Notification\SimpleNotification.xaml.cs">
+      <DependentUpon>SimpleNotification.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Notification\SimpleNotificationViewModel.cs" />
     <Compile Include="Modules\SessionStateMonitor\ISessionStateMonitor.cs" />
     <Compile Include="Modules\SessionStateMonitor\SessionStateMonitor.cs" />
     <Compile Include="Modules\SupportMailContentGenerator\ISupportMailContentGenerator.cs" />
@@ -263,11 +277,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\Notification\NotificationResource.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\StateControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\ChangePasswordDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NotificationsContainerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Notification\SimpleNotification.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

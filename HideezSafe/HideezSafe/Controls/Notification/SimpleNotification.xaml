@@ -1,0 +1,80 @@
+﻿<local:NotificationBase
+    x:Class="HideezSafe.Controls.SimpleNotification"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:HideezSafe.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    MinWidth="350"
+    MinHeight="60"
+    Background="{DynamicResource WindowLeftColumBrush}"
+    Foreground="Black"
+    mc:Ignorable="d">
+    <local:NotificationBase.Resources>
+        <Style x:Key="ButtonClose" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border
+                            x:Name="border"
+                            Margin="2"
+                            BorderThickness="0"
+                            CornerRadius="3">
+                            <ContentPresenter
+                                Margin="3"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Content="{TemplateBinding Content}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#C10000" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </local:NotificationBase.Resources>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <iconPacks:PackIconMaterial
+            x:Name="Icon"
+            Grid.RowSpan="2"
+            VerticalAlignment="Center" />
+        <TextBlock
+            Grid.Column="2"
+            FontWeight="Bold"
+            Text="{Binding Title}" />
+        <Button
+            Grid.Row="0"
+            Grid.Column="2"
+            Margin="-5"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Background="Transparent"
+            BorderThickness="0"
+            Click="Close_Click"
+            Command="{Binding CloseCommand}"
+            Content="X"
+            IsCancel="True"
+            Style="{StaticResource ButtonClose}" />
+        <TextBlock
+            Grid.Row="1"
+            Grid.Column="2"
+            FontWeight="Light"
+            Text="{Binding Message}"
+            TextWrapping="Wrap" />
+    </Grid>
+</local:NotificationBase>
