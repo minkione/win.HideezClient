@@ -31,6 +31,7 @@ using HideezSafe.Modules.ServiceCallbackMessanger;
 using HideezSafe.Modules.ServiceWatchdog;
 using HideezSafe.Modules.DeviceManager;
 using HideezSafe.Modules.SessionStateMonitor;
+using HideezSafe.Modules.HotkeyManager;
 
 namespace HideezSafe
 {
@@ -45,6 +46,7 @@ namespace HideezSafe
         private IWindowsManager windowsManager;
         private IServiceWatchdog serviceWatchdog;
         private IDeviceManager deviceManager;
+        private IHotkeyManager hotkeyManager;
 
         public static IUnityContainer Container { get; private set; }
 
@@ -109,6 +111,8 @@ namespace HideezSafe
             serviceWatchdog = Container.Resolve<IServiceWatchdog>();
             serviceWatchdog.Start();
             deviceManager = Container.Resolve<IDeviceManager>();
+            hotkeyManager = Container.Resolve<IHotkeyManager>();
+            hotkeyManager.Enabled = true;
 
             if (settings.IsFirstLaunch)
             {
@@ -172,16 +176,20 @@ namespace HideezSafe
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
-            Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IDeviceManager, DeviceManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ISessionStateMonitor, SessionStateMonitor>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<IRemoteDeviceFactory, RemoteDeviceFactory>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ISupportMailContentGenerator, SupportMailContentGenerator>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
+
+            // Settings
+            Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ISettingsManager<HotkeySettings>, SettingsManager<HotkeySettings>>(new ContainerControlledLifetimeManager());
 
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IHideezServiceCallback, ServiceCallbackMessanger>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IServiceWatchdog, ServiceWatchdog>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IRemoteDeviceFactory, RemoteDeviceFactory>(new ContainerControlledLifetimeManager());
 
             // Taskbar icon
             Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
@@ -190,7 +198,6 @@ namespace HideezSafe
             Container.RegisterType<TaskbarIconViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ITaskbarIconManager, TaskbarIconManager>(new ContainerControlledLifetimeManager());
 
-            Container.RegisterType<ISupportMailContentGenerator, SupportMailContentGenerator>(new ContainerControlledLifetimeManager());
 
             // Messenger
             Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());

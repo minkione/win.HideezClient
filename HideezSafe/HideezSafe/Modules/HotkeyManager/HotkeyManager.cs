@@ -7,6 +7,10 @@ using NHotkey;
 using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.Messages;
 using NLog;
+using System.Windows;
+using System.Threading.Tasks;
+using HideezSafe.Utilities;
+using System.IO;
 
 namespace HideezSafe.Modules.HotkeyManager
 {
@@ -15,18 +19,19 @@ namespace HideezSafe.Modules.HotkeyManager
     /// </summary>
     internal sealed class HotkeyManager : IHotkeyManager
 	{
-        private readonly Logger log = LogManager.GetCurrentClassLogger();
-		private readonly KeyGestureConverter keyGestureConverter = new KeyGestureConverter();
-		private readonly ISettingsManager<HotkeySettings> hotkeySettingsManager;
-        private readonly IMessenger messenger;
-        private bool enabled = false;
+        readonly Logger log = LogManager.GetCurrentClassLogger();
+		readonly KeyGestureConverter keyGestureConverter = new KeyGestureConverter();
+		readonly ISettingsManager<HotkeySettings> hotkeySettingsManager;
+        readonly IMessenger messenger;
+        bool enabled = false;
 
-		public HotkeyManager(ISettingsManager<HotkeySettings> hotkeySettingsManager, IMessenger messanger)
+		public HotkeyManager(ISettingsManager<HotkeySettings> hotkeySettingsManager, IMessenger messenger)
 		{
 			this.hotkeySettingsManager = hotkeySettingsManager;
-            this.messenger = messanger;
+            hotkeySettingsManager.SettingsFilePath = Path.Combine(Constants.DefaultSettingsFolderPath, "hotkeys.xml"); ;
+            this.messenger = messenger;
 
-            messenger?.Register<SettingsChangedMessage<HotkeySettings>>(this, OnHotkeysSettingsChanged);
+            this.messenger?.Register<SettingsChangedMessage<HotkeySettings>>(this, OnHotkeysSettingsChanged);
 		}
 
         /// <summary>
@@ -49,26 +54,32 @@ namespace HideezSafe.Modules.HotkeyManager
             }
         }
 
-        private void OnHotkeysSettingsChanged(SettingsChangedMessage<HotkeySettings> message)
+        void OnHotkeysSettingsChanged(SettingsChangedMessage<HotkeySettings> message)
         {
             if (Enabled)
             {
-                UnsubscribeAllHotkeys();
-                SubscribeAllHotkeys();
+                Task.Run(async () =>
+                {
+                    await UnsubscribeAllHotkeys();
+                    await SubscribeAllHotkeys();
+                });
             }
         }
 
-        private void OnManagerEnabledChanged(bool newValue)
+        void OnManagerEnabledChanged(bool newValue)
         {
-            if (newValue)
+            Task.Run(async () =>
             {
-                UnsubscribeAllHotkeys();
-                SubscribeAllHotkeys();
-            }
-            else
-            {
-                UnsubscribeAllHotkeys();
-            }
+                if (newValue)
+                {
+                    await UnsubscribeAllHotkeys();
+                    await SubscribeAllHotkeys();
+                }
+                else
+                {
+                    await UnsubscribeAllHotkeys();
+                }
+            });
         }
 
         /// <summary>
@@ -76,9 +87,10 @@ namespace HideezSafe.Modules.HotkeyManager
         /// </summary>
         /// <param name="action">Hotkey action</param>
         /// <returns>Key combination if hotkey is registered to action in settings. Otherwise returns empty string.</returns>
-		public string GetGetHotkeyForAction(UserAction action)
+		public async Task<string> GetHotkeyForAction(UserAction action)
 		{
-            hotkeySettingsManager.GetSettingsAsync().Result.Hotkeys.TryGetValue(action, out string hotkey);
+            var settings = await hotkeySettingsManager.GetSettingsAsync();
+            settings.Hotkeys.TryGetValue(action, out string hotkey);
 			return hotkey ?? string.Empty;
 		}
 
@@ -88,7 +100,7 @@ namespace HideezSafe.Modules.HotkeyManager
         /// <param name="action">Action registered for hotkey</param>
         /// <param name="hotkey">String representation of keys combination</param>
         /// <returns>Returns true if the specified hotkey can be registered. Otherwise returns false.</returns>
-        public bool IsFreeHotkey(UserAction action, string hotkey)
+        public async Task<bool> IsFreeHotkey(UserAction action, string hotkey)
 		{
             if (string.IsNullOrEmpty(hotkey))
                 return true;
@@ -96,13 +108,15 @@ namespace HideezSafe.Modules.HotkeyManager
             try
             {
                 if (Enabled)
-                    UnsubscribeAllHotkeys();
+                    await UnsubscribeAllHotkeys();
 
                 try
                 {
+                    var testHotkeyName = "_hideez_test_" + Guid.NewGuid().ToString();
+
                     KeyGesture kg = ConvertStringKeysToKeyGesture(hotkey);
-                    NHotkey.Wpf.HotkeyManager.Current.AddOrReplace("_hideez_test_", kg.Key, kg.Modifiers, (o, e) => { });
-                    NHotkey.Wpf.HotkeyManager.Current.Remove("_hideez_test_");
+                    RegisterOrUpdateHotkeyGesture(testHotkeyName, kg.Key, kg.Modifiers, (o, e) => { });
+                    RemoveHotkeyGesture(testHotkeyName);
                     return true;
                 }
                 catch (Exception) // If an exception occures, it means that hotkey is already taken
@@ -113,7 +127,7 @@ namespace HideezSafe.Modules.HotkeyManager
             finally
             {
                 if (Enabled)
-                    SubscribeAllHotkeys();
+                    await SubscribeAllHotkeys();
             }
 		}
 
@@ -123,9 +137,10 @@ namespace HideezSafe.Modules.HotkeyManager
         /// <param name="action">Action registered for hotkey</param>
         /// <param name="hotkey">String representation of keys combination</param>
         /// <returns>Returns true if hotkey is used only once in current application. Otherwise returns false.</returns>
-        public bool IsUniqueHotkey(UserAction action, string hotkey)
+        public async Task<bool> IsUniqueHotkey(UserAction action, string hotkey)
         {
-            foreach (var h in hotkeySettingsManager.GetSettingsAsync().Result.Hotkeys)
+            var settings = await hotkeySettingsManager.GetSettingsAsync();
+            foreach (var h in settings.Hotkeys)
             {
                 if (h.Key != action && h.Value == hotkey)
                     return false;
@@ -134,30 +149,32 @@ namespace HideezSafe.Modules.HotkeyManager
             return true;
         }
 
-		private void SubscribeAllHotkeys()
+		async Task SubscribeAllHotkeys()
 		{
-			foreach (var shortcut in hotkeySettingsManager.GetSettingsAsync().Result.Hotkeys)
+            var settings = await hotkeySettingsManager.GetSettingsAsync();
+            foreach (var shortcut in settings.Hotkeys)
 			{
 				SubscribeHotkey(shortcut.Key, shortcut.Value);
 			}
 		}
 
-		private void UnsubscribeAllHotkeys()
+		async Task UnsubscribeAllHotkeys()
 		{
-			foreach (var item in hotkeySettingsManager.GetSettingsAsync().Result.Hotkeys)
+            var settings = await hotkeySettingsManager.GetSettingsAsync();
+            foreach (var item in settings.Hotkeys)
 			{
-				UnsubscribeHotkey(item.Key);
+				await UnsubscribeHotkey(item.Key);
 			}
 		}
 
-		private void SubscribeHotkey(UserAction action, string hotkey)
+		void SubscribeHotkey(UserAction action, string hotkey)
 		{
 			try
 			{
 				if (!string.IsNullOrEmpty(hotkey))
 				{
 					KeyGesture kg = ConvertStringKeysToKeyGesture(hotkey);
-					NHotkey.Wpf.HotkeyManager.Current.AddOrReplace(Enum.GetName(typeof(UserAction), action), kg.Key, kg.Modifiers, this.OnHotkeyInput);
+                    RegisterOrUpdateHotkeyGesture(Enum.GetName(typeof(UserAction), action), kg.Key, kg.Modifiers, OnHotkeyInput);
 
                     messenger?.Send(new HotkeyStateChangedMessage(action, hotkey, HotkeyState.Subscribed));
                 }
@@ -170,19 +187,25 @@ namespace HideezSafe.Modules.HotkeyManager
 			}
 		}
 
-		private void UnsubscribeHotkey(UserAction action)
+		async Task UnsubscribeHotkey(UserAction action)
 		{
 			try
 			{
-				NHotkey.Wpf.HotkeyManager.Current.Remove(Enum.GetName(typeof(UserAction), action));
-
-                messenger?.Send(new HotkeyStateChangedMessage(action, GetGetHotkeyForAction(action), HotkeyState.Unavailable));
+                RemoveHotkeyGesture(Enum.GetName(typeof(UserAction), action));
+                messenger?.Send(new HotkeyStateChangedMessage(action, await GetHotkeyForAction(action), HotkeyState.Unsubscribed));
             }
             catch (Exception ex)
 			{
-                log.Error(ex.Message);
+                try
+                {
+                    log.Error(ex.Message);
 
-                messenger?.Send(new HotkeyStateChangedMessage(action, GetGetHotkeyForAction(action), HotkeyState.Unavailable));
+                    messenger?.Send(new HotkeyStateChangedMessage(action, await GetHotkeyForAction(action), HotkeyState.Unavailable));
+                }
+                catch (Exception exc)
+                {
+                    log.Error(exc);
+                }
             }
         }
 
@@ -192,18 +215,40 @@ namespace HideezSafe.Modules.HotkeyManager
 		/// <param name="keys">
 		/// Hot key 
 		/// </param>
-		private KeyGesture ConvertStringKeysToKeyGesture(string keys)
+		KeyGesture ConvertStringKeysToKeyGesture(string keys)
 		{
 			return (KeyGesture)keyGestureConverter.ConvertFromString(keys);
 		}
 
-		private void OnHotkeyInput(object sender, HotkeyEventArgs e)
+		void OnHotkeyInput(object sender, HotkeyEventArgs e)
 		{
-			if (Enum.TryParse<UserAction>(e.Name, out UserAction action) 
-                && hotkeySettingsManager.GetSettingsAsync().Result.Hotkeys.TryGetValue(action, out string hotkey))
-			{
-                messenger?.Send(new HotkeyPressedMessage(action, hotkey));
-			}
-		}
-	}
+            Task.Run(async () =>
+            {
+                var settings = await hotkeySettingsManager.GetSettingsAsync();
+                if (Enum.TryParse(e.Name, out UserAction action) 
+                    && settings.Hotkeys.TryGetValue(action, out string hotkey))
+			    {
+                    messenger?.Send(new HotkeyPressedMessage(action, hotkey));
+			    }
+            });
+        }
+
+        void RegisterOrUpdateHotkeyGesture(string name, Key key, ModifierKeys modifiers, EventHandler<HotkeyEventArgs> handler)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                // Must be executed on STA thread
+                NHotkey.Wpf.HotkeyManager.Current.AddOrReplace(name, key, modifiers, handler);
+            });
+        }
+
+        void RemoveHotkeyGesture(string name)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                // Must be executed on STA thread
+                NHotkey.Wpf.HotkeyManager.Current.Remove(name);
+            });
+        }
+    }
 }

@@ -1,12 +1,30 @@
-﻿using HideezSafe.Modules.HotkeyManager;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace HideezSafe.Models.Settings
 {
     [Serializable]
     public class HotkeySettings : BaseSettings
     {
+        /// <summary>
+        /// The class acts in the same way as <see cref="Tuple{T1, T2}"/> but allows Xml serialization
+        /// by providing a default constructor
+        /// </summary>
+        public class SerializableTuple<T1, T2>
+        {
+            public SerializableTuple() { }
+
+            public SerializableTuple(T1 item1, T2 item2)
+            {
+                Item1 = item1;
+                Item2 = item2;
+            }
+
+            public T1 Item1 { get; set; }
+            public T2 Item2 { get; set; }
+        }
+
         /// <summary>
         /// Initializes new instance of <see cref="HotkeySettings"/> with default values
         /// </summary>
@@ -46,7 +64,35 @@ namespace HideezSafe.Models.Settings
         public Version SettingsVersion { get; }
 
         [Setting]
+        [XmlIgnore]
         public Dictionary<UserAction, string> Hotkeys { get; set; }
+
+        /// <summary>
+        /// Do not use this property. Instead use <see cref="Hotkeys"/>
+        /// This property is used for serialization instead of <see cref="Hotkeys"/>, because XmlSerializer does not support
+        /// serialization of types that implement IDictionary
+        /// </summary>
+        public List<SerializableTuple<UserAction, string>> SerializableHotkeys
+        {
+            get
+            {
+                var serializableList = new List<SerializableTuple<UserAction, string>>();
+                foreach (var key in Hotkeys.Keys)
+                {
+                    var tuple = new SerializableTuple<UserAction, string>(key, Hotkeys[key]);
+                    serializableList.Add(tuple);
+                }
+                return serializableList;
+            }
+            set
+            {
+                Hotkeys = new Dictionary<UserAction, string>();
+                foreach (var tuple in value)
+                {
+                    Hotkeys.Add(tuple.Item1, tuple.Item2);
+                }
+            }
+        }
 
         public override object Clone()
         {
