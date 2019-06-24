@@ -22,7 +22,7 @@
                 <ScaleTransform />
             </Setter.Value>
         </Setter>
-        <Setter Property="Focusable" Value="True" />
+        <Setter Property="Focusable" Value="False" />
         <Setter Property="LayoutTransform">
             <Setter.Value>
                 <ScaleTransform />

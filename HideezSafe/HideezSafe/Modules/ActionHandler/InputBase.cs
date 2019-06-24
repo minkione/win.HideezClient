@@ -2,8 +2,10 @@
 using Hideez.ISM;
 using HideezSafe.Models.Settings;
 using HideezSafe.Modules.SettingsManager;
+using NLog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +18,7 @@ namespace HideezSafe.Modules.ActionHandler
     /// </summary>
     abstract class InputBase : IInputAlgorithm
     {
+        private readonly ILogger log = LogManager.GetCurrentClassLogger();
         private AppInfo currentAppInfo;
 
         protected readonly IInputHandler inputHandler;
@@ -48,6 +51,22 @@ namespace HideezSafe.Modules.ActionHandler
         /// <param name="devicesId">Devices for find account</param>
         public async Task InputAsync(string[] devicesId)
         {
+            if (devicesId != null)
+            {
+                string message = $"ArgumentNull: {nameof(devicesId)}";
+                log.Error(message);
+                Debug.Assert(false, message);
+                return;
+            }
+
+            if (!devicesId.Any())
+            {
+                string message = "Devices id can not be empty.";
+                log.Error(message);
+                Debug.Assert(false, message);
+                return;
+            }
+
             if (inputCache.HasCache())
                 return;
 
@@ -62,7 +81,7 @@ namespace HideezSafe.Modules.ActionHandler
 
                 if (BeforeCondition())
                 {
-                    Account[] accounts = await GetPmAccountsByAppInfoAsync(currentAppInfo);
+                    Account[] accounts = await GetAccountsByAppInfoAsync(currentAppInfo);
                     accounts = FilterAccounts(accounts, devicesId);
 
                     if (!accounts.Any()) // No accounts for current application
@@ -80,13 +99,19 @@ namespace HideezSafe.Modules.ActionHandler
                         {
                             selectedAccount = await windowsManager.SelectAccountAsync(accounts);
                         }
-                        catch (TaskCanceledException)
+                        catch (Exception ex)
                         {
+                            Debug.Assert(false, ex.ToString());
+                            log.Error(ex);
                         }
 
                         if (selectedAccount != null)
                         {
                             await InputAsync(selectedAccount);
+                        }
+                        else
+                        {
+                            log.Info("Account was not selected.");
                         }
                     }
                 }
@@ -98,7 +123,7 @@ namespace HideezSafe.Modules.ActionHandler
             }
         }
 
-        private Task<Account[]> GetPmAccountsByAppInfoAsync(AppInfo appInfo)
+        private Task<Account[]> GetAccountsByAppInfoAsync(AppInfo appInfo)
         {
             //TODO: Get accounts for AppInfo
             throw new NotImplementedException();

@@ -337,9 +337,6 @@ Device is not connected</value>
   <data name="Exception.FieldNotSecure" xml:space="preserve">
     <value>Password entry cancelled. Field not protected.</value>
   </data>
-  <data name="AppName" xml:space="preserve">
-    <value>Hideez Safe</value>
-  </data>
   <data name="Exception.AccountNotFound" xml:space="preserve">
     <value>Accout for {0} is not found.</value>
   </data>

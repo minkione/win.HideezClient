@@ -13,6 +13,7 @@ namespace HideezSafe.Modules
 {
     class WindowsManager : IWindowsManager
     {
+        private string titleNotification;
         private readonly INotifier notifier;
         private readonly Logger log = LogManager.GetCurrentClassLogger();
         private bool isMainWindowVisible;
@@ -153,7 +154,12 @@ namespace HideezSafe.Modules
 
         private string GetTitle()
         {
-            return $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
+            if(titleNotification == null)
+            {
+                titleNotification = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
+            }
+
+            return titleNotification;
         }
 
         public Task<Account> SelectAccountAsync(Account[] accounts)
