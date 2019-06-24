@@ -13,6 +13,7 @@
     ShowActivated="False"
     ShowInTaskbar="False"
     SizeToContent="Width"
+    Focusable="False"
     Topmost="True"
     WindowState="Normal"
     WindowStyle="None"

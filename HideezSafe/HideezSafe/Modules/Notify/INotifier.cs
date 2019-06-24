@@ -8,6 +8,6 @@ namespace HideezSafe.Modules
         void ShowInfo(string title, string message, NotificationOptions options = null);
         void ShowWarn(string title, string message, NotificationOptions options = null);
         void ShowError(string title, string message, NotificationOptions options = null);
-        Task<Account> SelectAccount(Account[] accounts);
+        Task<Account> SelectAccountAsync(Account[] accounts);
     }
 }

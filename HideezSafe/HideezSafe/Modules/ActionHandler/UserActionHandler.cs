@@ -11,20 +11,18 @@ namespace HideezSafe.Modules.ActionHandler
     /// </summary>
     class UserActionHandler
     {
-        readonly INotifier notifier;
         readonly IWindowsManager windowsManager;
         readonly InputLogin inputLogin;
         readonly InputPassword inputPassword;
         readonly InputOtp inputOtp;
 
-        public UserActionHandler(INotifier notifier, 
+        public UserActionHandler(
             IWindowsManager windowsManager, 
             IMessenger messenger, 
             InputLogin inputLogin, 
             InputPassword inputPassword, 
             InputOtp inputOtp)
         {
-            this.notifier = notifier;
             this.windowsManager = windowsManager;
 
             this.inputLogin = inputLogin;
@@ -60,11 +58,11 @@ namespace HideezSafe.Modules.ActionHandler
             }
             catch (AccountException ex) when (ex is LoginNotFoundException || ex is PasswordNotFoundException || ex is OtpNotFoundException)
             {
-                notifier.ShowError(TranslationSource.Instance["AppName"], string.Format(TranslationSource.Instance["Exception.AccountNotFound"], ex.AppInfo.Title));
+                windowsManager.ShowError(TranslationSource.Instance["AppName"], string.Format(TranslationSource.Instance["Exception.AccountNotFound"], ex.AppInfo.Title));
             }
             catch (FieldNotSecureException) // Assume that precondition failed because field is not secure
             {
-                notifier.ShowError(TranslationSource.Instance["AppName"], TranslationSource.Instance["Exception.FieldNotSecure"]);
+                windowsManager.ShowError(TranslationSource.Instance["AppName"], TranslationSource.Instance["Exception.FieldNotSecure"]);
             }
             catch (Exception ex)
             {

@@ -13,10 +13,16 @@ namespace HideezSafe.Modules
 {
     class WindowsManager : IWindowsManager
     {
+        private readonly INotifier notifier;
         private readonly Logger log = LogManager.GetCurrentClassLogger();
         private bool isMainWindowVisible;
 
         public event EventHandler<bool> MainWindowVisibleChanged;
+
+        public WindowsManager(INotifier notifier)
+        {
+            this.notifier = notifier;
+        }
 
         public void ActivateMainWindow()
         {
@@ -127,22 +133,32 @@ namespace HideezSafe.Modules
             addCredentialWindow.ShowDialog();
         }
 
-        public void ShowError(string message)
+        public void ShowError(string message, string title = null)
         {
-            var title = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
-            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+            notifier.ShowError(title ?? GetTitle(), message);
+            // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        public void ShowWarning(string message)
+        public void ShowWarning(string message, string title = null)
         {
-            var title = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
-            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+            notifier.ShowWarn(title ?? GetTitle(), message);
+            // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        public void ShowInfo(string message, string title = null)
+        {
+            notifier.ShowInfo(title ?? GetTitle(), message);
+            // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private string GetTitle()
+        {
+            return $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
         }
 
         public Task<Account> SelectAccountAsync(Account[] accounts)
         {
-            // TODO: implement select account logic
-            throw new NotImplementedException();
+            return notifier.SelectAccountAsync(accounts);
         }
     }
 }

@@ -63,7 +63,7 @@ namespace HideezSafe.Modules
             }
         }
 
-        public Task<Account> SelectAccount(Account[] accounts)
+        public Task<Account> SelectAccountAsync(Account[] accounts)
         {
             if (!isInitialised)
                 Initialise();

@@ -56,6 +56,9 @@ namespace HideezSafe.Views
             var point = GetPositionForBottomRightCorner(ActualWidth, ActualHeight);
             Left = point.X;
             Top = point.Y;
+
+            //NotificationBase nb = notifyItems.Items.Cast<NotificationBase>().FirstOrDefault(n => n.Options.SetFocus);
+            //nb?.Focus();
         }
 
         #region PrimaryScreen
