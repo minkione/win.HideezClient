@@ -579,6 +579,110 @@
         <File Id="WindowsInput.dll" Name="WindowsInput.dll" Source="$(var.HideezSafe_TargetDir)WindowsInput.dll" />
       </Component>
 
+      <Component Id="Hideez.ARS.dll" Guid="{9B74E207-6A9F-44ED-89FB-CF2895F44E84}" Win64="$(var.Win64)">
+        <File Id="Hideez.ARS.dll" Name="Hideez.ARS.dll" Source="$(var.HideezSafe_TargetDir)Hideez.ARS.dll" />
+      </Component>
+
+      <Component Id="Hideez.ISM.dll" Guid="{AD14C166-1003-4BE9-8480-975288E08CB2}" Win64="$(var.Win64)">
+        <File Id="Hideez.ISM.dll" Name="Hideez.ISM.dll" Source="$(var.HideezSafe_TargetDir)Hideez.ISM.dll" />
+      </Component>
+
+      <Component Id="NHotkey.dll" Guid="{8D9BA9A7-380F-4794-9B0A-F4333A4FF5EC}" Win64="$(var.Win64)">
+        <File Id="NHotkey.dll" Name="NHotkey.dll" Source="$(var.HideezSafe_TargetDir)NHotkey.dll" />
+      </Component>
+
+      <Component Id="NHotkey.Wpf.dll" Guid="{21056047-2A83-442D-9ECA-59723CF8812D}" Win64="$(var.Win64)">
+        <File Id="NHotkey.Wpf.dll" Name="NHotkey.Wpf.dll" Source="$(var.HideezSafe_TargetDir)NHotkey.Wpf.dll" />
+      </Component>
+
+      <Component Id="Communication.dll" Guid="{D12DD99F-572D-4832-A001-3913D81D5956}" Win64="$(var.Win64)">
+        <File Id="Communication.dll" Name="Communication.dll" Source="$(var.HideezSafe_TargetDir)Communication.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.Connections.Abstractions.dll" Guid="{4CBEA0B5-D1D1-4913-A900-4C4138254712}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.Connections.Abstractions.dll" Name="Microsoft.AspNetCore.Connections.Abstractions.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.AspNetCore.Connections.Abstractions.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.Http.Connections.Client.dll" Guid="{96EB5C4E-E8F4-452C-89EA-1C41193BD936}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.Http.Connections.Client.dll" Name="Microsoft.AspNetCore.Http.Connections.Client.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.AspNetCore.Http.Connections.Client.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.Http.Connections.Common.dll" Guid="{42C118EB-FBC2-41E8-A34A-39DD49DDEF6A}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.Http.Connections.Common.dll" Name="Microsoft.AspNetCore.Http.Connections.Common.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.AspNetCore.Http.Connections.Common.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.Http.Features.dll" Guid="{D26A6F9B-CFE2-490D-A376-A9E87EE876DE}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.Http.Features.dll" Name="Microsoft.AspNetCore.Http.Features.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.AspNetCore.Http.Features.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.SignalR.Client.Core.dll" Guid="{B2F42A56-5436-4527-904A-C23D48128258}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.SignalR.Client.Core.dll" Name="Microsoft.AspNetCore.SignalR.Client.Core.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.AspNetCore.SignalR.Client.Core.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.SignalR.Client.dll" Guid="{7B76E20D-BB9B-46A2-9FBC-809F5E4B62CB}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.SignalR.Client.dll" Name="Microsoft.AspNetCore.SignalR.Client.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.AspNetCore.SignalR.Client.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.SignalR.Common.dll" Guid="{F48CC5DE-76B2-468E-9452-F94ECB5F367D}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.SignalR.Common.dll" Name="Microsoft.AspNetCore.SignalR.Common.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.AspNetCore.SignalR.Common.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Guid="{236FF59E-4781-44DD-9BF8-43D64F36165D}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Name="Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.AspNetCore.SignalR.Protocols.Json.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Guid="{3ECC34C9-734B-4BDC-99B2-B28FF8C97A6C}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Extensions.DependencyInjection.dll" Guid="{59702D06-460E-48A8-88A6-43834A60972A}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Extensions.DependencyInjection.dll" Name="Microsoft.Extensions.DependencyInjection.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.Extensions.DependencyInjection.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Extensions.Logging.Abstractions.dll" Guid="{AAA768CA-97CB-4046-AFDF-7A2FAD1D0E62}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Extensions.Logging.Abstractions.dll" Name="Microsoft.Extensions.Logging.Abstractions.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.Extensions.Logging.Abstractions.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Extensions.Logging.dll" Guid="{60EA861F-D158-4028-A5CD-435CCBDCE948}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Extensions.Logging.dll" Name="Microsoft.Extensions.Logging.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.Extensions.Logging.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Extensions.Options.dll" Guid="{58311D7F-7C4C-44A9-B209-EF3EE17203AF}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Extensions.Options.dll" Name="Microsoft.Extensions.Options.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.Extensions.Options.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Extensions.Primitives.dll" Guid="{E9339A34-0649-45D2-BBA7-386E6833D2E7}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Extensions.Primitives.dll" Name="Microsoft.Extensions.Primitives.dll" Source="$(var.HideezSafe_TargetDir)Microsoft.Extensions.Primitives.dll" />
+      </Component>
+
+      <Component Id="Newtonsoft.Json.dll" Guid="{5A32D163-30C3-4164-BBD7-4E43F62C3E2B}" Win64="$(var.Win64)">
+        <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.HideezSafe_TargetDir)Newtonsoft.Json.dll" />
+      </Component>
+
+      <Component Id="System.IO.Pipelines.dll" Guid="{0A6F1CDA-AB0E-4522-8B7D-CC8AA5F7BA76}" Win64="$(var.Win64)">
+        <File Id="System.IO.Pipelines.dll" Name="System.IO.Pipelines.dll" Source="$(var.HideezSafe_TargetDir)System.IO.Pipelines.dll" />
+      </Component>
+
+      <Component Id="System.Memory.dll" Guid="{C4CD4412-E6B6-4130-9893-312ADEFBC532}" Win64="$(var.Win64)">
+        <File Id="System.Memory.dll" Name="System.Memory.dll" Source="$(var.HideezSafe_TargetDir)System.Memory.dll" />
+      </Component>
+
+      <Component Id="System.Numerics.Vectors.dll" Guid="{8EAF6272-4896-4E71-B00B-EAF1B3E70B1B}" Win64="$(var.Win64)">
+        <File Id="System.Numerics.Vectors.dll" Name="System.Numerics.Vectors.dll" Source="$(var.HideezSafe_TargetDir)System.Numerics.Vectors.dll" />
+      </Component>
+
+      <Component Id="System.Threading.Channels.dll" Guid="{73CD6F0B-2B90-415B-B577-55648E92E78D}" Win64="$(var.Win64)">
+        <File Id="System.Threading.Channels.dll" Name="System.Threading.Channels.dll" Source="$(var.HideezSafe_TargetDir)System.Threading.Channels.dll" />
+      </Component>
+
+      <Component Id="System.Threading.Tasks.Extensions.dll" Guid="{BC38B6DB-2868-4E2E-A728-9E70B26CDED1}" Win64="$(var.Win64)">
+        <File Id="System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.HideezSafe_TargetDir)System.Threading.Tasks.Extensions.dll" />
+      </Component>
+
+      <Component Id="UIAComWrapper.dll" Guid="{915BD4FC-D4C2-4ADD-91C6-8E2DC2D9967E}" Win64="$(var.Win64)">
+        <File Id="UIAComWrapper.dll" Name="UIAComWrapper.dll" Source="$(var.HideezSafe_TargetDir)UIAComWrapper.dll" />
+      </Component>
+
     </ComponentGroup>
   </Fragment>
 
