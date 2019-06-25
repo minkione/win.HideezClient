@@ -31,15 +31,15 @@ namespace HideezSafe.Controls
             {
                 case SimpleNotificationType.Info:
                     Icon.Kind = PackIconMaterialKind.InformationOutline;
-                    Icon.Foreground = Brushes.Blue;
+                    Icon.Foreground = Brushes.White;
                     break;
                 case SimpleNotificationType.Warn:
                     Icon.Kind = PackIconMaterialKind.AlertOutline;
                     Icon.Foreground = Brushes.Yellow;
                     break;
                 case SimpleNotificationType.Error:
-                    Icon.Kind = PackIconMaterialKind.AlertCircleOutline;
-                    Icon.Foreground = Brushes.Red;
+                    Icon.Kind = PackIconMaterialKind.CloseCircleOutline;
+                    Icon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ff3030"));
                     break;
             }
 
