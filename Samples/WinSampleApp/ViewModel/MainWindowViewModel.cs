@@ -209,6 +209,25 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+
+        public ICommand BleAdapterResetCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return true;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        ResetBleAdapter();
+                    }
+                };
+            }
+        }
+
         public ICommand StartDiscoveryCommand
         {
             get
@@ -644,6 +663,11 @@ namespace WinSampleApp.ViewModel
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
             NotifyPropertyChanged(nameof(BleAdapterState));
+        }
+
+        void ResetBleAdapter()
+        {
+            _connectionManager.Restart();
         }
 
         void StartDiscovery()

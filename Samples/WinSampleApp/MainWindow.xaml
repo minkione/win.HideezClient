@@ -11,7 +11,7 @@
             <StackPanel Orientation="Horizontal" Margin="10" VerticalAlignment="Center">
                 <TextBlock Margin="0,0,10,0">BLE Adapter:</TextBlock>
                 <TextBlock Text="{Binding BleAdapterState}" />
-                <Button Content=" Start " Margin="10,0,0,0" Command="{Binding BleAdapterStartCommand}"/>
+                <Button Content=" Reset " Margin="10,0,0,0" Command="{Binding BleAdapterResetCommand}"/>
                 <Button Content=" Start Discovery " Margin="10,0,0,0" Command="{Binding StartDiscoveryCommand}"/>
                 <Button Content=" Stop Discovery " Margin="10,0,0,0" Command="{Binding StopDiscoveryCommand}"/>
                 <TextBlock Margin="10,0,10,0" Visibility="{Binding BleAdapterDiscovering, Converter={StaticResource BooleanToVisibilityConverter}}">Discovering...</TextBlock>
