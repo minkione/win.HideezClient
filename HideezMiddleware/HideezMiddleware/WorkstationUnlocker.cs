@@ -137,7 +137,7 @@ namespace HideezMiddleware
         {
             try
             {
-                if (e.Rssi > -25)
+                if (e.Rssi > -27)
                 {
                     var newGuid = Guid.NewGuid();
                     var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);
