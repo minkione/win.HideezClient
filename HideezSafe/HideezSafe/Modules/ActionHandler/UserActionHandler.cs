@@ -68,18 +68,26 @@ namespace HideezSafe.Modules.ActionHandler
             Task.Run(async () => await InputAccountAsync(new[] { message.DeviceId }, GetInputAlgorithm(message.Action)));
         }
 
-        private void HotkeyPressedMessageHandler(HotkeyPressedMessage message)
+        private void HotkeyPressedMessageHandler(HotkeyPressedMessage hotkeyMessage)
         {
             log.Info("Handling hotkey pressed message.");
-            string[] devicesId = deviceManager.Devices.Where(d => d.IsConnected).Select(d => d.Id).ToArray();
+            string[] devicesId = deviceManager.Devices.Where(d => d.IsConnected).Select(d => d.Id.Split(':')[0]).ToArray();
 
-            Task.Run(async () => await InputAccountAsync(devicesId, GetInputAlgorithm(message.Action)));
+            if (!devicesId.Any())
+            {
+                string message = TranslationSource.Instance["NoAnyConnectedDevice"];
+                windowsManager.ShowWarn(message);
+                log.Warn(message);
+                return;
+            }
+
+            Task.Run(async () => await InputAccountAsync(devicesId, GetInputAlgorithm(hotkeyMessage.Action)));
 
         }
 
         private async Task InputAccountAsync(string[] devicesId, IInputAlgorithm inputAlgorithm)
         {
-            if (inputAlgorithm != null)
+            if (inputAlgorithm == null)
             {
                 string message = $" ArgumentNull: {nameof(inputAlgorithm)}.";
                 log.Error(message);
@@ -91,16 +99,21 @@ namespace HideezSafe.Modules.ActionHandler
             {
                 await inputAlgorithm.InputAsync(devicesId);
             }
-            catch (AccountException ex) when (ex is LoginNotFoundException || ex is PasswordNotFoundException || ex is OtpNotFoundException)
+            catch (OtpNotFoundException ex)
+            {
+                windowsManager.ShowWarn(ex.Message);
+                log.Warn(ex.Message);
+            }
+            catch (AccountException ex) when (ex is LoginNotFoundException || ex is PasswordNotFoundException)
             {
                 string message = string.Format(TranslationSource.Instance["Exception.AccountNotFound"], ex.AppInfo.Title);
-                windowsManager.ShowError(message);
-                log.Error(message);
+                windowsManager.ShowWarn(message);
+                log.Warn(message);
             }
             catch (FieldNotSecureException) // Assume that precondition failed because field is not secure
             {
                 string message = TranslationSource.Instance["Exception.FieldNotSecure"];
-                windowsManager.ShowWarning(message);
+                windowsManager.ShowWarn(message);
                 log.Warn(message);
             }
             catch (Exception ex)

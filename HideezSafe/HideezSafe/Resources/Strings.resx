@@ -340,4 +340,7 @@ Device is not connected</value>
   <data name="Exception.AccountNotFound" xml:space="preserve">
     <value>Accout for {0} is not found.</value>
   </data>
+  <data name="NoAnyConnectedDevice" xml:space="preserve">
+    <value>Not found any connected device.</value>
+  </data>
 </root>

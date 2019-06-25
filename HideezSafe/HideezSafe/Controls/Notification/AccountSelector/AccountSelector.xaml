@@ -7,7 +7,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     MinHeight="60"
     Background="{DynamicResource WindowLeftColumBrush}"
-    FocusManager.FocusedElement="{Binding ElementName=AccountsList, Path=SelectedItem}"
     FontSize="14"
     mc:Ignorable="d">
     <StackPanel Orientation="Vertical">
@@ -26,8 +25,10 @@
             Padding="25,10"
             Background="Transparent"
             BorderThickness="0"
+            FocusVisualStyle="{x:Null}"
             ItemsSource="{Binding Accounts}"
             KeyDown="AccountsList_KeyDown"
+            Loaded="AccountsList_Loaded"
             MouseDoubleClick="AccountsList_MouseDoubleClick"
             MouseLeftButtonUp="AccountsList_MouseDoubleClick"
             SelectedItem="{Binding SelectedAccount}"

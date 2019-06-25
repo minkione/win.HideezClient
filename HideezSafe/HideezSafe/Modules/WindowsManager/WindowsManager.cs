@@ -136,19 +136,43 @@ namespace HideezSafe.Modules
 
         public void ShowError(string message, string title = null)
         {
-            notifier.ShowError(title ?? GetTitle(), message);
+            if (UIDispatcher.CheckAccess())
+            {
+                notifier.ShowError(title ?? GetTitle(), message);
+            }
+            else
+            {
+                // Do non UI Thread stuff
+                UIDispatcher.Invoke(() => notifier.ShowError(title ?? GetTitle(), message));
+            }
             // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        public void ShowWarning(string message, string title = null)
+        public void ShowWarn(string message, string title = null)
         {
-            notifier.ShowWarn(title ?? GetTitle(), message);
+            if (UIDispatcher.CheckAccess())
+            {
+                notifier.ShowWarn(title ?? GetTitle(), message);
+            }
+            else
+            {
+                // Do non UI Thread stuff
+                UIDispatcher.Invoke(() => notifier.ShowWarn(title ?? GetTitle(), message));
+            }
             // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         public void ShowInfo(string message, string title = null)
         {
-            notifier.ShowInfo(title ?? GetTitle(), message);
+            if (UIDispatcher.CheckAccess())
+            {
+                notifier.ShowInfo(title ?? GetTitle(), message);
+            }
+            else
+            {
+                // Do non UI Thread stuff
+                UIDispatcher.Invoke(() => notifier.ShowInfo(title ?? GetTitle(), message));
+            }
             // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -164,7 +188,15 @@ namespace HideezSafe.Modules
 
         public Task<Account> SelectAccountAsync(Account[] accounts)
         {
-            return notifier.SelectAccountAsync(accounts);
+            if (UIDispatcher.CheckAccess())
+            {
+                return notifier.SelectAccountAsync(accounts);
+            }
+            else
+            {
+                // Do non UI Thread stuff
+                return UIDispatcher.Invoke(() => notifier.SelectAccountAsync(accounts));
+            }
         }
     }
 }

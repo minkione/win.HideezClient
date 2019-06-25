@@ -37,13 +37,24 @@ namespace HideezSafe.Views
         private void NotificationsContainerWindow_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             UpdateWindowContainer();
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (NotificationBase item in e?.NewItems)
+                {
+                    if (item.Options.SetFocus)
+                    {
+                        this.Activate();
+                        break;
+                    }
+                }
+            }
         }
 
         protected override void OnDeactivated(EventArgs e)
         {
             base.OnDeactivated(e);
 
-            foreach (var item in notifyItems.Items.Cast<NotificationBase>().Where(n => n.Options.CloseWhenDeactivate))
+            foreach (var item in notifyItems.Items.OfType<NotificationBase>().Where(n => n.Options.CloseWhenDeactivate))
             {
                 item.Close();
             }

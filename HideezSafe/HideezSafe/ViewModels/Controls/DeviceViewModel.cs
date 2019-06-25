@@ -306,6 +306,5 @@ namespace HideezSafe.ViewModels
         {
             Battery = battery;
         }
-
     }
 }

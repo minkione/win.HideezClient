@@ -17,7 +17,7 @@ namespace HideezSafe.Modules
         void ShowDialogAddCredential(DeviceViewModel device);
 
         void ShowInfo(string message, string title = null);
-        void ShowWarning(string message, string title = null);
+        void ShowWarn(string message, string title = null);
         void ShowError(string message, string title = null);
         Task<Account> SelectAccountAsync(Account[] accounts);
     }

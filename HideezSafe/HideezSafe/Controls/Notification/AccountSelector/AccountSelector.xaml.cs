@@ -40,16 +40,8 @@ namespace HideezSafe.Controls
             }
         }
 
-        //private void AccountsList_Loaded(object sender, RoutedEventArgs e)
-        //{
-        //    ListViewItem item = AccountsList.ItemContainerGenerator.ContainerFromIndex(0) as ListViewItem;
-        //    item?.Focus();
-        //}
-
-        protected override void OnGotFocus(RoutedEventArgs e)
+        private void AccountsList_Loaded(object sender, RoutedEventArgs e)
         {
-            base.OnGotFocus(e);
-
             ListViewItem item = AccountsList.ItemContainerGenerator.ContainerFromIndex(AccountsList.SelectedIndex) as ListViewItem;
             item?.Focus();
         }

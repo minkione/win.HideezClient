@@ -51,7 +51,7 @@ namespace HideezSafe.Modules.ActionHandler
         /// <param name="devicesId">Devices for find account</param>
         public async Task InputAsync(string[] devicesId)
         {
-            if (devicesId != null)
+            if (devicesId == null)
             {
                 string message = $"ArgumentNull: {nameof(devicesId)}";
                 log.Error(message);
@@ -125,8 +125,8 @@ namespace HideezSafe.Modules.ActionHandler
 
         private Task<Account[]> GetAccountsByAppInfoAsync(AppInfo appInfo)
         {
-            //TODO: Get accounts for AppInfo
-            throw new NotImplementedException();
+            //TODO: Get accounts by AppInfo
+            throw new NotImplementedException("Not implemented get accounts by AppInfo.");
         }
 
         /// <summary>

@@ -48,7 +48,7 @@ namespace HideezSafe.Modules.ActionHandler
         private Task<string> GetPasswordAsync(Account account)
         {
             // TODO: get password
-            throw new NotImplementedException();
+            throw new NotImplementedException("Get password not implemented");
         }
 
         /// <summary>

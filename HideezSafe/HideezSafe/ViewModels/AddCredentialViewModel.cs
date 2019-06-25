@@ -98,13 +98,13 @@ namespace HideezSafe.ViewModels
         {
             if (string.IsNullOrWhiteSpace(SelectedLogin))
             {
-                windowsManager.ShowWarning($"Login cannot be empty");
+                windowsManager.ShowWarn($"Login cannot be empty");
                 return;
             }
 
             if (view.passwordBox.SecurePassword.Length == 0)
             {
-                windowsManager.ShowWarning($"Password cannot be empty");
+                windowsManager.ShowWarn($"Password cannot be empty");
                 return;
             }
 
