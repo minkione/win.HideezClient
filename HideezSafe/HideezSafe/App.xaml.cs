@@ -150,10 +150,7 @@ namespace HideezSafe
 
         private void OnFirstLaunch()
         {
-            logger.Info("First launch");
-            // add to startup with windows if first start app
-            bool resalt = startupHelper.AddToStartup();
-            logger.Info("Add app to startup: {0}", resalt);
+            logger.Info("First Hideez Safe 3 launch");
         }
 
         private void InitializeDIContainer()
