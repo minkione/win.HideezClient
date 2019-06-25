@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HideezSafe.Modules
 {
-    class RemoteDeviceConnection : IRemoteDeviceConnection
+    class RemoteDeviceConnection : IRemoteCommands, IRemoteEvents
     {
         readonly IServiceProxy _serviceProxy;
         readonly IMessenger _messenger;
