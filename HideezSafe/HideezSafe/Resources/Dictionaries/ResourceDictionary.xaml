@@ -355,4 +355,39 @@
         <Setter Property="ma:SliderHelper.TrackValueFillHoverBrush" Value="{DynamicResource BlueBrushIsMouseOver}" />
         <Setter Property="ma:SliderHelper.TrackValueFillPressedBrush" Value="{DynamicResource BlueBrushIsPressed}" />
     </Style>
+
+    <Style x:Key="CloseButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border
+                            x:Name="border"
+                            Margin="2"
+                            BorderThickness="0"
+                            CornerRadius="3">
+                        <Grid>
+                            <Rectangle
+                                    x:Name="FillRectangle"
+                                    Opacity="0.1"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    />
+                            <ContentPresenter
+                                    Margin="3"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Content="{TemplateBinding Content}" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="FillRectangle" Property="Fill" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

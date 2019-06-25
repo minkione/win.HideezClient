@@ -6,17 +6,40 @@
     xmlns:local="clr-namespace:HideezSafe.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     MinHeight="60"
-    Background="{DynamicResource WindowLeftColumBrush}"
+    Background="{DynamicResource NotificationLeftColumnBrush}"
     FontSize="14"
     mc:Ignorable="d">
     <StackPanel Orientation="Vertical">
         <!--  Description textblock  -->
-        <TextBlock
-            Padding="25,10"
-            Background="{DynamicResource BlueBrush}"
-            Foreground="Black"
-            Text="There are few suitable accounts, select one of them, please."
-            TextWrapping="Wrap" />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                Padding="25,10"
+                Foreground="White"
+                FontSize="16"
+                FontWeight="SemiBold"
+                Text="There are few suitable accounts, select one of them, please."
+                TextWrapping="Wrap" />
+
+            <Button
+                Grid.Column="1"
+                Margin="0,5,10,0"
+                Focusable="False"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Background="Transparent"
+                BorderThickness="0"
+                Width="30"
+                Height="30"
+                Click="Close_Click"
+                IsCancel="True"
+                Style="{StaticResource CloseButtonStyle}">
+                <TextBlock Text="X" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Button>
+        </Grid>
 
         <ListView
             Name="AccountsList"
@@ -45,8 +68,9 @@
                 </GridView>
             </ListView.View>
             <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
+                <Style BasedOn="{StaticResource MetroListViewItem}" TargetType="ListViewItem">
                     <Setter Property="Height" Value="46" />
+                    <Setter Property="Background" Value="Transparent" />
                 </Style>
             </ListView.ItemContainerStyle>
         </ListView>
