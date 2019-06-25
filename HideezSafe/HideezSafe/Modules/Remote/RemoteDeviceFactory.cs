@@ -22,7 +22,8 @@ namespace HideezSafe.Modules
 
             var remoteConnection = new RemoteDeviceConnection(_serviceProxy, _messenger);
 
-            var device = new RemoteDevice(connectionId, remoteConnection);
+            // Todo: Break up remoteConnection into two separate separate classes: RemoteCommands and RemoteEvents
+            var device = new RemoteDevice(connectionId, remoteConnection, remoteConnection);
 
             remoteConnection.RemoteDevice = device;
 
