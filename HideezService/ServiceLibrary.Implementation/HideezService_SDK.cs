@@ -289,39 +289,6 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public void OnSessionChange(bool sessionLocked)
-        {
-            try
-            {
-                _log.Info($"Session change called: {sessionLocked};  client {_client.ClientType.ToString()}");
-                // This operation contract can only be used by ServiceHost or TestConsole 
-                // Other clients are prohibited from using it
-                if (_client.ClientType == ClientType.ServiceHost || _client.ClientType == ClientType.TestConsole)
-                {
-                    /*
-                    Task.Run(async () =>
-                    {
-                        if (sessionLocked)
-                        {
-                            // Todo: disconnect all devices
-                        }
-                    });
-                    */
-                }
-                else
-                {
-                    /*
-                    throw new NotSupportedException();
-                    */
-                }
-            }
-            catch (Exception ex)
-            {
-                LogException(ex);
-                ThrowException(ex);
-            }
-        }
-
         public void DisconnectDevice(string id)
         {
             try
@@ -480,5 +447,33 @@ namespace ServiceLibrary.Implementation
         }
         #endregion
 
+        #region Host only
+        public static void OnSessionChange(bool sessionLocked)
+        {
+            try
+            {
+                var newState = sessionLocked ? "locked" : "unlocked";
+                _log.Info($"Session state changed to: {newState} (sessionLocked: {sessionLocked});");
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
+        }
+
+        public static void OnLaunchFromSleep()
+        {
+            try
+            {
+                _log.Info("System left suspended mode");
+                _log.Info("Restarting connection manager");
+                _connectionManager.Restart();
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
+        }
+        #endregion
     }
 }

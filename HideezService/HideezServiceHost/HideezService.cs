@@ -14,6 +14,9 @@ namespace HideezServiceHost
 
         public HideezService()
         {
+            CanHandlePowerEvent = true;
+            CanHandleSessionChangeEvent = true;
+
             InitializeComponent();
         }
 
@@ -23,7 +26,7 @@ namespace HideezServiceHost
             {
                 serviceHost = new ServiceHost(typeof(ServiceLibrary.Implementation.HideezService), new Uri("net.pipe://localhost/HideezService/"))
                 {
-                    CloseTimeout = new TimeSpan(0, 0, 1),
+                    CloseTimeout = new TimeSpan(0, 0, 20),
                 };
 
                 serviceHost.Open();
@@ -35,9 +38,8 @@ namespace HideezServiceHost
                 var service = new HideezServiceClient(instanceContext);
                 await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.ServiceHost });
 
-                // Disconnect is no longer possible, we need to maintain connection with the service we 
-                // are hosting to notify about session change
-                //service.Close();
+                // Disconnect from service
+                service.Close();
             }
             catch (Exception ex)
             {
@@ -78,20 +80,70 @@ namespace HideezServiceHost
         {
             try
             {
-                if (sessionChangeDescription.Reason == SessionChangeReason.SessionLock)
+                switch (sessionChangeDescription.Reason)
                 {
-                    // Session locked
-                    service?.OnSessionChange(true);
-                }
-                else if (sessionChangeDescription.Reason == SessionChangeReason.SessionUnlock)
-                {
-                    // Session unlocked
-                    service?.OnSessionChange(false);
+                    case SessionChangeReason.SessionLock:
+                    case SessionChangeReason.SessionLogoff:
+                        // Session locked
+                        ServiceLibrary.Implementation.HideezService.OnSessionChange(true);
+                        break;
+                    case SessionChangeReason.SessionUnlock:
+                    case SessionChangeReason.SessionLogon:
+                        // Session unlocked
+                        ServiceLibrary.Implementation.HideezService.OnSessionChange(false);
+                        break;
+                    default:
+                        return;
+
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error on session switch: {ex.Message}");
+                ServiceLibrary.Implementation.HideezService.LogException(ex);
+            }
+        }
+
+        protected override bool OnPowerEvent(PowerBroadcastStatus powerStatus)
+        {
+            HandlePowerEvent(powerStatus);
+            return base.OnPowerEvent(powerStatus);
+        }
+
+        void HandlePowerEvent(PowerBroadcastStatus powerStatus)
+        {
+            switch (powerStatus)
+            {
+                case PowerBroadcastStatus.BatteryLow:
+                    break;
+                case PowerBroadcastStatus.OemEvent:
+                    break;
+                case PowerBroadcastStatus.PowerStatusChange:
+                    break;
+                case PowerBroadcastStatus.QuerySuspend: // System is trying to schedule suspend
+                    break;
+                case PowerBroadcastStatus.QuerySuspendFailed: // Some application canceled suspend
+                    break;
+                case PowerBroadcastStatus.ResumeAutomatic: // Sleep or hibernation ended, brief system timeout (2m)
+                case PowerBroadcastStatus.ResumeCritical: // Suspension because of low battery charge ended
+                case PowerBroadcastStatus.ResumeSuspend: // Sleep or hibernation ended, normal system timeout (30m)
+                    OnSystemLeftSuspendedMode();
+                    break;
+                case PowerBroadcastStatus.Suspend: // System is about to be suspended, approximately 2 seconds before it happens
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void OnSystemLeftSuspendedMode()
+        {
+            try
+            {
+                ServiceLibrary.Implementation.HideezService.OnLaunchFromSleep();
+            }
+            catch (Exception ex)
+            {
+                ServiceLibrary.Implementation.HideezService.LogException(ex);
             }
         }
     }

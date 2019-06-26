@@ -96,11 +96,10 @@ namespace TestConsole
                 // NOTE: If an ambiguous reference error occurs, check that TestConsole DOES NOT have 
                 // a reference to 'ServiceLibrary'. There should be only 'ServiceLibrary.Implementation' ref
                 service = new HideezServiceClient(instanceContext);
-                instanceContext.Faulted += InstanceContext_Faulted;
                 await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.TestConsole });
 
                 // Disconnect from service
-                // service.Close();
+                service.Close();
             }
             catch (Exception ex)
             {
@@ -108,28 +107,30 @@ namespace TestConsole
             }
         }
 
-        private static void InstanceContext_Faulted(object sender, EventArgs e)
-        {
-        }
-
         protected static void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
             try
             {
-                if (e.Reason == SessionSwitchReason.SessionLock)
+                switch (e.Reason)
                 {
-                    // Session locked
-                    service.OnSessionChange(true);
-                }
-                else if (e.Reason == SessionSwitchReason.SessionUnlock)
-                {
-                    // Session unlocked
-                    service.OnSessionChange(false);
+                    case SessionSwitchReason.SessionLock:
+                    case SessionSwitchReason.SessionLogoff:
+                        // Session locked
+                        HideezService.OnSessionChange(true);
+                        break;
+                    case SessionSwitchReason.SessionUnlock:
+                    case SessionSwitchReason.SessionLogon:
+                        // Session unlocked
+                        HideezService.OnSessionChange(false);
+                        break;
+                    default:
+                        return;
+
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error on session switch: {ex.Message}");
+                ServiceLibrary.Implementation.HideezService.LogException(ex);
             }
         }
     }

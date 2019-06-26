@@ -221,7 +221,7 @@
         <File Id="HideezServiceHost.exe" Name="HideezServiceHost.exe" KeyPath="yes" Source="$(var.HideezServiceHost_TargetDir)HideezServiceHost.exe" />
         <ServiceInstall
           Id="si_HideezService"
-          Name="HideezService"
+          Name="Hideez Service"
           DisplayName ="Hideez Service"
           Start="auto"
           ErrorControl="normal"
@@ -241,7 +241,7 @@
         </ServiceInstall>
         <ServiceControl
           Id="sc_HideezService"
-          Name="HideezService"
+          Name="Hideez Service"
           Start="install"
           Stop="both"
           Remove="uninstall"
@@ -418,8 +418,8 @@
         <File Id="RfidService.exe" Name="RfidService.exe" KeyPath="yes" Source="$(var.RfidService_TargetDir)RfidService.exe" />
         <ServiceInstall
           Id="si_RfidService"
-          Name="RfidService"
-          DisplayName ="Rfid Service"
+          Name="Hideez RFID Service"
+          DisplayName ="Hideez RFID Service"
           Start="auto"
           ErrorControl="normal"
           Type="ownProcess"
@@ -434,7 +434,7 @@
         </ServiceInstall>
         <ServiceControl
           Id="sc_RfidService"
-          Name="RfidService"
+          Name="Hideez RFID Service"
           Start="install"
           Stop="both"
           Remove="uninstall"

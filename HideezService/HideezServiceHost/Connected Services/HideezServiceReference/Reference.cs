@@ -385,13 +385,6 @@ namespace HideezServiceHost.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetDevices", ReplyAction="http://tempuri.org/IHideezService/GetDevicesResponse")]
         System.Threading.Tasks.Task<HideezServiceHost.HideezServiceReference.DeviceDTO[]> GetDevicesAsync();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/OnSessionChange", ReplyAction="http://tempuri.org/IHideezService/OnSessionChangeResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/OnSessionChangeHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        void OnSessionChange(bool sessionLocked);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/OnSessionChange", ReplyAction="http://tempuri.org/IHideezService/OnSessionChangeResponse")]
-        System.Threading.Tasks.Task OnSessionChangeAsync(bool sessionLocked);
-        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisconnectDevice", ReplyAction="http://tempuri.org/IHideezService/DisconnectDeviceResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/DisconnectDeviceHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
         void DisconnectDevice(string id);
@@ -547,14 +540,6 @@ namespace HideezServiceHost.HideezServiceReference {
         
         public System.Threading.Tasks.Task<HideezServiceHost.HideezServiceReference.DeviceDTO[]> GetDevicesAsync() {
             return base.Channel.GetDevicesAsync();
-        }
-        
-        public void OnSessionChange(bool sessionLocked) {
-            base.Channel.OnSessionChange(sessionLocked);
-        }
-        
-        public System.Threading.Tasks.Task OnSessionChangeAsync(bool sessionLocked) {
-            return base.Channel.OnSessionChangeAsync(sessionLocked);
         }
         
         public void DisconnectDevice(string id) {

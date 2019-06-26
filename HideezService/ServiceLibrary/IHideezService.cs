@@ -30,12 +30,6 @@ namespace ServiceLibrary
         [FaultContract(typeof(HideezServiceFault))]
         DeviceDTO[] GetDevices();
 
-        // Contract is only for testconsole and hostservice
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        void OnSessionChange(bool sessionLocked);
-
-
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         void DisconnectDevice(string id);
