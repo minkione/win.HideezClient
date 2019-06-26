@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -767,25 +768,55 @@ namespace WinSampleApp.ViewModel
             {
                 var readResult = await device.Device.ReadStorage(35, 15);
 
-                var pm = new DevicePasswordManager((IDeviceStorage)device.Device);
+                var pm = new DevicePasswordManager(device.Device, _log);
+
+                // array of records
+                //for (int i = 0; i < 100; i++)
+                //{
+                //    var account = new AccountRecord()
+                //    {
+                //        Key = 0,
+                //        Name = $"My Google Account {i}",
+                //        Login = $"admin_{i}@hideez.com",
+                //        Password = $"my_password_{i}",
+                //        OtpSecret = $"asdasd_{i}",
+                //        Apps = $"12431412412342134_{i}",
+                //        Urls = $"www.hideez.com;www.google.com_{i}",
+                //        IsPrimary = i == 0
+                //    };
+
+                //    var key = await pm.SaveOrUpdateAccount(account.Key, account.Flags, account.Name,
+                //        account.Password, account.Login, account.OtpSecret,
+                //        account.Apps, account.Urls,
+                //        account.IsPrimary);
+
+                //    Debug.WriteLine($"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Writing {i} account");
+                //}
+
+
+                // single record
                 var account = new AccountRecord()
                 {
-                    Key = 15,
-                    Name = "My Google Account",
-                    Login = "admin@hideez.com",
-                    Password = "my_password",
-                    OtpSecret = "asdasd",
-                    Apps = "12431412412342134",
-                    Urls = "asdfasdfasdfasdfasdfasfds",
-                    IsPrimary = false
+                    Key = 1,
+                    Name = $"My Google Account 0",
+                    Login = $"admin_0@hideez.com",
+                    Password = $"my_password_0",
+                    OtpSecret = $"asdasd_0",
+                    Apps = $"12431412412342134_0",
+                    Urls = $"www.hideez.com;www.google.com_0",
+                    IsPrimary = true
                 };
 
-                var key = await pm.SaveOrUpdateAccount(account.Key, account.Flags, account.Name, 
-                    account.Password, account.Login, account.OtpSecret, 
+                var key = await pm.SaveOrUpdateAccount(account.Key, account.Name,
+                    account.Password, account.Login, account.OtpSecret,
                     account.Apps, account.Urls,
-                    account.IsPrimary);
+                    account.IsPrimary 
+                    //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6) 
+                    //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6)
+                    );
 
-                //await pm.SavePcUnlockCredentials("", "");
+                // load 
+                await pm.Load();
             }
             catch (Exception ex)
             {
