@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
+using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
 using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules;
@@ -44,6 +45,8 @@ namespace HideezSafe.Models
                 return _remoteDevice;
             }
         }
+
+        public DevicePasswordManager PasswordManager { get; private set; }
 
         public string TypeName { get; } = "Hideez key";
 
@@ -155,6 +158,9 @@ namespace HideezSafe.Models
                             Proximity = _remoteDevice.Proximity;
                             Battery = _remoteDevice.Battery;
 
+                            PasswordManager = new DevicePasswordManager(_remoteDevice, null);
+                            await PasswordManager.Load();
+
                             IsInitialized = true;
                             break;
                         }
@@ -182,6 +188,7 @@ namespace HideezSafe.Models
                 _remoteDevice.ProximityChanged -= RemoteDevice_ProximityChanged;
                 _remoteDevice.BatteryChanged -= RemoteDevice_BatteryChanged;
                 _remoteDevice = null;
+                PasswordManager = null;
 
                 Battery = 0;
                 Proximity = 0;

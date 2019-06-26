@@ -120,8 +120,7 @@ namespace HideezSafe.ViewModels
                     if (!Device.IsInitialized)
                         throw new ArgumentNullException("Remote device is not initialized");
 
-                    var dpm = new DevicePasswordManager(Device.Storage);
-                    await dpm.SavePcUnlockCredentials(login, pass);
+                    await Device.PasswordManager.SavePcUnlockCredentials(login, pass);
                     IsInProgress = false;
                     Application.Current.Dispatcher.Invoke(view.Close);
                 }
