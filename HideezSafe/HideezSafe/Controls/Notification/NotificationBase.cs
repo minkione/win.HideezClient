@@ -98,6 +98,18 @@ namespace HideezSafe.Controls
             }
         }
 
+        protected override void OnMouseEnter(MouseEventArgs e)
+        {
+            base.OnMouseEnter(e);
+            timer?.Stop();
+        }
+
+        protected override void OnMouseLeave(MouseEventArgs e)
+        {
+            base.OnMouseLeave(e);
+            timer?.Start();
+        }
+
         private void Timer_Tick(object s, EventArgs e)
         {
             timer.Tick -= Timer_Tick;
