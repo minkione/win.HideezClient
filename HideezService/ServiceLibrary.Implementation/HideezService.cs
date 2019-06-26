@@ -78,7 +78,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void LogException(Exception ex)
+        public static void LogException(Exception ex)
         {
             _log.Error(ex.StackTrace);
             _log.Error(ex);
