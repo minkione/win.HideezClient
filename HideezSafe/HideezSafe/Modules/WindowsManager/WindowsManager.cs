@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Linq;
 using System.Windows.Threading;
+using HideezSafe.Models;
 
 namespace HideezSafe.Modules
 {
@@ -123,7 +124,7 @@ namespace HideezSafe.Modules
             }
         }
 
-        public void ShowDialogAddCredential(DeviceViewModel device)
+        public void ShowDialogAddCredential(Device device)
         {
             var addCredentialWindow = new AddCredentialView();
             addCredentialWindow.Owner = MainWindow;

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HideezSafe.Models;
 
 namespace HideezSafe.Modules
 {
@@ -14,7 +15,7 @@ namespace HideezSafe.Modules
         Task ActivateMainWindowAsync();
         event EventHandler<bool> MainWindowVisibleChanged;
         bool IsMainWindowVisible { get; }
-        void ShowDialogAddCredential(DeviceViewModel device);
+        void ShowDialogAddCredential(Device device);
 
         void ShowInfo(string message, string title = null);
         void ShowWarn(string message, string title = null);

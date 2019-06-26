@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.PasswordManager;
+using HideezSafe.Models;
 using HideezSafe.Modules;
 using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Mvvm;
@@ -49,7 +50,7 @@ namespace HideezSafe.ViewModels
             }
         }
 
-        public DeviceViewModel Device { get; set; }
+        public Device Device { get; set; }
 
         public ObservableCollection<string> Logins { get; }
 

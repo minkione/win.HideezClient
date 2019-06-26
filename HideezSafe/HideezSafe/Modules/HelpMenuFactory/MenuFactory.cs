@@ -15,6 +15,8 @@ using NLog;
 using System.IO;
 using NLog.Layouts;
 using System.Threading.Tasks;
+using HideezSafe.Models;
+using HideezSafe.Modules.ServiceProxy;
 
 namespace HideezSafe.Modules
 {
@@ -26,10 +28,12 @@ namespace HideezSafe.Modules
         private readonly IAppHelper appHelper;
         private readonly ISettingsManager<ApplicationSettings> settingsManager;
         private readonly ISupportMailContentGenerator supportMailContentGenerator;
+        private readonly IServiceProxy serviceProxy;
 
         public MenuFactory(IMessenger messenger, IStartupHelper startupHelper
             , IWindowsManager windowsManager, IAppHelper appHelper,
-            ISettingsManager<ApplicationSettings> settingsManager, ISupportMailContentGenerator supportMailContentGenerator)
+            ISettingsManager<ApplicationSettings> settingsManager, ISupportMailContentGenerator supportMailContentGenerator,
+            IServiceProxy serviceProxy)
         {
             this.messenger = messenger;
             this.startupHelper = startupHelper;
@@ -37,6 +41,7 @@ namespace HideezSafe.Modules
             this.appHelper = appHelper;
             this.settingsManager = settingsManager;
             this.supportMailContentGenerator = supportMailContentGenerator;
+            this.serviceProxy = serviceProxy;
         }
 
         public MenuItemViewModel GetMenuItem(MenuItemType type)
@@ -74,8 +79,122 @@ namespace HideezSafe.Modules
                 case MenuItemType.GetLogsSubmenu:
                     return GetLogsSubmenu();
                 case MenuItemType.Separator:
-                default:
                     return null;
+                default:
+                    Debug.Assert(false, $"The type: {type} of menu is not supported.");
+                    return null;
+            }
+        }
+
+        public MenuItemViewModel GetMenuItem(Device device, MenuItemType type)
+        {
+            if(device == null)
+            {
+                Debug.Assert(false, "Device can not be null.");
+            }
+
+            switch (type)
+            {
+                case MenuItemType.AddCredential:
+                    return GetMenuAddCredential(device);
+                case MenuItemType.DisconnectDevice:
+                    return GetMenuDisconnectDevice(device);
+                case MenuItemType.RemoveDevice:
+                    return GetMenuRemoveDevice(device);
+                default:
+                    Debug.Assert(false, $"The type: {type} of menu is not supported.");
+                    return null;
+            }
+        }
+
+        private MenuItemViewModel GetMenuAddCredential(Device device)
+        {
+            return new MenuItemViewModel
+            {
+                Header = "Menu.SavePCPassword",
+                Command = new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        if (x is Device d)
+                        {
+                            windowsManager.ShowDialogAddCredential(d);
+                        }
+                    },
+                    CanExecuteFunc = () => device.IsConnected
+                },
+                CommandParameter = device,
+            };
+        }
+
+        private MenuItemViewModel GetMenuRemoveDevice(Device device)
+        {
+            return new MenuItemViewModel
+            {
+                Header = "Menu.RemoveDevice",
+                Command = new DelegateCommand
+                {
+                    CommandAction = OnRemoveDevice,
+                },
+                CommandParameter = device,
+            };
+        }
+
+        private MenuItemViewModel GetMenuDisconnectDevice(Device device)
+        {
+            return new MenuItemViewModel
+            {
+                Header = "Menu.DisconnectDevice",
+                Command = new DelegateCommand
+                {
+                    CommandAction = OnDisconnectDevice,
+                    CanExecuteFunc = () => device.IsConnected
+                },
+                CommandParameter = device,
+            };
+        }
+
+        private async void OnDisconnectDevice(object paran)
+        {
+            if (paran is Device device)
+            {
+                try
+                {
+                    var result = MessageBox.Show(
+                        $"Are you sure you want to disconnect {device.Name}?",
+                        $"Disconnect {device.Name}",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
+                        await serviceProxy.GetService().DisconnectDeviceAsync(device.Id);
+                }
+                catch (Exception ex)
+                {
+                    windowsManager.ShowError(ex.Message);
+                }
+            }
+        }
+
+        private async void OnRemoveDevice(object paran)
+        {
+            if (paran is Device device)
+            {
+                try
+                {
+                    var result = MessageBox.Show(
+                        $"Are you sure you want to remove {device.Name}?{Environment.NewLine}Note: All manually stored data will be lost!",
+                        $"Remove {device.Name}",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
+                        await serviceProxy.GetService().RemoveDeviceAsync(device.Id);
+                }
+                catch (Exception ex)
+                {
+                    windowsManager.ShowError(ex.Message);
+                }
             }
         }
 
@@ -214,6 +333,5 @@ namespace HideezSafe.Modules
 
             return logsMenu;
         }
-
     }
 }
