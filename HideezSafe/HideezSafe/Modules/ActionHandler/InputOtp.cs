@@ -1,6 +1,8 @@
 ﻿using Hideez.ARS;
 using Hideez.ISM;
+using HideezSafe.Models;
 using HideezSafe.Models.Settings;
+using HideezSafe.Modules.DeviceManager;
 using HideezSafe.Modules.Localize;
 using HideezSafe.Modules.SettingsManager;
 using System;
@@ -18,8 +20,8 @@ namespace HideezSafe.Modules.ActionHandler
     {
         public InputOtp(IInputHandler inputHandler, ITemporaryCacheAccount temporaryCacheAccount
                         , IInputCache inputCache, ISettingsManager<ApplicationSettings> settingsManager
-                        , IWindowsManager windowsManager)
-                        : base(inputHandler, temporaryCacheAccount, inputCache, settingsManager, windowsManager)
+                        , IWindowsManager windowsManager, IDeviceManager deviceManager)
+                        : base(inputHandler, temporaryCacheAccount, inputCache, settingsManager, windowsManager, deviceManager)
         {
         }
 
@@ -32,23 +34,13 @@ namespace HideezSafe.Modules.ActionHandler
         {
             if (account != null && account.HasOtpSecret)
             {
-                string otp = await GetOtpAsync(account);
-                if (otp != null)
-                {
-                    await SimulateInput(otp);
-                    SimulateEnter();
-                    SetCache(account);
-                    return true;
-                }
+                await SimulateInput(account.OtpSecret);
+                SimulateEnter();
+                SetCache(account);
+                return true;
             }
 
             return false;
-        }
-
-        private Task<string> GetOtpAsync(Account account)
-        {
-            // TODO: get otp
-            throw new NotImplementedException();
         }
 
         /// <summary>

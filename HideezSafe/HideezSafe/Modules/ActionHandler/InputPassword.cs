@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using HideezSafe.Modules.Localize;
 using Hideez.ISM;
 using Hideez.ARS;
+using HideezSafe.Models;
+using HideezSafe.Modules.DeviceManager;
 
 namespace HideezSafe.Modules.ActionHandler
 {
@@ -18,8 +20,8 @@ namespace HideezSafe.Modules.ActionHandler
     {
         public InputPassword(IInputHandler inputHandler, ITemporaryCacheAccount temporaryCacheAccount
                         , IInputCache inputCache, ISettingsManager<ApplicationSettings> settingsManager
-                        , IWindowsManager windowsManager)
-                        : base(inputHandler, temporaryCacheAccount, inputCache, settingsManager, windowsManager)
+                        , IWindowsManager windowsManager, IDeviceManager deviceManager)
+                        : base(inputHandler, temporaryCacheAccount, inputCache, settingsManager, windowsManager, deviceManager)
         {
         }
 
@@ -30,25 +32,15 @@ namespace HideezSafe.Modules.ActionHandler
         /// <returns>True if found data for password</returns>
         protected override async Task<bool> InputAccountAsync(Account account)
         {
-            if (account != null && account.Key > 0)
+            if (account != null && !string.IsNullOrEmpty(account.Password))
             {
-                string password = await GetPasswordAsync(account);
-                if (password != null)
-                {
-                    await SimulateInput(password);
-                    SimulateEnter();
-                    SetCache(account);
-                    return true;
-                }
+                await SimulateInput(account.Password);
+                SimulateEnter();
+                SetCache(account);
+                return true;
             }
 
             return false;
-        }
-
-        private Task<string> GetPasswordAsync(Account account)
-        {
-            // TODO: get password
-            throw new NotImplementedException("Get password not implemented");
         }
 
         /// <summary>

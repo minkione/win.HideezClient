@@ -71,7 +71,7 @@ namespace HideezSafe.Modules.ActionHandler
         private void HotkeyPressedMessageHandler(HotkeyPressedMessage hotkeyMessage)
         {
             log.Info("Handling hotkey pressed message.");
-            string[] devicesId = deviceManager.Devices.Where(d => d.IsConnected).Select(d => d.Id.Split(':')[0]).ToArray();
+            string[] devicesId = deviceManager.Devices.Where(d => d.IsConnected).Select(d => d.Id).ToArray();
 
             if (!devicesId.Any())
             {

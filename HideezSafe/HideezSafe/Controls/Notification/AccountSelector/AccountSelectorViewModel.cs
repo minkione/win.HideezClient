@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight;
+using HideezSafe.Models;
 using HideezSafe.Modules.ActionHandler;
 using System;
 using System.Collections.Generic;

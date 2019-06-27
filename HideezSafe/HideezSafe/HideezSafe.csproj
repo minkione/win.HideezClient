@@ -225,7 +225,8 @@
     <Compile Include="Messages\Remote\Remote_RssiReceivedMessage.cs" />
     <Compile Include="Messages\SettingsChangedMessage.cs" />
     <Compile Include="Models\Device.cs" />
-    <Compile Include="Modules\ActionHandler\Account.cs" />
+    <Compile Include="Models\Account.cs" />
+    <Compile Include="Modules\AccountManager\AccountExtensions.cs" />
     <Compile Include="Modules\ActionHandler\Exception\AccountException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\FieldNotSecureException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\LoginNotFoundException.cs" />

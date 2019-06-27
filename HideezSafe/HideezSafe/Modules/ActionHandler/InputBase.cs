@@ -1,6 +1,8 @@
 ﻿using Hideez.ARS;
 using Hideez.ISM;
+using HideezSafe.Models;
 using HideezSafe.Models.Settings;
+using HideezSafe.Modules.DeviceManager;
 using HideezSafe.Modules.SettingsManager;
 using NLog;
 using System;
@@ -26,16 +28,18 @@ namespace HideezSafe.Modules.ActionHandler
         protected readonly IInputCache inputCache;
         protected readonly ISettingsManager<ApplicationSettings> settingsManager;
         private readonly IWindowsManager windowsManager;
+        private readonly IDeviceManager deviceManager;
 
         protected InputBase(IInputHandler inputHandler, ITemporaryCacheAccount temporaryCacheAccount
             , IInputCache inputCache, ISettingsManager<ApplicationSettings> settingsManager
-            , IWindowsManager windowsManager)
+            , IWindowsManager windowsManager, IDeviceManager deviceManager)
         {
             this.inputHandler = inputHandler;
             this.temporaryCacheAccount = temporaryCacheAccount;
             this.inputCache = inputCache;
             this.settingsManager = settingsManager;
             this.windowsManager = windowsManager;
+            this.deviceManager = deviceManager;
         }
 
         /// <summary>
@@ -81,7 +85,7 @@ namespace HideezSafe.Modules.ActionHandler
 
                 if (BeforeCondition())
                 {
-                    Account[] accounts = await GetAccountsByAppInfoAsync(currentAppInfo);
+                    Account[] accounts = await GetAccountsByAppInfoAsync(currentAppInfo, devicesId);
                     accounts = FilterAccounts(accounts, devicesId);
 
                     if (!accounts.Any()) // No accounts for current application
@@ -123,10 +127,18 @@ namespace HideezSafe.Modules.ActionHandler
             }
         }
 
-        private Task<Account[]> GetAccountsByAppInfoAsync(AppInfo appInfo)
+        private Task<Account[]> GetAccountsByAppInfoAsync(AppInfo appInfo, string[] devicesId)
         {
-            //TODO: Get accounts by AppInfo
-            throw new NotImplementedException("Not implemented get accounts by AppInfo.");
+            return Task.Run(() =>
+            {
+                List<Account> accounts = new List<Account>();
+                foreach (var device in deviceManager.Devices.Where(d => d.IsConnected && devicesId.Contains(d.Id)))
+                {
+                    accounts.AddRange(device.FindAccountsByApp(appInfo));
+                }
+
+                return accounts.ToArray();
+            });
         }
 
         /// <summary>
@@ -167,7 +179,7 @@ namespace HideezSafe.Modules.ActionHandler
         /// <returns>Filtered accounts</returns>
         protected virtual Account[] FilterAccounts(Account[] accounts, string[] devicesId)
         {
-            return accounts.Where(a => devicesId.Contains(a.DeviceId)).ToArray();
+            return accounts;//.Where(a => devicesId.Contains(a.DeviceId)).ToArray();
         }
 
         /// <summary>
@@ -209,7 +221,7 @@ namespace HideezSafe.Modules.ActionHandler
         {
             if (cachedAccountPrevInput != null)
             {
-                Account[] pmas = accounts.Where(a => a.Key == cachedAccountPrevInput.Key && a.DeviceId.Equals(cachedAccountPrevInput.DeviceId)).ToArray();
+                Account[] pmas = accounts.Where(a => a.Name == cachedAccountPrevInput.Name && a.DeviceId.Equals(cachedAccountPrevInput.DeviceId)).ToArray();
                 if (pmas.Length > 0)
                 {
                     return pmas;

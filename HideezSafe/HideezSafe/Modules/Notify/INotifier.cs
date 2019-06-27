@@ -1,4 +1,5 @@
-﻿using HideezSafe.Modules.ActionHandler;
+﻿using HideezSafe.Models;
+using HideezSafe.Modules.ActionHandler;
 using System.Threading.Tasks;
 
 namespace HideezSafe.Modules

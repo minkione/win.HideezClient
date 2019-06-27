@@ -34,9 +34,13 @@ namespace HideezSafe.Controls
 
         private void AccountsList_KeyDown(object sender, KeyEventArgs e)
         {
-            if ((int)e.Key == 6)
+            if ((int)e.Key == 6) // Key.Enter, Key.Return
             {
-                Result = true;        
+                Result = true;
+            }
+            else if ((int)e.Key == 13) // Key.Escape
+            {
+                Close();
             }
         }
 
@@ -44,14 +48,6 @@ namespace HideezSafe.Controls
         {
             ListViewItem item = AccountsList.ItemContainerGenerator.ContainerFromIndex(AccountsList.SelectedIndex) as ListViewItem;
             item?.Focus();
-        }
-
-        private void HandleEsc(object sender, KeyEventArgs e)
-        {
-            if (e.Key.ToString() == "Escape")
-            {
-                Close();
-            }
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)

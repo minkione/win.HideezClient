@@ -1,4 +1,5 @@
 ﻿using HideezSafe.Controls;
+using HideezSafe.Models;
 using HideezSafe.Modules.ActionHandler;
 using HideezSafe.ViewModels;
 using HideezSafe.Views;
