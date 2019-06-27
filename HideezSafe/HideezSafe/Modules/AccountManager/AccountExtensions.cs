@@ -29,7 +29,7 @@ namespace HideezSafe.Modules
 
                 if (ContainsKeywords(appInfo, apps) || ContainsKeywords(appInfo, urls))
                 {
-                    accounts.Add(new Account(device.Id, accountRecord));
+                    accounts.Add(new Account(device, accountRecord));
                 }
             }
 

@@ -32,9 +32,10 @@ namespace HideezSafe.Modules.ActionHandler
         /// <returns>True if found data for OTP</returns>
         protected override async Task<bool> InputAccountAsync(Account account)
         {
-            if (account != null && account.HasOtpSecret)
+            string otpSecret = await account?.TryGetOptSecretAsync();
+            if (!string.IsNullOrEmpty(otpSecret))
             {
-                await SimulateInput(account.OtpSecret);
+                await SimulateInput(otpSecret);
                 SimulateEnter();
                 SetCache(account);
                 return true;

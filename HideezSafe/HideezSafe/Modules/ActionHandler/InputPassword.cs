@@ -32,12 +32,16 @@ namespace HideezSafe.Modules.ActionHandler
         /// <returns>True if found data for password</returns>
         protected override async Task<bool> InputAccountAsync(Account account)
         {
-            if (account != null && !string.IsNullOrEmpty(account.Password))
+            if (account != null)
             {
-                await SimulateInput(account.Password);
-                SimulateEnter();
-                SetCache(account);
-                return true;
+                string password = await account?.TryGetPasswordAsync();
+                if (!string.IsNullOrEmpty(password))
+                {
+                    await SimulateInput(password);
+                    SimulateEnter();
+                    SetCache(account);
+                    return true;
+                }
             }
 
             return false;

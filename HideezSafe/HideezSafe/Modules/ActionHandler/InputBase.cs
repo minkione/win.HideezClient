@@ -132,7 +132,7 @@ namespace HideezSafe.Modules.ActionHandler
             return Task.Run(() =>
             {
                 List<Account> accounts = new List<Account>();
-                foreach (var device in deviceManager.Devices.Where(d => d.IsConnected && devicesId.Contains(d.Id)))
+                foreach (var device in deviceManager.Devices.Where(d => d.IsConnected && d.IsInitialized && devicesId.Contains(d.Id)))
                 {
                     accounts.AddRange(device.FindAccountsByApp(appInfo));
                 }
@@ -221,7 +221,7 @@ namespace HideezSafe.Modules.ActionHandler
         {
             if (cachedAccountPrevInput != null)
             {
-                Account[] pmas = accounts.Where(a => a.Name == cachedAccountPrevInput.Name && a.DeviceId.Equals(cachedAccountPrevInput.DeviceId)).ToArray();
+                Account[] pmas = accounts.Where(a => a.Id == cachedAccountPrevInput.Id).ToArray();
                 if (pmas.Length > 0)
                 {
                     return pmas;
