@@ -25,10 +25,6 @@
               bal:Overridable="yes"
               Type="numeric"
               Value="0" />
-    <Variable Name="InstallReaderDriver"
-              bal:Overridable="yes"
-              Type="numeric"
-              Value="0" />
 
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
       <bal:WixStandardBootstrapperApplication LicenseFile="Legal.rtf"
@@ -80,8 +76,6 @@
                      Value="[HESAddress]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
                      Value="[InstallDongleDriver]" />
-        <MsiProperty Name="INSTALLREADERDRIVER"
-                     Value="[InstallReaderDriver]" />
       </MsiPackage>
 
       <MsiPackage DisplayInternalUI="no"
@@ -93,8 +87,6 @@
                      Value="[HESAddress]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
                      Value="[InstallDongleDriver]" />
-        <MsiProperty Name="INSTALLREADERDRIVER"
-                     Value="[InstallReaderDriver]" />
       </MsiPackage>
     </Chain>
   </Bundle>
