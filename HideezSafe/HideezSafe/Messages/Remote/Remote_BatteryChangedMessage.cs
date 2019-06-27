@@ -1,14 +1,12 @@
 ﻿namespace HideezSafe.Messages.Remote
 {
-    class Remote_BatteryChangedMessage
+    class Remote_BatteryChangedMessage : Remote_BaseMessage
     {
         public Remote_BatteryChangedMessage(string serialNo, int battery)
+            : base(serialNo)
         {
-            SerialNo = serialNo;
             Battery = battery;
         }
-
-        public string SerialNo { get; }
 
         public int Battery { get; }
     }

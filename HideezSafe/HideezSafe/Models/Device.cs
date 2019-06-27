@@ -5,6 +5,7 @@ using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules;
 using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Mvvm;
+using HideezSafe.Utilities;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,8 @@ namespace HideezSafe.Models
         int battery;
         bool isInitializing;
         bool isInitialized;
+        bool isLoadingStorage;
+        bool isStorageLoaded;
 
         public Device(IServiceProxy serviceProxy, IRemoteDeviceFactory remoteDeviceFactory)
         {
@@ -112,6 +115,18 @@ namespace HideezSafe.Models
             private set { Set(ref isInitialized, value); }
         }
 
+        public bool IsLoadingStorage
+        {
+            get { return isLoadingStorage; }
+            private set { Set(ref isLoadingStorage, value); }
+        }
+
+        public bool IsStorageLoaded
+        {
+            get { return isStorageLoaded; }
+            private set { Set(ref isStorageLoaded, value); }
+        }
+
         int remoteConnectionEstablishment = 0;
         public async Task EstablishRemoteDeviceConnection()
         {
@@ -133,6 +148,7 @@ namespace HideezSafe.Models
                     {
                         try
                         {
+                            _log.Info($"Device ({SerialNo}), establishing remote device connection");
                             _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, AUTH_CHANNEL);
                             if (_remoteDevice == null)
                             {
@@ -154,13 +170,23 @@ namespace HideezSafe.Models
 
                             _remoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
                             _remoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
+                            _remoteDevice.StorageModified += RemoteDevice_StorageModified;
 
                             Proximity = _remoteDevice.Proximity;
                             Battery = _remoteDevice.Battery;
 
+                            _log.Info($"Device ({SerialNo}) connection established with remote device");
+
+                            IsStorageLoaded = false;
+
+                            _log.Info($"Device ({SerialNo}) loading storage");
+
                             PasswordManager = new DevicePasswordManager(_remoteDevice, null);
                             await PasswordManager.Load();
 
+                            _log.Info($"Device ({SerialNo}) loaded {PasswordManager.Accounts.Count} entries");
+
+                            IsStorageLoaded = true;
                             IsInitialized = true;
                             break;
                         }
@@ -177,6 +203,7 @@ namespace HideezSafe.Models
                 {
                     Interlocked.Exchange(ref remoteConnectionEstablishment, 0);
                     IsInitializing = false;
+                    IsLoadingStorage = false;
                 }
             }
         }
@@ -187,6 +214,7 @@ namespace HideezSafe.Models
             {
                 _remoteDevice.ProximityChanged -= RemoteDevice_ProximityChanged;
                 _remoteDevice.BatteryChanged -= RemoteDevice_BatteryChanged;
+                _remoteDevice.StorageModified -= RemoteDevice_StorageModified;
                 _remoteDevice = null;
                 PasswordManager = null;
 
@@ -195,6 +223,8 @@ namespace HideezSafe.Models
 
                 IsInitialized = false;
                 isInitializing = false;
+                IsStorageLoaded = false;
+                IsLoadingStorage = false;
             }
         }
 
@@ -206,6 +236,44 @@ namespace HideezSafe.Models
         void RemoteDevice_BatteryChanged(object sender, int battery)
         {
             Battery = battery;
+        }
+
+        DelayedMethodCaller dmc = new DelayedMethodCaller(2000);
+        void RemoteDevice_StorageModified(object sender, EventArgs e)
+        {
+            _log.Info($"Device ({SerialNo}) storage modified");
+            if (!IsInitialized || IsLoadingStorage)
+                return;
+
+            Task.Run(() =>
+            {
+                dmc.CallMethod(async () => { await LoadStorageAsync(); });
+            });
+
+        }
+
+        async Task LoadStorageAsync()
+        {
+            try
+            {
+                IsStorageLoaded = false;
+
+                IsLoadingStorage = true;
+
+                PasswordManager = new DevicePasswordManager(_remoteDevice, null);
+                await PasswordManager.Load();
+                _log.Info($"Device ({SerialNo}) reloaded {PasswordManager.Accounts.Count} entries");
+
+                IsStorageLoaded = true;
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+            }
+            finally
+            {
+                IsLoadingStorage = false;
+            }
         }
 
         public void LoadFrom(DeviceDTO dto)

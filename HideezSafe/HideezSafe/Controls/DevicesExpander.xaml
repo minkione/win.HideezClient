@@ -135,6 +135,8 @@
                                         </Canvas>
                                     </Viewbox>
                                 </Grid>
+                                
+                                <!-- Icons -->
                                 <iconPacks:PackIconModern
                                     x:Name="noConnectionIco"
                                     Width="16"
@@ -165,15 +167,18 @@
                                             Margin="8,0,0,2"
                                             Foreground="{DynamicResource InitializingBrush}"
                                             Kind="Sync" />
-                                        <!--<iconPacks:PackIconMaterial
-                                            x:Name="cloud"
-                                            Width="16"
-                                            Height="22"
-                                            Margin="8,0,0,2"
-                                            Foreground="{DynamicResource InitializingBrush}"
-                                            Kind="CloudSync" />-->
                                     </StackPanel>
                                 </Grid>
+
+                                <iconPacks:PackIconMaterial
+                                    x:Name="Download"
+                                    Width="14"
+                                    Height="18"
+                                    Margin="8,4,0,2"
+                                    Foreground="White"
+                                    Kind="Download"
+                                    Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    />
                             </StackPanel>
 
                             <TextBlock

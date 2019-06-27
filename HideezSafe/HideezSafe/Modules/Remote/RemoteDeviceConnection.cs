@@ -20,6 +20,7 @@ namespace HideezSafe.Modules
 
             _messenger.Register<Remote_RssiReceivedMessage>(this, OnRssiReceivedMessage);
             _messenger.Register<Remote_BatteryChangedMessage>(this, OnBatteryChangedMessage);
+            _messenger.Register<Remote_StorageModifiedMessage>(this, OnStorageModified);
         }
 
         // Temporary duct tape, until IRemoteDeviceConnection is refactored
@@ -28,6 +29,8 @@ namespace HideezSafe.Modules
         public event EventHandler<double> RssiReceived;
 
         public event EventHandler<int> BatteryChanged;
+
+        public event EventHandler StorageModified;
 
         public async Task ResetChannel()
         {
@@ -48,20 +51,31 @@ namespace HideezSafe.Modules
 
         void OnRssiReceivedMessage(Remote_RssiReceivedMessage msg)
         {
-            if (string.IsNullOrWhiteSpace(msg.SerialNo))
-                return;
-
-            if (msg.SerialNo == RemoteDevice.SerialNo)
+            if (IsMessageFromCurrentDevice(msg))
                 RssiReceived?.Invoke(this, msg.Rssi);
         }
 
         void OnBatteryChangedMessage(Remote_BatteryChangedMessage msg)
         {
-            if (string.IsNullOrWhiteSpace(msg.SerialNo))
-                return;
-
-            if (msg.SerialNo == RemoteDevice.SerialNo)
+            if (IsMessageFromCurrentDevice(msg))
                 BatteryChanged?.Invoke(this, msg.Battery);
+        }
+
+        void OnStorageModified(Remote_StorageModifiedMessage msg)
+        {
+            if (IsMessageFromCurrentDevice(msg))
+                StorageModified?.Invoke(this, EventArgs.Empty);
+        }
+
+        bool IsMessageFromCurrentDevice(Remote_BaseMessage msg)
+        {
+            if (string.IsNullOrWhiteSpace(msg.SerialNo))
+                return false;
+
+            if (RemoteDevice == null)
+                return false;
+
+            return msg.SerialNo == RemoteDevice.SerialNo;
         }
     }
 }

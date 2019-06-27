@@ -221,8 +221,10 @@
     <Compile Include="Messages\HotkeyPressedMessage.cs" />
     <Compile Include="Messages\HotkeyStateChangedMessage.cs" />
     <Compile Include="Messages\LockWorkstationMessage.cs" />
+    <Compile Include="Messages\Remote\Remote_BaseMessage.cs" />
     <Compile Include="Messages\Remote\Remote_BatteryChangedMessage.cs" />
     <Compile Include="Messages\Remote\Remote_RssiReceivedMessage.cs" />
+    <Compile Include="Messages\Remote\Remote_StorageModifiedMessage.cs" />
     <Compile Include="Messages\SettingsChangedMessage.cs" />
     <Compile Include="Models\Device.cs" />
     <Compile Include="Models\Account.cs" />
@@ -252,6 +254,7 @@
     <Compile Include="Modules\Remote\IRemoteDeviceFactory.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceConnection.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceFactory.cs" />
+    <Compile Include="Utilities\DelayedMethodCaller.cs" />
     <Compile Include="ViewModels\Notification\NotificationsContainerViewModel.cs" />
     <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
       <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>

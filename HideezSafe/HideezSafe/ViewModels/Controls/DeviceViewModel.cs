@@ -47,6 +47,8 @@ namespace HideezSafe.ViewModels
         public string SerialNo => device.SerialNo;
         public bool IsInitializing => device.IsInitializing;
         public bool IsInitialized => device.IsInitialized;
+        public bool IsLoadingStorage => device.IsLoadingStorage;
+        public bool IsStorageLoaded => device.IsStorageLoaded;
 
         public ObservableCollection<MenuItemViewModel> MenuItems { get; }
 

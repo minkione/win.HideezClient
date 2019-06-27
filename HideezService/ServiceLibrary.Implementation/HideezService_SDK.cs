@@ -106,6 +106,7 @@ namespace ServiceLibrary.Implementation
             {
                 device.ConnectionStateChanged += Device_ConnectionStateChanged;
                 device.Initialized += Device_Initialized;
+                device.StorageModified += RemoteConnection_StorageModified;
             }
         }
         
@@ -117,6 +118,7 @@ namespace ServiceLibrary.Implementation
             {
                 device.ConnectionStateChanged -= Device_ConnectionStateChanged;
                 device.Initialized -= Device_Initialized;
+                device.StorageModified -= RemoteConnection_StorageModified;
 
                 if (device is IWcfDevice wcfDevice)
                     UnsubscribeFromWcfDeviceEvents(wcfDevice);
@@ -387,6 +389,22 @@ namespace ServiceLibrary.Implementation
                     {
                         _client.Callbacks.RemoteConnection_BatteryChanged(wcfDevice.SerialNo, battery);
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
+        }
+
+        void RemoteConnection_StorageModified(object sender, EventArgs e)
+        {
+            try
+            {
+                if (sender is IDevice device)
+                {
+                    foreach (var client in SessionManager.Sessions)
+                        client.Callbacks.RemoteConnection_StorageModified(device.SerialNo);
                 }
             }
             catch (Exception ex)
