@@ -23,7 +23,7 @@ namespace HideezSafe.Models
         public string[] Urls => SplitAppsToLines(accountRecord.Urls);
 
         public string Login => accountRecord.Login;
-        public bool HasOtpSecret => throw new NotImplementedException("Not implemented has otp secret.");
+        public bool HasOtp => accountRecord.HasOtp;
 
         public async Task<string> TryGetPasswordAsync()
         {
@@ -47,7 +47,7 @@ namespace HideezSafe.Models
             string otpSecret = null;
             try
             {
-                if (device.IsConnected && device.IsInitialized && HasOtpSecret)
+                if (device.IsConnected && device.IsInitialized && HasOtp)
                 {
                     // TODO: Implemented Otp
                 }

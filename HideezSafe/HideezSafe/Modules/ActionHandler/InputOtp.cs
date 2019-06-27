@@ -61,7 +61,7 @@ namespace HideezSafe.Modules.ActionHandler
         protected override Account[] FilterAccounts(Account[] accounts, string[] devicesId)
         {
             var filterAccounts = base.FilterAccounts(accounts, devicesId)
-                .Where(a => a.HasOtpSecret).ToArray();
+                .Where(a => a.HasOtp).ToArray();
 
             return FindValueForPreviousInput(filterAccounts, temporaryCacheAccount.OtpReqCache.Value);
         }
