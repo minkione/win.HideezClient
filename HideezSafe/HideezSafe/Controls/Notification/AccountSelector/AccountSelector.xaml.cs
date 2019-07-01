@@ -29,18 +29,18 @@ namespace HideezSafe.Controls
 
         private void AccountsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            Result = true;
+            SelectedAccount();
         }
 
         private void AccountsList_KeyDown(object sender, KeyEventArgs e)
         {
             if ((int)e.Key == 6) // Key.Enter, Key.Return
             {
-                Result = true;
+                SelectedAccount();
             }
             else if ((int)e.Key == 13) // Key.Escape
             {
-                Close();
+                Cancel();
             }
         }
 
@@ -52,6 +52,18 @@ namespace HideezSafe.Controls
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
+            Cancel();
+        }
+
+        private void SelectedAccount()
+        {
+            Options.TaskCompletionSource?.TrySetResult(true);
+            Close();
+        }
+
+        private void Cancel()
+        {
+            Options.TaskCompletionSource?.TrySetCanceled();
             base.Close();
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace HideezSafe.Modules
@@ -12,5 +13,6 @@ namespace HideezSafe.Modules
         public bool CloseWhenDeactivate { get; set; }
         public bool SetFocus { get; set; }
         public TimeSpan CloseTimeout { get; set; } = TimeSpan.FromSeconds(15);
+        public TaskCompletionSource<bool> TaskCompletionSource { get; set; }
     }
 }

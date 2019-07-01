@@ -208,6 +208,7 @@
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Converters\ProximityToOpacityConverter.cs" />
     <Compile Include="Converters\StringToResource.cs" />
+    <Compile Include="Exception\HIdeezSafeException.cs" />
     <Compile Include="Messages\ActivateScreenMessage.cs" />
     <Compile Include="Messages\ButtonPressedMessage.cs" />
     <Compile Include="Messages\ConnectionChangedMessage.cs" />

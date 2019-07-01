@@ -25,17 +25,6 @@ namespace HideezSafe.Controls
         }
 
         public event EventHandler Closed;
-        public event EventHandler Closing;
-
-        public bool Result
-        {
-            get { return result; }
-            protected set
-            {
-                result = value;
-                Close();
-            }
-        }
 
         public NotificationOptions Options { get; }
 
@@ -53,7 +42,7 @@ namespace HideezSafe.Controls
             {
                 if (!closing)
                 {
-                    Closing?.Invoke(this, EventArgs.Empty);
+                    Options.TaskCompletionSource?.TrySetResult(false);
 
                     closing = true;
                     BeginAnimation("HideNotificationAnimation");
@@ -93,7 +82,7 @@ namespace HideezSafe.Controls
                     Interval = Options.CloseTimeout
                 };
 
-                timer.Tick += Timer_Tick; ;
+                timer.Tick += Timer_Tick;
                 timer.Start();
             }
         }
@@ -112,6 +101,7 @@ namespace HideezSafe.Controls
 
         private void Timer_Tick(object s, EventArgs e)
         {
+            Options.TaskCompletionSource?.TrySetException(new TimeoutException("Close notification by timeout."));
             timer.Tick -= Timer_Tick;
             timer.Stop();
             Close();

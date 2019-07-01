@@ -64,32 +64,27 @@ namespace HideezSafe.Modules
             }
         }
 
-        public Task<Account> SelectAccountAsync(Account[] accounts)
+        public async Task<Account> SelectAccountAsync(Account[] accounts)
         {
             if (!isInitialised)
                 Initialise();
 
-            TaskCompletionSource<Account> completionSource = new TaskCompletionSource<Account>();
+            TaskCompletionSource<bool> taskCompletionSourceForDialog = new TaskCompletionSource<bool>();
 
             var viewModel = new AccountSelectorViewModel(accounts);
-            AccountSelector notification = new AccountSelector(new NotificationOptions { SetFocus = true, CloseWhenDeactivate = true, Position = NotificationPosition.Bottom, })
+            AccountSelector notification = new AccountSelector(new NotificationOptions { SetFocus = true, CloseWhenDeactivate = true, Position = NotificationPosition.Bottom, TaskCompletionSource = taskCompletionSourceForDialog, })
             {
                 DataContext = viewModel,
             };
             notificationsContainer.AddNotification(notification, true);
-            notification.Closing += (sender, e) =>
-            {
-                if (notification.Result)
-                {
-                    completionSource.SetResult(viewModel.SelectedAccount.Account);
-                }
-                else
-                {
-                    completionSource.SetResult(null);
-                }
-            };
 
-            return completionSource.Task;
+            bool dialogResalt = await taskCompletionSourceForDialog.Task;
+            if (dialogResalt)
+            {
+                return viewModel.SelectedAccount.Account;
+            }
+
+            return null;
         }
     }
 }

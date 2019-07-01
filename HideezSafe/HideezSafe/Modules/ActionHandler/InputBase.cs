@@ -102,20 +102,28 @@ namespace HideezSafe.Modules.ActionHandler
                         try
                         {
                             selectedAccount = await windowsManager.SelectAccountAsync(accounts);
+
+                            if (selectedAccount != null)
+                            {
+                                await InputAsync(selectedAccount);
+                            }
+                            else
+                            {
+                                log.Info("Account was not selected.");
+                            }
+                        }
+                        catch (SystemException ex) when (ex is OperationCanceledException || ex is TimeoutException)
+                        {
+                            if (inputCache.HasCache())
+                            {
+                                inputCache.SetFocus();
+                            }
+                            log.Info(ex);
                         }
                         catch (Exception ex)
                         {
                             Debug.Assert(false, ex.ToString());
                             log.Error(ex);
-                        }
-
-                        if (selectedAccount != null)
-                        {
-                            await InputAsync(selectedAccount);
-                        }
-                        else
-                        {
-                            log.Info("Account was not selected.");
                         }
                     }
                 }
