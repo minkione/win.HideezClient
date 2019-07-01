@@ -203,6 +203,7 @@
     <Compile Include="Controls\Notification\AccountSelector\AccountViewModel.cs" />
     <Compile Include="Controls\Notification\IconType.cs" />
     <Compile Include="Converters\BooleanToVisibilityCollapsedConverter.cs" />
+    <Compile Include="Converters\LowBatteryIndicatorVisibilityConverter.cs" />
     <Compile Include="Converters\NullToVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Converters\ProximityToOpacityConverter.cs" />

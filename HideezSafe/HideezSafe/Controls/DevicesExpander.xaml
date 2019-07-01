@@ -29,6 +29,7 @@
             <ext:InvertBooleanConverter x:Key="InvertBooleanConverter" />
             <converters:ProximityToOpacityConverter x:Key="ProximityToOpacityConverter" />
             <converters:StringToResource x:Key="StringToResource" />
+            <converters:LowBatteryIndicatorVisibilityConverter x:Key="LowBatteryIndicatorVisibilityConverter" />
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -135,8 +136,8 @@
                                         </Canvas>
                                     </Viewbox>
                                 </Grid>
-                                
-                                <!-- Icons -->
+
+                                <!--  Icons  -->
                                 <iconPacks:PackIconModern
                                     x:Name="noConnectionIco"
                                     Width="16"
@@ -146,9 +147,11 @@
                                     Kind="Connect"
                                     Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
                                 <TextBlock
+                                    Width="43"
                                     VerticalAlignment="Stretch"
                                     FontSize="18"
                                     Text="{Binding Proximity, StringFormat='{}{0,3}%'}"
+                                    TextAlignment="Right"
                                     Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                                 <Grid Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -177,8 +180,28 @@
                                     Margin="8,4,0,2"
                                     Foreground="White"
                                     Kind="Download"
-                                    Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    />
+                                    Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                <StackPanel>
+                                    <StackPanel.Visibility>
+                                        <MultiBinding Converter="{StaticResource LowBatteryIndicatorVisibilityConverter}">
+                                            <Binding Path="IsConnected" />
+                                            <Binding Path="Battery" />
+                                        </MultiBinding>
+                                    </StackPanel.Visibility>
+                                    <iconPacks:PackIconModern
+                                        Width="16"
+                                        Height="22"
+                                        Margin="8,-5,0,0"
+                                        Foreground="{DynamicResource LowBatteryIndicatorBrush}"
+                                        Kind="Battery1" />
+                                    <iconPacks:PackIconMaterial
+                                        Width="16"
+                                        Height="22"
+                                        Margin="20,-13,0,0"
+                                        Foreground="{DynamicResource LowBatteryIndicatorBrush}"
+                                        Kind="Alert" />
+                                </StackPanel>
                             </StackPanel>
 
                             <TextBlock

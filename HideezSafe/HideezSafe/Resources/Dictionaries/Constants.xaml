@@ -50,4 +50,6 @@
     <SolidColorBrush x:Key="ConnectedBrush" Color="Green" />
     <SolidColorBrush x:Key="InitializingBrush" Color="#ffffff" />
     <SolidColorBrush x:Key="DisconnectedBrush" Color="#ff1a1a" />
+
+    <SolidColorBrush x:Key="LowBatteryIndicatorBrush" Color="Yellow" />
 </ResourceDictionary>
