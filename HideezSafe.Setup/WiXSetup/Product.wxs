@@ -408,6 +408,10 @@
 	      <File Id="HideezService.System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.HideezServiceHost_TargetDir)System.Threading.Tasks.Extensions.dll" />
       </Component>
 
+      <Component Id="HideezService.AsyncEnumerable.dll" Guid="{439A1245-4CD6-4279-94E6-4A9D9A5822C2}" Win64="$(var.Win64)">
+        <File Id="HideezService.AsyncEnumerable.dll" Name="AsyncEnumerable.dll" Source="$(var.HideezServiceHost_TargetDir)AsyncEnumerable.dll" />
+      </Component>
+      
     </ComponentGroup>
   </Fragment>
   
@@ -683,6 +687,14 @@
         <File Id="UIAComWrapper.dll" Name="UIAComWrapper.dll" Source="$(var.HideezSafe_TargetDir)UIAComWrapper.dll" />
       </Component>
 
+      <Component Id="Interop.UIAutomationClient.dll" Guid="{7C31EDD4-126A-4B7F-9D4D-43E0E0DC603C}" Win64="$(var.Win64)">
+        <File Id="Interop.UIAutomationClient.dll" Name="Interop.UIAutomationClient.dll" Source="$(var.HideezSafe_TargetDir)Interop.UIAutomationClient.dll" />
+      </Component>
+      
+      <Component Id="AsyncEnumerable.dll" Guid="{4D4E952C-EE19-46C9-B8A4-2FFB3993D084}" Win64="$(var.Win64)">
+        <File Id="AsyncEnumerable.dll" Name="AsyncEnumerable.dll" Source="$(var.HideezSafe_TargetDir)AsyncEnumerable.dll" />
+      </Component>
+      
     </ComponentGroup>
   </Fragment>
 
