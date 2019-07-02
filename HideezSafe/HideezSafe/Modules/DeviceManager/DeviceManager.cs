@@ -11,6 +11,7 @@ using HideezSafe.ViewModels;
 using NLog;
 using System.Linq;
 using Hideez.SDK.Communication.Remote;
+using HideezSafe.Models;
 
 namespace HideezSafe.Modules.DeviceManager
 {
@@ -38,7 +39,7 @@ namespace HideezSafe.Modules.DeviceManager
         public DeviceManager(IMessenger messenger, IServiceProxy serviceProxy, 
             IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory)
         {
-            Devices = new ObservableCollection<DeviceViewModel>();
+            Devices = new ObservableCollection<Device>();
             _serviceProxy = serviceProxy;
             _windowsManager = windowsManager;
             _remoteDeviceFactory = remoteDeviceFactory;
@@ -52,7 +53,7 @@ namespace HideezSafe.Modules.DeviceManager
         }
 
         readonly object devicesLock = new object();
-        public ObservableCollection<DeviceViewModel> Devices { get; } = new ObservableCollection<DeviceViewModel>();
+        public ObservableCollection<Device> Devices { get; }
 
         async void ServiceProxy_ConnectionStateChanged(object sender, EventArgs e)
         {
@@ -95,13 +96,13 @@ namespace HideezSafe.Modules.DeviceManager
             {
                 try
                 {
-                    var dvm = FindDevice(message.Device.Id);
-                    if (dvm != null)
+                    var device = FindDevice(message.Device.Id);
+                    if (device != null)
                     {
-                        dvm.LoadFrom(message.Device);
+                        device.LoadFrom(message.Device);
 
-                        if (message.Device.IsInitialized && dvm.IsConnected)
-                            TryCreateRemoteDevice(dvm);
+                        if (message.Device.IsInitialized && device.IsConnected)
+                            TryCreateRemoteDevice(device);
                     }
                 }
                 catch (Exception ex)
@@ -111,7 +112,7 @@ namespace HideezSafe.Modules.DeviceManager
             });
         }
 
-        DeviceViewModel FindDevice(string id)
+        Device FindDevice(string id)
         {
             return Devices.ToArray().FirstOrDefault(d => d.Id == id);
         }
@@ -136,23 +137,22 @@ namespace HideezSafe.Modules.DeviceManager
                     {
                         Dispatcher.Invoke(() =>
                         {
-
-                            DeviceViewModel dvm;
-
                             lock (devicesLock)
                             {
-                                dvm = new DeviceViewModel(deviceDto, _windowsManager, _serviceProxy, _remoteDeviceFactory);
-                                Devices.Add(dvm);
+                                device = new Device(_serviceProxy, _remoteDeviceFactory);
+                                device.LoadFrom(deviceDto);
+
+                                Devices.Add(device);
                             }
 
-                            if (deviceDto.IsInitialized && dvm.IsConnected)
-                                TryCreateRemoteDevice(dvm);
+                            if (deviceDto.IsInitialized && device.IsConnected)
+                                TryCreateRemoteDevice(device);
                         });
                     }
                 }
 
                 // delete device from UI if its deleted from service
-                DeviceViewModel[] missingDevices;
+                Device[] missingDevices;
                 lock (devicesLock)
                 {
                     missingDevices = Devices.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
@@ -165,40 +165,40 @@ namespace HideezSafe.Modules.DeviceManager
             }
         }
 
-        async void TryCreateRemoteDevice(DeviceViewModel dvm)
+        async void TryCreateRemoteDevice(Device device)
         {
-            if (!dvm.IsInitialized && !dvm.IsInitializing)
-                await dvm.EstablishRemoteDeviceConnection();
+            if (!device.IsInitialized && !device.IsInitializing)
+                await device.EstablishRemoteDeviceConnection();
         }
 
         /// <summary>
         /// Note: Must be executed on STA thread
         /// </summary>
-        void RemoveDeviceSynchronously(DeviceViewModel dvm)
+        void RemoveDeviceSynchronously(Device device)
         {
             lock (devicesLock)
             {
-                Devices.Remove(dvm);
-                dvm.CloseRemoteDeviceConnection();
+                Devices.Remove(device);
+                device.CloseRemoteDeviceConnection();
             }
         }
 
-        void RemoveDevice(DeviceViewModel dvm)
+        void RemoveDevice(Device device)
         {
             Dispatcher.Invoke(() =>
             {
-                RemoveDeviceSynchronously(dvm);
+                RemoveDeviceSynchronously(device);
             });
         }
 
-        void RemoveDevices(DeviceViewModel[] dvms)
+        void RemoveDevices(Device[] devices)
         {
             Dispatcher.Invoke(() =>
             {
-                for (int i = 0; i < dvms.Length; i++)
+                for (int i = 0; i < devices.Length; i++)
                 {
                     // Avoid invoking dispatcher from inside the dispatcher
-                    RemoveDeviceSynchronously(dvms[i]);
+                    RemoveDeviceSynchronously(devices[i]);
                 }
             });
         }

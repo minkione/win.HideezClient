@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication.PasswordManager;
 using HideezSafe.HideezServiceReference;
+using HideezSafe.Models;
 using HideezSafe.Modules;
 using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Mvvm;
@@ -51,7 +52,7 @@ namespace HideezSafe.ViewModels
             }
         }
 
-        public DeviceViewModel Device { get; set; }
+        public Device Device { get; set; }
 
         public ObservableCollection<string> Logins { get; }
 
@@ -100,13 +101,13 @@ namespace HideezSafe.ViewModels
         {
             if (string.IsNullOrWhiteSpace(SelectedLogin))
             {
-                windowsManager.ShowWarning($"Login cannot be empty");
+                windowsManager.ShowWarn($"Login cannot be empty");
                 return;
             }
 
             if (view.passwordBox.SecurePassword.Length == 0)
             {
-                windowsManager.ShowWarning($"Password cannot be empty");
+                windowsManager.ShowWarn($"Password cannot be empty");
                 return;
             }
 
@@ -121,8 +122,7 @@ namespace HideezSafe.ViewModels
                     if (!Device.IsInitialized)
                         throw new ArgumentNullException("Remote device is not initialized");
 
-                    var dpm = new DevicePasswordManager(Device.Storage);
-                    await dpm.SavePcUnlockCredentials(login, pass);
+                    await Device.PasswordManager.SavePcUnlockCredentials(login, pass);
                     IsInProgress = false;
                     Application.Current.Dispatcher.Invoke(view.Close);
                 }

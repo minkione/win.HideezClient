@@ -291,25 +291,10 @@
   <data name="Status.Tooltip.DisconectedService" xml:space="preserve">
     <value>Немає підключення до сервісу</value>
   </data>
-  <data name="Url.Legal" xml:space="preserve">
-    <value>https://hideez.com/404</value>
-  </data>
-  <data name="Url.LiveChat" xml:space="preserve">
-    <value>https://hideez.com/404</value>
-  </data>
-  <data name="Url.LockVideoTutorial" xml:space="preserve">
-    <value>https://hideez.com/404</value>
-  </data>
-  <data name="Url.RFIDUsage" xml:space="preserve">
-    <value>https://hideez.com/404</value>
-  </data>
-  <data name="Url.UserManual" xml:space="preserve">
-    <value>https://hideez.com/404</value>
-  </data>
-  <data name="Url.VideoTutorial" xml:space="preserve">
-    <value>https://hideez.com/404</value>
-  </data>
   <data name="Warning" xml:space="preserve">
     <value>Попередження</value>
+  </data>
+  <data name="Exception.FieldNotSecure" xml:space="preserve">
+    <value>Введення пароля скасовано. Вибране поле не є захищеним.</value>
   </data>
 </root>

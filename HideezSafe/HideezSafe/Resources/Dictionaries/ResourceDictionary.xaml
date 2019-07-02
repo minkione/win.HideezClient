@@ -10,6 +10,23 @@
     <!--  DropDownItemCommandContainerStyle  -->
     <Style x:Key="MenuItemStyle" TargetType="{x:Type MenuItem}">
         <Setter Property="Padding" Value="5" />
+        <Setter Property="Command" Value="{Binding Command}" />
+        <Setter Property="Header" Value="{Binding Header}" />
+        <Setter Property="IsChecked" Value="{Binding IsChecked}" />
+        <Setter Property="IsCheckable" Value="{Binding IsCheckable}" />
+        <Setter Property="ItemsSource" Value="{Binding MenuItems}" />
+        <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Separator Margin="10,0,10,0" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
     <!--  LightButtonDropDownStyle  -->
@@ -227,27 +244,9 @@
 
         <tb:TaskbarIcon.ContextMenu>
             <ContextMenu Background="{DynamicResource MenuBackground}" ItemsSource="{Binding MenuItems}">
-                <ContextMenu.ItemContainerStyle>
-                    <Style BasedOn="{StaticResource MenuItemStyle}" TargetType="{x:Type MenuItem}">
-                        <Setter Property="Command" Value="{Binding Command}" />
-                        <Setter Property="Header" Value="{Binding Header}" />
-                        <Setter Property="IsChecked" Value="{Binding IsChecked}" />
-                        <Setter Property="IsCheckable" Value="{Binding IsCheckable}" />
-                        <Setter Property="ItemsSource" Value="{Binding MenuItems}" />
-                        <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding}" Value="{x:Null}">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate>
-                                            <Separator Margin="10,0,10,0" />
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ContextMenu.ItemContainerStyle>
+                <ContextMenu.Resources>
+                    <Style BasedOn="{StaticResource MenuItemStyle}" TargetType="{x:Type MenuItem}" />
+                </ContextMenu.Resources>
             </ContextMenu>
         </tb:TaskbarIcon.ContextMenu>
     </tb:TaskbarIcon>
@@ -354,5 +353,40 @@
         <Setter Property="ma:SliderHelper.TrackValueFillDisabledBrush" Value="{DynamicResource BlueBrush}" />
         <Setter Property="ma:SliderHelper.TrackValueFillHoverBrush" Value="{DynamicResource BlueBrushIsMouseOver}" />
         <Setter Property="ma:SliderHelper.TrackValueFillPressedBrush" Value="{DynamicResource BlueBrushIsPressed}" />
+    </Style>
+
+    <Style x:Key="CloseButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border
+                            x:Name="border"
+                            Margin="2"
+                            BorderThickness="0"
+                            CornerRadius="3">
+                        <Grid>
+                            <Rectangle
+                                    x:Name="FillRectangle"
+                                    Opacity="0.1"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    />
+                            <ContentPresenter
+                                    Margin="3"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Content="{TemplateBinding Content}" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="FillRectangle" Property="Fill" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 </ResourceDictionary>

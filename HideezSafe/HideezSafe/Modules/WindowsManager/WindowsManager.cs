@@ -1,20 +1,30 @@
-﻿using HideezSafe.Mvvm;
+﻿using HideezSafe.Modules.ActionHandler;
+using HideezSafe.Mvvm;
 using HideezSafe.ViewModels;
 using HideezSafe.Views;
 using NLog;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Linq;
 using System.Windows.Threading;
+using HideezSafe.Models;
 
 namespace HideezSafe.Modules
 {
     class WindowsManager : IWindowsManager
     {
+        private string titleNotification;
+        private readonly INotifier notifier;
         private readonly Logger log = LogManager.GetCurrentClassLogger();
         private bool isMainWindowVisible;
 
         public event EventHandler<bool> MainWindowVisibleChanged;
+
+        public WindowsManager(INotifier notifier)
+        {
+            this.notifier = notifier;
+        }
 
         public void ActivateMainWindow()
         {
@@ -114,7 +124,7 @@ namespace HideezSafe.Modules
             }
         }
 
-        public void ShowDialogAddCredential(DeviceViewModel device)
+        public void ShowDialogAddCredential(Device device)
         {
             var addCredentialWindow = new AddCredentialView();
             addCredentialWindow.Owner = MainWindow;
@@ -125,16 +135,69 @@ namespace HideezSafe.Modules
             addCredentialWindow.ShowDialog();
         }
 
-        public void ShowError(string message)
+        public void ShowError(string message, string title = null)
         {
-            var title = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
-            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+            if (UIDispatcher.CheckAccess())
+            {
+                notifier.ShowError(title ?? GetTitle(), message);
+            }
+            else
+            {
+                // Do non UI Thread stuff
+                UIDispatcher.Invoke(() => notifier.ShowError(title ?? GetTitle(), message));
+            }
+            // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        public void ShowWarning(string message)
+        public void ShowWarn(string message, string title = null)
         {
-            var title = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
-            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+            if (UIDispatcher.CheckAccess())
+            {
+                notifier.ShowWarn(title ?? GetTitle(), message);
+            }
+            else
+            {
+                // Do non UI Thread stuff
+                UIDispatcher.Invoke(() => notifier.ShowWarn(title ?? GetTitle(), message));
+            }
+            // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        public void ShowInfo(string message, string title = null)
+        {
+            if (UIDispatcher.CheckAccess())
+            {
+                notifier.ShowInfo(title ?? GetTitle(), message);
+            }
+            else
+            {
+                // Do non UI Thread stuff
+                UIDispatcher.Invoke(() => notifier.ShowInfo(title ?? GetTitle(), message));
+            }
+            // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private string GetTitle()
+        {
+            if(titleNotification == null)
+            {
+                titleNotification = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
+            }
+
+            return titleNotification;
+        }
+
+        public Task<Account> SelectAccountAsync(Account[] accounts)
+        {
+            if (UIDispatcher.CheckAccess())
+            {
+                return notifier.SelectAccountAsync(accounts);
+            }
+            else
+            {
+                // Do non UI Thread stuff
+                return UIDispatcher.Invoke(() => notifier.SelectAccountAsync(accounts));
+            }
         }
     }
 }

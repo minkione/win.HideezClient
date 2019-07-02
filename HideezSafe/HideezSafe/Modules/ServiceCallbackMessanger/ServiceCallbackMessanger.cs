@@ -76,5 +76,11 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
             log.Info($"Remote ({serialNo}) battery changed to {battery}");
             messenger.Send(new Remote_BatteryChangedMessage(serialNo, battery));
         }
+
+        public void RemoteConnection_StorageModified(string serialNo)
+        {
+            log.Info($"Remote ({serialNo}) storage modified");
+            messenger.Send(new Remote_StorageModifiedMessage(serialNo));
+        }
     }
 }

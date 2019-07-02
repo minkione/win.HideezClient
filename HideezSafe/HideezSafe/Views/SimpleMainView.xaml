@@ -18,6 +18,7 @@
     DataContext="{Binding Main, Mode=OneWay, Source={StaticResource Locator}}"
     TitleCharacterCasing="Normal"
     Visibility="Hidden"
+    WindowStartupLocation="CenterScreen"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     mc:Ignorable="d">
 

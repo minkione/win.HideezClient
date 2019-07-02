@@ -89,6 +89,9 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void RemoteConnection_BatteryChanged(string serialNo, int battery);
+
+        [OperationContract(IsOneWay = true)]
+        void RemoteConnection_StorageModified(string serialNo);
     }
 
     public enum Adapter

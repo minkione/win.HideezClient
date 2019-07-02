@@ -14,6 +14,8 @@ namespace HideezSafe.Models.Settings
             IsFirstLaunch = true;
             LaunchApplicationOnStartup = false;
             SelectedUiLanguage = "en-us";
+            AddEnterAfterInput = false;
+            LimitPasswordEntry = false;
         }
 
         /// <summary>
@@ -30,6 +32,8 @@ namespace HideezSafe.Models.Settings
             IsFirstLaunch = copy.IsFirstLaunch;
             LaunchApplicationOnStartup = copy.LaunchApplicationOnStartup;
             SelectedUiLanguage = copy.SelectedUiLanguage;
+            AddEnterAfterInput = copy.AddEnterAfterInput;
+            LimitPasswordEntry = copy.LimitPasswordEntry;
         }
 
         [Setting]
@@ -43,6 +47,12 @@ namespace HideezSafe.Models.Settings
 
         [Setting]
         public string SelectedUiLanguage { get; set; }
+
+        [Setting]
+        public bool AddEnterAfterInput { get; set; }
+
+        [Setting]
+        public bool LimitPasswordEntry { get; set; }
 
         public override object Clone()
         {
