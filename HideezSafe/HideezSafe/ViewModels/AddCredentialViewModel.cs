@@ -99,13 +99,13 @@ namespace HideezSafe.ViewModels
         {
             if (string.IsNullOrWhiteSpace(SelectedLogin))
             {
-                windowsManager.ShowWarn($"Login cannot be empty");
+                windowsManager.ShowWarn($"Login cannot be empty. Please, enter PC login.");
                 return;
             }
 
             if (view.passwordBox.SecurePassword.Length == 0)
             {
-                windowsManager.ShowWarn($"Password cannot be empty");
+                windowsManager.ShowWarn($"Password cannot be empty. Please, enter PC password.");
                 return;
             }
 
@@ -117,8 +117,11 @@ namespace HideezSafe.ViewModels
             {
                 try
                 {
+                    if (!Device.IsConnected)
+                        throw new Exception("Remote device is not connected");
+
                     if (!Device.IsInitialized)
-                        throw new ArgumentNullException("Remote device is not initialized");
+                        throw new Exception("Remote device is not initialized");
 
                     await Device.PasswordManager.SavePcUnlockCredentials(login, pass);
                     IsInProgress = false;
