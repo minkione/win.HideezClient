@@ -3,6 +3,7 @@ using HideezSafe.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -11,6 +12,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -24,9 +26,13 @@ namespace HideezSafe.Views
     /// </summary>
     public partial class NotificationsContainerWindow : Window
     {
-        public NotificationsContainerWindow()
+        private readonly Screen screen;
+
+        public NotificationsContainerWindow(Screen screen)
         {
             InitializeComponent();
+
+            this.screen = screen;
 
             if (notifyItems.Items is INotifyCollectionChanged notifyCollectionChanged)
             {
@@ -74,27 +80,46 @@ namespace HideezSafe.Views
 
         #region PrimaryScreen
 
-        private double ScreenHeight => SystemParameters.PrimaryScreenHeight;
-        private double ScreenWidth => SystemParameters.PrimaryScreenWidth;
-        private double WorkAreaHeight => SystemParameters.WorkArea.Height;
-        private double WorkAreaWidth => SystemParameters.WorkArea.Width;
+        private double ScreenHeight => screen.Bounds.Height;
+        private double ScreenWidth => screen.Bounds.Width;
+        private double WorkAreaHeight => screen.WorkingArea.Height;
+        private double WorkAreaWidth => screen.WorkingArea.Width;
 
         private (double X, double Y) GetPositionForBottomRightCorner(double actualWidth, double actualHeight)
         {
-            double pointX = WorkAreaWidth - actualWidth;
-            double pointY = WorkAreaHeight - actualHeight;
+            var dpiTransform = GetDpiTransform();
+            double width = actualWidth * dpiTransform.X;
+            double height = actualHeight * dpiTransform.Y;
 
-            if (SystemParameters.WorkArea.Left > 0)
+            double pointX = screen.Bounds.X + WorkAreaWidth - width;
+            double pointY = screen.Bounds.Y + WorkAreaHeight - height;
+
+            if (screen.WorkingArea.Left > 0)
             {
-                pointX = ScreenWidth - actualWidth;
+                pointX = ScreenWidth - width;
             }
 
-            if (SystemParameters.WorkArea.Top > 0)
+            if (screen.WorkingArea.Top > 0)
             {
-                pointY = ScreenHeight - actualHeight;
+                pointY = ScreenHeight - height;
             }
 
-            return (pointX, pointY);
+            return (pointX / dpiTransform.X, pointY / dpiTransform.Y);
+        }
+
+        private (double X, double Y) GetDpiTransform()
+        {
+            PresentationSource source = PresentationSource.FromVisual(this);
+
+            double dpiXFactor = 1;
+            double dpiYFactor = 1;
+            if (source != null)
+            {
+                dpiXFactor = source.CompositionTarget.TransformToDevice.M11;
+                dpiYFactor = source.CompositionTarget.TransformToDevice.M22;
+            }
+
+            return (dpiXFactor, dpiYFactor);
         }
 
         #endregion PrimaryScreen

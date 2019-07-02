@@ -20,6 +20,6 @@ namespace HideezSafe.Modules
         void ShowInfo(string message, string title = null);
         void ShowWarn(string message, string title = null);
         void ShowError(string message, string title = null);
-        Task<Account> SelectAccountAsync(Account[] accounts);
+        Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd);
     }
 }

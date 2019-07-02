@@ -178,7 +178,7 @@ namespace HideezSafe
             Container.RegisterType<IndicatorsViewModel>();
             Container.RegisterType<DevicesExpanderViewModel>();
             Container.RegisterType<AddCredentialViewModel>();
-            Container.RegisterType<NotificationsContainerViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<NotificationsContainerViewModel>();
 
             #endregion ViewModels
 

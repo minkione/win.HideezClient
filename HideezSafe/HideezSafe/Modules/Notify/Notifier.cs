@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -19,13 +20,7 @@ namespace HideezSafe.Modules
     class Notifier : INotifier
     {
         private bool isInitialised;
-        private readonly NotificationsContainerViewModel notificationsContainer;
-        private NotificationsContainerWindow notificationsWindow;
-
-        public Notifier(NotificationsContainerViewModel notificationsContainer)
-        {
-            this.notificationsContainer = notificationsContainer;
-        }
+        private Dictionary<Screen, NotificationsContainerWindow> windowsForNotifications;
 
         public void ShowInfo(string title, string message, NotificationOptions options = null)
         {
@@ -45,29 +40,66 @@ namespace HideezSafe.Modules
         private void ShowSimpleNotification(string title, string message, NotificationOptions options, SimpleNotificationType notificationType)
         {
             if (!isInitialised)
-                Initialise();
-
-            SimpleNotification notification = new SimpleNotification(options ?? new NotificationOptions(), notificationType)
             {
-                DataContext = new SimpleNotificationViewModel { Title = title, Message = message, }
-            };
-            notificationsContainer.AddNotification(notification);
+                Initialise();
+            }
+
+            Update();
+
+            foreach (var window in windowsForNotifications.Values.ToArray())
+            {
+                SimpleNotification notification = new SimpleNotification(options ?? new NotificationOptions(), notificationType)
+                {
+                    DataContext = new SimpleNotificationViewModel { Title = title, Message = message, }
+                };
+                (window.DataContext as NotificationsContainerViewModel)?.AddNotification(notification);
+            }
         }
 
         private void Initialise()
         {
-            if (notificationsWindow == null)
+            if (windowsForNotifications == null)
             {
-                notificationsWindow = new NotificationsContainerWindow();
-                notificationsWindow.Show();
+                windowsForNotifications = new Dictionary<Screen, NotificationsContainerWindow>();
+
+                foreach (var screen in Screen.AllScreens)
+                {
+                    var window = new NotificationsContainerWindow(screen);
+                    window.Show();
+                    windowsForNotifications[screen] = window;
+                }
+
                 isInitialised = true;
             }
         }
 
-        public async Task<Account> SelectAccountAsync(Account[] accounts)
+        private void Update()
+        {
+            foreach (var screen in windowsForNotifications.Keys.Except(Screen.AllScreens).ToArray())
+            {
+                if (windowsForNotifications.TryGetValue(screen, out NotificationsContainerWindow window))
+                {
+                    window.Close();
+                }
+                windowsForNotifications.Remove(screen);
+            }
+
+            foreach (var screen in Screen.AllScreens.Except(windowsForNotifications.Keys).ToArray())
+            {
+                var window = new NotificationsContainerWindow(screen);
+                window.Show();
+                windowsForNotifications[screen] = window;
+            }
+        }
+
+        public async Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd)
         {
             if (!isInitialised)
+            {
                 Initialise();
+            }
+
+            Update();
 
             TaskCompletionSource<bool> taskCompletionSourceForDialog = new TaskCompletionSource<bool>();
 
@@ -76,7 +108,9 @@ namespace HideezSafe.Modules
             {
                 DataContext = viewModel,
             };
-            notificationsContainer.AddNotification(notification, true);
+
+            windowsForNotifications.TryGetValue(Screen.FromHandle(hwnd), out NotificationsContainerWindow window);
+            (window.DataContext as NotificationsContainerViewModel)?.AddNotification(notification, true);
 
             bool dialogResalt = await taskCompletionSourceForDialog.Task;
             if (dialogResalt)

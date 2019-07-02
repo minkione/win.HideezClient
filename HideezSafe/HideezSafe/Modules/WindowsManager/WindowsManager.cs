@@ -186,17 +186,17 @@ namespace HideezSafe.Modules
 
             return titleNotification;
         }
-
-        public Task<Account> SelectAccountAsync(Account[] accounts)
+        
+        public Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd)
         {
             if (UIDispatcher.CheckAccess())
             {
-                return notifier.SelectAccountAsync(accounts);
+                return notifier.SelectAccountAsync(accounts, hwnd);
             }
             else
             {
                 // Do non UI Thread stuff
-                return UIDispatcher.Invoke(() => notifier.SelectAccountAsync(accounts));
+                return UIDispatcher.Invoke(() => notifier.SelectAccountAsync(accounts, hwnd));
             }
         }
     }

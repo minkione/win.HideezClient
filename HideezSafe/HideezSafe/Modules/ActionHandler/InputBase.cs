@@ -101,7 +101,7 @@ namespace HideezSafe.Modules.ActionHandler
                         Account selectedAccount = null;
                         try
                         {
-                            selectedAccount = await windowsManager.SelectAccountAsync(accounts);
+                            selectedAccount = await windowsManager.SelectAccountAsync(accounts, inputCache.WindowHandle);
 
                             if (selectedAccount != null)
                             {
