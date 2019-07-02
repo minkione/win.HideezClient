@@ -1,4 +1,4 @@
-﻿using Hideez.ARS;
+﻿using Hideez.ARM;
 using Hideez.ISM;
 using HideezSafe.Models;
 using HideezSafe.Models.Settings;

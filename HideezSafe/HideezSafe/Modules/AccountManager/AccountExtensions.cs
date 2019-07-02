@@ -1,4 +1,4 @@
-﻿using Hideez.ARS;
+﻿using Hideez.ARM;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezSafe.Models;
 using System;

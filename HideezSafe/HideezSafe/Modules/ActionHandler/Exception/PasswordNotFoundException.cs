@@ -1,4 +1,4 @@
-﻿using Hideez.ARS;
+﻿using Hideez.ARM;
 
 namespace HideezSafe.Modules.ActionHandler
 {

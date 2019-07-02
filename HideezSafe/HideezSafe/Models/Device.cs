@@ -10,6 +10,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -150,13 +151,9 @@ namespace HideezSafe.Models
                         {
                             _log.Info($"Device ({SerialNo}), establishing remote device connection");
                             _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, AUTH_CHANNEL);
-                            if (_remoteDevice == null)
-                            {
-                                if (IsInitializing)
-                                    await Task.Delay(RETRY_DELAY);
 
+                            if (_remoteDevice == null)
                                 continue;
-                            }
 
                             await _remoteDevice.Authenticate(AUTH_CHANNEL, null);
                             await _remoteDevice.WaitAuthentication(AUTH_WAIT);
@@ -190,10 +187,16 @@ namespace HideezSafe.Models
                             IsInitialized = true;
                             break;
                         }
+                        catch (FaultException<HideezServiceFault> ex)
+                        {
+                            _log.Error(ex.FormattedMessage());
+                        }
                         catch (Exception ex)
                         {
                             _log.Error(ex);
-
+                        }
+                        finally
+                        {
                             if (IsInitializing)
                                 await Task.Delay(RETRY_DELAY);
                         }

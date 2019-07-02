@@ -1,9 +1,11 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Remote;
+using HideezSafe.HideezServiceReference;
 using HideezSafe.Messages.Remote;
 using HideezSafe.Modules.ServiceProxy;
 using System;
+using System.ServiceModel;
 using System.Threading.Tasks;
 
 namespace HideezSafe.Modules
@@ -34,19 +36,41 @@ namespace HideezSafe.Modules
 
         public async Task ResetChannel()
         {
-            await _serviceProxy.GetService().RemoteConnection_ResetChannelAsync(RemoteDevice.DeviceId);
+            try
+            {
+                await _serviceProxy.GetService().RemoteConnection_ResetChannelAsync(RemoteDevice.DeviceId);
+            }
+            catch (FaultException<HideezServiceFault> ex)
+            {
+                throw ex.InnerException;
+            }
         }
 
         public async Task SendAuthCommand(byte[] data)
         {
-            var response = await _serviceProxy.GetService().RemoteConnection_AuthCommandAsync(RemoteDevice.DeviceId, data);
-            RemoteDevice.OnAuthResponse(response);
+            try
+            {
+                var response = await _serviceProxy.GetService().RemoteConnection_AuthCommandAsync(RemoteDevice.DeviceId, data);
+                RemoteDevice.OnAuthResponse(response);
+            }
+            catch (FaultException<HideezServiceFault> ex)
+            {
+                throw ex.InnerException;
+            }
+
         }
 
         public async Task SendRemoteCommand(byte[] data)
         {
-            var response = await _serviceProxy.GetService().RemoteConnection_RemoteCommandAsync(RemoteDevice.DeviceId, data);
-            RemoteDevice.OnCommandResponse(response);
+            try
+            {
+                var response = await _serviceProxy.GetService().RemoteConnection_RemoteCommandAsync(RemoteDevice.DeviceId, data);
+                RemoteDevice.OnCommandResponse(response);
+            }
+            catch (FaultException<HideezServiceFault> ex)
+            {
+                throw ex.InnerException;
+            }
         }
 
         void OnRssiReceivedMessage(Remote_RssiReceivedMessage msg)

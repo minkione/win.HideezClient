@@ -17,6 +17,8 @@ using NLog.Layouts;
 using System.Threading.Tasks;
 using HideezSafe.Models;
 using HideezSafe.Modules.ServiceProxy;
+using HideezSafe.HideezServiceReference;
+using System.ServiceModel;
 
 namespace HideezSafe.Modules
 {
@@ -169,6 +171,10 @@ namespace HideezSafe.Modules
                     if (result == MessageBoxResult.Yes)
                         await serviceProxy.GetService().DisconnectDeviceAsync(device.Id);
                 }
+                catch (FaultException<HideezServiceFault> ex)
+                {
+                    windowsManager.ShowError(ex.Message);
+                }
                 catch (Exception ex)
                 {
                     windowsManager.ShowError(ex.Message);
@@ -190,6 +196,10 @@ namespace HideezSafe.Modules
 
                     if (result == MessageBoxResult.Yes)
                         await serviceProxy.GetService().RemoveDeviceAsync(device.Id);
+                }
+                catch (FaultException<HideezServiceFault> ex)
+                {
+                    windowsManager.ShowError(ex.Message);
                 }
                 catch (Exception ex)
                 {

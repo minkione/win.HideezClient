@@ -22,15 +22,13 @@ namespace HideezSafe.ViewModels
 {
     class AddCredentialViewModel : ObservableObject
     {
-        private readonly IServiceProxy serviceProxy;
         private readonly IWindowsManager windowsManager;
 
         private string selectedLogin;
         private bool isInProgress;
 
-        public AddCredentialViewModel(IServiceProxy serviceProxy, IWindowsManager windowsManager)
+        public AddCredentialViewModel(IWindowsManager windowsManager)
         {
-            this.serviceProxy = serviceProxy;
             this.windowsManager = windowsManager;
             Logins = new ObservableCollection<string>(GetAllUserNames());
         }

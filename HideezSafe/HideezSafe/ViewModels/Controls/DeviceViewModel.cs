@@ -14,12 +14,10 @@ namespace HideezSafe.ViewModels
         private readonly Device device;
         readonly ILogger _log = LogManager.GetCurrentClassLogger();
         readonly IWindowsManager _windowsManager;
-        readonly IServiceProxy _serviceProxy;
 
-        public DeviceViewModel(Device device, IWindowsManager windowsManager, IServiceProxy serviceProxy, IMenuFactory menuFactory)
+        public DeviceViewModel(Device device, IWindowsManager windowsManager, IMenuFactory menuFactory)
         {
             _windowsManager = windowsManager;
-            _serviceProxy = serviceProxy;
             this.device = device;
             device.PropertyChanged += (sender, e) => RaisePropertyChanged(e.PropertyName);
 

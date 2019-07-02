@@ -12,6 +12,7 @@ using NLog;
 using System.Linq;
 using Hideez.SDK.Communication.Remote;
 using HideezSafe.Models;
+using System.ServiceModel;
 
 namespace HideezSafe.Modules.DeviceManager
 {
@@ -158,6 +159,10 @@ namespace HideezSafe.Modules.DeviceManager
                     missingDevices = Devices.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
                 }
                 RemoveDevices(missingDevices);
+            }
+            catch (FaultException<HideezServiceFault> ex)
+            {
+                _log.Error(ex.FormattedMessage());
             }
             catch (Exception ex)
             {
