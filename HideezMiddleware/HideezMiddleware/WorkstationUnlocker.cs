@@ -8,6 +8,7 @@ using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
 
 namespace HideezMiddleware
@@ -137,7 +138,7 @@ namespace HideezMiddleware
         {
             try
             {
-                if (e.Rssi > -25)
+                if (e.Rssi > -27)
                 {
                     var newGuid = Guid.NewGuid();
                     var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);
@@ -186,7 +187,7 @@ namespace HideezMiddleware
 
 
                 await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
-                ushort primaryAccountKey = await GetPrimaryAccountKey(device);
+                ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
                 var credentials = await GetCredentials(device, primaryAccountKey);
 
                 // send credentials to the Credential Provider to unlock the PC
@@ -279,26 +280,6 @@ namespace HideezMiddleware
             }
 
             throw new Exception($"Update of the primary account has been timed out");
-        }
-
-        static async Task<ushort> GetPrimaryAccountKey(IDeviceStorage storage)
-        {
-            string primaryAccountKeyString = await storage.ReadStorageAsString((byte)StorageTable.Config, (ushort)StorageConfigItem.PrimaryAccountKey);
-            if (string.IsNullOrEmpty(primaryAccountKeyString))
-                return 0;
-
-            try
-            {
-                ushort primaryAccountKey = Convert.ToUInt16(primaryAccountKeyString);
-                return primaryAccountKey;
-            }
-            catch (FormatException)
-            {
-            }
-            catch (OverflowException)
-            {
-            }
-            return 0;
         }
 
         async Task<Credentials> GetCredentials(IDevice device, ushort key)

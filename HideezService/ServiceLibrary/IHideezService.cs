@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary
@@ -29,40 +28,32 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        DeviceDTO[] GetPairedDevices();
+        DeviceDTO[] GetDevices();
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void EnableMonitoringProximity(string deviceId);
+        void DisconnectDevice(string id);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void DisableMonitoringProximity(string deviceId);
+        Task RemoveDeviceAsync(string id);
+
+        // Remote device connection
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        Task<string> EstablishRemoteDeviceConnection(string serialNo, byte channelNo);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void EnableMonitoringDeviceProperties(string deviceId);
+        Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void DisableMonitoringDeviceProperties(string deviceId);
-
-        // Contract is only for testconsole and hostservice
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        void OnSessionChange(bool sessionLocked);
+        Task<byte[]> RemoteConnection_RemoteCommandAsync(string connectionId, byte[] data);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        Task SaveCredentialAsync(string deviceId, string login, string password);
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        void DisconnectDevice(string deviceId);
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        Task RemoveDeviceAsync(string deviceId);
+        Task RemoteConnection_ResetChannelAsync(string connectionId);
     }
 
     public interface ICallbacks
@@ -73,6 +64,7 @@ namespace ServiceLibrary
         [OperationContract(IsOneWay = true)]
         void ActivateWorkstationScreenRequest();
 
+
         [OperationContract(IsOneWay = true)]
         void HESConnectionStateChanged(bool isConnected);
 
@@ -82,14 +74,21 @@ namespace ServiceLibrary
         [OperationContract(IsOneWay = true)]
         void DongleConnectionStateChanged(bool isConnected);
 
-        [OperationContract(IsOneWay = true)]
-        void PairedDevicesCollectionChanged(DeviceDTO[] devices);
 
         [OperationContract(IsOneWay = true)]
-        void PairedDevicePropertyChanged(DeviceDTO device);
+        void DevicesCollectionChanged(DeviceDTO[] devices);
 
         [OperationContract(IsOneWay = true)]
-        void ProximityChanged(string deviceId, double proximity);
+        void DeviceConnectionStateChanged(DeviceDTO device);
+
+        [OperationContract(IsOneWay = true)]
+        void DeviceInitialized(DeviceDTO device);
+
+        [OperationContract(IsOneWay = true)]
+        void RemoteConnection_RssiReceived(string serialNo, double rssi);
+
+        [OperationContract(IsOneWay = true)]
+        void RemoteConnection_BatteryChanged(string serialNo, int battery);
     }
 
     public enum Adapter

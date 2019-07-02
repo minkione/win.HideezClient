@@ -150,10 +150,7 @@ namespace HideezSafe
 
         private void OnFirstLaunch()
         {
-            logger.Info("First launch");
-            // add to startup with windows if first start app
-            bool resalt = startupHelper.AddToStartup();
-            logger.Info("Add app to startup: {0}", resalt);
+            logger.Info("First Hideez Safe 3 launch");
         }
 
         private void InitializeDIContainer()
@@ -174,6 +171,7 @@ namespace HideezSafe
             Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IDeviceManager, DeviceManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ISessionStateMonitor, SessionStateMonitor>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IRemoteDeviceFactory, RemoteDeviceFactory>(new ContainerControlledLifetimeManager());
 
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());

@@ -1,11 +1,9 @@
 ﻿using Microsoft.Win32;
-using ServiceLibrary;
 using ServiceLibrary.Implementation;
 using System;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Threading;
-using System.Threading.Tasks;
 using TestConsole.HideezServiceReference;
 
 namespace TestConsole
@@ -100,9 +98,8 @@ namespace TestConsole
                 service = new HideezServiceClient(instanceContext);
                 await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.TestConsole });
 
-                // Disconnect is no longer possible, we need to maintain connection with the service we 
-                // are hosting to notify about session change
-                //service.Close();
+                // Disconnect from service
+                service.Close();
             }
             catch (Exception ex)
             {
@@ -112,15 +109,28 @@ namespace TestConsole
 
         protected static void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
-            if (e.Reason == SessionSwitchReason.SessionLock)
+            try
             {
-                // Session locked
-                service?.OnSessionChange(true);
+                switch (e.Reason)
+                {
+                    case SessionSwitchReason.SessionLock:
+                    case SessionSwitchReason.SessionLogoff:
+                        // Session locked
+                        HideezService.OnSessionChange(true);
+                        break;
+                    case SessionSwitchReason.SessionUnlock:
+                    case SessionSwitchReason.SessionLogon:
+                        // Session unlocked
+                        HideezService.OnSessionChange(false);
+                        break;
+                    default:
+                        return;
+
+                }
             }
-            else if (e.Reason == SessionSwitchReason.SessionUnlock)
+            catch (Exception ex)
             {
-                // Session unlocked
-                service?.OnSessionChange(false);
+                ServiceLibrary.Implementation.HideezService.LogException(ex);
             }
         }
     }

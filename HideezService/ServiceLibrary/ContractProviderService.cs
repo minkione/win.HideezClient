@@ -20,37 +20,22 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public void DisableMonitoringDeviceProperties(string deviceId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DisableMonitoringProximity(string deviceId)
-        {
-            throw new NotImplementedException();
-        }
-
         public void DisconnectDevice(string deviceId)
         {
             throw new NotImplementedException();
         }
 
-        public void EnableMonitoringDeviceProperties(string deviceId)
+        public Task<string> EstablishRemoteDeviceConnection(string mac, byte channelNo)
         {
             throw new NotImplementedException();
         }
 
-        public void EnableMonitoringProximity(string deviceId)
+        public bool GetAdapterState(Adapter adapter)
         {
             throw new NotImplementedException();
         }
 
-        public bool GetAdapterState(Adapter addapter)
-        {
-            throw new NotImplementedException();
-        }
-
-        public DeviceDTO[] GetPairedDevices()
+        public DeviceDTO[] GetDevices()
         {
             throw new NotImplementedException();
         }
@@ -65,7 +50,17 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public Task SaveCredentialAsync(string deviceId, string login, string password)
+        public Task<byte[]> RemoteConnection_AuthCommandAsync(string serialNo, byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<byte[]> RemoteConnection_RemoteCommandAsync(string serialNo, byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoteConnection_ResetChannelAsync(string connectionId)
         {
             throw new NotImplementedException();
         }

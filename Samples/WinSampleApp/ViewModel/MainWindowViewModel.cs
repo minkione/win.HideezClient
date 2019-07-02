@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -13,6 +15,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.LongOperations;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezMiddleware;
+using Microsoft.Win32;
 
 namespace WinSampleApp.ViewModel
 {
@@ -98,6 +101,61 @@ namespace WinSampleApp.ViewModel
 
 
         #region Commands
+
+        public ICommand LinkDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        LinkDevice(CurrentDevice);
+                    }
+                };
+            }
+        }
+
+        public ICommand StorageKeyDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        StorageKeyDevice(CurrentDevice);
+                    }
+                };
+            }
+        }
+
+        public ICommand WipeDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        WipeDevice(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         public ICommand ConnectHesCommand
         {
             get
@@ -147,6 +205,25 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         UnlockByRfid();
+                    }
+                };
+            }
+        }
+
+
+        public ICommand BleAdapterResetCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return true;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        ResetBleAdapter();
                     }
                 };
             }
@@ -460,8 +537,6 @@ namespace WinSampleApp.ViewModel
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, 
                 _credentialProviderConnection, _rfidService, _connectionManager, null, _log);
 
-
-            _connectionManager.Start();
             _connectionManager.StartDiscovery();
         }
 
@@ -527,7 +602,6 @@ namespace WinSampleApp.ViewModel
         {
             if (_hesConnection != null)
                 await _hesConnection.Stop();
-            _connectionManager?.Stop();
             _rfidService?.Stop();
             _credentialProviderConnection?.Stop();
         }
@@ -537,10 +611,15 @@ namespace WinSampleApp.ViewModel
             Application.Current.Dispatcher.Invoke(() =>
             {
                 if (e.AddedDevice != null)
-                    Devices.Add(new DeviceViewModel(e.AddedDevice));
+                {
+                    var deviceViewModel = new DeviceViewModel(e.AddedDevice);
+                    Devices.Add(deviceViewModel);
+                    if (CurrentDevice == null)
+                        CurrentDevice = deviceViewModel;
+                }
                 else if (e.RemovedDevice != null)
                 {
-                    var item = Devices.FirstOrDefault(x => x.Id == e.RemovedDevice.Id && 
+                    var item = Devices.FirstOrDefault(x => x.Id == e.RemovedDevice.Id &&
                                                            x.ChannelNo == e.RemovedDevice.ChannelNo);
 
                     if (item != null)
@@ -585,6 +664,11 @@ namespace WinSampleApp.ViewModel
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
             NotifyPropertyChanged(nameof(BleAdapterState));
+        }
+
+        void ResetBleAdapter()
+        {
+            _connectionManager.Restart();
         }
 
         void StartDiscovery()
@@ -684,25 +768,55 @@ namespace WinSampleApp.ViewModel
             {
                 var readResult = await device.Device.ReadStorage(35, 15);
 
-                var pm = new DevicePasswordManager((IDeviceStorage)device.Device);
+                var pm = new DevicePasswordManager(device.Device, _log);
+
+                // array of records
+                //for (int i = 0; i < 100; i++)
+                //{
+                //    var account = new AccountRecord()
+                //    {
+                //        Key = 0,
+                //        Name = $"My Google Account {i}",
+                //        Login = $"admin_{i}@hideez.com",
+                //        Password = $"my_password_{i}",
+                //        OtpSecret = $"asdasd_{i}",
+                //        Apps = $"12431412412342134_{i}",
+                //        Urls = $"www.hideez.com;www.google.com_{i}",
+                //        IsPrimary = i == 0
+                //    };
+
+                //    var key = await pm.SaveOrUpdateAccount(account.Key, account.Flags, account.Name,
+                //        account.Password, account.Login, account.OtpSecret,
+                //        account.Apps, account.Urls,
+                //        account.IsPrimary);
+
+                //    Debug.WriteLine($"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Writing {i} account");
+                //}
+
+
+                // single record
                 var account = new AccountRecord()
                 {
-                    Key = 15,
-                    Name = "My Google Account",
-                    Login = "admin@hideez.com",
-                    Password = "my_password",
-                    OtpSecret = "asdasd",
-                    Apps = "12431412412342134",
-                    Urls = "asdfasdfasdfasdfasdfasfds",
-                    IsPrimary = false
+                    Key = 1,
+                    Name = $"My Google Account 0",
+                    Login = $"admin_0@hideez.com",
+                    Password = $"my_password_0",
+                    OtpSecret = $"asdasd_0",
+                    Apps = $"12431412412342134_0",
+                    Urls = $"www.hideez.com;www.google.com_0",
+                    IsPrimary = true
                 };
 
-                var key = await pm.SaveOrUpdateAccount(account.Key, account.Flags, account.Name, 
-                    account.Password, account.Login, account.OtpSecret, 
+                var key = await pm.SaveOrUpdateAccount(account.Key, account.Name,
+                    account.Password, account.Login, account.OtpSecret,
                     account.Apps, account.Urls,
-                    account.IsPrimary);
+                    account.IsPrimary 
+                    //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6) 
+                    //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6)
+                    );
 
-                //await pm.SavePcUnlockCredentials("", "");
+                // load 
+                await pm.Load();
             }
             catch (Exception ex)
             {
@@ -801,9 +915,51 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                var lo = new LongOperation(1);
-                var fu = new FirmwareImageUploader(@"d:\fw\HK3_fw_v3.0.2.img", _log);
-                await fu.RunAsync(false, device.Device, lo);
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    var lo = new LongOperation(1);
+                    //var fu = new FirmwareImageUploader(@"d:\fw\HK3_fw_v3.0.2.img", _log);
+                    var fu = new FirmwareImageUploader(openFileDialog.FileName, _log);
+                    
+                    await fu.RunAsync(false, device.Device, lo);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void LinkDevice(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.Link(Encoding.UTF8.GetBytes("passphrase"));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void StorageKeyDevice(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.StorageKey(Encoding.UTF8.GetBytes("passphrase"));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void WipeDevice(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.Wipe(Encoding.UTF8.GetBytes("passphrase"));
             }
             catch (Exception ex)
             {

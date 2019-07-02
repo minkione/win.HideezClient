@@ -86,68 +86,14 @@
   <wsdl:message name="IHideezService_GetAdapterState_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q5="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q5:HideezServiceFault" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_GetPairedDevices_InputMessage">
-    <wsdl:part name="parameters" element="tns:GetPairedDevices" />
+  <wsdl:message name="IHideezService_GetDevices_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetDevices" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_GetPairedDevices_OutputMessage">
-    <wsdl:part name="parameters" element="tns:GetPairedDevicesResponse" />
+  <wsdl:message name="IHideezService_GetDevices_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetDevicesResponse" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_GetPairedDevices_HideezServiceFaultFault_FaultMessage">
+  <wsdl:message name="IHideezService_GetDevices_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q6="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q6:HideezServiceFault" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_EnableMonitoringProximity_InputMessage">
-    <wsdl:part name="parameters" element="tns:EnableMonitoringProximity" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_EnableMonitoringProximity_OutputMessage">
-    <wsdl:part name="parameters" element="tns:EnableMonitoringProximityResponse" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_EnableMonitoringProximity_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q7="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q7:HideezServiceFault" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_DisableMonitoringProximity_InputMessage">
-    <wsdl:part name="parameters" element="tns:DisableMonitoringProximity" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_DisableMonitoringProximity_OutputMessage">
-    <wsdl:part name="parameters" element="tns:DisableMonitoringProximityResponse" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_DisableMonitoringProximity_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q8="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q8:HideezServiceFault" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_EnableMonitoringDeviceProperties_InputMessage">
-    <wsdl:part name="parameters" element="tns:EnableMonitoringDeviceProperties" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_EnableMonitoringDeviceProperties_OutputMessage">
-    <wsdl:part name="parameters" element="tns:EnableMonitoringDevicePropertiesResponse" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_EnableMonitoringDeviceProperties_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q9="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q9:HideezServiceFault" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_DisableMonitoringDeviceProperties_InputMessage">
-    <wsdl:part name="parameters" element="tns:DisableMonitoringDeviceProperties" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_DisableMonitoringDeviceProperties_OutputMessage">
-    <wsdl:part name="parameters" element="tns:DisableMonitoringDevicePropertiesResponse" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_DisableMonitoringDeviceProperties_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q10="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q10:HideezServiceFault" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_OnSessionChange_InputMessage">
-    <wsdl:part name="parameters" element="tns:OnSessionChange" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_OnSessionChange_OutputMessage">
-    <wsdl:part name="parameters" element="tns:OnSessionChangeResponse" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_OnSessionChange_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q11="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q11:HideezServiceFault" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_SaveCredential_InputMessage">
-    <wsdl:part name="parameters" element="tns:SaveCredential" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_SaveCredential_OutputMessage">
-    <wsdl:part name="parameters" element="tns:SaveCredentialResponse" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_SaveCredential_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q12="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q12:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_DisconnectDevice_InputMessage">
     <wsdl:part name="parameters" element="tns:DisconnectDevice" />
@@ -156,7 +102,7 @@
     <wsdl:part name="parameters" element="tns:DisconnectDeviceResponse" />
   </wsdl:message>
   <wsdl:message name="IHideezService_DisconnectDevice_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q13="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q13:HideezServiceFault" />
+    <wsdl:part xmlns:q7="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q7:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_RemoveDevice_InputMessage">
     <wsdl:part name="parameters" element="tns:RemoveDevice" />
@@ -165,7 +111,43 @@
     <wsdl:part name="parameters" element="tns:RemoveDeviceResponse" />
   </wsdl:message>
   <wsdl:message name="IHideezService_RemoveDevice_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q14="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q14:HideezServiceFault" />
+    <wsdl:part xmlns:q8="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q8:HideezServiceFault" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_EstablishRemoteDeviceConnection_InputMessage">
+    <wsdl:part name="parameters" element="tns:EstablishRemoteDeviceConnection" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_EstablishRemoteDeviceConnection_OutputMessage">
+    <wsdl:part name="parameters" element="tns:EstablishRemoteDeviceConnectionResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_EstablishRemoteDeviceConnection_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q9="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q9:HideezServiceFault" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_RemoteConnection_AuthCommand_InputMessage">
+    <wsdl:part name="parameters" element="tns:RemoteConnection_AuthCommand" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_RemoteConnection_AuthCommand_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RemoteConnection_AuthCommandResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_RemoteConnection_AuthCommand_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q10="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q10:HideezServiceFault" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_RemoteConnection_RemoteCommand_InputMessage">
+    <wsdl:part name="parameters" element="tns:RemoteConnection_RemoteCommand" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_RemoteConnection_RemoteCommand_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RemoteConnection_RemoteCommandResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_RemoteConnection_RemoteCommand_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q11="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q11:HideezServiceFault" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_RemoteConnection_ResetChannel_InputMessage">
+    <wsdl:part name="parameters" element="tns:RemoteConnection_ResetChannel" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_RemoteConnection_ResetChannel_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RemoteConnection_ResetChannelResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_RemoteConnection_ResetChannel_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q12="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q12:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_LockWorkstationRequest_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:LockWorkstationRequest" />
@@ -182,14 +164,20 @@
   <wsdl:message name="IHideezService_DongleConnectionStateChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:DongleConnectionStateChanged" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_PairedDevicesCollectionChanged_OutputCallbackMessage">
-    <wsdl:part name="parameters" element="tns:PairedDevicesCollectionChanged" />
+  <wsdl:message name="IHideezService_DevicesCollectionChanged_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:DevicesCollectionChanged" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_PairedDevicePropertyChanged_OutputCallbackMessage">
-    <wsdl:part name="parameters" element="tns:PairedDevicePropertyChanged" />
+  <wsdl:message name="IHideezService_DeviceConnectionStateChanged_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:DeviceConnectionStateChanged" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_ProximityChanged_OutputCallbackMessage">
-    <wsdl:part name="parameters" element="tns:ProximityChanged" />
+  <wsdl:message name="IHideezService_DeviceInitialized_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:DeviceInitialized" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_RemoteConnection_RssiReceived_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:RemoteConnection_RssiReceived" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_RemoteConnection_BatteryChanged_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:RemoteConnection_BatteryChanged" />
   </wsdl:message>
   <wsdl:portType msc:usingSession="true" name="IHideezService">
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AttachClient">
@@ -217,40 +205,10 @@
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/GetAdapterStateResponse" message="tns:IHideezService_GetAdapterState_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/GetAdapterStateHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_GetAdapterState_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="GetPairedDevices">
-      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/GetPairedDevices" message="tns:IHideezService_GetPairedDevices_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/GetPairedDevicesResponse" message="tns:IHideezService_GetPairedDevices_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/GetPairedDevicesHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_GetPairedDevices_HideezServiceFaultFault_FaultMessage" />
-    </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="EnableMonitoringProximity">
-      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/EnableMonitoringProximity" message="tns:IHideezService_EnableMonitoringProximity_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/EnableMonitoringProximityResponse" message="tns:IHideezService_EnableMonitoringProximity_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/EnableMonitoringProximityHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_EnableMonitoringProximity_HideezServiceFaultFault_FaultMessage" />
-    </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DisableMonitoringProximity">
-      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/DisableMonitoringProximity" message="tns:IHideezService_DisableMonitoringProximity_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DisableMonitoringProximityResponse" message="tns:IHideezService_DisableMonitoringProximity_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/DisableMonitoringProximityHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_DisableMonitoringProximity_HideezServiceFaultFault_FaultMessage" />
-    </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="EnableMonitoringDeviceProperties">
-      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/EnableMonitoringDeviceProperties" message="tns:IHideezService_EnableMonitoringDeviceProperties_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/EnableMonitoringDevicePropertiesResponse" message="tns:IHideezService_EnableMonitoringDeviceProperties_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/EnableMonitoringDevicePropertiesHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_EnableMonitoringDeviceProperties_HideezServiceFaultFault_FaultMessage" />
-    </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DisableMonitoringDeviceProperties">
-      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/DisableMonitoringDeviceProperties" message="tns:IHideezService_DisableMonitoringDeviceProperties_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DisableMonitoringDevicePropertiesResponse" message="tns:IHideezService_DisableMonitoringDeviceProperties_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/DisableMonitoringDevicePropertiesHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_DisableMonitoringDeviceProperties_HideezServiceFaultFault_FaultMessage" />
-    </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="OnSessionChange">
-      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/OnSessionChange" message="tns:IHideezService_OnSessionChange_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/OnSessionChangeResponse" message="tns:IHideezService_OnSessionChange_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/OnSessionChangeHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_OnSessionChange_HideezServiceFaultFault_FaultMessage" />
-    </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SaveCredential">
-      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/SaveCredential" message="tns:IHideezService_SaveCredential_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/SaveCredentialResponse" message="tns:IHideezService_SaveCredential_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/SaveCredentialHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_SaveCredential_HideezServiceFaultFault_FaultMessage" />
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="GetDevices">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/GetDevices" message="tns:IHideezService_GetDevices_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/GetDevicesResponse" message="tns:IHideezService_GetDevices_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/GetDevicesHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_GetDevices_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DisconnectDevice">
       <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/DisconnectDevice" message="tns:IHideezService_DisconnectDevice_InputMessage" />
@@ -261,6 +219,26 @@
       <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/RemoveDevice" message="tns:IHideezService_RemoveDevice_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoveDeviceResponse" message="tns:IHideezService_RemoveDevice_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/RemoveDeviceHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_RemoveDevice_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="EstablishRemoteDeviceConnection">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnection" message="tns:IHideezService_EstablishRemoteDeviceConnection_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnectionResponse" message="tns:IHideezService_EstablishRemoteDeviceConnection_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnectionHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_EstablishRemoteDeviceConnection_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_AuthCommand">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommand" message="tns:IHideezService_RemoteConnection_AuthCommand_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandResponse" message="tns:IHideezService_RemoteConnection_AuthCommand_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_RemoteConnection_AuthCommand_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_RemoteCommand">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommand" message="tns:IHideezService_RemoteConnection_RemoteCommand_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommandResponse" message="tns:IHideezService_RemoteConnection_RemoteCommand_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommandHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_RemoteConnection_RemoteCommand_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_ResetChannel">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannel" message="tns:IHideezService_RemoteConnection_ResetChannel_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannelResponse" message="tns:IHideezService_RemoteConnection_ResetChannel_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannelHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_RemoteConnection_ResetChannel_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="LockWorkstationRequest">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/LockWorkstationRequest" message="tns:IHideezService_LockWorkstationRequest_OutputCallbackMessage" />
@@ -277,14 +255,20 @@
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DongleConnectionStateChanged">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DongleConnectionStateChanged" message="tns:IHideezService_DongleConnectionStateChanged_OutputCallbackMessage" />
     </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="PairedDevicesCollectionChanged">
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/PairedDevicesCollectionChanged" message="tns:IHideezService_PairedDevicesCollectionChanged_OutputCallbackMessage" />
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DevicesCollectionChanged">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DevicesCollectionChanged" message="tns:IHideezService_DevicesCollectionChanged_OutputCallbackMessage" />
     </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="PairedDevicePropertyChanged">
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/PairedDevicePropertyChanged" message="tns:IHideezService_PairedDevicePropertyChanged_OutputCallbackMessage" />
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceConnectionStateChanged">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceConnectionStateChanged" message="tns:IHideezService_DeviceConnectionStateChanged_OutputCallbackMessage" />
     </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ProximityChanged">
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ProximityChanged" message="tns:IHideezService_ProximityChanged_OutputCallbackMessage" />
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceInitialized">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceInitialized" message="tns:IHideezService_DeviceInitialized_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_RssiReceived">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_RssiReceived" message="tns:IHideezService_RemoteConnection_RssiReceived_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_BatteryChanged">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_BatteryChanged" message="tns:IHideezService_RemoteConnection_BatteryChanged_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetNamedPipeBinding_IHideezService" type="tns:IHideezService">
@@ -351,80 +335,8 @@
         <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
-    <wsdl:operation name="GetPairedDevices">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/GetPairedDevices" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-      <wsdl:fault name="HideezServiceFaultFault">
-        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
-      </wsdl:fault>
-    </wsdl:operation>
-    <wsdl:operation name="EnableMonitoringProximity">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/EnableMonitoringProximity" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-      <wsdl:fault name="HideezServiceFaultFault">
-        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
-      </wsdl:fault>
-    </wsdl:operation>
-    <wsdl:operation name="DisableMonitoringProximity">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/DisableMonitoringProximity" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-      <wsdl:fault name="HideezServiceFaultFault">
-        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
-      </wsdl:fault>
-    </wsdl:operation>
-    <wsdl:operation name="EnableMonitoringDeviceProperties">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/EnableMonitoringDeviceProperties" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-      <wsdl:fault name="HideezServiceFaultFault">
-        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
-      </wsdl:fault>
-    </wsdl:operation>
-    <wsdl:operation name="DisableMonitoringDeviceProperties">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/DisableMonitoringDeviceProperties" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-      <wsdl:fault name="HideezServiceFaultFault">
-        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
-      </wsdl:fault>
-    </wsdl:operation>
-    <wsdl:operation name="OnSessionChange">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/OnSessionChange" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-      <wsdl:fault name="HideezServiceFaultFault">
-        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
-      </wsdl:fault>
-    </wsdl:operation>
-    <wsdl:operation name="SaveCredential">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/SaveCredential" style="document" />
+    <wsdl:operation name="GetDevices">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/GetDevices" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -449,6 +361,54 @@
     </wsdl:operation>
     <wsdl:operation name="RemoveDevice">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoveDevice" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="EstablishRemoteDeviceConnection">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnection" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="RemoteConnection_AuthCommand">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_AuthCommand" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="RemoteConnection_RemoteCommand">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommand" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="RemoteConnection_ResetChannel">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_ResetChannel" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -489,20 +449,32 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="PairedDevicesCollectionChanged">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/PairedDevicesCollectionChanged" style="document" />
+    <wsdl:operation name="DevicesCollectionChanged">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/DevicesCollectionChanged" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="PairedDevicePropertyChanged">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/PairedDevicePropertyChanged" style="document" />
+    <wsdl:operation name="DeviceConnectionStateChanged">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceConnectionStateChanged" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="ProximityChanged">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/ProximityChanged" style="document" />
+    <wsdl:operation name="DeviceInitialized">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceInitialized" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoteConnection_RssiReceived">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_RssiReceived" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoteConnection_BatteryChanged">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_BatteryChanged" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

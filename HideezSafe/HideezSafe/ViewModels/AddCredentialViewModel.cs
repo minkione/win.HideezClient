@@ -1,4 +1,5 @@
-﻿using HideezSafe.HideezServiceReference;
+﻿using Hideez.SDK.Communication.PasswordManager;
+using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules;
 using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Mvvm;
@@ -50,9 +51,7 @@ namespace HideezSafe.ViewModels
             }
         }
 
-        public string DeviceName { get; set; }
-
-        public string DeviceId { get; set; }
+        public DeviceViewModel Device { get; set; }
 
         public ObservableCollection<string> Logins { get; }
 
@@ -119,7 +118,11 @@ namespace HideezSafe.ViewModels
             {
                 try
                 {
-                    await serviceProxy.GetService().SaveCredentialAsync(DeviceId, login, pass);
+                    if (!Device.IsInitialized)
+                        throw new ArgumentNullException("Remote device is not initialized");
+
+                    var dpm = new DevicePasswordManager(Device.Storage);
+                    await dpm.SavePcUnlockCredentials(login, pass);
                     IsInProgress = false;
                     Application.Current.Dispatcher.Invoke(view.Close);
                 }

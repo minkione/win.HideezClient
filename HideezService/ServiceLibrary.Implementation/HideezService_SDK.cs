@@ -5,9 +5,11 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Proximity;
+using Hideez.SDK.Communication.WCF;
 using HideezMiddleware;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,6 +27,7 @@ namespace ServiceLibrary.Implementation
         static ProximityMonitorManager _proximityMonitorManager;
         static IWorkstationLocker _workstationLocker;
         static IScreenActivator _screenActivator;
+        static WcfDeviceFactory _wcfDeviceManager;
 
         void InitializeSDK()
         {
@@ -53,6 +56,8 @@ namespace ServiceLibrary.Implementation
             _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
             _deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
 
+            // WCF ============================
+            _wcfDeviceManager = new WcfDeviceFactory(_deviceManager, sdkLogger);
 
             // Named Pipes Server ==============================
             _credentialProviderConnection = new CredentialProviderConnection(sdkLogger);
@@ -96,7 +101,6 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _workstationLocker, sdkLogger);
             _proximityMonitorManager.Start();
 
-            _connectionManager.Start();
             _connectionManager.StartDiscovery();
         }
 
@@ -108,24 +112,22 @@ namespace ServiceLibrary.Implementation
 
             if (device != null)
             {
-                // event is only subscribed to once
-                device.ProximityChanged -= Device_ProximityChanged;
-                device.ProximityChanged += Device_ProximityChanged;
-
-                // event is only subscribed to once
-                device.PropertyChanged -= Device_PropertyChanged;
-                device.PropertyChanged += Device_PropertyChanged;
+                device.ConnectionStateChanged += Device_ConnectionStateChanged;
+                device.Initialized += Device_Initialized;
             }
         }
-
+        
         void DeviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
         {
             var device = e.RemovedDevice;
 
             if (device != null)
             {
-                device.ProximityChanged -= Device_ProximityChanged;
-                device.PropertyChanged -= Device_PropertyChanged;
+                device.ConnectionStateChanged -= Device_ConnectionStateChanged;
+                device.Initialized -= Device_Initialized;
+
+                if (device is IWcfDevice wcfDevice)
+                    UnsubscribeFromWcfDeviceEvents(wcfDevice);
             }
         }
 
@@ -151,7 +153,7 @@ namespace ServiceLibrary.Implementation
         void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
         {
             foreach (var client in SessionManager.Sessions)
-                client.Callbacks.PairedDevicesCollectionChanged(GetPairedDevices());
+                client.Callbacks.DevicesCollectionChanged(GetDevices());
         }
 
         void ConnectionManager_DiscoveredDeviceAdded(object sender, DiscoveredDeviceAddedEventArgs e)
@@ -166,136 +168,54 @@ namespace ServiceLibrary.Implementation
         {
         }
 
-        #endregion
-
-        #region Device proximity monitoring
-
-        void Device_ProximityChanged(object sender, EventArgs e)
-        {
-            if (sender is IDevice device)
-            {
-                foreach (var c in SessionManager.Sessions
-                    // if has key for device id and enabled monitoring for this id
-                    .Where(s => s.IsEnabledProximityMonitoring.TryGetValue(device.Id, out bool isEnabled) && isEnabled))
-                {
-                    c.Callbacks.ProximityChanged(device.Id, device.Proximity);
-                }
-            }
-        }
-
-        public void EnableMonitoringProximity(string deviceId)
-        {
-            try
-            {
-                ChangeIsEnabledProximityMonitoring(deviceId, true);
-            }
-            catch (Exception ex)
-            {
-                LogException(ex);
-                ThrowException(ex);
-            }
-        }
-
-        public void DisableMonitoringProximity(string deviceId)
-        {
-            try
-            {
-                ChangeIsEnabledProximityMonitoring(deviceId, false);
-            }
-            catch (Exception ex)
-            {
-                LogException(ex);
-                ThrowException(ex);
-            }
-        }
-
-        void ChangeIsEnabledProximityMonitoring(string deviceId, bool isEnabled)
-        {
-            if (_client != null)
-            {
-                _client.IsEnabledProximityMonitoring[deviceId] = isEnabled;
-            }
-        }
-
-        #endregion
-
-        #region Device Properties Monitoring
-
-        void Device_PropertyChanged(object sender,string propertyName)
+        void Device_ConnectionStateChanged(object sender, EventArgs e)
         {
             try
             {
                 if (sender is IDevice device)
                 {
-                    foreach (var client in SessionManager.Sessions
-                        // if has key for device id and enabled monitoring for this id
-                        .Where(s => s.IsEnabledPropertyMonitoring.TryGetValue(device.Id, out bool isEnabled) && isEnabled))
+                    foreach (var client in SessionManager.Sessions)
                     {
-                        client.Callbacks.PairedDevicePropertyChanged(new DeviceDTO(device));
+                        client.Callbacks.DeviceConnectionStateChanged(new DeviceDTO(device));
                     }
                 }
             }
             catch (Exception ex)
             {
                 LogException(ex);
-                ThrowException(ex);
             }
         }
 
-        void Device_DeviceInfoChanged(object sender, EventArgs e)
+        void Device_Initialized(object sender, EventArgs e)
         {
             try
             {
                 if (sender is IDevice device)
                 {
-                    foreach (var client in SessionManager.Sessions
-                        .Where(s => s.IsEnabledPropertyMonitoring.TryGetValue(device.Id, out bool isEnabled) && isEnabled))
+                    foreach (var client in SessionManager.Sessions)
                     {
-                        client.Callbacks.PairedDevicePropertyChanged(new DeviceDTO(device));
+                        client.Callbacks.DeviceInitialized(new DeviceDTO(device));
                     }
                 }
             }
             catch (Exception ex)
             {
                 LogException(ex);
-                ThrowException(ex);
             }
         }
 
-        public void EnableMonitoringDeviceProperties(string deviceId)
+        async void SessionManager_SessionClosed(object sender, ServiceClientSession e)
         {
-            try
+            if (_client.Id == e.Id)
             {
-                ChangeIsEnabledDevicePropertiesMonitoring(deviceId, true);
+                foreach (var wcfDevice in RemoteWcfDevices.ToArray())
+                {
+                    await _deviceManager.Remove(wcfDevice);
+                    UnsubscribeFromWcfDeviceEvents(wcfDevice);
+                }
             }
-            catch (Exception ex)
-            {
-                LogException(ex);
-                ThrowException(ex);
-            }
-        }
 
-        public void DisableMonitoringDeviceProperties(string deviceId)
-        {
-            try
-            {
-                ChangeIsEnabledDevicePropertiesMonitoring(deviceId, false);
-            }
-            catch (Exception ex)
-            {
-                LogException(ex);
-                ThrowException(ex);
-            }
         }
-
-        private void ChangeIsEnabledDevicePropertiesMonitoring(string deviceId, bool isEnabled)
-        {
-            if (_client != null)
-            {
-                _client.IsEnabledPropertyMonitoring[deviceId] = isEnabled;
-            }
-        }
-
         #endregion
 
         public bool GetAdapterState(Adapter adapter)
@@ -323,11 +243,11 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public DeviceDTO[] GetPairedDevices()
+        public DeviceDTO[] GetDevices()
         {
             try
             {
-                return _deviceManager.Devices.Select(d => new DeviceDTO(d)).ToArray();
+                return _deviceManager.Devices.Where(d => !d.IsRemote).Select(d => new DeviceDTO(d)).ToArray();
             }
             catch (Exception ex)
             {
@@ -377,49 +297,155 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public void OnSessionChange(bool sessionLocked)
+        public void DisconnectDevice(string id)
         {
             try
             {
-                _log.Info($"Session change called: {sessionLocked};  client {_client.ClientType.ToString()}");
-                // This operation contract can only be used by ServiceHost or TestConsole 
-                // Other clients are prohibited from using it
-                if (_client.ClientType == ClientType.ServiceHost || _client.ClientType == ClientType.TestConsole)
+                _deviceManager.Find(id)?.Disconnect();
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+                ThrowException(ex);
+            }
+        }
+
+        public async Task RemoveDeviceAsync(string id)
+        {
+            try
+            {
+                var device = _deviceManager.Find(id);
+                if (device != null)
+                    await _deviceManager.RemoveAll(device.Connection);
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+                ThrowException(ex);
+            }
+        }
+
+
+        #region Remote device management
+        // This collection is unique for each client
+        List<IWcfDevice> RemoteWcfDevices = new List<IWcfDevice>();
+
+        public async Task<string> EstablishRemoteDeviceConnection(string serialNo, byte channelNo)
+        {
+            try
+            {
+                var wcfDevice = (IWcfDevice)_deviceManager.FindBySerialNo(serialNo, 2);
+                if (wcfDevice == null)
                 {
-                    /*
-                    Task.Run(async () =>
+                    var device = _deviceManager.FindBySerialNo(serialNo, 1);
+                    wcfDevice = await _wcfDeviceManager.EstablishRemoteDeviceConnection(device.Mac, channelNo);
+
+                    SubscribeToWcfDeviceEvents(wcfDevice);
+                }
+
+                return wcfDevice.Id;
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+                ThrowException(ex);
+                return null; // this line is unreachable
+            }
+        }
+
+        void SubscribeToWcfDeviceEvents(IWcfDevice wcfDevice)
+        {
+            RemoteWcfDevices.Add(wcfDevice);
+            wcfDevice.RssiReceived += RemoteConnection_RssiReceived;
+            wcfDevice.BatteryChanged += RemoteConnection_BatteryChanged;
+        }
+
+        void UnsubscribeFromWcfDeviceEvents(IWcfDevice wcfDevice)
+        {
+            wcfDevice.RssiReceived -= RemoteConnection_RssiReceived;
+            wcfDevice.BatteryChanged -= RemoteConnection_BatteryChanged;
+            RemoteWcfDevices.Remove(wcfDevice);
+        }
+
+        void RemoteConnection_RssiReceived(object sender, double rssi)
+        {
+            try
+            {
+                if (RemoteWcfDevices.Count > 0)
+                {
+                    if (sender is IWcfDevice wcfDevice)
                     {
-                        if (sessionLocked)
-                        {
-                            // Todo: disconnect all devices
-                        }
-                    });
-                    */
+                        _client.Callbacks.RemoteConnection_RssiReceived(wcfDevice.SerialNo, rssi);
+                    }
                 }
-                else
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
+        }
+
+        void RemoteConnection_BatteryChanged(object sender, int battery)
+        {
+            try
+            {
+                if (RemoteWcfDevices.Count > 0)
                 {
-                    /*
-                    throw new NotSupportedException();
-                    */
+                    if (sender is IWcfDevice wcfDevice)
+                    {
+                        _client.Callbacks.RemoteConnection_BatteryChanged(wcfDevice.SerialNo, battery);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 LogException(ex);
-                ThrowException(ex);
             }
         }
 
-        public async Task SaveCredentialAsync(string deviceId, string login, string password)
+        public async Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data)
         {
             try
             {
-                var device = _deviceManager.Find(deviceId);
-                if (device != null)
-                {
-                    var dpm = new DevicePasswordManager(device);
-                    await dpm.SavePcUnlockCredentials(login, password);
-                }
+                var wcfDevice = (IWcfDevice)_deviceManager.Find(connectionId);
+
+                var response = await wcfDevice.OnAuthCommandAsync(data);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+                ThrowException(ex);
+                return null; // this line is unreachable
+            }
+        }
+
+        public async Task<byte[]> RemoteConnection_RemoteCommandAsync(string connectionId, byte[] data)
+        {
+            try
+            {
+                var wcfDevice = (IWcfDevice)_deviceManager.Find(connectionId);
+                
+                var response = await wcfDevice.OnRemoteCommandAsync(data);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+                ThrowException(ex);
+                return null; // this line is unreachable
+            }
+        }
+
+        public async Task RemoteConnection_ResetChannelAsync(string connectionId)
+        {
+            try
+            {
+                var wcfDevice = (IWcfDevice)_deviceManager.Find(connectionId);
+
+                await wcfDevice.OnResetChannelAsync();
             }
             catch (Exception ex)
             {
@@ -427,34 +453,35 @@ namespace ServiceLibrary.Implementation
                 ThrowException(ex);
             }
         }
+        #endregion
 
-        public void DisconnectDevice(string deviceId)
+        #region Host only
+        public static void OnSessionChange(bool sessionLocked)
         {
             try
             {
-                _deviceManager.Find(deviceId)?.Disconnect();
+                var newState = sessionLocked ? "locked" : "unlocked";
+                _log.Info($"Session state changed to: {newState} (sessionLocked: {sessionLocked});");
             }
             catch (Exception ex)
             {
                 LogException(ex);
-                ThrowException(ex);
             }
         }
 
-        public async Task RemoveDeviceAsync(string deviceId)
+        public static void OnLaunchFromSleep()
         {
             try
             {
-                var device = _deviceManager.Find(deviceId);
-                if (device != null)
-                    await _deviceManager.Remove(device);
+                _log.Info("System left suspended mode");
+                _log.Info("Restarting connection manager");
+                _connectionManager.Restart();
             }
             catch (Exception ex)
             {
                 LogException(ex);
-                ThrowException(ex);
             }
         }
-
+        #endregion
     }
 }
