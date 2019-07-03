@@ -38,8 +38,8 @@ namespace HideezSafe.Models
 
         public Device(IServiceProxy serviceProxy, IRemoteDeviceFactory remoteDeviceFactory)
         {
-            this._serviceProxy = serviceProxy;
-            this._remoteDeviceFactory = remoteDeviceFactory;
+            _serviceProxy = serviceProxy;
+            _remoteDeviceFactory = remoteDeviceFactory;
         }
 
         public IDeviceStorage Storage

@@ -19,7 +19,7 @@ namespace HideezSafe.ViewModels
             this.windowsManager = windowsManager;
             this.deviceManager = deviceManager;
             this.menuFactory = menuFactory;
-            deviceManager.Devices.CollectionChanged += Devices_CollectionChanged;
+            deviceManager.DevicesCollectionChanged += Devices_CollectionChanged;
             Devices = new ObservableCollection<DeviceViewModel>(deviceManager.Devices.Select(d => new DeviceViewModel(d, windowsManager, menuFactory)));
         }
 
