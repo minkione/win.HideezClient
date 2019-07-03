@@ -583,8 +583,8 @@
         <File Id="WindowsInput.dll" Name="WindowsInput.dll" Source="$(var.HideezSafe_TargetDir)WindowsInput.dll" />
       </Component>
 
-      <Component Id="Hideez.ARS.dll" Guid="{9B74E207-6A9F-44ED-89FB-CF2895F44E84}" Win64="$(var.Win64)">
-        <File Id="Hideez.ARS.dll" Name="Hideez.ARS.dll" Source="$(var.HideezSafe_TargetDir)Hideez.ARS.dll" />
+      <Component Id="Hideez.ARM.dll" Guid="{9B74E207-6A9F-44ED-89FB-CF2895F44E84}" Win64="$(var.Win64)">
+        <File Id="Hideez.ARM.dll" Name="Hideez.ARM.dll" Source="$(var.HideezSafe_TargetDir)Hideez.ARM.dll" />
       </Component>
 
       <Component Id="Hideez.ISM.dll" Guid="{AD14C166-1003-4BE9-8480-975288E08CB2}" Win64="$(var.Win64)">
