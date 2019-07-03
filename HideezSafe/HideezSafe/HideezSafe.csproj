@@ -261,7 +261,8 @@
     <Compile Include="Modules\Notify\NotificationPosition.cs" />
     <Compile Include="Modules\Notify\Notifier.cs" />
     <Compile Include="Modules\Remote\IRemoteDeviceFactory.cs" />
-    <Compile Include="Modules\Remote\RemoteDeviceConnection.cs" />
+    <Compile Include="Modules\Remote\RemoteDeviceCommands.cs" />
+    <Compile Include="Modules\Remote\RemoteDeviceEvents.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceFactory.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
     <Compile Include="ViewModels\Notification\NotificationsContainerViewModel.cs" />

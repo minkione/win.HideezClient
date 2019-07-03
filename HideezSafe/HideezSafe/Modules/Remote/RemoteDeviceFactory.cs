@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Hideez.SDK.Communication.Remote;
+using HideezSafe.Modules.Remote;
 using HideezSafe.Modules.ServiceProxy;
 using System.Threading.Tasks;
 
@@ -20,12 +21,13 @@ namespace HideezSafe.Modules
         {
             var connectionId = await _serviceProxy.GetService().EstablishRemoteDeviceConnectionAsync(serialNo, channelNo);
 
-            var remoteConnection = new RemoteDeviceConnection(_serviceProxy, _messenger);
+            var remoteCommands = new RemoteDeviceCommands(_serviceProxy);
+            var remoteEvents = new RemoteDeviceEvents(_messenger);
 
-            // Todo: Break up remoteConnection into two separate separate classes: RemoteCommands and RemoteEvents
-            var device = new RemoteDevice(connectionId, remoteConnection, remoteConnection);
+            var device = new RemoteDevice(connectionId, remoteCommands, remoteEvents);
 
-            remoteConnection.RemoteDevice = device;
+            remoteCommands.RemoteDevice = device;
+            remoteEvents.RemoteDevice = device;
 
             return device;
         }
