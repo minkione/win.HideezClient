@@ -57,7 +57,7 @@ namespace HideezSafe
 
         public App()
         {
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            SetupExceptionHandling();
 
             LogManager.EnableLogging();
             logger = LogManager.GetCurrentClassLogger();
@@ -65,6 +65,44 @@ namespace HideezSafe
             logger.Info("Version: {0}", Environment.Version);
             logger.Info("OS: {0}", Environment.OSVersion);
             logger.Info("Command: {0}", Environment.CommandLine);
+        }
+
+        void SetupExceptionHandling()
+        {
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            LogUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
+
+            DispatcherUnhandledException += (s, e) =>
+                LogUnhandledException(e.Exception, "Application.Current.DispatcherUnhandledException");
+
+            TaskScheduler.UnobservedTaskException += (s, e) =>
+                LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
+        }
+
+        void LogUnhandledException(Exception e, string source)
+        {
+            try
+            {
+                LogManager.EnableLogging();
+
+                var fatalLogger = logger ?? LogManager.GetCurrentClassLogger();
+                var assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName();
+
+                fatalLogger.Fatal($"Unhandled exception in {assemblyName.Name} v{assemblyName.Version}");
+                fatalLogger.Fatal(e);
+                LogManager.Flush();
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    Environment.FailFast("An error occured while handling fatal error", e as Exception);
+                }
+                catch (Exception exc)
+                {
+                    Environment.FailFast("An error occured while handling an error during fatal error handling", exc);
+                }
+            }
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -251,30 +289,6 @@ namespace HideezSafe
 
                 if (File.Exists(filename))
                     File.Delete(filename);
-            }
-        }
-
-        void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            try
-            {
-                LogManager.EnableLogging();
-
-                var fatalLogger = logger ?? LogManager.GetCurrentClassLogger();
-
-                fatalLogger.Fatal(e.ExceptionObject as Exception);
-                LogManager.Flush();
-            }
-            catch (Exception)
-            {
-                try
-                {
-                    Environment.FailFast("An error occured while handling fatal error", e.ExceptionObject as Exception);
-                }
-                catch (Exception exc)
-                {
-                    Environment.FailFast("An error occured while handling an error during fatal error handling", exc);
-                }
             }
         }
     }

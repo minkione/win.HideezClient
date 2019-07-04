@@ -2,10 +2,9 @@
 using System;
 using System.ServiceModel;
 using System.Linq;
-using System.Threading;
-using Hideez.SDK.Communication.Interfaces;
 using HideezMiddleware;
 using Hideez.SDK.Communication;
+using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation
 {
@@ -24,16 +23,50 @@ namespace ServiceLibrary.Implementation
             {
                 if (!_initialized)
                 {
+                    SetupExceptionHandling();
                     Initialize();
                     _initialized = true;
                 }
             }
         }
 
+        void SetupExceptionHandling()
+        {
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            LogUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
+
+            TaskScheduler.UnobservedTaskException += (s, e) =>
+                LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
+        }
+
+        void LogUnhandledException(Exception e, string source)
+        {
+            try
+            {
+                LogManager.EnableLogging();
+
+                var fatalLogger = _log ?? LogManager.GetCurrentClassLogger();
+                var assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName();
+
+                fatalLogger.Fatal($"Unhandled exception in {assemblyName.Name} v{assemblyName.Version}");
+                fatalLogger.Fatal(e);
+                LogManager.Flush();
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    Environment.FailFast("An error occured while handling fatal error", e as Exception);
+                }
+                catch (Exception exc)
+                {
+                    Environment.FailFast("An error occured while handling an error during fatal error handling", exc);
+                }
+            }
+        }
+
         void Initialize()
         {
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
             try
             {
                 LogManager.EnableLogging();
@@ -54,12 +87,12 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                _log.Error("Hideez Service has encountered an error during initialization." +
+                _log.Fatal("Hideez Service has encountered an error during initialization." +
                     Environment.NewLine +
                     "The error must be resolved until service operation can be resumed. " +
                     Environment.NewLine +
                     "The service will not restart automatically.");
-                _log.Error(ex);
+                _log.Fatal(ex);
 
                 // Exit code 0 prevents automatic service restart trigger on exit
                 Environment.Exit(0);
@@ -159,30 +192,6 @@ namespace ServiceLibrary.Implementation
         {
             _log.Debug(">>>>>> Shutdown service");
             // Todo: shutdown service in a clean way
-        }
-
-        void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            try
-            {
-                LogManager.EnableLogging();
-
-                var fatalLogger = _log ?? LogManager.GetCurrentClassLogger();
-
-                fatalLogger.Fatal(e.ExceptionObject as Exception);
-                LogManager.Flush();
-            }
-            catch (Exception)
-            {
-                try
-                {
-                    Environment.FailFast("An error occured while handling fatal error", e.ExceptionObject as Exception);
-                }
-                catch (Exception exc)
-                {
-                    Environment.FailFast("An error occured while handling an error during fatal error handling", exc);
-                }
-            }
         }
     }
 }
