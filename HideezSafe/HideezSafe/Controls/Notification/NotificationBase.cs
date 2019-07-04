@@ -15,7 +15,6 @@ namespace HideezSafe.Controls
     {
         private readonly object lockObj = new object();
         private bool closing = false;
-        private bool result = false;
         private DispatcherTimer timer;
 
         protected NotificationBase(NotificationOptions options)

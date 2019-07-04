@@ -1,5 +1,6 @@
 ﻿using HideezSafe.Controls;
 using HideezSafe.Utilities;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -26,18 +27,30 @@ namespace HideezSafe.Views
     /// </summary>
     public partial class NotificationsContainerWindow : Window
     {
-        private readonly Screen screen;
+        private readonly string screenName;
 
         public NotificationsContainerWindow(Screen screen)
         {
             InitializeComponent();
 
-            this.screen = screen;
+            this.screenName = screen.DeviceName;
+            SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
 
             if (notifyItems.Items is INotifyCollectionChanged notifyCollectionChanged)
             {
                 notifyCollectionChanged.CollectionChanged += NotificationsContainerWindow_CollectionChanged;
             }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
+        }
+
+        private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
+        {
+            UpdateWindowContainer();
         }
 
         private void NotificationsContainerWindow_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -68,41 +81,27 @@ namespace HideezSafe.Views
 
         private void UpdateWindowContainer()
         {
-            UpdateLayout();
-            Height = WorkAreaHeight;
-            var point = GetPositionForBottomRightCorner(ActualWidth, ActualHeight);
-            Left = point.X;
-            Top = point.Y;
-
+            Screen screen = Screen.AllScreens.FirstOrDefault(s => s.DeviceName == screenName);
+            if (screen != null)
+            {
+                UpdateLayout();
+                Height = screen.WorkingArea.Height;
+                var point = GetPositionForBottomRightCorner(screen, ActualWidth, ActualHeight);
+                Left = point.X;
+                Top = point.Y;
+            }
             //NotificationBase nb = notifyItems.Items.Cast<NotificationBase>().FirstOrDefault(n => n.Options.SetFocus);
             //nb?.Focus();
         }
 
-        #region PrimaryScreen
-
-        private double ScreenHeight => screen.Bounds.Height;
-        private double ScreenWidth => screen.Bounds.Width;
-        private double WorkAreaHeight => screen.WorkingArea.Height;
-        private double WorkAreaWidth => screen.WorkingArea.Width;
-
-        private (double X, double Y) GetPositionForBottomRightCorner(double actualWidth, double actualHeight)
+        private (double X, double Y) GetPositionForBottomRightCorner(Screen screen, double actualWidth, double actualHeight)
         {
             var dpiTransform = GetDpiTransform();
             double width = actualWidth * dpiTransform.X;
-            double height = actualHeight * dpiTransform.Y;
+            // double height = actualHeight * dpiTransform.Y;
 
-            double pointX = screen.Bounds.X + WorkAreaWidth - width;
-            double pointY = screen.Bounds.Y + WorkAreaHeight - height;
-
-            if (screen.WorkingArea.Left > 0)
-            {
-                pointX = ScreenWidth - width;
-            }
-
-            if (screen.WorkingArea.Top > 0)
-            {
-                pointY = ScreenHeight - height;
-            }
+            double pointX = screen.WorkingArea.Right - width;
+            double pointY = screen.WorkingArea.Top;
 
             return (pointX / dpiTransform.X, pointY / dpiTransform.Y);
         }
@@ -121,9 +120,6 @@ namespace HideezSafe.Views
 
             return (dpiXFactor, dpiYFactor);
         }
-
-        #endregion PrimaryScreen
-
 
         #region HideWindow
         // Hide a WPF form from Alt+Tab
