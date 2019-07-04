@@ -1,5 +1,9 @@
 ﻿using Hideez.SDK.Communication.PasswordManager;
+using HideezSafe.Utilities;
 using System;
+using System.Diagnostics;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace HideezSafe.Models
@@ -19,8 +23,8 @@ namespace HideezSafe.Models
         public string DeviceId => device.Id;
         public string Name => accountRecord.Name;
 
-        public string[] Apps => SplitAppsToLines(accountRecord.Apps);
-        public string[] Urls => SplitAppsToLines(accountRecord.Urls);
+        public string[] Apps => AccountUtility.Split(accountRecord.Apps);
+        public string[] Domains => AccountUtility.Split(accountRecord.Urls);
 
         public string Login => accountRecord.Login;
         public bool HasOtp => accountRecord.HasOtp;
@@ -55,20 +59,6 @@ namespace HideezSafe.Models
             catch { }
 
             return otpSecret;
-        }
-
-        public static string[] SplitAppsToLines(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return null;
-
-            string[] splitChars = { "\r\n", "\n", "\r" };
-            string[] words = text.Split(splitChars, StringSplitOptions.RemoveEmptyEntries);
-
-            for (int i = 0; i < words.Length; i++)
-                words[i] = words[i].Trim();
-
-            return words;
         }
     }
 }

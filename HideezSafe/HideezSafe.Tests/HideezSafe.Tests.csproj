@@ -98,6 +98,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountUtilityTest.cs" />
     <Compile Include="BaseSettingsTests.cs" />
     <Compile Include="Modules\DeviceManager\DeviceManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
