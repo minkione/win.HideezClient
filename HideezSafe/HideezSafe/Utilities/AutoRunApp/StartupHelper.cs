@@ -92,17 +92,20 @@ namespace HideezSafe.Utilities
             if (string.IsNullOrEmpty(appName))
                 throw new ArgumentException("Value can not be empty.", nameof(appName));
 
-            bool res;
+            bool res = false;
             try
             {
                 using (RegistryKey registryKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true))
                 {
                     if (registryKey != null)
                     {
-                        registryKey.DeleteValue(appName);
+                        if (registryKey.GetValue(appName) != null)
+                        {
+                            registryKey.DeleteValue(appName);
+                            res = true;
+                        }
                     }
                 }
-                res = true;
             }
             catch (Exception)
             {
@@ -118,11 +121,14 @@ namespace HideezSafe.Utilities
                     {
                         if (registryKey != null)
                         {
-                            registryKey.DeleteValue(appName);
+                            if (registryKey.GetValue(appName) != null)
+                            {
+                                registryKey.DeleteValue(appName);
+                                res = true;
+                            }
                         }
                     }
                 }
-                res = true;
             }
             catch (Exception)
             {

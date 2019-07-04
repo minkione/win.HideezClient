@@ -15,6 +15,11 @@
         <GradientStop Offset="0" Color="#0E5F93" />
     </LinearGradientBrush>
 
+    <LinearGradientBrush x:Key="NotificationLeftColumnBrush" MappingMode="RelativeToBoundingBox" StartPoint="0.4,0.4" EndPoint="1.4,1.4">
+        <GradientStop Offset="1" Color="#43C7D9" />
+        <GradientStop Offset="0" Color="#0E5F93" />
+    </LinearGradientBrush>
+
     <Color x:Key="Pink">#FC3085</Color>
     <Color x:Key="LightPink">#FB679B</Color>
     <Color x:Key="DarkPink">#BB255C</Color>
@@ -45,4 +50,6 @@
     <SolidColorBrush x:Key="ConnectedBrush" Color="Green" />
     <SolidColorBrush x:Key="InitializingBrush" Color="#ffffff" />
     <SolidColorBrush x:Key="DisconnectedBrush" Color="#ff1a1a" />
+
+    <SolidColorBrush x:Key="LowBatteryIndicatorBrush" Color="Yellow" />
 </ResourceDictionary>

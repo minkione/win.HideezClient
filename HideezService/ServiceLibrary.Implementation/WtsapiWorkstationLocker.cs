@@ -6,8 +6,8 @@ using System.Runtime.InteropServices;
 
 namespace ServiceLibrary.Implementation
 {
-
-    class WtsapiWorkstationLocker : IWorkstationLocker
+    [Obsolete]
+    class WtsapiWorkstationLocker
     {
         [DllImport("wtsapi32.dll", SetLastError = true)]
         static extern bool WTSDisconnectSession(IntPtr hServer, int sessionId, bool bWait);

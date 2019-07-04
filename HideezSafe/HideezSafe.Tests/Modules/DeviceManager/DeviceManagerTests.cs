@@ -20,7 +20,7 @@ namespace HideezSafe.Modules.DeviceManager.Tests
         private readonly List<DeviceDTO> devices = new List<DeviceDTO>();
 
         [TestMethod()]
-        public async Task OpenClose()
+        public async Task EnumerateDevices_FluctuatingServiceConnection_DevicesEnumerated()
         {
             IHideezService hideezService = GetHideezService();
             IServiceProxy serviceProxy = GetServiceProxy(hideezService);
@@ -31,26 +31,36 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             devices.Add(new DeviceDTO
             {
                 Id = "CD4D46777E19",
-                Name = "8989",
+                Name = "0001",
+            });
+            devices.Add(new DeviceDTO
+            {
+                Id = "CD4D46777E29",
+                Name = "0002",
+            });
+            devices.Add(new DeviceDTO
+            {
+                Id = "CD4D46777E39",
+                Name = "0003",
             });
 
             await serviceProxy.ConnectAsync();
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 1);
+            Assert.IsTrue(deviceManager.Devices.Count() == 1);
             await serviceProxy.DisconnectAsync();
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 0);
+            Assert.IsTrue(deviceManager.Devices.Count() == 0);
 
             await serviceProxy.ConnectAsync();
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 1);
+            Assert.IsTrue(deviceManager.Devices.Count() == 1);
             await serviceProxy.DisconnectAsync();
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 0);
+            Assert.IsTrue(deviceManager.Devices.Count() == 0);
         }
 
         [TestMethod()]
-        public async Task AddDevices()
+        public async Task DeviceCollectionChanged_AddDevices_DevicesEnumerated()
         {
             IHideezService hideezService = GetHideezService();
             IServiceProxy serviceProxy = GetServiceProxy(hideezService);
@@ -60,33 +70,33 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             devices.Clear();
 
             await serviceProxy.ConnectAsync();
-            Assert.IsTrue(deviceManager.Devices.Count == 0);
+            Assert.IsTrue(deviceManager.Devices.Count() == 0);
 
             await Task.Run(() =>
             {
                 devices.Add(new DeviceDTO
                 {
                     Id = "DCD777B8882D",
-                    Name = "8877",
+                    Name = "0000",
                     SerialNo = "0"
                 });
                 devices.Add(new DeviceDTO
                 {
                     Id = "000777B8882D",
-                    Name = "8447",
+                    Name = "0001",
                     SerialNo = "1"
                 });
                 devices.Add(new DeviceDTO
                 {
                     Id = "0007HJK8882D",
-                    Name = "8421",
+                    Name = "0002",
                     SerialNo = "2"
                 });
                 messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
             });
 
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 3);
+            Assert.IsTrue(deviceManager.Devices.Count() == 3);
 
             await Task.Run(() =>
             {
@@ -95,7 +105,7 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
 
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 2);
+            Assert.IsTrue(deviceManager.Devices.Count() == 2);
 
             await Task.Run(() =>
             {
@@ -104,14 +114,14 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
 
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 0);
+            Assert.IsTrue(deviceManager.Devices.Count() == 0);
 
             await serviceProxy.DisconnectAsync();
-            Assert.IsTrue(deviceManager.Devices.Count == 0);
+            Assert.IsTrue(deviceManager.Devices.Count() == 0);
         }
 
         [TestMethod()]
-        public async Task DeviceManagerTest()
+        public async Task DeviceCollectionChanged_AddDevicesAsync_DevicesEnumerated()
         {
             IHideezService hideezService = GetHideezService();
             IServiceProxy serviceProxy = GetServiceProxy(hideezService);
@@ -121,20 +131,20 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             devices.Clear();
             devices.Add(new DeviceDTO
             {
-                Id = "CD4D46777E19",
-                Name = "8989",
+                Id = "CD4D46777E1A",
+                Name = "0000",
                 SerialNo = "0"
             });
 
             bool res = await serviceProxy.ConnectAsync();
 
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 1);
+            Assert.IsTrue(deviceManager.Devices.Count() == 1);
 
             devices.Add(new DeviceDTO
             {
-                Id = "DCD777B8D52D",
-                Name = "7777",
+                Id = "DCD777B8D52A",
+                Name = "0001",
                 SerialNo = "1"
             });
             messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
@@ -143,26 +153,26 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             {
                 devices.Add(new DeviceDTO
                 {
-                    Id = "DCD777B8882D",
-                    Name = "8877",
+                    Id = "DCD777B8883A",
+                    Name = "0002",
                     SerialNo = "2"
                 });
                 devices.Add(new DeviceDTO
                 {
-                    Id = "000777B8882D",
-                    Name = "8447",
+                    Id = "000777B8884A",
+                    Name = "0003",
                     SerialNo = "3"
                 });
                 messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
             });
 
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 4);
+            Assert.IsTrue(deviceManager.Devices.Count() == 4);
 
             devices.RemoveAt(0);
             messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 3);
+            Assert.IsTrue(deviceManager.Devices.Count() == 3);
 
             await Task.Run(() =>
             {
@@ -170,11 +180,58 @@ namespace HideezSafe.Modules.DeviceManager.Tests
             });
             messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 2);
+            Assert.IsTrue(deviceManager.Devices.Count() == 2);
 
             await serviceProxy.DisconnectAsync();
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count == 0);
+            Assert.IsTrue(deviceManager.Devices.Count() == 0);
+        }
+
+        [TestMethod()]
+        public async Task DeviceCollectionChanged_AsyncLoadTest()
+        {
+            int taskCount = 20;
+            int devicesPerTask = 30;
+
+            IHideezService hideezService = GetHideezService();
+            IServiceProxy serviceProxy = GetServiceProxy(hideezService);
+            IMessenger messenger = GetMessenger();
+            IDeviceManager deviceManager = GetDeviceManager(messenger, serviceProxy);
+
+            devices.Clear();
+            bool res = await serviceProxy.ConnectAsync();
+
+            object addLock = new object();
+            Action AddRandomDevice = () =>
+            {
+                lock (addLock)
+                {
+                    var guid = Guid.NewGuid().ToString();
+                    devices.Add(new DeviceDTO
+                    {
+                        Id = guid,
+                        Name = guid,
+                    });
+                    messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
+                }
+            };
+
+            Task[] creationTasks = new Task[taskCount];
+
+            for (int j = 0; j < creationTasks.Length; j++)
+            {
+                creationTasks[j] = Task.Run(() =>
+                {
+                    for (int i = 0; i < devicesPerTask; i++)
+                        AddRandomDevice();
+                });
+            }
+
+            Task.WaitAll(creationTasks);
+
+            await Task.Delay(500); // There is a slight delay between adding device and when its available in collection
+
+            Assert.IsTrue(deviceManager.Devices.Count() == devicesPerTask * taskCount);
         }
 
         private IHideezService GetHideezService()

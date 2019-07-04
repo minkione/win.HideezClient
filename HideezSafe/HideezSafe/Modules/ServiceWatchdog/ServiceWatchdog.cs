@@ -1,6 +1,8 @@
-﻿using HideezSafe.Modules.ServiceProxy;
+﻿using HideezSafe.HideezServiceReference;
+using HideezSafe.Modules.ServiceProxy;
 using NLog;
 using System;
+using System.ServiceModel;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -80,9 +82,11 @@ namespace HideezSafe.Modules.ServiceWatchdog
                 try
                 {
                     await serviceProxy.ConnectAsync();
-                    //var result = await serviceProxy.ConnectAsync();
-                    //if (!result)
-                    //    await serviceProxy.DisconnectAsync();
+                }
+                catch (FaultException<HideezServiceFault> ex)
+                {
+                    log.Error(ex.FormattedMessage());
+                    await serviceProxy.DisconnectAsync();
                 }
                 catch (Exception ex)
                 {
@@ -95,6 +99,11 @@ namespace HideezSafe.Modules.ServiceWatchdog
                 try
                 {
                     var ping = await serviceProxy.GetService().PingAsync();
+                }
+                catch (FaultException<HideezServiceFault> ex)
+                {
+                    log.Error(ex.FormattedMessage());
+                    await serviceProxy.DisconnectAsync();
                 }
                 catch (Exception ex)
                 {

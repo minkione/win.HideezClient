@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -86,10 +87,13 @@ namespace HideezSafe.ViewModels
                         connectionHES.State = false;
                     }
                 }
+                catch (FaultException<HideezServiceFault> ex)
+                {
+                    log.Error(ex.FormattedMessage());
+                }
                 catch (Exception ex)
                 {
                     log.Error(ex.Message);
-                    Debug.WriteLine(ex.Message);
                 }
             }
 

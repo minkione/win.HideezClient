@@ -289,25 +289,10 @@
   <data name="Status.Tooltip.DisconectedService" xml:space="preserve">
     <value>Нет подключения к сервису</value>
   </data>
-  <data name="Url.Legal" xml:space="preserve">
-    <value>https://hideez.com/404</value>
-  </data>
-  <data name="Url.LiveChat" xml:space="preserve">
-    <value>https://hideez.com/404</value>
-  </data>
-  <data name="Url.LockVideoTutorial" xml:space="preserve">
-    <value>https://hideez.com/404</value>
-  </data>
-  <data name="Url.RFIDUsage" xml:space="preserve">
-    <value>https://hideez.com/404</value>
-  </data>
-  <data name="Url.UserManual" xml:space="preserve">
-    <value>https://hideez.com/404</value>
-  </data>
-  <data name="Url.VideoTutorial" xml:space="preserve">
-    <value>https://hideez.com/404</value>
-  </data>
   <data name="Warning" xml:space="preserve">
     <value>Предупреждение</value>
+  </data>
+  <data name="Exception.FieldNotSecure" xml:space="preserve">
+    <value>Ввод пароля отменен. Выбраное поле не защищено.</value>
   </data>
 </root>

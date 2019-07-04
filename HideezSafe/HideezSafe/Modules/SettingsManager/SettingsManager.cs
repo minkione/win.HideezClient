@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using GalaSoft.MvvmLight.Messaging;
+using HideezSafe.Messages;
 using HideezSafe.Models.Settings;
 using HideezSafe.Modules.FileSerializer;
 using HideezSafe.Utilities;
@@ -41,6 +43,12 @@ namespace HideezSafe.Modules.SettingsManager
         /// </summary>
         [Dependency]
         public IFileSerializer FileSerializer { get; set; }
+
+        /// <summary>
+        /// Injection property of class responsible for exchanging messages from SettingsManager
+        /// </summary>
+        [Dependency]
+        public IMessenger Messenger { get; set; }
 
         /// <summary>
         /// Path to the settings file
@@ -92,7 +100,7 @@ namespace HideezSafe.Modules.SettingsManager
                 if (settings != value)
                 {
                     settings = value;
-                    // Todo: Notify all observers through Messanger that settings were changed
+                    Messenger?.Send(new SettingsChangedMessage<T>());
                 }
             }
         }

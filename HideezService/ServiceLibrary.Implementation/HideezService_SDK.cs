@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
+using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Proximity;
 using Hideez.SDK.Communication.WCF;
@@ -9,6 +10,7 @@ using HideezMiddleware;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,13 +25,19 @@ namespace ServiceLibrary.Implementation
         static HesAppConnection _hesConnection;
         static RfidServiceConnection _rfidService;
         static ProximityMonitorManager _proximityMonitorManager;
-        static IWorkstationLocker _workstationLocker;
+        static WorkstationLocker _workstationLocker;
         static IScreenActivator _screenActivator;
         static WcfDeviceFactory _wcfDeviceManager;
 
         void InitializeSDK()
         {
             var sdkLogger = new NLogger();
+
+#if DEBUG
+            _log.Info(">>>>>> Verifying error codes:");
+            var _hideezExceptionLocalization = new HideezExceptionLocalization(sdkLogger);
+            _hideezExceptionLocalization.VerifyResourcesForErrorCode(CultureInfo.CurrentCulture);
+#endif
 
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
@@ -86,12 +94,12 @@ namespace ServiceLibrary.Implementation
 
             _credentialProviderConnection.Start();
 
-            // WorkstationLocker ==================================
-            _workstationLocker = new UiWorkstationLocker(SessionManager);
-
             // Proximity Monitor 
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _workstationLocker, sdkLogger);
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, sdkLogger);
             _proximityMonitorManager.Start();
+
+            // WorkstationLocker ==================================
+            _workstationLocker = new WorkstationLocker(SessionManager, _proximityMonitorManager);
 
             _connectionManager.StartDiscovery();
         }
@@ -106,6 +114,7 @@ namespace ServiceLibrary.Implementation
             {
                 device.ConnectionStateChanged += Device_ConnectionStateChanged;
                 device.Initialized += Device_Initialized;
+                device.StorageModified += RemoteConnection_StorageModified;
             }
         }
         
@@ -117,6 +126,7 @@ namespace ServiceLibrary.Implementation
             {
                 device.ConnectionStateChanged -= Device_ConnectionStateChanged;
                 device.Initialized -= Device_Initialized;
+                device.StorageModified -= RemoteConnection_StorageModified;
 
                 if (device is IWcfDevice wcfDevice)
                     UnsubscribeFromWcfDeviceEvents(wcfDevice);
@@ -387,6 +397,22 @@ namespace ServiceLibrary.Implementation
                     {
                         _client.Callbacks.RemoteConnection_BatteryChanged(wcfDevice.SerialNo, battery);
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
+        }
+
+        void RemoteConnection_StorageModified(object sender, EventArgs e)
+        {
+            try
+            {
+                if (sender is IDevice device)
+                {
+                    foreach (var client in SessionManager.Sessions)
+                        client.Callbacks.RemoteConnection_StorageModified(device.SerialNo);
                 }
             }
             catch (Exception ex)

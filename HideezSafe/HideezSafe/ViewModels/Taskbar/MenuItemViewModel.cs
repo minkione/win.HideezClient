@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace HideezSafe.ViewModels
 {
-    class MenuItemViewModel : LocalizedObject
+    public class MenuItemViewModel : LocalizedObject
     {
         private string header;
         private bool isCheckable;

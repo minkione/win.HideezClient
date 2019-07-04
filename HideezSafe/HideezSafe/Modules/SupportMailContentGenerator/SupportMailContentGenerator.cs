@@ -21,9 +21,9 @@ namespace HideezSafe.Modules
             this.settingsManager = settingsManager;
         }
 
-        public async Task<string> GenerateSupportMail(string address)
+        public Task<string> GenerateSupportMail(string address)
         {
-            return $"mailto:{address}";
+            return Task.FromResult($"mailto:{address}");
 
             // TODO: Implement mail generate
         }

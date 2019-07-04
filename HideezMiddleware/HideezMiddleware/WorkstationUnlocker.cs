@@ -194,6 +194,14 @@ namespace HideezMiddleware
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
             }
+            catch (HideezException ex)
+            {
+                var message = HideezExceptionLocalization.GetErrorAsString(ex);
+                WriteLine(message);
+                await _credentialProviderConnection.SendNotification("");
+                await _credentialProviderConnection.SendError(message);
+                throw;
+            }
             catch (Exception ex)
             {
                 WriteLine(ex);
@@ -237,6 +245,14 @@ namespace HideezMiddleware
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+            }
+            catch (HideezException ex)
+            {
+                var message = HideezExceptionLocalization.GetErrorAsString(ex);
+                WriteLine(message);
+                await _credentialProviderConnection.SendNotification("");
+                await _credentialProviderConnection.SendError(message);
+                throw;
             }
             catch (Exception ex)
             {
