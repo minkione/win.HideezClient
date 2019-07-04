@@ -25,7 +25,7 @@ namespace ServiceLibrary.Implementation
         static HesAppConnection _hesConnection;
         static RfidServiceConnection _rfidService;
         static ProximityMonitorManager _proximityMonitorManager;
-        static IWorkstationLocker _workstationLocker;
+        static WorkstationLocker _workstationLocker;
         static IScreenActivator _screenActivator;
         static WcfDeviceFactory _wcfDeviceManager;
 
@@ -94,12 +94,12 @@ namespace ServiceLibrary.Implementation
 
             _credentialProviderConnection.Start();
 
-            // WorkstationLocker ==================================
-            _workstationLocker = new UiWorkstationLocker(SessionManager);
-
             // Proximity Monitor 
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _workstationLocker, sdkLogger);
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, sdkLogger);
             _proximityMonitorManager.Start();
+
+            // WorkstationLocker ==================================
+            _workstationLocker = new WorkstationLocker(SessionManager, _proximityMonitorManager);
 
             _connectionManager.StartDiscovery();
         }

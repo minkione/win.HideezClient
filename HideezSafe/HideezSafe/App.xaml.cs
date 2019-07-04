@@ -36,6 +36,7 @@ using Hideez.ISM;
 using WindowsInput;
 using HideezSafe.PageViewModels;
 using HideezSafe.Modules.HotkeyManager;
+using System.Text;
 
 namespace HideezSafe
 {
@@ -96,12 +97,13 @@ namespace HideezSafe
             }
             catch (Exception exp)
             {
-                // Todo: log error with logger
-                Console.WriteLine("");
-                Console.WriteLine("Unexpected Error 1 in App.Application_Startup()");
-                Console.WriteLine("   Message:{0}", exp.Message);
-                Console.WriteLine("StackTrace:{0}", exp.StackTrace);
-                Console.WriteLine("");
+                var sb = new StringBuilder();
+                sb.AppendLine();
+                sb.AppendLine("Unexpected Error 1 in App.Application_Startup()");
+                sb.AppendLine($"   Message:{exp.Message}");
+                sb.AppendLine($"StackTrace:{exp.StackTrace}");
+                sb.AppendLine();
+                logger.Error(sb.ToString());
             }
 
             messenger = Container.Resolve<IMessenger>();
