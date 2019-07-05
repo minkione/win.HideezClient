@@ -4,12 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="clr-namespace:HideezSafe.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:ext="clr-namespace:MvvmExtensions.Converters;assembly=MvvmExtensions"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:l="clr-namespace:HideezSafe.Modules.Localize"
     xmlns:local="clr-namespace:HideezSafe.Controls"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ext="clr-namespace:MvvmExtensions.Converters;assembly=MvvmExtensions"
     VerticalContentAlignment="Center"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -29,6 +29,7 @@
             <ext:InvertBooleanConverter x:Key="InvertBooleanConverter" />
             <converters:ProximityToOpacityConverter x:Key="ProximityToOpacityConverter" />
             <converters:StringToResource x:Key="StringToResource" />
+            <converters:LowBatteryIndicatorVisibilityConverter x:Key="LowBatteryIndicatorVisibilityConverter" />
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -48,6 +49,7 @@
             VerticalScrollBarVisibility="Auto">
             <ItemsControl
                 x:Name="devicesList"
+                AlternationCount="{Binding RelativeSource={RelativeSource Self}, Path=Items.Count}"
                 Focusable="False"
                 ItemsSource="{Binding Devices}">
                 <ItemsControl.ItemTemplate>
@@ -134,6 +136,8 @@
                                         </Canvas>
                                     </Viewbox>
                                 </Grid>
+
+                                <!--  Icons  -->
                                 <iconPacks:PackIconModern
                                     x:Name="noConnectionIco"
                                     Width="16"
@@ -143,14 +147,15 @@
                                     Kind="Connect"
                                     Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
                                 <TextBlock
+                                    Width="43"
                                     VerticalAlignment="Stretch"
                                     FontSize="18"
-                                    Text="{Binding Proximity, StringFormat='{}{0,3}%'}" 
+                                    Text="{Binding Proximity, StringFormat='{}{0,3}%'}"
+                                    TextAlignment="Right"
                                     Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                                 <Grid Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <StackPanel Visibility="{Binding IsInitialized, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
-                                                Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" Visibility="{Binding IsInitialized, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
                                         <iconPacks:PackIconModern
                                             x:Name="ConnectingIco"
                                             Width="16"
@@ -165,24 +170,47 @@
                                             Margin="8,0,0,2"
                                             Foreground="{DynamicResource InitializingBrush}"
                                             Kind="Sync" />
-                                        <!--<iconPacks:PackIconMaterial
-                                            x:Name="cloud"
-                                            Width="16"
-                                            Height="22"
-                                            Margin="8,0,0,2"
-                                            Foreground="{DynamicResource InitializingBrush}"
-                                            Kind="CloudSync" />-->
                                     </StackPanel>
                                 </Grid>
+
+                                <iconPacks:PackIconMaterial
+                                    x:Name="Download"
+                                    Width="14"
+                                    Height="18"
+                                    Margin="8,4,0,2"
+                                    Foreground="White"
+                                    Kind="Download"
+                                    Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                <StackPanel>
+                                    <StackPanel.Visibility>
+                                        <MultiBinding Converter="{StaticResource LowBatteryIndicatorVisibilityConverter}">
+                                            <Binding Path="IsConnected" />
+                                            <Binding Path="Battery" />
+                                        </MultiBinding>
+                                    </StackPanel.Visibility>
+                                    <iconPacks:PackIconModern
+                                        Width="16"
+                                        Height="22"
+                                        Margin="8,-5,0,0"
+                                        Foreground="{DynamicResource LowBatteryIndicatorBrush}"
+                                        Kind="Battery1" />
+                                    <iconPacks:PackIconMaterial
+                                        Width="16"
+                                        Height="22"
+                                        Margin="20,-13,0,0"
+                                        Foreground="{DynamicResource LowBatteryIndicatorBrush}"
+                                        Kind="Alert" />
+                                </StackPanel>
                             </StackPanel>
 
                             <TextBlock
                                 Grid.Row="4"
+                                Margin="0,-2,0,0"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Top"
                                 FontSize="12"
                                 Opacity="0.5"
-                                Margin="0,-2,0,0"
                                 Text="{Binding SerialNo}" />
 
                             <ToggleButton
@@ -220,24 +248,12 @@
                                 VerticalAlignment="Bottom"
                                 ArrowVisibility="Collapsed"
                                 ItemContainerStyle="{StaticResource MenuItemStyle}"
+                                ItemsSource="{Binding MenuItems}"
                                 Orientation="Vertical"
                                 Style="{DynamicResource LightDropDownButtonStyle}">
                                 <mah:DropDownButton.Icon>
                                     <iconPacks:PackIconOcticons Foreground="White" Kind="KebabVertical" />
                                 </mah:DropDownButton.Icon>
-                                <mah:DropDownButton.Items>
-                                    <MenuItem
-                                        Command="{Binding AddCredentialCommand}"
-                                        Header="{l:Localization Menu.SavePCPassword}"
-                                        IsEnabled="{Binding IsInitialized}" />
-                                    <MenuItem
-                                        Command="{Binding DisconnectDeviceCommand}"
-                                        Header="{l:Localization Menu.DisconnectDevice}"
-                                        IsEnabled="{Binding IsConnected}" />
-                                    <MenuItem 
-                                        Command="{Binding RemoveDeviceCommand}" 
-                                        Header="{l:Localization Menu.RemoveDevice}" />
-                                </mah:DropDownButton.Items>
                             </mah:DropDownButton>
 
                             <Grid
@@ -246,9 +262,9 @@
                                 Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=toggleButton}" />
                         </Grid>
                         <DataTemplate.Triggers>
-                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
                                 <Setter TargetName="separator" Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
+                            </Trigger>
                         </DataTemplate.Triggers>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

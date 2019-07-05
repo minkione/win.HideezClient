@@ -1,4 +1,5 @@
-﻿using HideezSafe.ViewModels;
+﻿using HideezSafe.Models;
+using HideezSafe.ViewModels;
 
 namespace HideezSafe.Modules
 {
@@ -20,10 +21,16 @@ namespace HideezSafe.Modules
         Separator,
         LaunchOnStartup,
         GetLogsSubmenu,
+
+        // For device
+        AddCredential,
+        DisconnectDevice,
+        RemoveDevice,
     }
 
-    interface IMenuFactory
+    public interface IMenuFactory
     {
         MenuItemViewModel GetMenuItem(MenuItemType type);
+        MenuItemViewModel GetMenuItem(Device device, MenuItemType type);
     }
 }

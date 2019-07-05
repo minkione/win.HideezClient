@@ -117,349 +117,157 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Ok" xml:space="preserve">
-    <value>Ok</value>
-  </data>
-  <data name="GenericException" xml:space="preserve">
-    <value />
-  </data>
-  <data name="DeviceIdCannotBeEmpty" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ProtocolError" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleDeviceNotFound" xml:space="preserve">
-    <value />
-  </data>
-  <data name="IncorrectUserNameOrPassword" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ServiceRequestNotAuthorized" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ServiceRequestNotPermitted" xml:space="preserve">
-    <value />
-  </data>
-  <data name="IncorrectResponseCode" xml:space="preserve">
-    <value />
-  </data>
-  <data name="NoCurrentCommandAwailable" xml:space="preserve">
-    <value />
-  </data>
-  <data name="CallGetFirstRecord" xml:space="preserve">
-    <value />
-  </data>
-  <data name="NullNotSupportedStorageType" xml:space="preserve">
-    <value />
-  </data>
-  <data name="NotSupportedStorageType" xml:space="preserve">
-    <value />
-  </data>
-  <data name="EmptyDataBuffer" xml:space="preserve">
-    <value />
-  </data>
-  <data name="UserCanceled" xml:space="preserve">
-    <value />
-  </data>
-  <data name="UnknownDeviceType" xml:space="preserve">
-    <value />
-  </data>
-  <data name="CannotDeleteRecordKeyEmpty" xml:space="preserve">
-    <value />
-  </data>
-  <data name="RepeatedBondingRequired" xml:space="preserve">
-    <value />
-  </data>
-  <data name="CannotConnectToService" xml:space="preserve">
-    <value />
-  </data>
-  <data name="CannotDetectWindowCaption" xml:space="preserve">
-    <value />
-  </data>
-  <data name="AppUpdateWebError" xml:space="preserve">
-    <value />
-  </data>
-  <data name="DefaultPasswordIsNotFound" xml:space="preserve">
-    <value />
-  </data>
-  <data name="FileNotFound" xml:space="preserve">
-    <value />
-  </data>
-  <data name="CannotGetAccountPassword" xml:space="preserve">
-    <value />
-  </data>
-  <data name="NoPairedDevices" xml:space="preserve">
-    <value />
-  </data>
-  <data name="DownloadFileError" xml:space="preserve">
-    <value />
-  </data>
-  <data name="AccountPasswordNotFoundOnDevice" xml:space="preserve">
-    <value />
-  </data>
-  <data name="DeviceInitializationAlreadyInProgress" xml:space="preserve">
-    <value />
-  </data>
-  <data name="DeviceUnInitializationAlreadyInProgress" xml:space="preserve">
-    <value />
-  </data>
-  <data name="UserNotLoggedIn" xml:space="preserve">
-    <value />
-  </data>
-  <data name="HttpClientException" xml:space="preserve">
-    <value />
-  </data>
-  <data name="WebApiGenericException" xml:space="preserve">
-    <value />
-  </data>
-  <data name="WebApiIncorrectUserNameOrPassword" xml:space="preserve">
-    <value />
-  </data>
-  <data name="WebApiDeviceRegisteredToAnotherUser" xml:space="preserve">
-    <value />
-  </data>
-  <data name="WebApiHttpStatusFail" xml:space="preserve">
-    <value />
-  </data>
-  <data name="WebApiEmailNotConfirmed" xml:space="preserve">
-    <value />
-  </data>
-  <data name="WebApiNoToken" xml:space="preserve">
-    <value />
-  </data>
-  <data name="LockerLoginCannotBeEmpty" xml:space="preserve">
-    <value />
-  </data>
-  <data name="LockerPasswordCannotBeEmpty" xml:space="preserve">
-    <value />
-  </data>
-  <data name="LockerEmptyLogin" xml:space="preserve">
-    <value />
-  </data>
-  <data name="LockerEmptyPassword" xml:space="preserve">
-    <value />
-  </data>
-  <data name="LockerNoDeviceForUser" xml:space="preserve">
-    <value />
-  </data>
-  <data name="LockerNoConnection" xml:space="preserve">
-    <value />
-  </data>
-  <data name="LockerNotCloseEnough" xml:space="preserve">
-    <value />
-  </data>
-  <data name="LockerNotEnabled" xml:space="preserve">
-    <value />
-  </data>
-  <data name="WorkstationUnlockerNotAwailable" xml:space="preserve">
-    <value />
-  </data>
-  <data name="WorkstationLockerNotAwailable" xml:space="preserve">
-    <value />
-  </data>
-  <data name="PmNotSupported" xml:space="preserve">
-    <value />
-  </data>
-  <data name="PmPasswordCannotBeEmpty" xml:space="preserve">
-    <value />
-  </data>
-  <data name="PmPasswordNameCannotBeEmpty" xml:space="preserve">
-    <value />
-  </data>
-  <data name="PmPasswordNameAlreadyExists" xml:space="preserve">
-    <value />
-  </data>
-  <data name="PmPasswordNotFound" xml:space="preserve">
-    <value />
-  </data>
-  <data name="PmOtpSecretHasInvalidFormat" xml:space="preserve">
-    <value />
-  </data>
-  <data name="HotkeyIsNotAvailable" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleCharacteristicWriteError" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleWrongDataLengthReceived" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleIncorrectResponse" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleError" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleConnectionNotFound" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleResponseTimeout" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleConnectionTimeout" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleQueueOverflow" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleDeviceNotConnected" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleConnectionNotConnected" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BlePartialResponseError" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleDeviceAccessDenied" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleDeviceBusy" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleDeviceInitializationError" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleUnknownMessageReceived" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleDeviceBondingFail" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleDeviceUnbondingFail" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleConnectionIsNotValid" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleConnectionLimitReached" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleBondingNotSupported" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleDeviceDisconnected" xml:space="preserve">
-    <value />
-  </data>
-  <data name="BleInvalidDiscoveredDeviceId" xml:space="preserve">
-    <value />
+  <data name="ERR_UNKNOWN_ERROR" xml:space="preserve">
+    <value>Unknown error</value>
   </data>
   <data name="AuthenticationFailed" xml:space="preserve">
-    <value />
+    <value>Channel authentication failed</value>
   </data>
-  <data name="ChannelDoesNotInitialized" xml:space="preserve">
-    <value />
+  <data name="BleCharacteristicWriteError" xml:space="preserve">
+    <value>Characteristic write error</value>
   </data>
-  <data name="WrongReplyData" xml:space="preserve">
-    <value />
+  <data name="BleConnectionNotConnected" xml:space="preserve">
+    <value>Device is not connected</value>
   </data>
-  <data name="WrongPayloadLenght" xml:space="preserve">
-    <value />
+  <data name="BleInvalidPacketNumber" xml:space="preserve">
+    <value>Invalid bluetooth packet number</value>
   </data>
-  <data name="InvalidChannelNo" xml:space="preserve">
-    <value />
+  <data name="BlePacketParseError" xml:space="preserve">
+    <value>Error occured while parsing bluetooth packet</value>
   </data>
-  <data name="MainChannelNotAuthenticated" xml:space="preserve">
-    <value />
-  </data>
-  <data name="InvalidPacketNumber" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ChannelAlreadyAuthenticated" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ZeroChannelCannotBeAuthenticated" xml:space="preserve">
-    <value />
-  </data>
-  <data name="RemoteSendError" xml:space="preserve">
-    <value />
-  </data>
-  <data name="RemoteChannelNotAuthenticated" xml:space="preserve">
-    <value />
-  </data>
-  <data name="DeviceNotConnectedToAnyHost" xml:space="preserve">
-    <value />
-  </data>
-  <data name="RemoteConnectionTimedOut" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ChannelNotFound" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ChannelAuthenticationTimedOut" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ChannelAuthenticationInProgress" xml:space="preserve">
-    <value />
+  <data name="BleResponseTimeout" xml:space="preserve">
+    <value>Bluetooth response timeout</value>
   </data>
   <data name="BleSendError" xml:space="preserve">
-    <value />
+    <value>Bluetooth sending error</value>
   </data>
-  <data name="ERR_UNKNOWN_ERROR" xml:space="preserve">
-    <value />
+  <data name="ChannelAlreadyAuthenticated" xml:space="preserve">
+    <value>Channel already authenticated</value>
   </data>
-  <data name="ERR_NOT_INITIALIZED" xml:space="preserve">
-    <value />
+  <data name="ChannelAuthenticationInProgress" xml:space="preserve">
+    <value>Channel authentication is already in progress</value>
+  </data>
+  <data name="ChannelAuthenticationTimedOut" xml:space="preserve">
+    <value>Channel authentication timed out</value>
+  </data>
+  <data name="ChannelDoesNotInitialized" xml:space="preserve">
+    <value>Channel is not initialized</value>
+  </data>
+  <data name="ChannelNotFound" xml:space="preserve">
+    <value>Channel not found</value>
+  </data>
+  <data name="DeviceNotConnectedToAnyHost" xml:space="preserve">
+    <value>Remote device is not connected to any host</value>
   </data>
   <data name="ERR_ALREADY_INITIALIZED" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_ENCRYPTION_REQ" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_DEVICE_LOCKED" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_UNAUTHORIZED" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_DEVICE_BUSY" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_UNSUPPORTED" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_MESSAGE_TOO_LONG" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_PASSPHRASE_UNKNOWN" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_INVALID_PARAMETER" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_OPERATION_CANCELED" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_HARDWARE_FAULT" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_WRONG_PROFILE" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_KEY_USED" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_KEY_WRONG" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ERR_BAD_RECOVERY_DATA" xml:space="preserve">
-    <value />
+    <value>Device already initialized</value>
   </data>
   <data name="ERR_AUTHORIZATION_FAILED" xml:space="preserve">
-    <value />
+    <value>Authorization failed</value>
+  </data>
+  <data name="ERR_BAD_RECOVERY_DATA" xml:space="preserve">
+    <value>Bad recovery data</value>
   </data>
   <data name="ERR_CHANNEL_BUSY" xml:space="preserve">
-    <value />
+    <value>Channel is busy</value>
+  </data>
+  <data name="ERR_DEVICE_BUSY" xml:space="preserve">
+    <value>Device is busy</value>
+  </data>
+  <data name="ERR_DEVICE_LOCKED" xml:space="preserve">
+    <value>Device is locked</value>
+  </data>
+  <data name="ERR_ENCRYPTION_REQ" xml:space="preserve">
+    <value>Encryption required</value>
+  </data>
+  <data name="ERR_HARDWARE_FAULT" xml:space="preserve">
+    <value>Hardware fault</value>
+  </data>
+  <data name="ERR_INVALID_PARAMETER" xml:space="preserve">
+    <value>Invalid parameter</value>
+  </data>
+  <data name="ERR_KEY_USED" xml:space="preserve">
+    <value>Key already taken</value>
+  </data>
+  <data name="ERR_KEY_WRONG" xml:space="preserve">
+    <value>Invalid key</value>
+  </data>
+  <data name="ERR_MESSAGE_TOO_LONG" xml:space="preserve">
+    <value>Sent or received message is to long</value>
   </data>
   <data name="ERR_MNEMONIC_INCONSISTENT" xml:space="preserve">
     <value />
   </data>
-  <data name="ERR_UNKNOWN_MESSAGE" xml:space="preserve">
+  <data name="ERR_NOT_INITIALIZED" xml:space="preserve">
+    <value>Device is not initialized</value>
+  </data>
+  <data name="ERR_NO_ENCRYPTION" xml:space="preserve">
+    <value>No encryption</value>
+  </data>
+  <data name="ERR_OPERATION_CANCELED" xml:space="preserve">
+    <value>Operation cancelled</value>
+  </data>
+  <data name="ERR_PASSPHRASE_UNKNOWN" xml:space="preserve">
     <value />
   </data>
-  <data name="StorageWriteError" xml:space="preserve">
-    <value />
+  <data name="ERR_UNAUTHORIZED" xml:space="preserve">
+    <value>Unauthorized access</value>
+  </data>
+  <data name="ERR_UNSUPPORTED" xml:space="preserve">
+    <value>Operation is not supported</value>
+  </data>
+  <data name="ERR_WRONG_PROFILE" xml:space="preserve">
+    <value>Wrong profile</value>
+  </data>
+  <data name="FailedToEstablishRemoteConnection" xml:space="preserve">
+    <value>Failed to establish remote connection</value>
+  </data>
+  <data name="HesNotConnected" xml:space="preserve">
+    <value>Not connected to HES</value>
+  </data>
+  <data name="InvalidChannelNo" xml:space="preserve">
+    <value>Invalid channel number</value>
+  </data>
+  <data name="InvalidMessageSignuture" xml:space="preserve">
+    <value>Invalid message signature</value>
+  </data>
+  <data name="MainChannelNotAuthenticated" xml:space="preserve">
+    <value>Main channel is not authenticated</value>
+  </data>
+  <data name="PmLoginCannotBeEmpty" xml:space="preserve">
+    <value>Account login cannot be empty</value>
+  </data>
+  <data name="PmNotSupported" xml:space="preserve">
+    <value>Password manager is not supported</value>
+  </data>
+  <data name="PmOtpSecretHasInvalidFormat" xml:space="preserve">
+    <value>Otp secret has invalid format</value>
+  </data>
+  <data name="PmPasswordCannotBeEmpty" xml:space="preserve">
+    <value>Account password cannot be empty</value>
+  </data>
+  <data name="PmPasswordNameAlreadyExists" xml:space="preserve">
+    <value>Account name already used by another account</value>
+  </data>
+  <data name="PmPasswordNameCannotBeEmpty" xml:space="preserve">
+    <value>Account name cannot be empty</value>
+  </data>
+  <data name="PmPasswordNotFound" xml:space="preserve">
+    <value>Account password not found</value>
+  </data>
+  <data name="RemoteChannelNotAuthenticated" xml:space="preserve">
+    <value>Remote channel is not authenticated</value>
+  </data>
+  <data name="RemoteConnectionTimedOut" xml:space="preserve">
+    <value>Remote connection timeout</value>
+  </data>
+  <data name="RemoteSendError" xml:space="preserve">
+    <value>Remote send error</value>
+  </data>
+  <data name="WrongPayloadLength" xml:space="preserve">
+    <value>Wrong payload length</value>
+  </data>
+  <data name="WrongReplyData" xml:space="preserve">
+    <value>Wrong reply data</value>
   </data>
 </root>

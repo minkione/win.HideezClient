@@ -319,10 +319,28 @@ Device is not connected</value>
   <data name="Menu.Logs.OpenServiceFolder" xml:space="preserve">
     <value>Service Logs</value>
   </data>
+  <data name="Exception.LoginNotFound" xml:space="preserve">
+    <value>Lodin not found for {0}.</value>
+  </data>
+  <data name="Exception.NoOneAccountWithOtp" xml:space="preserve">
+    <value>No one account with otp for {0}.</value>
+  </data>
+  <data name="Exception.PasswordNotFound" xml:space="preserve">
+    <value>Password not found for {0}.</value>
+  </data>
   <data name="SupportMail" xml:space="preserve">
     <value>support@hideez.com</value>
   </data>
   <data name="SupportMailUri" xml:space="preserve">
     <value>mailto:support@hideez.com</value>
+  </data>
+  <data name="Exception.FieldNotSecure" xml:space="preserve">
+    <value>Password entry cancelled. Field not protected.</value>
+  </data>
+  <data name="Exception.AccountNotFound" xml:space="preserve">
+    <value>Accout for {0} is not found.</value>
+  </data>
+  <data name="NoAnyConnectedDevice" xml:space="preserve">
+    <value>Not found any connected device.</value>
   </data>
 </root>

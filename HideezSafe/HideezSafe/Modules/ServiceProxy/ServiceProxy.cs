@@ -76,9 +76,6 @@ namespace HideezSafe.Modules.ServiceProxy
                     if (!attached)
                     {
                         await DisconnectAsync();
-                        //UnsubscriveFromServiceEvents(service);
-                        //CloseServiceConnection(service);
-                        //service = null;
                     }
 
                     return attached;
@@ -88,9 +85,6 @@ namespace HideezSafe.Modules.ServiceProxy
                     log.Error(ex.Message);
 
                     await DisconnectAsync();
-                    //UnsubscriveFromServiceEvents(service);
-                    //CloseServiceConnection(service);
-                    //service = null;
 
                     return false;
                 }

@@ -74,7 +74,7 @@
     <Compile Include="ServiceClientSession.cs" />
     <Compile Include="ServiceClientSessionManager.cs" />
     <Compile Include="UiScreenActivator.cs" />
-    <Compile Include="UiWorkstationLocker.cs" />
+    <Compile Include="WorkstationLocker.cs" />
     <Compile Include="WtsapiWorkstationLocker.cs" />
   </ItemGroup>
   <ItemGroup>

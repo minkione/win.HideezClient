@@ -1,10 +1,13 @@
-﻿using HideezSafe.ViewModels;
-using System.Collections.ObjectModel;
+﻿using HideezSafe.Models;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 
 namespace HideezSafe.Modules.DeviceManager
 {
     interface IDeviceManager
     {
-        ObservableCollection<DeviceViewModel> Devices { get; }
+        event NotifyCollectionChangedEventHandler DevicesCollectionChanged;
+
+        IEnumerable<Device> Devices { get; }
     }
 }

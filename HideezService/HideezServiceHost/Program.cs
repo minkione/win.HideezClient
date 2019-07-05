@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.ServiceProcess;
 
 namespace HideezServiceHost
@@ -21,6 +22,9 @@ namespace HideezServiceHost
             }
             catch (Exception ex)
             {
+                var log = LogManager.GetCurrentClassLogger();
+                log.Fatal("An unhandled exception occured in service");
+                log.Fatal(ex);
                 Environment.FailFast(ex.Message);
             }
         }

@@ -37,14 +37,15 @@ namespace HideezMiddleware
         public bool VerifyResourcesForErrorCode(CultureInfo culture)
         {
             bool isValid = true;
-            // English culture read from default resource
+
+            // If specified culture is English, read from the default resource due to file name difference for default culture
             ResourceSet resourceSet = ErrorCode.ResourceManager
                 .GetResourceSet(culture, true, culture.EnglishName.StartsWith("en", StringComparison.InvariantCultureIgnoreCase));
 
             if (resourceSet == null)
             {
                 isValid = false;
-                WriteLine($"Has no resource for culture: {culture.EnglishName}", LogErrorSeverity.Warning);
+                WriteLine($"Localization for {culture.EnglishName} culture is not available", LogErrorSeverity.Warning);
             }
 
             var errorCodes = Enum.GetNames(typeof(HideezErrorCode));
@@ -54,8 +55,8 @@ namespace HideezMiddleware
                 if (!errorCodes.Contains(entry.Key.ToString()))
                 {
                     isValid = false;
-                    WriteLine($"Resource contains key not suported in enum HideezErrorCode. " +
-                        $"Key: {entry.Key.ToString()}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
+                    WriteLine($"No error code found for: " +
+                        $"{entry.Key.ToString()}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
                 }
             }
 
@@ -66,26 +67,26 @@ namespace HideezMiddleware
                 if (str == null)
                 {
                     isValid = false;
-                    WriteLine($"HideezErrorCode is not set into resource. " +
-                        $"HideezErrorCode: {errCode}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
+                    WriteLine($"No localization for error code: " +
+                        $"{errCode}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
                 }
                 else if (string.IsNullOrWhiteSpace(str))
                 {
                     isValid = false;
-                    WriteLine($"Value for HideezErrorCode cannot be empty or white space. " +
-                        $"HideezErrorCode: {errCode}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
+                    WriteLine($"Localization is empty for: " +
+                        $"{errCode}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
                 }
             }
 
             return isValid;
         }
 
-        public string GetErrorAsString(HideezErrorCode hideezErrorCode, CultureInfo culture = null)
+        public static string GetErrorAsString(HideezErrorCode hideezErrorCode, CultureInfo culture = null)
         {
             return ErrorCode.ResourceManager.GetString(hideezErrorCode.ToString(), culture ?? ErrorCode.Culture);
         }
 
-        public string GetErrorAsString(HideezException exception, CultureInfo culture = null)
+        public static string GetErrorAsString(HideezException exception, CultureInfo culture = null)
         {
             string localizedStr = ErrorCode.ResourceManager.GetString(exception.ErrorCode.ToString(), culture ?? ErrorCode.Culture);
 

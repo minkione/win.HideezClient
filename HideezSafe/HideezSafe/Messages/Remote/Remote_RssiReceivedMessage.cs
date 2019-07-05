@@ -1,14 +1,13 @@
 ﻿namespace HideezSafe.Messages.Remote
 {
-    class Remote_RssiReceivedMessage
+    class Remote_RssiReceivedMessage : Remote_BaseMessage
     {
         public Remote_RssiReceivedMessage(string serialNo, double rssi)
+            : base(serialNo)
         {
-            SerialNo = serialNo;
             Rssi = rssi;
         }
 
-        public string SerialNo { get; }
 
         public double Rssi { get; }
     }
