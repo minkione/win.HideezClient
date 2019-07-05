@@ -44,7 +44,7 @@ namespace HideezMiddleware
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
 
-            _credentialProviderConnection.OnProviderConnected += _credentialProviderConnection_OnProviderConnected;
+            _credentialProviderConnection.OnProviderConnected += CredentialProviderConnection_OnProviderConnected;
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
@@ -69,7 +69,7 @@ namespace HideezMiddleware
 
         #region Status notification
 
-        void _credentialProviderConnection_OnProviderConnected(object sender, EventArgs e)
+        void CredentialProviderConnection_OnProviderConnected(object sender, EventArgs e)
         {
             SendStatusToCredentialProvider();
         }
@@ -181,6 +181,13 @@ namespace HideezMiddleware
                 var device = await _deviceManager.ConnectByMac(mac, timeout: 20_000);
                 if (device == null)
                     throw new Exception($"Cannot connect device '{mac}'");
+
+                await _credentialProviderConnection.SendNotification("Please enter the PIN...");
+                string pin = await new WaitPinFromCredentialProviderProc(_credentialProviderConnection).Run(20_000);
+                if (pin == null)
+                    throw new Exception($"PIN timeout");
+
+                //todo - verify PIN code
 
                 await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
                 await device.WaitInitialization(timeout: 10_000);

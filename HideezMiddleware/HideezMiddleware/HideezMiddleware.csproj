@@ -71,6 +71,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\ErrorCode.Designer.cs" />
     <Compile Include="RfidServiceConnection.cs" />
+    <Compile Include="WaitPinFromCredentialProviderProc .cs" />
     <Compile Include="WorkstationUnlocker.cs" />
   </ItemGroup>
   <ItemGroup>

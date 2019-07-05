@@ -22,6 +22,7 @@ namespace HideezMiddleware
         readonly PipeServer _pipeServer;
 
         public event EventHandler<EventArgs> OnProviderConnected;
+        public event EventHandler<string> OnPinEntered;
 
         public CredentialProviderConnection(ILog log)
             : base(nameof(CredentialProviderConnection), log)
@@ -82,6 +83,11 @@ namespace HideezMiddleware
                     WriteDebugLine($"OnPasswordChangeEnd Error ------------------------ {prms}");
                 }
             }
+            else if (code == 6)
+            {
+                string pin = Encoding.Unicode.GetString(buf, 4, len - 4);
+                OnCheckPin(pin);
+            }
         }
 
         void PipeServer_ClientConnectedEvent(object sender, ClientConnectedEventArgs e)
@@ -93,6 +99,12 @@ namespace HideezMiddleware
         {
             WriteLine($"LogonWorkstationAsync: {login}");
             await SendMessageAsync(CredentialProviderCommandCode.Logon, true, $"{login}");
+        }
+
+        void OnCheckPin(string pin)
+        {
+            WriteLine($"OnCheckPin: {pin}");
+            OnPinEntered?.Invoke(this, pin);
         }
 
         public async Task SendLogonRequest(string login, string password, string prevPassword)
