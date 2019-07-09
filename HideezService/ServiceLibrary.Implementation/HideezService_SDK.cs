@@ -72,7 +72,7 @@ namespace ServiceLibrary.Implementation
             {
                 // HES ==================================
                 // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
-                _hesConnection = new HesAppConnection(_deviceManager, GetHesAddress(), sdkLogger);
+                _hesConnection = new HesAppConnection(_deviceManager, GetHesAddress(), null, sdkLogger);
                 _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
                 _hesConnection.Start();
             }
