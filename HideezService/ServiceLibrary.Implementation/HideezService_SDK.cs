@@ -6,12 +6,14 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Proximity;
 using Hideez.SDK.Communication.WCF;
+using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation
@@ -72,7 +74,9 @@ namespace ServiceLibrary.Implementation
             {
                 // HES ==================================
                 // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
-                _hesConnection = new HesAppConnection(_deviceManager, GetHesAddress(), null, sdkLogger);
+                string hesAddres = GetHesAddress();
+                var workstationInfoProvider = new WorkstationInfoProvider(hesAddres);
+                _hesConnection = new HesAppConnection(_deviceManager, hesAddres, workstationInfoProvider, sdkLogger);
                 _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
                 _hesConnection.Start();
             }
@@ -117,7 +121,7 @@ namespace ServiceLibrary.Implementation
                 device.StorageModified += RemoteConnection_StorageModified;
             }
         }
-        
+
         void DeviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
         {
             var device = e.RemovedDevice;
@@ -444,7 +448,7 @@ namespace ServiceLibrary.Implementation
             try
             {
                 var wcfDevice = (IWcfDevice)_deviceManager.Find(connectionId);
-                
+
                 var response = await wcfDevice.OnRemoteCommandAsync(data);
 
                 return response;

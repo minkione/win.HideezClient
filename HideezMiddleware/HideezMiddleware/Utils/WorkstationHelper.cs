@@ -1,5 +1,4 @@
 ﻿using HideezMiddleware.Utils;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,77 +7,13 @@ using System.Management;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Security.Principal;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
-    public class WorkstationInfoHelper
+    public class WorkstationHelper
     {
-        private class WorkstationInfoImpl : WorkstationInfo
-        {
-            public async Task InitAsync(IPAddress allowedIP)
-            {
-#if DEBUG
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
-#endif
-
-                try
-                {
-                    AppVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-
-                    MachineName = Environment.MachineName;
-                    Domain = Environment.UserDomainName;
-
-                    try
-                    {
-                        RegistryKey registryKey = Registry.LocalMachine.OpenSubKey("Software\\Microsoft\\Windows NT\\CurrentVersion");
-                        OsName = (string)registryKey.GetValue("ProductName");
-                        OSVersion = (string)registryKey.GetValue("ReleaseId");
-                        OsBuild = $"{registryKey.GetValue("CurrentBuild")}.{registryKey.GetValue("UBR")}";
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex);
-                        Debug.Assert(false);
-                    }
-
-                    IPAddress localIP = await GetLocalIPAddressAsync(allowedIP);
-                    PhysicalAddress mac = GetCurrentMAC(localIP);
-
-                    IPAddress = localIP.ToString();
-                    MACAddress = mac.ToString();
-
-                    WindowsUserAccounts = await GetAllUserNamesAsync();
-                }
-                catch (Exception ex)
-                {
-                    HandlerError(ex);
-                }
-
-#if DEBUG
-                stopwatch.Stop();
-                var elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
-#endif
-            }
-        }
-
-        public static async Task<WorkstationInfo> GetWorkstationInfoAsync(IPAddress allowedIP = null)
-        {
-            if (allowedIP == null || allowedIP == IPAddress.None)
-            {
-                allowedIP = Dns.GetHostAddresses("www.google.com").FirstOrDefault();
-            }
-
-            WorkstationInfoImpl workstationInfo = new WorkstationInfoImpl();
-            await workstationInfo.InitAsync(allowedIP);
-
-            return workstationInfo;
-        }
-
         public static PhysicalAddress GetCurrentMAC(IPAddress localIPAddres)
         {
             PhysicalAddress physicalAddress = PhysicalAddress.None;
