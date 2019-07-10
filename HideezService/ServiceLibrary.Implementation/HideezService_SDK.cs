@@ -38,7 +38,7 @@ namespace ServiceLibrary.Implementation
 #if DEBUG
             _log.Info(">>>>>> Verifying error codes:");
             var _hideezExceptionLocalization = new HideezExceptionLocalization(sdkLogger);
-            _hideezExceptionLocalization.VerifyResourcesForErrorCode(CultureInfo.CurrentCulture);
+            _hideezExceptionLocalization.VerifyResourcesForErrorCode(new CultureInfo("en"));
 #endif
 
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
@@ -75,7 +75,7 @@ namespace ServiceLibrary.Implementation
                 // HES ==================================
                 // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
                 string hesAddres = GetHesAddress();
-                var workstationInfoProvider = new WorkstationInfoProvider(hesAddres);
+                var workstationInfoProvider = new WorkstationInfoProvider(hesAddres.Replace("http://", "").Replace("/", ""));
                 _hesConnection = new HesAppConnection(_deviceManager, hesAddres, workstationInfoProvider, sdkLogger);
                 _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
                 _hesConnection.Start();

@@ -17,7 +17,7 @@ namespace HideezMiddleware
         private readonly IPAddress allowedIP;
 
         public WorkstationInfoProvider(string allowedIP)
-        {
+        {            
             IPAddress.TryParse(allowedIP, out IPAddress address);
             this.allowedIP = address;
         }
@@ -50,7 +50,7 @@ namespace HideezMiddleware
                     Debug.Assert(false);
                 }
 
-                if (allowedIP == null || allowedIP == IPAddress.None)
+                if (allowedIP != null && allowedIP != IPAddress.None)
                 {
                     IPAddress localIP = await WorkstationHelper.GetLocalIPAddressAsync(allowedIP);
                     PhysicalAddress mac = WorkstationHelper.GetCurrentMAC(localIP);
