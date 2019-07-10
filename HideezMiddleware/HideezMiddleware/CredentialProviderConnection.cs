@@ -24,6 +24,14 @@ namespace HideezMiddleware
         public event EventHandler<EventArgs> OnProviderConnected;
         public event EventHandler<string> OnPinEntered;
 
+        public bool IsConnected
+        {
+            get
+            {
+                return _pipeServer.IsConnected;
+            }
+        }
+
         public CredentialProviderConnection(ILog log)
             : base(nameof(CredentialProviderConnection), log)
         {

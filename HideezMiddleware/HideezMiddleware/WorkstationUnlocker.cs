@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
@@ -25,6 +26,11 @@ namespace HideezMiddleware
 
         readonly ConcurrentDictionary<string, Guid> _pendingUnlocks =
             new ConcurrentDictionary<string, Guid>();
+
+        public int ConnectProximity { get; set; } = 50;
+
+        public List<DeviceUnlockerSettingsInfo> DeviceConnectionFilters = 
+            new List<DeviceUnlockerSettingsInfo>();
 
         public WorkstationUnlocker(BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
@@ -57,6 +63,7 @@ namespace HideezMiddleware
             if (_hesConnection != null)
             {
                 _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
+                _hesConnection.HubSettingsArrived -= _hesConnection_HubSettingsArrived;
                 _hesConnection = null;
             }
 
@@ -64,7 +71,14 @@ namespace HideezMiddleware
             {
                 _hesConnection = hesConnection;
                 _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
+                _hesConnection.HubSettingsArrived += _hesConnection_HubSettingsArrived;
             }
+        }
+
+        private void _hesConnection_HubSettingsArrived(object sender, UnlockerSettingsInfo e)
+        {
+            DeviceConnectionFilters = new List<DeviceUnlockerSettingsInfo>(e.DeviceUnlockerSettings);
+            WriteLine("Updated device connection filters received");
         }
 
         #region Status notification
@@ -149,6 +163,25 @@ namespace HideezMiddleware
                         _pendingUnlocks.TryRemove(e.Id, out Guid removed);
                     }
                 }
+                else
+                {
+                    //if (_credentialProviderConnection.IsConnected &&
+                    //    BleUtils.RssiToProximity(e.Rssi) > ConnectProximity &&
+                    //    DeviceConnectionFilters.Any(d => d.AllowProximity && d.Mac == e.Id))
+                    if (BleUtils.RssiToProximity(e.Rssi) > ConnectProximity &&
+                        DeviceConnectionFilters.Any(d => d.AllowProximity && d.Mac == e.Id))
+
+                    {
+                        var newGuid = Guid.NewGuid();
+                        var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);
+
+                        if (guid == newGuid)
+                        {
+                            await UnlockByProximity(e.Id);
+                            _pendingUnlocks.TryRemove(e.Id, out Guid removed);
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -182,16 +215,28 @@ namespace HideezMiddleware
                 if (device == null)
                     throw new Exception($"Cannot connect device '{mac}'");
 
-                await _credentialProviderConnection.SendNotification("Please enter the PIN...");
-                string pin = await new WaitPinFromCredentialProviderProc(_credentialProviderConnection).Run(20_000);
-                if (pin == null)
-                    throw new Exception($"PIN timeout");
+                //await _credentialProviderConnection.SendNotification("Please enter the PIN...");
+                //string pin = await new WaitPinFromCredentialProviderProc(_credentialProviderConnection).Run(20_000);
+                //if (pin == null)
+                //    throw new Exception($"PIN timeout");
 
                 //todo - verify PIN code
 
                 await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
                 await device.WaitInitialization(timeout: 10_000);
 
+                // No point in reading credentials if CredentialProvider is not connected
+                if (!_credentialProviderConnection.IsConnected)
+                    return;
+
+                // get MAC address from the HES
+                var info = await _hesConnection.GetInfoByMac(mac);
+
+                if (info == null)
+                    throw new Exception($"Device not found");
+
+                await _credentialProviderConnection.SendNotification("Waiting for the primary account update...");
+                await WaitForPrimaryAccountUpdate(info);
 
                 await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
                 ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
@@ -239,8 +284,19 @@ namespace HideezMiddleware
                 if (device == null)
                     throw new Exception($"Cannot connect device '{info.DeviceMac}'");
 
+                //await _credentialProviderConnection.SendNotification("Please enter the PIN...");
+                //string pin = await new WaitPinFromCredentialProviderProc(_credentialProviderConnection).Run(20_000);
+                //if (pin == null)
+                //    throw new Exception($"PIN timeout");
+
+                //todo - verify PIN code
+
                 await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
                 await device.WaitInitialization(timeout: 10_000);
+
+                // No point in reading credentials if CredentialProvider is not connected
+                if (!_credentialProviderConnection.IsConnected)
+                    return;
 
                 await _credentialProviderConnection.SendNotification("Waiting for the primary account update...");
                 await WaitForPrimaryAccountUpdate(rfid, info);
@@ -270,6 +326,11 @@ namespace HideezMiddleware
             }
         }
 
+        public async Task UnlockByProximity(string mac)
+        {
+            await UnlockByMac(mac);
+        }
+
         async Task WaitForPrimaryAccountUpdate(string rfid, UserInfo info)
         {
             if (_hesConnection == null)
@@ -281,6 +342,26 @@ namespace HideezMiddleware
             for (int i = 0; i < 10; i++)
             {
                 info = await _hesConnection.GetInfoByRfid(rfid);
+                if (info.NeedUpdatePrimaryAccount == false)
+                    return;
+                await Task.Delay(3000);
+            }
+
+            throw new Exception($"Update of the primary account has been timed out");
+        }
+
+        async Task WaitForPrimaryAccountUpdate(UserInfo info)
+        {
+            if (_hesConnection == null)
+                throw new Exception("Cannot update primary account. Not connected to the HES.");
+
+            if (info.NeedUpdatePrimaryAccount == false)
+                return;
+
+            var mac = info.DeviceMac;
+            for (int i = 0; i < 10; i++)
+            {
+                info = await _hesConnection.GetInfoByMac(mac);
                 if (info.NeedUpdatePrimaryAccount == false)
                     return;
                 await Task.Delay(3000);
