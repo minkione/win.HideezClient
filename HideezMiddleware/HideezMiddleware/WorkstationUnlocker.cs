@@ -21,6 +21,7 @@ namespace HideezMiddleware
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
         readonly IScreenActivator _screenActivator;
+        readonly ISettingsManager _settingsManager;
 
         HesAppConnection _hesConnection;
 
@@ -38,6 +39,7 @@ namespace HideezMiddleware
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
             IScreenActivator screenActivator,
+            ISettingsManager settingsManager,
             ILog log)
             : base(nameof(WorkstationUnlocker), log)
         {
@@ -46,6 +48,7 @@ namespace HideezMiddleware
             _rfidService = rfidService;
             _connectionManager = connectionManager;
             _screenActivator = screenActivator;
+            _settingsManager = settingsManager;
 
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
@@ -54,8 +57,21 @@ namespace HideezMiddleware
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+            _settingsManager.SettingsUpdated += SettingsManager_SettingsUpdated;
 
             SetHes(hesConnection);
+        }
+
+        private void SettingsManager_SettingsUpdated(object sender, UnlockerSettingsInfoEventArgs e)
+        {
+            try
+            {
+                DeviceConnectionFilters = new List<DeviceUnlockerSettingsInfo>(e.NewSettings.DeviceUnlockerSettings);
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
         }
 
         public void SetHes(HesAppConnection hesConnection)
@@ -165,12 +181,9 @@ namespace HideezMiddleware
                 }
                 else
                 {
-                    //if (_credentialProviderConnection.IsConnected &&
-                    //    BleUtils.RssiToProximity(e.Rssi) > ConnectProximity &&
-                    //    DeviceConnectionFilters.Any(d => d.AllowProximity && d.Mac == e.Id))
-                    if (BleUtils.RssiToProximity(e.Rssi) > ConnectProximity &&
+                    if (_credentialProviderConnection.IsConnected &&
+                        BleUtils.RssiToProximity(e.Rssi) > ConnectProximity &&
                         DeviceConnectionFilters.Any(d => d.AllowProximity && d.Mac == e.Id))
-
                     {
                         var newGuid = Guid.NewGuid();
                         var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);

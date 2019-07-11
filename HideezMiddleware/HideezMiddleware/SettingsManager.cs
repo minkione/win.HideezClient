@@ -14,18 +14,6 @@ namespace HideezMiddleware
 {
     public class SettingsManager : ISettingsManager
     {
-        public class UnlockerSettingsInfoEventArgs
-        {
-            public UnlockerSettingsInfoEventArgs(UnlockerSettingsInfo oldSettings, UnlockerSettingsInfo newSettings)
-            {
-                OldSettings = oldSettings;
-                NewSettings = newSettings;
-            }
-
-            public UnlockerSettingsInfo OldSettings { get; }
-            public UnlockerSettingsInfo NewSettings { get; }
-        }
-
         private readonly object lockObjForUnlockerSettings = new object();
         private readonly string settingsPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\Hideez\Service\Settings";
         private readonly string unlockerFilePath;

@@ -1,4 +1,5 @@
 ﻿using Hideez.CsrBLE;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
@@ -30,6 +31,7 @@ namespace ServiceLibrary.Implementation
         static WorkstationLocker _workstationLocker;
         static IScreenActivator _screenActivator;
         static WcfDeviceFactory _wcfDeviceManager;
+        static ISettingsManager _settingsManager;
 
         void InitializeSDK()
         {
@@ -70,14 +72,16 @@ namespace ServiceLibrary.Implementation
             _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
             _rfidService.Start();
 
+
+            _settingsManager = new SettingsManager();
+
             try
             {
                 // HES ==================================
                 // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
                 string hesAddres = GetHesAddress();
                 var workstationInfoProvider = new WorkstationInfoProvider(hesAddres.Replace("http://", "").Replace("/", ""));
-                SettingsManager settingsManager = new SettingsManager();
-                _hesConnection = new HesAppConnection(_deviceManager, hesAddres, workstationInfoProvider, sdkLogger, settingsManager);
+                _hesConnection = new HesAppConnection(_deviceManager, hesAddres, workstationInfoProvider, sdkLogger, _settingsManager);
                 _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
                 _hesConnection.Start();
             }
@@ -95,7 +99,7 @@ namespace ServiceLibrary.Implementation
 
             // WorkstationUnlocker 
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
-                _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, sdkLogger);
+                _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, _settingsManager, sdkLogger);
 
             _credentialProviderConnection.Start();
 
