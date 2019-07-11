@@ -50,6 +50,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\HideezService\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -72,6 +75,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\ErrorCode.Designer.cs" />
     <Compile Include="RfidServiceConnection.cs" />
+    <Compile Include="SettingsManager.cs" />
     <Compile Include="Utils\LocalToMSAccountConverter.cs" />
     <Compile Include="Utils\WorkstationHelper.cs" />
     <Compile Include="WaitPinFromCredentialProviderProc .cs" />
@@ -88,6 +92,9 @@
     <EmbeddedResource Include="Resources\ErrorCode.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -76,7 +76,8 @@ namespace ServiceLibrary.Implementation
                 // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
                 string hesAddres = GetHesAddress();
                 var workstationInfoProvider = new WorkstationInfoProvider(hesAddres.Replace("http://", "").Replace("/", ""));
-                _hesConnection = new HesAppConnection(_deviceManager, hesAddres, workstationInfoProvider, sdkLogger);
+                SettingsManager settingsManager = new SettingsManager();
+                _hesConnection = new HesAppConnection(_deviceManager, hesAddres, workstationInfoProvider, sdkLogger, settingsManager);
                 _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
                 _hesConnection.Start();
             }
