@@ -21,6 +21,7 @@ namespace HideezMiddleware
         public override string Message => "Authorization cancelled: Access denied";
     }
 
+    // Todo: Code cleanup in WorkstationUnlocker after rapid proximity unlock development
     public class WorkstationUnlocker
     {
         readonly ILogger _log = LogManager.GetCurrentClassLogger();
@@ -36,10 +37,16 @@ namespace HideezMiddleware
         readonly ConcurrentDictionary<string, Guid> _pendingUnlocks =
             new ConcurrentDictionary<string, Guid>();
 
-        public int ConnectProximity { get; set; } = 50;
+        // Ignore connect by proximity until settings are loaded. Max possible proximity value is 100
+        int _connectProximity = 101;
 
         List<DeviceUnlockerSettingsInfo> _deviceConnectionFilters = 
             new List<DeviceUnlockerSettingsInfo>();
+
+        // If proximity connection failed due to error, we ignore further attempts 
+        // until a manual input from user occurs or credential provider reconnects to service
+        // ConcurrentDictionary is used instead of other collections because we need atomic Clear() and efficient Contains()
+        readonly ConcurrentDictionary<string, string> _failedProximityConnections = new ConcurrentDictionary<string, string>();
 
         public WorkstationUnlocker(BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
@@ -70,7 +77,7 @@ namespace HideezMiddleware
                 try
                 {
                     var settings = await unlockerSettingsManager.GetSettingsAsync();
-                    ConnectProximity = settings.UnlockProximity;
+                    _connectProximity = settings.UnlockProximity;
                     _deviceConnectionFilters = new List<DeviceUnlockerSettingsInfo>(settings.DeviceUnlockerSettings);
                 }
                 catch (Exception ex)
@@ -82,21 +89,7 @@ namespace HideezMiddleware
             SetHes(hesConnection);
         }
 
-        private void UnlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<UnlockerSettings> e)
-        {
-            try
-            {
-                _deviceConnectionFilters = new List<DeviceUnlockerSettingsInfo>(e.NewSettings.DeviceUnlockerSettings);
-                ConnectProximity = e.NewSettings.UnlockProximity;
-                _log.Info("Updated device connection filters received");
-            }
-            catch (Exception ex)
-            {
-                _log.Error(ex);
-            }
-        }
-
-        public void SetHes(HesAppConnection hesConnection)
+        void SetHes(HesAppConnection hesConnection)
         {
             if (_hesConnection != null)
             {
@@ -111,10 +104,26 @@ namespace HideezMiddleware
             }
         }
 
+        void UnlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<UnlockerSettings> e)
+        {
+            try
+            {
+                _deviceConnectionFilters = new List<DeviceUnlockerSettingsInfo>(e.NewSettings.DeviceUnlockerSettings);
+                _connectProximity = e.NewSettings.UnlockProximity;
+                _log.Info("Updated device connection filters received");
+                _failedProximityConnections.Clear();
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+            }
+        }
+
         #region Status notification
 
         void CredentialProviderConnection_OnProviderConnected(object sender, EventArgs e)
         {
+            _failedProximityConnections.Clear();
             SendStatusToCredentialProvider();
         }
 
@@ -125,6 +134,7 @@ namespace HideezMiddleware
 
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
+            _failedProximityConnections.Clear();
             SendStatusToCredentialProvider();
         }
 
@@ -204,7 +214,7 @@ namespace HideezMiddleware
         {
             try
             {
-                // Ble tap
+                // Ble tap. Rssi of -27 was calculated empirically
                 if (e.Rssi > -27)
                 {
                     var newGuid = Guid.NewGuid();
@@ -220,15 +230,24 @@ namespace HideezMiddleware
                 {
                     // Proximity
                     if (_credentialProviderConnection.IsConnected &&
-                        BleUtils.RssiToProximity(e.Rssi) > ConnectProximity &&
-                        IsProximityAllowed(e.Id))
+                        BleUtils.RssiToProximity(e.Rssi) > _connectProximity &&
+                        IsProximityAllowed(e.Id) &&
+                        !_failedProximityConnections.ContainsKey(e.Id))
                     {
                         var newGuid = Guid.NewGuid();
                         var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);
 
                         if (guid == newGuid)
                         {
-                            await UnlockByProximity(e.Id);
+                            try
+                            {
+                                await UnlockByProximity(e.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                                _log.Error(ex);
+                                _failedProximityConnections.GetOrAdd(e.Id, e.Id);
+                            }
                             _pendingUnlocks.TryRemove(e.Id, out Guid removed);
                         }
                     }
