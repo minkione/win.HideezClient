@@ -1,4 +1,5 @@
-﻿using Hideez.SDK.Communication.Workstation;
+﻿using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Workstation;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -14,10 +15,12 @@ namespace HideezMiddleware
 {
     public class WorkstationInfoProvider : IWorkstationInfoProvider
     {
+        public ILog log;
         private readonly IPAddress allowedIP;
 
-        public WorkstationInfoProvider(string allowedIP)
-        {            
+        public WorkstationInfoProvider(string allowedIP, ILog log)
+        {
+            this.log = log;
             IPAddress.TryParse(allowedIP, out IPAddress address);
             this.allowedIP = address;
         }
@@ -46,7 +49,7 @@ namespace HideezMiddleware
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine(ex);
+                    log?.WriteLine(nameof(WorkstationInfoProvider), ex);
                     Debug.Assert(false);
                 }
 
@@ -58,12 +61,16 @@ namespace HideezMiddleware
                     workstationInfo.IP = localIP.ToString();
                     workstationInfo.MAC = mac.ToString();
                 }
+                else
+                {
+                    log?.WriteLine(nameof(WorkstationInfoProvider), $"{nameof(allowedIP)} is null or none.", LogErrorSeverity.Error);
+                }
 
                 workstationInfo.Users = await WorkstationHelper.GetAllUserNamesAsync();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                log?.WriteLine(nameof(WorkstationInfoProvider), ex);
                 Debug.Assert(false);
             }
 

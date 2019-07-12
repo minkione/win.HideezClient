@@ -1,15 +1,18 @@
-﻿using System;
-using System.Linq;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using HideezMiddleware.Utils;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using HideezSafe.Utilities;
 
-namespace HideezSafe.Tests
+namespace HideezMiddleware.Utils.Tests
 {
-    [TestClass]
-    public class AccountUtilityTest
+    [TestClass()]
+    public class UrlUtilsTests
     {
+
         [TestMethod]
         public void TestMethodTryGetDomain()
         {
@@ -18,7 +21,7 @@ namespace HideezSafe.Tests
                 Debug.WriteLine("=========================");
                 Debug.WriteLine($"### Url: {url}");
 
-                if (AccountUtility.TryGetDomain(url, out string domain))
+                if (UrlUtils.TryGetDomain(url, out string domain))
                 {
                     Debug.WriteLine($"### Domain: {domain}");
 

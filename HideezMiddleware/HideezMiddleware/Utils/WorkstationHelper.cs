@@ -1,4 +1,5 @@
-﻿using HideezMiddleware.Utils;
+﻿using Hideez.SDK.Communication.Log;
+using HideezMiddleware.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +15,8 @@ namespace HideezMiddleware
 {
     public class WorkstationHelper
     {
+        public static ILog Log { get; set; }
+
         public static PhysicalAddress GetCurrentMAC(IPAddress localIPAddres)
         {
             PhysicalAddress physicalAddress = PhysicalAddress.None;
@@ -40,7 +43,8 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
-                HandlerError(ex);
+                Log?.WriteLine(nameof(WorkstationHelper), ex);
+                Debug.Assert(false);
             }
 
             return physicalAddress;
@@ -61,7 +65,8 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
-                HandlerError(ex);
+                Log?.WriteLine(nameof(WorkstationHelper), ex);
+                Debug.Assert(false);
             }
             finally
             {
@@ -111,12 +116,6 @@ namespace HideezMiddleware
             }
 
             return result.ToArray();
-        }
-
-        private static void HandlerError(Exception ex)
-        {
-            Debug.WriteLine(ex);
-            Debug.Assert(false);
         }
     }
 }

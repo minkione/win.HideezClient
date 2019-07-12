@@ -1,5 +1,4 @@
 ﻿using System;
-using HideezSafe.Modules.SettingsManager;
 using HideezSafe.Models.Settings;
 using HideezSafe.Models;
 using NHotkey;
@@ -11,6 +10,7 @@ using System.Threading.Tasks;
 using HideezSafe.Utilities;
 using System.IO;
 using System.Windows.Input;
+using HideezMiddleware.Settings;
 
 namespace HideezSafe.Modules.HotkeyManager
 {

@@ -1,6 +1,6 @@
-﻿using HideezSafe.Models.Settings;
+﻿using HideezMiddleware.Settings;
+using HideezSafe.Models.Settings;
 using HideezSafe.Modules.DeviceManager;
-using HideezSafe.Modules.SettingsManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;

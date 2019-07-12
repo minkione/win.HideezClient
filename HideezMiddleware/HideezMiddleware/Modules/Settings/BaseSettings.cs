@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace HideezSafe.Models.Settings
+namespace HideezMiddleware.Settings
 {
     [Serializable]
     public abstract class BaseSettings : ICloneable
@@ -59,7 +59,7 @@ namespace HideezSafe.Models.Settings
                 int inc = 53;
 
                 // Required as an additional variable for child classes with same properties
-                hash = hash * inc + GetType().GetHashCode(); 
+                hash = hash * inc + GetType().GetHashCode();
 
                 foreach (var property in SettingsProperties)
                     hash = hash * inc + property.GetValue(this).GetHashCode();

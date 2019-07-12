@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HideezSafe.Models.Settings
+namespace HideezMiddleware.Settings
 {
     /// <summary>
     /// Attribute that specifies property as a setting for the purposes of <seealso cref="BaseSettings"/> implementation.

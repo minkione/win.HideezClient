@@ -2,9 +2,9 @@
 using NLog;
 using System;
 
-namespace ServiceLibrary.Implementation
+namespace HideezMiddleware
 {
-    class NLogger : ILog
+    public class NLogWrapper : ILog
     {
         public void Shutdown()
         {

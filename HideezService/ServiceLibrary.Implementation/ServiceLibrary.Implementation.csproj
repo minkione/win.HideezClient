@@ -69,7 +69,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HideezService.cs" />
-    <Compile Include="NLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceClientSession.cs" />
     <Compile Include="ServiceClientSessionManager.cs" />

@@ -12,6 +12,7 @@ namespace HideezSafe.Utilities
             "v3", 
             "Settings");
 
-        public static string DefaultSettingsFileName { get; } = "usersettings.xml";
+        public static string ApplicationSettingsFileName { get; } = "applicationsettings.xml";
+        public static string HotkeySettingsFileName { get; } = "hotkeysettings.xml";
     }
 }

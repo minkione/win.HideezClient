@@ -1,11 +1,11 @@
 ﻿using HideezSafe.Models.Settings;
-using HideezSafe.Modules.SettingsManager;
 using System.Threading.Tasks;
 using HideezSafe.Modules.Localize;
 using Hideez.ISM;
 using HideezSafe.Models;
 using HideezSafe.Modules.DeviceManager;
 using Hideez.ARM;
+using HideezMiddleware.Settings;
 
 namespace HideezSafe.Modules.ActionHandler
 {

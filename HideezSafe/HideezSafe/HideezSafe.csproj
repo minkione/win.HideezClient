@@ -375,12 +375,8 @@
     <Compile Include="Dialogs\ChangePasswordDialog.xaml.cs">
       <DependentUpon>ChangePasswordDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Models\Settings\BaseSettings.cs" />
     <Compile Include="Models\Settings\HotkeySettings.cs" />
-    <Compile Include="Models\Settings\SettingAttribute.cs" />
     <Compile Include="Models\UserAction.cs" />
-    <Compile Include="Modules\FileSerializer\IFileSerializer.cs" />
-    <Compile Include="Modules\FileSerializer\XmlFileSerializer.cs" />
     <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\Enums and Structs.cs" />
     <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\Event Args.cs" />
     <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\Event Handlers.cs" />
@@ -393,7 +389,6 @@
     <Compile Include="Modules\HotkeyManager\HotkeyManager.cs" />
     <Compile Include="Modules\HotkeyManager\HotkeyState.cs" />
     <Compile Include="Modules\HotkeyManager\IHotkeyManager.cs" />
-    <Compile Include="Modules\SettingsManager\ISettingsManager.cs" />
     <Compile Include="Modules\ServiceCallbackMessanger\ServiceCallbackMessanger.cs" />
     <Compile Include="Modules\ServiceProxy\IServiceProxy.cs" />
     <Compile Include="Modules\ServiceProxy\ServiceNotConnectedException.cs" />
@@ -432,7 +427,6 @@
     <Compile Include="Utilities\AutoRunApp\IStartupHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\StartupHelper.cs" />
     <Compile Include="Models\Settings\ApplicationSettings.cs" />
-    <Compile Include="Modules\SettingsManager\SettingsManager.cs" />
     <Compile Include="Utilities\Constants.cs" />
     <Compile Include="Utilities\Win32Helper.cs" />
     <Compile Include="Version.cs" />
@@ -576,6 +570,10 @@
     <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
       <Project>{20B97AF9-6422-4678-900B-0610ED1D2517}</Project>
       <Name>Communication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\HideezMiddleware\HideezMiddleware\HideezMiddleware.csproj">
+      <Project>{2a5abf59-55ee-461b-8c6f-2a294481129b}</Project>
+      <Name>HideezMiddleware</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

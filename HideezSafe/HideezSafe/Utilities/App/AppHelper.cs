@@ -1,8 +1,8 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
+using HideezMiddleware.Settings;
 using HideezSafe.Models.Settings;
 using HideezSafe.Modules;
 using HideezSafe.Modules.Localize;
-using HideezSafe.Modules.SettingsManager;
 using HideezSafe.Properties;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HideezMiddleware.Settings;
+using System;
 
 namespace HideezSafe.Models.Settings
 {

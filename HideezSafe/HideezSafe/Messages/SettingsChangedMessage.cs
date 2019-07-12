@@ -1,4 +1,5 @@
-﻿using HideezSafe.Models.Settings;
+﻿using HideezMiddleware.Settings;
+using HideezSafe.Models.Settings;
 
 namespace HideezSafe.Messages
 {

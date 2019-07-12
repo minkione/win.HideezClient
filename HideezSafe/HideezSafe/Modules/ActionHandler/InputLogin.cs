@@ -1,10 +1,10 @@
 ﻿using Hideez.ARM;
 using Hideez.ISM;
+using HideezMiddleware.Settings;
 using HideezSafe.Models;
 using HideezSafe.Models.Settings;
 using HideezSafe.Modules.DeviceManager;
 using HideezSafe.Modules.Localize;
-using HideezSafe.Modules.SettingsManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;

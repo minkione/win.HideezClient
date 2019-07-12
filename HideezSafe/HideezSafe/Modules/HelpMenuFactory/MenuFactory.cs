@@ -1,6 +1,5 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezSafe.Models.Settings;
-using HideezSafe.Modules.SettingsManager;
 using HideezSafe.Modules.Localize;
 using HideezSafe.Properties;
 using HideezSafe.Utilities;
@@ -19,6 +18,7 @@ using HideezSafe.Models;
 using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.HideezServiceReference;
 using System.ServiceModel;
+using HideezMiddleware.Settings;
 
 namespace HideezSafe.Modules
 {

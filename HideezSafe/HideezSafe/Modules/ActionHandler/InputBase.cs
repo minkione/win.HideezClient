@@ -1,9 +1,9 @@
 ﻿using Hideez.ARM;
 using Hideez.ISM;
+using HideezMiddleware.Settings;
 using HideezSafe.Models;
 using HideezSafe.Models.Settings;
 using HideezSafe.Modules.DeviceManager;
-using HideezSafe.Modules.SettingsManager;
 using NLog;
 using System;
 using System.Collections.Generic;

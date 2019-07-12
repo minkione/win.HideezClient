@@ -1,6 +1,6 @@
-﻿namespace HideezSafe.Modules.FileSerializer
+﻿namespace HideezMiddleware.Settings
 {
-    interface IFileSerializer
+    public interface IFileSerializer
     {
         bool Serialize<T>(string filePath, T serializedObject) where T : new();
 

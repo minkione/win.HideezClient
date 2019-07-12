@@ -9,6 +9,7 @@ using Hideez.SDK.Communication.Proximity;
 using Hideez.SDK.Communication.WCF;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware;
+using HideezMiddleware.Utils;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -35,7 +36,7 @@ namespace ServiceLibrary.Implementation
 
         void InitializeSDK()
         {
-            var sdkLogger = new NLogger();
+            var sdkLogger = new NLogWrapper();
 
 #if DEBUG
             _log.Info(">>>>>> Verifying error codes:");
@@ -80,7 +81,9 @@ namespace ServiceLibrary.Implementation
                 // HES ==================================
                 // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
                 string hesAddres = GetHesAddress();
-                var workstationInfoProvider = new WorkstationInfoProvider(hesAddres.Replace("http://", "").Replace("/", ""));
+                UrlUtils.TryGetDomain(hesAddres, out string hesDomain);
+                WorkstationHelper.Log = sdkLogger;
+                var workstationInfoProvider = new WorkstationInfoProvider(hesDomain, sdkLogger);
                 _hesConnection = new HesAppConnection(_deviceManager, hesAddres, workstationInfoProvider, sdkLogger, _settingsManager);
                 _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
                 _hesConnection.Start();

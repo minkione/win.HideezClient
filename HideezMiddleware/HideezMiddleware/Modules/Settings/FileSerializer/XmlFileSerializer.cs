@@ -1,15 +1,23 @@
-﻿using NLog;
+﻿using Hideez.SDK.Communication.Log;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace HideezSafe.Modules.FileSerializer
+namespace HideezMiddleware.Settings
 {
-    class XmlFileSerializer : IFileSerializer
+    public class XmlFileSerializer : IFileSerializer
     {
-        private readonly Logger log = LogManager.GetCurrentClassLogger();
+        private readonly ILog log;
+
+        public XmlFileSerializer(ILog log)
+        {
+            this.log = log;
+        }
 
         public T Deserialize<T>(string filePath) where T : new()
         {
@@ -32,7 +40,7 @@ namespace HideezSafe.Modules.FileSerializer
                         }
                         catch (Exception e)
                         {
-                            log.Error(e.Message);
+                            log?.WriteLine(nameof(XmlFileSerializer), e);
                         }
 
                         // Cleanup
@@ -42,7 +50,7 @@ namespace HideezSafe.Modules.FileSerializer
             }
             catch (Exception ex)
             {
-                log.Error(ex.Message);
+                log?.WriteLine(nameof(XmlFileSerializer), ex);
             }
 
             return model;
@@ -71,3 +79,4 @@ namespace HideezSafe.Modules.FileSerializer
         }
     }
 }
+

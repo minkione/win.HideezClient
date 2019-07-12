@@ -1,5 +1,4 @@
 ﻿using HideezSafe.Models.Settings;
-using HideezSafe.Modules.SettingsManager;
 using HideezSafe.Utilities;
 using Unity;
 using Unity.Lifetime;
@@ -22,7 +21,6 @@ using Hardcodet.Wpf.TaskbarNotification;
 using System.Globalization;
 using System.Threading;
 using System.IO;
-using HideezSafe.Modules.FileSerializer;
 using HideezSafe.Mvvm;
 using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Modules.Localize;
@@ -37,6 +35,11 @@ using WindowsInput;
 using HideezSafe.PageViewModels;
 using HideezSafe.Modules.HotkeyManager;
 using System.Text;
+using HideezMiddleware.Settings;
+using Unity.Injection;
+using Hideez.SDK.Communication.Log;
+using HideezMiddleware;
+using HideezSafe.Messages;
 
 namespace HideezSafe
 {
@@ -45,7 +48,7 @@ namespace HideezSafe
     /// </summary>
     public partial class App : Application, ISingleInstance
     {
-        public static Logger logger;
+        public static ILogger logger;
         private IStartupHelper startupHelper;
         private IMessenger messenger;
         private IWindowsManager windowsManager;
@@ -120,17 +123,22 @@ namespace HideezSafe
 
             // Init settings
             ApplicationSettings settings = null;
-            ISettingsManager<ApplicationSettings> settingsManager = Container.Resolve<ISettingsManager<ApplicationSettings>>();
+
+            ISettingsManager<ApplicationSettings> appSettingsManager = Container.Resolve<ISettingsManager<ApplicationSettings>>();
+            appSettingsManager.SettingsChanged += (sender, args) => Container.Resolve<IMessenger>()?.Send(new SettingsChangedMessage<ApplicationSettings>());
+
+            ISettingsManager<HotkeySettings> hotkeySettingsManager = Container.Resolve<ISettingsManager<HotkeySettings>>();
+            hotkeySettingsManager.SettingsChanged += (sender, args) => Container.Resolve<IMessenger>()?.Send(new SettingsChangedMessage<HotkeySettings>());
 
             try
             {
                 var task = Task.Run(async () => // Off Loading Load Programm Settings to non-UI thread
                 {
-                    var appSettingsDirectory = Path.GetDirectoryName(settingsManager.SettingsFilePath);
+                    var appSettingsDirectory = Path.GetDirectoryName(appSettingsManager.SettingsFilePath);
                     if (!Directory.Exists(appSettingsDirectory))
                         Directory.CreateDirectory(appSettingsDirectory);
 
-                    settings = await settingsManager.LoadSettingsAsync();
+                    settings = await appSettingsManager.LoadSettingsAsync();
                 });
                 task.Wait(); // Block this to ensure that results are usable in next steps of sequence
 
@@ -171,7 +179,7 @@ namespace HideezSafe
                 OnFirstLaunch();
 
                 settings.IsFirstLaunch = false;
-                settingsManager.SaveSettings(settings);
+                appSettingsManager.SaveSettings(settings);
             }
         }
 
@@ -235,6 +243,8 @@ namespace HideezSafe
 
             logger.Info("Finish initialize DI container");
 
+            Container.RegisterType<ILog, NLogWrapper>(new ContainerControlledLifetimeManager());
+
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
@@ -245,8 +255,10 @@ namespace HideezSafe
             Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
 
             // Settings
-            Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<ISettingsManager<HotkeySettings>, SettingsManager<HotkeySettings>>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()
+                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.ApplicationSettingsFileName), typeof(IFileSerializer)));
+            Container.RegisterType<ISettingsManager<HotkeySettings>, SettingsManager<HotkeySettings>>(new ContainerControlledLifetimeManager()
+                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.HotkeySettingsFileName), typeof(IFileSerializer)));
 
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());
