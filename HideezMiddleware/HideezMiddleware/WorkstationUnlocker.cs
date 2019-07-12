@@ -31,6 +31,7 @@ namespace HideezMiddleware
         readonly IBleConnectionManager _connectionManager;
         readonly IScreenActivator _screenActivator;
         readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
+        readonly bool _bypassWorkstationOwnershipSecurity;
 
         HesAppConnection _hesConnection;
 
@@ -54,7 +55,8 @@ namespace HideezMiddleware
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
             IScreenActivator screenActivator,
-            ISettingsManager<UnlockerSettings> unlockerSettingsManager)
+            ISettingsManager<UnlockerSettings> unlockerSettingsManager,
+            bool bypassWorkstationOwnershipSecurity)
         {
             _deviceManager = deviceManager;
             _credentialProviderConnection = credentialProviderConnection;
@@ -62,6 +64,7 @@ namespace HideezMiddleware
             _connectionManager = connectionManager;
             _screenActivator = screenActivator;
             _unlockerSettingsManager = unlockerSettingsManager;
+            _bypassWorkstationOwnershipSecurity = bypassWorkstationOwnershipSecurity;
 
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
@@ -201,12 +204,12 @@ namespace HideezMiddleware
 
         bool IsRfidAllowed(string mac)
         {
-            return _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowRfid);
+            return _bypassWorkstationOwnershipSecurity || _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowRfid);
         }
 
         bool IsBleTapAllowed(string mac)
         {
-            return _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowBleTap);
+            return _bypassWorkstationOwnershipSecurity || _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowBleTap);
         }
         #endregion
 

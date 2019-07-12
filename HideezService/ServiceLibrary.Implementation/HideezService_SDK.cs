@@ -87,7 +87,7 @@ namespace ServiceLibrary.Implementation
             IFileSerializer fileSerializer = new XmlFileSerializer(sdkLogger);
             _unlockerSettingsManager = new SettingsManager<UnlockerSettings>(ulockerSettingsPath, fileSerializer);
             _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
-
+            
             try
             {
                 // HES ==================================
@@ -109,7 +109,6 @@ namespace ServiceLibrary.Implementation
                 _log.Error(ex);
             }
 
-
             // Device Access Controller ==================================
             _deviceAccessController = new DeviceAccessController(_unlockerSettingsManager, _deviceManager);
             _deviceAccessController.Start();
@@ -118,8 +117,17 @@ namespace ServiceLibrary.Implementation
             _screenActivator = new UiScreenActivator(SessionManager);
 
             // WorkstationUnlocker 
+            bool bypassWorkstationOwnershipSecurity = false;
+            try
+            {
+                bypassWorkstationOwnershipSecurity = GetBypassWorkstationOwnershipSecurity();
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+            }
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
-                _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, _unlockerSettingsManager);
+                _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, _unlockerSettingsManager, bypassWorkstationOwnershipSecurity);
 
             _credentialProviderConnection.Start();
 
@@ -349,19 +357,19 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        readonly string _bypassWorkstationOwnershipSecurity = "bypass_workstation_ownership_security";
+        readonly string _bypassWorkstationOwnershipSecurityValueName = "bypass_workstation_ownership_security";
         bool GetBypassWorkstationOwnershipSecurity()
         {
             var registryKey = GetAppRegistryRootKey();
             if (registryKey == null)
                 throw new Exception("Couldn't find Hideez Safe registry key. (HKLM\\SOFTWARE\\Hideez\\Safe)");
 
-            var value = registryKey.GetValue(_bypassWorkstationOwnershipSecurity);
+            var value = registryKey.GetValue(_bypassWorkstationOwnershipSecurityValueName);
             if (value == null)
-                throw new ArgumentNullException($"{_bypassWorkstationOwnershipSecurity} value is null or empty. Please specify bypass workstation ownership security in registry under value {_bypassWorkstationOwnershipSecurity}. Key: HKLM\\SOFTWARE\\Hideez\\Safe ");
+                throw new ArgumentNullException($"{_bypassWorkstationOwnershipSecurityValueName} value is null or empty. Please specify bypass workstation ownership security in registry under value {_bypassWorkstationOwnershipSecurityValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Safe ");
 
             if (!(value is int))
-                throw new FormatException($"{_bypassWorkstationOwnershipSecurity} could not be cast to int. Check that its value has REG_DWORD type");
+                throw new FormatException($"{_bypassWorkstationOwnershipSecurityValueName} could not be cast to int. Check that its value has REG_DWORD type");
 
             return ((int)value != 0);
         }
