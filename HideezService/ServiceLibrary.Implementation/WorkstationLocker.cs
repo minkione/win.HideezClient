@@ -21,19 +21,34 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager.DeviceProximityTimeout += _proximityMonitorManager_DeviceProximityTimeout;
         }
 
+        public bool IsEnabled { get; private set; }
+
+        public void Start()
+        {
+            IsEnabled = true;
+        }
+
+        public void Stop()
+        {
+            IsEnabled = false;
+        }
+
         void _proximityMonitorManager_DeviceConnectionLost(object sender, string deviceId)
         {
-            LockWorkstationAsync();
+            if (IsEnabled)
+                LockWorkstationAsync();
         }
 
         void _proximityMonitorManager_DeviceBelowLockForToLong(object sender, string deviceId)
         {
-            LockWorkstationAsync();
+            if (IsEnabled)
+                LockWorkstationAsync();
         }
 
         void _proximityMonitorManager_DeviceProximityTimeout(object sender, string deviceId)
         {
-            LockWorkstationAsync();
+            if (IsEnabled)
+                LockWorkstationAsync();
         }
 
         void LockWorkstationAsync()

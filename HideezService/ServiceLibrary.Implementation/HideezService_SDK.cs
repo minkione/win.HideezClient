@@ -34,6 +34,7 @@ namespace ServiceLibrary.Implementation
         static WorkstationLocker _workstationLocker;
         static IScreenActivator _screenActivator;
         static WcfDeviceFactory _wcfDeviceManager;
+        static DeviceAccessController _deviceAccessController;
 
         static ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
@@ -109,6 +110,10 @@ namespace ServiceLibrary.Implementation
             }
 
 
+            // Device Access Controller ==================================
+            _deviceAccessController = new DeviceAccessController(_unlockerSettingsManager, _deviceManager);
+            _deviceAccessController.Start();
+
             // ScreenActivator ==================================
             _screenActivator = new UiScreenActivator(SessionManager);
 
@@ -124,6 +129,7 @@ namespace ServiceLibrary.Implementation
 
             // WorkstationLocker ==================================
             _workstationLocker = new WorkstationLocker(SessionManager, _proximityMonitorManager);
+            _workstationLocker.Start();
 
             _connectionManager.StartDiscovery();
         }
