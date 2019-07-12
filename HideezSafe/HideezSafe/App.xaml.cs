@@ -123,12 +123,7 @@ namespace HideezSafe
 
             // Init settings
             ApplicationSettings settings = null;
-
             ISettingsManager<ApplicationSettings> appSettingsManager = Container.Resolve<ISettingsManager<ApplicationSettings>>();
-            appSettingsManager.SettingsChanged += (sender, args) => Container.Resolve<IMessenger>()?.Send(new SettingsChangedMessage<ApplicationSettings>());
-
-            ISettingsManager<HotkeySettings> hotkeySettingsManager = Container.Resolve<ISettingsManager<HotkeySettings>>();
-            hotkeySettingsManager.SettingsChanged += (sender, args) => Container.Resolve<IMessenger>()?.Send(new SettingsChangedMessage<HotkeySettings>());
 
             try
             {
@@ -255,10 +250,10 @@ namespace HideezSafe
             Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
 
             // Settings
-            Container.RegisterType<ISettingsManager<ApplicationSettings>, SettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()
-                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.ApplicationSettingsFileName), typeof(IFileSerializer)));
-            Container.RegisterType<ISettingsManager<HotkeySettings>, SettingsManager<HotkeySettings>>(new ContainerControlledLifetimeManager()
-                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.HotkeySettingsFileName), typeof(IFileSerializer)));
+            Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()
+                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.ApplicationSettingsFileName), typeof(IFileSerializer), typeof(IMessenger)));
+            Container.RegisterType<ISettingsManager<HotkeySettings>, HSSettingsManager<HotkeySettings>>(new ContainerControlledLifetimeManager()
+                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.HotkeySettingsFileName), typeof(IFileSerializer), typeof(IMessenger)));
 
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());
