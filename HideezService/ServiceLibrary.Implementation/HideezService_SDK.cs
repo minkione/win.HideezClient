@@ -86,7 +86,7 @@ namespace ServiceLibrary.Implementation
             string ulockerSettingsPath = Path.Combine(settingsDirectory, "Unlocker.xml");
             IFileSerializer fileSerializer = new XmlFileSerializer(sdkLogger);
             _unlockerSettingsManager = new SettingsManager<UnlockerSettings>(ulockerSettingsPath, fileSerializer);
-            _unlockerSettingsManager.LoadSettingsAsync().Wait();
+            _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
 
             try
             {
@@ -124,7 +124,8 @@ namespace ServiceLibrary.Implementation
             _credentialProviderConnection.Start();
 
             // Proximity Monitor 
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, sdkLogger);
+            UnlockerSettings unlockerSettings = _unlockerSettingsManager.GetSettingsAsync().Result;
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, sdkLogger, unlockerSettings.LockProximity, unlockerSettings.UnlockProximity, unlockerSettings.LockTimeoutSeconds);
             _proximityMonitorManager.Start();
 
             // WorkstationLocker ==================================
@@ -135,6 +136,25 @@ namespace ServiceLibrary.Implementation
         }
 
         #region Event Handlers
+
+        private void UnlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<UnlockerSettings> e)
+        {
+            try
+            {
+                UnlockerSettings settings = e.NewSettings;
+                if (_proximityMonitorManager != null)
+                {
+                    _proximityMonitorManager.LockProximity = settings.LockProximity;
+                    _proximityMonitorManager.UnlockProximity = settings.UnlockProximity;
+                    _proximityMonitorManager.LockTimeoutSeconds = settings.LockTimeoutSeconds;
+                    _log.Info("Updated unlocker settings in proximity monitor.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+            }
+        }
 
         void DeviceManager_DeviceAdded(object sender, DeviceCollectionChangedEventArgs e)
         {
