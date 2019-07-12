@@ -1,8 +1,8 @@
-﻿using HideezSafe.Models.Settings;
+﻿using HideezMiddleware.Settings;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace HideezSafe.Tests
+namespace HideezMiddleware.Tests
 {
     [TestClass]
     public class BaseSettingsTests

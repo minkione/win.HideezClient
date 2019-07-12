@@ -1,15 +1,14 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using GalaSoft.MvvmLight.Messaging;
-using HideezSafe.Messages;
-using HideezSafe.Models.Settings;
-using HideezSafe.Modules.FileSerializer;
-using HideezSafe.Modules.SettingsManager;
+﻿using HideezMiddleware.Settings;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace HideezSafe.Tests
+namespace HideezMiddleware.Tests
 {
     [TestClass]
     public class SettingsManagerTests
@@ -43,19 +42,12 @@ namespace HideezSafe.Tests
 
         private SettingsManager<TestSettings> SetupSettingsManager()
         {
-            return new SettingsManager<TestSettings>()
-            {
-                SettingsFilePath = GetAbsoluteFormattedPath()
-            };
+            return new SettingsManager<TestSettings>(GetAbsoluteFormattedPath(), null);
         }
 
         private SettingsManager<TestSettings> SetupSettingsManager(IFileSerializer fileSerializer)
         {
-            return new SettingsManager<TestSettings>()
-            {
-                FileSerializer = fileSerializer,
-                SettingsFilePath = GetAbsoluteFormattedPath()
-            };
+            return new SettingsManager<TestSettings>(GetAbsoluteFormattedPath(), fileSerializer);
         }
 
         private Mock<IFileSerializer> SetupFileSerializerMock()
@@ -205,7 +197,7 @@ namespace HideezSafe.Tests
             //Assert.AreEqual(loadSettingsResult, settingsManager.Settings);
             //Assert.AreEqual(serializedSettings, settingsManager.Settings);
         }
-        
+
         [TestMethod]
         public void SettingsManager_SaveSettings_SettingsSerialized()
         {
@@ -387,7 +379,7 @@ namespace HideezSafe.Tests
             var settings = settingsManager.Settings;
 
             // Assert
-            Assert.AreEqual(settings, default(ApplicationSettings));
+            Assert.AreEqual(settings, null); // default(ApplicationSettings)
         }
 
         [TestMethod]
@@ -399,7 +391,7 @@ namespace HideezSafe.Tests
             var settingsManager = SetupSettingsManager(SetupFileSerializerMock().Object);
 
             await settingsManager.LoadSettingsAsync();
-            
+
             // Act
             var settingsReference1 = settingsManager.Settings;
             var settingsReference2 = settingsManager.Settings;
@@ -436,32 +428,32 @@ namespace HideezSafe.Tests
         public async Task LoadSettings_SettingsNotLoaded_MessengerCalled()
         {
             // Arrange
-            var messengerMock = new Mock<IMessenger>();
             var serializer = SetupFileSerializerMock();
             var settingsManager = SetupSettingsManager(serializer.Object);
-            settingsManager.Messenger = messengerMock.Object;
+            bool isSettingsChanged = false;
+            settingsManager.SettingsChanged += (s, a) => isSettingsChanged = true;
 
             // Act
             await settingsManager.LoadSettingsAsync();
 
             // Assert
-            messengerMock.Verify(m => m.Send(It.IsAny<SettingsChangedMessage<TestSettings>>()));
+            Assert.IsTrue(isSettingsChanged);
         }
 
         [TestMethod]
         public async Task GetSettings_SettingsNotLoaded_MessengerCalled()
         {
             // Arrange
-            var messengerMock = new Mock<IMessenger>();
             var serializer = SetupFileSerializerMock();
             var settingsManager = SetupSettingsManager(serializer.Object);
-            settingsManager.Messenger = messengerMock.Object;
+            bool isSettingsChanged = false;
+            settingsManager.SettingsChanged += (s, a) => isSettingsChanged = true;
 
             // Act
             await settingsManager.GetSettingsAsync();
 
             // Assert
-            messengerMock.Verify(m => m.Send(It.IsAny<SettingsChangedMessage<TestSettings>>()));
+            Assert.IsTrue(isSettingsChanged);
         }
     }
 }

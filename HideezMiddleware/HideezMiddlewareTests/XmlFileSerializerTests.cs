@@ -1,14 +1,18 @@
-﻿using System;
+﻿using Hideez.SDK.Communication.Log;
+using HideezMiddleware.Settings;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 using System.Xml.Serialization;
-using HideezSafe.Modules.FileSerializer;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace HideezSafe.Tests
+namespace HideezMiddleware.Tests
 {
     [TestClass]
     public class XmlFileSerializerTests
     {
+        private readonly ILog log = new Mock<ILog>().Object;
+
         /// <summary>
         /// Serializable dummy class
         /// </summary>
@@ -69,7 +73,7 @@ namespace HideezSafe.Tests
 
             var data = new SerializableBoolDummy();
 
-            var xmlSerializer = new XmlFileSerializer();
+            var xmlSerializer = new XmlFileSerializer(log);
 
             // Act
             var serializationResult = xmlSerializer.Serialize(filePath, data);
@@ -96,7 +100,7 @@ namespace HideezSafe.Tests
 
             var data = new SerializableBoolDummy();
 
-            var xmlSerializer = new XmlFileSerializer();
+            var xmlSerializer = new XmlFileSerializer(log);
 
             // Act
             var serializationResult = xmlSerializer.Serialize(filePath, data);
@@ -121,7 +125,7 @@ namespace HideezSafe.Tests
             var data = new SerializableBoolDummy();
             data.BoolDummyProperty = true;
 
-            var xmlSerializer = new XmlFileSerializer();
+            var xmlSerializer = new XmlFileSerializer(log);
 
             // Act
             var deserializedData = xmlSerializer.Deserialize<SerializableBoolDummy>(filePath);
@@ -146,7 +150,7 @@ namespace HideezSafe.Tests
             var data = new SerializableBoolDummy();
             data.BoolDummyProperty = true;
 
-            var xmlSerializer = new XmlFileSerializer();
+            var xmlSerializer = new XmlFileSerializer(log);
 
             // Act
             var serializationResult = xmlSerializer.Serialize(filePath, data);
@@ -173,7 +177,7 @@ namespace HideezSafe.Tests
             data.BoolDummyProperty = true;
             var defaultData = default(SerializableBoolDummy);
 
-            var xmlSerializer = new XmlFileSerializer();
+            var xmlSerializer = new XmlFileSerializer(log);
 
 
             // Act
