@@ -9,11 +9,13 @@ using Hideez.SDK.Communication.Proximity;
 using Hideez.SDK.Communication.WCF;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware;
+using HideezMiddleware.Settings;
 using HideezMiddleware.Utils;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -32,7 +34,8 @@ namespace ServiceLibrary.Implementation
         static WorkstationLocker _workstationLocker;
         static IScreenActivator _screenActivator;
         static WcfDeviceFactory _wcfDeviceManager;
-        static ISettingsManager _settingsManager;
+
+        static ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
         void InitializeSDK()
         {
@@ -73,8 +76,16 @@ namespace ServiceLibrary.Implementation
             _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
             _rfidService.Start();
 
-
-            _settingsManager = new SettingsManager();
+            // Settings
+            string settingsDirectory = $@"{commonAppData}\Hideez\Service\Settings\";
+            if (!Directory.Exists(settingsDirectory))
+            {
+                Directory.CreateDirectory(settingsDirectory);
+            }
+            string ulockerSettingsPath = Path.Combine(settingsDirectory, "Unlocker.xml");
+            IFileSerializer fileSerializer = new XmlFileSerializer(sdkLogger);
+            _unlockerSettingsManager = new SettingsManager<UnlockerSettings>(ulockerSettingsPath, fileSerializer);
+            _unlockerSettingsManager.LoadSettingsAsync().Wait();
 
             try
             {
@@ -84,7 +95,8 @@ namespace ServiceLibrary.Implementation
                 UrlUtils.TryGetDomain(hesAddres, out string hesDomain);
                 WorkstationHelper.Log = sdkLogger;
                 var workstationInfoProvider = new WorkstationInfoProvider(hesDomain, sdkLogger);
-                _hesConnection = new HesAppConnection(_deviceManager, hesAddres, workstationInfoProvider, sdkLogger, _settingsManager);
+                _hesConnection = new HesAppConnection(_deviceManager, hesAddres, workstationInfoProvider, sdkLogger);
+                _hesConnection.HubSettingsArrived += (sender, settings) => _unlockerSettingsManager.SaveSettings(new UnlockerSettings(settings));
                 _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
                 _hesConnection.Start();
             }
@@ -102,7 +114,7 @@ namespace ServiceLibrary.Implementation
 
             // WorkstationUnlocker 
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
-                _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, _settingsManager, sdkLogger);
+                _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, _unlockerSettingsManager, sdkLogger);
 
             _credentialProviderConnection.Start();
 

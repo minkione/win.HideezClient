@@ -11,6 +11,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
+using HideezMiddleware.Settings;
 
 namespace HideezMiddleware
 {
@@ -21,7 +22,7 @@ namespace HideezMiddleware
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
         readonly IScreenActivator _screenActivator;
-        readonly ISettingsManager _settingsManager;
+        readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
         HesAppConnection _hesConnection;
 
@@ -39,7 +40,7 @@ namespace HideezMiddleware
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
             IScreenActivator screenActivator,
-            ISettingsManager settingsManager,
+            ISettingsManager<UnlockerSettings> unlockerSettingsManager,
             ILog log)
             : base(nameof(WorkstationUnlocker), log)
         {
@@ -48,7 +49,7 @@ namespace HideezMiddleware
             _rfidService = rfidService;
             _connectionManager = connectionManager;
             _screenActivator = screenActivator;
-            _settingsManager = settingsManager;
+            _unlockerSettingsManager = unlockerSettingsManager;
 
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
@@ -57,16 +58,17 @@ namespace HideezMiddleware
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            _settingsManager.SettingsUpdated += SettingsManager_SettingsUpdated;
+            _unlockerSettingsManager.SettingsChanged += _unlockerSettingsManager_SettingsChanged;
 
             SetHes(hesConnection);
         }
 
-        private void SettingsManager_SettingsUpdated(object sender, UnlockerSettingsInfoEventArgs e)
+        private void _unlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<UnlockerSettings> e)
         {
             try
             {
                 DeviceConnectionFilters = new List<DeviceUnlockerSettingsInfo>(e.NewSettings.DeviceUnlockerSettings);
+                WriteLine("Updated device connection filters received");
             }
             catch (Exception ex)
             {
@@ -79,7 +81,6 @@ namespace HideezMiddleware
             if (_hesConnection != null)
             {
                 _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
-                _hesConnection.HubSettingsArrived -= _hesConnection_HubSettingsArrived;
                 _hesConnection = null;
             }
 
@@ -87,14 +88,7 @@ namespace HideezMiddleware
             {
                 _hesConnection = hesConnection;
                 _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
-                _hesConnection.HubSettingsArrived += _hesConnection_HubSettingsArrived;
             }
-        }
-
-        private void _hesConnection_HubSettingsArrived(object sender, UnlockerSettingsInfo e)
-        {
-            DeviceConnectionFilters = new List<DeviceUnlockerSettingsInfo>(e.DeviceUnlockerSettings);
-            WriteLine("Updated device connection filters received");
         }
 
         #region Status notification
