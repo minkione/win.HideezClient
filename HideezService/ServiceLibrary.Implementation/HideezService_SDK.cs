@@ -349,6 +349,23 @@ namespace ServiceLibrary.Implementation
             }
         }
 
+        readonly string _bypassWorkstationOwnershipSecurity = "bypass_workstation_ownership_security";
+        bool GetBypassWorkstationOwnershipSecurity()
+        {
+            var registryKey = GetAppRegistryRootKey();
+            if (registryKey == null)
+                throw new Exception("Couldn't find Hideez Safe registry key. (HKLM\\SOFTWARE\\Hideez\\Safe)");
+
+            var value = registryKey.GetValue(_bypassWorkstationOwnershipSecurity);
+            if (value == null)
+                throw new ArgumentNullException($"{_bypassWorkstationOwnershipSecurity} value is null or empty. Please specify bypass workstation ownership security in registry under value {_bypassWorkstationOwnershipSecurity}. Key: HKLM\\SOFTWARE\\Hideez\\Safe ");
+
+            if (!(value is int))
+                throw new FormatException($"{_bypassWorkstationOwnershipSecurity} could not be cast to int. Check that its value has REG_DWORD type");
+
+            return ((int)value != 0);
+        }
+
         public void DisconnectDevice(string id)
         {
             try
