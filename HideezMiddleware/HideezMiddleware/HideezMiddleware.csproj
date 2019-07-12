@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CredentialProviderConnection.cs" />
+    <Compile Include="DeviceAccessController.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
     <Compile Include="IScreenActivator.cs" />
     <Compile Include="Modules\NLogWrapper.cs" />
