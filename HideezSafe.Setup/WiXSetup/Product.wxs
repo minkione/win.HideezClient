@@ -168,7 +168,8 @@
 
 
     <!-- Public Variables -->
-    <Property Id="INSTALLDONGLEDRIVER" Secure="yes" Value="0" />
+    <Property Id="INSTALLDONGLEDRIVER" Secure="yes" Value="1" />
+    <Property Id="BYPASSWORKSTATIONOWNERSHIPSECURITY" Secure="yes" Value="0" />
     
     <!-- Preserve saved HES Address on updates -->
     <Property Id="SAVEDHESADDRESS" Secure="yes">
@@ -179,7 +180,16 @@
                       Type="raw" />
     </Property>
     <!-- ... -->
-
+    
+<!-- Preserve saved BypassWorkstationOwnershipSecurity on updates -->
+    <Property Id="SAVEDBYPASSWORKSTATIONOWNERSHIPSECURITY" Secure="yes">
+      <RegistrySearch Id="FindSavedBYPASSWORKSTATIONOWNERSHIPSECURITY"
+                      Root="HKLM"
+                      Key="SOFTWARE\Hideez\Safe"
+                      Name="bypass_workstation_ownership_security"
+                      Type="raw" />
+    </Property>
+    <!-- ... -->
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
 
     <!--<WixVariable Id="WixUILicenseRtf" Value="Copyright.rtf" />-->
@@ -258,6 +268,12 @@
         </RegistryKey>
       </Component>
       <!-- -->
+
+      <Component Id="BypassWorkstationOwnershipSecurityWriteToRegistry" Guid="{58752957-297D-45BF-9909-387EC9D6C90C}">
+        <RegistryKey Root="HKLM" Key="SOFTWARE\Hideez\Safe" >
+          <RegistryValue Type="integer" Name="bypass_workstation_ownership_security" Value="[BYPASSWORKSTATIONOWNERSHIPSECURITY]" />
+        </RegistryKey>
+      </Component>
       
       <Component Id="HideezService.Crypto.dll" Guid="{93E3D49F-2F34-4D64-B832-AFFDF6C530F4}" Win64="$(var.Win64)">
         <File Id="HideezService.Crypto.dll" Name="Crypto.dll" Source="$(var.Binaries_Dir)Crypto.dll" />

@@ -16,6 +16,7 @@ namespace CustomAction
             string HostServerAddress { get; }
             bool InstallDongleDriver { get; }
             string CsrDriverInstallerPath { get; }
+            bool BypassWorkstationOwnershipSecurity { get; }
         }
 
         private class Parameters : IParameters
@@ -25,11 +26,13 @@ namespace CustomAction
                 HostServerAddress = "";
                 InstallDongleDriver = false;
                 CsrDriverInstallerPath = "";
+                BypassWorkstationOwnershipSecurity = false;
             }
 
             public string HostServerAddress { get; set; }
             public bool InstallDongleDriver { get; set; }
             public string CsrDriverInstallerPath { get; set; }
+            public bool BypassWorkstationOwnershipSecurity { get; set; }
         }
 
         [CustomAction]
@@ -102,13 +105,15 @@ namespace CustomAction
         private static bool AreParametersSet(Session session)
         {
             var containsKeys = session.CustomActionData.ContainsKey("HesAddress") 
-                && session.CustomActionData.ContainsKey("InstallDongleDriver");
+                && session.CustomActionData.ContainsKey("InstallDongleDriver")
+                && session.CustomActionData.ContainsKey("BypassWorkstationOwnershipSecurity");
 
             if (containsKeys)
             {
                 session.Log("(CustomActions.AreParametersSet) Keys detected");
                 var containsValues = !string.IsNullOrEmpty(session.CustomActionData["HesAddress"]) 
-                    || !string.IsNullOrEmpty(session.CustomActionData["InstallDongleDriver"]);
+                    || !string.IsNullOrEmpty(session.CustomActionData["InstallDongleDriver"])
+                    || !string.IsNullOrEmpty(session.CustomActionData["BypassWorkstationOwnershipSecurity"]);
                 if (containsValues)
                 {
                     session.Log("(CustomActions.AreParametersSet) At least one key contains value");
@@ -160,6 +165,17 @@ namespace CustomAction
                 {
                     success = false;
                     session.Log("(CustomActions.TryParseParameters) Couldn't parse CSR driver option");
+                }
+
+                if (byte.TryParse(session.CustomActionData["BypassWorkstationOwnershipSecurity"], out byte bypassWorkstationOwnershipSecurity))
+                {
+                    parameters.BypassWorkstationOwnershipSecurity = bypassWorkstationOwnershipSecurity != 0;
+                    session.Log("(CustomActions.TryParseParameters) BypassWorkstationOwnershipSecurity option parsed");
+                }
+                else
+                {
+                    success = false;
+                    session.Log("(CustomActions.TryParseParameters) Couldn't parse BypassWorkstationOwnershipSecurity option");
                 }
 
                 try
