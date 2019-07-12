@@ -1,32 +1,32 @@
 ﻿using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
+using HideezMiddleware.Settings;
+using NLog;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
     public class DeviceAccessController
     {
-        readonly SettingsManager _settingsManager;
+        readonly ILogger _log = LogManager.GetCurrentClassLogger();
+        readonly SettingsManager<UnlockerSettings> _settingsManager;
         readonly BleDeviceManager _bleDeviceManager;
 
-        UnlockerSettingsInfo _unlockerSettingsInfo;
+        UnlockerSettings _unlockerSettings;
 
-        public DeviceAccessController(SettingsManager settingsManager, BleDeviceManager bleDeviceManager)
+        public DeviceAccessController(SettingsManager<UnlockerSettings> settingsManager, BleDeviceManager bleDeviceManager)
         {
             _settingsManager = settingsManager;
             _bleDeviceManager = bleDeviceManager;
 
-            _settingsManager.SettingsUpdated += SettingsManager_SettingsUpdated;
+            _settingsManager.SettingsChanged += SettingsManager_SettingsChanged;
         }
 
-        void SettingsManager_SettingsUpdated(object sender, Hideez.SDK.Communication.UnlockerSettingsInfoEventArgs e)
+        void SettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<UnlockerSettings> e)
         {
-            _unlockerSettingsInfo = e.NewSettings;
+            _unlockerSettings = e.NewSettings;
             Task.Run(DisconnectNotApprovedDevices);
         }
 
@@ -35,14 +35,14 @@ namespace HideezMiddleware
             try
             {
                 // Select devices with MAC that is not present in UnlockerSettingsInfo
-                var missingDevices = _bleDeviceManager.Devices.Where(d => !_unlockerSettingsInfo.DeviceUnlockerSettings.Any(s => s.Mac == d.Mac));
+                var missingDevices = _bleDeviceManager.Devices.Where(d => !_unlockerSettings.DeviceUnlockerSettings.Any(s => s.Mac == d.Mac));
 
                 foreach (var device in missingDevices)
                     await RemoveDevice(device);
             }
             catch (Exception ex)
             {
-                // todo: Add NLog
+                _log.Error(ex);
             }
         }
 
@@ -55,23 +55,24 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
-                // todo: Add NLog
+                _log.Error(ex);
             }
         }
 
+
         public bool IsProximityAllowed(string mac)
         {
-            return _unlockerSettingsInfo.DeviceUnlockerSettings.Any(s => s.Mac == mac && s.AllowProximity);
+            return _unlockerSettings.DeviceUnlockerSettings.Any(s => s.Mac == mac && s.AllowProximity);
         }
 
         public bool IsRfidAllowed(string mac)
         {
-            return _unlockerSettingsInfo.DeviceUnlockerSettings.Any(s => s.Mac == mac && s.AllowRfid);
+            return _unlockerSettings.DeviceUnlockerSettings.Any(s => s.Mac == mac && s.AllowRfid);
         }
 
         public bool IsBleTapAllowed(string mac)
         {
-            return _unlockerSettingsInfo.DeviceUnlockerSettings.Any(s => s.Mac == mac && s.AllowBleTap);
+            return _unlockerSettings.DeviceUnlockerSettings.Any(s => s.Mac == mac && s.AllowBleTap);
         }
     }
 }
