@@ -119,7 +119,7 @@ namespace ServiceLibrary.Implementation
 
             // WorkstationUnlocker 
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
-                _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, _unlockerSettingsManager, sdkLogger);
+                _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, _unlockerSettingsManager);
 
             _credentialProviderConnection.Start();
 
