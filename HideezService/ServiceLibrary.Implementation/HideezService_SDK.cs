@@ -366,7 +366,7 @@ namespace ServiceLibrary.Implementation
 
             var value = registryKey.GetValue(_bypassWorkstationOwnershipSecurityValueName);
             if (value == null)
-                throw new ArgumentNullException($"{_bypassWorkstationOwnershipSecurityValueName} value is null or empty. Please specify bypass workstation ownership security in registry under value {_bypassWorkstationOwnershipSecurityValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Safe ");
+                return false;
 
             if (!(value is int))
                 throw new FormatException($"{_bypassWorkstationOwnershipSecurityValueName} could not be cast to int. Check that its value has REG_DWORD type");

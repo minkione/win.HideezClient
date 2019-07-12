@@ -26,10 +26,17 @@ namespace HideezMiddleware.Settings
 
         public UnlockerSettings(UnlockerSettingsInfo unlockerSettingsInfo)
         {
+            SettingsVersion = new Version(1, 0, 0);
+
             LockProximity = unlockerSettingsInfo.LockProximity;
             UnlockProximity = unlockerSettingsInfo.UnlockProximity;
             LockTimeoutSeconds = unlockerSettingsInfo.LockTimeoutSeconds;
             DeviceUnlockerSettings = unlockerSettingsInfo.DeviceUnlockerSettings;
+
+            for (int i = 0; i < DeviceUnlockerSettings.Length; i++)
+            {
+                DeviceUnlockerSettings[i].Mac = DeviceUnlockerSettings[i].Mac.Replace(":", "");
+            }
         }
 
         /// <summary>
@@ -57,7 +64,7 @@ namespace HideezMiddleware.Settings
                     AllowRfid = settings.AllowRfid,
                     RequirePin = settings.RequirePin,
                     SerialNo = settings.SerialNo,
-                    Mac = settings.Mac,
+                    Mac = settings.Mac.Replace(":", ""),
                 });
             }
 
