@@ -200,6 +200,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Version.cs">
+      <Link>Version.cs</Link>
+    </Compile>
     <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
@@ -430,7 +433,6 @@
     <Compile Include="Models\Settings\ApplicationSettings.cs" />
     <Compile Include="Utilities\Constants.cs" />
     <Compile Include="Utilities\Win32Helper.cs" />
-    <Compile Include="Version.cs" />
     <Compile Include="ViewModels\Controls\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Taskbar\LanguageMenuItemViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

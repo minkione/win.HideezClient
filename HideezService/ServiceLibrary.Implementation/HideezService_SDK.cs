@@ -14,10 +14,12 @@ using HideezMiddleware.Utils;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation
@@ -43,9 +45,10 @@ namespace ServiceLibrary.Implementation
             var sdkLogger = new NLogWrapper();
 
 #if DEBUG
-            _log.Info(">>>>>> Verifying error codes:");
+            _log.Info($">>>>>> Verifying error codes.");
             var _hideezExceptionLocalization = new HideezExceptionLocalization(sdkLogger);
-            _hideezExceptionLocalization.VerifyResourcesForErrorCode(new CultureInfo("en"));
+            bool isVerified = _hideezExceptionLocalization.VerifyResourcesForErrorCode(new CultureInfo("en"));
+            Debug.Assert(isVerified, $">>>>>> Verifying error codes resalt: {isVerified}");
 #endif
 
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
