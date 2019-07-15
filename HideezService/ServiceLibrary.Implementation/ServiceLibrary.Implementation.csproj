@@ -68,6 +68,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Version.cs">
+      <Link>Version.cs</Link>
+    </Compile>
     <Compile Include="HideezService.cs" />
     <Compile Include="NLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

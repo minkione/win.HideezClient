@@ -25,6 +25,9 @@ namespace HideezMiddleware
 
         public bool VerifyResourcesForErrorCode(params string[] cultureNames)
         {
+            if (!cultureNames.Any())
+                throw new ArgumentException($"{nameof(cultureNames)} cannot be empty.");
+
             bool isValid = true;
             foreach (string cultureName in cultureNames)
             {
@@ -36,6 +39,9 @@ namespace HideezMiddleware
 
         public bool VerifyResourcesForErrorCode(CultureInfo culture)
         {
+            if (culture == null)
+                throw new ArgumentNullException(nameof(culture));
+
             bool isValid = true;
 
             // If specified culture is English, read from the default resource due to file name difference for default culture
@@ -47,34 +53,36 @@ namespace HideezMiddleware
                 isValid = false;
                 WriteLine($"Localization for {culture.EnglishName} culture is not available", LogErrorSeverity.Warning);
             }
-
-            var errorCodes = Enum.GetNames(typeof(HideezErrorCode));
-
-            foreach (DictionaryEntry entry in resourceSet)
+            else
             {
-                if (!errorCodes.Contains(entry.Key.ToString()))
-                {
-                    isValid = false;
-                    WriteLine($"No error code found for: " +
-                        $"{entry.Key.ToString()}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
-                }
-            }
+                var errorCodes = Enum.GetNames(typeof(HideezErrorCode));
 
-            foreach (var errCode in errorCodes)
-            {
-                string str = resourceSet.GetString(errCode);
-
-                if (str == null)
+                foreach (DictionaryEntry entry in resourceSet)
                 {
-                    isValid = false;
-                    WriteLine($"No localization for error code: " +
-                        $"{errCode}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
+                    if (!errorCodes.Contains(entry.Key.ToString()))
+                    {
+                        isValid = false;
+                        WriteLine($"No error code found for: " +
+                            $"{entry.Key.ToString()}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
+                    }
                 }
-                else if (string.IsNullOrWhiteSpace(str))
+
+                foreach (var errCode in errorCodes)
                 {
-                    isValid = false;
-                    WriteLine($"Localization is empty for: " +
-                        $"{errCode}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
+                    string str = resourceSet.GetString(errCode);
+
+                    if (str == null)
+                    {
+                        isValid = false;
+                        WriteLine($"No localization for error code: " +
+                            $"{errCode}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
+                    }
+                    else if (string.IsNullOrWhiteSpace(str))
+                    {
+                        isValid = false;
+                        WriteLine($"Localization is empty for: " +
+                            $"{errCode}, culture: {culture.EnglishName}", LogErrorSeverity.Warning);
+                    }
                 }
             }
 
