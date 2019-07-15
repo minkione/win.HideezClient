@@ -51,7 +51,7 @@ namespace HideezMiddleware
                 var unlockerSettings = await _unlockerSettingsManager.GetSettingsAsync();
 
                 // Select devices with MAC that is not present in UnlockerSettingsInfo
-                var missingDevices = _bleDeviceManager.Devices.Where(d => !unlockerSettings.DeviceUnlockerSettings.Any(s => s.Mac.Replace(":", "") == d.Mac));
+                var missingDevices = _bleDeviceManager.Devices.Where(d => !unlockerSettings.DeviceUnlockerSettings.Any(s => s.Mac == d.Mac));
 
                 foreach (var device in missingDevices)
                     await RemoveDevice(device);
