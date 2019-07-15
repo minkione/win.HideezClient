@@ -1,11 +1,12 @@
 ﻿using Hideez.SDK.Communication.Proximity;
+using HideezMiddleware;
 using NLog;
 using System;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation
 {
-    class WorkstationLocker
+    class WorkstationLocker : IWorkstationLocker
     {
         Logger _log = LogManager.GetCurrentClassLogger();
         readonly ServiceClientSessionManager _sessionManager;
@@ -49,6 +50,11 @@ namespace ServiceLibrary.Implementation
         {
             if (IsEnabled)
                 LockWorkstationAsync();
+        }
+
+        public void LockWorkstation()
+        {
+            LockWorkstationAsync();
         }
 
         void LockWorkstationAsync()

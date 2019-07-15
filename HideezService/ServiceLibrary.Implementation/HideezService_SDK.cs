@@ -112,10 +112,6 @@ namespace ServiceLibrary.Implementation
                 _log.Error(ex);
             }
 
-            // Device Access Controller ==================================
-            _deviceAccessController = new DeviceAccessController(_unlockerSettingsManager, _deviceManager);
-            _deviceAccessController.Start();
-
             // ScreenActivator ==================================
             _screenActivator = new UiScreenActivator(SessionManager);
 
@@ -142,6 +138,10 @@ namespace ServiceLibrary.Implementation
             // WorkstationLocker ==================================
             _workstationLocker = new WorkstationLocker(SessionManager, _proximityMonitorManager);
             _workstationLocker.Start();
+
+            // Device Access Controller ==================================
+            _deviceAccessController = new DeviceAccessController(_unlockerSettingsManager, _deviceManager, _workstationLocker);
+            _deviceAccessController.Start();
 
             _connectionManager.StartDiscovery();
         }

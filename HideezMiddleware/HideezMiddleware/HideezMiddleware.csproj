@@ -76,6 +76,7 @@
     <Compile Include="DeviceAccessController.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
     <Compile Include="IScreenActivator.cs" />
+    <Compile Include="IWorkstationLocker.cs" />
     <Compile Include="Modules\NLogWrapper.cs" />
     <Compile Include="Modules\Settings\BaseSettings.cs" />
     <Compile Include="Modules\Settings\FileSerializer\IFileSerializer.cs" />
