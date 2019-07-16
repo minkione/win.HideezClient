@@ -22,5 +22,7 @@ namespace ServiceLibrary
         public string UserSession { get; set; }
         [DataMember]
         public string DeviceSN { get; set; }
+        [DataMember]
+        public string AccountName { get; set; }
     }
 }

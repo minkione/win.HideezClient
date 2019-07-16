@@ -92,7 +92,7 @@ namespace ServiceLibrary.Implementation
             IFileSerializer fileSerializer = new XmlFileSerializer(sdkLogger);
             _unlockerSettingsManager = new SettingsManager<UnlockerSettings>(ulockerSettingsPath, fileSerializer);
             _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
-            
+
             try
             {
                 // HES ==================================
@@ -202,19 +202,58 @@ namespace ServiceLibrary.Implementation
         {
             foreach (var client in SessionManager.Sessions)
                 client.Callbacks.DongleConnectionStateChanged(_connectionManager?.State == BluetoothAdapterState.PoweredOn);
+
+
+            if (_connectionManager != null && (_connectionManager.State == BluetoothAdapterState.PoweredOn || _connectionManager.State == BluetoothAdapterState.Unknown))
+            {
+                var we = WorkstationEvent.GetBaseInitializedInstance();
+                if (_hesConnection.State == HesConnectionState.Connected)
+                {
+                    we.Event = WorkstationEventId.DonglePlugged;
+                    we.Status = WorkstationEventStatus.Ok;
+                }
+                else
+                {
+                    we.Event = WorkstationEventId.DongleUnplugged;
+                    we.Status = WorkstationEventStatus.Warning;
+                }
+                Task task = _eventAggregator.AddNewAsync(we);
+            }
         }
 
         void RFIDService_ReaderStateChanged(object sender, EventArgs e)
         {
+            bool isConnected = _rfidService != null ? _rfidService.ServiceConnected && _rfidService.ReaderConnected : false;
+
             foreach (var client in SessionManager.Sessions)
-                client.Callbacks.RFIDConnectionStateChanged(_rfidService != null ?
-                    _rfidService.ServiceConnected && _rfidService.ReaderConnected : false);
+                client.Callbacks.RFIDConnectionStateChanged(isConnected);
+
+            var we = WorkstationEvent.GetBaseInitializedInstance();
+            we.Event = isConnected ? WorkstationEventId.RFIDAdapterPlugged : WorkstationEventId.RFIDAdapterUnplugged;
+            we.Status = isConnected ? WorkstationEventStatus.Ok : WorkstationEventStatus.Warning;
+            Task task = _eventAggregator.AddNewAsync(we);
         }
 
         void HES_ConnectionStateChanged(object sender, EventArgs e)
         {
             foreach (var client in SessionManager.Sessions)
                 client.Callbacks.HESConnectionStateChanged(_hesConnection?.State == HesConnectionState.Connected);
+
+            if (_hesConnection != null && (_hesConnection.State == HesConnectionState.Disconnected || _hesConnection.State == HesConnectionState.Disconnected))
+            {
+                var we = WorkstationEvent.GetBaseInitializedInstance();
+                if (_hesConnection.State == HesConnectionState.Connected)
+                {
+                    we.Event = WorkstationEventId.HESConnected;
+                    we.Status = WorkstationEventStatus.Ok;
+                }
+                else
+                {
+                    we.Event = WorkstationEventId.HESDisconnected;
+                    we.Status = WorkstationEventStatus.Warning;
+                }
+                Task task = _eventAggregator.AddNewAsync(we);
+            }
         }
 
         void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
@@ -421,6 +460,7 @@ namespace ServiceLibrary.Implementation
                 Note = workstationEvent.Note,
                 DeviceSN = workstationEvent.DeviceSN,
                 UserSession = workstationEvent.UserSession,
+                AccountName = workstationEvent.AccountName,
             };
 
             Task task = _eventAggregator.AddNewAsync(we);

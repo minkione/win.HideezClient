@@ -25,6 +25,7 @@ namespace HideezSafe.Modules
                 Note = workstationEvent.Note,
                 DeviceSN = workstationEvent.DeviceSN,
                 UserSession = workstationEvent.UserSession,
+                AccountName = workstationEvent.AccountName,
             };
 
             await hideezService.PublishEventAsync(we);

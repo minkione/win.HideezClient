@@ -54,6 +54,7 @@
   <xs:element name="DeviceDTO" nillable="true" type="tns:DeviceDTO" />
   <xs:complexType name="WorkstationEventDTO">
     <xs:sequence>
+      <xs:element minOccurs="0" name="AccountName" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Computer" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Date" type="xs:dateTime" />
       <xs:element minOccurs="0" name="DeviceSN" nillable="true" type="xs:string" />
