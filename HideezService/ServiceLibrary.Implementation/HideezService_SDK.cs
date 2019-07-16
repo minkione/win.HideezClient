@@ -180,6 +180,32 @@ namespace ServiceLibrary.Implementation
                 device.ConnectionStateChanged += Device_ConnectionStateChanged;
                 device.Initialized += Device_Initialized;
                 device.StorageModified += RemoteConnection_StorageModified;
+                device.Connected += Device_Connected;
+                device.Disconnected += Device_Disconnected;
+            }
+        }
+
+        private void Device_Disconnected(object sender, EventArgs e)
+        {
+            if (sender is IDevice device)
+            {
+                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                workstationEvent.Event = device.IsRemote ? WorkstationEventId.RemoteDisconnect : WorkstationEventId.DeviceDisconnect;
+                workstationEvent.Status = WorkstationEventStatus.Info;
+                workstationEvent.DeviceSN = device.SerialNo;
+                _eventAggregator.AddNewAsync(workstationEvent);
+            }
+        }
+
+        private void Device_Connected(object sender, EventArgs e)
+        {
+            if (sender is IDevice device)
+            {
+                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                workstationEvent.Event = device.IsRemote ? WorkstationEventId.RemoteConnect : WorkstationEventId.DeviceConnect;
+                workstationEvent.Status = WorkstationEventStatus.Info;
+                workstationEvent.DeviceSN = device.SerialNo;
+                _eventAggregator.AddNewAsync(workstationEvent);
             }
         }
 
@@ -192,9 +218,18 @@ namespace ServiceLibrary.Implementation
                 device.ConnectionStateChanged -= Device_ConnectionStateChanged;
                 device.Initialized -= Device_Initialized;
                 device.StorageModified -= RemoteConnection_StorageModified;
+                device.Connected -= Device_Connected;
+                device.Disconnected -= Device_Disconnected;
 
                 if (device is IWcfDevice wcfDevice)
                     UnsubscribeFromWcfDeviceEvents(wcfDevice);
+
+
+                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                workstationEvent.Event = device.IsRemote ? WorkstationEventId.RemoteDeleted : WorkstationEventId.DeviceDeleted;
+                workstationEvent.Status = WorkstationEventStatus.Warning;
+                workstationEvent.DeviceSN = device.SerialNo;
+                _eventAggregator.AddNewAsync(workstationEvent);
             }
         }
 
@@ -207,7 +242,7 @@ namespace ServiceLibrary.Implementation
             if (_connectionManager != null && (_connectionManager.State == BluetoothAdapterState.PoweredOn || _connectionManager.State == BluetoothAdapterState.Unknown))
             {
                 var we = WorkstationEvent.GetBaseInitializedInstance();
-                if (_hesConnection.State == HesConnectionState.Connected)
+                if (_connectionManager.State == BluetoothAdapterState.PoweredOn)
                 {
                     we.Event = WorkstationEventId.DonglePlugged;
                     we.Status = WorkstationEventStatus.Ok;
@@ -239,7 +274,7 @@ namespace ServiceLibrary.Implementation
             foreach (var client in SessionManager.Sessions)
                 client.Callbacks.HESConnectionStateChanged(_hesConnection?.State == HesConnectionState.Connected);
 
-            if (_hesConnection != null && (_hesConnection.State == HesConnectionState.Disconnected || _hesConnection.State == HesConnectionState.Disconnected))
+            if (_hesConnection != null && (_hesConnection.State == HesConnectionState.Connected || _hesConnection.State == HesConnectionState.Disconnected))
             {
                 var we = WorkstationEvent.GetBaseInitializedInstance();
                 if (_hesConnection.State == HesConnectionState.Connected)
