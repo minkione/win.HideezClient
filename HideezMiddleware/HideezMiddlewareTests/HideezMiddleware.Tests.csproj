@@ -91,7 +91,6 @@
     <Compile Include="BaseSettingsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SettingsManagerTests.cs" />
-    <Compile Include="UrlUtilsTests.cs" />
     <Compile Include="XmlFileSerializerTests.cs" />
   </ItemGroup>
   <ItemGroup>

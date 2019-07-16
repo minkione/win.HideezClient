@@ -15,6 +15,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.LongOperations;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezMiddleware;
+using HideezMiddleware.Settings;
 using Microsoft.Win32;
 
 namespace WinSampleApp.ViewModel
@@ -532,10 +533,12 @@ namespace WinSampleApp.ViewModel
             _rfidService = new RfidServiceConnection(_log);
             _rfidService.Start();
 
+            // Unlocker Settings Manager
+            var unlockerSettingsManager = new SettingsManager<UnlockerSettings>(string.Empty, new XmlFileSerializer(_log));
 
             // WorkstationUnlocker ==================================
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, 
-                _credentialProviderConnection, _rfidService, _connectionManager, null, _log);
+                _credentialProviderConnection, _rfidService, _connectionManager, null, unlockerSettingsManager);
 
             _connectionManager.StartDiscovery();
         }
@@ -553,13 +556,13 @@ namespace WinSampleApp.ViewModel
 
                 if (!string.IsNullOrEmpty(HesAddress))
                 {
-                    _hesConnection = new HesAppConnection(_deviceManager, HesAddress, _log);
+                    _hesConnection = new HesAppConnection(_deviceManager, HesAddress, new WorkstationInfoProvider("", _log), _log);
 
                     _hesConnection.Start();
 
                     _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
 
-                    _workstationUnlocker.SetHes(_hesConnection);
+                    //_workstationUnlocker.SetHes(_hesConnection);
                 }
             }
             catch (Exception ex)

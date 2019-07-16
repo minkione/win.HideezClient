@@ -6,6 +6,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Proximity;
+using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.WCF;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware;
