@@ -38,6 +38,7 @@ namespace ServiceLibrary.Implementation
         static IScreenActivator _screenActivator;
         static WcfDeviceFactory _wcfDeviceManager;
         static DeviceAccessController _deviceAccessController;
+        static EventAggregator _eventAggregator;
 
         static ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
@@ -143,6 +144,8 @@ namespace ServiceLibrary.Implementation
             // Device Access Controller ==================================
             _deviceAccessController = new DeviceAccessController(_unlockerSettingsManager, _deviceManager, _workstationLocker);
             _deviceAccessController.Start();
+
+            _eventAggregator = new EventAggregator(_hesConnection);
 
             _connectionManager.StartDiscovery();
         }
@@ -406,6 +409,22 @@ namespace ServiceLibrary.Implementation
             }
         }
 
+        public void PublishEvent(WorkstationEventDTO workstationEvent)
+        {
+            WorkstationEvent we = new WorkstationEvent
+            {
+                ID = workstationEvent.ID,
+                Date = workstationEvent.Date,
+                Computer = workstationEvent.Computer,
+                Event = (WorkstationEventId)workstationEvent.Event,
+                Status = (WorkstationEventStatus)workstationEvent.Status,
+                Note = workstationEvent.Note,
+                DeviceSN = workstationEvent.DeviceSN,
+                UserSession = workstationEvent.UserSession,
+            };
+
+            Task task = _eventAggregator.AddNewAsync(we);
+        }
 
         #region Remote device management
         // This collection is unique for each client

@@ -339,6 +339,170 @@ namespace HideezServiceHost.HideezServiceReference {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="WorkstationEventDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(HideezServiceHost.HideezServiceReference.ServiceClientParameters))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(HideezServiceHost.HideezServiceReference.ClientType))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(HideezServiceHost.HideezServiceReference.Adapter))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(HideezServiceHost.HideezServiceReference.DeviceDTO[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(HideezServiceHost.HideezServiceReference.DeviceDTO))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Version))]
+    public partial class WorkstationEventDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ComputerField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.DateTime DateField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string DeviceSNField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int EventField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string IDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private object NoteField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int StatusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string UserSessionField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Computer {
+            get {
+                return this.ComputerField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ComputerField, value) != true)) {
+                    this.ComputerField = value;
+                    this.RaisePropertyChanged("Computer");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime Date {
+            get {
+                return this.DateField;
+            }
+            set {
+                if ((this.DateField.Equals(value) != true)) {
+                    this.DateField = value;
+                    this.RaisePropertyChanged("Date");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string DeviceSN {
+            get {
+                return this.DeviceSNField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.DeviceSNField, value) != true)) {
+                    this.DeviceSNField = value;
+                    this.RaisePropertyChanged("DeviceSN");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Event {
+            get {
+                return this.EventField;
+            }
+            set {
+                if ((this.EventField.Equals(value) != true)) {
+                    this.EventField = value;
+                    this.RaisePropertyChanged("Event");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ID {
+            get {
+                return this.IDField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.IDField, value) != true)) {
+                    this.IDField = value;
+                    this.RaisePropertyChanged("ID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public object Note {
+            get {
+                return this.NoteField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NoteField, value) != true)) {
+                    this.NoteField = value;
+                    this.RaisePropertyChanged("Note");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((this.StatusField.Equals(value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string UserSession {
+            get {
+                return this.UserSessionField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.UserSessionField, value) != true)) {
+                    this.UserSessionField = value;
+                    this.RaisePropertyChanged("UserSession");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="HideezServiceReference.IHideezService", CallbackContract=typeof(HideezServiceHost.HideezServiceReference.IHideezServiceCallback), SessionMode=System.ServiceModel.SessionMode.Required)]
     public interface IHideezService {
@@ -430,6 +594,13 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannel", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_ResetChannelResponse")]
         System.Threading.Tasks.Task RemoteConnection_ResetChannelAsync(string connectionId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/PublishEvent", ReplyAction="http://tempuri.org/IHideezService/PublishEventResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/PublishEventHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void PublishEvent(HideezServiceHost.HideezServiceReference.WorkstationEventDTO workstationEvent);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/PublishEvent", ReplyAction="http://tempuri.org/IHideezService/PublishEventResponse")]
+        System.Threading.Tasks.Task PublishEventAsync(HideezServiceHost.HideezServiceReference.WorkstationEventDTO workstationEvent);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -464,6 +635,9 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_BatteryChanged")]
         void RemoteConnection_BatteryChanged(string serialNo, int battery);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_StorageModified")]
+        void RemoteConnection_StorageModified(string serialNo);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -588,6 +762,14 @@ namespace HideezServiceHost.HideezServiceReference {
         
         public System.Threading.Tasks.Task RemoteConnection_ResetChannelAsync(string connectionId) {
             return base.Channel.RemoteConnection_ResetChannelAsync(connectionId);
+        }
+        
+        public void PublishEvent(HideezServiceHost.HideezServiceReference.WorkstationEventDTO workstationEvent) {
+            base.Channel.PublishEvent(workstationEvent);
+        }
+        
+        public System.Threading.Tasks.Task PublishEventAsync(HideezServiceHost.HideezServiceReference.WorkstationEventDTO workstationEvent) {
+            return base.Channel.PublishEventAsync(workstationEvent);
         }
     }
 }

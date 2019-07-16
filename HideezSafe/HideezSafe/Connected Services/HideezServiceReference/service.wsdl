@@ -149,6 +149,15 @@
   <wsdl:message name="IHideezService_RemoteConnection_ResetChannel_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q12="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q12:HideezServiceFault" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_PublishEvent_InputMessage">
+    <wsdl:part name="parameters" element="tns:PublishEvent" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_PublishEvent_OutputMessage">
+    <wsdl:part name="parameters" element="tns:PublishEventResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_PublishEvent_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q13="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q13:HideezServiceFault" />
+  </wsdl:message>
   <wsdl:message name="IHideezService_LockWorkstationRequest_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:LockWorkstationRequest" />
   </wsdl:message>
@@ -242,6 +251,11 @@
       <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannel" message="tns:IHideezService_RemoteConnection_ResetChannel_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannelResponse" message="tns:IHideezService_RemoteConnection_ResetChannel_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_ResetChannelHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_RemoteConnection_ResetChannel_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="PublishEvent">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/PublishEvent" message="tns:IHideezService_PublishEvent_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/PublishEventResponse" message="tns:IHideezService_PublishEvent_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/PublishEventHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_PublishEvent_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="LockWorkstationRequest">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/LockWorkstationRequest" message="tns:IHideezService_LockWorkstationRequest_OutputCallbackMessage" />
@@ -415,6 +429,18 @@
     </wsdl:operation>
     <wsdl:operation name="RemoteConnection_ResetChannel">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_ResetChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="PublishEvent">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/PublishEvent" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

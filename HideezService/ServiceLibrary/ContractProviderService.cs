@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Hideez.SDK.Communication;
 
 namespace ServiceLibrary
 {
@@ -46,6 +47,11 @@ namespace ServiceLibrary
         }
 
         public int Ping()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PublishEvent(WorkstationEventDTO workstationEvent)
         {
             throw new NotImplementedException();
         }

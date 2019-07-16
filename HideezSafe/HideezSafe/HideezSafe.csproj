@@ -268,6 +268,8 @@
     <Compile Include="Modules\Remote\RemoteDeviceEvents.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceFactory.cs" />
     <Compile Include="Modules\SettingsManager\HSSettingsManager.cs" />
+    <Compile Include="Modules\WorkstationEvent\EventAggregator.cs" />
+    <Compile Include="Modules\WorkstationEvent\IEventAggregator.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
     <Compile Include="ViewModels\Notification\NotificationsContainerViewModel.cs" />

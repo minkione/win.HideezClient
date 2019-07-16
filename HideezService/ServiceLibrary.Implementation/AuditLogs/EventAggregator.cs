@@ -27,6 +27,11 @@ namespace ServiceLibrary.Implementation
 
         public EventAggregator(HesAppConnection hesAppConnection)
         {
+            if(!Directory.Exists(eventDirectory))
+            {
+                Directory.CreateDirectory(eventDirectory);
+            }
+
             this.hesAppConnection = hesAppConnection;
             sendTimer.Interval = timeIntervalSend;
             sendTimer.Elapsed += SendTimer_Elapsed;

@@ -1,4 +1,5 @@
-﻿using System.ServiceModel;
+﻿using Hideez.SDK.Communication;
+using System.ServiceModel;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary
@@ -54,6 +55,10 @@ namespace ServiceLibrary
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         Task RemoteConnection_ResetChannelAsync(string connectionId);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void PublishEvent(WorkstationEventDTO workstationEvent);
     }
 
     public interface ICallbacks

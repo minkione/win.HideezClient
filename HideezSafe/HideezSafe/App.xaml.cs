@@ -284,6 +284,8 @@ namespace HideezSafe
 
             Container.RegisterType<INotifier, Notifier>(new ContainerControlledLifetimeManager());
 
+            Container.RegisterType<IEventAggregator, EventAggregator>(new ContainerControlledLifetimeManager());
+
             logger.Info("Finish initialize DI container");
 
         }

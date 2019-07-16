@@ -154,6 +154,18 @@
       <xs:sequence />
     </xs:complexType>
   </xs:element>
+  <xs:element name="PublishEvent">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="workstationEvent" nillable="true" type="q4:WorkstationEventDTO" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PublishEventResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
   <xs:element name="LockWorkstationRequest">
     <xs:complexType>
       <xs:sequence />
@@ -188,21 +200,21 @@
   <xs:element name="DevicesCollectionChanged">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="devices" nillable="true" type="q4:ArrayOfDeviceDTO" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="devices" nillable="true" type="q5:ArrayOfDeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="DeviceConnectionStateChanged">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q5:DeviceDTO" />
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q6:DeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="DeviceInitialized">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q6:DeviceDTO" />
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q7:DeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -219,6 +231,13 @@
       <xs:sequence>
         <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="battery" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoteConnection_StorageModified">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
