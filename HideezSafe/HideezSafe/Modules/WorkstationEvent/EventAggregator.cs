@@ -1,16 +1,17 @@
 ﻿using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using HideezSafe.HideezServiceReference;
+using HideezSafe.Modules.ServiceProxy;
 
 namespace HideezSafe.Modules
 {
     class EventAggregator : IEventAggregator
     {
-        private readonly IHideezService hideezService;
+        private readonly IServiceProxy serviceProxy;
 
-        public EventAggregator(IHideezService hideezService)
+        public EventAggregator(IServiceProxy serviceProxy)
         {
-            this.hideezService = hideezService;
+            this.serviceProxy = serviceProxy;
         }
 
         public async Task PublishEventAsync(WorkstationEvent workstationEvent)
@@ -28,7 +29,7 @@ namespace HideezSafe.Modules
                 AccountName = workstationEvent.AccountName,
             };
 
-            await hideezService.PublishEventAsync(we);
+            await serviceProxy?.GetService()?.PublishEventAsync(we);
         }
     }
 }

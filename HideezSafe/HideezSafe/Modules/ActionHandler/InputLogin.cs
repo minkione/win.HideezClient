@@ -20,8 +20,9 @@ namespace HideezSafe.Modules.ActionHandler
     {
         public InputLogin(IInputHandler inputHandler, ITemporaryCacheAccount temporaryCacheAccount
                         , IInputCache inputCache, ISettingsManager<ApplicationSettings> settingsManager
-                        , IWindowsManager windowsManager, IDeviceManager deviceManager)
-                        : base(inputHandler, temporaryCacheAccount, inputCache, settingsManager, windowsManager, deviceManager)
+                        , IWindowsManager windowsManager, IDeviceManager deviceManager
+                        , IEventAggregator eventAggregator)
+                        : base(inputHandler, temporaryCacheAccount, inputCache, settingsManager, windowsManager, deviceManager, eventAggregator)
         {
         }
 

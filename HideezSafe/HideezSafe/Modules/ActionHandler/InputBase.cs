@@ -1,5 +1,6 @@
 ﻿using Hideez.ARM;
 using Hideez.ISM;
+using Hideez.SDK.Communication;
 using HideezMiddleware.Settings;
 using HideezSafe.Models;
 using HideezSafe.Models.Settings;
@@ -29,10 +30,12 @@ namespace HideezSafe.Modules.ActionHandler
         protected readonly ISettingsManager<ApplicationSettings> settingsManager;
         private readonly IWindowsManager windowsManager;
         private readonly IDeviceManager deviceManager;
+        private readonly IEventAggregator eventAggregator;
 
         protected InputBase(IInputHandler inputHandler, ITemporaryCacheAccount temporaryCacheAccount
             , IInputCache inputCache, ISettingsManager<ApplicationSettings> settingsManager
-            , IWindowsManager windowsManager, IDeviceManager deviceManager)
+            , IWindowsManager windowsManager, IDeviceManager deviceManager
+            , IEventAggregator eventAggregator)
         {
             this.inputHandler = inputHandler;
             this.temporaryCacheAccount = temporaryCacheAccount;
@@ -40,6 +43,7 @@ namespace HideezSafe.Modules.ActionHandler
             this.settingsManager = settingsManager;
             this.windowsManager = windowsManager;
             this.deviceManager = deviceManager;
+            this.eventAggregator = eventAggregator;
         }
 
         /// <summary>
@@ -159,7 +163,16 @@ namespace HideezSafe.Modules.ActionHandler
         {
             if (!await InputAccountAsync(account))
             {
-                OnAccountNotFoundError(currentAppInfo, new[] { account.DeviceId });
+                OnAccountNotFoundError(currentAppInfo, new[] { account.Device.Id });
+            }
+            else
+            {
+                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                workstationEvent.AccountName = account.Name;
+                workstationEvent.DeviceSN = account.Device.SerialNo;
+                workstationEvent.Status = WorkstationEventStatus.Info;
+                workstationEvent.Note = currentAppInfo.Title;
+                eventAggregator?.PublishEventAsync(workstationEvent);
             }
         }
 

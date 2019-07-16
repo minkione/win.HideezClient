@@ -19,8 +19,8 @@ namespace HideezSafe.Models
             this.accountRecord = accountRecord;
         }
 
-        public string Id => $"{DeviceId}:{accountRecord.Key}";
-        public string DeviceId => device.Id;
+        public string Id => $"{device.Id}:{accountRecord.Key}";
+        public Device Device => device;
         public string Name => accountRecord.Name;
 
         public string[] Apps => AccountUtility.Split(accountRecord.Apps);
