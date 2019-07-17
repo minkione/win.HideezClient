@@ -51,7 +51,7 @@ namespace ServiceLibrary.Implementation
             _log.Info($">>>>>> Verifying error codes.");
             var _hideezExceptionLocalization = new HideezExceptionLocalization(sdkLogger);
             bool isVerified = _hideezExceptionLocalization.VerifyResourcesForErrorCode(new CultureInfo("en"));
-            Debug.Assert(isVerified, $">>>>>> Verifying error codes resalt: {isVerified}");
+            // Debug.Assert(isVerified, $">>>>>> Verifying error codes resalt: {isVerified}");
 #endif
 
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
@@ -181,7 +181,6 @@ namespace ServiceLibrary.Implementation
                 device.ConnectionStateChanged += Device_ConnectionStateChanged;
                 device.Initialized += Device_Initialized;
                 device.StorageModified += RemoteConnection_StorageModified;
-                device.Connected += Device_Connected;
                 device.Disconnected += Device_Disconnected;
             }
         }
@@ -195,7 +194,6 @@ namespace ServiceLibrary.Implementation
                 device.ConnectionStateChanged -= Device_ConnectionStateChanged;
                 device.Initialized -= Device_Initialized;
                 device.StorageModified -= RemoteConnection_StorageModified;
-                device.Connected -= Device_Connected;
                 device.Disconnected -= Device_Disconnected;
 
                 if (device is IWcfDevice wcfDevice)
@@ -226,25 +224,6 @@ namespace ServiceLibrary.Implementation
                 else
                 {
                     workstationEvent.Event = WorkstationEventId.DeviceDisconnect;
-                }
-                _eventAggregator?.AddNewAsync(workstationEvent);
-            }
-        }
-
-        private void Device_Connected(object sender, EventArgs e)
-        {
-            if (sender is IDevice device && (!device.IsRemote || device.ChannelNo > 2))
-            {
-                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                workstationEvent.Status = WorkstationEventStatus.Info;
-                workstationEvent.DeviceSN = device.SerialNo;
-                if (device.IsRemote)
-                {
-                    workstationEvent.Event = WorkstationEventId.RemoteConnect;
-                }
-                else
-                {
-                    workstationEvent.Event = WorkstationEventId.DeviceConnect;
                 }
                 _eventAggregator?.AddNewAsync(workstationEvent);
             }
@@ -353,6 +332,22 @@ namespace ServiceLibrary.Implementation
                     foreach (var client in SessionManager.Sessions)
                     {
                         client.Callbacks.DeviceInitialized(new DeviceDTO(device));
+                    }
+
+                    if (!device.IsRemote || device.ChannelNo > 2)
+                    {
+                        WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                        workstationEvent.Status = WorkstationEventStatus.Info;
+                        workstationEvent.DeviceSN = device.SerialNo;
+                        if (device.IsRemote)
+                        {
+                            workstationEvent.Event = WorkstationEventId.RemoteConnect;
+                        }
+                        else
+                        {
+                            workstationEvent.Event = WorkstationEventId.DeviceConnect;
+                        }
+                        _eventAggregator?.AddNewAsync(workstationEvent);
                     }
                 }
             }
