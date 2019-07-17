@@ -20,6 +20,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -185,30 +186,6 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        private void Device_Disconnected(object sender, EventArgs e)
-        {
-            if (sender is IDevice device)
-            {
-                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                workstationEvent.Event = device.IsRemote ? WorkstationEventId.RemoteDisconnect : WorkstationEventId.DeviceDisconnect;
-                workstationEvent.Status = WorkstationEventStatus.Info;
-                workstationEvent.DeviceSN = device.SerialNo;
-                _eventAggregator.AddNewAsync(workstationEvent);
-            }
-        }
-
-        private void Device_Connected(object sender, EventArgs e)
-        {
-            if (sender is IDevice device)
-            {
-                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                workstationEvent.Event = device.IsRemote ? WorkstationEventId.RemoteConnect : WorkstationEventId.DeviceConnect;
-                workstationEvent.Status = WorkstationEventStatus.Info;
-                workstationEvent.DeviceSN = device.SerialNo;
-                _eventAggregator.AddNewAsync(workstationEvent);
-            }
-        }
-
         void DeviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
         {
             var device = e.RemovedDevice;
@@ -224,12 +201,52 @@ namespace ServiceLibrary.Implementation
                 if (device is IWcfDevice wcfDevice)
                     UnsubscribeFromWcfDeviceEvents(wcfDevice);
 
+                if (!device.IsRemote)
+                {
+                    WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                    workstationEvent.Event = WorkstationEventId.DeviceDeleted;
+                    workstationEvent.Status = WorkstationEventStatus.Warning;
+                    workstationEvent.DeviceSN = device.SerialNo;
+                    _eventAggregator?.AddNewAsync(workstationEvent);
+                }
+            }
+        }
 
+        private void Device_Disconnected(object sender, EventArgs e)
+        {
+            if (sender is IDevice device && (!device.IsRemote || device.ChannelNo > 2))
+            {
                 WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                workstationEvent.Event = device.IsRemote ? WorkstationEventId.RemoteDeleted : WorkstationEventId.DeviceDeleted;
-                workstationEvent.Status = WorkstationEventStatus.Warning;
+                workstationEvent.Status = WorkstationEventStatus.Info;
                 workstationEvent.DeviceSN = device.SerialNo;
-                _eventAggregator.AddNewAsync(workstationEvent);
+                if (device.IsRemote)
+                {
+                    workstationEvent.Event = WorkstationEventId.RemoteDisconnect;
+                }
+                else
+                {
+                    workstationEvent.Event = WorkstationEventId.DeviceDisconnect;
+                }
+                _eventAggregator?.AddNewAsync(workstationEvent);
+            }
+        }
+
+        private void Device_Connected(object sender, EventArgs e)
+        {
+            if (sender is IDevice device && (!device.IsRemote || device.ChannelNo > 2))
+            {
+                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                workstationEvent.Status = WorkstationEventStatus.Info;
+                workstationEvent.DeviceSN = device.SerialNo;
+                if (device.IsRemote)
+                {
+                    workstationEvent.Event = WorkstationEventId.RemoteConnect;
+                }
+                else
+                {
+                    workstationEvent.Event = WorkstationEventId.DeviceConnect;
+                }
+                _eventAggregator?.AddNewAsync(workstationEvent);
             }
         }
 
@@ -239,7 +256,7 @@ namespace ServiceLibrary.Implementation
                 client.Callbacks.DongleConnectionStateChanged(_connectionManager?.State == BluetoothAdapterState.PoweredOn);
 
 
-            if (_connectionManager != null && (_connectionManager.State == BluetoothAdapterState.PoweredOn || _connectionManager.State == BluetoothAdapterState.Unknown))
+            if (_connectionManager != null && (_connectionManager.State == BluetoothAdapterState.PoweredOff || _connectionManager.State == BluetoothAdapterState.Unknown))
             {
                 var we = WorkstationEvent.GetBaseInitializedInstance();
                 if (_connectionManager.State == BluetoothAdapterState.PoweredOn)
@@ -252,7 +269,7 @@ namespace ServiceLibrary.Implementation
                     we.Event = WorkstationEventId.DongleUnplugged;
                     we.Status = WorkstationEventStatus.Warning;
                 }
-                Task task = _eventAggregator.AddNewAsync(we);
+                Task task = _eventAggregator?.AddNewAsync(we);
             }
         }
 
@@ -672,6 +689,57 @@ namespace ServiceLibrary.Implementation
             {
                 LogException(ex);
             }
+        }
+
+        public static void OnSessionChange(SessionChangeReason reason)
+        {
+            try
+            {
+                if (reason >= SessionChangeReason.SessionLock && reason <= SessionChangeReason.SessionUnlock)
+                {
+                    WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                    workstationEvent.Status = WorkstationEventStatus.Ok;
+                    workstationEvent.Note = WorkstationUnlockId.NonHideez.ToString();
+
+                    switch (reason)
+                    {
+                        case SessionChangeReason.SessionLock:
+                            workstationEvent.Event = WorkstationEventId.ComputerLock;
+                            break;
+                        case SessionChangeReason.SessionLogoff:
+                            workstationEvent.Event = WorkstationEventId.ComputerLogoff;
+                            break;
+                        case SessionChangeReason.SessionUnlock:
+                            workstationEvent.Event = WorkstationEventId.ComputerUnlock;
+                            break;
+                        case SessionChangeReason.SessionLogon:
+                            workstationEvent.Event = WorkstationEventId.ComputerLogon;
+                            break;
+                    }
+
+                    _eventAggregator?.AddNewAsync(workstationEvent);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+            }
+        }
+
+        public static async Task OnSrviceStartedAsync()
+        {
+            WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+            workstationEvent.Status = WorkstationEventStatus.Info;
+            workstationEvent.Event = WorkstationEventId.ServiceStarted;
+            await _eventAggregator?.AddNewAsync(workstationEvent);
+        }
+
+        public static async Task OnSrviceStopedAsync()
+        {
+            WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+            workstationEvent.Status = WorkstationEventStatus.Info;
+            workstationEvent.Event = WorkstationEventId.ServiceStopped;
+            await _eventAggregator?.AddNewAsync(workstationEvent);
         }
         #endregion
     }

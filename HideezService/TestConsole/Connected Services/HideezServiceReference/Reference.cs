@@ -343,13 +343,6 @@ namespace TestConsole.HideezServiceReference {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="WorkstationEventDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
     [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.ServiceClientParameters))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.ClientType))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.Adapter))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.DeviceDTO[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TestConsole.HideezServiceReference.DeviceDTO))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Version))]
     public partial class WorkstationEventDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
@@ -374,7 +367,7 @@ namespace TestConsole.HideezServiceReference {
         private string IDField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private object NoteField;
+        private string NoteField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int StatusField;
@@ -471,7 +464,7 @@ namespace TestConsole.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public object Note {
+        public string Note {
             get {
                 return this.NoteField;
             }

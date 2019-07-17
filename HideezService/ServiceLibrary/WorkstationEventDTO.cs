@@ -15,7 +15,7 @@ namespace ServiceLibrary
         [DataMember]
         public int Status { get; set; }
         [DataMember]
-        public object Note { get; set; }
+        public string Note { get; set; }
         [DataMember]
         public string Computer { get; set; }
         [DataMember]

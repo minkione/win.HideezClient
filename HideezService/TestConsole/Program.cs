@@ -26,7 +26,14 @@ namespace TestConsole
                     if (line == "q" || line == "exit")
                     {
                         Console.WriteLine("exiting...");
-                        service.ShutdownAsync().Wait();
+                        try
+                        {
+                            service.ShutdownAsync().Wait();
+                        }
+                        catch(Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
 
                         if (serviceHost.State == CommunicationState.Faulted)
                         {
@@ -36,6 +43,8 @@ namespace TestConsole
                         {
                             serviceHost.Close();
                         }
+
+                        HideezService.OnSrviceStopedAsync().Wait();
                         break;
                     }
                 }
@@ -100,6 +109,8 @@ namespace TestConsole
 
                 // Disconnect from service
                 service.Close();
+
+                await HideezService.OnSrviceStartedAsync();
             }
             catch (Exception ex)
             {
@@ -125,8 +136,8 @@ namespace TestConsole
                         break;
                     default:
                         return;
-
                 }
+                HideezService.OnSessionChange((System.ServiceProcess.SessionChangeReason)e.Reason);
             }
             catch (Exception ex)
             {

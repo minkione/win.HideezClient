@@ -46,6 +46,10 @@ namespace HideezServiceHost
         {
         }
 
+        public void RemoteConnection_StorageModified(string serialNo)
+        {
+        }
+
         public void RFIDConnectionStateChanged(bool isConnected)
         {
         }

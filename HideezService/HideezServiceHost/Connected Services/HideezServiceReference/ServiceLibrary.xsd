@@ -60,7 +60,7 @@
       <xs:element minOccurs="0" name="DeviceSN" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Event" type="xs:int" />
       <xs:element minOccurs="0" name="ID" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Note" nillable="true" type="xs:anyType" />
+      <xs:element minOccurs="0" name="Note" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Status" type="xs:int" />
       <xs:element minOccurs="0" name="UserSession" nillable="true" type="xs:string" />
     </xs:sequence>

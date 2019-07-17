@@ -40,6 +40,8 @@ namespace HideezServiceHost
 
                 // Disconnect from service
                 service.Close();
+
+                await ServiceLibrary.Implementation.HideezService.OnSrviceStartedAsync();
             }
             catch (Exception ex)
             {
@@ -68,6 +70,8 @@ namespace HideezServiceHost
                 {
                     serviceHost.Close();
                 }
+
+                await ServiceLibrary.Implementation.HideezService.OnSrviceStopedAsync();
             }
             catch (Exception ex)
             {
@@ -94,8 +98,8 @@ namespace HideezServiceHost
                         break;
                     default:
                         return;
-
                 }
+                ServiceLibrary.Implementation.HideezService.OnSessionChange(sessionChangeDescription.Reason);
             }
             catch (Exception ex)
             {
