@@ -202,9 +202,9 @@ namespace ServiceLibrary.Implementation
                 if (!device.IsRemote)
                 {
                     WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                    workstationEvent.Event = WorkstationEventId.DeviceDeleted;
-                    workstationEvent.Status = WorkstationEventStatus.Warning;
-                    workstationEvent.DeviceSN = device.SerialNo;
+                    workstationEvent.EventId = WorkstationEventId.DeviceDeleted;
+                    workstationEvent.Severity = WorkstationEventSeverity.Warning;
+                    workstationEvent.DeviceId = device.SerialNo;
                     _eventAggregator?.AddNewAsync(workstationEvent);
                 }
             }
@@ -215,15 +215,34 @@ namespace ServiceLibrary.Implementation
             if (sender is IDevice device && (!device.IsRemote || device.ChannelNo > 2))
             {
                 WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                workstationEvent.Status = WorkstationEventStatus.Info;
-                workstationEvent.DeviceSN = device.SerialNo;
+                workstationEvent.Severity = WorkstationEventSeverity.Info;
+                workstationEvent.DeviceId = device.SerialNo;
                 if (device.IsRemote)
                 {
-                    workstationEvent.Event = WorkstationEventId.RemoteDisconnect;
+                    workstationEvent.EventId = WorkstationEventId.RemoteDisconnect;
                 }
                 else
                 {
-                    workstationEvent.Event = WorkstationEventId.DeviceDisconnect;
+                    workstationEvent.EventId = WorkstationEventId.DeviceDisconnect;
+                }
+                _eventAggregator?.AddNewAsync(workstationEvent);
+            }
+        }
+
+        private void Device_Connected(object sender, EventArgs e)
+        {
+            if (sender is IDevice device && (!device.IsRemote || device.ChannelNo > 2))
+            {
+                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                workstationEvent.Severity = WorkstationEventSeverityInfo;
+                workstationEvent.DeviceId = device.SerialNo;
+                if (device.IsRemote)
+                {
+                    workstationEvent.EventId = WorkstationEventId.RemoteConnect;
+                }
+                else
+                {
+                    workstationEvent.EventId = WorkstationEventId.DeviceConnect;
                 }
                 _eventAggregator?.AddNewAsync(workstationEvent);
             }
@@ -240,13 +259,13 @@ namespace ServiceLibrary.Implementation
                 var we = WorkstationEvent.GetBaseInitializedInstance();
                 if (_connectionManager.State == BluetoothAdapterState.PoweredOn)
                 {
-                    we.Event = WorkstationEventId.DonglePlugged;
-                    we.Status = WorkstationEventStatus.Ok;
+                    we.EventId = WorkstationEventId.DonglePlugged;
+                    we.Severity = WorkstationEventSeverity.Ok;
                 }
                 else
                 {
-                    we.Event = WorkstationEventId.DongleUnplugged;
-                    we.Status = WorkstationEventStatus.Warning;
+                    we.EventId = WorkstationEventId.DongleUnplugged;
+                    we.Severity = WorkstationEventSeverity.Warning;
                 }
                 Task task = _eventAggregator?.AddNewAsync(we);
             }
@@ -260,8 +279,8 @@ namespace ServiceLibrary.Implementation
                 client.Callbacks.RFIDConnectionStateChanged(isConnected);
 
             var we = WorkstationEvent.GetBaseInitializedInstance();
-            we.Event = isConnected ? WorkstationEventId.RFIDAdapterPlugged : WorkstationEventId.RFIDAdapterUnplugged;
-            we.Status = isConnected ? WorkstationEventStatus.Ok : WorkstationEventStatus.Warning;
+            we.EventId = isConnected ? WorkstationEventId.RFIDAdapterPlugged : WorkstationEventId.RFIDAdapterUnplugged;
+            we.Severity = isConnected ? WorkstationEventSeverity.Ok : WorkstationEventSeverity.Warning;
             Task task = _eventAggregator.AddNewAsync(we);
         }
 
@@ -275,13 +294,13 @@ namespace ServiceLibrary.Implementation
                 var we = WorkstationEvent.GetBaseInitializedInstance();
                 if (_hesConnection.State == HesConnectionState.Connected)
                 {
-                    we.Event = WorkstationEventId.HESConnected;
-                    we.Status = WorkstationEventStatus.Ok;
+                    we.EventId = WorkstationEventId.HESConnected;
+                    we.Severity = WorkstationEventSeverity.Ok;
                 }
                 else
                 {
-                    we.Event = WorkstationEventId.HESDisconnected;
-                    we.Status = WorkstationEventStatus.Warning;
+                    we.EventId = WorkstationEventId.HESDisconnected;
+                    we.Severity = WorkstationEventSeverity.Warning;
                 }
                 Task task = _eventAggregator.AddNewAsync(we);
             }
@@ -428,7 +447,7 @@ namespace ServiceLibrary.Implementation
 
             var value = registryKey.GetValue(_hesAddressRegistryValueName);
             if (value == null)
-                throw new ArgumentNullException($"{_hesAddressRegistryValueName} value is null or empty. Please specify HES address in registry under value {_hesAddressRegistryValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Safe ");
+                throw new ArgumentNullException($"{_hesAddressRegistryValueName} value is null or empty. Please specify HES address in registry under value {_hesAddressRegistryValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Safe");
 
             if (value is string == false)
                 throw new FormatException($"{_hesAddressRegistryValueName} could not be cast to string. Check that its value has REG_SZ type");
@@ -436,7 +455,7 @@ namespace ServiceLibrary.Implementation
             var address = value as string;
 
             if (string.IsNullOrWhiteSpace(address))
-                throw new ArgumentNullException($"{_hesAddressRegistryValueName} value is null or empty. Please specify HES address in registry under value {_hesAddressRegistryValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Safe ");
+                throw new ArgumentNullException($"{_hesAddressRegistryValueName} value is null or empty. Please specify HES address in registry under value {_hesAddressRegistryValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Safe");
 
             if (Uri.TryCreate(address, UriKind.Absolute, out Uri outUri)
                 && (outUri.Scheme == Uri.UriSchemeHttp || outUri.Scheme == Uri.UriSchemeHttps))
@@ -499,13 +518,13 @@ namespace ServiceLibrary.Implementation
         {
             WorkstationEvent we = new WorkstationEvent
             {
-                ID = workstationEvent.ID,
+                Id = workstationEvent.ID,
                 Date = workstationEvent.Date,
                 Computer = workstationEvent.Computer,
-                Event = (WorkstationEventId)workstationEvent.Event,
-                Status = (WorkstationEventStatus)workstationEvent.Status,
+                EventId = (WorkstationEventId)workstationEvent.Event,
+                Severity = (WorkstationEventSeverity)workstationEvent.Status,
                 Note = workstationEvent.Note,
-                DeviceSN = workstationEvent.DeviceSN,
+                DeviceId = workstationEvent.DeviceSN,
                 UserSession = workstationEvent.UserSession,
                 AccountName = workstationEvent.AccountName,
             };
@@ -693,22 +712,22 @@ namespace ServiceLibrary.Implementation
                 if (reason >= SessionChangeReason.SessionLock && reason <= SessionChangeReason.SessionUnlock)
                 {
                     WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                    workstationEvent.Status = WorkstationEventStatus.Ok;
+                    workstationEvent.Severity = WorkstationEventSeverity.Ok;
                     workstationEvent.Note = WorkstationUnlockId.NonHideez.ToString();
 
                     switch (reason)
                     {
                         case SessionChangeReason.SessionLock:
-                            workstationEvent.Event = WorkstationEventId.ComputerLock;
+                            workstationEvent.EventId = WorkstationEventId.ComputerLock;
                             break;
                         case SessionChangeReason.SessionLogoff:
-                            workstationEvent.Event = WorkstationEventId.ComputerLogoff;
+                            workstationEvent.EventId = WorkstationEventId.ComputerLogoff;
                             break;
                         case SessionChangeReason.SessionUnlock:
-                            workstationEvent.Event = WorkstationEventId.ComputerUnlock;
+                            workstationEvent.EventId = WorkstationEventId.ComputerUnlock;
                             break;
                         case SessionChangeReason.SessionLogon:
-                            workstationEvent.Event = WorkstationEventId.ComputerLogon;
+                            workstationEvent.EventId = WorkstationEventId.ComputerLogon;
                             break;
                     }
 
@@ -724,16 +743,16 @@ namespace ServiceLibrary.Implementation
         public static async Task OnSrviceStartedAsync()
         {
             WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-            workstationEvent.Status = WorkstationEventStatus.Info;
-            workstationEvent.Event = WorkstationEventId.ServiceStarted;
+            workstationEvent.Severity = WorkstationEventSeverity.Info;
+            workstationEvent.EventId = WorkstationEventId.ServiceStarted;
             await _eventAggregator?.AddNewAsync(workstationEvent);
         }
 
         public static async Task OnSrviceStopedAsync()
         {
             WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-            workstationEvent.Status = WorkstationEventStatus.Info;
-            workstationEvent.Event = WorkstationEventId.ServiceStopped;
+            workstationEvent.Severity = WorkstationEventSeverity.Info;
+            workstationEvent.EventId = WorkstationEventId.ServiceStopped;
             await _eventAggregator?.AddNewAsync(workstationEvent);
         }
         #endregion

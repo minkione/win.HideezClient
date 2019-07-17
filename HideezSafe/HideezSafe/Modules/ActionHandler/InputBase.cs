@@ -169,8 +169,8 @@ namespace HideezSafe.Modules.ActionHandler
             {
                 WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
                 workstationEvent.AccountName = account.Name;
-                workstationEvent.DeviceSN = account.Device.SerialNo;
-                workstationEvent.Status = WorkstationEventStatus.Info;
+                workstationEvent.DeviceId = account.Device.SerialNo;
+                workstationEvent.Severity = WorkstationEventSeverity.Info;
                 workstationEvent.Note = currentAppInfo.Title;
                 eventAggregator?.PublishEventAsync(workstationEvent);
             }

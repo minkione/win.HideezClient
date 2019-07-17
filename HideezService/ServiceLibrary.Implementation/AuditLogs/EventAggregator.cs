@@ -53,7 +53,7 @@ namespace ServiceLibrary.Implementation
                     {
                         workstationEvents.Add(workstationEvent);
                         string json = JsonConvert.SerializeObject(workstationEvent);
-                        File.WriteAllText($"{eventDirectory}{workstationEvent.ID}", json);
+                        File.WriteAllText($"{eventDirectory}{workstationEvent.Id}", json);
                     }
 
                     if (workstationEvents.Count >= minCountForSend)
@@ -118,10 +118,10 @@ namespace ServiceLibrary.Implementation
                 {
                     if (hesAppConnection != null && hesAppConnection.State == HesConnectionState.Connected)
                     {
-                        if (await hesAppConnection.SendWorkstationEventAsync(we))
+                        if (await hesAppConnection.SaveClientEventsAsync(new WorkstationEvent[] { we }))
                         {
                             workstationEvents.Remove(we);
-                            File.Delete($"{eventDirectory}{we.ID}");
+                            File.Delete($"{eventDirectory}{we.Id}");
                         }
                     }
                 }

@@ -18,13 +18,13 @@ namespace HideezSafe.Modules
         {
             WorkstationEventDTO we = new WorkstationEventDTO
             {
-                ID = workstationEvent.ID,
+                ID = workstationEvent.Id,
                 Date = workstationEvent.Date,
                 Computer = workstationEvent.Computer,
-                Event = (int)workstationEvent.Event,
-                Status = (int)workstationEvent.Status,
+                Event = (int)workstationEvent.EventId,
+                Status = (int)workstationEvent.Severity,
                 Note = workstationEvent.Note,
-                DeviceSN = workstationEvent.DeviceSN,
+                DeviceSN = workstationEvent.DeviceId,
                 UserSession = workstationEvent.UserSession,
                 AccountName = workstationEvent.AccountName,
             };
