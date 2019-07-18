@@ -144,8 +144,15 @@ namespace ServiceLibrary.Implementation
             _workstationLocker.Start();
 
             // Device Access Controller ==================================
-            _deviceAccessController = new DeviceAccessController(_unlockerSettingsManager, _deviceManager, _workstationLocker);
-            _deviceAccessController.Start();
+            if (bypassWorkstationOwnershipSecurity)
+            {
+                _log.Warn("Device Access Controller is disabled due to workstation ownership options");
+            }
+            else
+            {
+                _deviceAccessController = new DeviceAccessController(_unlockerSettingsManager, _deviceManager, _workstationLocker);
+                _deviceAccessController.Start();
+            }
 
             _eventAggregator = new EventAggregator(_hesConnection);
 
