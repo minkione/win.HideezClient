@@ -56,14 +56,14 @@
     <xs:sequence>
       <xs:element minOccurs="0" name="AccountLogin" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="AccountName" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Computer" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Date" type="xs:dateTime" />
       <xs:element minOccurs="0" name="DeviceId" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Event" type="xs:int" />
+      <xs:element minOccurs="0" name="EventId" type="xs:int" />
       <xs:element minOccurs="0" name="Id" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Note" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Status" type="xs:int" />
+      <xs:element minOccurs="0" name="Severity" type="xs:int" />
       <xs:element minOccurs="0" name="UserSession" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="WorkstationId" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="WorkstationEventDTO" nillable="true" type="tns:WorkstationEventDTO" />
