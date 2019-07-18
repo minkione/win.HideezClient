@@ -49,7 +49,6 @@ namespace HideezMiddleware
                             break;
                     }
 
-
                     if (SessionSwitch != null)
                     {
                         var @event = SessionSwitch;

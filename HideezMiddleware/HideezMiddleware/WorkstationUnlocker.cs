@@ -312,7 +312,7 @@ namespace HideezMiddleware
                 ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
                 var credentials = await GetCredentials(device, primaryAccountKey);
 
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Dongle, deviceId);
+                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Dongle, info.DeviceSerialNo);
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
@@ -379,7 +379,7 @@ namespace HideezMiddleware
                 await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
                 var credentials = await GetCredentials(device, info.IdFromDevice);
 
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.RFID, info.DeviceMac.Replace(":", ""));
+                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.RFID, info.DeviceSerialNo);
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
@@ -445,7 +445,7 @@ namespace HideezMiddleware
                 ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
                 var credentials = await GetCredentials(device, primaryAccountKey);
 
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, deviceId);
+                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, info.DeviceSerialNo);
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
