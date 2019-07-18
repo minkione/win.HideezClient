@@ -1,4 +1,5 @@
-﻿using Hideez.SDK.Communication.BLE;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using HideezMiddleware.Settings;
@@ -54,9 +55,11 @@ namespace HideezMiddleware
                 // Select devices with MAC that is not present in UnlockerSettingsInfo
                 var missingDevices = _bleDeviceManager.Devices.Where(d => !unlockerSettings.DeviceUnlockerSettings.Any(s => s.Mac == d.Mac));
 
-                if (missingDevices.Any(d => d.IsConnected))
+                var isConnectedDevices = missingDevices.Where(d => d.IsConnected).ToArray();
+                if (isConnectedDevices.Any())
                 {
                     _log.Info($"Locking workstation: some devices are no longer authorized to work with this workstation.");
+                    SessionSwitchManager.SetEventSubject(SessionSwitchSubject.AccessCanceled, missingDevices.First().SerialNo);
                     _workstationLocker.LockWorkstation();
                 }
 

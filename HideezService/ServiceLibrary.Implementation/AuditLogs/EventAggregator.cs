@@ -27,7 +27,7 @@ namespace ServiceLibrary.Implementation
 
         public EventAggregator(HesAppConnection hesAppConnection)
         {
-            if(!Directory.Exists(eventDirectory))
+            if (!Directory.Exists(eventDirectory))
             {
                 Directory.CreateDirectory(eventDirectory);
             }
@@ -108,20 +108,26 @@ namespace ServiceLibrary.Implementation
 
         private async Task SendEventToServerAsync(List<WorkstationEvent> newQueue)
         {
-            if (newQueue == null) return;
-
-            foreach (var we in newQueue)
+            if (newQueue != null && newQueue.Any()
+                && hesAppConnection != null
+                && hesAppConnection.State == HesConnectionState.Connected)
             {
-                if (we == null) continue;
-
                 try
                 {
-                    if (hesAppConnection != null && hesAppConnection.State == HesConnectionState.Connected)
+                    if (await hesAppConnection.SaveClientEventsAsync(newQueue.ToArray()))
                     {
-                        if (await hesAppConnection.SaveClientEventsAsync(new WorkstationEvent[] { we }))
+                        foreach (var we in newQueue)
                         {
-                            workstationEvents.Remove(we);
-                            File.Delete($"{eventDirectory}{we.Id}");
+                            try
+                            {
+                                workstationEvents.Remove(we);
+                                File.Delete($"{eventDirectory}{we.Id}");
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error(ex);
+                                Debug.Assert(false);
+                            }
                         }
                     }
                 }
