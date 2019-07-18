@@ -456,6 +456,8 @@ namespace HideezMiddleware
             }
             catch (HideezException ex)
             {
+                _failedProximityConnections.GetOrAdd(mac, mac);
+
                 var message = HideezExceptionLocalization.GetErrorAsString(ex);
                 _log.Error(message);
                 await _credentialProviderConnection.SendNotification("");
@@ -464,6 +466,8 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
+                _failedProximityConnections.GetOrAdd(mac, mac);
+
                 _log.Error(ex);
                 await _credentialProviderConnection.SendNotification("");
                 await _credentialProviderConnection.SendError(ex.Message);
