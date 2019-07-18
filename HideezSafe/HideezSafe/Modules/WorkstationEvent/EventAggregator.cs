@@ -18,15 +18,16 @@ namespace HideezSafe.Modules
         {
             WorkstationEventDTO we = new WorkstationEventDTO
             {
-                ID = workstationEvent.Id,
+                Id = workstationEvent.Id,
                 Date = workstationEvent.Date,
                 Computer = workstationEvent.Computer,
                 Event = (int)workstationEvent.EventId,
                 Status = (int)workstationEvent.Severity,
                 Note = workstationEvent.Note,
-                DeviceSN = workstationEvent.DeviceId,
+                DeviceId = workstationEvent.DeviceId,
                 UserSession = workstationEvent.UserSession,
                 AccountName = workstationEvent.AccountName,
+                AccountLogin = workstationEvent.AccountLogin,
             };
 
             await serviceProxy?.GetService()?.PublishEventAsync(we);

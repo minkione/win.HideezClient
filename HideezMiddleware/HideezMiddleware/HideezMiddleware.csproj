@@ -78,6 +78,7 @@
     <Compile Include="IScreenActivator.cs" />
     <Compile Include="IWorkstationLocker.cs" />
     <Compile Include="Modules\NLogWrapper.cs" />
+    <Compile Include="Modules\SessionSwitchManager.cs" />
     <Compile Include="Modules\Settings\BaseSettings.cs" />
     <Compile Include="Modules\Settings\FileSerializer\IFileSerializer.cs" />
     <Compile Include="Modules\Settings\Manager\ISettingsManager.cs" />

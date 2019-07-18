@@ -40,6 +40,7 @@ namespace ServiceLibrary.Implementation
         static WcfDeviceFactory _wcfDeviceManager;
         static DeviceAccessController _deviceAccessController;
         static EventAggregator _eventAggregator;
+        static SessionSwitchManager _sessionSwitchManager;
 
         static ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
@@ -149,6 +150,9 @@ namespace ServiceLibrary.Implementation
             _eventAggregator = new EventAggregator(_hesConnection);
 
             _connectionManager.StartDiscovery();
+
+            _sessionSwitchManager = new SessionSwitchManager();
+            _sessionSwitchManager.SessionSwitch += (sender, we) => _eventAggregator?.AddNewAsync(we);
         }
 
         #region Event Handlers
@@ -518,15 +522,16 @@ namespace ServiceLibrary.Implementation
         {
             WorkstationEvent we = new WorkstationEvent
             {
-                Id = workstationEvent.ID,
+                Id = workstationEvent.Id,
                 Date = workstationEvent.Date,
                 Computer = workstationEvent.Computer,
                 EventId = (WorkstationEventId)workstationEvent.Event,
                 Severity = (WorkstationEventSeverity)workstationEvent.Status,
                 Note = workstationEvent.Note,
-                DeviceId = workstationEvent.DeviceSN,
+                DeviceId = workstationEvent.DeviceId,
                 UserSession = workstationEvent.UserSession,
                 AccountName = workstationEvent.AccountName,
+                AccountLogin = workstationEvent.AccountLogin,
             };
 
             Task task = _eventAggregator.AddNewAsync(we);
@@ -698,41 +703,6 @@ namespace ServiceLibrary.Implementation
                 _log.Info("System left suspended mode");
                 _log.Info("Restarting connection manager");
                 _connectionManager.Restart();
-            }
-            catch (Exception ex)
-            {
-                LogException(ex);
-            }
-        }
-
-        public static void OnSessionChange(SessionChangeReason reason)
-        {
-            try
-            {
-                if (reason >= SessionChangeReason.SessionLock && reason <= SessionChangeReason.SessionUnlock)
-                {
-                    WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                    workstationEvent.Severity = WorkstationEventSeverity.Ok;
-                    workstationEvent.Note = WorkstationUnlockId.NonHideez.ToString();
-
-                    switch (reason)
-                    {
-                        case SessionChangeReason.SessionLock:
-                            workstationEvent.EventId = WorkstationEventId.ComputerLock;
-                            break;
-                        case SessionChangeReason.SessionLogoff:
-                            workstationEvent.EventId = WorkstationEventId.ComputerLogoff;
-                            break;
-                        case SessionChangeReason.SessionUnlock:
-                            workstationEvent.EventId = WorkstationEventId.ComputerUnlock;
-                            break;
-                        case SessionChangeReason.SessionLogon:
-                            workstationEvent.EventId = WorkstationEventId.ComputerLogon;
-                            break;
-                    }
-
-                    _eventAggregator?.AddNewAsync(workstationEvent);
-                }
             }
             catch (Exception ex)
             {

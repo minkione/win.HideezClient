@@ -349,6 +349,9 @@ namespace HideezSafe.HideezServiceReference {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string AccountLoginField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string AccountNameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -358,13 +361,13 @@ namespace HideezSafe.HideezServiceReference {
         private System.DateTime DateField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string DeviceSNField;
+        private string DeviceIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int EventField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string IDField;
+        private string IdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NoteField;
@@ -382,6 +385,19 @@ namespace HideezSafe.HideezServiceReference {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string AccountLogin {
+            get {
+                return this.AccountLoginField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.AccountLoginField, value) != true)) {
+                    this.AccountLoginField = value;
+                    this.RaisePropertyChanged("AccountLogin");
+                }
             }
         }
         
@@ -425,14 +441,14 @@ namespace HideezSafe.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string DeviceSN {
+        public string DeviceId {
             get {
-                return this.DeviceSNField;
+                return this.DeviceIdField;
             }
             set {
-                if ((object.ReferenceEquals(this.DeviceSNField, value) != true)) {
-                    this.DeviceSNField = value;
-                    this.RaisePropertyChanged("DeviceSN");
+                if ((object.ReferenceEquals(this.DeviceIdField, value) != true)) {
+                    this.DeviceIdField = value;
+                    this.RaisePropertyChanged("DeviceId");
                 }
             }
         }
@@ -451,14 +467,14 @@ namespace HideezSafe.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string ID {
+        public string Id {
             get {
-                return this.IDField;
+                return this.IdField;
             }
             set {
-                if ((object.ReferenceEquals(this.IDField, value) != true)) {
-                    this.IDField = value;
-                    this.RaisePropertyChanged("ID");
+                if ((object.ReferenceEquals(this.IdField, value) != true)) {
+                    this.IdField = value;
+                    this.RaisePropertyChanged("Id");
                 }
             }
         }

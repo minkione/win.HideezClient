@@ -137,7 +137,6 @@ namespace TestConsole
                     default:
                         return;
                 }
-                HideezService.OnSessionChange((System.ServiceProcess.SessionChangeReason)e.Reason);
             }
             catch (Exception ex)
             {

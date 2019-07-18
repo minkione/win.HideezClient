@@ -99,7 +99,6 @@ namespace HideezServiceHost
                     default:
                         return;
                 }
-                ServiceLibrary.Implementation.HideezService.OnSessionChange(sessionChangeDescription.Reason);
             }
             catch (Exception ex)
             {

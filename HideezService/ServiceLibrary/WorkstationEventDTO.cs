@@ -7,7 +7,7 @@ namespace ServiceLibrary
     public class WorkstationEventDTO
     {
         [DataMember]
-        public string ID { get; set; }
+        public string Id { get; set; }
         [DataMember]
         public DateTime Date { get; set; }
         [DataMember]
@@ -21,8 +21,10 @@ namespace ServiceLibrary
         [DataMember]
         public string UserSession { get; set; }
         [DataMember]
-        public string DeviceSN { get; set; }
+        public string DeviceId { get; set; }
         [DataMember]
         public string AccountName { get; set; }
+        [DataMember]
+        public string AccountLogin { get; set; }
     }
 }
