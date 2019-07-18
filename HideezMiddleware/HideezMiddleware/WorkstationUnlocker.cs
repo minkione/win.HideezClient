@@ -232,25 +232,19 @@ namespace HideezMiddleware
                 else
                 {
                     // Proximity
-                    if (_credentialProviderConnection.IsConnected &&
-                        BleUtils.RssiToProximity(e.Rssi) > _connectProximity &&
-                        IsProximityAllowed(e.Id) &&
-                        !_failedProximityConnections.ContainsKey(e.Id))
+                    // Connection occurs only when workstation is locked
+                    if (_credentialProviderConnection.IsConnected 
+                        && _hesConnection?.State == HesConnectionState.Connected 
+                        && BleUtils.RssiToProximity(e.Rssi) > _connectProximity 
+                        && IsProximityAllowed(e.Id) 
+                        && !_failedProximityConnections.ContainsKey(e.Id))
                     {
                         var newGuid = Guid.NewGuid();
                         var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);
 
                         if (guid == newGuid)
                         {
-                            try
-                            {
-                                await UnlockByProximity(e.Id);
-                            }
-                            catch (Exception ex)
-                            {
-                                _log.Error(ex);
-                                _failedProximityConnections.GetOrAdd(e.Id, e.Id);
-                            }
+                            await UnlockByProximity(e.Id);
                             _pendingUnlocks.TryRemove(e.Id, out Guid removed);
                         }
                     }
@@ -450,6 +444,8 @@ namespace HideezMiddleware
             }
             catch (HideezException ex)
             {
+                _failedProximityConnections.GetOrAdd(mac, mac);
+
                 var message = HideezExceptionLocalization.GetErrorAsString(ex);
                 _log.Error(message);
                 await _credentialProviderConnection.SendNotification("");
@@ -458,6 +454,8 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
+                _failedProximityConnections.GetOrAdd(mac, mac);
+
                 _log.Error(ex);
                 await _credentialProviderConnection.SendNotification("");
                 await _credentialProviderConnection.SendError(ex.Message);
