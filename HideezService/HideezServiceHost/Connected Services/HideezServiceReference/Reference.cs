@@ -355,13 +355,16 @@ namespace HideezServiceHost.HideezServiceReference {
         private string AccountNameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ComputerField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.DateTime DateField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string DeviceIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int EventIdField;
+        private int EventField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string IdField;
@@ -370,13 +373,10 @@ namespace HideezServiceHost.HideezServiceReference {
         private string NoteField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int SeverityField;
+        private int StatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string UserSessionField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string WorkstationIdField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -415,6 +415,19 @@ namespace HideezServiceHost.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Computer {
+            get {
+                return this.ComputerField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ComputerField, value) != true)) {
+                    this.ComputerField = value;
+                    this.RaisePropertyChanged("Computer");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.DateTime Date {
             get {
                 return this.DateField;
@@ -441,14 +454,14 @@ namespace HideezServiceHost.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int EventId {
+        public int Event {
             get {
-                return this.EventIdField;
+                return this.EventField;
             }
             set {
-                if ((this.EventIdField.Equals(value) != true)) {
-                    this.EventIdField = value;
-                    this.RaisePropertyChanged("EventId");
+                if ((this.EventField.Equals(value) != true)) {
+                    this.EventField = value;
+                    this.RaisePropertyChanged("Event");
                 }
             }
         }
@@ -480,14 +493,14 @@ namespace HideezServiceHost.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int Severity {
+        public int Status {
             get {
-                return this.SeverityField;
+                return this.StatusField;
             }
             set {
-                if ((this.SeverityField.Equals(value) != true)) {
-                    this.SeverityField = value;
-                    this.RaisePropertyChanged("Severity");
+                if ((this.StatusField.Equals(value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
                 }
             }
         }
@@ -501,19 +514,6 @@ namespace HideezServiceHost.HideezServiceReference {
                 if ((object.ReferenceEquals(this.UserSessionField, value) != true)) {
                     this.UserSessionField = value;
                     this.RaisePropertyChanged("UserSession");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string WorkstationId {
-            get {
-                return this.WorkstationIdField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.WorkstationIdField, value) != true)) {
-                    this.WorkstationIdField = value;
-                    this.RaisePropertyChanged("WorkstationId");
                 }
             }
         }
