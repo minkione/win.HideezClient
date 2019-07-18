@@ -138,6 +138,12 @@ namespace HideezSafe.Models
             {
                 IsInitializing = true;
 
+                // Allow other services to interact with the device first because
+                // remote device connection establishmebt blocks communication
+                // A 3s delay should be enough
+                // Removing this line will result in slower workstation unlock
+                await Task.Delay(3000);
+
                 const int AUTH_CHANNEL = 2;
                 const int AUTH_WAIT = 20_000;
                 const int INIT_WAIT = 5_000;
