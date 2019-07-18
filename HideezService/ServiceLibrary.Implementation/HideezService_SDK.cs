@@ -234,7 +234,7 @@ namespace ServiceLibrary.Implementation
             if (sender is IDevice device && (!device.IsRemote || device.ChannelNo > 2))
             {
                 WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                workstationEvent.Severity = WorkstationEventSeverityInfo;
+                workstationEvent.Severity = WorkstationEventSeverity.Info;
                 workstationEvent.DeviceId = device.SerialNo;
                 if (device.IsRemote)
                 {
@@ -356,15 +356,15 @@ namespace ServiceLibrary.Implementation
                     if (!device.IsRemote || device.ChannelNo > 2)
                     {
                         WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                        workstationEvent.Status = WorkstationEventStatus.Info;
-                        workstationEvent.DeviceSN = device.SerialNo;
+                        workstationEvent.Severity = WorkstationEventSeverity.Info;
+                        workstationEvent.DeviceId = device.SerialNo;
                         if (device.IsRemote)
                         {
-                            workstationEvent.Event = WorkstationEventId.RemoteConnect;
+                            workstationEvent.EventId = WorkstationEventId.RemoteConnect;
                         }
                         else
                         {
-                            workstationEvent.Event = WorkstationEventId.DeviceConnect;
+                            workstationEvent.EventId = WorkstationEventId.DeviceConnect;
                         }
                         _eventAggregator?.AddNewAsync(workstationEvent);
                     }
