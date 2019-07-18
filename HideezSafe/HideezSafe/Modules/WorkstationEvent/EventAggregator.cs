@@ -20,9 +20,9 @@ namespace HideezSafe.Modules
             {
                 Id = workstationEvent.Id,
                 Date = workstationEvent.Date,
-                Computer = workstationEvent.Computer,
-                Event = (int)workstationEvent.EventId,
-                Status = (int)workstationEvent.Severity,
+                WorkstationId = workstationEvent.WorkstationId,
+                EventId = (int)workstationEvent.EventId,
+                Severity = (int)workstationEvent.Severity,
                 Note = workstationEvent.Note,
                 DeviceId = workstationEvent.DeviceId,
                 UserSession = workstationEvent.UserSession,

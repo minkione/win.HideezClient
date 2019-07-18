@@ -38,7 +38,7 @@ namespace HideezMiddleware
                 workstationInfo.AppVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
                 workstationInfo.MachineName = Environment.MachineName;
-                //workstationInfo.Domain = Environment.UserDomainName;
+                workstationInfo.Domain = Environment.UserDomainName;
 
                 try
                 {

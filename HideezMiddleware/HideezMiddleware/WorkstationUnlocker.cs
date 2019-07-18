@@ -137,7 +137,9 @@ namespace HideezMiddleware
 
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
-            _failedProximityConnections.Clear();
+            if (_connectionManager.State == BluetoothAdapterState.PoweredOn)
+                _failedProximityConnections.Clear();
+
             SendStatusToCredentialProvider();
         }
 
@@ -244,8 +246,16 @@ namespace HideezMiddleware
 
                         if (guid == newGuid)
                         {
-                            await UnlockByProximity(e.Id);
-                            _pendingUnlocks.TryRemove(e.Id, out Guid removed);
+                            try
+                            {
+                                await UnlockByProximity(e.Id);
+                                _pendingUnlocks.TryRemove(e.Id, out Guid removed);
+                            }
+                            finally
+                            {
+                                // Max of 1 attempt per device, either successfull or no
+                                _failedProximityConnections.GetOrAdd(e.Id, e.Id);
+                            }
                         }
                     }
                 }
@@ -446,8 +456,6 @@ namespace HideezMiddleware
             }
             catch (HideezException ex)
             {
-                _failedProximityConnections.GetOrAdd(mac, mac);
-
                 var message = HideezExceptionLocalization.GetErrorAsString(ex);
                 _log.Error(message);
                 await _credentialProviderConnection.SendNotification("");
@@ -456,8 +464,6 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
-                _failedProximityConnections.GetOrAdd(mac, mac);
-
                 _log.Error(ex);
                 await _credentialProviderConnection.SendNotification("");
                 await _credentialProviderConnection.SendError(ex.Message);

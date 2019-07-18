@@ -531,9 +531,9 @@ namespace ServiceLibrary.Implementation
             {
                 Id = workstationEvent.Id,
                 Date = workstationEvent.Date,
-                Computer = workstationEvent.Computer,
-                EventId = (WorkstationEventId)workstationEvent.Event,
-                Severity = (WorkstationEventSeverity)workstationEvent.Status,
+                WorkstationId = workstationEvent.WorkstationId,
+                EventId = (WorkstationEventId)workstationEvent.EventId,
+                Severity = (WorkstationEventSeverity)workstationEvent.Severity,
                 Note = workstationEvent.Note,
                 DeviceId = workstationEvent.DeviceId,
                 UserSession = workstationEvent.UserSession,
