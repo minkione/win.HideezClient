@@ -25,6 +25,8 @@ namespace ServiceLibrary.Implementation
         private readonly System.Timers.Timer sendTimer = new System.Timers.Timer();
         private readonly double timeIntervalSend = 1_000;
         private readonly int minCountForSend = 10;
+        // default is false, set 1 for true.
+        private int _threadSafeBoolBackValue = 0;
 
         public EventAggregator(HesAppConnection hesAppConnection)
         {
@@ -37,6 +39,16 @@ namespace ServiceLibrary.Implementation
             sendTimer.Interval = timeIntervalSend;
             sendTimer.Elapsed += SendTimer_Elapsed;
             sendTimer.Start();
+        }
+
+        private bool IsSendToServer
+        {
+            get { return (Interlocked.CompareExchange(ref _threadSafeBoolBackValue, 1, 1) == 1); }
+            set
+            {
+                if (value) Interlocked.CompareExchange(ref _threadSafeBoolBackValue, 1, 0);
+                else Interlocked.CompareExchange(ref _threadSafeBoolBackValue, 0, 1);
+            }
         }
 
         private void SendTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -75,41 +87,58 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                if (hesAppConnection != null && hesAppConnection.State == HesConnectionState.Connected)
+                if (hesAppConnection != null && hesAppConnection.State == HesConnectionState.Connected && !IsSendToServer)
                 {
+                    IsSendToServer = true;
                     List<WorkstationEvent> newQueue = null;
                     sendTimer.Stop();
-                    Monitor.Enter(lockObj);
+                    lock (lockObj)
+                    {
+                        newQueue = new List<WorkstationEvent>(workstationEvents);
+                    }
 
-                    newQueue = new List<WorkstationEvent>(workstationEvents);
                     await SendEventToServerAsync(newQueue);
 
                     newQueue.Clear();
                     try
                     {
-                        foreach (var file in Directory.GetFiles(eventDirectory))
+                        lock (lockObj)
                         {
-                            try
+                            foreach (var file in Directory.GetFiles(eventDirectory))
                             {
-                                string data = File.ReadAllText(file);
-                                dynamic jsonObj = JsonConvert.DeserializeObject(data);
-                                string versionData = jsonObj[nameof(WorkstationEvent.Version)];
+                                try
+                                {
+                                    string data = File.ReadAllText(file);
+                                    dynamic jsonObj = JsonConvert.DeserializeObject(data);
+                                    string versionData = jsonObj[nameof(WorkstationEvent.Version)];
 
-                                if (versionData == WorkstationEvent.CurrentVersion)
-                                {
-                                    WorkstationEvent we = JsonConvert.DeserializeObject<WorkstationEvent>(data);
-                                    newQueue.Add(we);
+                                    if (versionData == WorkstationEvent.CurrentVersion)
+                                    {
+                                        WorkstationEvent we = JsonConvert.DeserializeObject<WorkstationEvent>(data);
+
+                                        if (workstationEvents.FindIndex(e => e.Id == we.Id) < 0)
+                                        {
+                                            newQueue.Add(we);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new NotSupportedException($"This version: {versionData} data for deserialize workstation event is not supported.");
+                                    }
                                 }
-                                else
+                                catch (Exception ex)
                                 {
-                                    throw new NotSupportedException($"This version: {versionData} data for deserialize workstation event is not supported.");
+                                    log.Error(ex);
+                                    Debug.Assert(false);
+                                    try
+                                    {
+                                        File.Delete(file);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        log.Error(ex);
+                                    }
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                log.Error(ex);
-                                //Debug.Assert(false);
-                                File.Delete(file);
                             }
                         }
 
@@ -125,8 +154,8 @@ namespace ServiceLibrary.Implementation
             }
             finally
             {
-                Monitor.Exit(lockObj);
                 sendTimer.Start();
+                IsSendToServer = false;
             }
         }
 
@@ -140,18 +169,24 @@ namespace ServiceLibrary.Implementation
                 {
                     if (await hesAppConnection.SaveClientEventsAsync(newQueue.ToArray()))
                     {
-                        foreach (var we in newQueue)
+                        lock (lockObj)
                         {
-                            try
+                            foreach (var we in newQueue)
                             {
-                                workstationEvents.Remove(we);
-                                File.Delete($"{eventDirectory}{we.Id}");
-                                Debug.WriteLine($"################ File delited {we.Id}");
-                            }
-                            catch (Exception ex)
-                            {
-                                log.Error(ex);
-                                Debug.Assert(false);
+                                try
+                                {
+                                    int index = workstationEvents.FindIndex(e => e.Id == we.Id);
+                                    if (index >= 0)
+                                    {
+                                        workstationEvents.RemoveAt(index);
+                                    }
+                                    File.Delete($"{eventDirectory}{we.Id}");
+                                }
+                                catch (Exception ex)
+                                {
+                                    log.Error(ex);
+                                    Debug.Assert(false);
+                                }
                             }
                         }
                     }
