@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Proximity;
 using HideezMiddleware;
 using NLog;
@@ -35,29 +36,29 @@ namespace ServiceLibrary.Implementation
             IsEnabled = false;
         }
 
-        void _proximityMonitorManager_DeviceConnectionLost(object sender, string deviceId)
+        void _proximityMonitorManager_DeviceConnectionLost(object sender, IDevice device)
         {
             if (IsEnabled)
             {
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, deviceId);
+                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
                 LockWorkstationAsync();
             }
         }
 
-        void _proximityMonitorManager_DeviceBelowLockForToLong(object sender, string deviceId)
+        void _proximityMonitorManager_DeviceBelowLockForToLong(object sender, IDevice device)
         {
             if (IsEnabled)
             {
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, deviceId);
+                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
                 LockWorkstationAsync();
             }
         }
 
-        void _proximityMonitorManager_DeviceProximityTimeout(object sender, string deviceId)
+        void _proximityMonitorManager_DeviceProximityTimeout(object sender, IDevice device)
         {
             if (IsEnabled)
             {
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, deviceId);
+                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
                 LockWorkstationAsync();
             }
         }

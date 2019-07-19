@@ -10,7 +10,7 @@ namespace HideezMiddleware
     {
         private readonly ILogger logger = LogManager.GetCurrentClassLogger();
         private static SessionSwitchSubject subject = SessionSwitchSubject.NonHideez;
-        private static string _deviceId;
+        private static string _deviceSerialNo;
 
         public SessionSwitchManager()
         {
@@ -24,14 +24,14 @@ namespace HideezMiddleware
             try
             {
                 SessionSwitchReason reason = e.Reason;
-                if (reason >= SessionSwitchReason.SessionLock && reason <= SessionSwitchReason.SessionUnlock)
+                if (reason >= SessionSwitchReason.SessionLogon && reason <= SessionSwitchReason.SessionUnlock)
                 {
                     WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
                     workstationEvent.Severity = WorkstationEventSeverity.Ok;
                     workstationEvent.Note = subject.ToString();
-                    workstationEvent.DeviceId = _deviceId;
+                    workstationEvent.DeviceId = _deviceSerialNo;
                     subject = SessionSwitchSubject.NonHideez;
-                    _deviceId = null;
+                    _deviceSerialNo = null;
 
                     switch (reason)
                     {
@@ -62,16 +62,16 @@ namespace HideezMiddleware
             }
         }
 
-        public static void SetEventSubject(SessionSwitchSubject sessionSwitchSubject, string deviceId)
+        public static void SetEventSubject(SessionSwitchSubject sessionSwitchSubject, string deviceSerialNo)
         {
             subject = sessionSwitchSubject;
-            _deviceId = deviceId;
+            _deviceSerialNo = deviceSerialNo;
 
             Task.Run(async () =>
             {
                 await Task.Delay(2_000);
                 subject = SessionSwitchSubject.NonHideez;
-                _deviceId = null;
+                _deviceSerialNo = null;
             });
         }
 

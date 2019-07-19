@@ -316,20 +316,24 @@ namespace HideezMiddleware
                 if (!_credentialProviderConnection.IsConnected)
                     return;
 
-                // get MAC address from the HES
-                var info = await _hesConnection.GetInfoByMac(mac);
+                // get info from the HES to check if primary account update is needed
+                if (_hesConnection.State == HesConnectionState.Connected)
+                {
+                    var info = await _hesConnection.GetInfoByMac(mac);
 
-                if (info == null)
-                    throw new Exception($"Device not found");
+                    if (info == null)
+                        throw new Exception($"Device not found");
 
-                await _credentialProviderConnection.SendNotification("Waiting for the primary account update...");
-                await WaitForPrimaryAccountUpdate(info);
+                    await _credentialProviderConnection.SendNotification("Waiting for the primary account update...");
+                    await WaitForPrimaryAccountUpdate(info);
+                }
 
                 await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
                 ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
                 var credentials = await GetCredentials(device, primaryAccountKey);
 
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Dongle, info.DeviceSerialNo);
+                //SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Dongle, info.DeviceSerialNo);
+                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Dongle, device.SerialNo);
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
@@ -453,19 +457,22 @@ namespace HideezMiddleware
                     return;
 
                 // get MAC address from the HES
-                var info = await _hesConnection.GetInfoByMac(mac);
+                if (_hesConnection.State == HesConnectionState.Connected)
+                {
+                    var info = await _hesConnection.GetInfoByMac(mac);
 
-                if (info == null)
-                    throw new Exception($"Device not found");
+                    if (info == null)
+                        throw new Exception($"Device not found");
 
-                await _credentialProviderConnection.SendNotification("Waiting for the primary account update...");
-                await WaitForPrimaryAccountUpdate(info);
+                    await _credentialProviderConnection.SendNotification("Waiting for the primary account update...");
+                    await WaitForPrimaryAccountUpdate(info);
+                }
 
                 await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
                 ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
                 var credentials = await GetCredentials(device, primaryAccountKey);
 
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, info.DeviceSerialNo);
+                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
