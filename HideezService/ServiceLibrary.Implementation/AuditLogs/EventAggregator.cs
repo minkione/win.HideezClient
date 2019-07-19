@@ -102,13 +102,14 @@ namespace ServiceLibrary.Implementation
                                 }
                                 else
                                 {
-                                    log.Error($"This version: {versionData} data for deserialize workstation event is not supported.");
+                                    throw new NotSupportedException($"This version: {versionData} data for deserialize workstation event is not supported.");
                                 }
                             }
                             catch (Exception ex)
                             {
                                 log.Error(ex);
-                                Debug.Assert(false);
+                                //Debug.Assert(false);
+                                File.Delete(file);
                             }
                         }
 
