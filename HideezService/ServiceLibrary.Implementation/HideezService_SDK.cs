@@ -292,7 +292,7 @@ namespace ServiceLibrary.Implementation
             var we = WorkstationEvent.GetBaseInitializedInstance();
             we.EventId = isConnected ? WorkstationEventId.RFIDAdapterPlugged : WorkstationEventId.RFIDAdapterUnplugged;
             we.Severity = isConnected ? WorkstationEventSeverity.Ok : WorkstationEventSeverity.Warning;
-            Task task = _eventAggregator.AddNewAsync(we);
+            Task task = _eventAggregator?.AddNewAsync(we);
         }
 
         void HES_ConnectionStateChanged(object sender, EventArgs e)
@@ -313,7 +313,7 @@ namespace ServiceLibrary.Implementation
                     we.EventId = WorkstationEventId.HESDisconnected;
                     we.Severity = WorkstationEventSeverity.Warning;
                 }
-                Task task = _eventAggregator.AddNewAsync(we);
+                Task task = _eventAggregator?.AddNewAsync(we);
             }
         }
 

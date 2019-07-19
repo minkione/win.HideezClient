@@ -47,7 +47,9 @@ namespace HideezMiddleware
         // If proximity connection failed due to error, we ignore further attempts 
         // until a manual input from user occurs or credential provider reconnects to service
         // ConcurrentDictionary is used instead of other collections because we need atomic Clear() and efficient Contains()
-        readonly ConcurrentDictionary<string, string> _failedProximityConnections = new ConcurrentDictionary<string, string>();
+        readonly ConcurrentDictionary<string, string> _proximityAccessBlacklist = new ConcurrentDictionary<string, string>();
+        readonly ConcurrentDictionary<string, string> _rfidAccessBlacklist = new ConcurrentDictionary<string, string>();
+        readonly ConcurrentDictionary<string, string> _bleAccessBlacklist = new ConcurrentDictionary<string, string>();
 
         public WorkstationUnlocker(BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
@@ -113,8 +115,8 @@ namespace HideezMiddleware
             {
                 _deviceConnectionFilters = new List<DeviceUnlockerSettingsInfo>(e.NewSettings.DeviceUnlockerSettings);
                 _connectProximity = e.NewSettings.UnlockProximity;
-                _log.Info("Updated device connection filters received");
-                _failedProximityConnections.Clear();
+                _log.Info("New device connection filters received");
+                ClearAccessBlacklists();
             }
             catch (Exception ex)
             {
@@ -126,7 +128,7 @@ namespace HideezMiddleware
 
         void CredentialProviderConnection_OnProviderConnected(object sender, EventArgs e)
         {
-            _failedProximityConnections.Clear();
+            ClearAccessBlacklists();
             SendStatusToCredentialProvider();
         }
 
@@ -138,7 +140,7 @@ namespace HideezMiddleware
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
             if (_connectionManager.State == BluetoothAdapterState.PoweredOn)
-                _failedProximityConnections.Clear();
+                ClearAccessBlacklists();
 
             SendStatusToCredentialProvider();
         }
@@ -220,7 +222,7 @@ namespace HideezMiddleware
             try
             {
                 // Ble tap. Rssi of -27 was calculated empirically
-                if (e.Rssi > -27)
+                if (e.Rssi > -27 && !_bleAccessBlacklist.ContainsKey(e.Id))
                 {
                     var newGuid = Guid.NewGuid();
                     var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);
@@ -239,7 +241,7 @@ namespace HideezMiddleware
                         && _hesConnection?.State == HesConnectionState.Connected 
                         && BleUtils.RssiToProximity(e.Rssi) > _connectProximity 
                         && IsProximityAllowed(e.Id) 
-                        && !_failedProximityConnections.ContainsKey(e.Id))
+                        && !_proximityAccessBlacklist.ContainsKey(e.Id))
                     {
                         var newGuid = Guid.NewGuid();
                         var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);
@@ -254,7 +256,7 @@ namespace HideezMiddleware
                             finally
                             {
                                 // Max of 1 attempt per device, either successfull or no
-                                _failedProximityConnections.GetOrAdd(e.Id, e.Id);
+                                _proximityAccessBlacklist.GetOrAdd(e.Id, e.Id);
                             }
                         }
                     }
@@ -269,7 +271,15 @@ namespace HideezMiddleware
 
         async void RfidService_RfidReceivedEvent(object sender, RfidReceivedEventArgs e)
         {
-            await UnlockByRfid(e.Rfid);
+            try
+            {
+                if (!_rfidAccessBlacklist.ContainsKey(e.Rfid))
+                    await UnlockByRfid(e.Rfid);
+            }
+            catch (Exception)
+            {
+                // silent handling...
+            }
         }
 
         public async Task UnlockByMac(string mac)
@@ -282,7 +292,10 @@ namespace HideezMiddleware
 
                 // Prevent access for unauthorized devices
                 if (!IsBleTapAllowed(deviceId))
+                {
+                    _bleAccessBlacklist.GetOrAdd(mac, mac);
                     throw new AccessDeniedAuthException();
+                }
 
                 await _credentialProviderConnection.SendNotification("Connecting to the device...");
                 var device = await _deviceManager.ConnectByMac(mac, timeout: 20_000);
@@ -356,7 +369,10 @@ namespace HideezMiddleware
 
                 // Prevent access for unauthorized devices
                 if (!IsRfidAllowed(info.DeviceMac.Replace(":", "")))
+                {
+                    _rfidAccessBlacklist.GetOrAdd(rfid, rfid);
                     throw new AccessDeniedAuthException();
+                }
 
                 await _credentialProviderConnection.SendNotification("Connecting to the device...");
                 var device = await _deviceManager.ConnectByMac(info.DeviceMac, timeout: 20_000);
@@ -556,5 +572,12 @@ namespace HideezMiddleware
             await Task.Run(() => { _screenActivator?.ActivateScreen(); });
         }
 
+        void ClearAccessBlacklists()
+        {
+            _log.Info("Access blacklist cleared");
+            _proximityAccessBlacklist.Clear();
+            _rfidAccessBlacklist.Clear();
+            _bleAccessBlacklist.Clear();
+        }
     }
 }
