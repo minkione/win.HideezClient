@@ -59,7 +59,7 @@ namespace HideezMiddleware
                 if (isConnectedDevices.Any())
                 {
                     _log.Info($"Locking workstation: some devices are no longer authorized to work with this workstation.");
-                    SessionSwitchManager.SetEventSubject(SessionSwitchSubject.AccessCanceled, missingDevices.First().SerialNo);
+                    SessionSwitchManager.SetEventSubject(SessionSwitchSubject.AccessCancelled, missingDevices.First().SerialNo);
                     _workstationLocker.LockWorkstation();
                 }
 
