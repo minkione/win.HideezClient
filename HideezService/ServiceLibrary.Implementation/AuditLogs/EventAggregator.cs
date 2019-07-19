@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -21,7 +22,7 @@ namespace ServiceLibrary.Implementation
         private readonly string eventDirectory = $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\Hideez\WorkstationEvents\";
         private readonly List<WorkstationEvent> workstationEvents = new List<WorkstationEvent>();
         private readonly object lockObj = new object();
-        private readonly Timer sendTimer = new Timer();
+        private readonly System.Timers.Timer sendTimer = new System.Timers.Timer();
         private readonly double timeIntervalSend = 1_000;
         private readonly int minCountForSend = 10;
 
@@ -51,6 +52,7 @@ namespace ServiceLibrary.Implementation
                 {
                     lock (lockObj)
                     {
+                        workstationEvent.Version = WorkstationEvent.CurrentVersion;
                         workstationEvents.Add(workstationEvent);
                         string json = JsonConvert.SerializeObject(workstationEvent);
                         File.WriteAllText($"{eventDirectory}{workstationEvent.Id}", json);
@@ -71,23 +73,47 @@ namespace ServiceLibrary.Implementation
 
         private async Task SendEventsAsync()
         {
-            List<WorkstationEvent> newQueue = null;
-            sendTimer.Stop();
-            lock (lockObj)
-            {
-                newQueue = new List<WorkstationEvent>(workstationEvents);
-            }
-            await SendEventToServerAsync(newQueue);
-
-            newQueue.Clear();
             try
             {
-                foreach (var file in Directory.GetFiles(eventDirectory))
+                if (hesAppConnection != null && hesAppConnection.State == HesConnectionState.Connected)
                 {
+                    List<WorkstationEvent> newQueue = null;
+                    sendTimer.Stop();
+                    Monitor.Enter(lockObj);
+
+                    newQueue = new List<WorkstationEvent>(workstationEvents);
+                    await SendEventToServerAsync(newQueue);
+
+                    newQueue.Clear();
                     try
                     {
-                        WorkstationEvent we = JsonConvert.DeserializeObject(File.ReadAllText(file)) as WorkstationEvent;
-                        newQueue.Add(we);
+                        foreach (var file in Directory.GetFiles(eventDirectory))
+                        {
+                            try
+                            {
+                                string data = File.ReadAllText(file);
+                                dynamic jsonObj = JsonConvert.DeserializeObject(data);
+                                string versionData = jsonObj[nameof(WorkstationEvent.Version)];
+
+                                if (versionData == WorkstationEvent.CurrentVersion)
+                                {
+                                    WorkstationEvent we = JsonConvert.DeserializeObject<WorkstationEvent>(data);
+                                    newQueue.Add(we);
+                                }
+                                else
+                                {
+                                    log.Error($"This version: {versionData} data for deserialize workstation event is not supported.");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error(ex);
+                                Debug.Assert(false);
+                            }
+                        }
+
+                        await SendEventToServerAsync(newQueue);
+
                     }
                     catch (Exception ex)
                     {
@@ -95,15 +121,12 @@ namespace ServiceLibrary.Implementation
                         Debug.Assert(false);
                     }
                 }
-
-                await SendEventToServerAsync(newQueue);
             }
-            catch (Exception ex)
+            finally
             {
-                log.Error(ex);
-                Debug.Assert(false);
+                Monitor.Exit(lockObj);
+                sendTimer.Start();
             }
-            sendTimer.Start();
         }
 
         private async Task SendEventToServerAsync(List<WorkstationEvent> newQueue)
@@ -122,6 +145,7 @@ namespace ServiceLibrary.Implementation
                             {
                                 workstationEvents.Remove(we);
                                 File.Delete($"{eventDirectory}{we.Id}");
+                                Debug.WriteLine($"################ File delited {we.Id}");
                             }
                             catch (Exception ex)
                             {
