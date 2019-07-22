@@ -5,6 +5,8 @@ using System.ServiceModel;
 using ServiceLibrary.Implementation;
 using HideezServiceHost.HideezServiceReference;
 using HideezMiddleware;
+using System.Management;
+using System.IO;
 
 namespace HideezServiceHost
 {
@@ -71,13 +73,21 @@ namespace HideezServiceHost
                 {
                     serviceHost.Close();
                 }
-
-                await ServiceLibrary.Implementation.HideezService.OnSrviceStopedAsync();
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
             }
+            finally
+            {
+                await ServiceLibrary.Implementation.HideezService.OnSrviceStopedAsync();
+            }
+        }
+
+        protected override void OnShutdown()
+        {
+            ServiceLibrary.Implementation.HideezService.OnSrviceStopedAsync().Wait();
+            base.OnShutdown();
         }
 
         // https://stackoverflow.com/questions/44980/programmatically-determine-a-duration-of-a-locked-workstation
@@ -101,7 +111,7 @@ namespace HideezServiceHost
                         return;
                 }
 
-                SessionSwitchManager.SystemSessionSwitch((Microsoft.Win32.SessionSwitchReason)sessionChangeDescription.Reason);
+                SessionSwitchManager.SystemSessionSwitch(sessionChangeDescription.SessionId, (Microsoft.Win32.SessionSwitchReason)sessionChangeDescription.Reason);
             }
             catch (Exception ex)
             {
