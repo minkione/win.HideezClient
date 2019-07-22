@@ -225,6 +225,7 @@
   <!-- Hideez Service -->
   <Fragment>
     <SetProperty Id="HESADDRESS" After="CostFinalize" Value="[SAVEDHESADDRESS]">Not HESADDRESS</SetProperty>
+    <SetProperty Id="BYPASSWORKSTATIONOWNERSHIPSECURITY" After="CostFinalize" Value="[SAVEDBYPASSWORKSTATIONOWNERSHIPSECURITY]">Not BYPASSWORKSTATIONOWNERSHIPSECURITY</SetProperty>
 
     <ComponentGroup Id="HideezService" Directory="service">
       <Component Id="HideezServiceHost.exe" Guid="{FB54A20C-310F-474A-91E2-835AC3A34485}">
@@ -711,6 +712,10 @@
         <File Id="AsyncEnumerable.dll" Name="AsyncEnumerable.dll" Source="$(var.HideezSafe_TargetDir)AsyncEnumerable.dll" />
       </Component>
       
+      <Component Id="HideezMiddleware.dll" Guid="{FFFE2825-97AE-41B1-98FB-B9F7B03F00B7}" Win64="$(var.Win64)">
+	      <File Id="HideezMiddleware.dll" Name="HideezMiddleware.dll" Source="$(var.HideezServiceHost_TargetDir)HideezMiddleware.dll" />
+      </Component>
+    
     </ComponentGroup>
   </Fragment>
 
