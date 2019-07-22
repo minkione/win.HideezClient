@@ -6,24 +6,17 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
-    public class SessionSwitchManager : IDisposable
+    public static class SessionSwitchManager
     {
-        private readonly ILogger logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
         private static SessionSwitchSubject subject = SessionSwitchSubject.NonHideez;
         private static string _deviceSerialNo;
+        public static event Action<WorkstationEvent> SessionSwitch;
 
-        public SessionSwitchManager()
-        {
-            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
-        }
-
-        public event EventHandler<WorkstationEvent> SessionSwitch;
-
-        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        public static void SystemSessionSwitch(SessionSwitchReason reason)
         {
             try
             {
-                SessionSwitchReason reason = e.Reason;
                 if (reason >= SessionSwitchReason.SessionLogon && reason <= SessionSwitchReason.SessionUnlock)
                 {
                     WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
@@ -52,7 +45,7 @@ namespace HideezMiddleware
                     if (SessionSwitch != null)
                     {
                         var @event = SessionSwitch;
-                        @event.Invoke(this, workstationEvent);
+                        @event.Invoke(workstationEvent);
                     }
                 }
             }
@@ -73,12 +66,6 @@ namespace HideezMiddleware
                 subject = SessionSwitchSubject.NonHideez;
                 _deviceSerialNo = null;
             });
-        }
-
-        public void Dispose()
-        {
-            SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
-            SessionSwitch = null;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using HideezMiddleware;
+using Microsoft.Win32;
 using ServiceLibrary.Implementation;
 using System;
 using System.ServiceModel;
@@ -137,6 +138,8 @@ namespace TestConsole
                     default:
                         return;
                 }
+
+                SessionSwitchManager.SystemSessionSwitch(e.Reason);
             }
             catch (Exception ex)
             {

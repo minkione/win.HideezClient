@@ -189,6 +189,10 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\HideezMiddleware\HideezMiddleware\HideezMiddleware.csproj">
+      <Project>{2A5ABF59-55EE-461B-8C6F-2A294481129B}</Project>
+      <Name>HideezMiddleware</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ServiceLibrary.Implementation\ServiceLibrary.Implementation.csproj">
       <Project>{DA19D8C5-DAB6-4060-B393-BA18A4BE47BB}</Project>
       <Name>ServiceLibrary.Implementation</Name>

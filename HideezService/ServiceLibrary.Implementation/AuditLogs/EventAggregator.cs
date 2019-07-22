@@ -136,14 +136,13 @@ namespace ServiceLibrary.Implementation
                                     }
                                     catch (Exception e)
                                     {
-                                        log.Error(ex);
+                                        log.Error(e);
                                     }
                                 }
                             }
                         }
 
                         await SendEventToServerAsync(newQueue);
-
                     }
                     catch (Exception ex)
                     {

@@ -4,6 +4,7 @@ using System.ServiceProcess;
 using System.ServiceModel;
 using ServiceLibrary.Implementation;
 using HideezServiceHost.HideezServiceReference;
+using HideezMiddleware;
 
 namespace HideezServiceHost
 {
@@ -99,6 +100,8 @@ namespace HideezServiceHost
                     default:
                         return;
                 }
+
+                SessionSwitchManager.SystemSessionSwitch((Microsoft.Win32.SessionSwitchReason)sessionChangeDescription.Reason);
             }
             catch (Exception ex)
             {
