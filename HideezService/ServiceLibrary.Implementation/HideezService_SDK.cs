@@ -40,7 +40,6 @@ namespace ServiceLibrary.Implementation
         static WcfDeviceFactory _wcfDeviceManager;
         static DeviceAccessController _deviceAccessController;
         static EventAggregator _eventAggregator;
-        static SessionSwitchManager _sessionSwitchManager;
 
         static ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
@@ -158,8 +157,7 @@ namespace ServiceLibrary.Implementation
 
             _connectionManager.StartDiscovery();
 
-            _sessionSwitchManager = new SessionSwitchManager();
-            _sessionSwitchManager.SessionSwitch += (sender, we) => _eventAggregator?.AddNewAsync(we);
+            SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
         }
 
         #region Event Handlers
