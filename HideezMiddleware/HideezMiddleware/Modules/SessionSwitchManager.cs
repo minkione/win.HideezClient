@@ -25,7 +25,6 @@ namespace HideezMiddleware
             try
             {
                 UserSessionName = "SYSTEM";
-
                 var explorer = Process.GetProcessesByName("explorer").FirstOrDefault();
                 if (explorer != null)
                 {
@@ -79,6 +78,11 @@ namespace HideezMiddleware
                     {
                         var @event = SessionSwitch;
                         @event.Invoke(workstationEvent);
+                    }
+
+                    if(reason == SessionSwitchReason.SessionLogoff)
+                    {
+                        UserSessionName = "SYSTEM";
                     }
                 }
             }
