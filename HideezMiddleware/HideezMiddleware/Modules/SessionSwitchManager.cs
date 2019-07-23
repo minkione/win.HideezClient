@@ -2,10 +2,14 @@
 using Microsoft.Win32;
 using NLog;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Linq;
+
+
 
 namespace HideezMiddleware
 {
@@ -21,14 +25,11 @@ namespace HideezMiddleware
             try
             {
                 UserSessionName = "SYSTEM";
-                ManagementScope ms = new ManagementScope("\\\\.\\root\\cimv2");
-                ObjectQuery query = new ObjectQuery("SELECT * FROM Win32_ComputerSystem");
-                ManagementObjectSearcher searcher = new ManagementObjectSearcher(ms, query);
-                foreach (ManagementObject mo in searcher.Get())
+
+                var explorer = Process.GetProcessesByName("explorer").FirstOrDefault();
+                if (explorer != null)
                 {
-                    // UserName
-                    UserSessionName = mo["PrimaryOwnerName"].ToString();
-                    break;
+                    UserSessionName = GetUsername(explorer.SessionId);
                 }
             }
             catch (Exception ex)
