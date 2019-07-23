@@ -238,7 +238,6 @@ namespace HideezMiddleware
                     // Proximity
                     // Connection occurs only when workstation is locked
                     if (_credentialProviderConnection.IsConnected 
-                        && _hesConnection?.State == HesConnectionState.Connected 
                         && BleUtils.RssiToProximity(e.Rssi) > _connectProximity 
                         && IsProximityAllowed(e.Id) 
                         && !_proximityAccessBlacklist.ContainsKey(e.Id))
