@@ -72,6 +72,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Version.cs">
+      <Link>Version.cs</Link>
+    </Compile>
     <Compile Include="CredentialProviderConnection.cs" />
     <Compile Include="DeviceAccessController.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
