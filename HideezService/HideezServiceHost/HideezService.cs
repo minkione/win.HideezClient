@@ -5,6 +5,9 @@ using System.ServiceModel;
 using ServiceLibrary.Implementation;
 using HideezServiceHost.HideezServiceReference;
 using HideezMiddleware;
+using System.Management;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace HideezServiceHost
 {
@@ -51,10 +54,18 @@ namespace HideezServiceHost
             }
         }
 
+        protected override void OnShutdown()
+        {
+            Task t = ServiceLibrary.Implementation.HideezService.OnSrviceStopedAsync();
+            base.OnShutdown();
+        }
+
         protected override async void OnStop()
         {
             try
             {
+                Task t = ServiceLibrary.Implementation.HideezService.OnSrviceStopedAsync();
+
                 // connect and ask the service to finish all works and close all connections
                 var callback = new HideezServiceCallbacks();
                 var instanceContext = new InstanceContext(callback);
@@ -71,8 +82,6 @@ namespace HideezServiceHost
                 {
                     serviceHost.Close();
                 }
-
-                await ServiceLibrary.Implementation.HideezService.OnSrviceStopedAsync();
             }
             catch (Exception ex)
             {
@@ -101,7 +110,7 @@ namespace HideezServiceHost
                         return;
                 }
 
-                SessionSwitchManager.SystemSessionSwitch((Microsoft.Win32.SessionSwitchReason)sessionChangeDescription.Reason);
+                SessionSwitchManager.SystemSessionSwitch(sessionChangeDescription.SessionId, (Microsoft.Win32.SessionSwitchReason)sessionChangeDescription.Reason);
             }
             catch (Exception ex)
             {
