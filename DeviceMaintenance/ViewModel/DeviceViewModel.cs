@@ -30,6 +30,8 @@ namespace DeviceMaintenance.ViewModel
         public bool IsInitialized => Device?.IsInitialized ?? false;
         public double Progress => _longOperation.Progress;
 
+        public bool InProgress => _longOperation.IsRunning;
+
 
 
         public DeviceViewModel(string mac, ILog log)

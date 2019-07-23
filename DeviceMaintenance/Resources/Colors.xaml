@@ -1,0 +1,55 @@
+﻿<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:DeviceMaintenance">
+    
+    <FontFamily x:Key="FontFamily">Segoe UI</FontFamily>
+
+    <FontWeight x:Key="FontWeightMedium">Medium</FontWeight>
+
+    <SolidColorBrush x:Key="WindowTitleBrush" Color="#22446D" />
+
+    <LinearGradientBrush x:Key="WindowLeftColumBrush" MappingMode="RelativeToBoundingBox" StartPoint="1,0.3" EndPoint="0,1">
+        <GradientStop Offset="1" Color="#43C7D9" />
+        <GradientStop Offset="0" Color="#0E5F93" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="NotificationLeftColumnBrush" MappingMode="RelativeToBoundingBox" StartPoint="0.4,0.4" EndPoint="1.4,1.4">
+        <GradientStop Offset="1" Color="#43C7D9" />
+        <GradientStop Offset="0" Color="#0E5F93" />
+    </LinearGradientBrush>
+
+    <Color x:Key="Pink">#FC3085</Color>
+    <Color x:Key="LightPink">#FB679B</Color>
+    <Color x:Key="DarkPink">#BB255C</Color>
+
+    <Color x:Key="Blue">#1BA2DC</Color>
+    <Color x:Key="LightBlue">#54B9E5</Color>
+    <Color x:Key="DarkBlue">#147AA5</Color>
+
+    <Color x:Key="NavyBlue">#22446D</Color>
+
+    <Color x:Key="Gray">#6E89A4</Color>
+
+    <SolidColorBrush x:Key="MenuBackground" Color="#0E5F93" />
+
+    <SolidColorBrush x:Key="PinkBrush" Color="{StaticResource Pink}" />
+    <SolidColorBrush x:Key="PinkBrushIsMouseOver" Color="{StaticResource LightPink}" />
+    <SolidColorBrush x:Key="PinkBrushIsPressed" Color="{StaticResource DarkPink}" />
+
+    <SolidColorBrush x:Key="BlueBrush" Color="{StaticResource Blue}" />
+    <SolidColorBrush x:Key="BlueBrushIsMouseOver" Color="{StaticResource LightBlue}" />
+    <SolidColorBrush x:Key="BlueBrushIsPressed" Color="{StaticResource DarkBlue}" />
+    <SolidColorBrush x:Key="NavyBlueBrush" Color="{StaticResource NavyBlue}" />
+
+    <SolidColorBrush x:Key="SliderBlueBrush" Color="#251BA2DC" />
+
+    <SolidColorBrush x:Key="GrayBrush" Color="{StaticResource Gray}" />
+
+    <SolidColorBrush x:Key="ConnectedBrush" Color="Green" />
+    <SolidColorBrush x:Key="InitializingBrush" Color="#ffffff" />
+    <SolidColorBrush x:Key="DisconnectedBrush" Color="#ff1a1a" />
+
+    <SolidColorBrush x:Key="LowBatteryIndicatorBrush" Color="Yellow" />
+
+</ResourceDictionary>

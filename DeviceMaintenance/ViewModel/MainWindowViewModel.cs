@@ -109,10 +109,19 @@ namespace DeviceMaintenance.ViewModel
         public ObservableCollection<DiscoveredDeviceAddedEventArgs> DiscoveredDevices { get; } 
             = new ObservableCollection<DiscoveredDeviceAddedEventArgs>();
 
-
         public ObservableCollection<DeviceViewModel> Devices { get; }
             = new ObservableCollection<DeviceViewModel>();
 
+        /// <summary>
+        /// Returns true if any device is currently undergoing firmware update
+        /// </summary>
+        public bool IsUpdateInProgress
+        {
+            get
+            {
+                return Devices.Any(d => d.InProgress);
+            }
+        }
 
         #region Commands
 

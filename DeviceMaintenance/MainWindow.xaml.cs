@@ -1,13 +1,15 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using DeviceMaintenance.ViewModel;
+using MahApps.Metro.Controls;
 
 namespace DeviceMaintenance
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         public MainWindow()
         {
@@ -15,10 +17,35 @@ namespace DeviceMaintenance
             DataContext = new MainWindowViewModel();
         }
 
-        void Window_Closing(object sender, CancelEventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
             var vm = (MainWindowViewModel)DataContext;
-            vm.Close();
+
+            if (vm.IsUpdateInProgress)
+            {
+                var mb = MessageBox.Show(
+                    "Firmware update in progress!" +
+                    Environment.NewLine +
+                    "Are you sure you want to exit?",
+                    "Exit application",
+                    MessageBoxButton.YesNoCancel, 
+                    MessageBoxImage.Exclamation);
+
+                if (mb == MessageBoxResult.Yes)
+                {
+                    vm.Close();
+                    base.OnClosing(e);
+                }
+                else
+                    e.Cancel = true;
+            }
+            else
+            {
+                vm.Close();
+                base.OnClosing(e);
+            }
+
         }
+
     }
 }

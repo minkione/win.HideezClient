@@ -1,24 +1,133 @@
-﻿<Window x:Class="DeviceMaintenance.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" 
-        Closing="Window_Closing"
-        Title="MainWindow" 
-        Height="450" Width="800">
+﻿<Metro:MetroWindow 
+    x:Class="DeviceMaintenance.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    mc:Ignorable="d"
+    Title="Device maintenance application" 
+    Height="450" 
+    Width="800"
+    Background="{DynamicResource WindowLeftColumBrush}"
+    TitleCharacterCasing="Normal"
+    WindowTitleBrush="{DynamicResource WindowTitleBrush}"
+    >
+    <Grid>
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <StackPanel 
+                Grid.Row="0"
+                Orientation="Vertical"
+                VerticalAlignment="Top">
+                <WrapPanel>
+                    <Button
+                        Style="{DynamicResource PinkButton}"
+                        Content="Stop service"
+                        />
+                    <CheckBox
+                        Style="{DynamicResource MetroCheckBox}"
+                        Content="Restart service on exit"
+                        VerticalAlignment="Center"
+                        Margin="10,0,0,0"
+                        />
+                </WrapPanel>
+                <WrapPanel Margin="0,10,0,0">
+                    <Button
+                        Style="{DynamicResource PinkButton}"
+                        Content="Select firmware file"
+                        />
+                    <TextBlock 
+                        Text="{Binding FileName}" 
+                        FontSize="16"
+                        Foreground="White"
+                        VerticalAlignment="Center"
+                        Margin="10,0,0,0"
+                        />
+
+                </WrapPanel>
+
+                <CheckBox 
+                    Style="{DynamicResource MetroCheckBox}"
+                    Margin="0,20,20,0"
+                    Content="Automatically update connected devices" 
+                    HorizontalAlignment="Right"/>
+
+                <WrapPanel 
+                    Background="#3f3f3f"
+                    Margin="0,10,0,0">
+
+                    <iconPacks:PackIconMaterial 
+                        Margin="10,10,0,10"
+                        Width="24"
+                        Height="24"
+                        Kind="InformationOutline" 
+                        Foreground="LightBlue"
+                        VerticalAlignment="Center"
+                        />
+
+                    <TextBlock 
+                        Margin="10"
+                        Text="Tap the device on the bluetooth dongle to make it appear in the list below" 
+                        FontSize="14"
+                        Foreground="White"
+                        FontWeight="DemiBold"
+                        VerticalAlignment="Center"
+                        />
+                </WrapPanel>
+
+            </StackPanel>
+
+            <ListView 
+                Margin="0,10,0,0"
+                Grid.Row="1"
+                ItemsSource="{Binding Devices}" >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding SerialNo}" FontWeight="Bold" />
+                            <TextBlock Text=", " />
+                            <TextBlock Text="{Binding ConnectionState}" FontWeight="Bold" />
+                            <TextBlock Text=", Old Version: " />
+                            <TextBlock Text="{Binding FirmwareVersion}" FontWeight="Bold" />
+                            <TextBlock Text=", Progress: " />
+                            <TextBlock Text="{Binding Progress}" FontWeight="Bold" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+        </Grid>
+
+    </Grid>
+    
+    <!-- Old layout -->
+    <!--
     <Grid>
         <StackPanel>
             <StackPanel Orientation="Horizontal" Margin="10" VerticalAlignment="Center">
                 <TextBlock Margin="0,0,10,0">BLE Adapter:</TextBlock>
                 <TextBlock Text="{Binding BleAdapterState}" />
-                <Button Content=" Reset " Margin="10,0,0,0" Command="{Binding BleAdapterResetCommand}"/>
-                <Button Content=" Start Discovery " Margin="10,0,0,0" Command="{Binding StartDiscoveryCommand}"/>
-                <Button Content=" Stop Discovery " Margin="10,0,0,0" Command="{Binding StopDiscoveryCommand}"/>
+                <Button Content=" Reset " 
+                        Margin="10,0,0,0" 
+                        Style="{DynamicResource ButtonBlue}"
+                        Command="{Binding BleAdapterResetCommand}"/>
+                <Button Content=" Start Discovery " 
+                        Margin="10,0,0,0" 
+                        Style="{DynamicResource ButtonBlue}"
+                        Command="{Binding StartDiscoveryCommand}"/>
+                <Button Content=" Stop Discovery " 
+                        Margin="10,0,0,0" 
+                        Style="{DynamicResource ButtonBlue}"
+                        Command="{Binding StopDiscoveryCommand}"/>
                 <TextBlock Margin="10,0,10,0" Visibility="{Binding BleAdapterDiscovering, Converter={StaticResource BooleanToVisibilityConverter}}">Discovering...</TextBlock>
             </StackPanel>
 
-            <!--firmare update-->
             <Grid Margin="10,10,10,10" DockPanel.Dock="Top">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
@@ -32,11 +141,20 @@
                 </Grid.ColumnDefinitions>
 
 
-                <!--FileName-->
                 <TextBlock  Grid.Column="0" Grid.Row="2" Text="FW File Path:" ></TextBlock>
                 <TextBox    Grid.Column="1" Grid.Row="2" Text="{Binding FileName}"  />
-                <Button     Grid.Column="2" Grid.Row="2" Content="..."  Command="{Binding SelectFirmwareCommand}"/>
-                <ToggleButton     Grid.Column="3" Grid.Row="2" Content="Start Autoupdate" Margin="10,0,0,0" Command="{Binding FirmwareAutoupdateCommand}"/>
+                <Button     
+                    Grid.Column="2" 
+                    Grid.Row="2" 
+                    Content="..."  
+                    Style="{DynamicResource ButtonBlue}"
+                    Command="{Binding SelectFirmwareCommand}"/>
+                <ToggleButton     
+                    Grid.Column="3" 
+                    Grid.Row="2" 
+                    Content="Start Autoupdate" 
+                    Margin="10,0,0,0" 
+                    Command="{Binding FirmwareAutoupdateCommand}"/>
 
             </Grid>
             
@@ -61,4 +179,5 @@
 
         </StackPanel>
     </Grid>
-</Window>
+    -->
+</Metro:MetroWindow>
