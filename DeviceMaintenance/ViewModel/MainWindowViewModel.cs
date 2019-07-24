@@ -1,78 +1,130 @@
-﻿using System;
+﻿using Hideez.CsrBLE;
+using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Log;
+using Microsoft.Win32;
+using MvvmExtensions.Attributes;
+using MvvmExtensions.PropertyChangedMonitoring;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.ServiceProcess;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Input;
-using Hideez.CsrBLE;
-using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.FW;
-using Hideez.SDK.Communication.HES.Client;
-using Hideez.SDK.Communication.Interfaces;
-using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.LongOperations;
-using Microsoft.Win32;
 
 namespace DeviceMaintenance.ViewModel
 {
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel : PropertyChangedImplementation
     {
+        const string SERVICE_NAME = "Hideez Service";
+
         readonly EventLogger _log;
         readonly BleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
-        //readonly CredentialProviderConnection _credentialProviderConnection;
-        //readonly WorkstationUnlocker _workstationUnlocker;
-        //readonly RfidServiceConnection _rfidService;
 
-        //HesAppConnection _hesConnection;
-        //byte _nextChannelNo = 2;
         readonly ConcurrentDictionary<string, Guid> _pendingConnections =
             new ConcurrentDictionary<string, Guid>();
 
-        public string BleAdapterState => _connectionManager?.State.ToString();
-        public string ConectByMacAddress { get; set; } = "D0:A8:9E:6B:CD:8D";
+        ServiceController _hideezServiceController;
+        Timer _serviceStateRefreshTimer;
 
-        //public string RfidAdapterState => "NA";
-        //public string RfidAddress { get; set; }
+        bool _restartServiceOnExit = false;
+        bool _automaticallyUpdateFirmware = true;
+        string _fileName = Properties.Settings.Default.FirmwareFileName;
+        DeviceViewModel _currentDevice;
+        DiscoveredDeviceAddedEventArgs _currentDiscoveredDevice;
 
-        //public string HesAddress { get; set; }
-        //public string HesState => _hesConnection?.State.ToString();
+        private ServiceController HideezServiceController
+        {
+            get
+            {
+                return _hideezServiceController;
+            }
+            set
+            {
+                _hideezServiceController = value;
+                NotifyPropertyChanged();
+            }
+        }
 
+        [DependsOn(nameof(HideezServiceController))]
+        public bool CanInteractWithService
+        {
+            get
+            {
+                return _hideezServiceController != null;
+            }
+        }
 
-        private string _fileName;
+        public bool HideezServiceOnline
+        {
+            get
+            {
+                return HideezServiceController?.Status == ServiceControllerStatus.Running;
+            }
+        }
+
+        public bool BleAdapterAvailable
+        {
+            get
+            {
+                return _connectionManager?.State == BluetoothAdapterState.PoweredOn;
+            }
+        }
+
         public string FileName
         {
-            get { return _fileName; }
+            get
+            {
+                return _fileName;
+            }
             set
             {
                 if (_fileName != value)
                 {
                     _fileName = value;
-                    NotifyPropertyChanged(nameof(FileName));
+                    Properties.Settings.Default.FirmwareFileName = FileName;
+                    Properties.Settings.Default.Save();
+                    NotifyPropertyChanged();
                 }
             }
         }
 
-        bool _bleAdapterDiscovering;
-        public bool BleAdapterDiscovering
+        public bool RestartServiceOnExit
         {
             get
             {
-                return _bleAdapterDiscovering;
+                return _restartServiceOnExit;
             }
             set
             {
-                if (_bleAdapterDiscovering != value)
+                if (_restartServiceOnExit != value)
                 {
-                    _bleAdapterDiscovering = value;
-                    NotifyPropertyChanged(nameof(BleAdapterDiscovering));
+                    _restartServiceOnExit = value;
+                    NotifyPropertyChanged();
                 }
             }
         }
 
-        DeviceViewModel _currentDevice;
+        public bool AutomaticallyUpdateFirmware
+        {
+            get
+            {
+                return _automaticallyUpdateFirmware;
+            }
+            set
+            {
+                if (_automaticallyUpdateFirmware != value)
+                {
+                    _automaticallyUpdateFirmware = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         public DeviceViewModel CurrentDevice
         {
             get
@@ -84,12 +136,11 @@ namespace DeviceMaintenance.ViewModel
                 if (_currentDevice != value)
                 {
                     _currentDevice = value;
-                    NotifyPropertyChanged(nameof(CurrentDevice));
+                    NotifyPropertyChanged();
                 }
             }
         }
 
-        DiscoveredDeviceAddedEventArgs _currentDiscoveredDevice;
         public DiscoveredDeviceAddedEventArgs CurrentDiscoveredDevice
         {
             get
@@ -101,12 +152,12 @@ namespace DeviceMaintenance.ViewModel
                 if (_currentDiscoveredDevice != value)
                 {
                     _currentDiscoveredDevice = value;
-                    NotifyPropertyChanged(nameof(CurrentDiscoveredDevice));
+                    NotifyPropertyChanged();
                 }
             }
         }
 
-        public ObservableCollection<DiscoveredDeviceAddedEventArgs> DiscoveredDevices { get; } 
+        public ObservableCollection<DiscoveredDeviceAddedEventArgs> DiscoveredDevices { get; }
             = new ObservableCollection<DiscoveredDeviceAddedEventArgs>();
 
         public ObservableCollection<DeviceViewModel> Devices { get; }
@@ -115,7 +166,8 @@ namespace DeviceMaintenance.ViewModel
         /// <summary>
         /// Returns true if any device is currently undergoing firmware update
         /// </summary>
-        public bool IsUpdateInProgress
+        [DependsOn(nameof(Devices))]
+        public bool IsFirmwareUpdateInProgress
         {
             get
             {
@@ -123,147 +175,18 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
+
         #region Commands
 
-        public ICommand BleAdapterResetCommand
+        public ICommand StopServiceCommand
         {
             get
             {
                 return new DelegateCommand
                 {
-                    CanExecuteFunc = () =>
-                    {
-                        return true;
-                    },
                     CommandAction = (x) =>
                     {
-                        ResetBleAdapter();
-                    }
-                };
-            }
-        }
-
-        public ICommand StartDiscoveryCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return _connectionManager.State == BluetoothAdapterState.PoweredOn && !BleAdapterDiscovering;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        StartDiscovery();
-                    }
-                };
-            }
-        }
-
-        public ICommand StopDiscoveryCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return _connectionManager.State == BluetoothAdapterState.PoweredOn && BleAdapterDiscovering;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        StopDiscovery();
-                    }
-                };
-            }
-        }
-
-        public ICommand ClearDiscoveredDeviceListCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return true;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        ClearDiscoveredDeviceList();
-                    }
-                };
-            }
-        }
-
-        public ICommand ConnectDiscoveredDeviceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDiscoveredDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        ConnectDiscoveredDevice(CurrentDiscoveredDevice);
-                    }
-                };
-            }
-        }
-
-        public ICommand ConnectDeviceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        ConnectDevice(CurrentDevice);
-                    }
-                };
-            }
-        }
-
-        public ICommand DisconnectDeviceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        DisconnectDevice(CurrentDevice);
-                    }
-                };
-            }
-        }
-
-        public ICommand PingDeviceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        PingDevice(CurrentDevice);
+                        StopService();
                     }
                 };
             }
@@ -283,38 +206,17 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
-        public ICommand FirmwareAutoupdateCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CommandAction = (x) =>
-                    {
-                        FirmwareAutoupdate();
-                    }
-                };
-            }
-        }
-
-        public bool IsFirmwareAutoupdateOn { get; private set; }
-
-        //public ObservableCollection<FirmwareUpdateViewModel> CurrentFirmwareUpdates { get; } = new ObservableCollection<FirmwareUpdateViewModel>();
-
         #endregion
 
         public MainWindowViewModel()
         {
-            //HesAddress = "https://localhost:44371";
-
-            FileName = Properties.Settings.Default.FirmwareFileName;
-
-
             _log = new EventLogger("ExampleApp");
+
+            InitializeHideezServiceController();
+
             _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
 
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
             _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
             _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
@@ -323,44 +225,76 @@ namespace DeviceMaintenance.ViewModel
             _deviceManager = new BleDeviceManager(_log, _connectionManager);
             _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
             _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
-            
+
             _connectionManager.StartDiscovery();
         }
 
-        internal void Close()
-        {
-            Properties.Settings.Default.FirmwareFileName = FileName;
 
-            Properties.Settings.Default.Save();
+        void InitializeHideezServiceController()
+        {
+            try
+            {
+                _serviceStateRefreshTimer = new Timer(2000);
+                _serviceStateRefreshTimer.Elapsed += ServiceStateCheckTimer_Elapsed;
+                _serviceStateRefreshTimer.AutoReset = true;
+                _serviceStateRefreshTimer.Start();
+
+                HideezServiceController = new ServiceController(SERVICE_NAME);
+                NotifyPropertyChanged(nameof(HideezServiceOnline));
+            }
+            catch (ArgumentException ex)
+            {
+                // The most probable reason is that service is not installed. It is ok.
+            }
+        }
+
+        void ServiceStateCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            try
+            {
+                if (HideezServiceController == null)
+                    HideezServiceController = new ServiceController(SERVICE_NAME);
+
+                HideezServiceController?.Refresh();
+                NotifyPropertyChanged(nameof(HideezServiceOnline));
+            }
+            catch (ArgumentException ex)
+            {
+                // The most probable reason is that service is not installed. It is ok.
+            }
+            catch (Exception ex)
+            {
+                _log.WriteLine(nameof(ServiceStateCheckTimer_Elapsed), ex);
+            }
         }
 
         void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
         {
-            //Application.Current.Dispatcher.Invoke(() =>
-            //{
-            //    if (e.AddedDevice != null)
-            //    {
-            //        var deviceViewModel = new DeviceViewModel(e.AddedDevice);
-            //        Devices.Add(deviceViewModel);
-            //        if (CurrentDevice == null)
-            //            CurrentDevice = deviceViewModel;
-            //    }
-            //    else if (e.RemovedDevice != null)
-            //    {
-            //        var item = Devices.FirstOrDefault(x => x.Id == e.RemovedDevice.Id &&
-            //                                               x.ChannelNo == e.RemovedDevice.ChannelNo);
-
-            //        if (item != null)
-            //            Devices.Remove(item);
-            //    }
-            //});
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                //if (e.AddedDevice != null)
+                //{
+                //    var deviceViewModel = new DeviceViewModel(e.AddedDevice);
+                //    Devices.Add(deviceViewModel);
+                //    if (CurrentDevice == null)
+                //        CurrentDevice = deviceViewModel;
+                //}
+                //else 
+                if (e.RemovedDevice != null)
+                {
+                    var item = Devices.FirstOrDefault(x => x.Id == e.RemovedDevice.Id && x.ChannelNo == e.RemovedDevice.ChannelNo);
+            
+                    if (item != null)
+                        Devices.Remove(item);
+                }
+            });
         }
 
         async void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
             try
             {
-                if (IsFirmwareAutoupdateOn && e.Rssi > -27)
+                if (AutomaticallyUpdateFirmware && e.Rssi > -27)
                 {
                     var newGuid = Guid.NewGuid();
                     var guid = _pendingConnections.GetOrAdd(e.Id, newGuid);
@@ -403,50 +337,9 @@ namespace DeviceMaintenance.ViewModel
             });
         }
 
-        void ConnectionManager_DiscoveryStopped(object sender, EventArgs e)
-        {
-            BleAdapterDiscovering = false;
-        }
-
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
-            NotifyPropertyChanged(nameof(BleAdapterState));
-        }
-
-        void ResetBleAdapter()
-        {
-            _connectionManager.Restart();
-        }
-
-        void StartDiscovery()
-        {
-            //DiscoveredDevices.Clear();
-            _connectionManager.StartDiscovery();
-            BleAdapterDiscovering = true;
-        }
-
-        void StopDiscovery()
-        {
-            _connectionManager.StopDiscovery();
-            BleAdapterDiscovering = false;
-            DiscoveredDevices.Clear();
-        }
-
-        void ClearDiscoveredDeviceList()
-        {
-            DiscoveredDevices.Clear();
-        }
-
-        async void RemoveAllDevices()
-        {
-            try
-            {
-                await _deviceManager.RemoveAll();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            NotifyPropertyChanged(nameof(BleAdapterAvailable));
         }
 
         void ConnectDiscoveredDevice(DiscoveredDeviceAddedEventArgs e)
@@ -458,6 +351,10 @@ namespace DeviceMaintenance.ViewModel
         {
             _log.WriteLine("MainVM", $"Waiting Device connectin {mac} ..........................");
             var dvm = new DeviceViewModel(mac, _log);
+
+            var prevDvm = Devices.FirstOrDefault(d => d.Device.Mac.Replace(":","") == mac);
+            if (prevDvm != null)
+                await _deviceManager.Remove(prevDvm.Device);
 
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -477,44 +374,43 @@ namespace DeviceMaintenance.ViewModel
             return dvm;
         }
 
-        void ConnectDevice(DeviceViewModel device)
+
+        void StopService()
         {
             try
             {
-                device.Device.Connection.Connect();
+                HideezServiceController?.Refresh();
+                NotifyPropertyChanged(nameof(HideezServiceOnline));
+
+                if (HideezServiceController.CanStop)
+                {
+                    HideezServiceController?.Stop();
+                    HideezServiceController?.Refresh();
+                    NotifyPropertyChanged(nameof(HideezServiceOnline));
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                _log.WriteLine(nameof(StopService), ex);
             }
         }
 
-        void DisconnectDevice(DeviceViewModel device)
-        {
-            device.Device.Disconnect();
-        }
-
-        async void PingDevice(DeviceViewModel device)
+        void StartService()
         {
             try
             {
-                var pingText = $"{device.Id} {DateTime.Now}";
-                var reply = await device.Device.Ping(pingText);
-                if (pingText != reply.ResultAsString)
-                    throw new Exception("Wrong reply: " + reply.ResultAsString);
-                else
-                    MessageBox.Show(reply.ResultAsString);
+                HideezServiceController?.Start();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                _log.WriteLine(nameof(StopService), ex);
             }
         }
 
-        private void SelectFirmware()
+        void SelectFirmware()
         {
             if (string.IsNullOrWhiteSpace(FileName))
-                FileName = "c:\\";
+                FileName = "Not selected...";
 
             OpenFileDialog ofd = new OpenFileDialog
             {
@@ -526,9 +422,10 @@ namespace DeviceMaintenance.ViewModel
                 FileName = ofd.FileName;
         }
 
-        void FirmwareAutoupdate()
+        internal void OnClosing()
         {
-            IsFirmwareAutoupdateOn = !IsFirmwareAutoupdateOn;
+            if (RestartServiceOnExit && !HideezServiceOnline)
+                StartService();
         }
 
     }

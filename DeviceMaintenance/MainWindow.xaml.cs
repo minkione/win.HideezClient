@@ -21,7 +21,7 @@ namespace DeviceMaintenance
         {
             var vm = (MainWindowViewModel)DataContext;
 
-            if (vm.IsUpdateInProgress)
+            if (vm.IsFirmwareUpdateInProgress)
             {
                 var mb = MessageBox.Show(
                     "Firmware update in progress!" +
@@ -33,7 +33,7 @@ namespace DeviceMaintenance
 
                 if (mb == MessageBoxResult.Yes)
                 {
-                    vm.Close();
+                    vm.OnClosing();
                     base.OnClosing(e);
                 }
                 else
@@ -41,7 +41,7 @@ namespace DeviceMaintenance
             }
             else
             {
-                vm.Close();
+                vm.OnClosing();
                 base.OnClosing(e);
             }
 
