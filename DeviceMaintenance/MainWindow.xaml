@@ -125,8 +125,7 @@
                     <DataTemplate>
                         <Grid>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="MAC: "  Margin="10,0,0,0"/>
-                                <TextBlock Text="{Binding SerialNo}" FontWeight="Bold" />
+                                <TextBlock Text="{Binding SerialNo}" FontWeight="Bold" Margin="10,0,0,0"/>
                                 <TextBlock Text=", " />
                                 <TextBlock Text="{Binding ConnectionState}" FontWeight="Bold" />
                             </StackPanel>
@@ -163,6 +162,7 @@
                                     Maximum="100" 
                                     Value="{Binding Progress, Mode=OneWay}" 
                                     HorizontalAlignment="Right"
+                                    Foreground="#43C7D9"
                                     Margin="10,0"
                                     Width="150"
                                     />

@@ -239,10 +239,17 @@ namespace DeviceMaintenance.ViewModel
                 _serviceStateRefreshTimer.AutoReset = true;
                 _serviceStateRefreshTimer.Start();
 
-                HideezServiceController = new ServiceController(SERVICE_NAME);
+                var controller = new ServiceController(SERVICE_NAME);
+                var st = controller.Status; // Will trigger InvalidOperationException if service is not installed
+                HideezServiceController = controller;
+
                 NotifyPropertyChanged(nameof(HideezServiceOnline));
             }
-            catch (ArgumentException ex)
+            catch (InvalidOperationException)
+            {
+                // The most probable reason is that service is not installed. It is ok.
+            }
+            catch (ArgumentException)
             {
                 // The most probable reason is that service is not installed. It is ok.
             }
@@ -253,12 +260,21 @@ namespace DeviceMaintenance.ViewModel
             try
             {
                 if (HideezServiceController == null)
-                    HideezServiceController = new ServiceController(SERVICE_NAME);
+                {
+                    var controller = new ServiceController(SERVICE_NAME);
+                    var st = controller.Status; // Will trigger InvalidOperationException if service is not installed
+                    HideezServiceController = controller;
+                }
 
                 HideezServiceController?.Refresh();
+
                 NotifyPropertyChanged(nameof(HideezServiceOnline));
             }
-            catch (ArgumentException ex)
+            catch (InvalidOperationException)
+            {
+                // The most probable reason is that service is not installed. It is ok.
+            }
+            catch (ArgumentException)
             {
                 // The most probable reason is that service is not installed. It is ok.
             }

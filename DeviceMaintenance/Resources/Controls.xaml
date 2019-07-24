@@ -64,7 +64,7 @@
                         <Rectangle 
             Margin="15,0,0,0"
             StrokeThickness="1"
-            Stroke="#60000000"
+            Stroke="#43C7D9"
             StrokeDashArray="1 2"/>
                     </Border>
                 </ControlTemplate>
