@@ -26,9 +26,10 @@
               Type="numeric"
               Value="1" />
     <Variable Name="BypassWorkstationOwnershipSecurity"
+              Value="0"
               bal:Overridable="yes"
-              Type="numeric"
-              Value="0" />
+              Hidden="yes"
+              Type="string" />
 
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
       <bal:WixStandardBootstrapperApplication LicenseFile="Legal.rtf"
