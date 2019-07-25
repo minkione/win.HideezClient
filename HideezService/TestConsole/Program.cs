@@ -139,7 +139,7 @@ namespace TestConsole
                         return;
                 }
 
-                SessionSwitchManager.SystemSessionSwitch(e.Reason);
+                SessionSwitchManager.SystemSessionSwitch(System.Diagnostics.Process.GetCurrentProcess().SessionId, e.Reason);
             }
             catch (Exception ex)
             {

@@ -491,10 +491,10 @@ namespace ServiceLibrary.Implementation
             if (value == null)
                 return false;
 
-            if (!(value is int))
-                throw new FormatException($"{_bypassWorkstationOwnershipSecurityValueName} could not be cast to int. Check that its value has REG_DWORD type");
+            if (!(int.TryParse(value.ToString(), out int result)))
+                throw new FormatException($"{_bypassWorkstationOwnershipSecurityValueName} could not be cast to int. Check that its value has REG_SZ type");
 
-            return ((int)value != 0);
+            return (result != 0);
         }
 
         public void DisconnectDevice(string id)
