@@ -31,7 +31,7 @@ namespace HideezMiddleware
         readonly IBleConnectionManager _connectionManager;
         readonly IScreenActivator _screenActivator;
         readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
-        readonly bool _bypassWorkstationOwnershipSecurity;
+        readonly bool _ignoreWorkstationOwnershipSecurity;
 
         HesAppConnection _hesConnection;
 
@@ -58,7 +58,7 @@ namespace HideezMiddleware
             IBleConnectionManager connectionManager,
             IScreenActivator screenActivator,
             ISettingsManager<UnlockerSettings> unlockerSettingsManager,
-            bool bypassWorkstationOwnershipSecurity = false)
+            bool ignoreWorkstationOwnershipSecurity = false)
         {
             _deviceManager = deviceManager;
             _credentialProviderConnection = credentialProviderConnection;
@@ -66,7 +66,7 @@ namespace HideezMiddleware
             _connectionManager = connectionManager;
             _screenActivator = screenActivator;
             _unlockerSettingsManager = unlockerSettingsManager;
-            _bypassWorkstationOwnershipSecurity = bypassWorkstationOwnershipSecurity;
+            _ignoreWorkstationOwnershipSecurity = ignoreWorkstationOwnershipSecurity;
 
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
@@ -208,12 +208,12 @@ namespace HideezMiddleware
 
         bool IsRfidAllowed(string mac)
         {
-            return _bypassWorkstationOwnershipSecurity || _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowRfid);
+            return _ignoreWorkstationOwnershipSecurity || _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowRfid);
         }
 
         bool IsBleTapAllowed(string mac)
         {
-            return _bypassWorkstationOwnershipSecurity || _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowBleTap);
+            return _ignoreWorkstationOwnershipSecurity || _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowBleTap);
         }
         #endregion
 
