@@ -318,13 +318,21 @@ namespace DeviceMaintenance.ViewModel
                     if (guid == newGuid)
                     {
                         var deviceVM = await ConnectDeviceByMac(e.Id);
-                        if (deviceVM?.Device != null)
+                        try
                         {
-                            await deviceVM.Device.WaitInitialization(timeout: 10_000);
-                            await deviceVM.StartFirmwareUpdate(FileName);
-                        }
+                            if (deviceVM?.Device != null)
+                            {
+                                await deviceVM.Device.WaitInitialization(timeout: 10_000);
+                                await deviceVM.StartFirmwareUpdate(FileName);
+                            }
 
-                        _pendingConnections.TryRemove(e.Id, out Guid removed);
+                            _pendingConnections.TryRemove(e.Id, out Guid removed);
+                        }
+                        catch (Exception ex)
+                        {
+                            deviceVM.CustomError = ex.Message;
+                            throw;
+                        }
                     }
                 }
             }

@@ -33,7 +33,17 @@ namespace DeviceMaintenance.ViewModel
         public bool IsInitialized => Device?.IsInitialized ?? false;
         public double Progress => _longOperation.Progress;
         public bool InProgress => _longOperation.IsRunning;
-        public bool IsError => _longOperation.IsError;
+        [DependsOn(nameof(Error), nameof(CustomError))]
+        public bool IsError
+        {
+            get
+            {
+                return (_longOperation != null && _longOperation.IsError) || !string.IsNullOrWhiteSpace(CustomError);
+            }
+        }
+        public string Error => _longOperation.ErrorMessage;
+        public string CustomError { get; set; }
+
 
         #region Visual States
         [DependsOn(nameof(IsConnected), nameof(IsInitialized))]
