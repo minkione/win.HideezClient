@@ -25,7 +25,7 @@
               bal:Overridable="yes"
               Type="numeric"
               Value="1" />
-    <Variable Name="BypassWorkstationOwnershipSecurity"
+    <Variable Name="IgnoreWorkstationOwnershipSecurity"
               Value="0"
               bal:Overridable="yes"
               Hidden="yes"
@@ -81,8 +81,8 @@
                      Value="[HESAddress]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
                      Value="[InstallDongleDriver]" />
-        <MsiProperty Name="BYPASSWORKSTATIONOWNERSHIPSECURITY"
-                     Value="[BypassWorkstationOwnershipSecurity]" />
+        <MsiProperty Name="IGNOREWORKSTATIONOWNERSHIPSECURITY"
+                     Value="[IgnoreWorkstationOwnershipSecurity]" />
       </MsiPackage>
 
       <MsiPackage DisplayInternalUI="no"
@@ -94,8 +94,8 @@
                      Value="[HESAddress]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
                      Value="[InstallDongleDriver]" />
-        <MsiProperty Name="BYPASSWORKSTATIONOWNERSHIPSECURITY"
-                     Value="[BypassWorkstationOwnershipSecurity]" />
+        <MsiProperty Name="IGNOREWORKSTATIONOWNERSHIPSECURITY"
+                     Value="[IgnoreWorkstationOwnershipSecurity]" />
       </MsiPackage>
     </Chain>
   </Bundle>

@@ -121,17 +121,17 @@ namespace ServiceLibrary.Implementation
             _screenActivator = new UiScreenActivator(SessionManager);
 
             // WorkstationUnlocker 
-            bool bypassWorkstationOwnershipSecurity = false;
+            bool ignoreWorkstationOwnershipSecurity = false;
             try
             {
-                bypassWorkstationOwnershipSecurity = GetBypassWorkstationOwnershipSecurity();
+                ignoreWorkstationOwnershipSecurity = GetIgnoreWorkstationOwnershipSecurity();
             }
             catch (Exception ex)
             {
                 _log.Error(ex);
             }
             _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
-                _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, _unlockerSettingsManager, bypassWorkstationOwnershipSecurity);
+                _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, _unlockerSettingsManager, ignoreWorkstationOwnershipSecurity);
 
             _credentialProviderConnection.Start();
 
@@ -145,7 +145,7 @@ namespace ServiceLibrary.Implementation
             _workstationLocker.Start();
 
             // Device Access Controller ==================================
-            if (bypassWorkstationOwnershipSecurity)
+            if (ignoreWorkstationOwnershipSecurity)
             {
                 _log.Warn("Device Access Controller is disabled due to workstation ownership options");
             }
@@ -480,19 +480,19 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        readonly string _bypassWorkstationOwnershipSecurityValueName = "bypass_workstation_ownership_security";
-        bool GetBypassWorkstationOwnershipSecurity()
+        readonly string _ignoreWorkstationOwnershipSecurityValueName = "ignore_workstation_ownership_security";
+        bool GetIgnoreWorkstationOwnershipSecurity()
         {
             var registryKey = GetAppRegistryRootKey();
             if (registryKey == null)
                 throw new Exception("Couldn't find Hideez Safe registry key. (HKLM\\SOFTWARE\\Hideez\\Safe)");
 
-            var value = registryKey.GetValue(_bypassWorkstationOwnershipSecurityValueName);
+            var value = registryKey.GetValue(_ignoreWorkstationOwnershipSecurityValueName);
             if (value == null)
                 return false;
 
             if (!(int.TryParse(value.ToString(), out int result)))
-                throw new FormatException($"{_bypassWorkstationOwnershipSecurityValueName} could not be cast to int. Check that its value has REG_SZ type");
+                throw new FormatException($"{_ignoreWorkstationOwnershipSecurityValueName} could not be cast to int. Check that its value has REG_SZ type");
 
             return (result != 0);
         }

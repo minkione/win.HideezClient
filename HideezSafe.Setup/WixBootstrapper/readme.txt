@@ -9,7 +9,7 @@
 - собрать х64 релиз WiXBootstrapper
 
 Passing argument to bootstrapper
-	hideezsafe.exe HESAddress=https://HostName InstallDongleDriver=1 BypassWorkstationOwnershipSecurity=0
+	hideezsafe.exe HESAddress=https://HostName InstallDongleDriver=1 IgnoreWorkstationOwnershipSecurity=0
 
 Passing argument to MSI
-	hideezsafe.msi HESADDRESS=https://HostName INSTALLDONGLEDRIVER=1 BYPASSWORKSTATIONOWNERSHIPSECURITY=0
+	hideezsafe.msi HESADDRESS=https://HostName INSTALLDONGLEDRIVER=1 IGNOREWORKSTATIONOWNERSHIPSECURITY=0
