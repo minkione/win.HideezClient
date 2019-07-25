@@ -167,15 +167,19 @@ namespace CustomAction
                     session.Log("(CustomActions.TryParseParameters) Couldn't parse CSR driver option");
                 }
 
-                if (byte.TryParse(session.CustomActionData["IgnoreWorkstationOwnershipSecurity"], out byte ignoreWorkstationOwnershipSecurity))
+                string ignoreWorkstationOwnershipSecurityValue = session.CustomActionData["IgnoreWorkstationOwnershipSecurity"];
+                if (!string.IsNullOrEmpty(ignoreWorkstationOwnershipSecurityValue))
                 {
-                    parameters.IgnoreWorkstationOwnershipSecurity = ignoreWorkstationOwnershipSecurity != 0;
-                    session.Log("(CustomActions.TryParseParameters) IgnoreWorkstationOwnershipSecurity option parsed");
-                }
-                else
-                {
-                    success = false;
-                    session.Log("(CustomActions.TryParseParameters) Couldn't parse IgnoreWorkstationOwnershipSecurity option");
+                    if (byte.TryParse(ignoreWorkstationOwnershipSecurityValue, out byte ignoreWorkstationOwnershipSecurity))
+                    {
+                        parameters.IgnoreWorkstationOwnershipSecurity = ignoreWorkstationOwnershipSecurity != 0;
+                        session.Log("(CustomActions.TryParseParameters) IgnoreWorkstationOwnershipSecurity option parsed");
+                    }
+                    else
+                    {
+                        success = false;
+                        session.Log("(CustomActions.TryParseParameters) Couldn't parse IgnoreWorkstationOwnershipSecurity option");
+                    }
                 }
 
                 try

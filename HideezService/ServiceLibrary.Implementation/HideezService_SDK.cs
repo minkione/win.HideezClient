@@ -489,10 +489,13 @@ namespace ServiceLibrary.Implementation
 
             var value = registryKey.GetValue(_ignoreWorkstationOwnershipSecurityValueName);
             if (value == null)
+            {
+                _log.Warn($"{_ignoreWorkstationOwnershipSecurityValueName} value is null or empty.");
                 return false;
+            }
 
             if (!(int.TryParse(value.ToString(), out int result)))
-                throw new FormatException($"{_ignoreWorkstationOwnershipSecurityValueName} could not be cast to int. Check that its value has REG_SZ type");
+                throw new FormatException($"Specified {_ignoreWorkstationOwnershipSecurityValueName} is not a correct.");
 
             return (result != 0);
         }
