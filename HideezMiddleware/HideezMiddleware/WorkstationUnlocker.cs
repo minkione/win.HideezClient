@@ -316,7 +316,7 @@ namespace HideezMiddleware
                     return;
 
                 // get info from the HES to check if primary account update is needed
-                if (_hesConnection.State == HesConnectionState.Connected)
+                if (_hesConnection?.State == HesConnectionState.Connected)
                 {
                     var info = await _hesConnection.GetInfoByMac(mac);
 
@@ -456,7 +456,7 @@ namespace HideezMiddleware
                     return;
 
                 // get MAC address from the HES
-                if (_hesConnection.State == HesConnectionState.Connected)
+                if (_hesConnection?.State == HesConnectionState.Connected)
                 {
                     var info = await _hesConnection.GetInfoByMac(mac);
 
