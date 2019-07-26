@@ -27,11 +27,12 @@ namespace TestConsole
                     if (line == "q" || line == "exit")
                     {
                         Console.WriteLine("exiting...");
+                        HideezService.OnSrviceStopedAsync().Wait();
                         try
                         {
                             service.ShutdownAsync().Wait();
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message);
                         }
@@ -44,8 +45,6 @@ namespace TestConsole
                         {
                             serviceHost.Close();
                         }
-
-                        HideezService.OnSrviceStopedAsync().Wait();
                         break;
                     }
                 }

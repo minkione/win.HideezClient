@@ -56,7 +56,7 @@ namespace ServiceLibrary.Implementation
             Task task = SendEventsAsync();
         }
 
-        public async Task AddNewAsync(WorkstationEvent workstationEvent)
+        public async Task AddNewAsync(WorkstationEvent workstationEvent, bool forceSendNow = false)
         {
             await Task.Run(async () =>
             {
@@ -70,7 +70,7 @@ namespace ServiceLibrary.Implementation
                         File.WriteAllText($"{eventDirectory}{workstationEvent.Id}", json);
                     }
 
-                    if (workstationEvents.Count >= minCountForSend)
+                    if (forceSendNow || workstationEvents.Count >= minCountForSend)
                     {
                         await SendEventsAsync();
                     }

@@ -16,7 +16,6 @@ namespace HideezMiddleware.Modules
                 Date = DateTime.UtcNow,
                 Id = Guid.NewGuid().ToString(),
                 WorkstationId = Environment.MachineName,
-                UserSession = SessionSwitchManager.UserSessionName,
             };
 
             return we;
