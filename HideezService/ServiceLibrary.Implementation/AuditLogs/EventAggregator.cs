@@ -62,12 +62,15 @@ namespace ServiceLibrary.Implementation
             {
                 try
                 {
+                    log.Info("Added new workstation event.");
                     lock (lockObj)
                     {
                         workstationEvent.Version = WorkstationEvent.CurrentVersion;
                         workstationEvents.Add(workstationEvent);
                         string json = JsonConvert.SerializeObject(workstationEvent);
-                        File.WriteAllText($"{eventDirectory}{workstationEvent.Id}", json);
+                        string file = $"{eventDirectory}{workstationEvent.Id}";
+                        File.WriteAllText(file, json);
+                        // File.SetAttributes(file, FileAttributes.ReadOnly | FileAttributes.Hidden);
                     }
 
                     if (forceSendNow || workstationEvents.Count >= minCountForSend)
@@ -89,6 +92,7 @@ namespace ServiceLibrary.Implementation
             {
                 if (hesAppConnection != null && hesAppConnection.State == HesConnectionState.Connected && !IsSendToServer)
                 {
+                    log.Info("Sending to HES workstation events.");
                     IsSendToServer = true;
                     List<WorkstationEvent> newQueue = null;
                     sendTimer.Stop();
@@ -132,6 +136,7 @@ namespace ServiceLibrary.Implementation
                                     Debug.Assert(false);
                                     try
                                     {
+                                        // File.SetAttributes(file, FileAttributes.Normal);
                                         File.Delete(file);
                                     }
                                     catch (Exception e)
@@ -143,6 +148,8 @@ namespace ServiceLibrary.Implementation
                         }
 
                         await SendEventToServerAsync(newQueue);
+
+                        log.Info("End sending to HES workstation events.");
                     }
                     catch (Exception ex)
                     {
@@ -158,43 +165,64 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        private async Task SendEventToServerAsync(List<WorkstationEvent> newQueue)
+        public static IEnumerable<IEnumerable<T>> SplitIntoSets<T>(IEnumerable<T> source, int itemsPerSet)
         {
-            if (newQueue != null && newQueue.Any()
-                && hesAppConnection != null
-                && hesAppConnection.State == HesConnectionState.Connected)
+            var sourceList = source as List<T> ?? source.ToList();
+            for (var index = 0; index < sourceList.Count; index += itemsPerSet)
             {
-                try
+                yield return sourceList.Skip(index).Take(itemsPerSet);
+            }
+        }
+
+        private async Task SendEventToServerAsync(List<WorkstationEvent> listEvents)
+        {
+            foreach (var set in SplitIntoSets(listEvents, 50))
+            {
+                if (set != null && set.Any()
+                    && hesAppConnection != null
+                    && hesAppConnection.State == HesConnectionState.Connected)
                 {
-                    if (await hesAppConnection.SaveClientEventsAsync(newQueue.ToArray()))
+                    // StringBuilder sb = new StringBuilder();
+                    // foreach (var item in set)
+                    // {
+                    //    sb.Append(JsonConvert.SerializeObject(item));
+                    // }
+                    // var sizeOfMessage = System.Text.ASCIIEncoding.ASCII.GetByteCount(sb.ToString());
+
+                    try
                     {
-                        lock (lockObj)
+                        if (await hesAppConnection.SaveClientEventsAsync(set.ToArray()))
                         {
-                            foreach (var we in newQueue)
+                            lock (lockObj)
                             {
-                                try
+                                foreach (var we in set)
                                 {
-                                    int index = workstationEvents.FindIndex(e => e.Id == we.Id);
-                                    if (index >= 0)
+                                    try
                                     {
-                                        workstationEvents.RemoveAt(index);
+                                        int index = workstationEvents.FindIndex(e => e.Id == we.Id);
+                                        if (index >= 0)
+                                        {
+                                            workstationEvents.RemoveAt(index);
+                                        }
+                                        string file = $"{eventDirectory}{we.Id}";
+                                        File.Delete(file);
                                     }
-                                    File.Delete($"{eventDirectory}{we.Id}");
-                                }
-                                catch (Exception ex)
-                                {
-                                    log.Error(ex);
-                                    Debug.Assert(false);
+                                    catch (Exception ex)
+                                    {
+                                        log.Error(ex);
+                                        Debug.Assert(false);
+                                    }
                                 }
                             }
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        log.Error(ex);
+                        Debug.Assert(false);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    log.Error(ex);
-                    Debug.Assert(false);
-                }
+
             }
         }
     }
