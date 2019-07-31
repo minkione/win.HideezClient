@@ -94,6 +94,7 @@ namespace HideezSafe
                 fatalLogger.Fatal($"Unhandled exception in {assemblyName.Name} v{assemblyName.Version}");
                 fatalLogger.Fatal(e);
                 LogManager.Flush();
+                LogManager.Shutdown();
             }
             catch (Exception)
             {
@@ -113,6 +114,8 @@ namespace HideezSafe
             base.OnExit(e);
             // Unity-Container call Dispose on all instances implementing the IDisposable interface registered by ContainerControlledLifetimeManager or HierarchicalLifetimeManager.
             Container.Dispose();
+            LogManager.Flush();
+            LogManager.Shutdown();
         }
 
         protected override void OnStartup(StartupEventArgs e)

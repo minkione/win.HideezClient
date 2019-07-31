@@ -705,7 +705,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public static async Task OnSrviceStartedAsync()
+        public static async Task OnServiceStartedAsync()
         {
             WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
@@ -714,7 +714,7 @@ namespace ServiceLibrary.Implementation
             await _eventAggregator?.AddNewAsync(workstationEvent);
         }
 
-        public static async Task OnSrviceStopedAsync()
+        public static async Task OnServiceStoppedAsync()
         {
             WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
