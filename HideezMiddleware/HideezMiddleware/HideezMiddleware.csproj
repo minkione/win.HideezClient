@@ -95,6 +95,7 @@
     <Compile Include="Resources\ErrorCode.Designer.cs" />
     <Compile Include="RfidServiceConnection.cs" />
     <Compile Include="Utils\LocalToMSAccountConverter.cs" />
+    <Compile Include="Utils\MacUtils.cs" />
     <Compile Include="Utils\WorkstationHelper.cs" />
     <Compile Include="WaitPinFromCredentialProviderProc .cs" />
     <Compile Include="WorkstationInfoProvider.cs" />

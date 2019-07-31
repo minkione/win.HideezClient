@@ -90,7 +90,10 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                if (hesAppConnection != null && hesAppConnection.State == HesConnectionState.Connected && !IsSendToServer)
+                if (hesAppConnection != null 
+                    && hesAppConnection.State == HesConnectionState.Connected 
+                    && !IsSendToServer 
+                    && workstationEvents.Count > 0)
                 {
                     log.Info("Sending to HES workstation events.");
                     IsSendToServer = true;
@@ -101,6 +104,7 @@ namespace ServiceLibrary.Implementation
                         newQueue = new List<WorkstationEvent>(workstationEvents);
                     }
 
+                    log.Info($"Current event queue length: {newQueue.Count}");
                     await SendEventToServerAsync(newQueue);
 
                     newQueue.Clear();

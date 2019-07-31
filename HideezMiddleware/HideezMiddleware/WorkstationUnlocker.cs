@@ -12,6 +12,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.Settings;
+using HideezMiddleware.Utils;
 using NLog;
 
 namespace HideezMiddleware
@@ -219,18 +220,20 @@ namespace HideezMiddleware
 
         async void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
+            var mac = MacUtils.GetMacFromShortMac(e.Id);
+
             try
             {
                 // Ble tap. Rssi of -27 was calculated empirically
-                if (e.Rssi > -27 && !_bleAccessBlacklist.ContainsKey(e.Id))
+                if (e.Rssi > -27 && !_bleAccessBlacklist.ContainsKey(mac))
                 {
                     var newGuid = Guid.NewGuid();
-                    var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);
+                    var guid = _pendingUnlocks.GetOrAdd(mac, newGuid);
 
                     if (guid == newGuid)
                     {
-                        await UnlockByMac(e.Id);
-                        _pendingUnlocks.TryRemove(e.Id, out Guid removed);
+                        await UnlockByMac(mac);
+                        _pendingUnlocks.TryRemove(mac, out Guid removed);
                     }
                 }
                 else
@@ -239,23 +242,23 @@ namespace HideezMiddleware
                     // Connection occurs only when workstation is locked
                     if (_credentialProviderConnection.IsConnected 
                         && BleUtils.RssiToProximity(e.Rssi) > _connectProximity 
-                        && IsProximityAllowed(e.Id) 
-                        && !_proximityAccessBlacklist.ContainsKey(e.Id))
+                        && IsProximityAllowed(mac) 
+                        && !_proximityAccessBlacklist.ContainsKey(mac))
                     {
                         var newGuid = Guid.NewGuid();
-                        var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);
+                        var guid = _pendingUnlocks.GetOrAdd(mac, newGuid);
 
                         if (guid == newGuid)
                         {
                             try
                             {
-                                await UnlockByProximity(e.Id);
-                                _pendingUnlocks.TryRemove(e.Id, out Guid removed);
+                                await UnlockByProximity(mac);
+                                _pendingUnlocks.TryRemove(mac, out Guid removed);
                             }
                             finally
                             {
                                 // Max of 1 attempt per device, either successfull or no
-                                _proximityAccessBlacklist.GetOrAdd(e.Id, e.Id);
+                                _proximityAccessBlacklist.GetOrAdd(mac, mac);
                             }
                         }
                     }
@@ -264,7 +267,7 @@ namespace HideezMiddleware
             catch (Exception ex)
             {
                 _log.Error(ex);
-                _pendingUnlocks.TryRemove(e.Id, out Guid removed);
+                _pendingUnlocks.TryRemove(mac, out Guid removed);
             }
         }
 
@@ -287,10 +290,10 @@ namespace HideezMiddleware
             {
                 ActivateWorkstationScreen();
 
-                string deviceId = mac.Replace(":", "");
+                string shortMac = MacUtils.ConvertMacToShortMac(mac);
 
                 // Prevent access for unauthorized devices
-                if (!IsBleTapAllowed(deviceId))
+                if (!IsBleTapAllowed(mac))
                 {
                     _bleAccessBlacklist.GetOrAdd(mac, mac);
                     throw new AccessDeniedAuthException();
@@ -371,7 +374,7 @@ namespace HideezMiddleware
                     throw new Exception($"Device not found");
 
                 // Prevent access for unauthorized devices
-                if (!IsRfidAllowed(info.DeviceMac.Replace(":", "")))
+                if (!IsRfidAllowed(info.DeviceMac))
                 {
                     _rfidAccessBlacklist.GetOrAdd(rfid, rfid);
                     throw new AccessDeniedAuthException();
@@ -430,10 +433,8 @@ namespace HideezMiddleware
             {
                 ActivateWorkstationScreen();
 
-                string deviceId = mac.Replace(":", "");
-
                 // Prevent access for unauthorized devices
-                if (!IsProximityAllowed(deviceId))
+                if (!IsProximityAllowed(mac))
                     throw new AccessDeniedAuthException();
 
                 await _credentialProviderConnection.SendNotification("Connecting to the device...");
