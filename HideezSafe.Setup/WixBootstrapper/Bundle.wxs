@@ -25,10 +25,11 @@
               bal:Overridable="yes"
               Type="numeric"
               Value="1" />
-    <Variable Name="BypassWorkstationOwnershipSecurity"
+    <Variable Name="IgnoreWorkstationOwnershipSecurity"
+              Value=""
               bal:Overridable="yes"
-              Type="numeric"
-              Value="0" />
+              Hidden="yes"
+              Type="string" />
 
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
       <bal:WixStandardBootstrapperApplication LicenseFile="Legal.rtf"
@@ -80,8 +81,8 @@
                      Value="[HESAddress]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
                      Value="[InstallDongleDriver]" />
-        <MsiProperty Name="BYPASSWORKSTATIONOWNERSHIPSECURITY"
-                     Value="[BypassWorkstationOwnershipSecurity]" />
+        <MsiProperty Name="IGNOREWORKSTATIONOWNERSHIPSECURITY"
+                     Value="[IgnoreWorkstationOwnershipSecurity]" />
       </MsiPackage>
 
       <MsiPackage DisplayInternalUI="no"
@@ -93,8 +94,8 @@
                      Value="[HESAddress]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
                      Value="[InstallDongleDriver]" />
-        <MsiProperty Name="BYPASSWORKSTATIONOWNERSHIPSECURITY"
-                     Value="[BypassWorkstationOwnershipSecurity]" />
+        <MsiProperty Name="IGNOREWORKSTATIONOWNERSHIPSECURITY"
+                     Value="[IgnoreWorkstationOwnershipSecurity]" />
       </MsiPackage>
     </Chain>
   </Bundle>

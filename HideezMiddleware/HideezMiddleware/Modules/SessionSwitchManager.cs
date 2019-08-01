@@ -80,7 +80,7 @@ namespace HideezMiddleware
                         @event.Invoke(workstationEvent);
                     }
 
-                    if(reason == SessionSwitchReason.SessionLogoff)
+                    if (reason == SessionSwitchReason.SessionLogoff)
                     {
                         UserSessionName = "SYSTEM";
                     }

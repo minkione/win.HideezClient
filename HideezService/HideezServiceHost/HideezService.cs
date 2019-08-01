@@ -45,7 +45,7 @@ namespace HideezServiceHost
                 // Disconnect from service
                 service.Close();
 
-                await ServiceLibrary.Implementation.HideezService.OnSrviceStartedAsync();
+                await ServiceLibrary.Implementation.HideezService.OnServiceStartedAsync();
             }
             catch (Exception ex)
             {
@@ -56,7 +56,7 @@ namespace HideezServiceHost
 
         protected override void OnShutdown()
         {
-            Task t = ServiceLibrary.Implementation.HideezService.OnSrviceStopedAsync();
+            ServiceLibrary.Implementation.HideezService.OnServiceStoppedAsync().Wait();
             base.OnShutdown();
         }
 
@@ -64,7 +64,7 @@ namespace HideezServiceHost
         {
             try
             {
-                Task t = ServiceLibrary.Implementation.HideezService.OnSrviceStopedAsync();
+                ServiceLibrary.Implementation.HideezService.OnServiceStoppedAsync().Wait();
 
                 // connect and ask the service to finish all works and close all connections
                 var callback = new HideezServiceCallbacks();

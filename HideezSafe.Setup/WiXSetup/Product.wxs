@@ -169,7 +169,6 @@
 
     <!-- Public Variables -->
     <Property Id="INSTALLDONGLEDRIVER" Secure="yes" Value="1" />
-    <Property Id="BYPASSWORKSTATIONOWNERSHIPSECURITY" Secure="yes" Value="0" />
     
     <!-- Preserve saved HES Address on updates -->
     <Property Id="SAVEDHESADDRESS" Secure="yes">
@@ -181,12 +180,12 @@
     </Property>
     <!-- ... -->
     
-<!-- Preserve saved BypassWorkstationOwnershipSecurity on updates -->
-    <Property Id="SAVEDBYPASSWORKSTATIONOWNERSHIPSECURITY" Secure="yes">
-      <RegistrySearch Id="FindSavedBYPASSWORKSTATIONOWNERSHIPSECURITY"
+<!-- Preserve saved IgnoreWorkstationOwnershipSecurity on updates -->
+    <Property Id="SAVEDIGNOREWORKSTATIONOWNERSHIPSECURITY" Secure="yes" Value="0">
+      <RegistrySearch Id="FindSavedIGNOREWORKSTATIONOWNERSHIPSECURITY"
                       Root="HKLM"
                       Key="SOFTWARE\Hideez\Safe"
-                      Name="bypass_workstation_ownership_security"
+                      Name="ignore_workstation_ownership_security"
                       Type="raw" />
     </Property>
     <!-- ... -->
@@ -225,8 +224,7 @@
   <!-- Hideez Service -->
   <Fragment>
     <SetProperty Id="HESADDRESS" After="CostFinalize" Value="[SAVEDHESADDRESS]">Not HESADDRESS</SetProperty>
-    <SetProperty Id="BYPASSWORKSTATIONOWNERSHIPSECURITY" After="CostFinalize" Value="[SAVEDBYPASSWORKSTATIONOWNERSHIPSECURITY]">Not BYPASSWORKSTATIONOWNERSHIPSECURITY</SetProperty>
-
+    <SetProperty Id="IGNOREWORKSTATIONOWNERSHIPSECURITY" After="CostFinalize" Value="[SAVEDIGNOREWORKSTATIONOWNERSHIPSECURITY]">Not IGNOREWORKSTATIONOWNERSHIPSECURITY</SetProperty>
     <ComponentGroup Id="HideezService" Directory="service">
       <Component Id="HideezServiceHost.exe" Guid="{FB54A20C-310F-474A-91E2-835AC3A34485}">
         <File Id="HideezServiceHost.exe" Name="HideezServiceHost.exe" KeyPath="yes" Source="$(var.HideezServiceHost_TargetDir)HideezServiceHost.exe" />
@@ -272,7 +270,7 @@
 
       <Component Id="BypassWorkstationOwnershipSecurityWriteToRegistry" Guid="{58752957-297D-45BF-9909-387EC9D6C90C}">
         <RegistryKey Root="HKLM" Key="SOFTWARE\Hideez\Safe" >
-          <RegistryValue Type="integer" Name="bypass_workstation_ownership_security" Value="[BYPASSWORKSTATIONOWNERSHIPSECURITY]" />
+          <RegistryValue Type="string" Name="ignore_workstation_ownership_security" Value="[IGNOREWORKSTATIONOWNERSHIPSECURITY]" />
         </RegistryKey>
       </Component>
       
@@ -831,7 +829,7 @@
   <Fragment>
     <CustomAction Id="DataForSetupCustomComponentsAction"
                   Property="SetupCustomComponentsAction"
-                  Value="HesAddress=[HESADDRESS];InstallDongleDriver=[INSTALLDONGLEDRIVER];CsrDriverPath=[CSRDRIVERPATH]" />
+                  Value="HesAddress=[HESADDRESS];InstallDongleDriver=[INSTALLDONGLEDRIVER];CsrDriverPath=[CSRDRIVERPATH];IgnoreWorkstationOwnershipSecurity=[IGNOREWORKSTATIONOWNERSHIPSECURITY]" />
     <Binary Id="CustomActionSetup" SourceFile="$(var.CustomAction.TargetDir)CustomAction.CA.dll"/>
     <CustomAction Id="SetupCustomComponentsAction" 
                   BinaryKey="CustomActionSetup" 

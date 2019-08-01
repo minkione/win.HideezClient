@@ -25,6 +25,7 @@ namespace HideezServiceHost
                 var log = LogManager.GetCurrentClassLogger();
                 log.Fatal("An unhandled exception occured in service");
                 log.Fatal(ex);
+                LogManager.Flush();
                 Environment.FailFast(ex.Message);
             }
         }

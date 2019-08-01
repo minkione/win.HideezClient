@@ -1012,7 +1012,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                //await device.Device.Access(DateTime.UtcNow, Encoding.UTF8.GetBytes("passphrase"));
+                await device.Device.Access(DateTime.UtcNow, Encoding.UTF8.GetBytes("passphrase"));
             }
             catch (Exception ex)
             {

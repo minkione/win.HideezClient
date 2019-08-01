@@ -12,6 +12,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.Settings;
+using HideezMiddleware.Utils;
 using NLog;
 
 namespace HideezMiddleware
@@ -31,7 +32,7 @@ namespace HideezMiddleware
         readonly IBleConnectionManager _connectionManager;
         readonly IScreenActivator _screenActivator;
         readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
-        readonly bool _bypassWorkstationOwnershipSecurity;
+        readonly bool _ignoreWorkstationOwnershipSecurity;
 
         HesAppConnection _hesConnection;
 
@@ -58,15 +59,19 @@ namespace HideezMiddleware
             IBleConnectionManager connectionManager,
             IScreenActivator screenActivator,
             ISettingsManager<UnlockerSettings> unlockerSettingsManager,
-            bool bypassWorkstationOwnershipSecurity = true)
+            bool ignoreWorkstationOwnershipSecurity = false)
         {
+#if DEBUG
+            ignoreWorkstationOwnershipSecurity = true;
+#endif
+
             _deviceManager = deviceManager;
             _credentialProviderConnection = credentialProviderConnection;
             _rfidService = rfidService;
             _connectionManager = connectionManager;
             _screenActivator = screenActivator;
             _unlockerSettingsManager = unlockerSettingsManager;
-            _bypassWorkstationOwnershipSecurity = bypassWorkstationOwnershipSecurity;
+            _ignoreWorkstationOwnershipSecurity = ignoreWorkstationOwnershipSecurity;
 
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
@@ -208,29 +213,31 @@ namespace HideezMiddleware
 
         bool IsRfidAllowed(string mac)
         {
-            return _bypassWorkstationOwnershipSecurity || _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowRfid);
+            return _ignoreWorkstationOwnershipSecurity || _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowRfid);
         }
 
         bool IsBleTapAllowed(string mac)
         {
-            return _bypassWorkstationOwnershipSecurity || _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowBleTap);
+            return _ignoreWorkstationOwnershipSecurity || _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowBleTap);
         }
         #endregion
 
         async void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
+            var mac = MacUtils.GetMacFromShortMac(e.Id);
+
             try
             {
                 // Ble tap. Rssi of -27 was calculated empirically
-                if (e.Rssi > -27 && !_bleAccessBlacklist.ContainsKey(e.Id))
+                if (e.Rssi > -27 && !_bleAccessBlacklist.ContainsKey(mac))
                 {
                     var newGuid = Guid.NewGuid();
-                    var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);
+                    var guid = _pendingUnlocks.GetOrAdd(mac, newGuid);
 
                     if (guid == newGuid)
                     {
-                        await UnlockByMac(e.Id);
-                        _pendingUnlocks.TryRemove(e.Id, out Guid removed);
+                        await UnlockByMac(mac);
+                        _pendingUnlocks.TryRemove(mac, out Guid removed);
                     }
                 }
                 else
@@ -239,23 +246,23 @@ namespace HideezMiddleware
                     // Connection occurs only when workstation is locked
                     if (_credentialProviderConnection.IsConnected 
                         && BleUtils.RssiToProximity(e.Rssi) > _connectProximity 
-                        && IsProximityAllowed(e.Id) 
-                        && !_proximityAccessBlacklist.ContainsKey(e.Id))
+                        && IsProximityAllowed(mac) 
+                        && !_proximityAccessBlacklist.ContainsKey(mac))
                     {
                         var newGuid = Guid.NewGuid();
-                        var guid = _pendingUnlocks.GetOrAdd(e.Id, newGuid);
+                        var guid = _pendingUnlocks.GetOrAdd(mac, newGuid);
 
                         if (guid == newGuid)
                         {
                             try
                             {
-                                await UnlockByProximity(e.Id);
-                                _pendingUnlocks.TryRemove(e.Id, out Guid removed);
+                                await UnlockByProximity(mac);
+                                _pendingUnlocks.TryRemove(mac, out Guid removed);
                             }
                             finally
                             {
                                 // Max of 1 attempt per device, either successfull or no
-                                _proximityAccessBlacklist.GetOrAdd(e.Id, e.Id);
+                                _proximityAccessBlacklist.GetOrAdd(mac, mac);
                             }
                         }
                     }
@@ -264,7 +271,7 @@ namespace HideezMiddleware
             catch (Exception ex)
             {
                 _log.Error(ex);
-                _pendingUnlocks.TryRemove(e.Id, out Guid removed);
+                _pendingUnlocks.TryRemove(mac, out Guid removed);
             }
         }
 
@@ -281,25 +288,43 @@ namespace HideezMiddleware
             }
         }
 
+        async Task<IDevice> ConnectDevice(string mac)
+        {
+            await _credentialProviderConnection.SendNotification("Connecting to the device...");
+            var device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
+            if (device == null)
+            {
+                await _deviceManager.RemoveByMac(mac);
+                throw new Exception($"Failed to connect device '{mac}'. Please try again.");
+            }
+            return device;
+        }
+
+        async Task WaitDeviceInitialization(string mac, IDevice device)
+        {
+            await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
+            await device.WaitInitialization(BleDefines.DeviceInitializationTimeout);
+            if (device.IsErrorState)
+            {
+                await _deviceManager.Remove(device);
+                throw new Exception($"Failed to initialize device connection '{mac}'. Please try again.");
+            }
+        }
+
         public async Task UnlockByMac(string mac)
         {
             try
             {
                 ActivateWorkstationScreen();
 
-                string deviceId = mac.Replace(":", "");
-
                 // Prevent access for unauthorized devices
-                if (!IsBleTapAllowed(deviceId))
+                if (!IsBleTapAllowed(mac))
                 {
                     _bleAccessBlacklist.GetOrAdd(mac, mac);
                     throw new AccessDeniedAuthException();
                 }
 
-                await _credentialProviderConnection.SendNotification("Connecting to the device...");
-                var device = await _deviceManager.ConnectByMac(mac, timeout: 20_000);
-                if (device == null)
-                    throw new Exception($"Cannot connect device '{mac}'");
+                IDevice device = await ConnectDevice(mac);
 
                 //await _credentialProviderConnection.SendNotification("Please enter the PIN...");
                 //string pin = await new WaitPinFromCredentialProviderProc(_credentialProviderConnection).Run(20_000);
@@ -308,15 +333,14 @@ namespace HideezMiddleware
 
                 //todo - verify PIN code
 
-                await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
-                await device.WaitInitialization(timeout: 10_000);
+                await WaitDeviceInitialization(mac, device);
 
                 // No point in reading credentials if CredentialProvider is not connected
                 if (!_credentialProviderConnection.IsConnected)
                     return;
 
                 // get info from the HES to check if primary account update is needed
-                if (_hesConnection.State == HesConnectionState.Connected)
+                if (_hesConnection?.State == HesConnectionState.Connected)
                 {
                     var info = await _hesConnection.GetInfoByMac(mac);
 
@@ -331,8 +355,8 @@ namespace HideezMiddleware
                 ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
                 var credentials = await GetCredentials(device, primaryAccountKey);
 
-                //SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Dongle, info.DeviceSerialNo);
                 SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Dongle, device.SerialNo);
+
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
@@ -371,16 +395,14 @@ namespace HideezMiddleware
                     throw new Exception($"Device not found");
 
                 // Prevent access for unauthorized devices
-                if (!IsRfidAllowed(info.DeviceMac.Replace(":", "")))
+                if (!IsRfidAllowed(info.DeviceMac))
                 {
                     _rfidAccessBlacklist.GetOrAdd(rfid, rfid);
                     throw new AccessDeniedAuthException();
                 }
 
-                await _credentialProviderConnection.SendNotification("Connecting to the device...");
-                var device = await _deviceManager.ConnectByMac(info.DeviceMac, timeout: 20_000);
-                if (device == null)
-                    throw new Exception($"Cannot connect device '{info.DeviceMac}'");
+                IDevice device = await ConnectDevice(info.DeviceMac);
+
 
                 //await _credentialProviderConnection.SendNotification("Please enter the PIN...");
                 //string pin = await new WaitPinFromCredentialProviderProc(_credentialProviderConnection).Run(20_000);
@@ -389,8 +411,7 @@ namespace HideezMiddleware
 
                 //todo - verify PIN code
 
-                await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
-                await device.WaitInitialization(timeout: 10_000);
+                await WaitDeviceInitialization(info.DeviceMac, device);
 
                 // No point in reading credentials if CredentialProvider is not connected
                 if (!_credentialProviderConnection.IsConnected)
@@ -403,6 +424,7 @@ namespace HideezMiddleware
                 var credentials = await GetCredentials(device, info.IdFromDevice);
 
                 SessionSwitchManager.SetEventSubject(SessionSwitchSubject.RFID, info.DeviceSerialNo);
+
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
@@ -430,16 +452,11 @@ namespace HideezMiddleware
             {
                 ActivateWorkstationScreen();
 
-                string deviceId = mac.Replace(":", "");
-
                 // Prevent access for unauthorized devices
-                if (!IsProximityAllowed(deviceId))
+                if (!IsProximityAllowed(mac))
                     throw new AccessDeniedAuthException();
 
-                await _credentialProviderConnection.SendNotification("Connecting to the device...");
-                var device = await _deviceManager.ConnectByMac(mac, timeout: 20_000);
-                if (device == null)
-                    throw new Exception($"Cannot connect device '{mac}'");
+                IDevice device = await ConnectDevice(mac);
 
                 //await _credentialProviderConnection.SendNotification("Please enter the PIN...");
                 //string pin = await new WaitPinFromCredentialProviderProc(_credentialProviderConnection).Run(20_000);
@@ -448,15 +465,14 @@ namespace HideezMiddleware
 
                 //todo - verify PIN code
 
-                await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
-                await device.WaitInitialization(timeout: 10_000);
+                await WaitDeviceInitialization(mac, device);
 
                 // No point in reading credentials if CredentialProvider is not connected
                 if (!_credentialProviderConnection.IsConnected)
                     return;
 
                 // get MAC address from the HES
-                if (_hesConnection.State == HesConnectionState.Connected)
+                if (_hesConnection?.State == HesConnectionState.Connected)
                 {
                     var info = await _hesConnection.GetInfoByMac(mac);
 
@@ -472,6 +488,7 @@ namespace HideezMiddleware
                 var credentials = await GetCredentials(device, primaryAccountKey);
 
                 SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
+
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
