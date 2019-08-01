@@ -61,6 +61,10 @@ namespace HideezMiddleware
             ISettingsManager<UnlockerSettings> unlockerSettingsManager,
             bool ignoreWorkstationOwnershipSecurity = false)
         {
+#if DEBUG
+            ignoreWorkstationOwnershipSecurity = true;
+#endif
+
             _deviceManager = deviceManager;
             _credentialProviderConnection = credentialProviderConnection;
             _rfidService = rfidService;
@@ -284,13 +288,36 @@ namespace HideezMiddleware
             }
         }
 
+        async Task<IDevice> ConnectDevice(string mac)
+        {
+            await _credentialProviderConnection.SendNotification("Connecting to the device...");
+            var device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
+            if (device == null)
+            {
+                await _deviceManager.RemoveByMac(mac);
+                throw new Exception($"Failed to connect device '{mac}'. Please try again.");
+            }
+            return device;
+        }
+
+        async Task WaitDeviceInitialization(string mac, IDevice device)
+        {
+            await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
+            await device.WaitInitialization(BleDefines.DeviceInitializationTimeout);
+            if (device.IsErrorState)
+            {
+                await _deviceManager.Remove(device);
+                throw new Exception($"Failed to initialize device connection '{mac}'. Please try again.");
+            }
+        }
+
         public async Task UnlockByMac(string mac)
         {
             try
             {
                 ActivateWorkstationScreen();
 
-                string shortMac = MacUtils.ConvertMacToShortMac(mac);
+                //string shortMac = MacUtils.ConvertMacToShortMac(mac);
 
                 // Prevent access for unauthorized devices
                 if (!IsBleTapAllowed(mac))
@@ -299,10 +326,7 @@ namespace HideezMiddleware
                     throw new AccessDeniedAuthException();
                 }
 
-                await _credentialProviderConnection.SendNotification("Connecting to the device...");
-                var device = await _deviceManager.ConnectByMac(mac, timeout: 20_000);
-                if (device == null)
-                    throw new Exception($"Cannot connect device '{mac}'");
+                IDevice device = await ConnectDevice(mac);
 
                 //await _credentialProviderConnection.SendNotification("Please enter the PIN...");
                 //string pin = await new WaitPinFromCredentialProviderProc(_credentialProviderConnection).Run(20_000);
@@ -311,8 +335,7 @@ namespace HideezMiddleware
 
                 //todo - verify PIN code
 
-                await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
-                await device.WaitInitialization(timeout: 10_000);
+                await WaitDeviceInitialization(mac, device);
 
                 // No point in reading credentials if CredentialProvider is not connected
                 if (!_credentialProviderConnection.IsConnected)
@@ -336,6 +359,7 @@ namespace HideezMiddleware
 
                 //SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Dongle, info.DeviceSerialNo);
                 SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Dongle, device.SerialNo);
+
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
@@ -380,10 +404,8 @@ namespace HideezMiddleware
                     throw new AccessDeniedAuthException();
                 }
 
-                await _credentialProviderConnection.SendNotification("Connecting to the device...");
-                var device = await _deviceManager.ConnectByMac(info.DeviceMac, timeout: 20_000);
-                if (device == null)
-                    throw new Exception($"Cannot connect device '{info.DeviceMac}'");
+                IDevice device = await ConnectDevice(info.DeviceMac);
+
 
                 //await _credentialProviderConnection.SendNotification("Please enter the PIN...");
                 //string pin = await new WaitPinFromCredentialProviderProc(_credentialProviderConnection).Run(20_000);
@@ -392,8 +414,7 @@ namespace HideezMiddleware
 
                 //todo - verify PIN code
 
-                await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
-                await device.WaitInitialization(timeout: 10_000);
+                await WaitDeviceInitialization(info.DeviceMac, device);
 
                 // No point in reading credentials if CredentialProvider is not connected
                 if (!_credentialProviderConnection.IsConnected)
@@ -406,6 +427,7 @@ namespace HideezMiddleware
                 var credentials = await GetCredentials(device, info.IdFromDevice);
 
                 SessionSwitchManager.SetEventSubject(SessionSwitchSubject.RFID, info.DeviceSerialNo);
+
                 // send credentials to the Credential Provider to unlock the PC
                 await _credentialProviderConnection.SendNotification("Unlocking the PC...");
                 await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
