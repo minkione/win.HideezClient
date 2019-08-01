@@ -121,7 +121,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        public ICommand StorageKeyDeviceCommand
+        public ICommand AccessDeviceCommand
         {
             get
             {
@@ -133,7 +133,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        StorageKeyDevice(CurrentDevice);
+                        AccessDevice(CurrentDevice);
                     }
                 };
             }
@@ -373,6 +373,24 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand ReadDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        ReadDevice(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         public ICommand WriteDeviceCommand
         {
             get
@@ -386,6 +404,24 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         WriteDevice(CurrentDevice);
+                    }
+                };
+            }
+        }
+
+        public ICommand LoadDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        LoadDevice(CurrentDevice);
                     }
                 };
             }
@@ -765,12 +801,28 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        async void ReadDevice(DeviceViewModel device)
+        {
+            try
+            {
+                var readResult = await device.Device.ReadStorageAsString(35, 1);
+
+                if (readResult == null)
+                    MessageBox.Show("Empty");
+                else
+                    MessageBox.Show(readResult);
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
         async void WriteDevice(DeviceViewModel device)
         {
             try
             {
-                var readResult = await device.Device.ReadStorage(35, 15);
-
                 var pm = new DevicePasswordManager(device.Device, _log);
 
                 // array of records
@@ -817,8 +869,18 @@ namespace WinSampleApp.ViewModel
                     //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6) 
                     //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6)
                     );
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
-                // load 
+        async void LoadDevice(DeviceViewModel device)
+        {
+            try
+            {
+                var pm = new DevicePasswordManager(device.Device, _log);
                 await pm.Load();
             }
             catch (Exception ex)
@@ -946,11 +1008,11 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void StorageKeyDevice(DeviceViewModel device)
+        async void AccessDevice(DeviceViewModel device)
         {
             try
             {
-                await device.Device.StorageKey(Encoding.UTF8.GetBytes("passphrase"));
+                //await device.Device.Access(DateTime.UtcNow, Encoding.UTF8.GetBytes("passphrase"));
             }
             catch (Exception ex)
             {

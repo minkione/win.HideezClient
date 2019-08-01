@@ -58,7 +58,7 @@ namespace HideezMiddleware
             IBleConnectionManager connectionManager,
             IScreenActivator screenActivator,
             ISettingsManager<UnlockerSettings> unlockerSettingsManager,
-            bool bypassWorkstationOwnershipSecurity = false)
+            bool bypassWorkstationOwnershipSecurity = true)
         {
             _deviceManager = deviceManager;
             _credentialProviderConnection = credentialProviderConnection;
