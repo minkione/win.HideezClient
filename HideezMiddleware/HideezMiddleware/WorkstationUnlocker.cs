@@ -162,40 +162,44 @@ namespace HideezMiddleware
 
         async void SendStatusToCredentialProvider()
         {
-            try
+            var statuses = new List<string>();
+
+            // Bluetooth
+            switch (_connectionManager.State)
             {
-                var statuses = new List<string>();
-
-                // Bluetooth
-                switch (_connectionManager.State)
-                {
-                    case BluetoothAdapterState.PoweredOn:
-                    case BluetoothAdapterState.LoadingKnownDevices:
-                        break;
-                    default:
-                        statuses.Add($"Bluetooth not available (state: {_connectionManager.State})");
-                        break;
-                }
-
-                // RFID
-                if (!_rfidService.ServiceConnected)
-                    statuses.Add("RFID service not connected");
-                else if (!_rfidService.ReaderConnected)
-                    statuses.Add("RFID reader not connected");
-
-                // Server
-                if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
-                    statuses.Add("HES not connected");
-
-                if (statuses.Count > 0)
-                    await _credentialProviderConnection.SendStatus($"ERROR: {string.Join("; ", statuses)}");
-                else
-                    await _credentialProviderConnection.SendStatus(string.Empty);
+                case BluetoothAdapterState.PoweredOn:
+                case BluetoothAdapterState.LoadingKnownDevices:
+                    break;
+                default:
+                    statuses.Add($"Bluetooth not available (state: {_connectionManager.State})");
+                    break;
             }
-            catch (Exception ex)
-            {
-                _log.Debug(ex);
-            }
+
+            // RFID
+            if (!_rfidService.ServiceConnected)
+                statuses.Add("RFID service not connected");
+            else if (!_rfidService.ReaderConnected)
+                statuses.Add("RFID reader not connected");
+
+            // Server
+            if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
+                statuses.Add("HES not connected");
+
+            if (statuses.Count > 0)
+                await _credentialProviderConnection.SendStatus($"ERROR: {string.Join("; ", statuses)}");
+            else
+                await _credentialProviderConnection.SendStatus(string.Empty);
+
+        }
+
+        async Task SendNotificationAsync(string notification)
+        {
+            await _credentialProviderConnection.SendNotification(notification);
+        }
+
+        async Task SendErrorAsync(string error)
+        {
+            await _credentialProviderConnection.SendError(error);
         }
 
         #endregion
@@ -290,7 +294,7 @@ namespace HideezMiddleware
 
         async Task<IDevice> ConnectDevice(string mac)
         {
-            await _credentialProviderConnection.SendNotification("Connecting to the device...");
+            await SendNotificationAsync("Connecting to the device...");
             var device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
             if (device == null)
             {
@@ -302,12 +306,69 @@ namespace HideezMiddleware
 
         async Task WaitDeviceInitialization(string mac, IDevice device)
         {
-            await _credentialProviderConnection.SendNotification("Waiting for the device initialization...");
+            await SendNotificationAsync("Waiting for the device initialization...");
             await device.WaitInitialization(BleDefines.DeviceInitializationTimeout);
             if (device.IsErrorState)
             {
                 await _deviceManager.Remove(device);
                 throw new Exception($"Failed to initialize device connection '{mac}'. Please try again.");
+            }
+        }
+
+        /// <summary>
+        /// Unlock workstation using device with specified mac address
+        /// </summary>
+        /// <exception cref="HideezException" />
+        /// <exception cref="Exception" />
+        async Task UnlockWorkstation(string mac, SessionSwitchSubject unlockMethod, UserInfo info = null)
+        {
+            try
+            {
+                IDevice device = await ConnectDevice(mac);
+
+                await WaitDeviceInitialization(mac, device);
+
+                // No point in reading credentials if CredentialProvider is not connected
+                if (!_credentialProviderConnection.IsConnected)
+                    return;
+
+                // get info from the HES to check if primary account update is needed
+                if (_hesConnection?.State == HesConnectionState.Connected)
+                {
+                    if (info == null)
+                        info = await _hesConnection.GetInfoByMac(mac);
+
+                    if (info == null)
+                        throw new Exception($"Device not found");
+
+                    await SendNotificationAsync("Waiting for the primary account update...");
+                    await WaitForPrimaryAccountUpdate(info);
+                }
+
+                await SendNotificationAsync("Reading credentials from the device...");
+                ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
+                var credentials = await GetCredentials(device, primaryAccountKey);
+
+                SessionSwitchManager.SetEventSubject(unlockMethod, device.SerialNo);
+
+                // send credentials to the Credential Provider to unlock the PC
+                await SendNotificationAsync("Unlocking the PC...");
+                await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+            }
+            catch (HideezException ex)
+            {
+                var message = HideezExceptionLocalization.GetErrorAsString(ex);
+                _log.Error(message);
+                await SendNotificationAsync("");
+                await SendErrorAsync(message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                await SendNotificationAsync("");
+                await SendErrorAsync(ex.Message);
+                throw;
             }
         }
 
@@ -324,56 +385,13 @@ namespace HideezMiddleware
                     throw new AccessDeniedAuthException();
                 }
 
-                IDevice device = await ConnectDevice(mac);
-
-                //await _credentialProviderConnection.SendNotification("Please enter the PIN...");
-                //string pin = await new WaitPinFromCredentialProviderProc(_credentialProviderConnection).Run(20_000);
-                //if (pin == null)
-                //    throw new Exception($"PIN timeout");
-
-                //todo - verify PIN code
-
-                await WaitDeviceInitialization(mac, device);
-
-                // No point in reading credentials if CredentialProvider is not connected
-                if (!_credentialProviderConnection.IsConnected)
-                    return;
-
-                // get info from the HES to check if primary account update is needed
-                if (_hesConnection?.State == HesConnectionState.Connected)
-                {
-                    var info = await _hesConnection.GetInfoByMac(mac);
-
-                    if (info == null)
-                        throw new Exception($"Device not found");
-
-                    await _credentialProviderConnection.SendNotification("Waiting for the primary account update...");
-                    await WaitForPrimaryAccountUpdate(info);
-                }
-
-                await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
-                ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
-                var credentials = await GetCredentials(device, primaryAccountKey);
-
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Dongle, device.SerialNo);
-
-                // send credentials to the Credential Provider to unlock the PC
-                await _credentialProviderConnection.SendNotification("Unlocking the PC...");
-                await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+                await UnlockWorkstation(mac, SessionSwitchSubject.Dongle);
             }
-            catch (HideezException ex)
-            {
-                var message = HideezExceptionLocalization.GetErrorAsString(ex);
-                _log.Error(message);
-                await _credentialProviderConnection.SendNotification("");
-                await _credentialProviderConnection.SendError(message);
-                throw;
-            }
-            catch (Exception ex)
+            catch (AccessDeniedAuthException ex)
             {
                 _log.Error(ex);
-                await _credentialProviderConnection.SendNotification("");
-                await _credentialProviderConnection.SendError(ex.Message);
+                await SendNotificationAsync("");
+                await SendErrorAsync(ex.Message);
                 throw;
             }
         }
@@ -383,7 +401,7 @@ namespace HideezMiddleware
             try
             {
                 ActivateWorkstationScreen();
-                await _credentialProviderConnection.SendNotification("Connecting to the HES server...");
+                await SendNotificationAsync("Connecting to the HES server...");
 
                 if (_hesConnection == null)
                     throw new Exception("Cannot connect device. Not connected to the HES.");
@@ -401,47 +419,13 @@ namespace HideezMiddleware
                     throw new AccessDeniedAuthException();
                 }
 
-                IDevice device = await ConnectDevice(info.DeviceMac);
-
-
-                //await _credentialProviderConnection.SendNotification("Please enter the PIN...");
-                //string pin = await new WaitPinFromCredentialProviderProc(_credentialProviderConnection).Run(20_000);
-                //if (pin == null)
-                //    throw new Exception($"PIN timeout");
-
-                //todo - verify PIN code
-
-                await WaitDeviceInitialization(info.DeviceMac, device);
-
-                // No point in reading credentials if CredentialProvider is not connected
-                if (!_credentialProviderConnection.IsConnected)
-                    return;
-
-                await _credentialProviderConnection.SendNotification("Waiting for the primary account update...");
-                await WaitForPrimaryAccountUpdate(rfid, info);
-
-                await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
-                var credentials = await GetCredentials(device, info.IdFromDevice);
-
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.RFID, info.DeviceSerialNo);
-
-                // send credentials to the Credential Provider to unlock the PC
-                await _credentialProviderConnection.SendNotification("Unlocking the PC...");
-                await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+                await UnlockWorkstation(info.DeviceMac, SessionSwitchSubject.RFID, info);
             }
-            catch (HideezException ex)
-            {
-                var message = HideezExceptionLocalization.GetErrorAsString(ex);
-                _log.Error(message);
-                await _credentialProviderConnection.SendNotification("");
-                await _credentialProviderConnection.SendError(message);
-                throw;
-            }
-            catch (Exception ex)
+            catch (AccessDeniedAuthException ex)
             {
                 _log.Error(ex);
-                await _credentialProviderConnection.SendNotification("");
-                await _credentialProviderConnection.SendError(ex.Message);
+                await SendNotificationAsync("");
+                await SendErrorAsync(ex.Message);
                 throw;
             }
         }
@@ -456,56 +440,13 @@ namespace HideezMiddleware
                 if (!IsProximityAllowed(mac))
                     throw new AccessDeniedAuthException();
 
-                IDevice device = await ConnectDevice(mac);
-
-                //await _credentialProviderConnection.SendNotification("Please enter the PIN...");
-                //string pin = await new WaitPinFromCredentialProviderProc(_credentialProviderConnection).Run(20_000);
-                //if (pin == null)
-                //    throw new Exception($"PIN timeout");
-
-                //todo - verify PIN code
-
-                await WaitDeviceInitialization(mac, device);
-
-                // No point in reading credentials if CredentialProvider is not connected
-                if (!_credentialProviderConnection.IsConnected)
-                    return;
-
-                // get MAC address from the HES
-                if (_hesConnection?.State == HesConnectionState.Connected)
-                {
-                    var info = await _hesConnection.GetInfoByMac(mac);
-
-                    if (info == null)
-                        throw new Exception($"Device not found");
-
-                    await _credentialProviderConnection.SendNotification("Waiting for the primary account update...");
-                    await WaitForPrimaryAccountUpdate(info);
-                }
-
-                await _credentialProviderConnection.SendNotification("Reading credentials from the device...");
-                ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
-                var credentials = await GetCredentials(device, primaryAccountKey);
-
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
-
-                // send credentials to the Credential Provider to unlock the PC
-                await _credentialProviderConnection.SendNotification("Unlocking the PC...");
-                await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+                await UnlockWorkstation(mac, SessionSwitchSubject.Proximity);
             }
-            catch (HideezException ex)
-            {
-                var message = HideezExceptionLocalization.GetErrorAsString(ex);
-                _log.Error(message);
-                await _credentialProviderConnection.SendNotification("");
-                await _credentialProviderConnection.SendError(message);
-                throw;
-            }
-            catch (Exception ex)
+            catch (AccessDeniedAuthException ex)
             {
                 _log.Error(ex);
-                await _credentialProviderConnection.SendNotification("");
-                await _credentialProviderConnection.SendError(ex.Message);
+                await SendNotificationAsync("");
+                await SendErrorAsync(ex.Message);
                 throw;
             }
         }
