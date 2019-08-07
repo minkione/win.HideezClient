@@ -684,6 +684,11 @@ namespace ServiceLibrary.Implementation
             {
                 var newState = sessionLocked ? "locked" : "unlocked";
                 _log.Info($"Session state changed to: {newState} (sessionLocked: {sessionLocked});");
+
+                if (sessionLocked)
+                {
+                    _deviceManager?.Devices.ToList().ForEach(d => d.Disconnect());
+                }
             }
             catch (Exception ex)
             {
