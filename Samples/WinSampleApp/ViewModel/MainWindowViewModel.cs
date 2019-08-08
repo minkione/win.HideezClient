@@ -32,6 +32,9 @@ namespace WinSampleApp.ViewModel
         HesAppConnection _hesConnection;
         byte _nextChannelNo = 2;
 
+        public string PrimaryAccountLogin { get; set; }
+        public string PrimaryAccountPassword { get; set; }
+
         public string BleAdapterState => _connectionManager?.State.ToString();
         public string ConectByMacAddress { get; set; } = "D0:A8:9E:6B:CD:8D";
 
@@ -535,6 +538,24 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand WritePrimaryAccountCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        WritePrimaryAccount(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         #endregion
 
         public MainWindowViewModel()
@@ -868,6 +889,36 @@ namespace WinSampleApp.ViewModel
                     account.IsPrimary 
                     //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6) 
                     //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6)
+                    );
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void WritePrimaryAccount(DeviceViewModel device)
+        {
+            try
+            {
+                var pm = new DevicePasswordManager(device.Device, _log);
+
+                var account = new AccountRecord()
+                {
+                    Key = 1,
+                    Name = $"My Primary Account",
+                    Login = PrimaryAccountLogin,
+                    Password = PrimaryAccountPassword,
+                    OtpSecret = null,
+                    Apps = null,
+                    Urls = null,
+                    IsPrimary = true
+                };
+
+                var key = await pm.SaveOrUpdateAccount(account.Key, account.Name,
+                    account.Password, account.Login, account.OtpSecret,
+                    account.Apps, account.Urls,
+                    account.IsPrimary
                     );
             }
             catch (Exception ex)

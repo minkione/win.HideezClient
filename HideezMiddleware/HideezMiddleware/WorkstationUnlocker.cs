@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -353,7 +354,12 @@ namespace HideezMiddleware
 
                 // send credentials to the Credential Provider to unlock the PC
                 await SendNotificationAsync("Unlocking the PC...");
-                await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+                var logonSuccessful = await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+
+                if (!logonSuccessful)
+                    await device.Disconnect();
+
+                _log.Info($"UnlockWorkstation result: {logonSuccessful}");
             }
             catch (HideezException ex)
             {
