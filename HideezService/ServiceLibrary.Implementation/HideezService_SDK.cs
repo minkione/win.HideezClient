@@ -265,6 +265,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
+        //todo - if RFID is not present, do not monitor this event
         void RFIDService_ReaderStateChanged(object sender, EventArgs e)
         {
             bool isConnected = _rfidService != null ? _rfidService.ServiceConnected && _rfidService.ReaderConnected : false;
@@ -711,7 +712,7 @@ namespace ServiceLibrary.Implementation
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
             workstationEvent.EventId = WorkstationEventId.ServiceStarted;
-            await _eventAggregator?.AddNewAsync(workstationEvent);
+            await _eventAggregator?.AddNewAsync(workstationEvent); //todo - null reference exception at startup
         }
 
         public static async Task OnServiceStoppedAsync()

@@ -45,20 +45,20 @@ namespace HideezSafe.Models
             return password;
         }
 
-        public async Task<string> TryGetOptSecretAsync()
+        public Task<string> TryGetOptSecretAsync()
         {
             throw new NotImplementedException("Not implemented Otp secret.");
-            string otpSecret = null;
-            try
-            {
-                if (device.IsConnected && device.IsInitialized && HasOtp)
-                {
-                    // TODO: Implemented Otp
-                }
-            }
-            catch { }
+            //string otpSecret = null;
+            //try
+            //{
+            //    if (device.IsConnected && device.IsInitialized && HasOtp)
+            //    {
+            //        // TODO: Implemented Otp
+            //    }
+            //}
+            //catch { }
 
-            return otpSecret;
+            //return otpSecret;
         }
     }
 }
