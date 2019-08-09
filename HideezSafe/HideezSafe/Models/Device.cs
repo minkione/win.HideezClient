@@ -35,6 +35,8 @@ namespace HideezSafe.Models
         bool isInitialized;
         bool isLoadingStorage;
         bool isStorageLoaded;
+        private Version firmwareVersion;
+        private Version bootloaderVersion;
 
         public Device(IServiceProxy serviceProxy, IRemoteDeviceFactory remoteDeviceFactory)
         {
@@ -127,6 +129,19 @@ namespace HideezSafe.Models
             get { return isStorageLoaded; }
             private set { Set(ref isStorageLoaded, value); }
         }
+
+        public Version FirmwareVersion
+        {
+            get { return firmwareVersion; }
+            set { Set(ref firmwareVersion, value); }
+        }
+
+        public Version BootloaderVersion
+        {
+            get { return bootloaderVersion; }
+            set { Set(ref bootloaderVersion, value); }
+        }
+
 
         int remoteConnectionEstablishment = 0;
         public async Task EstablishRemoteDeviceConnection()
@@ -292,6 +307,8 @@ namespace HideezSafe.Models
             OwnerName = dto.Owner ?? "...unspecified...";
             IsConnected = dto.IsConnected;
             SerialNo = dto.SerialNo;
+            FirmwareVersion = dto.FirmwareVersion;
+            BootloaderVersion = dto.BootloaderVersion;
         }
     }
 }

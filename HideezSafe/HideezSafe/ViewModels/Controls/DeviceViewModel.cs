@@ -4,6 +4,7 @@ using HideezSafe.Modules.Localize;
 using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Mvvm;
 using NLog;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 
@@ -47,6 +48,8 @@ namespace HideezSafe.ViewModels
         public bool IsInitialized => device.IsInitialized;
         public bool IsLoadingStorage => device.IsLoadingStorage;
         public bool IsStorageLoaded => device.IsStorageLoaded;
+        public Version FirmwareVersion => device.FirmwareVersion;
+        public Version BootloaderVersion => device.BootloaderVersion;
 
         public ObservableCollection<MenuItemViewModel> MenuItems { get; }
 
