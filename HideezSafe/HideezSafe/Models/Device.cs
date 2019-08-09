@@ -37,6 +37,8 @@ namespace HideezSafe.Models
         bool isStorageLoaded;
         private Version firmwareVersion;
         private Version bootloaderVersion;
+        private uint storageTotalSize;
+        private uint storageFreeSize;
 
         public Device(IServiceProxy serviceProxy, IRemoteDeviceFactory remoteDeviceFactory)
         {
@@ -142,6 +144,17 @@ namespace HideezSafe.Models
             set { Set(ref bootloaderVersion, value); }
         }
 
+        public uint StorageTotalSize
+        {
+            get { return storageTotalSize; }
+            set { Set(ref storageTotalSize, value); }
+        }
+
+        public uint StorageFreeSize
+        {
+            get { return storageFreeSize; }
+            set { Set(ref storageFreeSize, value); }
+        }
 
         int remoteConnectionEstablishment = 0;
         public async Task EstablishRemoteDeviceConnection()
@@ -309,6 +322,8 @@ namespace HideezSafe.Models
             SerialNo = dto.SerialNo;
             FirmwareVersion = dto.FirmwareVersion;
             BootloaderVersion = dto.BootloaderVersion;
+            StorageTotalSize = dto.StorageTotalSize;
+            StorageFreeSize = dto.StorageFreeSize;
         }
     }
 }

@@ -343,4 +343,10 @@ Device is not connected</value>
   <data name="NoAnyConnectedDevice" xml:space="preserve">
     <value>Not found any connected device.</value>
   </data>
+  <data name="Menu.AboutDevice" xml:space="preserve">
+    <value>Info about device</value>
+  </data>
+  <data name="Button.Ok" xml:space="preserve">
+    <value>Ok</value>
+  </data>
 </root>

@@ -18,6 +18,8 @@ namespace ServiceLibrary
             FirmwareVersion = device.FirmwareVersion;
             BootloaderVersion = device.BootloaderVersion;
             IsInitialized = device.IsInitialized;
+            StorageTotalSize = device.StorageTotalSize;
+            StorageFreeSize = device.StorageFreeSize;
         }
 
         [DataMember]
@@ -49,5 +51,11 @@ namespace ServiceLibrary
 
         [DataMember]
         public bool IsInitialized { get; private set; }
+
+        [DataMember]
+        public uint StorageTotalSize { get; private set; }
+
+        [DataMember]
+        public uint StorageFreeSize { get; private set; }
     }
 }

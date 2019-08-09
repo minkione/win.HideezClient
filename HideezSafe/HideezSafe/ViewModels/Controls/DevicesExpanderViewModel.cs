@@ -20,33 +20,33 @@ namespace HideezSafe.ViewModels
             this.deviceManager = deviceManager;
             this.menuFactory = menuFactory;
             deviceManager.DevicesCollectionChanged += Devices_CollectionChanged;
-            Devices = new ObservableCollection<DeviceViewModel>(deviceManager.Devices.Select(d => new DeviceViewModel(d, windowsManager, menuFactory)));
+            Devices = new ObservableCollection<DeviceForExpanderViewModel>(deviceManager.Devices.Select(d => new DeviceForExpanderViewModel(d, windowsManager, menuFactory)));
         }
 
         private void Devices_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            App.Current.Dispatcher.Invoke((System.Action)(() =>
             {
                 if (e.Action == NotifyCollectionChangedAction.Add)
                 {
                     foreach (Device device in e.NewItems)
                     {
-                        Devices.Add(new DeviceViewModel(device, windowsManager, menuFactory));
+                        Devices.Add(new DeviceForExpanderViewModel(device, windowsManager, menuFactory));
                     }
                 }
                 else if (e.Action == NotifyCollectionChangedAction.Remove)
                 {
                     foreach (Device device in e.OldItems)
                     {
-                        Devices.Remove(Devices.FirstOrDefault(d => d.Id == device.Id));
+                        Devices.Remove(Devices.FirstOrDefault((System.Func<DeviceForExpanderViewModel, bool>)(d => d.Id == device.Id)));
                     }
                 }
-            });
+            }));
         }
 
         #region Properties
 
-        public ObservableCollection<DeviceViewModel> Devices { get; }
+        public ObservableCollection<DeviceForExpanderViewModel> Devices { get; }
 
         #endregion Properties
     }

@@ -49,6 +49,8 @@
       <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Owner" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="SerialNo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="StorageFreeSize" type="xs:unsignedInt" />
+      <xs:element minOccurs="0" name="StorageTotalSize" type="xs:unsignedInt" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="DeviceDTO" nillable="true" type="tns:DeviceDTO" />

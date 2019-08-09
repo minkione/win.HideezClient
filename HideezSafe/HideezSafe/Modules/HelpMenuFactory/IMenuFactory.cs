@@ -26,6 +26,7 @@ namespace HideezSafe.Modules
         AddCredential,
         DisconnectDevice,
         RemoveDevice,
+        AboutDevice,
     }
 
     public interface IMenuFactory

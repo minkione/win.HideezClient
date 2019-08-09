@@ -189,6 +189,12 @@ namespace HideezServiceHost.HideezServiceReference {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string SerialNoField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private uint StorageFreeSizeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private uint StorageTotalSizeField;
+        
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
             get {
@@ -325,6 +331,32 @@ namespace HideezServiceHost.HideezServiceReference {
                 if ((object.ReferenceEquals(this.SerialNoField, value) != true)) {
                     this.SerialNoField = value;
                     this.RaisePropertyChanged("SerialNo");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public uint StorageFreeSize {
+            get {
+                return this.StorageFreeSizeField;
+            }
+            set {
+                if ((this.StorageFreeSizeField.Equals(value) != true)) {
+                    this.StorageFreeSizeField = value;
+                    this.RaisePropertyChanged("StorageFreeSize");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public uint StorageTotalSize {
+            get {
+                return this.StorageTotalSizeField;
+            }
+            set {
+                if ((this.StorageTotalSizeField.Equals(value) != true)) {
+                    this.StorageTotalSizeField = value;
+                    this.RaisePropertyChanged("StorageTotalSize");
                 }
             }
         }

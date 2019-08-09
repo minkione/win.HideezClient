@@ -179,14 +179,14 @@ namespace HideezSafe.Modules
 
         private string GetTitle()
         {
-            if(titleNotification == null)
+            if (titleNotification == null)
             {
                 titleNotification = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
             }
 
             return titleNotification;
         }
-        
+
         public Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd)
         {
             if (UIDispatcher.CheckAccess())
@@ -198,6 +198,17 @@ namespace HideezSafe.Modules
                 // Do non UI Thread stuff
                 return UIDispatcher.Invoke(() => notifier.SelectAccountAsync(accounts, hwnd));
             }
+        }
+
+        public void ShowInfoAboutDevice(Device device)
+        {
+            UIDispatcher.Invoke(() =>
+            {
+                AboutDeviceView view = new AboutDeviceView();
+                view.Owner = MainWindow;
+                view.DataContext = new DeviceViewModel(device);
+                view.Show();
+            });
         }
     }
 }

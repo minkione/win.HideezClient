@@ -272,7 +272,12 @@
     <Compile Include="Modules\WorkstationEvent\IEventAggregator.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
+    <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
+    <Compile Include="ViewModels\DeviceViewModelBase.cs" />
     <Compile Include="ViewModels\Notification\NotificationsContainerViewModel.cs" />
+    <Compile Include="Views\AboutDeviceView.xaml.cs">
+      <DependentUpon>AboutDeviceView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
       <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>
     </Compile>
@@ -290,7 +295,6 @@
     <Compile Include="Utilities\TemporaryCache.cs" />
     <Compile Include="ViewModels\AddCredentialViewModel.cs" />
     <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
-    <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
     <Compile Include="ViewModels\Controls\IndicatorsViewModel.cs" />
     <Compile Include="Views\AddCredentialView.xaml.cs">
       <DependentUpon>AddCredentialView.xaml</DependentUpon>
@@ -323,6 +327,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\ChangePasswordDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\AboutDeviceView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
