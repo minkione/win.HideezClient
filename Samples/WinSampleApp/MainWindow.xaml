@@ -195,6 +195,7 @@
                     <TextBox Width="120" Margin="0,0,0,0" Text="{Binding OldPin}" />
                     <Button Content="Enter PIN" Margin="0,10,0,0" Command="{Binding EnterPinCommand}"/>
                     <Button Content="Set PIN" Margin="0,10,0,0" Command="{Binding SetPinCommand}"/>
+                    <Button Content="Force Set PIN" Margin="0,10,0,0" Command="{Binding ForceSetPinCommand}"/>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

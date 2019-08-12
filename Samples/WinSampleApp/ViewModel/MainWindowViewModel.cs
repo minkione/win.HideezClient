@@ -135,6 +135,24 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand ForceSetPinCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        ForceSetPin(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         public ICommand EnterPinCommand
         {
             get
@@ -1217,6 +1235,18 @@ namespace WinSampleApp.ViewModel
             try
             {
                 await device.Device.SetPin(Encoding.UTF8.GetBytes(Pin), Encoding.UTF8.GetBytes(OldPin ?? ""));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void ForceSetPin(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.ForceSetPin(Encoding.UTF8.GetBytes(Pin), Encoding.UTF8.GetBytes("passphrase"));
             }
             catch (Exception ex)
             {
