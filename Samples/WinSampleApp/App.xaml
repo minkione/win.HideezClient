@@ -1,11 +1,14 @@
-﻿<Application x:Class="WinSampleApp.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:WinSampleApp"
-             xmlns:converter="clr-namespace:WinSampleApp.Converter"
-             StartupUri="MainWindow.xaml">
+﻿<Application
+    x:Class="WinSampleApp.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converter="clr-namespace:WinSampleApp.Converter"
+    xmlns:local="clr-namespace:WinSampleApp"
+    StartupUri="MainWindow.xaml">
     <Application.Resources>
         <converter:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converter:InvertBooleanToVisibilityConverter x:Key="InvertBooleanToVisibilityConverter" />
+        <converter:BoolToColorConverter x:Key="TrueToRedConverter" BoolValue="True" OneBrush="Red" TwoBrush="LightGreen" />
+        <converter:BoolToColorConverter x:Key="FalseToRedConverter" BoolValue="False" OneBrush="Red" TwoBrush="LightGreen" />
     </Application.Resources>
 </Application>

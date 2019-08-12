@@ -166,6 +166,7 @@
       <DependentUpon>AccessParamsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converter\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Converter\BoolToColorConverter.cs" />
     <Compile Include="Converter\InvertBooleanToVisibilityConverter.cs" />
     <Compile Include="Utils\DelegateCommand.cs" />
     <Compile Include="ViewModel\DeviceViewModel.cs" />
