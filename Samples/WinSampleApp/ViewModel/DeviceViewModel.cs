@@ -30,6 +30,20 @@ namespace WinSampleApp.ViewModel
         public DateTime DeviceTime => Device.DeviceTime;
         public ushort MaxMessageSize => Device.MaxMessageSize;
 
+        private double updateFwProgress;
+        public double UpdateFwProgress
+        {
+            get { return updateFwProgress; }
+            set
+            {
+                if (updateFwProgress != value)
+                {
+                    updateFwProgress = value;
+                    NotifyPropertyChanged(nameof(UpdateFwProgress));
+                }
+            }
+        }
+
         public DeviceViewModel(IDevice device)
         {
             Device = device;

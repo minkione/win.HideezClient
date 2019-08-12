@@ -611,7 +611,7 @@ namespace WinSampleApp.ViewModel
                 {
                     CanExecuteFunc = () =>
                     {
-                        return CurrentDevice != null;
+                        return CurrentDevice != null && (CurrentDevice.UpdateFwProgress == 0 || CurrentDevice.UpdateFwProgress == 100);
                     },
                     CommandAction = (x) =>
                     {
@@ -1162,6 +1162,13 @@ namespace WinSampleApp.ViewModel
                 if (openFileDialog.ShowDialog() == true)
                 {
                     var lo = new LongOperation(1);
+                    lo.StateChanged += (sender, e) =>
+                    {
+                        if (sender is LongOperation longOperation)
+                        {
+                            device.UpdateFwProgress = longOperation.Progress;
+                        }
+                    };
                     //var fu = new FirmwareImageUploader(@"d:\fw\HK3_fw_v3.0.2.img", _log);
                     var fu = new FirmwareImageUploader(openFileDialog.FileName, _log);
                     
@@ -1171,6 +1178,7 @@ namespace WinSampleApp.ViewModel
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+                device.UpdateFwProgress = 0;
             }
         }
 

@@ -176,7 +176,14 @@
                 <StackPanel Margin="10">
                     <Label>Tests:</Label>
                     <Button Content="Test 1" Margin="0,10,0,0" Command="{Binding Test1Command}"/>
-                    <Button Content="Update FW" Margin="0,10,0,0" Command="{Binding UpdateFwCommand}"/>
+                    <Button Margin="0,10,0,0" Command="{Binding UpdateFwCommand}">
+                        <Button.Content>
+                            <Grid>
+                                <ProgressBar Value="{Binding CurrentDevice.UpdateFwProgress, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                <TextBlock Text="Update FW"/>
+                            </Grid>
+                        </Button.Content>
+                    </Button>
                 </StackPanel>
                 <StackPanel Margin="10">
                     <Label>Primary account:</Label>
