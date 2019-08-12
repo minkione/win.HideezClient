@@ -15,6 +15,8 @@ namespace WinSampleApp
         {
             var vm = (MainWindowViewModel)DataContext;
             vm.Close();
+
+            Properties.Settings.Default.Save();
         }
     }
 }

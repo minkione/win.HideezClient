@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WinSampleApp"
         mc:Ignorable="d" Closing="Window_Closing"
-        Title="MainWindow" Height="650" Width="1000">
+        Title="MainWindow" Height="700" Width="1000">
     <Grid>
         <StackPanel>
             <StackPanel Orientation="Horizontal" Margin="10" VerticalAlignment="Center">
@@ -78,9 +78,21 @@
                     <Button Content="Link" Margin="0,10,0,0" Command="{Binding LinkDeviceCommand}"/>
                     <Button Content="Access" Margin="0,10,0,0" Command="{Binding AccessDeviceCommand}"/>
                     <Button Content="Wipe" Margin="0,10,0,0" Command="{Binding WipeDeviceCommand}"/>
+                    <Button Content="Unlock" Margin="0,10,0,0" Command="{Binding UnlockDeviceCommand}"/>
+                    <Button Content="Device Info" Margin="0,10,0,0" Command="{Binding DeviceInfoCommand}"/>
                 </StackPanel>
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
                         <RowDefinition Height="25"/>
                         <RowDefinition Height="25"/>
                         <RowDefinition Height="25"/>
@@ -130,6 +142,36 @@
 
                     <TextBlock Grid.Row="10" Grid.Column="0" Text="IsInitialized: " />
                     <TextBox Grid.Row="10" Grid.Column="1" Text="{Binding CurrentDevice.IsInitialized, Mode=OneWay}" IsReadOnly="True" />
+
+                    <TextBlock Grid.Row="11" Grid.Column="0" Text="Battery: " />
+                    <TextBox Grid.Row="11" Grid.Column="1" Text="{Binding CurrentDevice.Battery, Mode=OneWay}" IsReadOnly="True" />
+
+                    <TextBlock Grid.Row="12" Grid.Column="0" Text="DeviceTime: " />
+                    <TextBox Grid.Row="12" Grid.Column="1" Text="{Binding CurrentDevice.DeviceTime, Mode=OneWay}" IsReadOnly="True" />
+
+                    <TextBlock Grid.Row="13" Grid.Column="0" Text="MaxMessageSize: " />
+                    <TextBox Grid.Row="13" Grid.Column="1" Text="{Binding CurrentDevice.MaxMessageSize, Mode=OneWay}" IsReadOnly="True" />
+
+                    <TextBlock Grid.Row="14" Grid.Column="0" Text="WrongPinAttempts: " />
+                    <TextBox Grid.Row="14" Grid.Column="1" Text="{Binding CurrentDevice.WrongPinAttempts, Mode=OneWay}" IsReadOnly="True" />
+
+                    <TextBlock Grid.Row="15" Grid.Column="0" Text="IsLocked: " />
+                    <TextBox Grid.Row="15" Grid.Column="1" Text="{Binding CurrentDevice.IsLocked, Mode=OneWay}" IsReadOnly="True" />
+
+                    <TextBlock Grid.Row="16" Grid.Column="0" Text="IsLinkRequired: " />
+                    <TextBox Grid.Row="16" Grid.Column="1" Text="{Binding CurrentDevice.IsLinkRequired, Mode=OneWay}" IsReadOnly="True" />
+
+                    <TextBlock Grid.Row="17" Grid.Column="0" Text="IsNewPinRequired: " />
+                    <TextBox Grid.Row="17" Grid.Column="1" Text="{Binding CurrentDevice.IsNewPinRequired, Mode=OneWay}" IsReadOnly="True" />
+
+                    <TextBlock Grid.Row="18" Grid.Column="0" Text="IsMasterKeyRequired: " />
+                    <TextBox Grid.Row="18" Grid.Column="1" Text="{Binding CurrentDevice.IsMasterKeyRequired, Mode=OneWay}" IsReadOnly="True" />
+
+                    <TextBlock Grid.Row="19" Grid.Column="0" Text="IsPinRequired: " />
+                    <TextBox Grid.Row="19" Grid.Column="1" Text="{Binding CurrentDevice.IsPinRequired, Mode=OneWay}" IsReadOnly="True" />
+
+                    <TextBlock Grid.Row="20" Grid.Column="0" Text="IsButtonRequired: " />
+                    <TextBox Grid.Row="20" Grid.Column="1" Text="{Binding CurrentDevice.IsButtonRequired, Mode=OneWay}" IsReadOnly="True" />
                 </Grid>
                 <StackPanel Margin="10">
                     <Label>Tests:</Label>
@@ -144,6 +186,15 @@
                     <Label>Password:</Label>
                     <TextBox Width="120" Margin="0,0,0,0" Text="{Binding PrimaryAccountPassword}" />
                     <Button Content="Write" Margin="0,10,0,0" Command="{Binding WritePrimaryAccountCommand}"/>
+                    <Label></Label>
+                    <Label></Label>
+                    <Label></Label>
+                    <Label>PIN:</Label>
+                    <TextBox Width="120" Margin="0,0,0,0" Text="{Binding Pin}" />
+                    <Label>Old PIN:</Label>
+                    <TextBox Width="120" Margin="0,0,0,0" Text="{Binding OldPin}" />
+                    <Button Content="Enter PIN" Margin="0,10,0,0" Command="{Binding EnterPinCommand}"/>
+                    <Button Content="Set PIN" Margin="0,10,0,0" Command="{Binding SetPinCommand}"/>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

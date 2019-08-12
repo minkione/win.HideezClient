@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Input;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.FW;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
@@ -32,19 +33,28 @@ namespace WinSampleApp.ViewModel
         HesAppConnection _hesConnection;
         byte _nextChannelNo = 2;
 
+        public AccessParams AccessParams { get; set; }
+
         public string PrimaryAccountLogin { get; set; }
         public string PrimaryAccountPassword { get; set; }
 
+        public string Pin { get; set; }
+        public string OldPin { get; set; }
+
         public string BleAdapterState => _connectionManager?.State.ToString();
-        public string ConectByMacAddress { get; set; } = "D0:A8:9E:6B:CD:8D";
+        public string ConectByMacAddress
+        {
+            get { return Properties.Settings.Default.DefaultMac; }
+            set { Properties.Settings.Default.DefaultMac = value; }
+        }
 
         public string RfidAdapterState => "NA";
         public string RfidAddress { get; set; }
 
         public string HesAddress { get; set; }
         public string HesState => _hesConnection?.State.ToString();
-        
 
+        #region Properties
         bool bleAdapterDiscovering;
         public bool BleAdapterDiscovering
         {
@@ -102,9 +112,46 @@ namespace WinSampleApp.ViewModel
 
         public ObservableCollection<DeviceViewModel> Devices { get; }
             = new ObservableCollection<DeviceViewModel>();
+        #endregion Properties
 
 
         #region Commands
+
+        public ICommand SetPinCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        SetPin(CurrentDevice);
+                    }
+                };
+            }
+        }
+
+        public ICommand EnterPinCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        EnterPin(CurrentDevice);
+                    }
+                };
+            }
+        }
 
         public ICommand LinkDeviceCommand
         {
@@ -155,6 +202,24 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         WipeDevice(CurrentDevice);
+                    }
+                };
+            }
+        }
+
+        public ICommand UnlockDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        UnlockDevice(CurrentDevice);
                     }
                 };
             }
@@ -556,10 +621,51 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand DeviceInfoCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        DeviceInfo(CurrentDevice);
+                    }
+                };
+            }
+        }
         #endregion
 
         public MainWindowViewModel()
         {
+            AccessParams = new AccessParams()
+            {
+                MasterKey_Bond = true,
+                MasterKey_Connect = false,
+                MasterKey_Link = false,
+                MasterKey_Channel = false,
+
+                Button_Bond = false,
+                Button_Connect = false,
+                Button_Link = true,
+                Button_Channel = true,
+
+                Pin_Bond = false,
+                Pin_Connect = true,
+                Pin_Link = false,
+                Pin_Channel = false,
+
+                PinMinLength = 4,
+                PinMaxTries = 3,
+                MasterKeyExpirationPeriod = 24 * 60 * 60,
+                PinExpirationPeriod = 15 * 60,
+                ButtonExpirationPeriod = 15,
+            };
+
             HesAddress = "https://localhost:44371";
 
             _log = new EventLogger("ExampleApp");
@@ -1031,7 +1137,10 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                OpenFileDialog openFileDialog = new OpenFileDialog();
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    Filter = "firmware image (*.img)|*.img"
+                };
                 if (openFileDialog.ShowDialog() == true)
                 {
                     var lo = new LongOperation(1);
@@ -1063,7 +1172,15 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await device.Device.Access(DateTime.UtcNow, Encoding.UTF8.GetBytes("passphrase"));
+                var wnd = new AccessParamsWindow(AccessParams);
+                var res = wnd.ShowDialog();
+                if (res == true)
+                {
+                    await device.Device.Access(
+                        DateTime.UtcNow, 
+                        Encoding.UTF8.GetBytes("passphrase"),
+                        AccessParams);
+                }
             }
             catch (Exception ex)
             {
@@ -1083,5 +1200,52 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        async void UnlockDevice(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.Unlock(Encoding.UTF8.GetBytes("passphrase"));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void SetPin(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.SetPin(Encoding.UTF8.GetBytes(Pin), Encoding.UTF8.GetBytes(OldPin ?? ""));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void EnterPin(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.EnterPin(Encoding.UTF8.GetBytes(Pin));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void DeviceInfo(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.RefreshDeviceInfo();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
     }
 }

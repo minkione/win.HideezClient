@@ -22,5 +22,17 @@ namespace WinSampleApp.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D0:A8:9E:6B:CD:8D")]
+        public string DefaultMac {
+            get {
+                return ((string)(this["DefaultMac"]));
+            }
+            set {
+                this["DefaultMac"] = value;
+            }
+        }
     }
 }

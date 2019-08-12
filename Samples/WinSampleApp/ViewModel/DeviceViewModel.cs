@@ -19,6 +19,16 @@ namespace WinSampleApp.ViewModel
         public uint StorageTotalSize => Device.StorageTotalSize;
         public uint StorageFreeSize => Device.StorageFreeSize;
         public bool IsInitialized => Device.IsInitialized;
+        public int Battery => Device.Battery;
+        public bool IsLinkRequired => Device.IsLinkRequired;
+        public bool IsNewPinRequired => Device.IsNewPinRequired;
+        public bool IsMasterKeyRequired => Device.IsMasterKeyRequired;
+        public bool IsPinRequired => Device.IsPinRequired;
+        public bool IsButtonRequired => Device.IsButtonRequired;
+        public bool IsLocked => Device.IsLocked;
+        public byte WrongPinAttempts => Device.WrongPinAttempts;
+        public DateTime DeviceTime => Device.DeviceTime;
+        public ushort MaxMessageSize => Device.MaxMessageSize;
 
         public DeviceViewModel(IDevice device)
         {
