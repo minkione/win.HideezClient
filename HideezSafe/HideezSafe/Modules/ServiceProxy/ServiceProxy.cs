@@ -91,20 +91,24 @@ namespace HideezSafe.Modules.ServiceProxy
             });
         }
 
-        public Task DisconnectAsync()
+        public async Task DisconnectAsync()
         {
-            return Task.Run(() =>
+            try
             {
                 if (service != null)
                 {
                     if (service.State == CommunicationState.Opened)
-                        service.DetachClient();
+                        await service.DetachClientAsync();
 
                     CloseServiceConnection(service);
                     UnsubscriveFromServiceEvents(service);
                     service = null;
                 }
-            });
+            }
+            catch (System.Exception ex)
+            {
+                log.Error(ex);
+            }
         }
 
         private void CloseServiceConnection(HideezServiceClient service)

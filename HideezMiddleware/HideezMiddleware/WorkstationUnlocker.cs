@@ -42,7 +42,7 @@ namespace HideezMiddleware
         // Ignore connect by proximity until settings are loaded. Max possible proximity value is 100
         int _connectProximity = 101;
 
-        List<DeviceUnlockerSettingsInfo> _deviceConnectionFilters = 
+        List<DeviceUnlockerSettingsInfo> _deviceConnectionFilters =
             new List<DeviceUnlockerSettingsInfo>();
 
         // If proximity connection failed due to error, we ignore further attempts 
@@ -162,34 +162,40 @@ namespace HideezMiddleware
 
         async void SendStatusToCredentialProvider()
         {
-            var statuses = new List<string>();
-
-            // Bluetooth
-            switch (_connectionManager.State)
+            try
             {
-                case BluetoothAdapterState.PoweredOn:
-                case BluetoothAdapterState.LoadingKnownDevices:
-                    break;
-                default:
-                    statuses.Add($"Bluetooth not available (state: {_connectionManager.State})");
-                    break;
+                var statuses = new List<string>();
+
+                // Bluetooth
+                switch (_connectionManager.State)
+                {
+                    case BluetoothAdapterState.PoweredOn:
+                    case BluetoothAdapterState.LoadingKnownDevices:
+                        break;
+                    default:
+                        statuses.Add($"Bluetooth not available (state: {_connectionManager.State})");
+                        break;
+                }
+
+                // RFID
+                if (!_rfidService.ServiceConnected)
+                    statuses.Add("RFID service not connected");
+                else if (!_rfidService.ReaderConnected)
+                    statuses.Add("RFID reader not connected");
+
+                // Server
+                if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
+                    statuses.Add("HES not connected");
+
+                if (statuses.Count > 0)
+                    await _credentialProviderConnection.SendStatus($"ERROR: {string.Join("; ", statuses)}");
+                else
+                    await _credentialProviderConnection.SendStatus(string.Empty);
             }
-
-            // RFID
-            if (!_rfidService.ServiceConnected)
-                statuses.Add("RFID service not connected");
-            else if (!_rfidService.ReaderConnected)
-                statuses.Add("RFID reader not connected");
-
-            // Server
-            if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
-                statuses.Add("HES not connected");
-
-            if (statuses.Count > 0)
-                await _credentialProviderConnection.SendStatus($"ERROR: {string.Join("; ", statuses)}");
-            else
-                await _credentialProviderConnection.SendStatus(string.Empty);
-
+            catch (System.Exception ex)
+            {
+                _log.Error(ex);
+            }
         }
 
         async Task SendNotificationAsync(string notification)
@@ -229,7 +235,6 @@ namespace HideezMiddleware
         async void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
             var mac = MacUtils.GetMacFromShortMac(e.Id);
-
             try
             {
                 // Ble tap. Rssi of -27 was calculated empirically
@@ -248,9 +253,9 @@ namespace HideezMiddleware
                 {
                     // Proximity
                     // Connection occurs only when workstation is locked
-                    if (_credentialProviderConnection.IsConnected 
-                        && BleUtils.RssiToProximity(e.Rssi) > _connectProximity 
-                        && IsProximityAllowed(mac) 
+                    if (_credentialProviderConnection.IsConnected
+                        && BleUtils.RssiToProximity(e.Rssi) > _connectProximity
+                        && IsProximityAllowed(mac)
                         && !_proximityAccessBlacklist.ContainsKey(mac))
                     {
                         var newGuid = Guid.NewGuid();
@@ -533,7 +538,17 @@ namespace HideezMiddleware
 
         async void ActivateWorkstationScreen()
         {
-            await Task.Run(() => { _screenActivator?.ActivateScreen(); });
+            await Task.Run(() =>
+            {
+                try
+                {
+                    _screenActivator?.ActivateScreen();
+                }
+                catch (System.Exception ex)
+                {
+                    _log.Error(ex);
+                }
+            });
         }
 
         void ClearAccessBlacklists()

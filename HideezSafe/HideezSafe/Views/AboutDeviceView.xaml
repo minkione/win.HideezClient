@@ -8,8 +8,6 @@
     xmlns:local="clr-namespace:HideezSafe.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="About device"
-    Width="800"
-    Height="450"
     Background="{DynamicResource WindowLeftColumBrush}"
     FontFamily="{DynamicResource FontFamily}"
     FontSize="14"
@@ -20,7 +18,7 @@
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     mc:Ignorable="d">
     <StackPanel Margin="20" >
-        <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Hideez sefe" TextAlignment="Center" HorizontalAlignment="Center" Foreground="White" FontSize="18" Margin="0 0 0 10"/>
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Device info" TextAlignment="Center" HorizontalAlignment="Center" Foreground="White" FontSize="18" Margin="0 0 0 10"/>
         <Grid>
             <Grid.Resources>
                 <ResourceDictionary>
