@@ -45,7 +45,11 @@ namespace WinSampleApp.ViewModel
         public string ConectByMacAddress
         {
             get { return Properties.Settings.Default.DefaultMac; }
-            set { Properties.Settings.Default.DefaultMac = value; }
+            set
+            {
+                Properties.Settings.Default.DefaultMac = value;
+                Properties.Settings.Default.Save();
+            }
         }
 
         public string RfidAdapterState => "NA";
@@ -652,6 +656,24 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         DeviceInfo(CurrentDevice);
+                    }
+                };
+            }
+        }
+
+        public ICommand ConfirmCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        OnConfirmAsync(CurrentDevice);
                     }
                 };
             }
@@ -1281,6 +1303,18 @@ namespace WinSampleApp.ViewModel
                 await device.Device.RefreshDeviceInfo();
             }
             catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private async Task OnConfirmAsync(DeviceViewModel device)
+        {
+            try
+            {
+                var reply = await device.Device.Confirm(5, 6_000);
+            }
+            catch (System.Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
