@@ -210,8 +210,14 @@
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Top"
                                 FontSize="12"
-                                Opacity="0.5"
-                                Text="{Binding SerialNo}" />
+                                Opacity="0.5">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0} ({1})">
+                                        <Binding Path="SerialNo" />
+                                        <Binding Path="FirmwareVersion" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
 
                             <ToggleButton
                                 x:Name="toggleButton"

@@ -6,6 +6,10 @@ using NLog;
 using System;
 using System.Threading.Tasks;
 
+//todo  - этот класс должен реализовывать только один метод IWorkstationLocker.LockWorkstation
+// и сам IWorkstationLocker должен содержать только один метод LockWorkstation
+// всю же логику можно перенести в Middleware, например в класс WorkstationLockManager или в DeviceProximityMonitor
+// также нужно отрефакторить WorkstationUnlocker - добавить IWorkstationUnlocker.UnlockWorkstation
 namespace ServiceLibrary.Implementation
 {
     class WorkstationLocker : IWorkstationLocker
@@ -40,6 +44,7 @@ namespace ServiceLibrary.Implementation
         {
             if (IsEnabled)
             {
+                _log.Info($"Going to lock the workstation by 'DeviceConnectionLost' reason. Device ID: {device.Id}");
                 SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
                 LockWorkstationAsync();
             }
@@ -49,6 +54,7 @@ namespace ServiceLibrary.Implementation
         {
             if (IsEnabled)
             {
+                _log.Info($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Device ID: {device.Id}");
                 SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
                 LockWorkstationAsync();
             }
@@ -58,6 +64,7 @@ namespace ServiceLibrary.Implementation
         {
             if (IsEnabled)
             {
+                _log.Info($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Device ID: {device.Id}");
                 SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
                 LockWorkstationAsync();
             }

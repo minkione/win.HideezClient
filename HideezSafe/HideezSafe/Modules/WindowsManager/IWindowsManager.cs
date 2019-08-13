@@ -16,6 +16,7 @@ namespace HideezSafe.Modules
         event EventHandler<bool> MainWindowVisibleChanged;
         bool IsMainWindowVisible { get; }
         void ShowDialogAddCredential(Device device);
+        void ShowInfoAboutDevice(Device device);
 
         void ShowInfo(string message, string title = null);
         void ShowWarn(string message, string title = null);

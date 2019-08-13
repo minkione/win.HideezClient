@@ -35,6 +35,10 @@ namespace HideezSafe.Models
         bool isInitialized;
         bool isLoadingStorage;
         bool isStorageLoaded;
+        private Version firmwareVersion;
+        private Version bootloaderVersion;
+        private uint storageTotalSize;
+        private uint storageFreeSize;
 
         public Device(IServiceProxy serviceProxy, IRemoteDeviceFactory remoteDeviceFactory)
         {
@@ -126,6 +130,30 @@ namespace HideezSafe.Models
         {
             get { return isStorageLoaded; }
             private set { Set(ref isStorageLoaded, value); }
+        }
+
+        public Version FirmwareVersion
+        {
+            get { return firmwareVersion; }
+            set { Set(ref firmwareVersion, value); }
+        }
+
+        public Version BootloaderVersion
+        {
+            get { return bootloaderVersion; }
+            set { Set(ref bootloaderVersion, value); }
+        }
+
+        public uint StorageTotalSize
+        {
+            get { return storageTotalSize; }
+            set { Set(ref storageTotalSize, value); }
+        }
+
+        public uint StorageFreeSize
+        {
+            get { return storageFreeSize; }
+            set { Set(ref storageFreeSize, value); }
         }
 
         int remoteConnectionEstablishment = 0;
@@ -292,6 +320,10 @@ namespace HideezSafe.Models
             OwnerName = dto.Owner ?? "...unspecified...";
             IsConnected = dto.IsConnected;
             SerialNo = dto.SerialNo;
+            FirmwareVersion = dto.FirmwareVersion;
+            BootloaderVersion = dto.BootloaderVersion;
+            StorageTotalSize = dto.StorageTotalSize;
+            StorageFreeSize = dto.StorageFreeSize;
         }
     }
 }

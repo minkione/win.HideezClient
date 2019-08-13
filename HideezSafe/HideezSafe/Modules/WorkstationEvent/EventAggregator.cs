@@ -2,11 +2,13 @@
 using Hideez.SDK.Communication;
 using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules.ServiceProxy;
+using NLog;
 
 namespace HideezSafe.Modules
 {
     class EventAggregator : IEventAggregator
     {
+        private readonly Logger log = LogManager.GetCurrentClassLogger();
         private readonly IServiceProxy serviceProxy;
 
         public EventAggregator(IServiceProxy serviceProxy)
@@ -16,21 +18,28 @@ namespace HideezSafe.Modules
 
         public async Task PublishEventAsync(WorkstationEvent workstationEvent)
         {
-            WorkstationEventDTO we = new WorkstationEventDTO
+            try
             {
-                Id = workstationEvent.Id,
-                Date = workstationEvent.Date,
-                WorkstationId = workstationEvent.WorkstationId,
-                EventId = (int)workstationEvent.EventId,
-                Severity = (int)workstationEvent.Severity,
-                Note = workstationEvent.Note,
-                DeviceId = workstationEvent.DeviceId,
-                UserSession = workstationEvent.UserSession,
-                AccountName = workstationEvent.AccountName,
-                AccountLogin = workstationEvent.AccountLogin,
-            };
+                WorkstationEventDTO we = new WorkstationEventDTO
+                {
+                    Id = workstationEvent.Id,
+                    Date = workstationEvent.Date,
+                    WorkstationId = workstationEvent.WorkstationId,
+                    EventId = (int)workstationEvent.EventId,
+                    Severity = (int)workstationEvent.Severity,
+                    Note = workstationEvent.Note,
+                    DeviceId = workstationEvent.DeviceId,
+                    UserSession = workstationEvent.UserSession,
+                    AccountName = workstationEvent.AccountName,
+                    AccountLogin = workstationEvent.AccountLogin,
+                };
 
-            await serviceProxy?.GetService()?.PublishEventAsync(we);
+                await serviceProxy?.GetService()?.PublishEventAsync(we);
+            }
+            catch (System.Exception ex)
+            {
+                log.Error(ex);
+            }
         }
     }
 }

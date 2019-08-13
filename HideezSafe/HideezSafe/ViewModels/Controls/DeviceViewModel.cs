@@ -4,28 +4,27 @@ using HideezSafe.Modules.Localize;
 using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Mvvm;
 using NLog;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 
 namespace HideezSafe.ViewModels
 {
-    public class DeviceViewModel : LocalizedObject
+    public class DeviceForExpanderViewModel : DeviceViewModel
     {
-        private readonly Device device;
-        readonly ILogger _log = LogManager.GetCurrentClassLogger();
         readonly IWindowsManager _windowsManager;
 
-        public DeviceViewModel(Device device, IWindowsManager windowsManager, IMenuFactory menuFactory)
+        public DeviceForExpanderViewModel(Device device, IWindowsManager windowsManager, IMenuFactory menuFactory)
+            : base(device)
         {
             _windowsManager = windowsManager;
-            this.device = device;
-            device.PropertyChanged += (sender, e) => RaisePropertyChanged(e.PropertyName);
 
             MenuItems = new ObservableCollection<MenuItemViewModel>
             {
                 menuFactory.GetMenuItem(device, MenuItemType.AddCredential),
                 menuFactory.GetMenuItem(device, MenuItemType.DisconnectDevice),
                 menuFactory.GetMenuItem(device, MenuItemType.RemoveDevice),
+                menuFactory.GetMenuItem(device, MenuItemType.AboutDevice),
             };
         }
 
@@ -35,18 +34,6 @@ namespace HideezSafe.ViewModels
 
         [Localization]
         public string TypeName { get { return device.TypeName; } }
-
-        public string Id => device.Id;
-        public string Name => device.Name;
-        public bool IsConnected => device.IsConnected;
-        public double Proximity => device.Proximity;
-        public int Battery => device.Battery;
-        public string OwnerName => device.OwnerName;
-        public string SerialNo => device.SerialNo;
-        public bool IsInitializing => device.IsInitializing;
-        public bool IsInitialized => device.IsInitialized;
-        public bool IsLoadingStorage => device.IsLoadingStorage;
-        public bool IsStorageLoaded => device.IsStorageLoaded;
 
         public ObservableCollection<MenuItemViewModel> MenuItems { get; }
 
