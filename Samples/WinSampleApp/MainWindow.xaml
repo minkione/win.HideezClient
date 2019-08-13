@@ -162,26 +162,26 @@
                     <TextBlock Grid.Row="13" Grid.Column="0" Text="MaxMessageSize: " />
                     <TextBox Grid.Row="13" Grid.Column="1" Text="{Binding CurrentDevice.MaxMessageSize, Mode=OneWay}" IsReadOnly="True" />
 
-                    <TextBlock Grid.Row="14" Grid.Column="0" Text="WrongPinAttempts: " />
-                    <TextBox Grid.Row="14" Grid.Column="1" Text="{Binding CurrentDevice.WrongPinAttempts, Mode=OneWay}" IsReadOnly="True" Style="{StaticResource DependsOnIsInitialised}" />
+                    <TextBlock Grid.Row="14" Grid.Column="0" Text="PinAttemptsRemain: " />
+                    <TextBox Grid.Row="14" Grid.Column="1" Text="{Binding CurrentDevice.PinAttemptsRemain, Mode=OneWay}" IsReadOnly="True" />
 
                     <TextBlock Grid.Row="15" Grid.Column="0" Text="IsLocked: " />
-                    <TextBox Grid.Row="15" Grid.Column="1" Text="{Binding CurrentDevice.IsLocked, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.IsLocked, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}" />
+                    <TextBox Grid.Row="15" Grid.Column="1" Text="{Binding CurrentDevice.AccessLevel.IsLocked, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.AccessLevel.IsLocked, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}" />
 
                     <TextBlock Grid.Row="16" Grid.Column="0" Text="IsLinkRequired: " />
-                    <TextBox Grid.Row="16" Grid.Column="1" Text="{Binding CurrentDevice.IsLinkRequired, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.IsLinkRequired, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}" />
+                    <TextBox Grid.Row="16" Grid.Column="1" Text="{Binding CurrentDevice.AccessLevel.IsLinkRequired, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.AccessLevel.IsLinkRequired, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}" />
 
                     <TextBlock Grid.Row="17" Grid.Column="0" Text="IsNewPinRequired: " />
-                    <TextBox Grid.Row="17" Grid.Column="1" Text="{Binding CurrentDevice.IsNewPinRequired, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.IsNewPinRequired, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}" />
+                    <TextBox Grid.Row="17" Grid.Column="1" Text="{Binding CurrentDevice.AccessLevel.IsNewPinRequired, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.AccessLevel.IsNewPinRequired, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}"/>
 
                     <TextBlock Grid.Row="18" Grid.Column="0" Text="IsMasterKeyRequired: " />
-                    <TextBox Grid.Row="18" Grid.Column="1" Text="{Binding CurrentDevice.IsMasterKeyRequired, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.IsMasterKeyRequired, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}" />
+                    <TextBox Grid.Row="18" Grid.Column="1" Text="{Binding CurrentDevice.AccessLevel.IsMasterKeyRequired, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.AccessLevel.IsMasterKeyRequired, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}"/>
 
                     <TextBlock Grid.Row="19" Grid.Column="0" Text="IsPinRequired: " />
-                    <TextBox Grid.Row="19" Grid.Column="1" Text="{Binding CurrentDevice.IsPinRequired, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.IsPinRequired, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}" />
+                    <TextBox Grid.Row="19" Grid.Column="1" Text="{Binding CurrentDevice.AccessLevel.IsPinRequired, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.AccessLevel.IsPinRequired, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}"/>
 
                     <TextBlock Grid.Row="20" Grid.Column="0" Text="IsButtonRequired: " />
-                    <TextBox Grid.Row="20" Grid.Column="1" Text="{Binding CurrentDevice.IsButtonRequired, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.IsButtonRequired, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}" />
+                    <TextBox Grid.Row="20" Grid.Column="1" Text="{Binding CurrentDevice.AccessLevel.IsButtonRequired, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.AccessLevel.IsButtonRequired, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}"/>
                 </Grid>
                 <StackPanel Margin="10">
                     <Label>Tests:</Label>

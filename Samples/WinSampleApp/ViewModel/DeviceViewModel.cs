@@ -1,4 +1,5 @@
 ﻿using System;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Interfaces;
 
 namespace WinSampleApp.ViewModel
@@ -20,13 +21,9 @@ namespace WinSampleApp.ViewModel
         public uint StorageFreeSize => Device.StorageFreeSize;
         public bool IsInitialized => Device.IsInitialized;
         public int Battery => Device.Battery;
-        public bool IsLinkRequired => Device.IsLinkRequired;
-        public bool IsNewPinRequired => Device.IsNewPinRequired;
-        public bool IsMasterKeyRequired => Device.IsMasterKeyRequired;
-        public bool IsPinRequired => Device.IsPinRequired;
-        public bool IsButtonRequired => Device.IsButtonRequired;
-        public bool IsLocked => Device.IsLocked;
-        public byte WrongPinAttempts => Device.WrongPinAttempts;
+
+        public AccessLevel AccessLevel => Device.AccessLevel;
+        public byte PinAttemptsRemain => Device.PinAttemptsRemain;
         public DateTime DeviceTime => Device.DeviceTime;
         public ushort MaxMessageSize => Device.MaxMessageSize;
 

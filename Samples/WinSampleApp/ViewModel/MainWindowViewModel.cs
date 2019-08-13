@@ -1327,13 +1327,13 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        private async Task OnConfirmAsync(DeviceViewModel device)
+        async void OnConfirmAsync(DeviceViewModel device)
         {
             try
             {
                 var reply = await device.Device.Confirm(5, 6_000);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
