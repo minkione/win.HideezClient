@@ -8,7 +8,15 @@
     <Application.Resources>
         <converter:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converter:InvertBooleanToVisibilityConverter x:Key="InvertBooleanToVisibilityConverter" />
-        <converter:BoolToColorConverter x:Key="TrueToRedConverter" BoolValue="True" OneBrush="Red" TwoBrush="LightGreen" />
-        <converter:BoolToColorConverter x:Key="FalseToRedConverter" BoolValue="False" OneBrush="Red" TwoBrush="LightGreen" />
+        <converter:BoolToColorConverter
+            x:Key="TrueToRedConverter"
+            BoolValue="True"
+            OneBrush="Red"
+            TwoBrush="LightGreen" />
+        <converter:BoolToColorConverter
+            x:Key="FalseToRedConverter"
+            BoolValue="False"
+            OneBrush="Red"
+            TwoBrush="LightGreen" />
     </Application.Resources>
 </Application>

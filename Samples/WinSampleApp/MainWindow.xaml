@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WinSampleApp"
         mc:Ignorable="d" Closing="Window_Closing"
-        Title="MainWindow" Height="700" Width="1000">
+        SizeToContent="Height"
+        Title="MainWindow" Width="1000">
     <Window.Resources>
         <ResourceDictionary>
             <Style TargetType="TextBox" x:Key="DependsOnIsInitialised">
@@ -80,6 +81,7 @@
                     <Button Content="Remove Channel" Margin="0,10,0,0" Command="{Binding RemoveDeviceChannelCommand}"/>
                     <Button Content="Read Storage" Margin="0,10,0,0" Command="{Binding ReadDeviceCommand}"/>
                     <Button Content="Write Storage" Margin="0,10,0,0" Command="{Binding WriteDeviceCommand}"/>
+                    <Button Content="Get OTP" Margin="0,10,0,0" Command="{Binding GetOtpCommand}" />
                     <Button Content="Load Storage" Margin="0,10,0,0" Command="{Binding LoadDeviceCommand}"/>
                     <Button Content="Boost" Margin="0,10,0,0" Command="{Binding BoostDeviceRssiCommand}"/>
                     <Button Content="Link" Margin="0,10,0,0" Command="{Binding LinkDeviceCommand}"/>

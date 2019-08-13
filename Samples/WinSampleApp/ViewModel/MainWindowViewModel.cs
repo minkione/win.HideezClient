@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Hideez.CsrBLE;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.FW;
@@ -110,7 +111,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        public ObservableCollection<DiscoveredDeviceAddedEventArgs> DiscoveredDevices { get; } 
+        public ObservableCollection<DiscoveredDeviceAddedEventArgs> DiscoveredDevices { get; }
             = new ObservableCollection<DiscoveredDeviceAddedEventArgs>();
 
 
@@ -678,6 +679,24 @@ namespace WinSampleApp.ViewModel
                 };
             }
         }
+
+        public ICommand GetOtpCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        OnGetOtpAsync(CurrentDevice);
+                    }
+                };
+            }
+        }
         #endregion
 
         public MainWindowViewModel()
@@ -740,7 +759,7 @@ namespace WinSampleApp.ViewModel
             var unlockerSettingsManager = new SettingsManager<UnlockerSettings>(string.Empty, new XmlFileSerializer(_log));
 
             // WorkstationUnlocker ==================================
-            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection, 
+            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
                 _credentialProviderConnection, _rfidService, _connectionManager, null, unlockerSettingsManager);
 
             _connectionManager.StartDiscovery();
@@ -1023,7 +1042,7 @@ namespace WinSampleApp.ViewModel
                     Name = $"My Google Account 0",
                     Login = $"admin_0@hideez.com",
                     Password = $"my_password_0",
-                    OtpSecret = $"asdasd_0",
+                    OtpSecret = $"DPMYUOUOQDCAABSIAE5DFBANESXGOHDV",
                     Apps = $"12431412412342134_0",
                     Urls = $"www.hideez.com;www.google.com_0",
                     IsPrimary = true
@@ -1032,7 +1051,7 @@ namespace WinSampleApp.ViewModel
                 var key = await pm.SaveOrUpdateAccount(account.Key, account.Name,
                     account.Password, account.Login, account.OtpSecret,
                     account.Apps, account.Urls,
-                    account.IsPrimary 
+                    account.IsPrimary
                     //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6) 
                     //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6)
                     );
@@ -1193,7 +1212,7 @@ namespace WinSampleApp.ViewModel
                     };
                     //var fu = new FirmwareImageUploader(@"d:\fw\HK3_fw_v3.0.2.img", _log);
                     var fu = new FirmwareImageUploader(openFileDialog.FileName, _log);
-                    
+
                     await fu.RunAsync(false, device.Device, lo);
                 }
             }
@@ -1225,7 +1244,7 @@ namespace WinSampleApp.ViewModel
                 if (res == true)
                 {
                     await device.Device.Access(
-                        DateTime.UtcNow, 
+                        DateTime.UtcNow,
                         Encoding.UTF8.GetBytes("passphrase"),
                         AccessParams);
                 }
@@ -1313,6 +1332,21 @@ namespace WinSampleApp.ViewModel
             try
             {
                 var reply = await device.Device.Confirm(5, 6_000);
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private async void OnGetOtpAsync(DeviceViewModel device)
+        {
+            try
+            {
+                // DPMY UOUO QDCA ABSI AE5D FBAN ESXG OHDV
+                var outSecret = await device.Device.ReadStorageAsString((byte)StorageTable.OtpSecrets, 1);
+                var otpReply = await device.Device.GetOtp((byte)StorageTable.OtpSecrets, 1);
+                MessageBox.Show(otpReply.Otp);
             }
             catch (System.Exception ex)
             {
