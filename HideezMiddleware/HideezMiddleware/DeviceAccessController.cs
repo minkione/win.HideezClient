@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
+using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware.Settings;
 using NLog;
 using System;

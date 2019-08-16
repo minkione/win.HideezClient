@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Text;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.NamedPipes;
 using Hideez.SDK.Communication.Utils;
@@ -34,7 +35,7 @@ namespace HideezMiddleware
         LogonResult = 106,
     }
 
-    public class CredentialProviderConnection : Logger
+    public class CredentialProviderConnection : Logger, IWorkstationUnlocker
     {
         readonly PipeServer _pipeServer;
 

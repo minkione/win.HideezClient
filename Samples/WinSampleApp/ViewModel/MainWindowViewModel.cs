@@ -28,7 +28,7 @@ namespace WinSampleApp.ViewModel
         readonly BleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
         readonly CredentialProviderConnection _credentialProviderConnection;
-        readonly WorkstationUnlocker _workstationUnlocker;
+        readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly RfidServiceConnection _rfidService;
 
         HesAppConnection _hesConnection;
@@ -736,10 +736,6 @@ namespace WinSampleApp.ViewModel
             _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
 
-            // COM =============================
-            //var port = new ComConnection(log, "COM68", 9600);
-            //port.Connect();
-
             // BLE ============================
             _deviceManager = new BleDeviceManager(_log, _connectionManager);
             _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
@@ -755,12 +751,25 @@ namespace WinSampleApp.ViewModel
             _rfidService = new RfidServiceConnection(_log);
             _rfidService.Start();
 
-            // Unlocker Settings Manager
+            // Unlocker Settings Manager ==================================
             var unlockerSettingsManager = new SettingsManager<UnlockerSettings>(string.Empty, new XmlFileSerializer(_log));
 
-            // WorkstationUnlocker ==================================
-            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
-                _credentialProviderConnection, _rfidService, _connectionManager, null, unlockerSettingsManager);
+            // UI proxy ==================================
+            var uiProxy = new UiProxy(_credentialProviderConnection);
+
+            // ConnectionFlowProcessor ==================================
+            _connectionFlowProcessor = new ConnectionFlowProcessor(
+                _deviceManager, 
+                _hesConnection,
+                _rfidService, 
+                _connectionManager,
+                _credentialProviderConnection, // as IWorkstationUnlocker
+                null, 
+                unlockerSettingsManager, 
+                uiProxy);
+
+            // StatusManager =============================
+            var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxy);
 
             _connectionManager.StartDiscovery();
         }
@@ -1184,7 +1193,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await _workstationUnlocker.UnlockByRfid(RfidAddress);
+                await _connectionFlowProcessor.UnlockByRfid(RfidAddress);
             }
             catch (Exception ex)
             {
@@ -1283,7 +1292,10 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await device.Device.SetPin(Encoding.UTF8.GetBytes(Pin), Encoding.UTF8.GetBytes(OldPin ?? ""));
+                if (!await device.Device.SetPin(Pin, OldPin ?? ""))
+                    MessageBox.Show("Wrong old PIN");
+                else
+                    MessageBox.Show("PIN has been changed");
             }
             catch (Exception ex)
             {
@@ -1295,7 +1307,10 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await device.Device.ForceSetPin(Encoding.UTF8.GetBytes(Pin), Encoding.UTF8.GetBytes("passphrase"));
+                if (!await device.Device.ForceSetPin(Pin, Encoding.UTF8.GetBytes("passphrase")))
+                    MessageBox.Show("Wrong MasterKey");
+                else
+                    MessageBox.Show("PIN has been changed");
             }
             catch (Exception ex)
             {
@@ -1307,7 +1322,10 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await device.Device.EnterPin(Encoding.UTF8.GetBytes(Pin));
+                if (!await device.Device.EnterPin(Pin))
+                   MessageBox.Show("Wrong PIN");
+                else
+                    MessageBox.Show("PIN OK");
             }
             catch (Exception ex)
             {
@@ -1331,7 +1349,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                var reply = await device.Device.Confirm(5, 6_000);
+                var reply = await device.Device.Confirm(5);
             }
             catch (Exception ex)
             {

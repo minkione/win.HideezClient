@@ -1,4 +1,4 @@
-﻿using Hideez.SDK.Communication;
+﻿using Hideez.SDK.Communication.WorkstationEvents;
 
 namespace HideezMiddleware.Modules
 {

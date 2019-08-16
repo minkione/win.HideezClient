@@ -1,9 +1,5 @@
-﻿using Hideez.SDK.Communication;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using Hideez.SDK.Communication.WorkstationEvents;
 
 namespace HideezMiddleware.Modules
 {

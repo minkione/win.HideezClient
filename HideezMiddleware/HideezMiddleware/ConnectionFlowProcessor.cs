@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
-using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
+using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Utils;
 using NLog;
@@ -24,15 +24,16 @@ namespace HideezMiddleware
     }
 
     // Todo: Code cleanup in WorkstationUnlocker after rapid proximity unlock development
-    public class WorkstationUnlocker
+    public class ConnectionFlowProcessor
     {
         readonly ILogger _log = LogManager.GetCurrentClassLogger();
         readonly BleDeviceManager _deviceManager;
-        readonly CredentialProviderConnection _credentialProviderConnection;
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
+        readonly IWorkstationUnlocker _workstationUnlocker;
         readonly IScreenActivator _screenActivator;
         readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
+        readonly UiProxy _ui;
         readonly bool _ignoreWorkstationOwnershipSecurity;
 
         HesAppConnection _hesConnection;
@@ -53,13 +54,14 @@ namespace HideezMiddleware
         readonly ConcurrentDictionary<string, string> _rfidAccessBlacklist = new ConcurrentDictionary<string, string>();
         readonly ConcurrentDictionary<string, string> _bleAccessBlacklist = new ConcurrentDictionary<string, string>();
 
-        public WorkstationUnlocker(BleDeviceManager deviceManager,
+        public ConnectionFlowProcessor(BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
-            CredentialProviderConnection credentialProviderConnection,
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
+            IWorkstationUnlocker workstationUnlocker,
             IScreenActivator screenActivator,
             ISettingsManager<UnlockerSettings> unlockerSettingsManager,
+            UiProxy ui,
             bool ignoreWorkstationOwnershipSecurity = false)
         {
 #if DEBUG
@@ -67,20 +69,21 @@ namespace HideezMiddleware
 #endif
 
             _deviceManager = deviceManager;
-            _credentialProviderConnection = credentialProviderConnection;
             _rfidService = rfidService;
             _connectionManager = connectionManager;
+            _workstationUnlocker = workstationUnlocker;
             _screenActivator = screenActivator;
             _unlockerSettingsManager = unlockerSettingsManager;
+            _ui = ui;
             _ignoreWorkstationOwnershipSecurity = ignoreWorkstationOwnershipSecurity;
 
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
 
-            _credentialProviderConnection.OnProviderConnected += CredentialProviderConnection_OnProviderConnected;
-            _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
-            _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
-            _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+            //_credentialProviderConnection.OnProviderConnected += CredentialProviderConnection_OnProviderConnected;
+            //_rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
+            //_rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
+            //_connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
 
             Task.Run(async () =>
@@ -104,14 +107,14 @@ namespace HideezMiddleware
         {
             if (_hesConnection != null)
             {
-                _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
+                //_hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
                 _hesConnection = null;
             }
 
             if (hesConnection != null)
             {
                 _hesConnection = hesConnection;
-                _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
+                //_hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
             }
         }
 
@@ -129,87 +132,6 @@ namespace HideezMiddleware
                 _log.Error(ex);
             }
         }
-
-        #region Status notification
-
-        void CredentialProviderConnection_OnProviderConnected(object sender, EventArgs e)
-        {
-            ClearAccessBlacklists();
-            SendStatusToCredentialProvider();
-        }
-
-        void HesConnection_HubConnectionStateChanged(object sender, EventArgs e)
-        {
-            SendStatusToCredentialProvider();
-        }
-
-        void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
-        {
-            if (_connectionManager.State == BluetoothAdapterState.PoweredOn)
-                ClearAccessBlacklists();
-
-            SendStatusToCredentialProvider();
-        }
-
-        void RfidService_RfidReaderStateChanged(object sender, EventArgs e)
-        {
-            SendStatusToCredentialProvider();
-        }
-
-        void RfidService_RfidServiceStateChanged(object sender, EventArgs e)
-        {
-            SendStatusToCredentialProvider();
-        }
-
-        async void SendStatusToCredentialProvider()
-        {
-            try
-            {
-                var statuses = new List<string>();
-
-                // Bluetooth
-                switch (_connectionManager.State)
-                {
-                    case BluetoothAdapterState.PoweredOn:
-                    case BluetoothAdapterState.LoadingKnownDevices:
-                        break;
-                    default:
-                        statuses.Add($"Bluetooth not available (state: {_connectionManager.State})");
-                        break;
-                }
-
-                // RFID
-                if (!_rfidService.ServiceConnected)
-                    statuses.Add("RFID service not connected");
-                else if (!_rfidService.ReaderConnected)
-                    statuses.Add("RFID reader not connected");
-
-                // Server
-                if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
-                    statuses.Add("HES not connected");
-
-                if (statuses.Count > 0)
-                    await _credentialProviderConnection.SendStatus($"ERROR: {string.Join("; ", statuses)}");
-                else
-                    await _credentialProviderConnection.SendStatus(string.Empty);
-            }
-            catch (System.Exception ex)
-            {
-                _log.Error(ex);
-            }
-        }
-
-        async Task SendNotificationAsync(string notification)
-        {
-            await _credentialProviderConnection.SendNotification(notification);
-        }
-
-        async Task SendErrorAsync(string error)
-        {
-            await _credentialProviderConnection.SendError(error);
-        }
-
-        #endregion
 
         #region Access checks
         bool IsDeviceAuthorized(string mac)
@@ -241,25 +163,26 @@ namespace HideezMiddleware
                 // Ble tap. Rssi of -27 was calculated empirically
                 if (e.Rssi > -27 && !_bleAccessBlacklist.ContainsKey(mac))
                 {
-                    var newGuid = Guid.NewGuid();
-                    var guid = _pendingUnlocks.GetOrAdd(mac, newGuid);
+                    await MainWorkflow(mac);
+                    //var newGuid = Guid.NewGuid();
+                    //var guid = _pendingUnlocks.GetOrAdd(mac, newGuid);
 
-                    if (guid == newGuid)
-                    {
-                        await UnlockByMac(mac);
-                        _pendingUnlocks.TryRemove(mac, out Guid removed);
-                    }
+                    //if (guid == newGuid)
+                    //{
+                    //    await UnlockByMac(mac);
+                    //    _pendingUnlocks.TryRemove(mac, out Guid removed);
+                    //}
                 }
                 else
                 {
                     // Proximity
                     // Connection occurs only when workstation is locked
-                    if (_credentialProviderConnection.IsConnected
+                    if (_workstationUnlocker.IsConnected
                         && BleUtils.RssiToProximity(e.Rssi) > _connectProximity
                         && IsProximityAllowed(mac)
                         && !_proximityAccessBlacklist.ContainsKey(mac))
                     {
-                        var newGuid = Guid.NewGuid();
+                        var newGuid = Guid.NewGuid(); //todo - dublicated code
                         var guid = _pendingUnlocks.GetOrAdd(mac, newGuid);
 
                         if (guid == newGuid)
@@ -285,6 +208,143 @@ namespace HideezMiddleware
             }
         }
 
+        //------------------------------
+        async Task MainWorkflow(string mac)
+        {
+            //[1] ignore, if workflow for this device already initialized
+            var newGuid = Guid.NewGuid();
+            var guid = _pendingUnlocks.GetOrAdd(mac, newGuid); //todo - replace to TryAdd
+
+            if (guid != newGuid)
+                return;
+
+            try
+            {
+                //[2] connect device
+                IDevice device = await ConnectDevice(mac);
+
+                //[3] wait auth and init
+                await WaitDeviceInitialization(mac, device);
+
+
+                if (device.AccessLevel.IsLocked)
+                {
+                    //if (!device.HasUpdatedRemotelly) //todo
+                    {
+                        // request hes to update this device
+                        //_hesConnection?.UpdateDevice(device);//todo
+                    }
+                    //else
+                    {
+                        // disconnect device
+                        await device.Disconnect();
+
+                        // show error message
+                        throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                    }
+                }
+                else
+                {
+                    if (!await MasterKeyWorkflow(device, 10))
+                        throw new HideezException(HideezErrorCode.HesAuthenticationFailed);
+
+                    var t1 = ButtonWorkflow(device, 10);
+                    var t2 = PinWorkflow(device, 10);
+
+                    await Task.WhenAll(t1, t2);
+
+                    if (t1.Result && t2.Result)
+                    {
+                        await _ui.SendNotification("Reading credentials from the device...");
+                        ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
+                        var credentials = await GetCredentials(device, primaryAccountKey);
+
+                        // send credentials to the Credential Provider to unlock the PC
+                        await _ui.SendNotification("Unlocking the PC...");
+                        var logonSuccessful = await _workstationUnlocker.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+
+                        if (!logonSuccessful)
+                            await device.Disconnect();
+                    }
+                }
+
+            }
+            catch (HideezException ex)
+            {
+                var message = HideezExceptionLocalization.GetErrorAsString(ex);
+                _log.Error(message);
+                await _ui.SendNotification("");
+                await _ui.SendError(message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                await _ui.SendNotification("");
+                await _ui.SendError(ex.Message);
+                throw;
+            }
+            finally
+            {
+                //todo - when remove from _pendingUnlocks?
+                _pendingUnlocks.TryRemove(mac, out Guid removed);
+                await Task.Delay(3000);
+            }
+        }
+
+        private async Task<bool> MasterKeyWorkflow(IDevice device, int timeout)
+        {
+            //todo - replase with hes.UpdateDevice()
+            var accessParams = new AccessParams()
+            {
+                MasterKey_Bond = true,
+                MasterKey_Connect = false,
+                MasterKey_Link = false,
+                MasterKey_Channel = false,
+
+                Button_Bond = false,
+                Button_Connect = false,
+                Button_Link = true,
+                Button_Channel = true,
+
+                Pin_Bond = false,
+                Pin_Connect = true,
+                Pin_Link = false,
+                Pin_Channel = false,
+
+                PinMinLength = 4,
+                PinMaxTries = 3,
+                MasterKeyExpirationPeriod = 24 * 60 * 60,
+                PinExpirationPeriod = 15 * 60,
+                ButtonExpirationPeriod = 15,
+            };
+
+            await device.Access(
+                DateTime.UtcNow,
+                Encoding.UTF8.GetBytes("passphrase"),
+                accessParams);
+
+            await Task.Delay(1000);
+            return true;
+        }
+
+        Task<bool> ButtonWorkflow(IDevice device, int timeout)
+        {
+            return device.WaitButtonConfirmation(timeout);
+        }
+
+        async Task<bool> PinWorkflow(IDevice device, int timeout)
+        {
+            if (device.AccessLevel.IsPinRequired)
+            {
+                string pin = await _ui.GetPin(timeout);
+                return await device.EnterPin(pin);
+            }
+            return false;
+        }
+
+        //------------------------------------
+
         async void RfidService_RfidReceivedEvent(object sender, RfidReceivedEventArgs e)
         {
             try
@@ -300,7 +360,7 @@ namespace HideezMiddleware
 
         async Task<IDevice> ConnectDevice(string mac)
         {
-            await SendNotificationAsync("Connecting to the device...");
+            await _ui.SendNotification("Connecting to the device...");
             var device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
             if (device == null)
             {
@@ -312,7 +372,7 @@ namespace HideezMiddleware
 
         async Task WaitDeviceInitialization(string mac, IDevice device)
         {
-            await SendNotificationAsync("Waiting for the device initialization...");
+            await _ui.SendNotification("Waiting for the device initialization...");
             await device.WaitInitialization(BleDefines.DeviceInitializationTimeout);
             if (device.IsErrorState)
             {
@@ -335,7 +395,7 @@ namespace HideezMiddleware
                 await WaitDeviceInitialization(mac, device);
 
                 // No point in reading credentials if CredentialProvider is not connected
-                if (!_credentialProviderConnection.IsConnected)
+                if (!_workstationUnlocker.IsConnected)
                     return;
 
                 // get info from the HES to check if primary account update is needed
@@ -347,19 +407,19 @@ namespace HideezMiddleware
                     if (info == null)
                         throw new Exception($"Device not found");
 
-                    await SendNotificationAsync("Waiting for the primary account update...");
+                    await _ui.SendNotification("Waiting for the primary account update...");
                     await WaitForPrimaryAccountUpdate(info);
                 }
 
-                await SendNotificationAsync("Reading credentials from the device...");
+                await _ui.SendNotification("Reading credentials from the device...");
                 ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
                 var credentials = await GetCredentials(device, primaryAccountKey);
 
                 SessionSwitchManager.SetEventSubject(unlockMethod, device.SerialNo);
 
                 // send credentials to the Credential Provider to unlock the PC
-                await SendNotificationAsync("Unlocking the PC...");
-                var logonSuccessful = await _credentialProviderConnection.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+                await _ui.SendNotification("Unlocking the PC...");
+                var logonSuccessful = await _workstationUnlocker.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
 
                 if (!logonSuccessful)
                     await device.Disconnect();
@@ -370,15 +430,15 @@ namespace HideezMiddleware
             {
                 var message = HideezExceptionLocalization.GetErrorAsString(ex);
                 _log.Error(message);
-                await SendNotificationAsync("");
-                await SendErrorAsync(message);
+                await _ui.SendNotification("");
+                await _ui.SendError(message);
                 throw;
             }
             catch (Exception ex)
             {
                 _log.Error(ex);
-                await SendNotificationAsync("");
-                await SendErrorAsync(ex.Message);
+                await _ui.SendNotification("");
+                await _ui.SendError(ex.Message);
                 throw;
             }
         }
@@ -401,8 +461,8 @@ namespace HideezMiddleware
             catch (AccessDeniedAuthException ex)
             {
                 _log.Error(ex);
-                await SendNotificationAsync("");
-                await SendErrorAsync(ex.Message);
+                await _ui.SendNotification("");
+                await _ui.SendError(ex.Message);
                 throw;
             }
         }
@@ -412,7 +472,7 @@ namespace HideezMiddleware
             try
             {
                 ActivateWorkstationScreen();
-                await SendNotificationAsync("Connecting to the HES server...");
+                await _ui.SendNotification("Connecting to the HES server...");
 
                 if (_hesConnection == null)
                     throw new Exception("Cannot connect device. Not connected to the HES.");
@@ -435,8 +495,8 @@ namespace HideezMiddleware
             catch (AccessDeniedAuthException ex)
             {
                 _log.Error(ex);
-                await SendNotificationAsync("");
-                await SendErrorAsync(ex.Message);
+                await _ui.SendNotification("");
+                await _ui.SendError(ex.Message);
                 throw;
             }
         }
@@ -456,8 +516,8 @@ namespace HideezMiddleware
             catch (AccessDeniedAuthException ex)
             {
                 _log.Error(ex);
-                await SendNotificationAsync("");
-                await SendErrorAsync(ex.Message);
+                await _ui.SendNotification("");
+                await _ui.SendError(ex.Message);
                 throw;
             }
         }
@@ -550,7 +610,7 @@ namespace HideezMiddleware
                 {
                     _screenActivator?.ActivateScreen();
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     _log.Error(ex);
                 }
