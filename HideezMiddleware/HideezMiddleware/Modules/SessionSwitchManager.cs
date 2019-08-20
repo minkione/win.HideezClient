@@ -9,8 +9,6 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Linq;
 
-
-
 namespace HideezMiddleware
 {
     public static class SessionSwitchManager

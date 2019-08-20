@@ -50,13 +50,13 @@ namespace HideezMiddleware
             return physicalAddress;
         }
 
-        public static async Task<IPAddress> GetLocalIPAddressAsync(IPAddress allowedIP)
+        public static async Task<IPAddress> GetLocalIPAddressAsync(IPEndPoint endPoint)
         {
             IPAddress address = IPAddress.None;
             TcpClient client = new TcpClient();
             try
             {
-                await client.Client.ConnectAsync(new IPEndPoint(allowedIP, 80));
+                await client.Client.ConnectAsync(endPoint);
                 while (!client.Connected)
                 {
                     await Task.Delay(100);

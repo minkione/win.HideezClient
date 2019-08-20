@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.Workstation;
 using Microsoft.Win32;
 using System;
@@ -16,13 +17,27 @@ namespace HideezMiddleware
     public class WorkstationInfoProvider : IWorkstationInfoProvider
     {
         public ILog log;
-        private readonly IPAddress allowedIP;
+        private readonly IPEndPoint endPoint;
 
-        public WorkstationInfoProvider(string allowedIP, ILog log)
+        public WorkstationInfoProvider(string hostNameOrAddress, ILog log)
         {
             this.log = log;
-            IPAddress.TryParse(allowedIP, out IPAddress address);
-            this.allowedIP = address;
+            try
+            {
+                if (UrlUtils.TryGetUri(hostNameOrAddress, out Uri uri))
+                {
+                    IPAddress hostAddress = Dns.GetHostEntry(uri.Host).AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                    endPoint = new IPEndPoint(hostAddress, uri.Port);
+                }
+                else
+                {
+                    log?.WriteLine(nameof(WorkstationInfoProvider), $"{nameof(hostNameOrAddress)} not valid format.", LogErrorSeverity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                log?.WriteLine(nameof(WorkstationInfoProvider), ex);
+            }
         }
 
         public async Task<WorkstationInfo> GetWorkstationInfoAsync()
@@ -53,9 +68,9 @@ namespace HideezMiddleware
                     Debug.Assert(false);
                 }
 
-                if (allowedIP != null && allowedIP != IPAddress.None)
+                if (endPoint != null)
                 {
-                    IPAddress localIP = await WorkstationHelper.GetLocalIPAddressAsync(allowedIP);
+                    IPAddress localIP = await WorkstationHelper.GetLocalIPAddressAsync(endPoint);
                     PhysicalAddress mac = WorkstationHelper.GetCurrentMAC(localIP);
 
                     workstationInfo.IP = localIP.ToString();
@@ -63,7 +78,7 @@ namespace HideezMiddleware
                 }
                 else
                 {
-                    log?.WriteLine(nameof(WorkstationInfoProvider), $"{nameof(allowedIP)} is null or none.", LogErrorSeverity.Error);
+                    log?.WriteLine(nameof(WorkstationInfoProvider), $"{nameof(endPoint)} is null or none.", LogErrorSeverity.Error);
                 }
 
                 workstationInfo.Users = await WorkstationHelper.GetAllUserNamesAsync();
