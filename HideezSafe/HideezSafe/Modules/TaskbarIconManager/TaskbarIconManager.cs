@@ -170,7 +170,7 @@ namespace HideezSafe.Modules
             }
 
             // Free any unmanaged objects here.
-            animTimer.Dispose();
+            animTimer?.Dispose();
 
             disposed = true;
         }

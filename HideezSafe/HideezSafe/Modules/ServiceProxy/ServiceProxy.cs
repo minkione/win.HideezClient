@@ -169,6 +169,11 @@ namespace HideezSafe.Modules.ServiceProxy
 
             disposed = true;
         }
+
+        ~ServiceProxy()
+        {
+            Dispose(false);
+        }
         #endregion
     }
 }

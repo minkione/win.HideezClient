@@ -91,6 +91,11 @@ namespace HideezSafe.Modules.SessionStateMonitor
                 disposed = true;
             }
         }
+
+        ~SessionStateMonitor()
+        {
+            Dispose(false);
+        }
         #endregion
     }
 }
