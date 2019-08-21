@@ -98,6 +98,10 @@ namespace HideezMiddleware
         {
             string localizedStr = ErrorCode.ResourceManager.GetString(exception.ErrorCode.ToString(), culture ?? ErrorCode.Culture);
 
+            if (localizedStr == null)
+                return exception.ErrorCode.ToString();
+            //todo - localizedStr is null
+
             if (exception.Parameters != null)
             {
                 return string.Format(localizedStr, exception.Parameters);
