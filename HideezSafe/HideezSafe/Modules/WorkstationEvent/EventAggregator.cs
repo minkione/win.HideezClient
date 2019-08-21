@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.WorkstationEvents;
 using HideezSafe.HideezServiceReference;
 using HideezSafe.Modules.ServiceProxy;
 using NLog;

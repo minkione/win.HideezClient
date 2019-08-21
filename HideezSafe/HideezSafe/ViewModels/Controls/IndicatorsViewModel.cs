@@ -1,18 +1,10 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
-using HideezSafe.HideezServiceReference;
 using HideezSafe.Messages;
-using HideezSafe.Modules.ServiceCallbackMessanger;
 using HideezSafe.Modules.ServiceProxy;
 using HideezSafe.Mvvm;
 using NLog;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HideezSafe.ViewModels
 {
@@ -67,29 +59,14 @@ namespace HideezSafe.ViewModels
             };
             Indicators.Add(connectionDongle);
 
-            async void InitIndicators()
+            void ResetIndicators()
             {
                 try
                 {
-                    if (serviceProxy.IsConnected)
-                    {
-                        IHideezService hideezService = serviceProxy.GetService();
-                        Service.State = serviceProxy.IsConnected;
-                        connectionDongle.State = await hideezService.GetAdapterStateAsync(Adapter.Dongle);
-                        connectionRFID.State = await hideezService.GetAdapterStateAsync(Adapter.RFID);
-                        connectionHES.State = await hideezService.GetAdapterStateAsync(Adapter.HES);
-                    }
-                    else
-                    {
-                        Service.State = false;
-                        connectionDongle.State = false;
-                        connectionRFID.State = false;
-                        connectionHES.State = false;
-                    }
-                }
-                catch (FaultException<HideezServiceFault> ex)
-                {
-                    log.Error(ex.FormattedMessage());
+                    Service.State = serviceProxy.IsConnected;
+                    connectionDongle.State = false;
+                    connectionRFID.State = false;
+                    connectionHES.State = false;
                 }
                 catch (Exception ex)
                 {
@@ -97,10 +74,14 @@ namespace HideezSafe.ViewModels
                 }
             }
 
-            messenger.Register<ConnectionServiceChangedMessage>(Service, c => InitIndicators(), true);
-            messenger.Register<ConnectionDongleChangedMessage>(connectionDongle, c => connectionDongle.State = c.IsConnected, true);
-            messenger.Register<ConnectionRFIDChangedMessage>(connectionRFID, c => connectionRFID.State = c.IsConnected, true);
-            messenger.Register<ConnectionHESChangedMessage>(connectionHES, c => connectionHES.State = c.IsConnected, true);
+            messenger.Register<ConnectionServiceChangedMessage>(Service, c => ResetIndicators(), true);
+            messenger.Register<ServiceComponentsStateChangedMessage>(connectionDongle, message =>
+            {
+                connectionDongle.State = message.BleConnected;
+                connectionRFID.State = message.RfidConnected;
+                connectionHES.State = message.HesConnected;
+            }
+            , true);
         }
     }
 }

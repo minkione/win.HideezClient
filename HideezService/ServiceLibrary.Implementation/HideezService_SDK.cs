@@ -246,10 +246,6 @@ namespace ServiceLibrary.Implementation
 
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
-            foreach (var client in SessionManager.Sessions)
-                client.Callbacks.DongleConnectionStateChanged(_connectionManager?.State == BluetoothAdapterState.PoweredOn);
-
-
             if (_connectionManager != null && (_connectionManager.State == BluetoothAdapterState.Unknown || _connectionManager.State == BluetoothAdapterState.PoweredOn))
             {
                 var we = _workstationEventFactory.GetBaseInitializedInstance();
@@ -272,9 +268,6 @@ namespace ServiceLibrary.Implementation
         {
             bool isConnected = _rfidService != null ? _rfidService.ServiceConnected && _rfidService.ReaderConnected : false;
 
-            foreach (var client in SessionManager.Sessions)
-                client.Callbacks.RFIDConnectionStateChanged(isConnected);
-
             var we = _workstationEventFactory.GetBaseInitializedInstance();
             we.EventId = isConnected ? WorkstationEventId.RFIDAdapterPlugged : WorkstationEventId.RFIDAdapterUnplugged;
             we.Severity = isConnected ? WorkstationEventSeverity.Ok : WorkstationEventSeverity.Warning;
@@ -283,9 +276,6 @@ namespace ServiceLibrary.Implementation
 
         void HES_ConnectionStateChanged(object sender, EventArgs e)
         {
-            foreach (var client in SessionManager.Sessions)
-                client.Callbacks.HESConnectionStateChanged(_hesConnection?.State == HesConnectionState.Connected);
-
             if (_hesConnection != null)
             {
                 var we = _workstationEventFactory.GetBaseInitializedInstance();

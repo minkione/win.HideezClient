@@ -20,14 +20,6 @@ namespace TestConsole
         {
         }
 
-        public void DongleConnectionStateChanged(bool isConnected)
-        {
-        }
-
-        public void HESConnectionStateChanged(bool isConnected)
-        {
-        }
-
         public void LockWorkstationRequest()
         {
         }
@@ -44,7 +36,15 @@ namespace TestConsole
         {
         }
 
-        public void RFIDConnectionStateChanged(bool isConnected)
+        public void ServiceComponentsStateChanged(bool hesConnected, bool rfidConnected, bool bleConnected)
+        {
+        }
+
+        public void ServiceErrorReceived(string error)
+        {
+        }
+
+        public void ServiceNotificationReceived(string message)
         {
         }
     }

@@ -59,6 +59,7 @@ namespace ServiceLibrary.Implementation.SessionManagement
             ClientConnected?.Invoke(this, EventArgs.Empty);
         }
 
+
         // Todo:
         public Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false)
         {
@@ -71,22 +72,41 @@ namespace ServiceLibrary.Implementation.SessionManagement
             throw new NotImplementedException();
         }
 
-        // Todo:
-        public Task SendError(string message)
+        public async Task SendError(string message)
         {
-            throw new NotImplementedException();
+            await Task.Run(() =>
+            {
+                foreach (var session in _clientSessionManager.Sessions)
+                {
+                    session.Callbacks.ServiceErrorReceived(message);
+                }
+            });
         }
 
-        // Todo:
-        public Task SendNotification(string message)
+        public async Task SendNotification(string message)
         {
-            throw new NotImplementedException();
+            await Task.Run(() =>
+            {
+                foreach (var session in _clientSessionManager.Sessions)
+                {
+                    session.Callbacks.ServiceNotificationReceived(message);
+                }
+            });
         }
 
-        // Todo:
-        public Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus)
+        public async Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus)
         {
-            throw new NotImplementedException();
+            await Task.Run(() =>
+            {
+                var isBleOk = bluetoothStatus == BluetoothStatus.Ok;
+                var isRfidOk = rfidStatus == RfidStatus.Ok;
+                var isHesOk = hesStatus == HesStatus.Ok;
+
+                foreach (var session in _clientSessionManager.Sessions)
+                {
+                    session.Callbacks.ServiceComponentsStateChanged(isBleOk, isRfidOk, isHesOk);
+                }
+            });
         }
     }
 }

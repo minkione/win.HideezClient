@@ -1,6 +1,7 @@
 ﻿using Hideez.ARM;
 using Hideez.ISM;
 using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware.Settings;
 using HideezSafe.Models;
 using HideezSafe.Models.Settings;

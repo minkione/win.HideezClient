@@ -42,7 +42,7 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
                 log.Error(ex);
             }
         }
-
+        /*
         public void DongleConnectionStateChanged(bool isConnected)
         {
             try
@@ -81,7 +81,7 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
                 log.Error(ex);
             }
         }
-
+        */
         public void DevicesCollectionChanged(DeviceDTO[] devices)
         {
             try
@@ -156,6 +156,45 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
                 messenger.Send(new Remote_StorageModifiedMessage(serialNo));
             }
             catch (System.Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
+        public void ServiceComponentsStateChanged(bool hesConnected, bool rfidConnected, bool bleConnected)
+        {
+            try
+            {
+                log.Info($"Service components state changed (hes:{hesConnected}; rfid:{rfidConnected}; ble:{bleConnected})");
+                messenger.Send(new ServiceComponentsStateChangedMessage(hesConnected, rfidConnected, bleConnected));
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
+        public void ServiceNotificationReceived(string message)
+        {
+            try
+            {
+                log.Info($"Notification message from service: {message}");
+                messenger.Send(new ServiceNotificationReceivedMessage(message));
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
+        public void ServiceErrorReceived(string error)
+        {
+            try
+            {
+                log.Info($"Error message from service: {error}");
+                messenger.Send(new ServiceErrorReceivedMessage(error));
+            }
+            catch (Exception ex)
             {
                 log.Error(ex);
             }

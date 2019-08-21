@@ -136,20 +136,6 @@ namespace HideezSafe.HideezServiceReference {
         }
     }
     
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Adapter", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-    public enum Adapter : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        HES = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        RFID = 1,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Dongle = 2,
-    }
-    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="DeviceDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
@@ -592,13 +578,6 @@ namespace HideezSafe.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/Shutdown", ReplyAction="http://tempuri.org/IHideezService/ShutdownResponse")]
         System.Threading.Tasks.Task ShutdownAsync();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAdapterState", ReplyAction="http://tempuri.org/IHideezService/GetAdapterStateResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetAdapterStateHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        bool GetAdapterState(HideezSafe.HideezServiceReference.Adapter adapter);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAdapterState", ReplyAction="http://tempuri.org/IHideezService/GetAdapterStateResponse")]
-        System.Threading.Tasks.Task<bool> GetAdapterStateAsync(HideezSafe.HideezServiceReference.Adapter adapter);
-        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetDevices", ReplyAction="http://tempuri.org/IHideezService/GetDevicesResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezSafe.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetDevicesHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
         HideezSafe.HideezServiceReference.DeviceDTO[] GetDevices();
@@ -669,14 +648,14 @@ namespace HideezSafe.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ActivateWorkstationScreenRequest")]
         void ActivateWorkstationScreenRequest();
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HESConnectionStateChanged")]
-        void HESConnectionStateChanged(bool isConnected);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceComponentsStateChanged")]
+        void ServiceComponentsStateChanged(bool hesConnected, bool rfidConnected, bool bleConnected);
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RFIDConnectionStateChanged")]
-        void RFIDConnectionStateChanged(bool isConnected);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceNotificationReceived")]
+        void ServiceNotificationReceived(string message);
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DongleConnectionStateChanged")]
-        void DongleConnectionStateChanged(bool isConnected);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceErrorReceived")]
+        void ServiceErrorReceived(string error);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DevicesCollectionChanged")]
         void DevicesCollectionChanged(HideezSafe.HideezServiceReference.DeviceDTO[] devices);
@@ -755,14 +734,6 @@ namespace HideezSafe.HideezServiceReference {
         
         public System.Threading.Tasks.Task ShutdownAsync() {
             return base.Channel.ShutdownAsync();
-        }
-        
-        public bool GetAdapterState(HideezSafe.HideezServiceReference.Adapter adapter) {
-            return base.Channel.GetAdapterState(adapter);
-        }
-        
-        public System.Threading.Tasks.Task<bool> GetAdapterStateAsync(HideezSafe.HideezServiceReference.Adapter adapter) {
-            return base.Channel.GetAdapterStateAsync(adapter);
         }
         
         public HideezSafe.HideezServiceReference.DeviceDTO[] GetDevices() {

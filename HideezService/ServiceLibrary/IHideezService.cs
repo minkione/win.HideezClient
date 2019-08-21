@@ -25,10 +25,6 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        bool GetAdapterState(Adapter adapter);
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
         DeviceDTO[] GetDevices();
 
         [OperationContract]
@@ -59,6 +55,7 @@ namespace ServiceLibrary
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         void PublishEvent(WorkstationEventDTO workstationEvent);
+
     }
 
     public interface ICallbacks
@@ -71,13 +68,13 @@ namespace ServiceLibrary
 
 
         [OperationContract(IsOneWay = true)]
-        void HESConnectionStateChanged(bool isConnected);
+        void ServiceComponentsStateChanged(bool hesConnected, bool rfidConnected, bool bleConnected);
 
         [OperationContract(IsOneWay = true)]
-        void RFIDConnectionStateChanged(bool isConnected);
+        void ServiceNotificationReceived(string message);
 
         [OperationContract(IsOneWay = true)]
-        void DongleConnectionStateChanged(bool isConnected);
+        void ServiceErrorReceived(string error);
 
 
         [OperationContract(IsOneWay = true)]
