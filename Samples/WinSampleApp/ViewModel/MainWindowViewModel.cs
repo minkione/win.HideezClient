@@ -769,7 +769,7 @@ namespace WinSampleApp.ViewModel
                 uiProxy);
 
             // StatusManager =============================
-            var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxy);
+            var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _credentialProviderConnection, uiProxy);
 
             _connectionManager.StartDiscovery();
         }

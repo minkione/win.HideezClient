@@ -6,110 +6,148 @@ using NLog;
 
 namespace HideezMiddleware
 {
-    public class StatusManager
+    public class StatusManager : IDisposable
     {
         readonly ILogger _log = LogManager.GetCurrentClassLogger();
 
+        readonly HesAppConnection _hesConnection;
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
+        readonly CredentialProviderConnection _credentialProviderConnection;
         readonly UiProxy _ui;
-
-        //todo = make read only
-        HesAppConnection _hesConnection;
 
         public StatusManager(HesAppConnection hesConnection,
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
+            CredentialProviderConnection credentialProviderConnection,
             UiProxy ui)
         {
+            _hesConnection = hesConnection;
             _rfidService = rfidService;
             _connectionManager = connectionManager;
+            _credentialProviderConnection = credentialProviderConnection;
             _ui = ui;
 
+            _credentialProviderConnection.OnProviderConnected += CredentialProviderConnection_OnProviderConnected;
+            _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-
-            SetHes(hesConnection);
         }
 
-        //todo - remove (replace with HesConnectionManager)
-        void SetHes(HesAppConnection hesConnection)
+        #region IDisposable
+        bool disposed = false;
+        public void Dispose()
         {
-            if (_hesConnection != null)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
             {
+                // Release managed resources here
+                _credentialProviderConnection.OnProviderConnected -= CredentialProviderConnection_OnProviderConnected;
                 _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
-                _hesConnection = null;
+                _rfidService.RfidServiceStateChanged -= RfidService_RfidServiceStateChanged;
+                _rfidService.RfidReaderStateChanged -= RfidService_RfidReaderStateChanged;
+                _connectionManager.AdapterStateChanged -= ConnectionManager_AdapterStateChanged;
             }
 
-            if (hesConnection != null)
-            {
-                _hesConnection = hesConnection;
-                _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
-            }
+            disposed = true;
         }
+
+        ~StatusManager()
+        {
+            Dispose(false);
+        }
+        #endregion
 
         void CredentialProviderConnection_OnProviderConnected(object sender, EventArgs e)
         {
-            SendStatusToCredentialProvider();
+            SendStatusToUI();
         }
 
         void HesConnection_HubConnectionStateChanged(object sender, EventArgs e)
         {
-            SendStatusToCredentialProvider();
+            SendStatusToUI();
         }
 
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
-            SendStatusToCredentialProvider();
+            SendStatusToUI();
         }
 
         void RfidService_RfidReaderStateChanged(object sender, EventArgs e)
         {
-            SendStatusToCredentialProvider();
+            SendStatusToUI();
         }
 
         void RfidService_RfidServiceStateChanged(object sender, EventArgs e)
         {
-            SendStatusToCredentialProvider();
+            SendStatusToUI();
         }
 
-        async void SendStatusToCredentialProvider()
+        async void SendStatusToUI()
         {
             try
             {
-                var statuses = new List<string>();
+                var bluetoothStatus = GetBluetoothStatus();
 
-                // Bluetooth
-                switch (_connectionManager.State)
-                {
-                    case BluetoothAdapterState.PoweredOn:
-                    case BluetoothAdapterState.LoadingKnownDevices:
-                        break;
-                    default:
-                        statuses.Add($"Bluetooth not available (state: {_connectionManager.State})");
-                        break;
-                }
+                var rfidStatus = GetRfidStatus();
+                
+                var hesStatus = GetHesStatus();
 
-                // RFID
-                if (!_rfidService.ServiceConnected)
-                    statuses.Add("RFID service not connected");
-                else if (!_rfidService.ReaderConnected)
-                    statuses.Add("RFID reader not connected");
-
-                // Server
-                if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
-                    statuses.Add("HES not connected");
-
-                if (statuses.Count > 0)
-                    await _ui.SendStatus($"ERROR: {string.Join("; ", statuses)}");
-                else
-                    await _ui.SendStatus(string.Empty);
+                await _ui.SendStatus(bluetoothStatus, rfidStatus, hesStatus);
             }
             catch (Exception ex)
             {
                 _log.Error(ex);
             }
+        }
+
+        BluetoothStatus GetBluetoothStatus()
+        {
+            switch (_connectionManager.State)
+            {
+                case BluetoothAdapterState.PoweredOn:
+                case BluetoothAdapterState.LoadingKnownDevices:
+                    return BluetoothStatus.Ok;
+                case BluetoothAdapterState.Unknown:
+                    return BluetoothStatus.Unknown;
+                case BluetoothAdapterState.Resetting:
+                    return BluetoothStatus.Resetting;
+                case BluetoothAdapterState.Unsupported:
+                    return BluetoothStatus.Unsupported;
+                case BluetoothAdapterState.Unauthorized:
+                    return BluetoothStatus.Unauthorized;
+                case BluetoothAdapterState.PoweredOff:
+                    return BluetoothStatus.PoweredOff;
+                default:
+                    return BluetoothStatus.Unknown;
+            }
+        }
+
+        RfidStatus GetRfidStatus()
+        {
+            if (!_rfidService.ServiceConnected)
+                return RfidStatus.RfidServiceNotConnected;
+            else if (!_rfidService.ReaderConnected)
+                return RfidStatus.RfidReaderNotConnected;
+            else
+                return RfidStatus.Ok;
+        }
+
+        HesStatus GetHesStatus()
+        {
+            if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
+                return HesStatus.HesNotConnected;
+            else
+                return HesStatus.Ok;
         }
     }
 }
