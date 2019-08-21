@@ -34,7 +34,7 @@ namespace HideezMiddleware
         readonly IWorkstationUnlocker _workstationUnlocker;
         readonly IScreenActivator _screenActivator;
         readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
-        readonly UiProxy _ui;
+        readonly UiProxyManager _ui;
         readonly bool _ignoreWorkstationOwnershipSecurity;
 
         HesAppConnection _hesConnection;
@@ -62,7 +62,7 @@ namespace HideezMiddleware
             IWorkstationUnlocker workstationUnlocker,
             IScreenActivator screenActivator,
             ISettingsManager<UnlockerSettings> unlockerSettingsManager,
-            UiProxy ui,
+            UiProxyManager ui,
             bool ignoreWorkstationOwnershipSecurity = false)
         {
 #if DEBUG

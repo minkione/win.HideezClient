@@ -76,9 +76,10 @@
       <Link>Version.cs</Link>
     </Compile>
     <Compile Include="ConnectionFlowProcessor - Copy.cs" />
-    <Compile Include="CredentialProviderConnection.cs" />
+    <Compile Include="CredentialProviderProxy.cs" />
     <Compile Include="DeviceAccessController.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
+    <Compile Include="IClientUi.cs" />
     <Compile Include="IScreenActivator.cs" />
     <Compile Include="IWorkstationLocker.cs" />
     <Compile Include="Modules\WorkstationEventFactory\IWorkstationEventFactory.cs" />
@@ -96,7 +97,7 @@
     <Compile Include="Resources\ErrorCode.Designer.cs" />
     <Compile Include="RfidServiceConnection.cs" />
     <Compile Include="StatusManager.cs" />
-    <Compile Include="UiProxy.cs" />
+    <Compile Include="UiProxyManager.cs" />
     <Compile Include="Utils\LocalToMSAccountConverter.cs" />
     <Compile Include="Utils\MacUtils.cs" />
     <Compile Include="Utils\WorkstationHelper.cs" />

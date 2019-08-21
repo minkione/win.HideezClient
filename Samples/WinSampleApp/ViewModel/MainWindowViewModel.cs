@@ -27,7 +27,7 @@ namespace WinSampleApp.ViewModel
         readonly EventLogger _log;
         readonly BleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
-        readonly CredentialProviderConnection _credentialProviderConnection;
+        readonly CredentialProviderProxy _credentialProviderConnection;
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly RfidServiceConnection _rfidService;
 
@@ -743,7 +743,7 @@ namespace WinSampleApp.ViewModel
 
 
             // Named Pipes Server ==============================
-            _credentialProviderConnection = new CredentialProviderConnection(_log);
+            _credentialProviderConnection = new CredentialProviderProxy(_log);
             _credentialProviderConnection.Start();
 
 
@@ -755,7 +755,7 @@ namespace WinSampleApp.ViewModel
             var unlockerSettingsManager = new SettingsManager<UnlockerSettings>(string.Empty, new XmlFileSerializer(_log));
 
             // UI proxy ==================================
-            var uiProxy = new UiProxy(_credentialProviderConnection);
+            var uiProxy = new UiProxyManager(_credentialProviderConnection);
 
             // ConnectionFlowProcessor ==================================
             _connectionFlowProcessor = new ConnectionFlowProcessor(

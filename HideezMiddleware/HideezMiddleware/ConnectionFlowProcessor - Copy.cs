@@ -25,7 +25,7 @@ namespace HideezMiddleware
     {
         readonly ILogger _log = LogManager.GetCurrentClassLogger();
         readonly BleDeviceManager _deviceManager;
-        readonly CredentialProviderConnection _credentialProviderConnection;
+        readonly CredentialProviderProxy _credentialProviderConnection;
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
         readonly IScreenActivator _screenActivator;
@@ -52,7 +52,7 @@ namespace HideezMiddleware
 
         public ConnectionFlowProcessor2(BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
-            CredentialProviderConnection credentialProviderConnection,
+            CredentialProviderProxy credentialProviderConnection,
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
             IScreenActivator screenActivator,
@@ -450,7 +450,7 @@ namespace HideezMiddleware
 
                 await UnlockWorkstation(mac, SessionSwitchSubject.Proximity);
             }
-            catch (AccessDeniedAuthException ex)
+            catch (AccessDeniedAuthException ex) //why AccessDeniedAuthException only?
             {
                 _log.Error(ex);
                 await SendNotificationAsync("");

@@ -28,11 +28,11 @@ namespace HideezMiddleware
         HesNotConnected,
     }
 
-    public class UiProxy
+    public class UiProxyManager
     {
-        readonly CredentialProviderConnection _credentialProviderConnection;
+        readonly CredentialProviderProxy _credentialProviderConnection;
 
-        public UiProxy(CredentialProviderConnection credentialProviderConnection)
+        public UiProxyManager(CredentialProviderProxy credentialProviderConnection)
         {
             _credentialProviderConnection = credentialProviderConnection;
         }

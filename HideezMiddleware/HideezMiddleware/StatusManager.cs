@@ -13,14 +13,14 @@ namespace HideezMiddleware
         readonly HesAppConnection _hesConnection;
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
-        readonly CredentialProviderConnection _credentialProviderConnection;
-        readonly UiProxy _ui;
+        readonly CredentialProviderProxy _credentialProviderConnection;
+        readonly UiProxyManager _ui;
 
         public StatusManager(HesAppConnection hesConnection,
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
-            CredentialProviderConnection credentialProviderConnection,
-            UiProxy ui)
+            CredentialProviderProxy credentialProviderConnection,
+            UiProxyManager ui)
         {
             _hesConnection = hesConnection;
             _rfidService = rfidService;

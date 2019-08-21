@@ -23,6 +23,7 @@ namespace HideezMiddleware
         Status = 7,
         GetPin = 8,
         HidePinUi = 9,
+        GetConfirmedPin = 10,
     }
 
     // Events from the Credential Provider
@@ -37,7 +38,7 @@ namespace HideezMiddleware
         LogonResult = 106,
     }
 
-    public class CredentialProviderConnection : Logger, IWorkstationUnlocker
+    public class CredentialProviderProxy : Logger, IWorkstationUnlocker, IClientUi
     {
         readonly PipeServer _pipeServer;
 
@@ -53,8 +54,8 @@ namespace HideezMiddleware
             = new ConcurrentDictionary<string, TaskCompletionSource<string>>();
         
 
-        public CredentialProviderConnection(ILog log)
-            : base(nameof(CredentialProviderConnection), log)
+        public CredentialProviderProxy(ILog log)
+            : base(nameof(CredentialProviderProxy), log)
         {
             _pipeServer = new PipeServer("hideezsafe3", log);
             _pipeServer.MessageReceivedEvent += PipeServer_MessageReceivedEvent;
@@ -188,13 +189,15 @@ namespace HideezMiddleware
 
         public Task<string> GetConfirmedPin(string deviceId, int timeout)
         {
-            throw new NotFiniteNumberException();
+            return GetPin(deviceId, timeout, withConfirm: true);
         }
 
-        public async Task<string> GetPin(string deviceId, int timeout)
+        public async Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false)
         {
             WriteLine($"SendGetPin: {deviceId}");
-            await SendMessageAsync(CredentialProviderCommandCode.GetPin, true, $"{deviceId}");
+            await SendMessageAsync(
+                withConfirm ? CredentialProviderCommandCode.GetConfirmedPin : CredentialProviderCommandCode.GetPin, 
+                true, $"{deviceId}");
 
             var tcs = _pendingGetPinRequests.GetOrAdd(deviceId, (x) =>
             {
@@ -290,5 +293,11 @@ namespace HideezMiddleware
             return strings;
         }
         #endregion Utils
+
+
+        public Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
