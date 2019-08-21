@@ -21,6 +21,8 @@ namespace HideezMiddleware
         PasswordChangeCompleated = 5,
         Notification = 6,
         Status = 7,
+        GetPin = 8,
+        HidePinUi = 9,
     }
 
     // Events from the Credential Provider
@@ -40,12 +42,16 @@ namespace HideezMiddleware
         readonly PipeServer _pipeServer;
 
         public event EventHandler<EventArgs> OnProviderConnected;
-        public event EventHandler<string> OnPinEntered;
+        //public event EventHandler<string> OnPinEntered;
 
         public bool IsConnected => _pipeServer.IsConnected;
 
         readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _pendingLogonRequests 
             = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
+
+        readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _pendingGetPinRequests
+            = new ConcurrentDictionary<string, TaskCompletionSource<string>>();
+        
 
         public CredentialProviderConnection(ILog log)
             : base(nameof(CredentialProviderConnection), log)
@@ -65,6 +71,11 @@ namespace HideezMiddleware
             _pipeServer.Stop();
         }
 
+        void PipeServer_ClientConnectedEvent(object sender, ClientConnectedEventArgs e)
+        {
+            SafeInvoke(OnProviderConnected, EventArgs.Empty);
+        }
+
         void PipeServer_MessageReceivedEvent(object sender, MessageReceivedEventArgs e)
         {
             WriteDebugLine($"PipeServer_MessageReceivedEvent {e.Buffer.Length} bytes length");
@@ -79,28 +90,28 @@ namespace HideezMiddleware
 
                 if (code == CredentialProviderEventCode.LogonResolution)
                 {
-                    var strings = GetParams(buf, readBytes, expectedParamCount: 1);
+                    var strings = ParseParams(buf, readBytes, expectedParamCount: 1);
                     OnLogonRequestByLoginName(strings[0]);
                 }
                 else if (code == CredentialProviderEventCode.BeginPasswordChangeRequest)
                 {
-                    var strings = GetParams(buf, readBytes, expectedParamCount: 1);
+                    var strings = ParseParams(buf, readBytes, expectedParamCount: 1);
                     OnPasswordChangeBegin(strings[0]);
                 }
                 else if (code == CredentialProviderEventCode.EndPasswordChangeRequest)
                 {
-                    var strings = GetParams(buf, readBytes, expectedParamCount: 3);
+                    var strings = ParseParams(buf, readBytes, expectedParamCount: 3);
                     OnPasswordChangeEnd(strings[0], strings[1], strings[2]);
                 }
                 else if (code == CredentialProviderEventCode.LogonResult)
                 {
-                    var strings = GetParams(buf, readBytes, expectedParamCount: 3);
+                    var strings = ParseParams(buf, readBytes, expectedParamCount: 3);
                     OnLogonResult(Convert.ToInt32(strings[0]), strings[1], strings[2]);
                 }
                 else if (code == CredentialProviderEventCode.CheckPin)
                 {
-                    var strings = GetParams(buf, readBytes, expectedParamCount: 1);
-                    OnCheckPin(strings[0]);
+                    var strings = ParseParams(buf, readBytes, expectedParamCount: 2);
+                    OnCheckPin(strings[0], strings[1]);
                 }
             }
             catch(Exception ex)
@@ -109,17 +120,7 @@ namespace HideezMiddleware
             }
         }
 
-        // bufLen can be less, than the size of the buffer
-        string[] GetParams(byte[] buf, int bufLen, int expectedParamCount)
-        {
-            const int HEADER_LEN = 4;
-            string prms = Encoding.Unicode.GetString(buf, HEADER_LEN, bufLen - HEADER_LEN);
-            var strings = prms.Split('\n');
-            if (strings.Length != expectedParamCount)
-                throw new Exception();
-            return strings;
-        }
-
+        #region CP Message handlers 
         void OnPasswordChangeEnd(string v1, string v2, string v3)
         {
             throw new NotImplementedException();
@@ -139,23 +140,22 @@ namespace HideezMiddleware
                 tcs.TrySetResult(ntstatus == 0);
         }
 
-        void PipeServer_ClientConnectedEvent(object sender, ClientConnectedEventArgs e)
-        {
-            SafeInvoke(OnProviderConnected, EventArgs.Empty);
-        }
-
         async void OnLogonRequestByLoginName(string login)
         {
             WriteLine($"LogonWorkstationAsync: {login}");
             await SendMessageAsync(CredentialProviderCommandCode.Logon, true, $"{login}");
         }
 
-        void OnCheckPin(string pin)
+        void OnCheckPin(string deviceId, string pin)
         {
-            WriteLine($"OnCheckPin: {pin}");
-            SafeInvoke(OnPinEntered, pin);
-        }
+            WriteLine($"OnCheckPin: {deviceId}");
 
+            if (_pendingGetPinRequests.TryGetValue(deviceId, out TaskCompletionSource<string> tcs))
+                tcs.TrySetResult(pin);
+        }
+        #endregion CP Message handlers 
+
+        #region Commands to CP
         public async Task<bool> SendLogonRequest(string login, string password, string prevPassword)
         {
             WriteLine($"SendLogonRequest: {login}");
@@ -180,6 +180,47 @@ namespace HideezMiddleware
             }
         }
 
+        public async Task ShowPinUi(string deviceId)
+        {
+            WriteLine($"ShowPinUi: {deviceId}");
+            await SendMessageAsync(CredentialProviderCommandCode.GetPin, true, $"{deviceId}");
+        }
+
+        public Task<string> GetConfirmedPin(string deviceId, int timeout)
+        {
+            throw new NotFiniteNumberException();
+        }
+
+        public async Task<string> GetPin(string deviceId, int timeout)
+        {
+            WriteLine($"SendGetPin: {deviceId}");
+            await SendMessageAsync(CredentialProviderCommandCode.GetPin, true, $"{deviceId}");
+
+            var tcs = _pendingGetPinRequests.GetOrAdd(deviceId, (x) =>
+            {
+                return new TaskCompletionSource<string>();
+            });
+
+            try
+            {
+                return await tcs.Task.TimeoutAfter(timeout);
+            }
+            catch (TimeoutException)
+            {
+                return null;
+            }
+            finally
+            {
+                _pendingGetPinRequests.TryRemove(deviceId, out TaskCompletionSource<string> removed);
+            }
+        }
+
+        public async Task HidePinUi()
+        {
+            WriteLine($"HidePinUi");
+            await SendMessageAsync(CredentialProviderCommandCode.HidePinUi, true, $"");
+        }
+
         public async Task SendError(string message)
         {
             WriteLine($"SendError: {message}");
@@ -201,7 +242,9 @@ namespace HideezMiddleware
             WriteLine($"SendStatus: {statusMessage}");
             await SendMessageAsync(CredentialProviderCommandCode.Status, true, statusMessage);
         }
+        #endregion Commands to CP
 
+        #region Utils
         async Task SendMessageAsync(CredentialProviderCommandCode code, bool isSuccess, string message)
         {
             WriteDebugLine($"SendMessageAsync {isSuccess}, {code}, {message}");
@@ -235,5 +278,17 @@ namespace HideezMiddleware
                 WriteLine(ex);
             }
         }
+
+        // bufLen can be less than the size of the buffer
+        string[] ParseParams(byte[] buf, int bufLen, int expectedParamCount)
+        {
+            const int HEADER_LEN = 4;
+            string prms = Encoding.Unicode.GetString(buf, HEADER_LEN, bufLen - HEADER_LEN);
+            var strings = prms.Split('\n');
+            if (strings.Length != expectedParamCount)
+                throw new Exception();
+            return strings;
+        }
+        #endregion Utils
     }
 }
