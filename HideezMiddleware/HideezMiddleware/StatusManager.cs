@@ -13,22 +13,19 @@ namespace HideezMiddleware
         readonly HesAppConnection _hesConnection;
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
-        readonly CredentialProviderProxy _credentialProviderConnection;
-        readonly UiProxyManager _ui;
+        readonly IClientUi _ui;
 
         public StatusManager(HesAppConnection hesConnection,
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
-            CredentialProviderProxy credentialProviderConnection,
-            UiProxyManager ui)
+            IClientUi ui)
         {
             _hesConnection = hesConnection;
             _rfidService = rfidService;
             _connectionManager = connectionManager;
-            _credentialProviderConnection = credentialProviderConnection;
             _ui = ui;
 
-            _credentialProviderConnection.OnProviderConnected += CredentialProviderConnection_OnProviderConnected;
+            _ui.ClientConnected += Ui_ClientUiConnected;
             _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
@@ -51,7 +48,7 @@ namespace HideezMiddleware
             if (disposing)
             {
                 // Release managed resources here
-                _credentialProviderConnection.OnProviderConnected -= CredentialProviderConnection_OnProviderConnected;
+                _ui.ClientConnected -= Ui_ClientUiConnected;
                 _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
                 _rfidService.RfidServiceStateChanged -= RfidService_RfidServiceStateChanged;
                 _rfidService.RfidReaderStateChanged -= RfidService_RfidReaderStateChanged;
@@ -67,7 +64,7 @@ namespace HideezMiddleware
         }
         #endregion
 
-        void CredentialProviderConnection_OnProviderConnected(object sender, EventArgs e)
+        void Ui_ClientUiConnected(object sender, EventArgs e)
         {
             SendStatusToUI();
         }

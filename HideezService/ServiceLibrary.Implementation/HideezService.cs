@@ -5,6 +5,7 @@ using System.Linq;
 using HideezMiddleware;
 using Hideez.SDK.Communication;
 using System.Threading.Tasks;
+using ServiceLibrary.Implementation.SessionManagement;
 
 namespace ServiceLibrary.Implementation
 {

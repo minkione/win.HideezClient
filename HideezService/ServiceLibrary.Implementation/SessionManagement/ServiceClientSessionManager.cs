@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ServiceLibrary.Implementation
+namespace ServiceLibrary.Implementation.SessionManagement
 {
     class ServiceClientSessionManager
     {
         readonly object sessionsLock = new object();
 
         public event EventHandler<ServiceClientSession> SessionClosed;
+        public event EventHandler<ServiceClientSession> SessionAdded;
 
         public IReadOnlyCollection<ServiceClientSession> Sessions { get; } = new List<ServiceClientSession>();
 
@@ -23,6 +24,7 @@ namespace ServiceLibrary.Implementation
             {
                 (Sessions as List<ServiceClientSession>).Add(session);
             }
+            SessionAdded?.Invoke(this, new ServiceClientSession(type, callbacks));
             return session;
         }
 

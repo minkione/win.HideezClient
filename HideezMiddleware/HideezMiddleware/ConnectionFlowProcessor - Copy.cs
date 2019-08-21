@@ -74,7 +74,7 @@ namespace HideezMiddleware
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
 
-            _credentialProviderConnection.OnProviderConnected += CredentialProviderConnection_OnProviderConnected;
+            _credentialProviderConnection.ClientConnected += CredentialProviderConnection_ClientConnected;
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
@@ -129,7 +129,7 @@ namespace HideezMiddleware
 
         #region Status notification
 
-        void CredentialProviderConnection_OnProviderConnected(object sender, EventArgs e)
+        void CredentialProviderConnection_ClientConnected(object sender, EventArgs e)
         {
             ClearAccessBlacklists();
             SendStatusToCredentialProvider();

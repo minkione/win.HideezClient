@@ -9,11 +9,13 @@ using Hideez.SDK.Communication.Proximity;
 using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.WCF;
 using Hideez.SDK.Communication.Workstation;
+using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware;
 using HideezMiddleware.Modules;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Utils;
 using Microsoft.Win32;
+using ServiceLibrary.Implementation.SessionManagement;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,8 +33,8 @@ namespace ServiceLibrary.Implementation
     {
         static BleConnectionManager _connectionManager;
         static BleDeviceManager _deviceManager;
-        static CredentialProviderConnection _credentialProviderConnection;
-        static WorkstationUnlocker _workstationUnlocker;
+        static CredentialProviderProxy _credentialProviderProxy;
+        //static WorkstationUnlocker _workstationUnlocker;
         static HesAppConnection _hesConnection;
         static RfidServiceConnection _rfidService;
         static ProximityMonitorManager _proximityMonitorManager;
@@ -77,7 +79,7 @@ namespace ServiceLibrary.Implementation
             _wcfDeviceManager = new WcfDeviceFactory(_deviceManager, sdkLogger);
 
             // Named Pipes Server ==============================
-            _credentialProviderConnection = new CredentialProviderConnection(sdkLogger);
+            _credentialProviderProxy = new CredentialProviderProxy(sdkLogger);
 
 
             // RFID Service Connection ============================
@@ -130,10 +132,10 @@ namespace ServiceLibrary.Implementation
             {
                 _log.Error(ex);
             }
-            _workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
-                _credentialProviderConnection, _rfidService, _connectionManager, _screenActivator, _unlockerSettingsManager, ignoreWorkstationOwnershipSecurity);
+            //_workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
+            //    _credentialProviderProxy, _rfidService, _connectionManager, _screenActivator, _unlockerSettingsManager, ignoreWorkstationOwnershipSecurity);
 
-            _credentialProviderConnection.Start();
+            _credentialProviderProxy.Start();
 
             // Proximity Monitor 
             UnlockerSettings unlockerSettings = _unlockerSettingsManager.GetSettingsAsync().Result;

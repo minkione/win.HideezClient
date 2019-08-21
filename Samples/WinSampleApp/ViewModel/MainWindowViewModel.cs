@@ -755,7 +755,7 @@ namespace WinSampleApp.ViewModel
             var unlockerSettingsManager = new SettingsManager<UnlockerSettings>(string.Empty, new XmlFileSerializer(_log));
 
             // UI proxy ==================================
-            var uiProxy = new UiProxyManager(_credentialProviderConnection);
+            var uiProxy = new UiProxyManager(_credentialProviderConnection, null);
 
             // ConnectionFlowProcessor ==================================
             _connectionFlowProcessor = new ConnectionFlowProcessor(
@@ -769,7 +769,7 @@ namespace WinSampleApp.ViewModel
                 uiProxy);
 
             // StatusManager =============================
-            var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _credentialProviderConnection, uiProxy);
+            var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxy);
 
             _connectionManager.StartDiscovery();
         }

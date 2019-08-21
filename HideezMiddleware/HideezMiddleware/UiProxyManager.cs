@@ -28,25 +28,85 @@ namespace HideezMiddleware
         HesNotConnected,
     }
 
-    public class UiProxyManager
+    public class UiProxyManager : IClientUi, IDisposable
     {
-        readonly CredentialProviderProxy _credentialProviderConnection;
+        readonly IClientUi _credentialProviderUi;
+        readonly IClientUi _clientUi;
 
-        public UiProxyManager(CredentialProviderProxy credentialProviderConnection)
+        public event EventHandler<EventArgs> ClientConnected;
+
+        public bool IsConnected
         {
-            _credentialProviderConnection = credentialProviderConnection;
+            get
+            {
+                return _credentialProviderUi.IsConnected || _clientUi.IsConnected;
+            }
         }
 
+        public UiProxyManager(IClientUi credentialProviderUi, IClientUi clientUi)
+        {
+            _credentialProviderUi = credentialProviderUi;
+            _clientUi = clientUi;
+
+            _credentialProviderUi.ClientConnected += CredentialProviderUi_ClientUiConnected;
+            _clientUi.ClientConnected += ClientUi_ClientUiConnected;
+        }
+
+        #region IDisposable
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        bool disposed = false;
+        void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                _credentialProviderUi.ClientConnected -= CredentialProviderUi_ClientUiConnected;
+                _clientUi.ClientConnected -= ClientUi_ClientUiConnected;
+            }
+
+            disposed = false;
+        }
+
+        ~UiProxyManager()
+        {
+            Dispose(false);
+        }
+        #endregion
+
+        void CredentialProviderUi_ClientUiConnected(object sender, EventArgs e)
+        {
+            ClientConnected?.Invoke(this, EventArgs.Empty);
+        }
+
+        void ClientUi_ClientUiConnected(object sender, EventArgs e)
+        {
+            ClientConnected?.Invoke(this, EventArgs.Empty);
+        }
+
+        IClientUi GetCurrentClientUi()
+        {
+            return _credentialProviderUi.IsConnected ? _credentialProviderUi : _clientUi;
+        }
+
+        // Todo:
         internal async Task ShowPinUi(string deviceId)
         {
-            if (_credentialProviderConnection.IsConnected)
-                await _credentialProviderConnection.ShowPinUi(deviceId);
+            //if (_credentialProviderUi.IsConnected)
+            //    await _credentialProviderUi.ShowPinUi(deviceId);
         }
 
+        // Todo:
         internal async Task<string> GetPin(string deviceId, int timeout)
         {
-            if (_credentialProviderConnection.IsConnected)
-                return await _credentialProviderConnection.GetPin(deviceId, timeout);
+            //if (_credentialProviderUi.IsConnected)
+            //    return await _credentialProviderUi.GetPin(deviceId, timeout);
             return null;
 
             ////todo
@@ -54,68 +114,49 @@ namespace HideezMiddleware
             //return "1111";
         }
 
+        // Todo:
         internal async Task<string> GetConfirmedPin(string deviceId, int timeout)
         {
-            if (_credentialProviderConnection.IsConnected)
-                return await _credentialProviderConnection.GetConfirmedPin(deviceId, timeout);
+            //if (_credentialProviderUi.IsConnected)
+            //    return await _credentialProviderUi.GetConfirmedPin(deviceId, timeout);
             return null;
         }
 
-        internal async Task HidePinUi()
+        public async Task HidePinUi()
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> HidePinUi");
-            if (_credentialProviderConnection.IsConnected)
-            {
-                await _credentialProviderConnection.HidePinUi();
-                await _credentialProviderConnection.SendNotification("");
-            }
+            var ui = GetCurrentClientUi();
+
+            await ui.HidePinUi();
+            await ui.SendNotification("");
         }
 
-        internal async Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus)
+        public async Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus)
         {
-            if (_credentialProviderConnection.IsConnected)
-            {
-                var statuses = new List<string>();
+            var ui = GetCurrentClientUi();
 
-                if (bluetoothStatus != BluetoothStatus.Ok)
-                    statuses.Add($"Bluetooth not available (state: {bluetoothStatus})");
-
-                // Todo: Check if user selected RFID for usage on this computer
-                if (rfidStatus != RfidStatus.Ok)
-                {
-                    if (rfidStatus == RfidStatus.RfidServiceNotConnected)
-                        statuses.Add("RFID service not connected");
-                    else if (rfidStatus == RfidStatus.RfidReaderNotConnected)
-                        statuses.Add("RFID reader not connected");
-                }
-
-                if (hesStatus != HesStatus.Ok)
-                    statuses.Add("HES not connected");
-
-
-                if (statuses.Count > 0)
-                    await _credentialProviderConnection.SendStatus($"ERROR: {string.Join("; ", statuses)}");
-                else
-                    await _credentialProviderConnection.SendStatus(string.Empty);
-            }
-            else
-            {
-
-            }
+            await ui.SendStatus(bluetoothStatus, rfidStatus, hesStatus);
         }
 
-        internal async Task SendNotification(string notification)
+        public async Task SendNotification(string notification)
         {
-            if (_credentialProviderConnection.IsConnected)
-                await _credentialProviderConnection.SendNotification(notification);
+            var ui = GetCurrentClientUi();
+
+            await ui.SendNotification(notification);
         }
 
-        internal async Task SendError(string error)
+        public async Task SendError(string error)
         {
-            if (_credentialProviderConnection.IsConnected)
-                await _credentialProviderConnection.SendError(error);
+            var ui = GetCurrentClientUi();
+
+            await ui.SendError(error);
         }
 
+        public async Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false)
+        {
+            var ui = GetCurrentClientUi();
 
+            return await ui.GetPin(deviceId, timeout, withConfirm);
+        }
     }
 }

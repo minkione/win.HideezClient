@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.WorkstationEvents;
 using Newtonsoft.Json;
 using NLog;
 using System;

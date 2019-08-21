@@ -1,4 +1,5 @@
 ﻿using HideezMiddleware;
+using ServiceLibrary.Implementation.SessionManagement;
 
 namespace ServiceLibrary.Implementation
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ServiceLibrary.Implementation
+namespace ServiceLibrary.Implementation.SessionManagement
 {
     class ServiceClientSession
     {

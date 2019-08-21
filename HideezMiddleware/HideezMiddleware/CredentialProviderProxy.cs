@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
@@ -42,7 +43,7 @@ namespace HideezMiddleware
     {
         readonly PipeServer _pipeServer;
 
-        public event EventHandler<EventArgs> OnProviderConnected;
+        public event EventHandler<EventArgs> ClientConnected;
         //public event EventHandler<string> OnPinEntered;
 
         public bool IsConnected => _pipeServer.IsConnected;
@@ -74,7 +75,7 @@ namespace HideezMiddleware
 
         void PipeServer_ClientConnectedEvent(object sender, ClientConnectedEventArgs e)
         {
-            SafeInvoke(OnProviderConnected, EventArgs.Empty);
+            SafeInvoke(ClientConnected, EventArgs.Empty);
         }
 
         void PipeServer_MessageReceivedEvent(object sender, MessageReceivedEventArgs e)
@@ -295,9 +296,30 @@ namespace HideezMiddleware
         #endregion Utils
 
 
-        public Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus)
+        public async Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus)
         {
-            throw new NotImplementedException();
+            var statuses = new List<string>();
+
+            if (bluetoothStatus != BluetoothStatus.Ok)
+                statuses.Add($"Bluetooth not available (state: {bluetoothStatus})");
+
+            // Todo: Check if user selected RFID for usage on this computer
+            if (rfidStatus != RfidStatus.Ok)
+            {
+                if (rfidStatus == RfidStatus.RfidServiceNotConnected)
+                    statuses.Add("RFID service not connected");
+                else if (rfidStatus == RfidStatus.RfidReaderNotConnected)
+                    statuses.Add("RFID reader not connected");
+            }
+
+            if (hesStatus != HesStatus.Ok)
+                statuses.Add("HES not connected");
+
+
+            if (statuses.Count > 0)
+                await SendStatus($"ERROR: {string.Join("; ", statuses)}");
+            else
+                await SendStatus(string.Empty);
         }
     }
 }
