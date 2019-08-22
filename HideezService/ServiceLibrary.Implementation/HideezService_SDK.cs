@@ -97,9 +97,8 @@ namespace ServiceLibrary.Implementation
                 // HES ==================================
                 // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
                 string hesAddres = GetHesAddress();
-                UrlUtils.TryGetDomain(hesAddres, out string hesDomain);
                 WorkstationHelper.Log = sdkLogger;
-                var workstationInfoProvider = new WorkstationInfoProvider(hesDomain, sdkLogger);
+                var workstationInfoProvider = new WorkstationInfoProvider(hesAddres, sdkLogger);
                 _hesConnection = new HesAppConnection(_deviceManager, hesAddres, workstationInfoProvider, sdkLogger);
                 _hesConnection.HubSettingsArrived += (sender, settings) => _unlockerSettingsManager.SaveSettings(new UnlockerSettings(settings));
                 _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;

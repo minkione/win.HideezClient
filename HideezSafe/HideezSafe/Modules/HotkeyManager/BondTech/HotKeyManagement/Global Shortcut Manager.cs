@@ -901,6 +901,7 @@ namespace HideezSafe.Modules.HotkeyManager.BondTech.HotKeyManagement
             KeyBoardUnHook();
             LocalHotKeyContainer.Clear();
             ChordHotKeyContainer.Clear();
+
             disposed = true;
         }
         /// <summary>Release all resources used by this class.

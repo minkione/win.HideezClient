@@ -121,7 +121,7 @@ namespace HideezSafe.Modules.ActionHandler
                         {
                             if (inputCache.HasCache())
                             {
-                                inputCache.SetFocus();
+                                await inputCache.SetFocusAsync();
                             }
                             log.Info(ex);
                         }
