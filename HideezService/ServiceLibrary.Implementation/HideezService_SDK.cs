@@ -44,6 +44,9 @@ namespace ServiceLibrary.Implementation
         static DeviceAccessController _deviceAccessController;
         static EventAggregator _eventAggregator;
         static IWorkstationEventFactory _workstationEventFactory = new WorkstationEventFactory();
+        static ServiceClientUiManager _clientProxy;
+        static UiProxyManager _uiProxy;
+        static StatusManager _statusManager;
 
         static ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
@@ -81,11 +84,9 @@ namespace ServiceLibrary.Implementation
             // Named Pipes Server ==============================
             _credentialProviderProxy = new CredentialProviderProxy(sdkLogger);
 
-
             // RFID Service Connection ============================
             _rfidService = new RfidServiceConnection(sdkLogger);
             _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
-            _rfidService.Start();
 
             // Settings
             string settingsDirectory = $@"{commonAppData}\Hideez\Service\Settings\";
@@ -109,7 +110,6 @@ namespace ServiceLibrary.Implementation
                 _hesConnection = new HesAppConnection(_deviceManager, hesAddres, workstationInfoProvider, sdkLogger);
                 _hesConnection.HubSettingsArrived += (sender, settings) => _unlockerSettingsManager.SaveSettings(new UnlockerSettings(settings));
                 _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
-                _hesConnection.Start();
             }
             catch (Exception ex)
             {
@@ -122,7 +122,34 @@ namespace ServiceLibrary.Implementation
             // ScreenActivator ==================================
             _screenActivator = new UiScreenActivator(SessionManager);
 
-            // WorkstationUnlocker 
+            // Client Proxy =============================
+            _clientProxy = new ServiceClientUiManager(SessionManager);
+
+            // UI Proxy =============================
+            _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy);
+
+            // StatusManager =============================
+            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy);
+
+            // ConnectionFlowProcessor
+            var connectionFlowProcesssor = new ConnectionFlowProcessor(
+                _deviceManager,
+                _hesConnection,
+                _rfidService,
+                _connectionManager,
+                null,
+                _screenActivator,
+                _unlockerSettingsManager,
+                _uiProxy);
+
+            // Proximity Monitor 
+            UnlockerSettings unlockerSettings = _unlockerSettingsManager.GetSettingsAsync().Result;
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, sdkLogger, unlockerSettings.LockProximity, unlockerSettings.UnlockProximity, unlockerSettings.LockTimeoutSeconds);
+
+            // WorkstationLocker ==================================
+            _workstationLocker = new WorkstationLocker(SessionManager, _proximityMonitorManager);
+
+            // Device Access Controller ==================================
             bool ignoreWorkstationOwnershipSecurity = false;
             try
             {
@@ -132,21 +159,7 @@ namespace ServiceLibrary.Implementation
             {
                 _log.Error(ex);
             }
-            //_workstationUnlocker = new WorkstationUnlocker(_deviceManager, _hesConnection,
-            //    _credentialProviderProxy, _rfidService, _connectionManager, _screenActivator, _unlockerSettingsManager, ignoreWorkstationOwnershipSecurity);
 
-            _credentialProviderProxy.Start();
-
-            // Proximity Monitor 
-            UnlockerSettings unlockerSettings = _unlockerSettingsManager.GetSettingsAsync().Result;
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, sdkLogger, unlockerSettings.LockProximity, unlockerSettings.UnlockProximity, unlockerSettings.LockTimeoutSeconds);
-            _proximityMonitorManager.Start();
-
-            // WorkstationLocker ==================================
-            _workstationLocker = new WorkstationLocker(SessionManager, _proximityMonitorManager);
-            _workstationLocker.Start();
-
-            // Device Access Controller ==================================
             if (ignoreWorkstationOwnershipSecurity)
             {
                 _log.Warn("Device Access Controller is disabled due to workstation ownership options");
@@ -157,11 +170,19 @@ namespace ServiceLibrary.Implementation
                 _deviceAccessController.Start();
             }
 
+            // Audit Log / Event Aggregator =============================
             _eventAggregator = new EventAggregator(_hesConnection);
+            SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
+
+            // SDK initialization finished, start essential components
+            _credentialProviderProxy.Start();
+            _hesConnection?.Start();
+            _rfidService.Start();
+
+            _proximityMonitorManager.Start();
+            _workstationLocker.Start();
 
             _connectionManager.StartDiscovery();
-
-            SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
         }
 
         #region Event Handlers

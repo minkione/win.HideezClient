@@ -1,5 +1,6 @@
 ﻿using HideezMiddleware;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -76,9 +77,16 @@ namespace ServiceLibrary.Implementation.SessionManagement
         {
             await Task.Run(() =>
             {
-                foreach (var session in _clientSessionManager.Sessions)
+                try
                 {
-                    session.Callbacks.ServiceErrorReceived(message);
+                    foreach (var session in _clientSessionManager.Sessions)
+                    {
+                        session.Callbacks.ServiceErrorReceived(message);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
                 }
             });
         }
@@ -87,9 +95,17 @@ namespace ServiceLibrary.Implementation.SessionManagement
         {
             await Task.Run(() =>
             {
+                
                 foreach (var session in _clientSessionManager.Sessions)
                 {
-                    session.Callbacks.ServiceNotificationReceived(message);
+                    try
+                    {
+                        session.Callbacks.ServiceNotificationReceived(message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex);
+                    }
                 }
             });
         }
@@ -104,7 +120,14 @@ namespace ServiceLibrary.Implementation.SessionManagement
 
                 foreach (var session in _clientSessionManager.Sessions)
                 {
-                    session.Callbacks.ServiceComponentsStateChanged(isBleOk, isRfidOk, isHesOk);
+                    try
+                    {
+                        session.Callbacks.ServiceComponentsStateChanged(isBleOk, isRfidOk, isHesOk);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex);
+                    }
                 }
             });
         }
