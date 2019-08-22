@@ -2,6 +2,10 @@
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Hideez.SDK.Communication.Log;
+using System.Collections.Concurrent;
+using Hideez.SDK.Communication.Utils;
+using Hideez.SDK.Communication;
 
 namespace HideezMiddleware
 {
@@ -28,29 +32,38 @@ namespace HideezMiddleware
         HesNotConnected,
     }
 
-    public class UiProxyManager : IClientUi, IDisposable
+    public class UiProxyManager : Logger, IClientUiProxy, IDisposable
     {
         readonly IClientUi _credentialProviderUi;
         readonly IClientUi _clientUi;
+        readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _pendingGetPinRequests
+            = new ConcurrentDictionary<string, TaskCompletionSource<string>>();
 
         public event EventHandler<EventArgs> ClientConnected;
 
-        public bool IsConnected
-        {
-            get
-            {
-                return _credentialProviderUi.IsConnected || _clientUi.IsConnected;
-            }
-        }
+        public bool IsConnected => _credentialProviderUi.IsConnected || _clientUi.IsConnected;
 
-        public UiProxyManager(IClientUi credentialProviderUi, IClientUi clientUi)
+
+
+        public UiProxyManager(ILog log, IClientUi credentialProviderUi, IClientUi clientUi)
+            :base(nameof(UiProxyManager), log)
         {
             _credentialProviderUi = credentialProviderUi;
             _clientUi = clientUi;
 
-            _credentialProviderUi.ClientConnected += CredentialProviderUi_ClientUiConnected;
-            _clientUi.ClientConnected += ClientUi_ClientUiConnected;
+            if (_credentialProviderUi != null)
+            {
+                _credentialProviderUi.ClientConnected += CredentialProviderUi_ClientUiConnected;
+                _credentialProviderUi.PinReceived += ClientUi_PinReceived;
+            }
+
+            if (_clientUi != null)
+            {
+                _clientUi.ClientConnected += ClientUi_ClientUiConnected;
+                _credentialProviderUi.PinReceived += ClientUi_PinReceived;
+            }
         }
+
 
         #region IDisposable
         public void Dispose()
@@ -90,73 +103,117 @@ namespace HideezMiddleware
             ClientConnected?.Invoke(this, EventArgs.Empty);
         }
 
+        void ClientUi_PinReceived(object sender, PinReceivedEventArgs e)
+        {
+            if (_pendingGetPinRequests.TryGetValue(e.DeviceId, out TaskCompletionSource<string> tcs))
+                tcs.TrySetResult(e.Pin);
+        }
+
         IClientUi GetCurrentClientUi()
         {
-            return _credentialProviderUi.IsConnected ? _credentialProviderUi : _clientUi;
-        }
-
-        // Todo:
-        internal async Task ShowPinUi(string deviceId)
-        {
-            //if (_credentialProviderUi.IsConnected)
-            //    await _credentialProviderUi.ShowPinUi(deviceId);
-        }
-
-        // Todo:
-        internal async Task<string> GetPin(string deviceId, int timeout)
-        {
-            //if (_credentialProviderUi.IsConnected)
-            //    return await _credentialProviderUi.GetPin(deviceId, timeout);
-            return null;
-
-            ////todo
-            //await Task.Delay(2000);
-            //return "1111";
-        }
-
-        // Todo:
-        internal async Task<string> GetConfirmedPin(string deviceId, int timeout)
-        {
-            //if (_credentialProviderUi.IsConnected)
-            //    return await _credentialProviderUi.GetConfirmedPin(deviceId, timeout);
+            if (_credentialProviderUi?.IsConnected ?? false)
+                return _credentialProviderUi;
+            else if (_clientUi?.IsConnected ?? false)
+                return _clientUi;
             return null;
         }
 
-        public async Task HidePinUi()
+        public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
         {
-            Debug.WriteLine(">>>>>>>>>>>>>>> HidePinUi");
-            var ui = GetCurrentClientUi();
+            if (askOldPin)
+            {
 
-            await ui.HidePinUi();
-            await ui.SendNotification("");
+            }
+
+            var ui = GetCurrentClientUi() ?? throw new HideezException(HideezErrorCode.NoConnectedUI);
+            return ui.ShowPinUi(deviceId, withConfirm, askOldPin);
+        }
+
+        public async Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false, bool askOldPin = false)
+        {
+            WriteLine($"SendGetPin: {deviceId}");
+
+            if (askOldPin)
+            {
+
+            }
+
+            var ui = GetCurrentClientUi() ?? throw new HideezException(HideezErrorCode.NoConnectedUI);
+
+            await ui.ShowPinUi(deviceId, withConfirm, askOldPin);
+
+            var tcs = _pendingGetPinRequests.GetOrAdd(deviceId, (x) =>
+            {
+                return new TaskCompletionSource<string>();
+            });
+
+            try
+            {
+                return await tcs.Task.TimeoutAfter(timeout);
+            }
+            catch (TimeoutException)
+            {
+                return null;
+            }
+            finally
+            {
+                _pendingGetPinRequests.TryRemove(deviceId, out TaskCompletionSource<string> removed);
+            }
+        }
+
+        //// Todo:
+        //internal async Task<string> GetPin(string deviceId, int timeout)
+        //{
+        //    //if (_credentialProviderUi.IsConnected)
+        //    //    return await _credentialProviderUi.GetPin(deviceId, timeout);
+        //    return null;
+
+        //    ////todo
+        //    //await Task.Delay(2000);
+        //    //return "1111";
+        //}
+
+        //// Todo:
+        //internal async Task<string> GetConfirmedPin(string deviceId, int timeout)
+        //{
+        //    //if (_credentialProviderUi.IsConnected)
+        //    //    return await _credentialProviderUi.GetConfirmedPin(deviceId, timeout);
+        //    return null;
+        //}
+
+        public Task HidePinUi()
+        {
+            return GetCurrentClientUi()?.HidePinUi();
+            //Debug.WriteLine(">>>>>>>>>>>>>>> HidePinUi");
+            //var ui = GetCurrentClientUi();
+
+            //await ui.HidePinUi();
+            //await ui.SendNotification("");
         }
 
         public async Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus)
         {
             var ui = GetCurrentClientUi();
 
-            await ui.SendStatus(bluetoothStatus, rfidStatus, hesStatus);
+            if (ui != null)
+                await ui.SendStatus(bluetoothStatus, rfidStatus, hesStatus);
         }
 
         public async Task SendNotification(string notification)
         {
             var ui = GetCurrentClientUi();
 
-            await ui.SendNotification(notification);
+            if (ui != null)
+                await ui.SendNotification(notification);
         }
 
         public async Task SendError(string error)
         {
             var ui = GetCurrentClientUi();
 
-            await ui.SendError(error);
+            if (ui != null)
+                await ui.SendError(error);
         }
 
-        public async Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false)
-        {
-            var ui = GetCurrentClientUi();
-
-            return await ui.GetPin(deviceId, timeout, withConfirm);
-        }
     }
 }

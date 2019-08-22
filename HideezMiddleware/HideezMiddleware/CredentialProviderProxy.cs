@@ -25,6 +25,7 @@ namespace HideezMiddleware
         GetPin = 8,
         HidePinUi = 9,
         GetConfirmedPin = 10,
+        GetOldAndConfirmedPin = 11,
     }
 
     // Events from the Credential Provider
@@ -44,15 +45,15 @@ namespace HideezMiddleware
         readonly PipeServer _pipeServer;
 
         public event EventHandler<EventArgs> ClientConnected;
-        //public event EventHandler<string> OnPinEntered;
+        public event EventHandler<PinReceivedEventArgs> PinReceived;
 
         public bool IsConnected => _pipeServer.IsConnected;
 
         readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _pendingLogonRequests 
             = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
 
-        readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _pendingGetPinRequests
-            = new ConcurrentDictionary<string, TaskCompletionSource<string>>();
+        //readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _pendingGetPinRequests
+        //    = new ConcurrentDictionary<string, TaskCompletionSource<string>>();
         
 
         public CredentialProviderProxy(ILog log)
@@ -152,8 +153,14 @@ namespace HideezMiddleware
         {
             WriteLine($"OnCheckPin: {deviceId}");
 
-            if (_pendingGetPinRequests.TryGetValue(deviceId, out TaskCompletionSource<string> tcs))
-                tcs.TrySetResult(pin);
+            PinReceived?.Invoke(this, new PinReceivedEventArgs()
+            {
+                DeviceId = deviceId,
+                Pin = pin
+            });
+
+            //if (_pendingGetPinRequests.TryGetValue(deviceId, out TaskCompletionSource<string> tcs))
+            //    tcs.TrySetResult(pin);
         }
         #endregion CP Message handlers 
 
@@ -182,41 +189,17 @@ namespace HideezMiddleware
             }
         }
 
-        public async Task ShowPinUi(string deviceId)
+        public async Task ShowPinUi(string deviceId, bool withConfirm, bool askOldPin)
         {
-            WriteLine($"ShowPinUi: {deviceId}");
-            await SendMessageAsync(CredentialProviderCommandCode.GetPin, true, $"{deviceId}");
-        }
+            WriteLine($"SendGetPin: {deviceId}, withConfirm: {withConfirm}, askOldPin: {askOldPin}");
 
-        public Task<string> GetConfirmedPin(string deviceId, int timeout)
-        {
-            return GetPin(deviceId, timeout, withConfirm: true);
-        }
+            var code = CredentialProviderCommandCode.GetPin;
+            if (withConfirm)
+                code = CredentialProviderCommandCode.GetConfirmedPin;
+            else if (askOldPin)
+                code = CredentialProviderCommandCode.GetOldAndConfirmedPin;
 
-        public async Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false)
-        {
-            WriteLine($"SendGetPin: {deviceId}");
-            await SendMessageAsync(
-                withConfirm ? CredentialProviderCommandCode.GetConfirmedPin : CredentialProviderCommandCode.GetPin, 
-                true, $"{deviceId}");
-
-            var tcs = _pendingGetPinRequests.GetOrAdd(deviceId, (x) =>
-            {
-                return new TaskCompletionSource<string>();
-            });
-
-            try
-            {
-                return await tcs.Task.TimeoutAfter(timeout);
-            }
-            catch (TimeoutException)
-            {
-                return null;
-            }
-            finally
-            {
-                _pendingGetPinRequests.TryRemove(deviceId, out TaskCompletionSource<string> removed);
-            }
+            await SendMessageAsync(code, true, $"{deviceId}");
         }
 
         public async Task HidePinUi()
@@ -321,5 +304,6 @@ namespace HideezMiddleware
             else
                 await SendStatus(string.Empty);
         }
+
     }
 }

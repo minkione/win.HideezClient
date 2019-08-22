@@ -212,21 +212,18 @@ namespace HideezMiddleware
         //------------------------------
         async Task MainWorkflow(string mac)
         {
-            //[1] ignore, if workflow for this device already initialized
-            var newGuid = Guid.NewGuid();
-            var guid = _pendingUnlocks.GetOrAdd(mac, newGuid); //todo - replace to TryAdd
-
-            if (guid != newGuid)
+            // ignore, if workflow for this device already initialized
+            if (!_pendingUnlocks.TryAdd(mac, Guid.NewGuid()))
                 return;
 
+            Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
+
+            bool success = true;
+            IDevice device = null;
             try
             {
-                //[2] connect device
-                IDevice device = await ConnectDevice(mac);
-
-                //[3] wait auth and init
+                device = await ConnectDevice(mac);
                 await WaitDeviceInitialization(mac, device);
-
 
                 if (device.AccessLevel.IsLocked)
                 {
@@ -237,9 +234,6 @@ namespace HideezMiddleware
                     }
                     //else
                     {
-                        // disconnect device
-                        //await device.Disconnect();
-
                         // show error message
                         throw new HideezException(HideezErrorCode.DeviceIsLocked);
                     }
@@ -255,28 +249,19 @@ namespace HideezMiddleware
                         throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
 
                     var showStatusTask = ShowWaitStatus(device, timeout);
-                    var pinTask = EnterPinWorkflow(device, timeout);
+                    var pinTask = PinWorkflow(device, timeout);
 
                     var t = Task.WhenAll(showStatusTask, pinTask);
-
                     await t;
+                    Debug.Assert(t.Status == TaskStatus.RanToCompletion);
 
-                    if (t.Status != TaskStatus.RanToCompletion)
-                        throw new Exception("Tasks failed to complete");
-
-                    if (!device.AccessLevel.IsButtonRequired && !device.AccessLevel.IsPinRequired)
+                    if (!device.AccessLevel.IsLocked &&
+                        !device.AccessLevel.IsButtonRequired && 
+                        !device.AccessLevel.IsPinRequired &&
+                        !device.AccessLevel.IsNewPinRequired)
                     {
-                        Debug.WriteLine(">>>>>>>>>>>>>>> tasks completed OK");
-                        await _ui.SendNotification("Reading credentials from the device...");
-                        ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
-                        var credentials = await GetCredentials(device, primaryAccountKey);
-
-                        // send credentials to the Credential Provider to unlock the PC
-                        await _ui.SendNotification("Unlocking the PC...");
-                        var logonSuccessful = await _workstationUnlocker.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
-
-                        if (!logonSuccessful)
-                            await device.Disconnect();
+                        if (_workstationUnlocker.IsConnected)
+                            success = await TryUnlockWorkstation(device);
                     }
                     else
                     {
@@ -295,6 +280,7 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
+                success = false;
                 _log.Error(ex);
                 await _ui.SendNotification("");
                 await _ui.SendError(ex.Message);
@@ -302,11 +288,30 @@ namespace HideezMiddleware
             }
             finally
             {
-                Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
-                //todo - when remove from _pendingUnlocks?
-                _pendingUnlocks.TryRemove(mac, out _);
+                if (!success)
+                    await device.Disconnect();
+
+                // this delay allows a user to move away the device from the dongle or RFID
+                // and prevents the repeated call of this method
                 await Task.Delay(3000);
+
+                _pendingUnlocks.TryRemove(mac, out _);
             }
+            Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
+        }
+
+        async Task<bool> TryUnlockWorkstation(IDevice device)
+        {
+            await _ui.SendNotification("Reading credentials from the device...");
+            ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
+            var credentials = await GetCredentials(device, primaryAccountKey);
+
+            // send credentials to the Credential Provider to unlock the PC
+            await _ui.SendNotification("Unlocking the PC...");
+            var success = await _workstationUnlocker
+                .SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+
+            return success;
         }
 
         async Task ShowWaitStatus(IDevice device, int timeout)
@@ -317,7 +322,7 @@ namespace HideezMiddleware
 
             while ( elapsed.TotalMilliseconds < timeout && 
                     !device.AccessLevel.IsLocked &&
-                    (device.AccessLevel.IsButtonRequired || device.AccessLevel.IsPinRequired))
+                    (device.AccessLevel.IsButtonRequired || device.AccessLevel.IsPinRequired || device.AccessLevel.IsNewPinRequired))
             {
                 var statuses = new List<string>();
 
@@ -327,6 +332,11 @@ namespace HideezMiddleware
                 if (device.AccessLevel.IsPinRequired)
                 {
                     await _ui.ShowPinUi(device.Id);
+                    statuses.Add("Waiting for the PIN...");
+                }
+                else if (device.AccessLevel.IsNewPinRequired)
+                {
+                    await _ui.ShowPinUi(device.Id, withConfirm: true);
                     statuses.Add("Waiting for the PIN...");
                 }
 
@@ -406,7 +416,9 @@ namespace HideezMiddleware
 
         async Task<bool> SetPinWorkflow(IDevice device, int timeout)
         {
-            string pin = await _ui.GetConfirmedPin(device.Id, timeout);
+            string pin = await _ui.GetPin(device.Id, timeout, withConfirm: true);
+            if (string.IsNullOrWhiteSpace(pin))
+                return false;
             bool res = await device.SetPin(pin); //this using default timeout for BLE commands
             return res;
         }

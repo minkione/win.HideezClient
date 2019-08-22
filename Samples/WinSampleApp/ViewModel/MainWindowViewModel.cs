@@ -755,7 +755,7 @@ namespace WinSampleApp.ViewModel
             var unlockerSettingsManager = new SettingsManager<UnlockerSettings>(string.Empty, new XmlFileSerializer(_log));
 
             // UI proxy ==================================
-            var uiProxy = new UiProxyManager(_credentialProviderConnection, null);
+            var uiProxy = new UiProxyManager(_log, _credentialProviderConnection, null);
 
             // ConnectionFlowProcessor ==================================
             _connectionFlowProcessor = new ConnectionFlowProcessor(
