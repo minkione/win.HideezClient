@@ -45,7 +45,7 @@ namespace HideezMiddleware
 
 
 
-        public UiProxyManager(ILog log, IClientUi credentialProviderUi, IClientUi clientUi)
+        public UiProxyManager(IClientUi credentialProviderUi, IClientUi clientUi, ILog log)
             :base(nameof(UiProxyManager), log)
         {
             _credentialProviderUi = credentialProviderUi;

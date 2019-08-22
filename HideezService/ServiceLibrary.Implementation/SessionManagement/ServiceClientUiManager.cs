@@ -11,6 +11,7 @@ namespace ServiceLibrary.Implementation.SessionManagement
         readonly ServiceClientSessionManager _clientSessionManager;
 
         public event EventHandler<EventArgs> ClientConnected;
+        public event EventHandler<PinReceivedEventArgs> PinReceived;
 
         public bool IsConnected
         {
@@ -130,6 +131,11 @@ namespace ServiceLibrary.Implementation.SessionManagement
                     }
                 }
             });
+        }
+
+        public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
+        {
+            throw new NotImplementedException();
         }
     }
 }
