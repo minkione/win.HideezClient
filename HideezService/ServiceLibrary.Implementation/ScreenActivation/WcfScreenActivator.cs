@@ -1,13 +1,13 @@
 ﻿using HideezMiddleware;
 using ServiceLibrary.Implementation.SessionManagement;
 
-namespace ServiceLibrary.Implementation
+namespace ServiceLibrary.Implementation.ScreenActivation
 {
-    class UiScreenActivator : IScreenActivator
+    class WcfScreenActivator : IScreenActivator
     {
         readonly ServiceClientSessionManager _sessionManager;
 
-        public UiScreenActivator(ServiceClientSessionManager sessionManager)
+        public WcfScreenActivator(ServiceClientSessionManager sessionManager)
         {
             _sessionManager = sessionManager;
         }

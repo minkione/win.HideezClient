@@ -26,10 +26,12 @@ namespace HideezMiddleware
             _ui = ui;
 
             _ui.ClientConnected += Ui_ClientUiConnected;
-            _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+
+            if (_hesConnection != null)
+                _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
         }
 
         #region IDisposable
@@ -49,10 +51,12 @@ namespace HideezMiddleware
             {
                 // Release managed resources here
                 _ui.ClientConnected -= Ui_ClientUiConnected;
-                _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
                 _rfidService.RfidServiceStateChanged -= RfidService_RfidServiceStateChanged;
                 _rfidService.RfidReaderStateChanged -= RfidService_RfidReaderStateChanged;
                 _connectionManager.AdapterStateChanged -= ConnectionManager_AdapterStateChanged;
+
+                if (_hesConnection != null)
+                    _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
             }
 
             disposed = true;

@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace ServiceLibrary.Implementation
+namespace ServiceLibrary.Implementation.WorkstationLock
 {
     [Obsolete]
     class WtsapiWorkstationLocker

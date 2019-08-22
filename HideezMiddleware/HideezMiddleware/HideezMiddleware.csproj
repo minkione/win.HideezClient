@@ -104,6 +104,7 @@
     <Compile Include="WaitPinFromCredentialProviderProc .cs" />
     <Compile Include="WorkstationInfoProvider.cs" />
     <Compile Include="ConnectionFlowProcessor.cs" />
+    <Compile Include="WorkstationLockProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
