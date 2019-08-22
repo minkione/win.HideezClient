@@ -1,30 +1,23 @@
 ﻿using Hideez.CsrBLE;
-using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
-using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Proximity;
 using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.WCF;
-using Hideez.SDK.Communication.Workstation;
 using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware;
 using HideezMiddleware.Modules;
 using HideezMiddleware.Settings;
-using HideezMiddleware.Utils;
 using Microsoft.Win32;
+using ServiceLibrary.Implementation.ScreenActivation;
 using ServiceLibrary.Implementation.SessionManagement;
+using ServiceLibrary.Implementation.WorkstationLock;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.ServiceProcess;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation
@@ -34,11 +27,9 @@ namespace ServiceLibrary.Implementation
         static BleConnectionManager _connectionManager;
         static BleDeviceManager _deviceManager;
         static CredentialProviderProxy _credentialProviderProxy;
-        //static WorkstationUnlocker _workstationUnlocker;
         static HesAppConnection _hesConnection;
         static RfidServiceConnection _rfidService;
         static ProximityMonitorManager _proximityMonitorManager;
-        static WorkstationLocker _workstationLocker;
         static IScreenActivator _screenActivator;
         static WcfDeviceFactory _wcfDeviceManager;
         static DeviceAccessController _deviceAccessController;
@@ -47,6 +38,8 @@ namespace ServiceLibrary.Implementation
         static ServiceClientUiManager _clientProxy;
         static UiProxyManager _uiProxy;
         static StatusManager _statusManager;
+        static WcfWorkstationLocker _workstationLocker;
+        static WorkstationLockProcessor _workstationLockProcessor;
 
         static ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
@@ -120,7 +113,7 @@ namespace ServiceLibrary.Implementation
             }
 
             // ScreenActivator ==================================
-            _screenActivator = new UiScreenActivator(SessionManager);
+            _screenActivator = new WcfScreenActivator(SessionManager);
 
             // Client Proxy =============================
             _clientProxy = new ServiceClientUiManager(SessionManager);
@@ -137,17 +130,20 @@ namespace ServiceLibrary.Implementation
                 _hesConnection,
                 _rfidService,
                 _connectionManager,
-                null,
+                _credentialProviderProxy,
                 _screenActivator,
                 _unlockerSettingsManager,
                 _uiProxy);
 
-            // Proximity Monitor 
+            // Proximity Monitor ==================================
             UnlockerSettings unlockerSettings = _unlockerSettingsManager.GetSettingsAsync().Result;
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, sdkLogger, unlockerSettings.LockProximity, unlockerSettings.UnlockProximity, unlockerSettings.LockTimeoutSeconds);
 
             // WorkstationLocker ==================================
-            _workstationLocker = new WorkstationLocker(SessionManager, _proximityMonitorManager);
+            _workstationLocker = new WcfWorkstationLocker(SessionManager);
+
+            // WorkstationLockProcessor ==================================
+            _workstationLockProcessor = new WorkstationLockProcessor(_proximityMonitorManager, _workstationLocker, sdkLogger);
 
             // Device Access Controller ==================================
             bool ignoreWorkstationOwnershipSecurity = false;
@@ -179,8 +175,8 @@ namespace ServiceLibrary.Implementation
             _hesConnection?.Start();
             _rfidService.Start();
 
+            _workstationLockProcessor.Start();
             _proximityMonitorManager.Start();
-            _workstationLocker.Start();
 
             _connectionManager.StartDiscovery();
         }

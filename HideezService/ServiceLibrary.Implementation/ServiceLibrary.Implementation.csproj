@@ -81,9 +81,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SessionManagement\ServiceClientSession.cs" />
     <Compile Include="SessionManagement\ServiceClientSessionManager.cs" />
-    <Compile Include="UiScreenActivator.cs" />
-    <Compile Include="WorkstationLocker.cs" />
-    <Compile Include="WtsapiWorkstationLocker.cs" />
+    <Compile Include="ScreenActivation\WcfScreenActivator.cs" />
+    <Compile Include="WorkstationLock\WcfWorkstationLocker.cs" />
+    <Compile Include="WorkstationLock\WtsapiWorkstationLocker.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">

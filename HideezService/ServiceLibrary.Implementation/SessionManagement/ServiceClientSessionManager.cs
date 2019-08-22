@@ -7,11 +7,18 @@ namespace ServiceLibrary.Implementation.SessionManagement
     class ServiceClientSessionManager
     {
         readonly object sessionsLock = new object();
+        List<ServiceClientSession> _sessions = new List<ServiceClientSession>();
 
         public event EventHandler<ServiceClientSession> SessionClosed;
         public event EventHandler<ServiceClientSession> SessionAdded;
 
-        public IReadOnlyCollection<ServiceClientSession> Sessions { get; } = new List<ServiceClientSession>();
+        public IReadOnlyCollection<ServiceClientSession> Sessions
+        {
+            get
+            {
+                return _sessions.ToList();
+            }
+        }
 
         public ServiceClientSessionManager()
         {
@@ -22,7 +29,7 @@ namespace ServiceLibrary.Implementation.SessionManagement
             var session = new ServiceClientSession(type, callbacks);
             lock (sessionsLock)
             {
-                (Sessions as List<ServiceClientSession>).Add(session);
+                _sessions.Add(session);
             }
             SessionAdded?.Invoke(this, new ServiceClientSession(type, callbacks));
             return session;
@@ -32,7 +39,7 @@ namespace ServiceLibrary.Implementation.SessionManagement
         {
             lock (sessionsLock)
             {
-                (Sessions as List<ServiceClientSession>).Remove(session);
+                _sessions.Remove(session);
             }
             SessionClosed?.Invoke(this, session);
         }

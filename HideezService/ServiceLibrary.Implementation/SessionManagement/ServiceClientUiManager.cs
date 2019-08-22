@@ -122,7 +122,7 @@ namespace ServiceLibrary.Implementation.SessionManagement
                 {
                     try
                     {
-                        session.Callbacks.ServiceComponentsStateChanged(isBleOk, isRfidOk, isHesOk);
+                        session.Callbacks.ServiceComponentsStateChanged(isHesOk, isRfidOk, isBleOk);
                     }
                     catch (Exception ex)
                     {
