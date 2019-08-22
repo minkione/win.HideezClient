@@ -2,10 +2,11 @@
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
 using Hideez.SDK.Communication.WorkstationEvents;
+using System;
 
 namespace HideezMiddleware
 {
-    public class WorkstationLockProcessor : Logger
+    public class WorkstationLockProcessor : Logger, IDisposable
     {
         readonly ProximityMonitorManager _proximityMonitorManager;
         readonly IWorkstationLocker _workstationLocker;
@@ -20,6 +21,35 @@ namespace HideezMiddleware
             _proximityMonitorManager.DeviceBelowLockForToLong += _proximityMonitorManager_DeviceBelowLockForToLong;
             _proximityMonitorManager.DeviceProximityTimeout += _proximityMonitorManager_DeviceProximityTimeout;
         }
+
+        #region IDisposable
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        bool disposed = false;
+        void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                _proximityMonitorManager.DeviceConnectionLost -= _proximityMonitorManager_DeviceConnectionLost;
+                _proximityMonitorManager.DeviceBelowLockForToLong -= _proximityMonitorManager_DeviceBelowLockForToLong;
+                _proximityMonitorManager.DeviceProximityTimeout -= _proximityMonitorManager_DeviceProximityTimeout;
+            }
+
+            disposed = true;
+        }
+
+        ~WorkstationLockProcessor()
+        {
+            Dispose(false);
+        }
+        #endregion
 
         public bool IsEnabled { get; private set; }
 
