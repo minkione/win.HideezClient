@@ -821,10 +821,11 @@ namespace WinSampleApp.ViewModel
                 _credentialProviderConnection, // as IWorkstationUnlocker
                 null, 
                 unlockerSettingsManager, 
-                uiProxy);
+                uiProxy,
+                _log);
 
             // StatusManager =============================
-            var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxy);
+            var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxy, _log);
 
             _connectionManager.StartDiscovery();
 
