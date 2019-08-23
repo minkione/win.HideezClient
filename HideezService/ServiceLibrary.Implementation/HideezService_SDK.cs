@@ -92,25 +92,26 @@ namespace ServiceLibrary.Implementation
             _unlockerSettingsManager = new SettingsManager<UnlockerSettings>(ulockerSettingsPath, fileSerializer);
             _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
 
+            // Get HES address from registry ==================================
+            // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
+            string hesAddress = string.Empty;
             try
             {
-                // HES ==================================
-                // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
-                string hesAddres = GetHesAddress();
-                UrlUtils.TryGetDomain(hesAddres, out string hesDomain);
-                WorkstationHelper.Log = sdkLogger;
-                var workstationInfoProvider = new WorkstationInfoProvider(hesDomain, sdkLogger);
-                _hesConnection = new HesAppConnection(_deviceManager, hesAddres, workstationInfoProvider, sdkLogger);
-                _hesConnection.HubSettingsArrived += (sender, settings) => _unlockerSettingsManager.SaveSettings(new UnlockerSettings(settings));
-                _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
+                hesAddress = GetHesAddress();
             }
             catch (Exception ex)
             {
-                _log.Error("Hideez Service has encountered an error during HES connection init." +
-                    Environment.NewLine +
-                    "New connection establishment will be attempted after service restart");
                 _log.Error(ex);
             }
+
+            // WorkstationInfoProvider ==================================
+            WorkstationHelper.Log = sdkLogger;
+            var workstationInfoProvider = new WorkstationInfoProvider(hesAddress, sdkLogger);
+
+            // HES Connection ==================================
+            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, sdkLogger);
+            _hesConnection.HubSettingsArrived += (sender, settings) => _unlockerSettingsManager.SaveSettings(new UnlockerSettings(settings));
+            _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
 
             // ScreenActivator ==================================
             _screenActivator = new WcfScreenActivator(SessionManager);
@@ -119,10 +120,23 @@ namespace ServiceLibrary.Implementation
             _clientProxy = new ServiceClientUiManager(SessionManager);
 
             // UI Proxy =============================
-            _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy);
+            _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, sdkLogger);
 
             // StatusManager =============================
             _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy);
+
+
+            // Ignore Workstation Ownership Setting
+            bool ignoreWorkstationOwnershipSecurity = false;
+            try
+            {
+                ignoreWorkstationOwnershipSecurity = GetIgnoreWorkstationOwnershipSecurity();
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+            }
+
 
             // ConnectionFlowProcessor
             var connectionFlowProcesssor = new ConnectionFlowProcessor(
@@ -133,7 +147,8 @@ namespace ServiceLibrary.Implementation
                 _credentialProviderProxy,
                 _screenActivator,
                 _unlockerSettingsManager,
-                _uiProxy);
+                _uiProxy,
+                ignoreWorkstationOwnershipSecurity);
 
             // Proximity Monitor ==================================
             UnlockerSettings unlockerSettings = _unlockerSettingsManager.GetSettingsAsync().Result;
@@ -146,16 +161,6 @@ namespace ServiceLibrary.Implementation
             _workstationLockProcessor = new WorkstationLockProcessor(_proximityMonitorManager, _workstationLocker, sdkLogger);
 
             // Device Access Controller ==================================
-            bool ignoreWorkstationOwnershipSecurity = false;
-            try
-            {
-                ignoreWorkstationOwnershipSecurity = GetIgnoreWorkstationOwnershipSecurity();
-            }
-            catch (Exception ex)
-            {
-                _log.Error(ex);
-            }
-
             if (ignoreWorkstationOwnershipSecurity)
             {
                 _log.Warn("Device Access Controller is disabled due to workstation ownership options");
@@ -171,8 +176,20 @@ namespace ServiceLibrary.Implementation
             SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
 
             // SDK initialization finished, start essential components
+            try
+            {
+                _hesConnection.Initialize(hesAddress);
+                _hesConnection.Start();
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Hideez Service has encountered an error during HES connection initialization" +
+                    Environment.NewLine +
+                    "New connection establishment will be attempted after service restart");
+                _log.Error(ex);
+            }
+
             _credentialProviderProxy.Start();
-            _hesConnection?.Start();
             _rfidService.Start();
 
             _workstationLockProcessor.Start();

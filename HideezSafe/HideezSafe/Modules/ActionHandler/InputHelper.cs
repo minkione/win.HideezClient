@@ -1,10 +1,6 @@
 ﻿using Hideez.ARM;
 using Hideez.ISM;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HideezSafe.Modules.ActionHandler
 {
@@ -17,7 +13,7 @@ namespace HideezSafe.Modules.ActionHandler
 
             // Special case for the Microsoft Edge
             if ((appInfo.ProcessName.StartsWith("applicationframehost", StringComparison.CurrentCultureIgnoreCase) &&
-                !string.IsNullOrWhiteSpace(appInfo.Domain))
+                (!string.IsNullOrWhiteSpace(appInfo.Domain) || appInfo.Title.StartsWith("skype", StringComparison.CurrentCultureIgnoreCase)))
                 || appInfo.ProcessName.StartsWith("microsoftedge", StringComparison.CurrentCultureIgnoreCase))
             {
                 inputApp = InputApp.Edge;

@@ -1,11 +1,17 @@
-﻿using System;
+﻿using Hideez.SDK.Communication;
+using Microsoft.Win32;
+using NLog;
+using System;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
+using System.Management;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Linq;
 using Hideez.SDK.Communication.WorkstationEvents;
 using Microsoft.Win32;
 using NLog;
+
 
 namespace HideezMiddleware
 {
