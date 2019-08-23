@@ -92,7 +92,6 @@ namespace ServiceLibrary.Implementation
             _unlockerSettingsManager = new SettingsManager<UnlockerSettings>(ulockerSettingsPath, fileSerializer);
             _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
 
-
             // Get HES address from registry ==================================
             // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
             string hesAddress = string.Empty;
@@ -110,22 +109,9 @@ namespace ServiceLibrary.Implementation
             var workstationInfoProvider = new WorkstationInfoProvider(hesAddress, sdkLogger);
 
             // HES Connection ==================================
-            _hesConnection = new HesAppConnection(_deviceManager, hesAddress, workstationInfoProvider, sdkLogger);
+            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, sdkLogger);
             _hesConnection.HubSettingsArrived += (sender, settings) => _unlockerSettingsManager.SaveSettings(new UnlockerSettings(settings));
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
-
-            try
-            {
-                _hesConnection.Initialize();
-            }
-            catch (Exception ex)
-            {
-                _log.Error("Hideez Service has encountered an error during HES connection initialization" +
-                    Environment.NewLine +
-                    "New connection establishment will be attempted after service restart");
-                _log.Error(ex);
-            }
-
 
             // ScreenActivator ==================================
             _screenActivator = new WcfScreenActivator(SessionManager);
@@ -190,8 +176,20 @@ namespace ServiceLibrary.Implementation
             SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
 
             // SDK initialization finished, start essential components
+            try
+            {
+                _hesConnection.Initialize(hesAddress);
+                _hesConnection.Start();
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Hideez Service has encountered an error during HES connection initialization" +
+                    Environment.NewLine +
+                    "New connection establishment will be attempted after service restart");
+                _log.Error(ex);
+            }
+
             _credentialProviderProxy.Start();
-            _hesConnection?.Start();
             _rfidService.Start();
 
             _workstationLockProcessor.Start();
