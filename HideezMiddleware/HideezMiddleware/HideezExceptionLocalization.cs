@@ -12,7 +12,7 @@ namespace HideezMiddleware
     public class HideezExceptionLocalization : Logger
     {
         public HideezExceptionLocalization(ILog log) 
-            : base("Exception Localization", log)
+            : base(string.Empty, log)
         {
         }
 

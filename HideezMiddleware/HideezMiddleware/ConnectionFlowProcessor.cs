@@ -10,12 +10,12 @@ using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
+using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Utils;
-using NLog;
 
 namespace HideezMiddleware
 {
@@ -25,9 +25,8 @@ namespace HideezMiddleware
     }
 
     // Todo: Code cleanup in WorkstationUnlocker after rapid proximity unlock development
-    public class ConnectionFlowProcessor
+    public class ConnectionFlowProcessor : Logger
     {
-        readonly ILogger _log = LogManager.GetCurrentClassLogger();
         readonly BleDeviceManager _deviceManager;
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
@@ -63,7 +62,9 @@ namespace HideezMiddleware
             IScreenActivator screenActivator,
             ISettingsManager<UnlockerSettings> unlockerSettingsManager,
             UiProxyManager ui,
+            ILog log,
             bool ignoreWorkstationOwnershipSecurity = false)
+            : base(nameof(ConnectionFlowProcessor), log)
         {
 #if DEBUG
             ignoreWorkstationOwnershipSecurity = true;
@@ -97,7 +98,7 @@ namespace HideezMiddleware
                 }
                 catch (Exception ex)
                 {
-                    _log.Error(ex);
+                    WriteLine(ex);
                 }
             });
 
@@ -125,12 +126,12 @@ namespace HideezMiddleware
             {
                 _deviceConnectionFilters = new List<DeviceUnlockerSettingsInfo>(e.NewSettings.DeviceUnlockerSettings);
                 _connectProximity = e.NewSettings.UnlockProximity;
-                _log.Info("New device connection filters received");
+                WriteLine("New device connection filters received");
                 ClearAccessBlacklists();
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                WriteLine(ex);
             }
         }
 
@@ -204,7 +205,7 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                WriteLine(ex);
                 _pendingUnlocks.TryRemove(mac, out Guid removed);
             }
         }
@@ -272,7 +273,7 @@ namespace HideezMiddleware
             catch (HideezException ex)
             {
                 var message = HideezExceptionLocalization.GetErrorAsString(ex);
-                _log.Error(message);
+                WriteLine(message);
                 await _ui.SendNotification("");
                 await _ui.SendError(message);
                 throw;
@@ -280,7 +281,7 @@ namespace HideezMiddleware
             catch (Exception ex)
             {
                 success = false;
-                _log.Error(ex);
+                WriteLine(ex);
                 await _ui.SendNotification("");
                 await _ui.SendError(ex.Message);
                 throw;
@@ -540,19 +541,19 @@ namespace HideezMiddleware
                 if (!logonSuccessful)
                     await device.Disconnect();
 
-                _log.Info($"UnlockWorkstation result: {logonSuccessful}");
+                WriteLine($"UnlockWorkstation result: {logonSuccessful}");
             }
             catch (HideezException ex)
             {
                 var message = HideezExceptionLocalization.GetErrorAsString(ex);
-                _log.Error(message);
+                WriteLine(message);
                 await _ui.SendNotification("");
                 await _ui.SendError(message);
                 throw;
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                WriteLine(ex);
                 await _ui.SendNotification("");
                 await _ui.SendError(ex.Message);
                 throw;
@@ -576,7 +577,7 @@ namespace HideezMiddleware
             }
             catch (AccessDeniedAuthException ex)
             {
-                _log.Error(ex);
+                WriteLine(ex);
                 await _ui.SendNotification("");
                 await _ui.SendError(ex.Message);
                 throw;
@@ -610,7 +611,7 @@ namespace HideezMiddleware
             }
             catch (AccessDeniedAuthException ex)
             {
-                _log.Error(ex);
+                WriteLine(ex);
                 await _ui.SendNotification("");
                 await _ui.SendError(ex.Message);
                 throw;
@@ -631,7 +632,7 @@ namespace HideezMiddleware
             }
             catch (AccessDeniedAuthException ex)
             {
-                _log.Error(ex);
+                WriteLine(ex);
                 await _ui.SendNotification("");
                 await _ui.SendError(ex.Message);
                 throw;
@@ -728,14 +729,14 @@ namespace HideezMiddleware
                 }
                 catch (Exception ex)
                 {
-                    _log.Error(ex);
+                    WriteLine(ex);
                 }
             });
         }
 
         void ClearAccessBlacklists()
         {
-            _log.Info("Access blacklist cleared");
+            WriteLine("Access blacklist cleared");
             _proximityAccessBlacklist.Clear();
             _rfidAccessBlacklist.Clear();
             _bleAccessBlacklist.Clear();

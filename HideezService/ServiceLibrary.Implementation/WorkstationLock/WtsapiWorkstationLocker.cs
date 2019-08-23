@@ -1,5 +1,5 @@
-﻿using Hideez.SDK.Communication.Proximity;
-using NLog;
+﻿using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Proximity;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 namespace ServiceLibrary.Implementation.WorkstationLock
 {
     [Obsolete]
-    class WtsapiWorkstationLocker
+    class WtsapiWorkstationLocker : Logger
     {
         [DllImport("wtsapi32.dll", SetLastError = true)]
         static extern bool WTSDisconnectSession(IntPtr hServer, int sessionId, bool bWait);
@@ -69,7 +69,10 @@ namespace ServiceLibrary.Implementation.WorkstationLock
             WTSInit
         }
 
-        readonly Logger _log = LogManager.GetCurrentClassLogger();
+        public WtsapiWorkstationLocker(ILog log)
+            : base(nameof(WtsapiWorkstationLocker), log)
+        {
+        }
 
         public void LockWorkstation()
         {
@@ -85,7 +88,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
             if (retval == 0)
                 return;
 
-            _log.Info("Query sessions");
+            WriteLine("Query sessions");
             for (int i = 0; i < count; i++)
             {
                 WTS_SESSION_INFO si = (WTS_SESSION_INFO)Marshal.PtrToStructure((System.IntPtr)currentSession, typeof(WTS_SESSION_INFO));
@@ -97,7 +100,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                 var domain = Marshal.PtrToStringAnsi(domainPtr);
                 var userName = Marshal.PtrToStringAnsi(userPtr);
                 var sessionFullName = domain + "\\" + userName;
-                _log.Info("Session: " + sessionFullName);
+                WriteLine("Session: " + sessionFullName);
 
                 WTSFreeMemory(userPtr);
                 WTSFreeMemory(domainPtr);
@@ -106,12 +109,12 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                 //if (sessionFullName == sessionTolock) 
                 if (!string.IsNullOrWhiteSpace(domain) && !string.IsNullOrWhiteSpace(userName))
                 {
-                    _log.Info($"Session '{sessionFullName}' matches session to lock ' '");
+                    WriteLine($"Session '{sessionFullName}' matches session to lock ' '");
                     if (si.State == WTS_CONNECTSTATE_CLASS.WTSActive)
                     {
-                        _log.Info($"Session '{sessionFullName}' is active, disconnect initiated");
+                        WriteLine($"Session '{sessionFullName}' is active, disconnect initiated");
                         bool disconnected = WTSDisconnectSession(IntPtr.Zero, si.SessionID, false);
-                        _log.Info($"Session disconnected: {disconnected}");
+                        WriteLine($"Session disconnected: {disconnected}");
                     }
                 }
             }

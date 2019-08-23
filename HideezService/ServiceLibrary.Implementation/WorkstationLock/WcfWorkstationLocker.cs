@@ -1,5 +1,5 @@
-﻿using HideezMiddleware;
-using NLog;
+﻿using Hideez.SDK.Communication.Log;
+using HideezMiddleware;
 using ServiceLibrary.Implementation.SessionManagement;
 using System;
 using System.Linq;
@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation.WorkstationLock
 {
-    class WcfWorkstationLocker : IWorkstationLocker
+    class WcfWorkstationLocker : Logger, IWorkstationLocker
     {
-        Logger _log = LogManager.GetCurrentClassLogger();
         readonly ServiceClientSessionManager _sessionManager;
 
-        public WcfWorkstationLocker(ServiceClientSessionManager sessionManager)
+        public WcfWorkstationLocker(ServiceClientSessionManager sessionManager, ILog log)
+            : base(nameof(WcfWorkstationLocker), log)
         {
             _sessionManager = sessionManager;
         }
@@ -33,7 +33,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                 }
                 catch (Exception ex)
                 {
-                    _log.Error(ex);
+                    WriteLine(ex);
                 }
             });
         }

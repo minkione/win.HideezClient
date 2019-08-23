@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
-using NLog;
+using Hideez.SDK.Communication.Log;
 
 namespace HideezMiddleware
 {
-    public class StatusManager : IDisposable
+    public class StatusManager : Logger, IDisposable
     {
-        readonly ILogger _log = LogManager.GetCurrentClassLogger();
-
         readonly HesAppConnection _hesConnection;
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
@@ -18,7 +16,9 @@ namespace HideezMiddleware
         public StatusManager(HesAppConnection hesConnection,
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
-            IClientUiProxy ui)
+            IClientUiProxy ui,
+            ILog log)
+            : base(nameof(StatusManager), log)
         {
             _hesConnection = hesConnection;
             _rfidService = rfidService;
@@ -107,7 +107,7 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                WriteLine(ex);
             }
         }
 

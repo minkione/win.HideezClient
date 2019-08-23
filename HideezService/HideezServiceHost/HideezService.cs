@@ -114,7 +114,7 @@ namespace HideezServiceHost
             }
             catch (Exception ex)
             {
-                ServiceLibrary.Implementation.HideezService.LogException(ex);
+                ServiceLibrary.Implementation.HideezService.Error(ex);
             }
         }
 
@@ -158,7 +158,7 @@ namespace HideezServiceHost
             }
             catch (Exception ex)
             {
-                ServiceLibrary.Implementation.HideezService.LogException(ex);
+                ServiceLibrary.Implementation.HideezService.Error(ex);
             }
         }
     }

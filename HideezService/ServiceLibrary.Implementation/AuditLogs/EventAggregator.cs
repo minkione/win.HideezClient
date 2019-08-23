@@ -1,8 +1,8 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.WorkstationEvents;
 using Newtonsoft.Json;
-using NLog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,9 +16,8 @@ using System.Timers;
 
 namespace ServiceLibrary.Implementation
 {
-    class EventAggregator
+    class EventAggregator : Logger
     {
-        private readonly ILogger log = LogManager.GetCurrentClassLogger();
         private readonly HesAppConnection hesAppConnection;
         private readonly string eventDirectory = $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\Hideez\WorkstationEvents\";
         private readonly List<WorkstationEvent> workstationEvents = new List<WorkstationEvent>();
@@ -29,7 +28,8 @@ namespace ServiceLibrary.Implementation
         // default is false, set 1 for true.
         private int _threadSafeBoolBackValue = 0;
 
-        public EventAggregator(HesAppConnection hesAppConnection)
+        public EventAggregator(HesAppConnection hesAppConnection, ILog log)
+            : base(nameof(EventAggregator), log)
         {
             if (!Directory.Exists(eventDirectory))
             {
@@ -63,7 +63,7 @@ namespace ServiceLibrary.Implementation
             {
                 try
                 {
-                    log.Info("Added new workstation event.");
+                    WriteLine("Added new workstation event.");
                     lock (lockObj)
                     {
                         workstationEvent.Version = WorkstationEvent.CurrentVersion;
@@ -81,7 +81,7 @@ namespace ServiceLibrary.Implementation
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex);
+                    WriteLine(ex);
                     Debug.Assert(false);
                 }
             });
@@ -96,7 +96,7 @@ namespace ServiceLibrary.Implementation
                     && !IsSendToServer 
                     && workstationEvents.Count > 0)
                 {
-                    log.Info("Sending to HES workstation events.");
+                    WriteLine("Sending to HES workstation events.");
                     IsSendToServer = true;
                     List<WorkstationEvent> newQueue = null;
                     sendTimer.Stop();
@@ -105,7 +105,7 @@ namespace ServiceLibrary.Implementation
                         newQueue = new List<WorkstationEvent>(workstationEvents);
                     }
 
-                    log.Info($"Current event queue length: {newQueue.Count}");
+                    WriteLine($"Current event queue length: {newQueue.Count}");
                     await SendEventToServerAsync(newQueue);
 
                     newQueue.Clear();
@@ -137,7 +137,7 @@ namespace ServiceLibrary.Implementation
                                 }
                                 catch (Exception ex)
                                 {
-                                    log.Error(ex);
+                                    WriteLine(ex);
                                     Debug.Assert(false);
                                     try
                                     {
@@ -146,7 +146,7 @@ namespace ServiceLibrary.Implementation
                                     }
                                     catch (Exception e)
                                     {
-                                        log.Error(e);
+                                        WriteLine(e);
                                     }
                                 }
                             }
@@ -154,11 +154,11 @@ namespace ServiceLibrary.Implementation
 
                         await SendEventToServerAsync(newQueue);
 
-                        log.Info("End sending to HES workstation events.");
+                        WriteLine("End sending to HES workstation events.");
                     }
                     catch (Exception ex)
                     {
-                        log.Error(ex);
+                        WriteLine(ex);
                         Debug.Assert(false);
                     }
                 }
@@ -214,7 +214,7 @@ namespace ServiceLibrary.Implementation
                                     }
                                     catch (Exception ex)
                                     {
-                                        log.Error(ex);
+                                        WriteLine(ex);
                                         Debug.Assert(false);
                                     }
                                 }
@@ -223,7 +223,7 @@ namespace ServiceLibrary.Implementation
                     }
                     catch (Exception ex)
                     {
-                        log.Error(ex);
+                        WriteLine(ex);
                         Debug.Assert(false);
                     }
                 }

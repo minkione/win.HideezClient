@@ -1,17 +1,18 @@
-﻿using NLog;
-using System;
+﻿using System;
 using System.ServiceModel;
 using System.Linq;
 using HideezMiddleware;
 using Hideez.SDK.Communication;
-using System.Threading.Tasks;
 using ServiceLibrary.Implementation.SessionManagement;
+using Hideez.SDK.Communication.Log;
 
 namespace ServiceLibrary.Implementation
 {
     public partial class HideezService : IHideezService
     {
+        static ILog _sdkLogger;
         static Logger _log;
+
         static bool _initialized = false;
         static object _initializationLock = new object();
         static ServiceClientSessionManager SessionManager = new ServiceClientSessionManager();
@@ -31,70 +32,35 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void SetupExceptionHandling()
-        {
-            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
-            LogUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
-
-            TaskScheduler.UnobservedTaskException += (s, e) =>
-                LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
-        }
-
-        void LogUnhandledException(Exception e, string source)
-        {
-            try
-            {
-                LogManager.EnableLogging();
-
-                var fatalLogger = _log ?? LogManager.GetCurrentClassLogger();
-                var assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName();
-
-                fatalLogger.Fatal($"Unhandled exception in {assemblyName.Name} v{assemblyName.Version}");
-                fatalLogger.Fatal(e);
-                LogManager.Flush();
-                LogManager.Shutdown();
-            }
-            catch (Exception)
-            {
-                try
-                {
-                    Environment.FailFast("An error occured while handling fatal error", e as Exception);
-                }
-                catch (Exception exc)
-                {
-                    Environment.FailFast("An error occured while handling an error during fatal error handling", exc);
-                }
-            }
-        }
-
         void Initialize()
         {
             try
             {
-                LogManager.EnableLogging();
+                NLog.LogManager.EnableLogging();
 
-                _log = LogManager.GetCurrentClassLogger();
-                _log.Info(">>>>>> Starting service");
+                _sdkLogger = new NLogWrapper();
+                _log = new Logger(nameof(HideezService), _sdkLogger);
 
-                _log.Info("CLR Version: {0}", Environment.Version);
-                _log.Info("OS: {0}", Environment.OSVersion);
-                _log.Info("Command: {0}", Environment.CommandLine);
+                _log.WriteLine(">>>>>> Starting service");
+
+                _log.WriteLine($"CLR Version: {Environment.Version}");
+                _log.WriteLine($"OS: {Environment.OSVersion}");
+                _log.WriteLine($"Command: {Environment.CommandLine}");
 
 
-                _log.Info(">>>>>> Initialize SDK");
+                _log.WriteLine(">>>>>> Initialize SDK");
                 InitializeSDK();
-                _log.Info(">>>>>> SDK Initialized");
+                _log.WriteLine(">>>>>> SDK Initialized");
 
-                _log.Info(">>>>>> Service started");
+                _log.WriteLine(">>>>>> Service started");
             }
             catch (Exception ex)
             {
-                _log.Fatal("Hideez Service has encountered an error during initialization." +
+                _log.WriteLine("Hideez Service has encountered an error during initialization." +
                     Environment.NewLine +
                     "The error must be resolved until service operation can be resumed. " +
                     Environment.NewLine +
-                    "The service will not restart automatically.");
-                _log.Fatal(ex);
+                    "The service will not restart automatically.", ex, LogErrorSeverity.Fatal);
 
                 // Exit code 0 prevents automatic service restart trigger on exit
                 Environment.Exit(0);
@@ -133,28 +99,27 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public static void LogException(Exception ex)
+        public static void Error(Exception ex, string message = "")
         {
-            _log.Error(ex);
-            _log.Error(ex.StackTrace);
+            _log.WriteLine(message, ex);
         }
         #endregion
 
         void Channel_Faulted(object sender, EventArgs e)
         {
-            _log.Debug(">>>>>> Channel_Faulted");
+            _log.WriteLine(">>>>>> Channel_Faulted", LogErrorSeverity.Debug);
             DetachClient();
         }
 
         void Channel_Closed(object sender, EventArgs e)
         {
-            _log.Debug(">>>>>> Channel_Closed");
+            _log.WriteLine(">>>>>> Channel_Closed", LogErrorSeverity.Debug);
             DetachClient();
         }
 
         public bool AttachClient(ServiceClientParameters prm)
         {
-            _log.Debug(">>>>>> AttachClient " + prm.ClientType.ToString());
+            _log.WriteLine(">>>>>> AttachClient " + prm.ClientType.ToString(), LogErrorSeverity.Debug);
 
             // Limit to one ServiceHost / TestConsole connection
             if (prm.ClientType == ClientType.TestConsole ||
@@ -180,7 +145,7 @@ namespace ServiceLibrary.Implementation
 
         public void DetachClient()
         {
-            _log.Debug($">>>>>> DetachClient {_client?.ClientType}");
+            _log.WriteLine($">>>>>> DetachClient {_client?.ClientType}", LogErrorSeverity.Debug);
             SessionManager.Remove(_client);
             SessionManager.SessionClosed -= SessionManager_SessionClosed;
         }
@@ -192,7 +157,7 @@ namespace ServiceLibrary.Implementation
 
         public void Shutdown()
         {
-            _log.Debug(">>>>>> Shutdown service");
+            _log.WriteLine(">>>>>> Shutdown service", LogErrorSeverity.Debug);
             // Todo: shutdown service in a clean way
         }
     }
