@@ -22,7 +22,7 @@ using Microsoft.Win32;
 
 namespace WinSampleApp.ViewModel
 {
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel : ViewModelBase, IClientUi
     {
         readonly EventLogger _log;
         readonly BleConnectionManager _connectionManager;
@@ -59,7 +59,60 @@ namespace WinSampleApp.ViewModel
         public string HesAddress { get; set; }
         public string HesState => _hesConnection?.State.ToString();
 
+
         #region Properties
+
+        string _clientUiStatus;
+        public string ClientUiStatus
+        {
+            get
+            {
+                return _clientUiStatus;
+            }
+            set
+            {
+                if (_clientUiStatus != value)
+                {
+                    _clientUiStatus = value;
+                    NotifyPropertyChanged(nameof(ClientUiStatus));
+                }
+            }
+        }
+
+        string _clientUiNotification;
+        public string ClientUiNotification
+        {
+            get
+            {
+                return _clientUiNotification;
+            }
+            set
+            {
+                if (_clientUiNotification != value)
+                {
+                    _clientUiNotification = value;
+                    NotifyPropertyChanged(nameof(ClientUiNotification));
+                }
+            }
+        }
+
+        string _clientUiError;
+        public string ClientUiError
+        {
+            get
+            {
+                return _clientUiError;
+            }
+            set
+            {
+                if (_clientUiError != value)
+                {
+                    _clientUiError = value;
+                    NotifyPropertyChanged(nameof(ClientUiError));
+                }
+            }
+        }
+
         bool bleAdapterDiscovering;
         public bool BleAdapterDiscovering
         {
@@ -95,6 +148,8 @@ namespace WinSampleApp.ViewModel
         }
 
         DiscoveredDeviceAddedEventArgs currentDiscoveredDevice;
+        private GetPinWindow _getPinWindow;
+
         public DiscoveredDeviceAddedEventArgs CurrentDiscoveredDevice
         {
             get
@@ -755,7 +810,7 @@ namespace WinSampleApp.ViewModel
             var unlockerSettingsManager = new SettingsManager<UnlockerSettings>(string.Empty, new XmlFileSerializer(_log));
 
             // UI proxy ==================================
-            var uiProxy = new UiProxyManager(_log, _credentialProviderConnection, null);
+            var uiProxy = new UiProxyManager(_log, _credentialProviderConnection, this);
 
             // ConnectionFlowProcessor ==================================
             _connectionFlowProcessor = new ConnectionFlowProcessor(
@@ -772,6 +827,8 @@ namespace WinSampleApp.ViewModel
             var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxy);
 
             _connectionManager.StartDiscovery();
+
+            ClientConnected?.Invoke(this, EventArgs.Empty);
         }
 
         async void ConnectHes()
@@ -1323,9 +1380,13 @@ namespace WinSampleApp.ViewModel
             try
             {
                 if (!await device.Device.EnterPin(Pin))
-                   MessageBox.Show("Wrong PIN");
+                {
+                    MessageBox.Show(device.Device.AccessLevel.IsLocked ? "DeviceLocked" : "Wrong PIN");
+                }
                 else
+                {
                     MessageBox.Show("PIN OK");
+                }
             }
             catch (Exception ex)
             {
@@ -1357,7 +1418,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        private async void OnGetOtpAsync(DeviceViewModel device)
+        async void OnGetOtpAsync(DeviceViewModel device)
         {
             try
             {
@@ -1366,10 +1427,75 @@ namespace WinSampleApp.ViewModel
                 var otpReply = await device.Device.GetOtp((byte)StorageTable.OtpSecrets, 1);
                 MessageBox.Show(otpReply.Otp);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
         }
+
+        #region IClientUI
+        public bool IsConnected => true;
+        public event EventHandler<EventArgs> ClientConnected;
+        public event EventHandler<PinReceivedEventArgs> PinReceived;
+
+        public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
+        {
+            if (_getPinWindow != null)
+                return Task.CompletedTask;
+
+            Task.Run(() => 
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    if (_getPinWindow == null)
+                    {
+                        var vm = new GetPinViewModel();
+                        _getPinWindow = new GetPinWindow(vm, (pin, oldPin) => 
+                        {
+                            PinReceived?.Invoke(this, new PinReceivedEventArgs()
+                            {
+                                DeviceId = deviceId,
+                                OldPin = oldPin,
+                                Pin = pin
+                            });
+                        });
+
+                        _getPinWindow.Show();
+                    }
+                });
+            });
+            return Task.CompletedTask;
+        }
+
+        public Task HidePinUi()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                _getPinWindow.Hide();
+                _getPinWindow = null;
+            });
+
+            SendNotification("");
+            return Task.CompletedTask;
+        }
+
+        public Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus)
+        {
+            ClientUiStatus = $"{DateTime.Now:T} BLE: {bluetoothStatus}, RFID: {rfidStatus}, HES: {hesStatus}";
+            return Task.CompletedTask;
+        }
+
+        public Task SendError(string message)
+        {
+            ClientUiError = string.IsNullOrEmpty(message) ? "" : $"{DateTime.Now:T} {message}";
+            return Task.CompletedTask;
+        }
+
+        public Task SendNotification(string message)
+        {
+            ClientUiNotification = string.IsNullOrEmpty(message) ? "" : $"{DateTime.Now:T} {message}";
+            return Task.CompletedTask;
+        }
+        #endregion IClientUI
     }
 }

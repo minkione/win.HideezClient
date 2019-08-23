@@ -1,0 +1,44 @@
+﻿<Window x:Class="WinSampleApp.GetPinWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WinSampleApp"
+        mc:Ignorable="d" 
+        WindowStartupLocation="CenterOwner"
+        Topmost="True"
+        Title="GetPinWindow" Height="200" Width="250">
+    <StackPanel>
+
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" Content="Old PIN"/>
+            <Label Grid.Row="1" Grid.Column="0" Content="PIN"/>
+            <Label Grid.Row="2" Grid.Column="0" Content="Confirm PIN"/>
+
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding OldPin}" Margin="5"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Pin}" Margin="5"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ConfirmPin}" Margin="5"/>
+
+        </Grid>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1" Content="Cancel" IsCancel="True" Width="100" Margin="10"/>
+            <Button Grid.Column="2" Content="OK" Width="100" Margin="10" IsDefault="True" Click="Button_Click"/>
+        </Grid>
+    </StackPanel>
+</Window>

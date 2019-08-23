@@ -266,7 +266,6 @@ namespace HideezMiddleware
                     else
                     {
                         Debug.WriteLine(">>>>>>>>>>>>>>> tasks failed");
-                        await _ui.HidePinUi();
                     }
                 }
             }
@@ -288,6 +287,8 @@ namespace HideezMiddleware
             }
             finally
             {
+                await _ui.HidePinUi();
+
                 if (!success)
                     await device.Disconnect();
 
@@ -420,6 +421,9 @@ namespace HideezMiddleware
             if (string.IsNullOrWhiteSpace(pin))
                 return false;
             bool res = await device.SetPin(pin); //this using default timeout for BLE commands
+
+            // тут почему-то метка просит нажать кнопку
+
             return res;
         }
 

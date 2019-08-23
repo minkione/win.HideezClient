@@ -168,11 +168,19 @@
     <Compile Include="Converter\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converter\BoolToColorConverter.cs" />
     <Compile Include="Converter\InvertBooleanToVisibilityConverter.cs" />
+    <Compile Include="GetPinWindow.xaml.cs">
+      <DependentUpon>GetPinWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\DelegateCommand.cs" />
     <Compile Include="ViewModel\DeviceViewModel.cs" />
+    <Compile Include="ViewModel\GetPinViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Page Include="AccessParamsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GetPinWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
