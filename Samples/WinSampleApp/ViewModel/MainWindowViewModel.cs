@@ -810,7 +810,7 @@ namespace WinSampleApp.ViewModel
             var unlockerSettingsManager = new SettingsManager<UnlockerSettings>(string.Empty, new XmlFileSerializer(_log));
 
             // UI proxy ==================================
-            var uiProxy = new UiProxyManager(_log, _credentialProviderConnection, this);
+            var uiProxy = new UiProxyManager(_credentialProviderConnection, this, _log);
 
             // ConnectionFlowProcessor ==================================
             _connectionFlowProcessor = new ConnectionFlowProcessor(
@@ -844,7 +844,7 @@ namespace WinSampleApp.ViewModel
 
                 if (!string.IsNullOrEmpty(HesAddress))
                 {
-                    _hesConnection = new HesAppConnection(_deviceManager, HesAddress, new WorkstationInfoProvider("", _log), _log);
+                    _hesConnection = new HesAppConnection(_deviceManager, new WorkstationInfoProvider("", _log), _log);
 
                     _hesConnection.Start();
 
@@ -1471,7 +1471,7 @@ namespace WinSampleApp.ViewModel
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                _getPinWindow.Hide();
+                _getPinWindow?.Hide();
                 _getPinWindow = null;
             });
 
