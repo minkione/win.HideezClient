@@ -116,7 +116,9 @@ namespace ServiceLibrary.Implementation.SessionManagement
             await Task.Run(() =>
             {
                 var isBleOk = bluetoothStatus == BluetoothStatus.Ok;
-                var isRfidOk = rfidStatus == RfidStatus.Ok;
+
+                var isRfidOk = (rfidStatus != RfidStatus.Disabled) ? (rfidStatus == RfidStatus.Ok) : new bool?();
+
                 var isHesOk = hesStatus == HesStatus.Ok;
 
                 foreach (var session in _clientSessionManager.Sessions)

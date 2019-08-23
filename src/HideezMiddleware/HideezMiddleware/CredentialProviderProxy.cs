@@ -287,8 +287,7 @@ namespace HideezMiddleware
             if (bluetoothStatus != BluetoothStatus.Ok)
                 statuses.Add($"Bluetooth not available (state: {bluetoothStatus})");
 
-            // Todo: Check if user selected RFID for usage on this computer
-            if (rfidStatus != RfidStatus.Ok)
+            if (rfidStatus != RfidStatus.Disabled && rfidStatus != RfidStatus.Ok)
             {
                 if (rfidStatus == RfidStatus.RfidServiceNotConnected)
                     statuses.Add("RFID service not connected");

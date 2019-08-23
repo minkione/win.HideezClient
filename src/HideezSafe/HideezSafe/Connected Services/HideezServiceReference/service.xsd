@@ -166,7 +166,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="hesConnected" type="xs:boolean" />
-        <xs:element minOccurs="0" name="rfidConnected" type="xs:boolean" />
+        <xs:element minOccurs="0" name="rfidConnected" nillable="true" type="xs:boolean" />
         <xs:element minOccurs="0" name="bleConnected" type="xs:boolean" />
       </xs:sequence>
     </xs:complexType>

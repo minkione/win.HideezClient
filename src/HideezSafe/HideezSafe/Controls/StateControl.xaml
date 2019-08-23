@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Name="userControl"
     Height="35"
+    Visibility="{Binding Visible, Converter={StaticResource BooleanToVisibilityConverter}}"
     mc:Ignorable="d">
     <Grid>
         <Border

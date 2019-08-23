@@ -22,12 +22,14 @@ namespace HideezMiddleware
         Ok,
         RfidServiceNotConnected,
         RfidReaderNotConnected,
+        Disabled,
     }
 
     public enum HesStatus
     {
         Ok,
         HesNotConnected,
+        Disabled,
     }
 
     public class UiProxyManager : Logger, IClientUiProxy, IDisposable

@@ -123,7 +123,7 @@ namespace ServiceLibrary.Implementation
             _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, sdkLogger);
 
             // StatusManager =============================
-            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, sdkLogger);
+            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _unlockerSettingsManager, sdkLogger);
 
 
             // Ignore Workstation Ownership Setting

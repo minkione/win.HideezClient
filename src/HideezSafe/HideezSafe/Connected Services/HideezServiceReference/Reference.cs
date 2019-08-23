@@ -649,7 +649,7 @@ namespace HideezSafe.HideezServiceReference {
         void ActivateWorkstationScreenRequest();
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceComponentsStateChanged")]
-        void ServiceComponentsStateChanged(bool hesConnected, bool rfidConnected, bool bleConnected);
+        void ServiceComponentsStateChanged(bool hesConnected, System.Nullable<bool> rfidConnected, bool bleConnected);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceNotificationReceived")]
         void ServiceNotificationReceived(string message);

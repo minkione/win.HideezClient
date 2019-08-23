@@ -161,7 +161,7 @@ namespace HideezSafe.Modules.ServiceCallbackMessanger
             }
         }
 
-        public void ServiceComponentsStateChanged(bool hesConnected, bool rfidConnected, bool bleConnected)
+        public void ServiceComponentsStateChanged(bool hesConnected, bool? rfidConnected, bool bleConnected)
         {
             try
             {

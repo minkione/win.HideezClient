@@ -9,7 +9,8 @@ namespace HideezSafe.ViewModels
         private string nameKey;
         private string noConnectionTextKey;
         private string hasConnectionTextKey;
-        private bool state;
+        private bool state = false;
+        private bool visible = true;
 
         [Localization]
         public string Name
@@ -36,6 +37,12 @@ namespace HideezSafe.ViewModels
         {
             get { return state; }
             set { Set(ref state, value); }
+        }
+
+        public bool Visible
+        {
+            get { return visible; }
+            set { Set(ref visible, value); }
         }
     }
 }

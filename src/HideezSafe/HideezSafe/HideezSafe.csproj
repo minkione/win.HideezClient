@@ -194,7 +194,6 @@
     <Reference Include="WindowsBase" />
     <Reference Include="WindowsInput, Version=0.2.0.0, Culture=neutral, PublicKeyToken=9b287f7dc5073cad, processorArchitecture=MSIL">
       <HintPath>..\..\packages\WindowsInput.0.2.0.0\lib\net20\WindowsInput.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="XAMLMarkupExtensions, Version=1.5.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\XAMLMarkupExtensions.1.5.1\lib\net452\XAMLMarkupExtensions.dll</HintPath>

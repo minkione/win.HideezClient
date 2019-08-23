@@ -42,7 +42,7 @@ namespace HideezServiceHost
         {
         }
 
-        public void ServiceComponentsStateChanged(bool hesConnected, bool rfidConnected, bool bleConnected)
+        public void ServiceComponentsStateChanged(bool hesConnected, bool? rfidConnected, bool bleConnected)
         {
         }
 

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.Settings;
 
 namespace HideezMiddleware
 {
@@ -12,11 +14,13 @@ namespace HideezMiddleware
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
         readonly IClientUiProxy _ui;
+        readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
         public StatusManager(HesAppConnection hesConnection,
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
             IClientUiProxy ui,
+            ISettingsManager<UnlockerSettings> unlockerSettingsManager,
             ILog log)
             : base(nameof(StatusManager), log)
         {
@@ -24,14 +28,21 @@ namespace HideezMiddleware
             _rfidService = rfidService;
             _connectionManager = connectionManager;
             _ui = ui;
+            _unlockerSettingsManager = unlockerSettingsManager;
 
             _ui.ClientConnected += Ui_ClientUiConnected;
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+            _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
 
             if (_hesConnection != null)
                 _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
+        }
+
+        private void UnlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<UnlockerSettings> e)
+        {
+            SendStatusToUI();
         }
 
         #region IDisposable
@@ -135,7 +146,9 @@ namespace HideezMiddleware
 
         RfidStatus GetRfidStatus()
         {
-            if (!_rfidService.ServiceConnected)
+            if (_unlockerSettingsManager.Settings != null && !_unlockerSettingsManager.Settings.DeviceUnlockerSettings.Any(ds => ds.AllowRfid))
+                return RfidStatus.Disabled;
+            else if (!_rfidService.ServiceConnected)
                 return RfidStatus.RfidServiceNotConnected;
             else if (!_rfidService.ReaderConnected)
                 return RfidStatus.RfidReaderNotConnected;

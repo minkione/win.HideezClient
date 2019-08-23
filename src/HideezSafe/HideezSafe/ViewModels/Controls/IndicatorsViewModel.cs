@@ -66,6 +66,7 @@ namespace HideezSafe.ViewModels
                     Service.State = serviceProxy.IsConnected;
                     connectionDongle.State = false;
                     connectionRFID.State = false;
+                    connectionRFID.Visible = false;
                     connectionHES.State = false;
                 }
                 catch (Exception ex)
@@ -78,7 +79,8 @@ namespace HideezSafe.ViewModels
             messenger.Register<ServiceComponentsStateChangedMessage>(connectionDongle, message =>
             {
                 connectionDongle.State = message.BleConnected;
-                connectionRFID.State = message.RfidConnected;
+                connectionRFID.State = message.RfidConnected.HasValue ? message.RfidConnected.Value : false;
+                connectionRFID.Visible = message.RfidConnected.HasValue;
                 connectionHES.State = message.HesConnected;
             }
             , true);
