@@ -3,9 +3,9 @@ using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Proximity;
-using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.WCF;
 using Hideez.SDK.Communication.WorkstationEvents;
+using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
 using HideezMiddleware.Modules;
 using HideezMiddleware.Settings;
@@ -48,7 +48,7 @@ namespace ServiceLibrary.Implementation
             var sdkLogger = new NLogWrapper();
 
 #if DEBUG
-            _log.Info($">>>>>> Verifying error codes.");
+            _log.WriteLine($">>>>>> Verifying error codes.");
             var _hideezExceptionLocalization = new HideezExceptionLocalization(sdkLogger);
             bool isVerified = _hideezExceptionLocalization.VerifyResourcesForErrorCode(new CultureInfo("en"));
             // Debug.Assert(isVerified, $">>>>>> Verifying error codes resalt: {isVerified}");
@@ -101,7 +101,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                Error(ex);
             }
 
             // WorkstationInfoProvider ==================================
@@ -123,7 +123,7 @@ namespace ServiceLibrary.Implementation
             _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, sdkLogger);
 
             // StatusManager =============================
-            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy);
+            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, sdkLogger);
 
 
             // Ignore Workstation Ownership Setting
@@ -134,7 +134,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                Error(ex);
             }
 
 
@@ -148,6 +148,7 @@ namespace ServiceLibrary.Implementation
                 _screenActivator,
                 _unlockerSettingsManager,
                 _uiProxy,
+                sdkLogger,
                 ignoreWorkstationOwnershipSecurity);
 
             // Proximity Monitor ==================================
@@ -155,7 +156,7 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, sdkLogger, unlockerSettings.LockProximity, unlockerSettings.UnlockProximity, unlockerSettings.LockTimeoutSeconds);
 
             // WorkstationLocker ==================================
-            _workstationLocker = new WcfWorkstationLocker(SessionManager);
+            _workstationLocker = new WcfWorkstationLocker(SessionManager, sdkLogger);
 
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_proximityMonitorManager, _workstationLocker, sdkLogger);
@@ -163,16 +164,16 @@ namespace ServiceLibrary.Implementation
             // Device Access Controller ==================================
             if (ignoreWorkstationOwnershipSecurity)
             {
-                _log.Warn("Device Access Controller is disabled due to workstation ownership options");
+                _log.WriteLine("Device Access Controller is disabled due to workstation ownership options", LogErrorSeverity.Warning);
             }
             else
             {
-                _deviceAccessController = new DeviceAccessController(_unlockerSettingsManager, _deviceManager, _workstationLocker);
+                _deviceAccessController = new DeviceAccessController(_unlockerSettingsManager, _deviceManager, _workstationLocker, sdkLogger);
                 _deviceAccessController.Start();
             }
 
             // Audit Log / Event Aggregator =============================
-            _eventAggregator = new EventAggregator(_hesConnection);
+            _eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
             SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
 
             // SDK initialization finished, start essential components
@@ -183,10 +184,9 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                _log.Error("Hideez Service has encountered an error during HES connection initialization" +
+                Error(ex, "Hideez Service has encountered an error during HES connection initialization" +
                     Environment.NewLine +
                     "New connection establishment will be attempted after service restart");
-                _log.Error(ex);
             }
 
             _credentialProviderProxy.Start();
@@ -210,12 +210,12 @@ namespace ServiceLibrary.Implementation
                     _proximityMonitorManager.LockProximity = settings.LockProximity;
                     _proximityMonitorManager.UnlockProximity = settings.UnlockProximity;
                     _proximityMonitorManager.LockTimeoutSeconds = settings.LockTimeoutSeconds;
-                    _log.Info("Updated unlocker settings in proximity monitor.");
+                    _log.WriteLine("Updated unlocker settings in proximity monitor.");
                 }
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
             }
         }
 
@@ -360,7 +360,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
             }
         }
 
@@ -395,7 +395,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
             }
         }
 
@@ -431,7 +431,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
                 ThrowException(ex);
 
                 return false; // We will never reach this line
@@ -446,7 +446,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
                 ThrowException(ex);
 
                 return new DeviceDTO[0]; // We will never reach this line
@@ -502,7 +502,7 @@ namespace ServiceLibrary.Implementation
             var value = registryKey.GetValue(_ignoreWorkstationOwnershipSecurityValueName);
             if (value == null)
             {
-                _log.Warn($"{_ignoreWorkstationOwnershipSecurityValueName} value is null or empty.");
+                _log.WriteLine($"{_ignoreWorkstationOwnershipSecurityValueName} value is null or empty.", LogErrorSeverity.Warning);
                 return false;
             }
 
@@ -520,7 +520,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
                 ThrowException(ex);
             }
         }
@@ -535,7 +535,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
                 ThrowException(ex);
             }
         }
@@ -580,7 +580,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
                 ThrowException(ex);
                 return null; // this line is unreachable
             }
@@ -614,7 +614,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
             }
         }
 
@@ -632,7 +632,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
             }
         }
 
@@ -648,7 +648,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
             }
         }
 
@@ -664,7 +664,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
                 ThrowException(ex);
                 return null; // this line is unreachable
             }
@@ -682,7 +682,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
                 ThrowException(ex);
                 return null; // this line is unreachable
             }
@@ -698,7 +698,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
                 ThrowException(ex);
             }
         }
@@ -710,7 +710,7 @@ namespace ServiceLibrary.Implementation
             try
             {
                 var newState = sessionLocked ? "locked" : "unlocked";
-                _log.Info($"Session state changed to: {newState} (sessionLocked: {sessionLocked});");
+                _log.WriteLine($"Session state changed to: {newState} (sessionLocked: {sessionLocked});");
 
                 if (sessionLocked)
                 {
@@ -719,7 +719,7 @@ namespace ServiceLibrary.Implementation
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
             }
         }
 
@@ -727,13 +727,13 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                _log.Info("System left suspended mode");
-                _log.Info("Restarting connection manager");
+                _log.WriteLine("System left suspended mode");
+                _log.WriteLine("Restarting connection manager");
                 _connectionManager.Restart();
             }
             catch (Exception ex)
             {
-                LogException(ex);
+                Error(ex);
             }
         }
 

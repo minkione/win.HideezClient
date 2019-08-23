@@ -23,8 +23,7 @@ namespace HideezServiceHost
             catch (Exception ex)
             {
                 var log = LogManager.GetCurrentClassLogger();
-                log.Fatal("An unhandled exception occured in service");
-                log.Fatal(ex);
+                log.Fatal(ex, "An unhandled exception occured in service");
                 LogManager.Flush();
                 Environment.FailFast(ex.Message);
             }

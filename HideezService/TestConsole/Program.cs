@@ -142,7 +142,7 @@ namespace TestConsole
             }
             catch (Exception ex)
             {
-                ServiceLibrary.Implementation.HideezService.LogException(ex);
+                HideezService.Error(ex);
             }
         }
     }

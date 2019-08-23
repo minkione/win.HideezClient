@@ -6,42 +6,67 @@ namespace HideezMiddleware
 {
     public class NLogWrapper : ILog
     {
+        readonly NLog.Logger _log = LogManager.GetCurrentClassLogger();
+
         public void Shutdown()
         {
         }
 
         public void WriteDebugLine(string source, Exception ex, LogErrorSeverity severity = LogErrorSeverity.Debug)
         {
-            LogManager.GetLogger(source).Error(ex);
+            _log.Debug(ex, FormatMessage(source));
         }
 
         public void WriteDebugLine(string source, string message, LogErrorSeverity severity = LogErrorSeverity.Debug)
         {
-            LogManager.GetLogger(source).Debug(message);
+            _log.Debug(FormatMessage(source, message));
         }
+
+        public void WriteDebugLine(string source, string message, Exception ex, LogErrorSeverity severity = LogErrorSeverity.Error)
+        {
+            _log.Debug(ex, FormatMessage(source, message));
+        }
+
 
         public void WriteLine(string source, string message, LogErrorSeverity severity = LogErrorSeverity.Information, string stackTrace = null)
         {
-            switch (severity)
-            {
-                case LogErrorSeverity.Debug:
-                    LogManager.GetLogger(source).Debug(message);
-                    break;
-                case LogErrorSeverity.Error:
-                    LogManager.GetLogger(source).Error(message);
-                    break;
-                case LogErrorSeverity.Information:
-                    LogManager.GetLogger(source).Info(message);
-                    break;
-                case LogErrorSeverity.Warning:
-                    LogManager.GetLogger(source).Warn(message);
-                    break;
-            }
+            _log.Log(GetLogLevel(severity), FormatMessage(source, message));
+
         }
 
         public void WriteLine(string source, Exception ex, LogErrorSeverity severity = LogErrorSeverity.Error)
         {
-            LogManager.GetLogger(source).Error(ex);
+            _log.Log(GetLogLevel(severity), ex, FormatMessage(source));
+        }
+
+        public void WriteLine(string source, string message, Exception ex, LogErrorSeverity severity = LogErrorSeverity.Error)
+        {
+            _log.Log(GetLogLevel(severity), ex, FormatMessage(source, message));
+        }
+
+
+        LogLevel GetLogLevel(LogErrorSeverity severity)
+        {
+            switch (severity)
+            {
+                case LogErrorSeverity.Fatal:
+                    return LogLevel.Fatal;
+                case LogErrorSeverity.Error:
+                    return LogLevel.Error;
+                case LogErrorSeverity.Warning:
+                    return LogLevel.Warn;
+                case LogErrorSeverity.Information:
+                    return LogLevel.Info;
+                case LogErrorSeverity.Debug:
+                    return LogLevel.Debug;
+                default:
+                    return LogLevel.Debug;
+            }
+        }
+
+        string FormatMessage(string source, string message = "")
+        {
+            return $"{source} | {message}";
         }
     }
 }
