@@ -68,7 +68,7 @@ namespace ServiceLibrary
 
 
         [OperationContract(IsOneWay = true)]
-        void ServiceComponentsStateChanged(bool hesConnected, bool? rfidConnected, bool bleConnected);
+        void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected);
 
         [OperationContract(IsOneWay = true)]
         void ServiceNotificationReceived(string message);

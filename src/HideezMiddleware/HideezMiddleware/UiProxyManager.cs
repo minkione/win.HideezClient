@@ -156,12 +156,12 @@ namespace HideezMiddleware
             return GetCurrentClientUi()?.HidePinUi();
         }
 
-        public async Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus)
+        public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
         {
             var ui = GetCurrentClientUi();
 
             if (ui != null)
-                await ui.SendStatus(bluetoothStatus, rfidStatus, hesStatus);
+                await ui.SendStatus(hesStatus, rfidStatus, bluetoothStatus);
         }
 
         public async Task SendNotification(string notification)

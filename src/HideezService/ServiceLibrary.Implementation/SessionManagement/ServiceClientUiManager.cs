@@ -111,21 +111,25 @@ namespace ServiceLibrary.Implementation.SessionManagement
             });
         }
 
-        public async Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus)
+        public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
         {
             await Task.Run(() =>
             {
-                var isBleOk = bluetoothStatus == BluetoothStatus.Ok;
-
-                var isRfidOk = (rfidStatus != RfidStatus.Disabled) ? (rfidStatus == RfidStatus.Ok) : new bool?();
-
                 var isHesOk = hesStatus == HesStatus.Ok;
+
+                var showHesStatus = true; // Placeholder for the future. HES indicator will be hidden in a consumer version
+
+                var isRfidOk = rfidStatus == RfidStatus.Ok;
+
+                var showRfidStatus = rfidStatus != RfidStatus.Disabled;
+
+                var isBleOk = bluetoothStatus == BluetoothStatus.Ok;
 
                 foreach (var session in _clientSessionManager.Sessions)
                 {
                     try
                     {
-                        session.Callbacks.ServiceComponentsStateChanged(isHesOk, isRfidOk, isBleOk);
+                        session.Callbacks.ServiceComponentsStateChanged(isHesOk, showHesStatus, isRfidOk, showRfidStatus, isBleOk);
                     }
                     catch (Exception ex)
                     {

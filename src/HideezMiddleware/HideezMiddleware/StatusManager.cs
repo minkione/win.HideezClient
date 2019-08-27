@@ -108,13 +108,13 @@ namespace HideezMiddleware
         {
             try
             {
-                var bluetoothStatus = GetBluetoothStatus();
-
-                var rfidStatus = GetRfidStatus();
-                
                 var hesStatus = GetHesStatus();
 
-                await _ui.SendStatus(bluetoothStatus, rfidStatus, hesStatus);
+                var rfidStatus = GetRfidStatus();
+
+                var bluetoothStatus = GetBluetoothStatus();
+
+                await _ui.SendStatus(hesStatus, rfidStatus, bluetoothStatus);
             }
             catch (Exception ex)
             {

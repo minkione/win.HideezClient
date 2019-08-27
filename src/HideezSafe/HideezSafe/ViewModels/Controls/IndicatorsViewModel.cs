@@ -78,10 +78,13 @@ namespace HideezSafe.ViewModels
             messenger.Register<ConnectionServiceChangedMessage>(Service, c => ResetIndicators(), true);
             messenger.Register<ServiceComponentsStateChangedMessage>(connectionDongle, message =>
             {
-                connectionDongle.State = message.BleConnected;
-                connectionRFID.State = message.RfidConnected.HasValue ? message.RfidConnected.Value : false;
-                connectionRFID.Visible = message.RfidConnected.HasValue;
                 connectionHES.State = message.HesConnected;
+                connectionHES.Visible = message.ShowHesStatus;
+
+                connectionRFID.State = message.RfidConnected;
+                connectionRFID.Visible = message.ShowRfidStatus;
+
+                connectionDongle.State = message.BleConnected;
             }
             , true);
         }

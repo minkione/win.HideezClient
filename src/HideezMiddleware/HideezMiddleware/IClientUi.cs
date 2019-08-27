@@ -21,7 +21,7 @@ namespace HideezMiddleware
         Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);
         Task HidePinUi();
 
-        Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus);
+        Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus);
         Task SendError(string message);
         Task SendNotification(string message);
     }
@@ -36,7 +36,7 @@ namespace HideezMiddleware
         Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);
         Task HidePinUi();
 
-        Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus);
+        Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus);
         Task SendError(string message);
         Task SendNotification(string message);
     }
