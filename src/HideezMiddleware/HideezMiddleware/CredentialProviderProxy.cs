@@ -207,6 +207,7 @@ namespace HideezMiddleware
             WriteLine($"HidePinUi");
             await SendMessageAsync(CredentialProviderCommandCode.HidePinUi, true, $"");
             await SendNotification("");
+            await SendError("");
         }
 
         public async Task SendError(string message)

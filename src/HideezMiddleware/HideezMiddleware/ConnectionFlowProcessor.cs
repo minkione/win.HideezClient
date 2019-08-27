@@ -264,10 +264,6 @@ namespace HideezMiddleware
                         if (_workstationUnlocker.IsConnected)
                             success = await TryUnlockWorkstation(device);
                     }
-                    else
-                    {
-                        Debug.WriteLine(">>>>>>>>>>>>>>> tasks failed");
-                    }
                 }
             }
             catch (HideezException ex)

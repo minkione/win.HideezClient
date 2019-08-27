@@ -1477,6 +1477,7 @@ namespace WinSampleApp.ViewModel
             });
 
             SendNotification("");
+            SendError("");
             return Task.CompletedTask;
         }
 
