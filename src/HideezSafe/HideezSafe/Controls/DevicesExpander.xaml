@@ -30,6 +30,7 @@
             <converters:ProximityToOpacityConverter x:Key="ProximityToOpacityConverter" />
             <converters:StringToResource x:Key="StringToResource" />
             <converters:LowBatteryIndicatorVisibilityConverter x:Key="LowBatteryIndicatorVisibilityConverter" />
+            <converters:SerialNoAndFirmwareVerFormater x:Key="SerialNoAndFirmwareVerFormater" />
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -212,7 +213,7 @@
                                 FontSize="12"
                                 Opacity="0.5">
                                 <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0} ({1})">
+                                    <MultiBinding Converter="{StaticResource SerialNoAndFirmwareVerFormater}">
                                         <Binding Path="SerialNo" />
                                         <Binding Path="FirmwareVersion" />
                                     </MultiBinding>

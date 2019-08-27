@@ -217,6 +217,7 @@
     <Compile Include="Converters\NullToVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Converters\ProximityToOpacityConverter.cs" />
+    <Compile Include="Converters\SerialNoAndFirmwareVerFormater.cs" />
     <Compile Include="Converters\StringToResource.cs" />
     <Compile Include="Exception\HIdeezSafeException.cs" />
     <Compile Include="Extension\TaskExtension.cs" />
