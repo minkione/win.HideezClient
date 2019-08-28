@@ -158,7 +158,7 @@ namespace HideezMiddleware
 
         HesStatus GetHesStatus()
         {
-            if (_hesConnection == null || _hesConnection.State == HesConnectionState.Disconnected)
+            if (_hesConnection == null || _hesConnection.State != HesConnectionState.Connected)
                 return HesStatus.HesNotConnected;
             else
                 return HesStatus.Ok;
