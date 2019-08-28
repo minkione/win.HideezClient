@@ -34,5 +34,17 @@ namespace WinSampleApp.Properties {
                 this["DefaultMac"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://localhost:44371")]
+        public string DefaultHesAddress {
+            get {
+                return ((string)(this["DefaultHesAddress"]));
+            }
+            set {
+                this["DefaultHesAddress"] = value;
+            }
+        }
     }
 }

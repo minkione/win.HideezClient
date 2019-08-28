@@ -30,8 +30,8 @@ namespace WinSampleApp.ViewModel
         readonly CredentialProviderProxy _credentialProviderConnection;
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly RfidServiceConnection _rfidService;
+        readonly HesAppConnection _hesConnection;
 
-        HesAppConnection _hesConnection;
         byte _nextChannelNo = 2;
 
         public AccessParams AccessParams { get; set; }
@@ -43,6 +43,7 @@ namespace WinSampleApp.ViewModel
         public string OldPin { get; set; }
 
         public string BleAdapterState => _connectionManager?.State.ToString();
+
         public string ConectByMacAddress
         {
             get { return Properties.Settings.Default.DefaultMac; }
@@ -56,8 +57,21 @@ namespace WinSampleApp.ViewModel
         public string RfidAdapterState => "NA";
         public string RfidAddress { get; set; }
 
-        public string HesAddress { get; set; }
-        public string HesState => _hesConnection?.State.ToString();
+        public string HesAddress
+        {
+            get
+            {
+                return string.IsNullOrWhiteSpace(Properties.Settings.Default.DefaultHesAddress) ? 
+                    "https://localhost:44371" : Properties.Settings.Default.DefaultHesAddress;
+            }
+            set
+            {
+                Properties.Settings.Default.DefaultHesAddress = value;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        public HesConnectionState HesState => _hesConnection.State;
 
 
         #region Properties
@@ -780,8 +794,6 @@ namespace WinSampleApp.ViewModel
                 ButtonExpirationPeriod = 15,
             };
 
-            HesAddress = "https://localhost:44371";
-
             _log = new EventLogger("ExampleApp");
             _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
 
@@ -796,11 +808,17 @@ namespace WinSampleApp.ViewModel
             _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
             _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
 
+            // WorkstationInfoProvider ==================================
+            //WorkstationHelper.Log = sdkLogger;
+            var workstationInfoProvider = new WorkstationInfoProvider(HesAddress, _log); //todo - HesAddress?
+
+            // HES Connection ==================================
+            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _log);
+            _hesConnection.HubConnectionStateChanged += (sender, e) => NotifyPropertyChanged(nameof(HesState));
 
             // Named Pipes Server ==============================
             _credentialProviderConnection = new CredentialProviderProxy(_log);
             _credentialProviderConnection.Start();
-
 
             // RFID Service Connection ============================
             _rfidService = new RfidServiceConnection(_log);
@@ -825,42 +843,22 @@ namespace WinSampleApp.ViewModel
                 _log);
 
             // StatusManager =============================
-            var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxy, _log);
+            var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxy, unlockerSettingsManager, _log);
 
             _connectionManager.StartDiscovery();
 
             ClientConnected?.Invoke(this, EventArgs.Empty);
         }
 
-        async void ConnectHes()
+        void ConnectHes()
         {
             try
             {
-                // HES
-                //_hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.241", _log);
-                //_hesConnection = new HesAppConnection(_deviceManager, "https://localhost:44371", _log);
-                //_hesConnection = new HesAppConnection(_deviceManager, "http://192.168.10.249", _log);
-
-                await DisconnectHes();
-
-                if (!string.IsNullOrEmpty(HesAddress))
-                {
-                    _hesConnection = new HesAppConnection(_deviceManager, new WorkstationInfoProvider("", _log), _log);
-
-                    _hesConnection.Start();
-
-                    _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
-
-                    //_workstationUnlocker.SetHes(_hesConnection);
-                }
+                _hesConnection.Start(HesAddress);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-            }
-            finally
-            {
-                NotifyPropertyChanged(nameof(HesState));
             }
         }
 
@@ -868,32 +866,17 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                if (_hesConnection != null)
-                {
-                    _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
-                    await _hesConnection.Stop();
-                    _hesConnection = null;
-                }
+                await _hesConnection.Stop();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-            finally
-            {
-                NotifyPropertyChanged(nameof(HesState));
-            }
         }
 
-        void HesConnection_HubConnectionStateChanged(object sender, EventArgs e)
+        internal async Task Close()
         {
-            NotifyPropertyChanged(nameof(HesState));
-        }
-
-        internal async void Close()
-        {
-            if (_hesConnection != null)
-                await _hesConnection.Stop();
+            await _hesConnection.Stop();
             _rfidService?.Stop();
             _credentialProviderConnection?.Stop();
         }
@@ -1481,7 +1464,7 @@ namespace WinSampleApp.ViewModel
             return Task.CompletedTask;
         }
 
-        public Task SendStatus(BluetoothStatus bluetoothStatus, RfidStatus rfidStatus, HesStatus hesStatus)
+        public Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
         {
             ClientUiStatus = $"{DateTime.Now:T} BLE: {bluetoothStatus}, RFID: {rfidStatus}, HES: {hesStatus}";
             return Task.CompletedTask;
@@ -1498,6 +1481,7 @@ namespace WinSampleApp.ViewModel
             ClientUiNotification = string.IsNullOrEmpty(message) ? "" : $"{DateTime.Now:T} {message}";
             return Task.CompletedTask;
         }
+
         #endregion IClientUI
     }
 }

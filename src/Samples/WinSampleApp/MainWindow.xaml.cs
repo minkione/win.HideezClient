@@ -11,10 +11,10 @@ namespace WinSampleApp
             DataContext = new MainWindowViewModel();
         }
 
-        void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             var vm = (MainWindowViewModel)DataContext;
-            vm.Close();
+            await vm.Close();
 
             Properties.Settings.Default.Save();
         }
