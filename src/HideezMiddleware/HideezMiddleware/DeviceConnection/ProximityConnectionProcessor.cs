@@ -12,7 +12,7 @@ using HideezMiddleware.Utils;
 namespace HideezMiddleware.DeviceConnection
 {
 
-    class ProximityConnectionProcessor : BaseConnectionProcessor, IDisposable
+    public class ProximityConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
         struct ProximityUnlockAccess
         {

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection
 {
-    class RfidConnectionProcessor : BlacklistConnectionProcessor, IDisposable
+    public class RfidConnectionProcessor : BlacklistConnectionProcessor, IDisposable
     {
         readonly IClientUi _clientUi;
         readonly HesAppConnection _hesConnection;

@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection
 {
-    struct ShortDeviceInfo
+    public struct ShortDeviceInfo
     {
         public string SerialNo { get; set; }
 
         public string Mac { get; set; }
     }
 
-    class BlacklistConnectionProcessor : BaseConnectionProcessor
+    public class BlacklistConnectionProcessor : BaseConnectionProcessor
     {
         readonly List<string> _deviceMacBlackList = new List<string>();
         readonly object _blackListLock = new object();

@@ -72,7 +72,7 @@ namespace HideezMiddleware.Settings
             get
             {
                 if (settings == null)
-                    return default(T);
+                    return new T();
                 else
                     return (T)settings.Clone();
             }

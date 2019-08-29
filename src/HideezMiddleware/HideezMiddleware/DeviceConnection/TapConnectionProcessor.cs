@@ -10,7 +10,7 @@ using HideezMiddleware.Utils;
 
 namespace HideezMiddleware.DeviceConnection
 {
-    class TapConnectionProcessor : BlacklistConnectionProcessor, IDisposable
+    public class TapConnectionProcessor : BlacklistConnectionProcessor, IDisposable
     {
         readonly IBleConnectionManager _bleConnectionManager;
         readonly IScreenActivator _screenActivator;
@@ -91,9 +91,9 @@ namespace HideezMiddleware.DeviceConnection
             if (adv == null)
                 return;
 
-            if (Interlocked.CompareExchange(ref isConnecting, 1, 0) == 0)
+            if (adv.Rssi > -27)
             {
-                if (adv.Rssi > -27)
+                if (Interlocked.CompareExchange(ref isConnecting, 1, 0) == 0)
                 {
                     try
                     {

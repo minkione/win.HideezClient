@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace HideezMiddleware.DeviceConnection
 {
-    class AdvertisementIgnoreList : Logger, IDisposable
+    public class AdvertisementIgnoreList : Logger, IDisposable
     {
         const int MAC_IGNORELIST_TIMEOUT_SECONDS = 3;
 

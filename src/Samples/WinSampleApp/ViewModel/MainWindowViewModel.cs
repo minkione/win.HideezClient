@@ -17,6 +17,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.LongOperations;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezMiddleware;
+using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.Settings;
 using Microsoft.Win32;
 
@@ -29,6 +30,8 @@ namespace WinSampleApp.ViewModel
         readonly BleDeviceManager _deviceManager;
         readonly CredentialProviderProxy _credentialProviderConnection;
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
+        private readonly RfidConnectionProcessor _rfidProcessor;
+        private readonly TapConnectionProcessor _tapProcessor;
         readonly RfidServiceConnection _rfidService;
         readonly HesAppConnection _hesConnection;
 
@@ -835,13 +838,16 @@ namespace WinSampleApp.ViewModel
             _connectionFlowProcessor = new ConnectionFlowProcessor(
                 _deviceManager, 
                 _hesConnection,
-                _rfidService, 
-                _connectionManager,
                 _credentialProviderConnection, // as IWorkstationUnlocker
                 null, 
-                unlockerSettingsManager, 
                 uiProxy,
                 _log);
+
+            _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, null, this, unlockerSettingsManager, _log);
+            _rfidProcessor.IgnoreAccessList = true;
+
+            _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _connectionManager, null,  this, unlockerSettingsManager, _log);
+            _tapProcessor.IgnoreAccessList = true;
 
             // StatusManager =============================
             var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxy, unlockerSettingsManager, _log);
@@ -1221,16 +1227,16 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void UnlockByRfid()
+        void UnlockByRfid()
         {
-            try
-            {
-                await _connectionFlowProcessor.UnlockByRfid(RfidAddress);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            //try
+            //{
+            //    await _connectionFlowProcessor.UnlockByRfid(RfidAddress);
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show(ex.Message);
+            //}
         }
 
         async void UpdateFw(DeviceViewModel device)
