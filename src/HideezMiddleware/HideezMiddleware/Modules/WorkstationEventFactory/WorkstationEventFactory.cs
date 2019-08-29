@@ -5,9 +5,9 @@ namespace HideezMiddleware.Modules
 {
     public class WorkstationEventFactory : IWorkstationEventFactory
     {
-        public WorkstationEvent GetBaseInitializedInstance()
+        public SdkWorkstationEvent GetBaseInitializedInstance()
         {
-            var we = new WorkstationEvent
+            var we = new SdkWorkstationEvent
             {
                 Date = DateTime.UtcNow,
                 Id = Guid.NewGuid().ToString(),

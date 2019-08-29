@@ -18,7 +18,7 @@ namespace HideezMiddleware
         private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
         private static SessionSwitchSubject subject = SessionSwitchSubject.NonHideez;
         private static string _deviceSerialNo;
-        public static event Action<WorkstationEvent> SessionSwitch;
+        public static event Action<SdkWorkstationEvent> SessionSwitch;
 
         static SessionSwitchManager()
         {
@@ -50,7 +50,7 @@ namespace HideezMiddleware
 
                 if (reason >= SessionSwitchReason.SessionLogon && reason <= SessionSwitchReason.SessionUnlock)
                 {
-                    WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                    SdkWorkstationEvent workstationEvent = SdkWorkstationEvent.GetBaseInitializedInstance();
                     workstationEvent.Severity = WorkstationEventSeverity.Ok;
                     workstationEvent.Note = subject.ToString();
                     workstationEvent.DeviceId = _deviceSerialNo;
@@ -61,16 +61,16 @@ namespace HideezMiddleware
                     switch (reason)
                     {
                         case SessionSwitchReason.SessionLock:
-                            workstationEvent.EventId = WorkstationEventId.ComputerLock;
+                            workstationEvent.EventId = WorkstationEventType.ComputerLock;
                             break;
                         case SessionSwitchReason.SessionLogoff:
-                            workstationEvent.EventId = WorkstationEventId.ComputerLogoff;
+                            workstationEvent.EventId = WorkstationEventType.ComputerLogoff;
                             break;
                         case SessionSwitchReason.SessionUnlock:
-                            workstationEvent.EventId = WorkstationEventId.ComputerUnlock;
+                            workstationEvent.EventId = WorkstationEventType.ComputerUnlock;
                             break;
                         case SessionSwitchReason.SessionLogon:
-                            workstationEvent.EventId = WorkstationEventId.ComputerLogon;
+                            workstationEvent.EventId = WorkstationEventType.ComputerLogon;
                             break;
                     }
 

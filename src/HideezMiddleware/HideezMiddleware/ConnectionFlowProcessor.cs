@@ -231,7 +231,7 @@ namespace HideezMiddleware
                     //if (!device.HasUpdatedRemotelly) //todo
                     {
                         // request hes to update this device
-                        //_hesConnection?.UpdateDevice(device);//todo
+                        await _hesConnection.FixDevice(device);
                     }
                     //else
                     {

@@ -795,13 +795,13 @@ namespace WinSampleApp.ViewModel
             };
 
             _log = new EventLogger("ExampleApp");
-            _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
 
+            // BleConnectionManager ============================
+            _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
             _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
             _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
-            _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
 
             // BLE ============================
             _deviceManager = new BleDeviceManager(_log, _connectionManager);
@@ -815,6 +815,7 @@ namespace WinSampleApp.ViewModel
             // HES Connection ==================================
             _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _log);
             _hesConnection.HubConnectionStateChanged += (sender, e) => NotifyPropertyChanged(nameof(HesState));
+            _hesConnection.Start(HesAddress);
 
             // Named Pipes Server ==============================
             _credentialProviderConnection = new CredentialProviderProxy(_log);
@@ -903,16 +904,6 @@ namespace WinSampleApp.ViewModel
             });
         }
 
-        void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
-        {
-            //_log.WriteLine("MainVM", $"{e.Id} - {e.Rssi}");
-            //if (e.Rssi > -25)
-            //{
-            //    _log.WriteLine("MainVM", $"-------------- {e.Id} - {e.Rssi}");
-            //    ConnectDeviceByMac(e.Id);
-            //}
-        }
-
         void ConnectionManager_DiscoveredDeviceAdded(object sender, DiscoveredDeviceAddedEventArgs e)
         {
             Application.Current?.Dispatcher.Invoke(() =>
@@ -923,7 +914,7 @@ namespace WinSampleApp.ViewModel
 
         void ConnectionManager_DiscoveredDeviceRemoved(object sender, DiscoveredDeviceRemovedEventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Application.Current?.Dispatcher.Invoke(() =>
             {
                 var item = DiscoveredDevices.FirstOrDefault(x => x.Id == e.Id);
                 if (item != null)
