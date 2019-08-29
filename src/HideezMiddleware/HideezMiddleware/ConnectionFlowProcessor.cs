@@ -28,79 +28,28 @@ namespace HideezMiddleware
     public class ConnectionFlowProcessor : Logger
     {
         readonly BleDeviceManager _deviceManager;
-        readonly RfidServiceConnection _rfidService;
-        readonly IBleConnectionManager _connectionManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
         readonly IScreenActivator _screenActivator;
-        readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
         readonly UiProxyManager _ui;
-        readonly bool _ignoreWorkstationOwnershipSecurity;
 
         HesAppConnection _hesConnection;
 
         readonly ConcurrentDictionary<string, Guid> _pendingUnlocks =
             new ConcurrentDictionary<string, Guid>();
 
-        // Ignore connect by proximity until settings are loaded. Max possible proximity value is 100
-        int _connectProximity = 101;
-
-        List<DeviceUnlockerSettingsInfo> _deviceConnectionFilters =
-            new List<DeviceUnlockerSettingsInfo>();
-
-        // If proximity connection failed due to error, we ignore further attempts 
-        // until a manual input from user occurs or credential provider reconnects to service
-        // ConcurrentDictionary is used instead of other collections because we need atomic Clear() and efficient Contains()
-        readonly ConcurrentDictionary<string, string> _proximityAccessBlacklist = new ConcurrentDictionary<string, string>();
-        readonly ConcurrentDictionary<string, string> _rfidAccessBlacklist = new ConcurrentDictionary<string, string>();
-        readonly ConcurrentDictionary<string, string> _bleAccessBlacklist = new ConcurrentDictionary<string, string>();
 
         public ConnectionFlowProcessor(BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
-            RfidServiceConnection rfidService,
-            IBleConnectionManager connectionManager,
             IWorkstationUnlocker workstationUnlocker,
             IScreenActivator screenActivator,
-            ISettingsManager<UnlockerSettings> unlockerSettingsManager,
             UiProxyManager ui,
-            ILog log,
-            bool ignoreWorkstationOwnershipSecurity = false)
+            ILog log)
             : base(nameof(ConnectionFlowProcessor), log)
         {
-#if DEBUG
-            ignoreWorkstationOwnershipSecurity = true;
-#endif
-
             _deviceManager = deviceManager;
-            _rfidService = rfidService;
-            _connectionManager = connectionManager;
             _workstationUnlocker = workstationUnlocker;
             _screenActivator = screenActivator;
-            _unlockerSettingsManager = unlockerSettingsManager;
             _ui = ui;
-            _ignoreWorkstationOwnershipSecurity = ignoreWorkstationOwnershipSecurity;
-
-            _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
-            _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
-
-            //_credentialProviderConnection.OnProviderConnected += CredentialProviderConnection_OnProviderConnected;
-            //_rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
-            //_rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
-            //_connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
-
-            Task.Run(async () =>
-            {
-                try
-                {
-                    var settings = await unlockerSettingsManager.GetSettingsAsync();
-                    _connectProximity = settings.UnlockProximity;
-                    _deviceConnectionFilters = new List<DeviceUnlockerSettingsInfo>(settings.DeviceUnlockerSettings);
-                }
-                catch (Exception ex)
-                {
-                    WriteLine(ex);
-                }
-            });
 
             SetHes(hesConnection);
         }
@@ -120,97 +69,12 @@ namespace HideezMiddleware
             }
         }
 
-        void UnlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<UnlockerSettings> e)
-        {
-            try
-            {
-                _deviceConnectionFilters = new List<DeviceUnlockerSettingsInfo>(e.NewSettings.DeviceUnlockerSettings);
-                _connectProximity = e.NewSettings.UnlockProximity;
-                WriteLine("New device connection filters received");
-                ClearAccessBlacklists();
-            }
-            catch (Exception ex)
-            {
-                WriteLine(ex);
-            }
-        }
-
-        #region Access checks
-        bool IsDeviceAuthorized(string mac)
-        {
-            return _deviceConnectionFilters.Any(s => s.Mac == mac);
-        }
-
-        bool IsProximityAllowed(string mac)
-        {
-            return _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowProximity);
-        }
-
-        bool IsRfidAllowed(string mac)
-        {
-            return _ignoreWorkstationOwnershipSecurity || _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowRfid);
-        }
-
-        bool IsBleTapAllowed(string mac)
-        {
-            return _ignoreWorkstationOwnershipSecurity || _deviceConnectionFilters.Any(s => s.Mac == mac && s.AllowBleTap);
-        }
-        #endregion
-
-        async void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
-        {
-            var mac = MacUtils.GetMacFromShortMac(e.Id);
-            try
-            {
-                // Ble tap. Rssi of -27 was calculated empirically
-                if (e.Rssi > -27 && !_bleAccessBlacklist.ContainsKey(mac))
-                {
-                    await MainWorkflow(mac);
-                    //var newGuid = Guid.NewGuid();
-                    //var guid = _pendingUnlocks.GetOrAdd(mac, newGuid);
-
-                    //if (guid == newGuid)
-                    //{
-                    //    await UnlockByMac(mac);
-                    //    _pendingUnlocks.TryRemove(mac, out Guid removed);
-                    //}
-                }
-                else
-                {
-                    // Proximity
-                    // Connection occurs only when workstation is locked
-                    if (_workstationUnlocker.IsConnected
-                        && BleUtils.RssiToProximity(e.Rssi) > _connectProximity
-                        && IsProximityAllowed(mac)
-                        && !_proximityAccessBlacklist.ContainsKey(mac))
-                    {
-                        var newGuid = Guid.NewGuid(); //todo - dublicated code
-                        var guid = _pendingUnlocks.GetOrAdd(mac, newGuid);
-
-                        if (guid == newGuid)
-                        {
-                            try
-                            {
-                                await UnlockByProximity(mac);
-                                _pendingUnlocks.TryRemove(mac, out Guid removed);
-                            }
-                            finally
-                            {
-                                // Max of 1 attempt per device, either successfull or no
-                                _proximityAccessBlacklist.GetOrAdd(mac, mac);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                WriteLine(ex);
-                _pendingUnlocks.TryRemove(mac, out Guid removed);
-            }
-        }
-
         //------------------------------
+        public async Task ConnectAndUnlock(string mac)
+        {
+            await MainWorkflow(mac);
+        }
+
         async Task MainWorkflow(string mac)
         {
             // ignore, if workflow for this device already initialized
@@ -458,19 +322,6 @@ namespace HideezMiddleware
 
         //------------------------------------
 
-        async void RfidService_RfidReceivedEvent(object sender, RfidReceivedEventArgs e)
-        {
-            try
-            {
-                if (!_rfidAccessBlacklist.ContainsKey(e.Rfid))
-                    await UnlockByRfid(e.Rfid);
-            }
-            catch (Exception)
-            {
-                // silent handling...
-            }
-        }
-
         async Task<IDevice> ConnectDevice(string mac)
         {
             await _ui.SendNotification("Connecting to the device...");
@@ -548,85 +399,6 @@ namespace HideezMiddleware
                 throw;
             }
             catch (Exception ex)
-            {
-                WriteLine(ex);
-                await _ui.SendNotification("");
-                await _ui.SendError(ex.Message);
-                throw;
-            }
-        }
-
-        public async Task UnlockByMac(string mac)
-        {
-            try
-            {
-                ActivateWorkstationScreen();
-
-                // Prevent access for unauthorized devices
-                if (!IsBleTapAllowed(mac))
-                {
-                    _bleAccessBlacklist.GetOrAdd(mac, mac);
-                    throw new AccessDeniedAuthException();
-                }
-
-                await UnlockWorkstation(mac, SessionSwitchSubject.Dongle);
-            }
-            catch (AccessDeniedAuthException ex)
-            {
-                WriteLine(ex);
-                await _ui.SendNotification("");
-                await _ui.SendError(ex.Message);
-                throw;
-            }
-        }
-
-        public async Task UnlockByRfid(string rfid)
-        {
-            try
-            {
-                ActivateWorkstationScreen();
-                await _ui.SendNotification("Connecting to the HES server...");
-
-                if (_hesConnection == null)
-                    throw new Exception("Cannot connect device. Not connected to the HES.");
-
-                // get MAC address from the HES
-                var info = await _hesConnection.GetInfoByRfid(rfid);
-
-                if (info == null)
-                    throw new Exception($"Device not found");
-
-                // Prevent access for unauthorized devices
-                if (!IsRfidAllowed(info.DeviceMac))
-                {
-                    _rfidAccessBlacklist.GetOrAdd(rfid, rfid);
-                    throw new AccessDeniedAuthException();
-                }
-
-                await UnlockWorkstation(info.DeviceMac, SessionSwitchSubject.RFID, info);
-            }
-            catch (AccessDeniedAuthException ex)
-            {
-                WriteLine(ex);
-                await _ui.SendNotification("");
-                await _ui.SendError(ex.Message);
-                throw;
-            }
-        }
-
-        public async Task UnlockByProximity(string mac)
-        {
-            try
-            {
-                ActivateWorkstationScreen();
-
-                // Prevent access for unauthorized devices
-                if (!IsProximityAllowed(mac))
-                    throw new AccessDeniedAuthException();
-
-                await UnlockWorkstation(mac, SessionSwitchSubject.Proximity);
-            }
-            catch (AccessDeniedAuthException ex)
             {
                 WriteLine(ex);
                 await _ui.SendNotification("");
@@ -728,14 +500,6 @@ namespace HideezMiddleware
                     WriteLine(ex);
                 }
             });
-        }
-
-        void ClearAccessBlacklists()
-        {
-            WriteLine("Access blacklist cleared");
-            _proximityAccessBlacklist.Clear();
-            _rfidAccessBlacklist.Clear();
-            _bleAccessBlacklist.Clear();
         }
     }
 }

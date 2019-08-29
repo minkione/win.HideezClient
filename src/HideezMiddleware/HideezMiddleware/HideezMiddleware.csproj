@@ -78,6 +78,12 @@
     <Compile Include="ConnectionFlowProcessor - Copy.cs" />
     <Compile Include="CredentialProviderProxy.cs" />
     <Compile Include="DeviceAccessController.cs" />
+    <Compile Include="DeviceConnection\AdvertisementIgnoreList.cs" />
+    <Compile Include="DeviceConnection\BlacklistConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\BaseConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\ProximityConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\RfidConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\TapConnectionProcessor.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
     <Compile Include="IClientUi.cs" />
     <Compile Include="IScreenActivator.cs" />
@@ -125,5 +131,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
