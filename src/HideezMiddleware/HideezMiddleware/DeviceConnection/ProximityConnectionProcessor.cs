@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
@@ -23,8 +25,11 @@ namespace HideezMiddleware.DeviceConnection
         readonly IClientUi _clientUi;
         readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
+        readonly BleDeviceManager _bleDeviceManager;
 
         List<string> MacListToConnect { get; set; }
+
+        int isConnecting = 0;
 
         public ProximityConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
@@ -33,6 +38,7 @@ namespace HideezMiddleware.DeviceConnection
             IClientUi clientUi,
             ISettingsManager<UnlockerSettings> unlockerSettingsManager,
             AdvertisementIgnoreList advIgnoreListMonitor,
+            BleDeviceManager bleDeviceManager,
             ILog log) 
             : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
         {
@@ -41,7 +47,8 @@ namespace HideezMiddleware.DeviceConnection
             _clientUi = clientUi;
             _unlockerSettingsManager = unlockerSettingsManager;
             _advIgnoreListMonitor = advIgnoreListMonitor;
-
+            _bleDeviceManager = bleDeviceManager;
+            
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
             _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
 
@@ -98,6 +105,12 @@ namespace HideezMiddleware.DeviceConnection
 
         async Task ConnectByProximity(AdvertismentReceivedEventArgs adv)
         {
+            if (adv == null)
+                return;
+
+            if (Interlocked.CompareExchange(ref isConnecting, 1, 1) == 1)
+                return;
+
             if (MacListToConnect.Count == 0)
                 return;
 
@@ -112,7 +125,27 @@ namespace HideezMiddleware.DeviceConnection
             if (_advIgnoreListMonitor.IsIgnored(mac))
                 return;
 
-            await ConnectDeviceByMac(mac);
+            if (_bleDeviceManager.Devices.Any(d => d.Mac == mac && d.IsConnected))
+                return;
+
+            if (Interlocked.CompareExchange(ref isConnecting, 1, 0) == 0)
+            { 
+                try
+                {
+                    // Todo: Retry automatic pairing a few times
+                    await ConnectDeviceByMac(mac);
+                }
+                catch (Exception ex)
+                {
+                    WriteLine(ex);
+                    await _clientUi.SendNotification("");
+                    await _clientUi.SendError(ex.Message);
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref isConnecting, 0);
+                }
+            }
         }
     }
 }

@@ -2,7 +2,9 @@
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection
@@ -14,6 +16,8 @@ namespace HideezMiddleware.DeviceConnection
         readonly RfidServiceConnection _rfidService;
         readonly IScreenActivator _screenActivator;
         readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
+
+        int isConnecting = 0;
 
         public RfidConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor, 
@@ -91,6 +95,9 @@ namespace HideezMiddleware.DeviceConnection
 
         async Task UnlockByRfid(string rfid)
         {
+            if (Interlocked.CompareExchange(ref isConnecting, 1, 1) == 1)
+                return;
+
             try
             {
                 _screenActivator?.ActivateScreen();
@@ -105,13 +112,27 @@ namespace HideezMiddleware.DeviceConnection
                 if (info == null)
                     throw new Exception($"Device not found");
 
-                await ConnectDeviceByMac(info.DeviceMac);
+                if (Interlocked.CompareExchange(ref isConnecting, 1, 0) == 0)
+                {
+                    try
+                    {
+                        await ConnectDeviceByMac(info.DeviceMac);
+                    }
+                    finally
+                    {
+                        Interlocked.Exchange(ref isConnecting, 0);
+                    }
+                }
             }
             catch (AccessDeniedAuthException ex)
             {
                 WriteLine(ex);
                 await _clientUi.SendNotification("");
                 await _clientUi.SendError(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
             }
         }
 

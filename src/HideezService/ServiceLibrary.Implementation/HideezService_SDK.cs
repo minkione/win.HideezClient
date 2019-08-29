@@ -142,14 +142,10 @@ namespace ServiceLibrary.Implementation
             var connectionFlowProcesssor = new ConnectionFlowProcessor(
                 _deviceManager,
                 _hesConnection,
-                _rfidService,
-                _connectionManager,
                 _credentialProviderProxy,
                 _screenActivator,
-                _unlockerSettingsManager,
                 _uiProxy,
-                sdkLogger,
-                ignoreWorkstationOwnershipSecurity);
+                sdkLogger);
 
             // Proximity Monitor ==================================
             UnlockerSettings unlockerSettings = _unlockerSettingsManager.GetSettingsAsync().Result;
@@ -177,25 +173,25 @@ namespace ServiceLibrary.Implementation
             SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
 
             // SDK initialization finished, start essential components
-            try
-            {
-                _hesConnection.Initialize(hesAddress);
-                _hesConnection.Start();
-            }
-            catch (Exception ex)
-            {
-                Error(ex, "Hideez Service has encountered an error during HES connection initialization" +
-                    Environment.NewLine +
-                    "New connection establishment will be attempted after service restart");
-            }
-
-            _credentialProviderProxy.Start();
+                _credentialProviderProxy.Start();
             _rfidService.Start();
+            _hesConnection.Start(hesAddress);
 
             _workstationLockProcessor.Start();
             _proximityMonitorManager.Start();
 
             _connectionManager.StartDiscovery();
+
+            if (_hesConnection.State == HesConnectionState.Error)
+            {
+                Task.Run(async () => { await _hesConnection.Stop(); });
+
+                Error("Hideez Service has encountered an error during HES connection initialization" 
+                    + Environment.NewLine 
+                    + "New connection establishment will be attempted after service restart" 
+                    + Environment.NewLine
+                    + _hesConnection.ErrorMessage);
+            }
         }
 
         #region Event Handlers

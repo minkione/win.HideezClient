@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
@@ -14,6 +16,8 @@ namespace HideezMiddleware.DeviceConnection
         readonly IScreenActivator _screenActivator;
         readonly IClientUi _clientUi;
         readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
+
+        int isConnecting = 0;
 
         public TapConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
@@ -84,19 +88,29 @@ namespace HideezMiddleware.DeviceConnection
 
         async Task UnlockByTap(AdvertismentReceivedEventArgs adv)
         {
-            try
+            if (adv == null)
+                return;
+
+            if (Interlocked.CompareExchange(ref isConnecting, 1, 0) == 0)
             {
                 if (adv.Rssi > -27)
                 {
-                    var mac = MacUtils.GetMacFromShortMac(adv.Id);
-                    await ConnectDeviceByMac(mac);
+                    try
+                    {
+                        var mac = MacUtils.GetMacFromShortMac(adv.Id);
+                        await ConnectDeviceByMac(mac);
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLine(ex);
+                        await _clientUi.SendNotification("");
+                        await _clientUi.SendError(ex.Message);
+                    }
+                    finally
+                    {
+                        Interlocked.Exchange(ref isConnecting, 0);
+                    }
                 }
-            }
-            catch (AccessDeniedAuthException ex)
-            {
-                WriteLine(ex);
-                await _clientUi.SendNotification("");
-                await _clientUi.SendError(ex.Message);
             }
         }
     }

@@ -103,6 +103,11 @@ namespace ServiceLibrary.Implementation
         {
             _log.WriteLine(message, ex);
         }
+
+        public static void Error(string message)
+        {
+            _log.WriteLine(message, LogErrorSeverity.Error);
+        }
         #endregion
 
         void Channel_Faulted(object sender, EventArgs e)
