@@ -11,20 +11,20 @@ namespace HideezMiddleware.DeviceConnection
 {
     public class RfidConnectionProcessor : BlacklistConnectionProcessor, IDisposable
     {
-        readonly IClientUi _clientUi;
+        readonly IClientUiManager _clientUiManager;
         readonly HesAppConnection _hesConnection;
         readonly RfidServiceConnection _rfidService;
         readonly IScreenActivator _screenActivator;
         readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
-        int isConnecting = 0;
+        int _isConnecting = 0;
 
         public RfidConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor, 
             HesAppConnection hesConnection,
             RfidServiceConnection rfidService, 
             IScreenActivator screenActivator,
-            IClientUi clientUi, 
+            IClientUiManager clientUiManager, 
             ISettingsManager<UnlockerSettings> unlockerSettingsManager,
             ILog log) 
             : base(connectionFlowProcessor, nameof(RfidConnectionProcessor), log)
@@ -32,7 +32,7 @@ namespace HideezMiddleware.DeviceConnection
             _hesConnection = hesConnection;
             _rfidService = rfidService;
             _screenActivator = screenActivator;
-            _clientUi = clientUi;
+            _clientUiManager = clientUiManager;
             _unlockerSettingsManager = unlockerSettingsManager;
 
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
@@ -95,13 +95,13 @@ namespace HideezMiddleware.DeviceConnection
 
         async Task UnlockByRfid(string rfid)
         {
-            if (Interlocked.CompareExchange(ref isConnecting, 1, 1) == 1)
+            if (Interlocked.CompareExchange(ref _isConnecting, 1, 1) == 1)
                 return;
 
             try
             {
                 _screenActivator?.ActivateScreen();
-                await _clientUi.SendNotification("Connecting to the HES server...");
+                await _clientUiManager.SendNotification("Connecting to the HES server...");
 
                 if (_hesConnection == null)
                     throw new Exception("Cannot connect device. Not connected to the HES.");
@@ -112,7 +112,7 @@ namespace HideezMiddleware.DeviceConnection
                 if (info == null)
                     throw new Exception($"Device not found");
 
-                if (Interlocked.CompareExchange(ref isConnecting, 1, 0) == 0)
+                if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
                 {
                     try
                     {
@@ -120,15 +120,15 @@ namespace HideezMiddleware.DeviceConnection
                     }
                     finally
                     {
-                        Interlocked.Exchange(ref isConnecting, 0);
+                        Interlocked.Exchange(ref _isConnecting, 0);
                     }
                 }
             }
             catch (AccessDeniedAuthException ex)
             {
                 WriteLine(ex);
-                await _clientUi.SendNotification("");
-                await _clientUi.SendError(ex.Message);
+                await _clientUiManager.SendNotification("");
+                await _clientUiManager.SendError(ex.Message);
             }
             catch (Exception ex)
             {

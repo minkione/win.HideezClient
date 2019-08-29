@@ -40,7 +40,7 @@ namespace HideezMiddleware
         LogonResult = 106,
     }
 
-    public class CredentialProviderProxy : Logger, IWorkstationUnlocker, IClientUi
+    public class CredentialProviderProxy : Logger, IWorkstationUnlocker, IClientUiProxy
     {
         readonly PipeServer _pipeServer;
 

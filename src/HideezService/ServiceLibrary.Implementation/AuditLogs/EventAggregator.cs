@@ -20,7 +20,7 @@ namespace ServiceLibrary.Implementation
     {
         private readonly HesAppConnection hesAppConnection;
         private readonly string eventDirectory = $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\Hideez\WorkstationEvents\";
-        private readonly List<WorkstationEvent> workstationEvents = new List<WorkstationEvent>();
+        private readonly List<SdkWorkstationEvent> workstationEvents = new List<SdkWorkstationEvent>();
         private readonly object lockObj = new object();
         private readonly System.Timers.Timer sendTimer = new System.Timers.Timer();
         private readonly double timeIntervalSend = 1_000;
@@ -57,7 +57,7 @@ namespace ServiceLibrary.Implementation
             Task task = SendEventsAsync();
         }
 
-        public async Task AddNewAsync(WorkstationEvent workstationEvent, bool forceSendNow = false)
+        public async Task AddNewAsync(SdkWorkstationEvent workstationEvent, bool forceSendNow = false)
         {
             await Task.Run(async () =>
             {
@@ -66,7 +66,7 @@ namespace ServiceLibrary.Implementation
                     WriteLine("Added new workstation event.");
                     lock (lockObj)
                     {
-                        workstationEvent.Version = WorkstationEvent.CurrentVersion;
+                        workstationEvent.Version = SdkWorkstationEvent.CurrentVersion;
                         workstationEvents.Add(workstationEvent);
                         string json = JsonConvert.SerializeObject(workstationEvent);
                         string file = $"{eventDirectory}{workstationEvent.Id}";
@@ -98,11 +98,11 @@ namespace ServiceLibrary.Implementation
                 {
                     WriteLine("Sending to HES workstation events.");
                     IsSendToServer = true;
-                    List<WorkstationEvent> newQueue = null;
+                    List<SdkWorkstationEvent> newQueue = null;
                     sendTimer.Stop();
                     lock (lockObj)
                     {
-                        newQueue = new List<WorkstationEvent>(workstationEvents);
+                        newQueue = new List<SdkWorkstationEvent>(workstationEvents);
                     }
 
                     WriteLine($"Current event queue length: {newQueue.Count}");
@@ -119,11 +119,11 @@ namespace ServiceLibrary.Implementation
                                 {
                                     string data = File.ReadAllText(file);
                                     dynamic jsonObj = JsonConvert.DeserializeObject(data);
-                                    string versionData = jsonObj[nameof(WorkstationEvent.Version)];
+                                    string versionData = jsonObj[nameof(SdkWorkstationEvent.Version)];
 
-                                    if (versionData == WorkstationEvent.CurrentVersion)
+                                    if (versionData == SdkWorkstationEvent.CurrentVersion)
                                     {
-                                        WorkstationEvent we = JsonConvert.DeserializeObject<WorkstationEvent>(data);
+                                        SdkWorkstationEvent we = JsonConvert.DeserializeObject<SdkWorkstationEvent>(data);
 
                                         if (workstationEvents.FindIndex(e => e.Id == we.Id) < 0)
                                         {
@@ -179,7 +179,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        private async Task SendEventToServerAsync(List<WorkstationEvent> listEvents)
+        private async Task SendEventToServerAsync(List<SdkWorkstationEvent> listEvents)
         {
             foreach (var set in SplitIntoSets(listEvents, 50))
             {

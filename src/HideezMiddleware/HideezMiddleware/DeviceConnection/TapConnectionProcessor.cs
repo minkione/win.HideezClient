@@ -14,23 +14,23 @@ namespace HideezMiddleware.DeviceConnection
     {
         readonly IBleConnectionManager _bleConnectionManager;
         readonly IScreenActivator _screenActivator;
-        readonly IClientUi _clientUi;
+        readonly IClientUiManager _clientUiManager;
         readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
-        int isConnecting = 0;
+        int _isConnecting = 0;
 
         public TapConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
             IScreenActivator screenActivator,
-            IClientUi clientUi,
+            IClientUiManager clientUiManager,
             ISettingsManager<UnlockerSettings> unlockerSettingsManager,
             ILog log) 
             : base(connectionFlowProcessor, nameof(TapConnectionProcessor), log)
         {
             _bleConnectionManager = bleConnectionManager;
             _screenActivator = screenActivator;
-            _clientUi = clientUi;
+            _clientUiManager = clientUiManager;
             _unlockerSettingsManager = unlockerSettingsManager;
 
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
@@ -93,7 +93,7 @@ namespace HideezMiddleware.DeviceConnection
 
             if (adv.Rssi > -27)
             {
-                if (Interlocked.CompareExchange(ref isConnecting, 1, 0) == 0)
+                if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
                 {
                     try
                     {
@@ -103,12 +103,12 @@ namespace HideezMiddleware.DeviceConnection
                     catch (Exception ex)
                     {
                         WriteLine(ex);
-                        await _clientUi.SendNotification("");
-                        await _clientUi.SendError(ex.Message);
+                        await _clientUiManager.SendNotification("");
+                        await _clientUiManager.SendError(ex.Message);
                     }
                     finally
                     {
-                        Interlocked.Exchange(ref isConnecting, 0);
+                        Interlocked.Exchange(ref _isConnecting, 0);
                     }
                 }
             }

@@ -16,7 +16,7 @@ namespace HideezSafe.Modules
             this.serviceProxy = serviceProxy;
         }
 
-        public async Task PublishEventAsync(WorkstationEvent workstationEvent)
+        public async Task PublishEventAsync(SdkWorkstationEvent workstationEvent)
         {
             try
             {
