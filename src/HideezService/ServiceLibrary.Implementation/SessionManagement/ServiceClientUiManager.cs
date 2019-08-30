@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation.SessionManagement
 {
-    class ServiceClientUiManager : IClientUi, IDisposable
+    class ServiceClientUiManager : IClientUiProxy, IDisposable
     {
         readonly ServiceClientSessionManager _clientSessionManager;
 
@@ -62,16 +62,16 @@ namespace ServiceLibrary.Implementation.SessionManagement
         }
 
 
-        // Todo:
-        public Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false)
+        public async Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false)
         {
-            throw new NotImplementedException();
+            // Todo:
+            return await Task.FromResult(string.Empty);
         }
 
-        // Todo:
-        public Task HidePinUi()
+        public async Task HidePinUi()
         {
-            throw new NotImplementedException();
+            // Todo:
+            await Task.CompletedTask;
         }
 
         public async Task SendError(string message)

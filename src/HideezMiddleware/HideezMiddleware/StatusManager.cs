@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
@@ -13,13 +12,13 @@ namespace HideezMiddleware
         readonly HesAppConnection _hesConnection;
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
-        readonly IClientUiProxy _ui;
+        readonly IClientUiManager _uiClientManager;
         readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
         public StatusManager(HesAppConnection hesConnection,
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
-            IClientUiProxy ui,
+            IClientUiManager clientUiManager,
             ISettingsManager<UnlockerSettings> unlockerSettingsManager,
             ILog log)
             : base(nameof(StatusManager), log)
@@ -27,10 +26,10 @@ namespace HideezMiddleware
             _hesConnection = hesConnection;
             _rfidService = rfidService;
             _connectionManager = connectionManager;
-            _ui = ui;
+            _uiClientManager = clientUiManager;
             _unlockerSettingsManager = unlockerSettingsManager;
 
-            _ui.ClientConnected += Ui_ClientUiConnected;
+            _uiClientManager.ClientConnected += Ui_ClientUiConnected;
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
@@ -61,7 +60,7 @@ namespace HideezMiddleware
             if (disposing)
             {
                 // Release managed resources here
-                _ui.ClientConnected -= Ui_ClientUiConnected;
+                _uiClientManager.ClientConnected -= Ui_ClientUiConnected;
                 _rfidService.RfidServiceStateChanged -= RfidService_RfidServiceStateChanged;
                 _rfidService.RfidReaderStateChanged -= RfidService_RfidReaderStateChanged;
                 _connectionManager.AdapterStateChanged -= ConnectionManager_AdapterStateChanged;
@@ -114,7 +113,7 @@ namespace HideezMiddleware
 
                 var bluetoothStatus = GetBluetoothStatus();
 
-                await _ui.SendStatus(hesStatus, rfidStatus, bluetoothStatus);
+                await _uiClientManager.SendStatus(hesStatus, rfidStatus, bluetoothStatus);
             }
             catch (Exception ex)
             {

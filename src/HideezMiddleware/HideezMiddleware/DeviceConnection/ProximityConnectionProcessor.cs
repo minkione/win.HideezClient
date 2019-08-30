@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Utils;
@@ -22,32 +22,35 @@ namespace HideezMiddleware.DeviceConnection
 
         readonly IBleConnectionManager _bleConnectionManager;
         readonly IScreenActivator _screenActivator;
-        readonly IClientUi _clientUi;
+        readonly IClientUiManager _clientUiManager;
         readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly BleDeviceManager _bleDeviceManager;
+        readonly IWorkstationUnlocker _workstationUnlocker;
 
         List<string> MacListToConnect { get; set; }
 
-        int isConnecting = 0;
+        int _isConnecting = 0;
 
         public ProximityConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
             IScreenActivator screenActivator,
-            IClientUi clientUi,
+            IClientUiManager clientUi,
             ISettingsManager<UnlockerSettings> unlockerSettingsManager,
             AdvertisementIgnoreList advIgnoreListMonitor,
             BleDeviceManager bleDeviceManager,
+            IWorkstationUnlocker workstationUnlocker,
             ILog log) 
             : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
         {
             _bleConnectionManager = bleConnectionManager;
             _screenActivator = screenActivator;
-            _clientUi = clientUi;
+            _clientUiManager = clientUi;
             _unlockerSettingsManager = unlockerSettingsManager;
             _advIgnoreListMonitor = advIgnoreListMonitor;
             _bleDeviceManager = bleDeviceManager;
+            _workstationUnlocker = workstationUnlocker;
             
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
             _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
@@ -108,7 +111,10 @@ namespace HideezMiddleware.DeviceConnection
             if (adv == null)
                 return;
 
-            if (Interlocked.CompareExchange(ref isConnecting, 1, 1) == 1)
+            if (!_workstationUnlocker.IsConnected)
+                return;
+
+            if (Interlocked.CompareExchange(ref _isConnecting, 1, 1) == 1)
                 return;
 
             if (MacListToConnect.Count == 0)
@@ -128,22 +134,21 @@ namespace HideezMiddleware.DeviceConnection
             if (_bleDeviceManager.Devices.Any(d => d.Mac == mac && d.IsConnected))
                 return;
 
-            if (Interlocked.CompareExchange(ref isConnecting, 1, 0) == 0)
+            if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
             { 
                 try
                 {
-                    // Todo: Retry automatic pairing a few times
                     await ConnectDeviceByMac(mac);
                 }
                 catch (Exception ex)
                 {
                     WriteLine(ex);
-                    await _clientUi.SendNotification("");
-                    await _clientUi.SendError(ex.Message);
+                    await _clientUiManager.SendNotification("");
+                    await _clientUiManager.SendError(ex.Message);
                 }
                 finally
                 {
-                    Interlocked.Exchange(ref isConnecting, 0);
+                    Interlocked.Exchange(ref _isConnecting, 0);
                 }
             }
         }

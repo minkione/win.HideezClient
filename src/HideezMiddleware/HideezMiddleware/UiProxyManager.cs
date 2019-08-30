@@ -7,45 +7,21 @@ using Hideez.SDK.Communication.Utils;
 
 namespace HideezMiddleware
 {
-    public enum BluetoothStatus
+    public class UiProxyManager : Logger, IClientUiManager, IDisposable
     {
-        Ok,
-        Unknown,
-        Resetting,
-        Unsupported,
-        Unauthorized,
-        PoweredOff,
-    }
-
-    public enum RfidStatus
-    {
-        Ok,
-        RfidServiceNotConnected,
-        RfidReaderNotConnected,
-        Disabled,
-    }
-
-    public enum HesStatus
-    {
-        Ok,
-        HesNotConnected,
-        Disabled,
-    }
-
-    public class UiProxyManager : Logger, IClientUiProxy, IDisposable
-    {
-        readonly IClientUi _credentialProviderUi;
-        readonly IClientUi _clientUi;
+        readonly IClientUiProxy _credentialProviderUi;
+        readonly IClientUiProxy _clientUi;
         readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _pendingGetPinRequests
             = new ConcurrentDictionary<string, TaskCompletionSource<string>>();
 
         public event EventHandler<EventArgs> ClientConnected;
+        public event EventHandler<PinReceivedEventArgs> PinReceived;
 
         public bool IsConnected => _credentialProviderUi.IsConnected || _clientUi.IsConnected;
 
 
 
-        public UiProxyManager(IClientUi credentialProviderUi, IClientUi clientUi, ILog log)
+        public UiProxyManager(IClientUiProxy credentialProviderUi, IClientUiProxy clientUi, ILog log)
             :base(nameof(UiProxyManager), log)
         {
             _credentialProviderUi = credentialProviderUi;
@@ -54,13 +30,11 @@ namespace HideezMiddleware
             if (_credentialProviderUi != null)
             {
                 _credentialProviderUi.ClientConnected += CredentialProviderUi_ClientUiConnected;
-                _credentialProviderUi.PinReceived += ClientUi_PinReceived;
             }
 
             if (_clientUi != null)
             {
                 _clientUi.ClientConnected += ClientUi_ClientUiConnected;
-                _clientUi.PinReceived += ClientUi_PinReceived;
             }
         }
 
@@ -109,7 +83,7 @@ namespace HideezMiddleware
                 tcs.TrySetResult(e.Pin);
         }
 
-        IClientUi GetCurrentClientUi()
+        IClientUiProxy GetCurrentClientUi()
         {
             if (_credentialProviderUi?.IsConnected ?? false)
                 return _credentialProviderUi;
@@ -151,9 +125,12 @@ namespace HideezMiddleware
             }
         }
 
-        public Task HidePinUi()
+        public async Task HidePinUi()
         {
-            return GetCurrentClientUi()?.HidePinUi();
+            var ui = GetCurrentClientUi();
+
+            if (ui != null)
+                await ui.HidePinUi();
         }
 
         public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)

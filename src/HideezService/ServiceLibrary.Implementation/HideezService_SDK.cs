@@ -19,6 +19,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using HideezMiddleware.DeviceConnection;
 
 namespace ServiceLibrary.Implementation
 {
@@ -42,6 +43,12 @@ namespace ServiceLibrary.Implementation
         static WorkstationLockProcessor _workstationLockProcessor;
 
         static ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
+
+        static ConnectionFlowProcessor _connectionFlowProcessor;
+        static AdvertisementIgnoreList _advIgnoreList;
+        static RfidConnectionProcessor _rfidProcessor;
+        static TapConnectionProcessor _tapProcessor;
+        static ProximityConnectionProcessor _proximityProcessor;
 
         void InitializeSDK()
         {
@@ -137,15 +144,51 @@ namespace ServiceLibrary.Implementation
                 Error(ex);
             }
 
+#if DEBUG
+            ignoreWorkstationOwnershipSecurity = true;
+#endif
 
             // ConnectionFlowProcessor
-            var connectionFlowProcesssor = new ConnectionFlowProcessor(
+            _connectionFlowProcessor = new ConnectionFlowProcessor(
                 _deviceManager,
                 _hesConnection,
                 _credentialProviderProxy,
                 _screenActivator,
                 _uiProxy,
                 sdkLogger);
+            _advIgnoreList = new AdvertisementIgnoreList(
+                _connectionManager,
+                _deviceManager,
+                _unlockerSettingsManager,
+                sdkLogger);
+            _rfidProcessor = new RfidConnectionProcessor(
+                _connectionFlowProcessor, 
+                _hesConnection, 
+                _rfidService, 
+                _screenActivator, 
+                _uiProxy, 
+                _unlockerSettingsManager, 
+                sdkLogger);
+            _tapProcessor = new TapConnectionProcessor(
+                _connectionFlowProcessor,
+                _connectionManager,
+                _screenActivator,
+                _uiProxy,
+                _unlockerSettingsManager,
+                sdkLogger);
+            _proximityProcessor = new ProximityConnectionProcessor(
+                _connectionFlowProcessor,
+                _connectionManager,
+                _screenActivator,
+                _uiProxy,
+                _unlockerSettingsManager,
+                _advIgnoreList,
+                _deviceManager,
+                _credentialProviderProxy,
+                sdkLogger);
+
+            _tapProcessor.IgnoreAccessList = ignoreWorkstationOwnershipSecurity;
+            _rfidProcessor.IgnoreAccessList = ignoreWorkstationOwnershipSecurity;
 
             // Proximity Monitor ==================================
             UnlockerSettings unlockerSettings = _unlockerSettingsManager.GetSettingsAsync().Result;
@@ -244,9 +287,9 @@ namespace ServiceLibrary.Implementation
 
                 if (!device.IsRemote && device.IsInitialized)
                 {
-                    WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+                    SdkWorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
                     workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
-                    workstationEvent.EventId = WorkstationEventId.DeviceDeleted;
+                    workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
                     workstationEvent.Severity = WorkstationEventSeverity.Warning;
                     workstationEvent.DeviceId = device.SerialNo;
                     _eventAggregator?.AddNewAsync(workstationEvent);
@@ -258,17 +301,17 @@ namespace ServiceLibrary.Implementation
         {
             if (sender is IDevice device && device.IsInitialized && (!device.IsRemote || device.ChannelNo > 2))
             {
-                WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+                SdkWorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
                 workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
                 workstationEvent.Severity = WorkstationEventSeverity.Info;
                 workstationEvent.DeviceId = device.SerialNo;
                 if (device.IsRemote)
                 {
-                    workstationEvent.EventId = WorkstationEventId.RemoteDisconnect;
+                    workstationEvent.EventId = WorkstationEventType.RemoteDisconnect;
                 }
                 else
                 {
-                    workstationEvent.EventId = WorkstationEventId.DeviceDisconnect;
+                    workstationEvent.EventId = WorkstationEventType.DeviceDisconnect;
                 }
                 _eventAggregator?.AddNewAsync(workstationEvent);
             }
@@ -281,12 +324,12 @@ namespace ServiceLibrary.Implementation
                 var we = _workstationEventFactory.GetBaseInitializedInstance();
                 if (_connectionManager.State == BluetoothAdapterState.PoweredOn)
                 {
-                    we.EventId = WorkstationEventId.DonglePlugged;
+                    we.EventId = WorkstationEventType.DonglePlugged;
                     we.Severity = WorkstationEventSeverity.Ok;
                 }
                 else
                 {
-                    we.EventId = WorkstationEventId.DongleUnplugged;
+                    we.EventId = WorkstationEventType.DongleUnplugged;
                     we.Severity = WorkstationEventSeverity.Warning;
                 }
                 Task.Run(() => _eventAggregator?.AddNewAsync(we));
@@ -299,7 +342,7 @@ namespace ServiceLibrary.Implementation
             bool isConnected = _rfidService != null ? _rfidService.ServiceConnected && _rfidService.ReaderConnected : false;
 
             var we = _workstationEventFactory.GetBaseInitializedInstance();
-            we.EventId = isConnected ? WorkstationEventId.RFIDAdapterPlugged : WorkstationEventId.RFIDAdapterUnplugged;
+            we.EventId = isConnected ? WorkstationEventType.RFIDAdapterPlugged : WorkstationEventType.RFIDAdapterUnplugged;
             we.Severity = isConnected ? WorkstationEventSeverity.Ok : WorkstationEventSeverity.Warning;
             Task.Run(() => _eventAggregator?.AddNewAsync(we));
         }
@@ -312,12 +355,12 @@ namespace ServiceLibrary.Implementation
                 we.UserSession = SessionSwitchManager.UserSessionName;
                 if (_hesConnection.State == HesConnectionState.Connected)
                 {
-                    we.EventId = WorkstationEventId.HESConnected;
+                    we.EventId = WorkstationEventType.HESConnected;
                     we.Severity = WorkstationEventSeverity.Ok;
                 }
                 else
                 {
-                    we.EventId = WorkstationEventId.HESDisconnected;
+                    we.EventId = WorkstationEventType.HESDisconnected;
                     we.Severity = WorkstationEventSeverity.Warning;
                 }
                 Task.Run(() => _eventAggregator?.AddNewAsync(we));
@@ -373,17 +416,17 @@ namespace ServiceLibrary.Implementation
 
                     if (!device.IsRemote || device.ChannelNo > 2)
                     {
-                        WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+                        SdkWorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
                         workstationEvent.Severity = WorkstationEventSeverity.Info;
                         workstationEvent.DeviceId = device.SerialNo;
                         if (device.IsRemote)
                         {
                             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
-                            workstationEvent.EventId = WorkstationEventId.RemoteConnect;
+                            workstationEvent.EventId = WorkstationEventType.RemoteConnect;
                         }
                         else
                         {
-                            workstationEvent.EventId = WorkstationEventId.DeviceConnect;
+                            workstationEvent.EventId = WorkstationEventType.DeviceConnect;
                         }
                         _eventAggregator?.AddNewAsync(workstationEvent);
                     }
@@ -538,12 +581,12 @@ namespace ServiceLibrary.Implementation
 
         public void PublishEvent(WorkstationEventDTO workstationEvent)
         {
-            WorkstationEvent we = new WorkstationEvent
+            SdkWorkstationEvent we = new SdkWorkstationEvent
             {
                 Id = workstationEvent.Id,
                 Date = workstationEvent.Date,
                 WorkstationId = workstationEvent.WorkstationId,
-                EventId = (WorkstationEventId)workstationEvent.EventId,
+                EventId = (WorkstationEventType)workstationEvent.EventId,
                 Severity = (WorkstationEventSeverity)workstationEvent.Severity,
                 Note = workstationEvent.Note,
                 DeviceId = workstationEvent.DeviceId,
@@ -735,19 +778,19 @@ namespace ServiceLibrary.Implementation
 
         public static async Task OnServiceStartedAsync()
         {
-            WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+            SdkWorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
-            workstationEvent.EventId = WorkstationEventId.ServiceStarted;
+            workstationEvent.EventId = WorkstationEventType.ServiceStarted;
             await _eventAggregator?.AddNewAsync(workstationEvent); //todo - null reference exception at startup
         }
 
         public static async Task OnServiceStoppedAsync()
         {
-            WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+            SdkWorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
-            workstationEvent.EventId = WorkstationEventId.ServiceStopped;
+            workstationEvent.EventId = WorkstationEventType.ServiceStopped;
             await _eventAggregator?.AddNewAsync(workstationEvent, true);
         }
         #endregion

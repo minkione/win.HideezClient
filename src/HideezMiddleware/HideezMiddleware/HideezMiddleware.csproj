@@ -85,7 +85,7 @@
     <Compile Include="DeviceConnection\RfidConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\TapConnectionProcessor.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
-    <Compile Include="IClientUi.cs" />
+    <Compile Include="IClientUiProxy.cs" />
     <Compile Include="IScreenActivator.cs" />
     <Compile Include="IWorkstationLocker.cs" />
     <Compile Include="Modules\WorkstationEventFactory\IWorkstationEventFactory.cs" />
