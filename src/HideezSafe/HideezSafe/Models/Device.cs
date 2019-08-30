@@ -8,10 +8,7 @@ using HideezSafe.Mvvm;
 using HideezSafe.Utilities;
 using NLog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -257,12 +254,12 @@ namespace HideezSafe.Models
 
                 Battery = 0;
                 Proximity = 0;
-
-                IsInitialized = false;
-                isInitializing = false;
-                IsStorageLoaded = false;
-                IsLoadingStorage = false;
             }
+
+            IsInitialized = false;
+            IsInitializing = false;
+            IsStorageLoaded = false;
+            IsLoadingStorage = false;
         }
 
         void RemoteDevice_ProximityChanged(object sender, int proximity)
