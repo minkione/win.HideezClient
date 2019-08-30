@@ -5,6 +5,6 @@ namespace HideezSafe.Modules
 {
     interface IEventAggregator
     {
-        Task PublishEventAsync(SdkWorkstationEvent workstationEvent);
+        Task PublishEventAsync(WorkstationEvent workstationEvent);
     }
 }

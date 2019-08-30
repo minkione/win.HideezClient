@@ -142,7 +142,7 @@ namespace HideezMiddleware
                 await _ui.HidePinUi();
 
                 if (!success)
-                    await device.Disconnect();
+                    await device?.Disconnect();
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
         }

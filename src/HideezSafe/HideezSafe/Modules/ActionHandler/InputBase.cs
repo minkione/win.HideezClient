@@ -168,7 +168,7 @@ namespace HideezSafe.Modules.ActionHandler
             }
             else
             {
-                SdkWorkstationEvent workstationEvent = SdkWorkstationEvent.GetBaseInitializedInstance();
+                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
                 workstationEvent.EventId = WorkstationEventType.CredentialsUsed;
                 workstationEvent.AccountName = account.Name;
                 workstationEvent.AccountLogin = account.Login;
