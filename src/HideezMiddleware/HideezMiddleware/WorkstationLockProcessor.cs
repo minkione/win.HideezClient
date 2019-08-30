@@ -1,4 +1,5 @@
-﻿using Hideez.SDK.Communication.Interfaces;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
 using Hideez.SDK.Communication.WorkstationEvents;

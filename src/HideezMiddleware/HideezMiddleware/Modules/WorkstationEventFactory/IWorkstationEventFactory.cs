@@ -4,6 +4,6 @@ namespace HideezMiddleware.Modules
 {
     public interface IWorkstationEventFactory
     {
-        SdkWorkstationEvent GetBaseInitializedInstance();
+        WorkstationEvent GetBaseInitializedInstance();
     }
 }

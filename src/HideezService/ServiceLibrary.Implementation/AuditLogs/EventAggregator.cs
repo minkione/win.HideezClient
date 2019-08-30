@@ -1,18 +1,15 @@
-﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.HES.Client;
-using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.WorkstationEvents;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.WorkstationEvents;
+using Newtonsoft.Json;
 
 namespace ServiceLibrary.Implementation
 {
@@ -20,7 +17,7 @@ namespace ServiceLibrary.Implementation
     {
         private readonly HesAppConnection hesAppConnection;
         private readonly string eventDirectory = $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\Hideez\WorkstationEvents\";
-        private readonly List<SdkWorkstationEvent> workstationEvents = new List<SdkWorkstationEvent>();
+        private readonly List<WorkstationEvent> workstationEvents = new List<WorkstationEvent>();
         private readonly object lockObj = new object();
         private readonly System.Timers.Timer sendTimer = new System.Timers.Timer();
         private readonly double timeIntervalSend = 1_000;
@@ -57,7 +54,7 @@ namespace ServiceLibrary.Implementation
             Task task = SendEventsAsync();
         }
 
-        public async Task AddNewAsync(SdkWorkstationEvent workstationEvent, bool forceSendNow = false)
+        public async Task AddNewAsync(WorkstationEvent workstationEvent, bool forceSendNow = false)
         {
             await Task.Run(async () =>
             {
@@ -66,7 +63,6 @@ namespace ServiceLibrary.Implementation
                     WriteLine("Added new workstation event.");
                     lock (lockObj)
                     {
-                        workstationEvent.Version = SdkWorkstationEvent.CurrentVersion;
                         workstationEvents.Add(workstationEvent);
                         string json = JsonConvert.SerializeObject(workstationEvent);
                         string file = $"{eventDirectory}{workstationEvent.Id}";
@@ -98,11 +94,11 @@ namespace ServiceLibrary.Implementation
                 {
                     WriteLine("Sending to HES workstation events.");
                     IsSendToServer = true;
-                    List<SdkWorkstationEvent> newQueue = null;
+                    List<WorkstationEvent> newQueue = null;
                     sendTimer.Stop();
                     lock (lockObj)
                     {
-                        newQueue = new List<SdkWorkstationEvent>(workstationEvents);
+                        newQueue = new List<WorkstationEvent>(workstationEvents);
                     }
 
                     WriteLine($"Current event queue length: {newQueue.Count}");
@@ -119,11 +115,11 @@ namespace ServiceLibrary.Implementation
                                 {
                                     string data = File.ReadAllText(file);
                                     dynamic jsonObj = JsonConvert.DeserializeObject(data);
-                                    string versionData = jsonObj[nameof(SdkWorkstationEvent.Version)];
+                                    string versionData = jsonObj[nameof(WorkstationEvent.Version)];
 
-                                    if (versionData == SdkWorkstationEvent.CurrentVersion)
+                                    if (versionData == WorkstationEvent.CurrentVersion)
                                     {
-                                        SdkWorkstationEvent we = JsonConvert.DeserializeObject<SdkWorkstationEvent>(data);
+                                        WorkstationEvent we = JsonConvert.DeserializeObject<WorkstationEvent>(data);
 
                                         if (workstationEvents.FindIndex(e => e.Id == we.Id) < 0)
                                         {
@@ -179,7 +175,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        private async Task SendEventToServerAsync(List<SdkWorkstationEvent> listEvents)
+        private async Task SendEventToServerAsync(List<WorkstationEvent> listEvents)
         {
             foreach (var set in SplitIntoSets(listEvents, 50))
             {

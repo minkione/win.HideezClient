@@ -18,7 +18,7 @@ namespace HideezMiddleware
         private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
         private static SessionSwitchSubject subject = SessionSwitchSubject.NonHideez;
         private static string _deviceSerialNo;
-        public static event Action<SdkWorkstationEvent> SessionSwitch;
+        public static event Action<WorkstationEvent> SessionSwitch;
 
         static SessionSwitchManager()
         {
@@ -50,7 +50,7 @@ namespace HideezMiddleware
 
                 if (reason >= SessionSwitchReason.SessionLogon && reason <= SessionSwitchReason.SessionUnlock)
                 {
-                    SdkWorkstationEvent workstationEvent = SdkWorkstationEvent.GetBaseInitializedInstance();
+                    WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
                     workstationEvent.Severity = WorkstationEventSeverity.Ok;
                     workstationEvent.Note = subject.ToString();
                     workstationEvent.DeviceId = _deviceSerialNo;

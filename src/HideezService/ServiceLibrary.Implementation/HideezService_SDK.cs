@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using HideezMiddleware.DeviceConnection;
+using Hideez.SDK.Communication;
 
 namespace ServiceLibrary.Implementation
 {
@@ -287,7 +288,7 @@ namespace ServiceLibrary.Implementation
 
                 if (!device.IsRemote && device.IsInitialized)
                 {
-                    SdkWorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+                    WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
                     workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
                     workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
                     workstationEvent.Severity = WorkstationEventSeverity.Warning;
@@ -301,7 +302,7 @@ namespace ServiceLibrary.Implementation
         {
             if (sender is IDevice device && device.IsInitialized && (!device.IsRemote || device.ChannelNo > 2))
             {
-                SdkWorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+                WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
                 workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
                 workstationEvent.Severity = WorkstationEventSeverity.Info;
                 workstationEvent.DeviceId = device.SerialNo;
@@ -416,7 +417,7 @@ namespace ServiceLibrary.Implementation
 
                     if (!device.IsRemote || device.ChannelNo > 2)
                     {
-                        SdkWorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+                        WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
                         workstationEvent.Severity = WorkstationEventSeverity.Info;
                         workstationEvent.DeviceId = device.SerialNo;
                         if (device.IsRemote)
@@ -581,7 +582,7 @@ namespace ServiceLibrary.Implementation
 
         public void PublishEvent(WorkstationEventDTO workstationEvent)
         {
-            SdkWorkstationEvent we = new SdkWorkstationEvent
+            WorkstationEvent we = new WorkstationEvent
             {
                 Id = workstationEvent.Id,
                 Date = workstationEvent.Date,
@@ -778,7 +779,7 @@ namespace ServiceLibrary.Implementation
 
         public static async Task OnServiceStartedAsync()
         {
-            SdkWorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+            WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
             workstationEvent.EventId = WorkstationEventType.ServiceStarted;
@@ -787,7 +788,7 @@ namespace ServiceLibrary.Implementation
 
         public static async Task OnServiceStoppedAsync()
         {
-            SdkWorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+            WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
             workstationEvent.EventId = WorkstationEventType.ServiceStopped;
