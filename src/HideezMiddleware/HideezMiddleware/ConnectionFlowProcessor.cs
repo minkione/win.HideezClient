@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
@@ -14,8 +13,6 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.WorkstationEvents;
-using HideezMiddleware.Settings;
-using HideezMiddleware.Utils;
 
 namespace HideezMiddleware
 {
@@ -24,19 +21,15 @@ namespace HideezMiddleware
         public override string Message => "Authorization cancelled: Access denied";
     }
 
-    // Todo: Code cleanup in WorkstationUnlocker after rapid proximity unlock development
     public class ConnectionFlowProcessor : Logger
     {
         readonly BleDeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
         readonly IScreenActivator _screenActivator;
         readonly UiProxyManager _ui;
+        readonly HesAppConnection _hesConnection;
 
-        HesAppConnection _hesConnection;
-
-        readonly ConcurrentDictionary<string, Guid> _pendingUnlocks =
-            new ConcurrentDictionary<string, Guid>();
-
+        int _isConnecting = 0;
 
         public ConnectionFlowProcessor(BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
@@ -50,37 +43,34 @@ namespace HideezMiddleware
             _workstationUnlocker = workstationUnlocker;
             _screenActivator = screenActivator;
             _ui = ui;
-
-            SetHes(hesConnection);
+            _hesConnection = hesConnection;
         }
 
-        void SetHes(HesAppConnection hesConnection)
+        public async Task<bool> ConnectAndUnlock(string mac)
         {
-            if (_hesConnection != null)
+            bool res = false;
+            // ignore, if workflow for any device already initialized
+            if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
             {
-                //_hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
-                _hesConnection = null;
-            }
+                res = true;
+                try
+                {
+                    await MainWorkflow(mac);
+                }
+                finally
+                {
+                    // this delay allows a user to move away the device from the dongle or RFID
+                    // and prevents the repeated call of this method
+                    await Task.Delay(1500);
 
-            if (hesConnection != null)
-            {
-                _hesConnection = hesConnection;
-                //_hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
+                    Interlocked.Exchange(ref _isConnecting, 0);
+                }
             }
-        }
-
-        //------------------------------
-        public async Task ConnectAndUnlock(string mac)
-        {
-            await MainWorkflow(mac);
+            return res;
         }
 
         async Task MainWorkflow(string mac)
         {
-            // ignore, if workflow for this device already initialized
-            if (!_pendingUnlocks.TryAdd(mac, Guid.NewGuid()))
-                return;
-
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
 
             bool success = true;
@@ -152,12 +142,6 @@ namespace HideezMiddleware
 
                 if (!success)
                     await device.Disconnect();
-
-                // this delay allows a user to move away the device from the dongle or RFID
-                // and prevents the repeated call of this method
-                await Task.Delay(3000);
-
-                _pendingUnlocks.TryRemove(mac, out _);
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
         }
@@ -216,38 +200,38 @@ namespace HideezMiddleware
                 return true;
 
             await _ui.SendNotification("Waiting for HES authorization...");
-
+            ...
             //todo - replase with hes.UpdateDevice()
-            var accessParams = new AccessParams()
-            {
-                MasterKey_Bond = true,
-                MasterKey_Connect = false,
-                MasterKey_Link = false,
-                MasterKey_Channel = false,
+            //var accessParams = new AccessParams()
+            //{
+            //    MasterKey_Bond = true,
+            //    MasterKey_Connect = false,
+            //    MasterKey_Link = false,
+            //    MasterKey_Channel = false,
 
-                Button_Bond = false,
-                Button_Connect = false,
-                Button_Link = true,
-                Button_Channel = true,
+            //    Button_Bond = false,
+            //    Button_Connect = false,
+            //    Button_Link = true,
+            //    Button_Channel = true,
 
-                Pin_Bond = false,
-                Pin_Connect = true,
-                Pin_Link = false,
-                Pin_Channel = false,
+            //    Pin_Bond = false,
+            //    Pin_Connect = true,
+            //    Pin_Link = false,
+            //    Pin_Channel = false,
 
-                PinMinLength = 4,
-                PinMaxTries = 3,
-                MasterKeyExpirationPeriod = 24 * 60 * 60,
-                PinExpirationPeriod = 15 * 60,
-                ButtonExpirationPeriod = 15,
-            };
+            //    PinMinLength = 4,
+            //    PinMaxTries = 3,
+            //    MasterKeyExpirationPeriod = 24 * 60 * 60,
+            //    PinExpirationPeriod = 15 * 60,
+            //    ButtonExpirationPeriod = 15,
+            //};
 
-            await device.Access(
-                DateTime.UtcNow,
-                Encoding.UTF8.GetBytes("passphrase"),
-                accessParams);
+            //await device.Access(
+            //    DateTime.UtcNow,
+            //    Encoding.UTF8.GetBytes("passphrase"),
+            //    accessParams);
 
-            await Task.Delay(1000);
+            //await Task.Delay(1000);
             await _ui.SendNotification("");
             return true;
         }
@@ -322,8 +306,9 @@ namespace HideezMiddleware
 
         //------------------------------------
 
-        async Task<IDevice> ConnectDevice(string mac)
+        async Task<IDevice> ConnectDevice(string mac, int tryCount = 2)
         {
+            //todo - handle try count
             await _ui.SendNotification("Connecting to the device...");
             var device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
             if (device == null)
