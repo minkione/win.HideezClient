@@ -200,7 +200,7 @@ namespace HideezMiddleware
                 return true;
 
             await _ui.SendNotification("Waiting for HES authorization...");
-            ...
+            
             //todo - replase with hes.UpdateDevice()
             //var accessParams = new AccessParams()
             //{
