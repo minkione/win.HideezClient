@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
@@ -323,7 +324,7 @@ namespace HideezMiddleware
         /// </summary>
         /// <exception cref="HideezException" />
         /// <exception cref="Exception" />
-        async Task UnlockWorkstation(string mac, SessionSwitchSubject unlockMethod, UserInfo info = null)
+        async Task UnlockWorkstation(string mac, SessionSwitchSubject unlockMethod, DeviceInfoDto info = null)
         {
             try
             {
@@ -345,7 +346,7 @@ namespace HideezMiddleware
                         throw new Exception($"Device not found");
 
                     await SendNotificationAsync("Waiting for the primary account update...");
-                    await WaitForPrimaryAccountUpdate(info);
+                    //await WaitForPrimaryAccountUpdate(info);
                 }
 
                 await SendNotificationAsync("Reading credentials from the device...");
@@ -459,44 +460,44 @@ namespace HideezMiddleware
             }
         }
 
-        async Task WaitForPrimaryAccountUpdate(string rfid, UserInfo info)
-        {
-            if (_hesConnection == null)
-                throw new Exception("Cannot update primary account. Not connected to the HES.");
+        //async Task WaitForPrimaryAccountUpdate(string rfid, UserInfo info)
+        //{
+        //    if (_hesConnection == null)
+        //        throw new Exception("Cannot update primary account. Not connected to the HES.");
 
-            if (info.NeedUpdatePrimaryAccount == false)
-                return;
+        //    if (info.NeedUpdatePrimaryAccount == false)
+        //        return;
 
-            for (int i = 0; i < 10; i++)
-            {
-                info = await _hesConnection.GetInfoByRfid(rfid);
-                if (info.NeedUpdatePrimaryAccount == false)
-                    return;
-                await Task.Delay(3000);
-            }
+        //    for (int i = 0; i < 10; i++)
+        //    {
+        //        info = await _hesConnection.GetInfoByRfid(rfid);
+        //        if (info.NeedUpdatePrimaryAccount == false)
+        //            return;
+        //        await Task.Delay(3000);
+        //    }
 
-            throw new Exception($"Update of the primary account has been timed out");
-        }
+        //    throw new Exception($"Update of the primary account has been timed out");
+        //}
 
-        async Task WaitForPrimaryAccountUpdate(UserInfo info)
-        {
-            if (_hesConnection == null)
-                throw new Exception("Cannot update primary account. Not connected to the HES.");
+        //async Task WaitForPrimaryAccountUpdate(UserInfo info)
+        //{
+        //    if (_hesConnection == null)
+        //        throw new Exception("Cannot update primary account. Not connected to the HES.");
 
-            if (info.NeedUpdatePrimaryAccount == false)
-                return;
+        //    if (info.NeedUpdatePrimaryAccount == false)
+        //        return;
 
-            var mac = info.DeviceMac;
-            for (int i = 0; i < 10; i++)
-            {
-                info = await _hesConnection.GetInfoByMac(mac);
-                if (info.NeedUpdatePrimaryAccount == false)
-                    return;
-                await Task.Delay(3000);
-            }
+        //    var mac = info.DeviceMac;
+        //    for (int i = 0; i < 10; i++)
+        //    {
+        //        info = await _hesConnection.GetInfoByMac(mac);
+        //        if (info.NeedUpdatePrimaryAccount == false)
+        //            return;
+        //        await Task.Delay(3000);
+        //    }
 
-            throw new Exception($"Update of the primary account has been timed out");
-        }
+        //    throw new Exception($"Update of the primary account has been timed out");
+        //}
 
         async Task<Credentials> GetCredentials(IDevice device, ushort key)
         {

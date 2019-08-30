@@ -8,6 +8,7 @@ using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
@@ -98,8 +99,7 @@ namespace HideezMiddleware
                 {
                     int timeout = 30_000;
 
-                    if (!await MasterKeyWorkflow(device, timeout))
-                        throw new HideezException(HideezErrorCode.HesAuthenticationFailed);
+                    await MasterKeyWorkflow(device, timeout);
 
                     if (!await ButtonWorkflow(device, timeout))
                         throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
@@ -150,7 +150,13 @@ namespace HideezMiddleware
         async Task<bool> TryUnlockWorkstation(IDevice device)
         {
             await _ui.SendNotification("Reading credentials from the device...");
+
+            //await WaitForPrimaryAccountUpdate();
+
+            //await NeedUpdatePrimaryAccount();
+
             ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
+
             var credentials = await GetCredentials(device, primaryAccountKey);
 
             // send credentials to the Credential Provider to unlock the PC
@@ -195,46 +201,14 @@ namespace HideezMiddleware
             Debug.WriteLine(">>>>>>>>>>>>>>> ShowWaitStatus ------------------------------");
         }
 
-        async Task<bool> MasterKeyWorkflow(IDevice device, int timeout)
+        async Task MasterKeyWorkflow(IDevice device, int timeout)
         {
             if (!device.AccessLevel.IsMasterKeyRequired)
-                return true;
+                return;
 
             await _ui.SendNotification("Waiting for HES authorization...");
-            
-            //todo - replase with hes.UpdateDevice()
-            //var accessParams = new AccessParams()
-            //{
-            //    MasterKey_Bond = true,
-            //    MasterKey_Connect = false,
-            //    MasterKey_Link = false,
-            //    MasterKey_Channel = false,
-
-            //    Button_Bond = false,
-            //    Button_Connect = false,
-            //    Button_Link = true,
-            //    Button_Channel = true,
-
-            //    Pin_Bond = false,
-            //    Pin_Connect = true,
-            //    Pin_Link = false,
-            //    Pin_Channel = false,
-
-            //    PinMinLength = 4,
-            //    PinMaxTries = 3,
-            //    MasterKeyExpirationPeriod = 24 * 60 * 60,
-            //    PinExpirationPeriod = 15 * 60,
-            //    ButtonExpirationPeriod = 15,
-            //};
-
-            //await device.Access(
-            //    DateTime.UtcNow,
-            //    Encoding.UTF8.GetBytes("passphrase"),
-            //    accessParams);
-
-            //await Task.Delay(1000);
+            await _hesConnection.FixDevice(device);
             await _ui.SendNotification("");
-            return true;
         }
 
         async Task<bool> ButtonWorkflow(IDevice device, int timeout)
@@ -336,95 +310,96 @@ namespace HideezMiddleware
         /// </summary>
         /// <exception cref="HideezException" />
         /// <exception cref="Exception" />
-        async Task UnlockWorkstation(string mac, SessionSwitchSubject unlockMethod, UserInfo info = null)
-        {
-            try
-            {
-                IDevice device = await ConnectDevice(mac);
+        //async Task UnlockWorkstation(string mac, SessionSwitchSubject unlockMethod, UserInfo info = null)
+        //{
+        //    try
+        //    {
+        //        IDevice device = await ConnectDevice(mac);
 
-                await WaitDeviceInitialization(mac, device);
+        //        await WaitDeviceInitialization(mac, device);
 
-                // No point in reading credentials if CredentialProvider is not connected
-                if (!_workstationUnlocker.IsConnected)
-                    return;
+        //        // No point in reading credentials if CredentialProvider is not connected
+        //        if (!_workstationUnlocker.IsConnected)
+        //            return;
 
-                // get info from the HES to check if primary account update is needed
-                if (_hesConnection?.State == HesConnectionState.Connected)
-                {
-                    if (info == null)
-                        info = await _hesConnection.GetInfoByMac(mac);
+        //        // get info from the HES to check if primary account update is needed
+        //        if (_hesConnection?.State == HesConnectionState.Connected)
+        //        {
+        //            if (info == null)
+        //                info = await _hesConnection.GetInfoByMac(mac);
 
-                    if (info == null)
-                        throw new Exception($"Device not found");
+        //            if (info == null)
+        //                throw new Exception($"Device not found");
 
-                    await _ui.SendNotification("Waiting for the primary account update...");
-                    await WaitForPrimaryAccountUpdate(info);
-                }
+        //            await _ui.SendNotification("Waiting for the primary account update...");
+        //            await WaitForPrimaryAccountUpdate(info);
+        //        }
 
-                await _ui.SendNotification("Reading credentials from the device...");
-                ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
-                var credentials = await GetCredentials(device, primaryAccountKey);
+        //        await _ui.SendNotification("Reading credentials from the device...");
+        //        ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
+        //        var credentials = await GetCredentials(device, primaryAccountKey);
 
-                SessionSwitchManager.SetEventSubject(unlockMethod, device.SerialNo);
+        //        SessionSwitchManager.SetEventSubject(unlockMethod, device.SerialNo);
 
-                // send credentials to the Credential Provider to unlock the PC
-                await _ui.SendNotification("Unlocking the PC...");
-                var logonSuccessful = await _workstationUnlocker.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+        //        // send credentials to the Credential Provider to unlock the PC
+        //        await _ui.SendNotification("Unlocking the PC...");
+        //        var logonSuccessful = await _workstationUnlocker.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
 
-                if (!logonSuccessful)
-                    await device.Disconnect();
+        //        if (!logonSuccessful)
+        //            await device.Disconnect();
 
-                WriteLine($"UnlockWorkstation result: {logonSuccessful}");
-            }
-            catch (HideezException ex)
-            {
-                var message = HideezExceptionLocalization.GetErrorAsString(ex);
-                WriteLine(message);
-                await _ui.SendNotification("");
-                await _ui.SendError(message);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                WriteLine(ex);
-                await _ui.SendNotification("");
-                await _ui.SendError(ex.Message);
-                throw;
-            }
-        }
+        //        WriteLine($"UnlockWorkstation result: {logonSuccessful}");
+        //    }
+        //    catch (HideezException ex)
+        //    {
+        //        var message = HideezExceptionLocalization.GetErrorAsString(ex);
+        //        WriteLine(message);
+        //        await _ui.SendNotification("");
+        //        await _ui.SendError(message);
+        //        throw;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        WriteLine(ex);
+        //        await _ui.SendNotification("");
+        //        await _ui.SendError(ex.Message);
+        //        throw;
+        //    }
+        //}
 
-        async Task WaitForPrimaryAccountUpdate(string rfid, UserInfo info)
+        //async Task WaitForPrimaryAccountUpdate(string rfid, UserInfo info)
+        //{
+        //    if (_hesConnection == null)
+        //        throw new Exception("Cannot update primary account. Not connected to the HES.");
+
+        //    if (info.NeedUpdatePrimaryAccount == false)
+        //        return;
+
+        //    for (int i = 0; i < 10; i++)
+        //    {
+        //        info = await _hesConnection.GetInfoByRfid(rfid);
+        //        if (info.NeedUpdatePrimaryAccount == false)
+        //            return;
+        //        await Task.Delay(3000);
+        //    }
+
+        //    throw new Exception($"Update of the primary account has been timed out");
+        //}
+
+        async Task WaitForRemoteDeviceUpdate(DeviceInfoDto info)
         {
             if (_hesConnection == null)
-                throw new Exception("Cannot update primary account. Not connected to the HES.");
+                throw new Exception("Cannot update device. Not connected to the HES.");
 
-            if (info.NeedUpdatePrimaryAccount == false)
-                return;
-
-            for (int i = 0; i < 10; i++)
-            {
-                info = await _hesConnection.GetInfoByRfid(rfid);
-                if (info.NeedUpdatePrimaryAccount == false)
-                    return;
-                await Task.Delay(3000);
-            }
-
-            throw new Exception($"Update of the primary account has been timed out");
-        }
-
-        async Task WaitForPrimaryAccountUpdate(UserInfo info)
-        {
-            if (_hesConnection == null)
-                throw new Exception("Cannot update primary account. Not connected to the HES.");
-
-            if (info.NeedUpdatePrimaryAccount == false)
+            if (info.NeedUpdate == false)
                 return;
 
             var mac = info.DeviceMac;
             for (int i = 0; i < 10; i++)
             {
+                //todo - GetInfoBySerialNo
                 info = await _hesConnection.GetInfoByMac(mac);
-                if (info.NeedUpdatePrimaryAccount == false)
+                if (info.NeedUpdate == false)
                     return;
                 await Task.Delay(3000);
             }

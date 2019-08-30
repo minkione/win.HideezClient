@@ -15,10 +15,8 @@ namespace HideezMiddleware
             = new ConcurrentDictionary<string, TaskCompletionSource<string>>();
 
         public event EventHandler<EventArgs> ClientConnected;
-        public event EventHandler<PinReceivedEventArgs> PinReceived;
 
         public bool IsConnected => _credentialProviderUi.IsConnected || _clientUi.IsConnected;
-
 
 
         public UiProxyManager(IClientUiProxy credentialProviderUi, IClientUiProxy clientUi, ILog log)
@@ -29,12 +27,14 @@ namespace HideezMiddleware
 
             if (_credentialProviderUi != null)
             {
-                _credentialProviderUi.ClientConnected += CredentialProviderUi_ClientUiConnected;
+                _credentialProviderUi.ClientConnected += ClientUi_ClientUiConnected;
+                _credentialProviderUi.PinReceived += ClientUi_PinReceived;
             }
 
             if (_clientUi != null)
             {
                 _clientUi.ClientConnected += ClientUi_ClientUiConnected;
+                _clientUi.PinReceived += ClientUi_PinReceived;
             }
         }
 
@@ -54,8 +54,11 @@ namespace HideezMiddleware
 
             if (disposing)
             {
-                _credentialProviderUi.ClientConnected -= CredentialProviderUi_ClientUiConnected;
+                _credentialProviderUi.ClientConnected -= ClientUi_ClientUiConnected;
                 _clientUi.ClientConnected -= ClientUi_ClientUiConnected;
+
+                _credentialProviderUi.PinReceived -= ClientUi_PinReceived;
+                _clientUi.PinReceived -= ClientUi_PinReceived;
             }
 
             disposed = false;
@@ -66,11 +69,6 @@ namespace HideezMiddleware
             Dispose(false);
         }
         #endregion
-
-        void CredentialProviderUi_ClientUiConnected(object sender, EventArgs e)
-        {
-            ClientConnected?.Invoke(this, EventArgs.Empty);
-        }
 
         void ClientUi_ClientUiConnected(object sender, EventArgs e)
         {

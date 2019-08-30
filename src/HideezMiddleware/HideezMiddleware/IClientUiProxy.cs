@@ -42,7 +42,6 @@ namespace HideezMiddleware
 
         bool IsConnected { get; }
 
-        //Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false, bool askOldPin = false);
         Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);
         Task HidePinUi();
 

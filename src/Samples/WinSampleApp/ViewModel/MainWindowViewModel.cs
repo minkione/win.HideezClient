@@ -23,7 +23,7 @@ using Microsoft.Win32;
 
 namespace WinSampleApp.ViewModel
 {
-    public class MainWindowViewModel : ViewModelBase, IClientUi
+    public class MainWindowViewModel : ViewModelBase, IClientUiProxy
     {
         readonly EventLogger _log;
         readonly BleConnectionManager _connectionManager;
@@ -832,29 +832,29 @@ namespace WinSampleApp.ViewModel
             var unlockerSettingsManager = new SettingsManager<UnlockerSettings>(string.Empty, new XmlFileSerializer(_log));
 
             // UI proxy ==================================
-            var uiProxy = new UiProxyManager(_credentialProviderConnection, this, _log);
+            var uiProxyManager = new UiProxyManager(_credentialProviderConnection, this, _log);
 
             // ConnectionFlowProcessor ==================================
             _connectionFlowProcessor = new ConnectionFlowProcessor(
                 _deviceManager, 
                 _hesConnection,
                 _credentialProviderConnection, // as IWorkstationUnlocker
-                null, 
-                uiProxy,
+                null,
+                uiProxyManager,
                 _log);
 
-            _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, null, this, unlockerSettingsManager, _log)
+            _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, null, uiProxyManager, unlockerSettingsManager, _log)
             {
                 IgnoreAccessList = true
             };
 
-            _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _connectionManager, null, this, unlockerSettingsManager, _log)
+            _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _connectionManager, null, uiProxyManager, unlockerSettingsManager, _log)
             {
                 IgnoreAccessList = true
             };
 
             // StatusManager =============================
-            var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxy, unlockerSettingsManager, _log);
+            var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxyManager, unlockerSettingsManager, _log);
 
             _connectionManager.StartDiscovery();
 
@@ -1418,7 +1418,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        #region IClientUI
+        #region IClientUiProxy
         public bool IsConnected => true;
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
@@ -1483,6 +1483,6 @@ namespace WinSampleApp.ViewModel
             return Task.CompletedTask;
         }
 
-        #endregion IClientUI
+        #endregion IClientUiProxy
     }
 }
