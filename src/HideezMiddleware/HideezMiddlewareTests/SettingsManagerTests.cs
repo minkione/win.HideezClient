@@ -379,7 +379,7 @@ namespace HideezMiddleware.Tests
             var settings = settingsManager.Settings;
 
             // Assert
-            Assert.AreEqual(settings, null); // default(ApplicationSettings)
+            Assert.AreEqual(settings, new TestSettings()); // default(ApplicationSettings)
         }
 
         [TestMethod]

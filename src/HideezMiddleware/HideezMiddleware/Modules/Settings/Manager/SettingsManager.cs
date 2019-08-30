@@ -97,7 +97,7 @@ namespace HideezMiddleware.Settings
         /// <returns>Returns loaded program settings</returns>
         public Task<T> GetSettingsAsync()
         {
-            if (Settings == null)
+            if (settings == null)
                 return LoadSettingsAsync();
             else
                 return Task.FromResult(Settings);
