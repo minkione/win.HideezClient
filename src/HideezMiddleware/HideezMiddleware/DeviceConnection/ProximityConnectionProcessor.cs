@@ -138,6 +138,7 @@ namespace HideezMiddleware.DeviceConnection
             { 
                 try
                 {
+                    _screenActivator?.ActivateScreen();
                     await ConnectDeviceByMac(mac);
                 }
                 catch (Exception ex)
@@ -145,6 +146,7 @@ namespace HideezMiddleware.DeviceConnection
                     WriteLine(ex);
                     await _clientUiManager.SendNotification("");
                     await _clientUiManager.SendError(ex.Message);
+                    _advIgnoreListMonitor.Ignore(mac);
                 }
                 finally
                 {

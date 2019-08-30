@@ -72,12 +72,23 @@ namespace HideezMiddleware.DeviceConnection
             }
         }
 
+        public void Ignore(string mac)
+        {
+            lock (_lock)
+            {
+                if (!_ignoreList.Contains(mac))
+                    _ignoreList.Add(mac);
+
+                _lastAdvRecTime[mac] = DateTime.UtcNow;
+            }
+        }
+
         public bool IsIgnored(string mac)
         {
             lock(_lock)
             {
                 // Remove MAC's from ignore list if we did not receive an advertisement from them in MAC_IGNORELIST_TIMEOUT_SECONDS seconds
-                _ignoreList.RemoveAll(m => (DateTime.UtcNow - _lastAdvRecTime[m].Date).Seconds >= MAC_IGNORELIST_TIMEOUT_SECONDS);
+                _ignoreList.RemoveAll(m => (DateTime.UtcNow - _lastAdvRecTime[m]).Seconds >= MAC_IGNORELIST_TIMEOUT_SECONDS);
 
                 return _ignoreList.Any(m => m == mac);
             }

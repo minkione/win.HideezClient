@@ -97,6 +97,7 @@ namespace HideezMiddleware.DeviceConnection
                 {
                     try
                     {
+                        _screenActivator?.ActivateScreen();
                         var mac = MacUtils.GetMacFromShortMac(adv.Id);
                         await ConnectDeviceByMac(mac);
                     }
