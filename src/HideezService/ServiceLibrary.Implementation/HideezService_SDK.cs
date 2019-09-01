@@ -101,7 +101,7 @@ namespace ServiceLibrary.Implementation
             _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
 
             // Get HES address from registry ==================================
-            // HKLM\SOFTWARE\Hideez\Safe, hs3_hes_address REG_SZ
+            // HKLM\SOFTWARE\Hideez\Client, client_hes_address REG_SZ
             string hesAddress = string.Empty;
             try
             {
@@ -493,24 +493,24 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        readonly string _hesAddressRegistryValueName = "hs3_hes_address";
+        readonly string _hesAddressRegistryValueName = "client_hes_address";
         RegistryKey GetAppRegistryRootKey()
         {
             return RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default)?
                 .OpenSubKey("SOFTWARE")?
                 .OpenSubKey("Hideez")?
-                .OpenSubKey("Safe");
+                .OpenSubKey("Client");
         }
 
         string GetHesAddress()
         {
             var registryKey = GetAppRegistryRootKey();
             if (registryKey == null)
-                throw new Exception("Couldn't find Hideez Safe registry key. (HKLM\\SOFTWARE\\Hideez\\Safe)");
+                throw new Exception("Couldn't find Hideez Client registry key. (HKLM\\SOFTWARE\\Hideez\\Client)");
 
             var value = registryKey.GetValue(_hesAddressRegistryValueName);
             if (value == null)
-                throw new ArgumentNullException($"{_hesAddressRegistryValueName} value is null or empty. Please specify HES address in registry under value {_hesAddressRegistryValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Safe");
+                throw new ArgumentNullException($"{_hesAddressRegistryValueName} value is null or empty. Please specify HES address in registry under value {_hesAddressRegistryValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Client");
 
             if (value is string == false)
                 throw new FormatException($"{_hesAddressRegistryValueName} could not be cast to string. Check that its value has REG_SZ type");
@@ -518,7 +518,7 @@ namespace ServiceLibrary.Implementation
             var address = value as string;
 
             if (string.IsNullOrWhiteSpace(address))
-                throw new ArgumentNullException($"{_hesAddressRegistryValueName} value is null or empty. Please specify HES address in registry under value {_hesAddressRegistryValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Safe");
+                throw new ArgumentNullException($"{_hesAddressRegistryValueName} value is null or empty. Please specify HES address in registry under value {_hesAddressRegistryValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Client");
 
             if (Uri.TryCreate(address, UriKind.Absolute, out Uri outUri)
                 && (outUri.Scheme == Uri.UriSchemeHttp || outUri.Scheme == Uri.UriSchemeHttps))
@@ -537,7 +537,7 @@ namespace ServiceLibrary.Implementation
         {
             var registryKey = GetAppRegistryRootKey();
             if (registryKey == null)
-                throw new Exception("Couldn't find Hideez Safe registry key. (HKLM\\SOFTWARE\\Hideez\\Safe)");
+                throw new Exception("Couldn't find Hideez Client registry key. (HKLM\\SOFTWARE\\Hideez\\Client)");
 
             var value = registryKey.GetValue(_ignoreWorkstationOwnershipSecurityValueName);
             if (value == null)

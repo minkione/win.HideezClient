@@ -39,7 +39,7 @@
             // 
             // serviceInstaller
             // 
-            this.serviceInstaller.DisplayName = "Hideez Safe Corp";
+            this.serviceInstaller.DisplayName = "Hideez Client Corp";
             this.serviceInstaller.ServiceName = "HideezService";
             // 
             // ProjectInstaller
