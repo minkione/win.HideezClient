@@ -261,6 +261,16 @@
     <Style x:Key="PinkButton" TargetType="{x:Type Button}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="FontSize" Value="16" />
+        <Setter Property="BitmapEffect">
+            <Setter.Value>
+                <DropShadowBitmapEffect
+                    Direction="90"
+                    Opacity="0.5"
+                    ShadowDepth="1"
+                    Softness="1"
+                    Color="Black" />
+            </Setter.Value>
+        </Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
@@ -287,6 +297,16 @@
     <Style x:Key="ButtonBlue" TargetType="{x:Type Button}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="FontSize" Value="16" />
+        <Setter Property="BitmapEffect">
+            <Setter.Value>
+                <DropShadowBitmapEffect
+                    Direction="90"
+                    Opacity="0.2"
+                    ShadowDepth="1"
+                    Softness="1"
+                    Color="Black" />
+            </Setter.Value>
+        </Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
@@ -362,22 +382,21 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Border
-                            x:Name="border"
-                            Margin="2"
-                            BorderThickness="0"
-                            CornerRadius="3">
+                        x:Name="border"
+                        Margin="2"
+                        BorderThickness="0"
+                        CornerRadius="3">
                         <Grid>
                             <Rectangle
-                                    x:Name="FillRectangle"
-                                    Opacity="0.1"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    />
+                                x:Name="FillRectangle"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Opacity="0.1" />
                             <ContentPresenter
-                                    Margin="3"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Content="{TemplateBinding Content}" />
+                                Margin="3"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Content="{TemplateBinding Content}" />
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>

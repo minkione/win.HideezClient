@@ -1,0 +1,90 @@
+﻿<Metro:MetroWindow
+    x:Class="HideezClient.Views.DeviceLockedView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:adorners="http://gu.se/Adorners"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    xmlns:local="clr-namespace:HideezClient.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="{l:Localization AppName}"
+    Width="300"
+    Background="{DynamicResource WindowLeftColumBrush}"
+    Foreground="Black"
+    ResizeMode="NoResize"
+    SizeToContent="Height"
+    TitleCharacterCasing="Normal"
+    WindowStartupLocation="CenterOwner"
+    WindowTitleBrush="{DynamicResource WindowTitleBrush}"
+    mc:Ignorable="d">
+    <StackPanel>
+        <Grid Background="Red">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <ContentPresenter
+                Grid.RowSpan="3"
+                Width="40"
+                Height="40"
+                Margin="20"
+                VerticalAlignment="Center"
+                Content="{StaticResource HedeezKeySimpleIMG}" />
+            <iconPacks:PackIconMaterial
+                Grid.RowSpan="3"
+                Width="30"
+                Height="30"
+                Margin="0,0,5,15"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Kind="Lock" />
+            <TextBlock
+                Grid.Column="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                FontWeight="Bold"
+                Text="{l:Localization DeviceLocked.Head}" />
+            <TextBlock
+                Grid.Row="2"
+                Grid.Column="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Text="{l:Localization DeviceLocked.Head.Description}" />
+        </Grid>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock
+                Margin="7"
+                HorizontalAlignment="Center"
+                Text="{l:Localization DeviceLocked.Body.Head}" />
+            <TextBlock
+                Grid.Row="1"
+                Margin="7"
+                HorizontalAlignment="Center"
+                Text="{l:Localization DeviceLocked.Info.Description}"
+                TextAlignment="Center"
+                TextWrapping="Wrap" />
+            <Button
+                Grid.Row="2"
+                Margin="7"
+                HorizontalAlignment="Center"
+                Click="Button_Click"
+                Content="{l:Localization Button.Ok}"
+                IsDefault="True"
+                Style="{StaticResource ButtonBlue}" />
+        </Grid>
+    </StackPanel>
+</Metro:MetroWindow>

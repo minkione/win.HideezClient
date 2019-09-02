@@ -9,11 +9,13 @@ using System.Windows;
 using System.Linq;
 using System.Windows.Threading;
 using HideezClient.Models;
+using HideezClient.Controls;
 
 namespace HideezClient.Modules
 {
     class WindowsManager : IWindowsManager
     {
+        private readonly ViewModelLocator viewModelLocator;
         private string titleNotification;
         private readonly INotifier notifier;
         private readonly Logger log = LogManager.GetCurrentClassLogger();
@@ -21,9 +23,10 @@ namespace HideezClient.Modules
 
         public event EventHandler<bool> MainWindowVisibleChanged;
 
-        public WindowsManager(INotifier notifier)
+        public WindowsManager(INotifier notifier, ViewModelLocator viewModelLocator)
         {
             this.notifier = notifier;
+            this.viewModelLocator = viewModelLocator;
         }
 
         public void ActivateMainWindow()
@@ -126,13 +129,16 @@ namespace HideezClient.Modules
 
         public void ShowDialogAddCredential(Device device)
         {
-            var addCredentialWindow = new AddCredentialView();
-            addCredentialWindow.Owner = MainWindow;
-            if (addCredentialWindow.DataContext is AddCredentialViewModel viewModel)
+            UIDispatcher.Invoke(() =>
             {
-                viewModel.Device = device;
-            }
-            addCredentialWindow.ShowDialog();
+                var addCredentialWindow = new AddCredentialView();
+                SetStartupLocation(addCredentialWindow, IsMainWindowVisible);
+                if (addCredentialWindow.DataContext is AddCredentialViewModel viewModel)
+                {
+                    viewModel.Device = device;
+                }
+                addCredentialWindow.ShowDialog();
+            });
         }
 
         public void ShowError(string message, string title = null)
@@ -200,6 +206,118 @@ namespace HideezClient.Modules
             }
         }
 
+        public void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel)
+        {
+
+            if (UIDispatcher.CheckAccess())
+            {
+                notifier.ShowCredentialsLoading(viewModel);
+            }
+            else
+            {
+                // Do non UI Thread stuff
+                UIDispatcher.Invoke(() => notifier.ShowCredentialsLoading(viewModel));
+            }
+        }
+
+        public void CloseWindow(Guid id)
+        {
+            UIDispatcher.Invoke(() =>
+            {
+                foreach (Window window in Application.Current.Windows)
+                {
+                    if (window.DataContext is IRequireViewIdentification vm && vm.ID.Equals(id))
+                    {
+                        window.Close();
+                    }
+                }
+            });
+        }
+
+        private void SetStartupLocation(Window window, bool mainWindowWasOpen, bool hideMainWindow = false)
+        {
+            if (mainWindowWasOpen)
+            {
+                window.Owner = MainWindow;
+                if (hideMainWindow)
+                {
+                    MainWindow?.Hide();
+                }
+            }
+            else
+            {
+                window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            }
+        }
+
+        #region PIN
+
+        public Task ShowDeviceLockedAsync()
+        {
+            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+
+            UIDispatcher.InvokeAsync(() =>
+            {
+                DeviceLockedView dlv = new DeviceLockedView();
+                SetStartupLocation(dlv, IsMainWindowVisible);
+                dlv.Closed += (sender, e) => tcs.TrySetResult(true);
+                dlv.Show();
+            });
+
+            return tcs.Task;
+        }
+
+        public void ShowPinNotVerified(Device device)
+        {
+            if (UIDispatcher.CheckAccess())
+            {
+                notifier.ShowPinNotVerified(device);
+            }
+            else
+            {
+                UIDispatcher.Invoke(() => notifier.ShowPinNotVerified(device));
+            }
+        }
+
+        public void ShowSetPin(Device device)
+        {
+            SetPinViewModel viewModel = viewModelLocator.SetPinViewModel;
+            viewModel.Device = device;
+            viewModel.State = ViewPinState.WaitUserAction;
+            viewModel.ButtonState = ConfirmButtonState.None;
+            ShowPinViewAsync(viewModel);
+        }
+
+        public void ShowChangePin(Device device)
+        {
+            ChangePinViewModel viewModel = viewModelLocator.ChangePinViewModel;
+            viewModel.Device = device;
+            viewModel.State = ViewPinState.WaitUserAction;
+            viewModel.ButtonState = ConfirmButtonState.None;
+            ShowPinViewAsync(viewModel);
+        }
+
+        public Task<bool> ShowDialogEnterPinAsync(EnterPinViewModel viewModel)
+        {
+            return ShowPinViewAsync(viewModel);
+        }
+
+        private Task<bool> ShowPinViewAsync(PinViewModelBase viewModel)
+        {
+            return UIDispatcher.InvokeAsync(() =>
+            {
+                bool mainWindowWasOpen = IsMainWindowVisible;
+                PinView view = new PinView();
+                view.DataContext = viewModel;
+                SetStartupLocation(view, mainWindowWasOpen, true);
+                bool dialogResult = view.ShowDialog() ?? false;
+                return dialogResult;
+            }).Task;
+        }
+
+        #endregion PIN
+
+
         public void ShowInfoAboutDevice(Device device)
         {
             UIDispatcher.Invoke(() =>
@@ -212,3 +330,4 @@ namespace HideezClient.Modules
         }
     }
 }
+

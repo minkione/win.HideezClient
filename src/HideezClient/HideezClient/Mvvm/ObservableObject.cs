@@ -8,7 +8,7 @@ namespace HideezClient.Mvvm
     /// <summary>
     /// A base class for objects that notify clients that a property value has changed.
     /// </summary>
-    public class ObservableObject : PropertyChangedImplementation
+    public class ObservableObject : PropertyChangedImplementation, IRequireViewIdentification
     {
         /// <summary>
         /// Assigns a new value to the property. Then, raises the PropertyChanged event if needed. 
@@ -30,6 +30,8 @@ namespace HideezClient.Mvvm
             RaisePropertyChanged(propertyName);
             return true;
         }
+
+        public Guid ID { get; } = Guid.NewGuid();
 
         /// <summary>
         /// Raises the PropertyChanged event.

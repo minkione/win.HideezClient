@@ -346,7 +346,111 @@ Device is not connected</value>
   <data name="Menu.AboutDevice" xml:space="preserve">
     <value>Info about device</value>
   </data>
+  <data name="Button.Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
   <data name="Button.Ok" xml:space="preserve">
     <value>Ok</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>Hideez Safe 3</value>
+  </data>
+  <data name="Pin.BtnConfirmed" xml:space="preserve">
+    <value>Button press confirmed</value>
+  </data>
+  <data name="Pin.ConfirmedPIN" xml:space="preserve">
+    <value>PIN confirmed</value>
+  </data>
+  <data name="Pin.EnterPin" xml:space="preserve">
+    <value>Enter PIN code for {0} 
+to access stored credentials</value>
+  </data>
+  <data name="Pin.InavalidPin" xml:space="preserve">
+    <value>Invalid PIN!
+{0} attempts left</value>
+  </data>
+  <data name="Pin.ReqBtnConfirm" xml:space="preserve">
+    <value>Press the button on your device to confirm connection</value>
+  </data>
+  <data name="Pin.VerifyingPIN" xml:space="preserve">
+    <value>Verifying PIN code</value>
+  </data>
+  <data name="CredentialsLoad.Loaded" xml:space="preserve">
+    <value>Credentials loading finished {0}</value>
+  </data>
+  <data name="CredentialsLoad.Loading" xml:space="preserve">
+    <value>Loading credentials {0}</value>
+  </data>
+  <data name="DeviceLocked.Body.Head" xml:space="preserve">
+    <value>This device is locked</value>
+  </data>
+  <data name="DeviceLocked.Head" xml:space="preserve">
+    <value>Device is locked</value>
+  </data>
+  <data name="DeviceLocked.Head.Description" xml:space="preserve">
+    <value>To many incorrect PIN entries</value>
+  </data>
+  <data name="DeviceLocked.Info.Description" xml:space="preserve">
+    <value>To unlock the device, contact your system administrator</value>
+  </data>
+  <data name="PinNotVerified.Description" xml:space="preserve">
+    <value>Pin for {0} was not verified. You cannot use the credentials from this device until you verify the PIN code</value>
+  </data>
+  <data name="PinNotVerified.LinkText" xml:space="preserve">
+    <value>Click to enter PIN now</value>
+  </data>
+  <data name="Pin.SetPin" xml:space="preserve">
+    <value>Set PIN code for {0}</value>
+  </data>
+  <data name="Button.Change" xml:space="preserve">
+    <value>Change</value>
+  </data>
+  <data name="Pin.ChangePin" xml:space="preserve">
+    <value>Change PIN code for {0}</value>
+  </data>
+  <data name="Pin.Confirm" xml:space="preserve">
+    <value>Confirm PIN</value>
+  </data>
+  <data name="Pin.New" xml:space="preserve">
+    <value>New PIN</value>
+  </data>
+  <data name="Pin.Old" xml:space="preserve">
+    <value>Old PIN</value>
+  </data>
+  <data name="Pin.ChangedPIN" xml:space="preserve">
+    <value>PIN changed successfully</value>
+  </data>
+  <data name="Pin.SavedPIN" xml:space="preserve">
+    <value>PIN saved successfully</value>
+  </data>
+  <data name="Pin.ErrorChangePIN" xml:space="preserve">
+    <value>Error changing PIN code</value>
+  </data>
+  <data name="Pin.ErrorSavedPIN" xml:space="preserve">
+    <value>Error saving PIN code</value>
+  </data>
+  <data name="Pin.Error.ConfirmNotMatch" xml:space="preserve">
+    <value>Confirmation PIN code does not match.</value>
+  </data>
+  <data name="Pin.Error.MaxLenght" xml:space="preserve">
+    <value>PIN code must be no more than {0} characters.</value>
+  </data>
+  <data name="Pin.Error.MinLenght" xml:space="preserve">
+    <value>PIN code must be more than {0} characters.</value>
+  </data>
+  <data name="Pin.Error.NotSpecified" xml:space="preserve">
+    <value>PIN code must be specified.</value>
+  </data>
+  <data name="Pin.ChangeInProgres" xml:space="preserve">
+    <value>Change PIN in progres</value>
+  </data>
+  <data name="Pin.PinChange" xml:space="preserve">
+    <value>PIN code changed successfully</value>
+  </data>
+  <data name="Pin.PinSeved" xml:space="preserve">
+    <value>PIN code saved successfully</value>
+  </data>
+  <data name="Pin.SetInProgres" xml:space="preserve">
+    <value>Save PIN in progres</value>
   </data>
 </root>

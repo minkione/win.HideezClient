@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.WorkstationEvents;
 using HideezClient.HideezServiceReference;
 using HideezClient.Modules.ServiceProxy;

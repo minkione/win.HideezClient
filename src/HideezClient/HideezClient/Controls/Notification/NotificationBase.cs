@@ -35,6 +35,15 @@ namespace HideezClient.Controls
             }
         }
 
+        public void ResetCloseTimer()
+        {
+            if (timer != null)
+            {
+                timer.Stop();
+                timer.Start();
+            }
+        }
+
         public void Close()
         {
             lock (lockObj)
@@ -74,11 +83,16 @@ namespace HideezClient.Controls
                 Focus();
             }
 
-            if (Options.CloseTimeout != TimeSpan.Zero && timer == null)
+            StartTimer(Options.CloseTimeout);
+        }
+
+        protected void StartTimer(TimeSpan time)
+        {
+            if (time != TimeSpan.Zero && timer == null)
             {
                 timer = new DispatcherTimer
                 {
-                    Interval = Options.CloseTimeout
+                    Interval = time,
                 };
 
                 timer.Tick += Timer_Tick;

@@ -13,6 +13,7 @@ using System.ServiceModel;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using HideezClient.Controls;
 
 namespace HideezClient.Modules.DeviceManager
 {
@@ -41,7 +42,7 @@ namespace HideezClient.Modules.DeviceManager
 
         public event NotifyCollectionChangedEventHandler DevicesCollectionChanged;
 
-        public DeviceManager(IMessenger messenger, IServiceProxy serviceProxy, 
+        public DeviceManager(IMessenger messenger, IServiceProxy serviceProxy,
             IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory)
         {
             _serviceProxy = serviceProxy;
@@ -75,7 +76,7 @@ namespace HideezClient.Modules.DeviceManager
 
         void OnDevicesCollectionChanged(DevicesCollectionChangedMessage message)
         {
-            Task.Run(() => 
+            Task.Run(() =>
             {
                 try
                 {
@@ -95,7 +96,7 @@ namespace HideezClient.Modules.DeviceManager
                 try
                 {
                     if (_devices.TryGetValue(message.Device.Id, out Device dvm))
-                    { 
+                    {
                         dvm.LoadFrom(message.Device);
 
                         if (message.Device.IsInitialized && dvm.IsConnected)
@@ -179,6 +180,8 @@ namespace HideezClient.Modules.DeviceManager
         void AddDevice(DeviceDTO dto)
         {
             var device = new Device(_serviceProxy, _remoteDeviceFactory);
+            device.PropertyChanged += Device_PropertyChanged;
+
             device.LoadFrom(dto);
 
             if (_devices.TryAdd(device.Id, device))
@@ -190,10 +193,20 @@ namespace HideezClient.Modules.DeviceManager
             }
         }
 
+        private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if(sender is Device device && e.PropertyName == nameof(Device.IsLoadingStorage) && device.IsLoadingStorage)
+            {
+            CredentialsLoadNotificationViewModel viewModal = new CredentialsLoadNotificationViewModel(device);
+            _windowsManager.ShowCredentialsLoading(viewModal);
+            }
+        }
+
         void RemoveDevice(Device device)
         {
             if (_devices.TryRemove(device.Id, out Device removedDevice))
             {
+                removedDevice.PropertyChanged -= Device_PropertyChanged;
                 removedDevice.CloseRemoteDeviceConnection();
                 DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, device));
             }
@@ -201,7 +214,7 @@ namespace HideezClient.Modules.DeviceManager
 
         void RemoveDevices(Device[] devices)
         {
-            foreach(var device in devices)
+            foreach (var device in devices)
                 RemoveDevice(device);
         }
 

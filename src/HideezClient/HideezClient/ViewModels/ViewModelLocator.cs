@@ -15,6 +15,7 @@
 using CommonServiceLocator;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
+using HideezClient.Controls;
 using HideezClient.PageViewModels;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -81,6 +82,26 @@ namespace HideezClient.ViewModels
         public NotificationsContainerViewModel NotificationsContainer
         {
             get { return DIContainer.Resolve<NotificationsContainerViewModel>(); }
+        }
+
+        public PinNotVerifiedNotificationViewModel PinNotVerifiedNotification
+        {
+            get { return DIContainer.Resolve<PinNotVerifiedNotificationViewModel>(); }
+        }
+
+        public EnterPinViewModel EnterPinViewModel
+        {
+            get { return DIContainer.Resolve<EnterPinViewModel>(); }
+        }
+
+        public SetPinViewModel SetPinViewModel
+        {
+            get { return DIContainer.Resolve<SetPinViewModel>(); }
+        }
+
+        public ChangePinViewModel ChangePinViewModel
+        {
+            get { return DIContainer.Resolve<ChangePinViewModel>(); }
         }
     }
 }
