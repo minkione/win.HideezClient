@@ -32,6 +32,7 @@
 
     <Color x:Key="Gray">#6E89A4</Color>
 
+    
     <SolidColorBrush x:Key="MenuBackground" Color="#0E5F93" />
 
     <SolidColorBrush x:Key="PinkBrush" Color="{StaticResource Pink}" />
@@ -52,4 +53,6 @@
     <SolidColorBrush x:Key="DisconnectedBrush" Color="#ff1a1a" />
 
     <SolidColorBrush x:Key="LowBatteryIndicatorBrush" Color="Yellow" />
+
+    <SolidColorBrush x:Key="SyncErrorIndicatorBrush" Color="#ff631a" />
 </ResourceDictionary>

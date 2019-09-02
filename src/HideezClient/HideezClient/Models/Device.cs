@@ -1,4 +1,5 @@
-﻿using Hideez.SDK.Communication.Interfaces;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
 using HideezClient.HideezServiceReference;
@@ -6,6 +7,7 @@ using HideezClient.Modules;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using HideezClient.Utilities;
+using MvvmExtensions.Attributes;
 using NLog;
 using System;
 using System.ServiceModel;
@@ -36,11 +38,14 @@ namespace HideezClient.Models
         private Version bootloaderVersion;
         private uint storageTotalSize;
         private uint storageFreeSize;
+        string faultMessage = string.Empty;
 
         public Device(IServiceProxy serviceProxy, IRemoteDeviceFactory remoteDeviceFactory)
         {
             _serviceProxy = serviceProxy;
             _remoteDeviceFactory = remoteDeviceFactory;
+
+            RegisterDependencies();
         }
 
         public IDeviceStorage Storage
@@ -153,6 +158,27 @@ namespace HideezClient.Models
             set { Set(ref storageFreeSize, value); }
         }
 
+        [DependsOn(nameof(FaultMessage))]
+        public bool IsFaulted
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(FaultMessage);
+            }
+        }
+
+        public string FaultMessage
+        {
+            get
+            {
+                return faultMessage;
+            }
+            set
+            {
+                Set(ref faultMessage, value);
+            }
+        }
+
         int remoteConnectionEstablishment = 0;
         public async Task EstablishRemoteDeviceConnection()
         {
@@ -216,11 +242,17 @@ namespace HideezClient.Models
 
                             IsStorageLoaded = true;
                             IsInitialized = true;
+                            FaultMessage = string.Empty;
                             break;
                         }
                         catch (FaultException<HideezServiceFault> ex)
                         {
                             _log.Error(ex.FormattedMessage());
+                        }
+                        catch (HideezException ex)
+                        {
+                            _log.Error(ex);
+                            FaultMessage = ex.Message;
                         }
                         catch (Exception ex)
                         {
@@ -260,6 +292,7 @@ namespace HideezClient.Models
             IsInitializing = false;
             IsStorageLoaded = false;
             IsLoadingStorage = false;
+            FaultMessage = string.Empty;
         }
 
         void RemoteDevice_ProximityChanged(object sender, int proximity)

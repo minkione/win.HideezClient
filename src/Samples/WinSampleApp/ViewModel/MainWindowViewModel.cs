@@ -843,15 +843,9 @@ namespace WinSampleApp.ViewModel
                 uiProxyManager,
                 _log);
 
-            _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, null, uiProxyManager, unlockerSettingsManager, _log)
-            {
-                IgnoreAccessList = true
-            };
+            _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, null, uiProxyManager, _log);
 
-            _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _connectionManager, null, uiProxyManager, unlockerSettingsManager, _log)
-            {
-                IgnoreAccessList = true
-            };
+            _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _connectionManager, null, uiProxyManager, _log);
 
             // StatusManager =============================
             var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxyManager, unlockerSettingsManager, _log);

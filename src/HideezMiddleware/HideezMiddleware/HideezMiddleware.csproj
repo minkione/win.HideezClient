@@ -77,11 +77,9 @@
     <Compile Include="..\..\Version.cs">
       <Link>Version.cs</Link>
     </Compile>
-    <Compile Include="ConnectionFlowProcessor - Copy.cs" />
     <Compile Include="CredentialProviderProxy.cs" />
     <Compile Include="DeviceAccessController.cs" />
     <Compile Include="DeviceConnection\AdvertisementIgnoreList.cs" />
-    <Compile Include="DeviceConnection\BlacklistConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\BaseConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\ProximityConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\RfidConnectionProcessor.cs" />
