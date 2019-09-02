@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
-using Hideez.SDK.Communication.WorkstationEvents;
 
 namespace HideezMiddleware
 {
@@ -80,45 +77,40 @@ namespace HideezMiddleware
             {
                 _screenActivator?.ActivateScreen();
                 device = await ConnectDevice(mac);
+
                 await WaitDeviceInitialization(mac, device);
 
                 if (device.AccessLevel.IsLocked)
                 {
-                    //if (!device.HasUpdatedRemotelly) //todo
-                    {
-                        // request hes to update this device
-                        await _hesConnection.FixDevice(device);
-                    }
-                    //else
-                    {
-                        // show error message
-                        throw new HideezException(HideezErrorCode.DeviceIsLocked);
-                    }
+                    // request hes to update this device
+                    await _hesConnection.FixDevice(device);
+                    await device.RefreshDeviceInfo();
                 }
-                else
+
+                if (device.AccessLevel.IsLocked)
+                    throw new HideezException(HideezErrorCode.DeviceIsLocked);
+
+                int timeout = 30_000;
+
+                await MasterKeyWorkflow(device, timeout);
+
+                if (!await ButtonWorkflow(device, timeout))
+                    throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
+
+                var showStatusTask = ShowWaitStatus(device, timeout);
+                var pinTask = PinWorkflow(device, timeout);
+
+                var t = Task.WhenAll(showStatusTask, pinTask);
+                await t;
+                Debug.Assert(t.Status == TaskStatus.RanToCompletion);
+
+                if (!device.AccessLevel.IsLocked &&
+                    !device.AccessLevel.IsButtonRequired &&
+                    !device.AccessLevel.IsPinRequired &&
+                    !device.AccessLevel.IsNewPinRequired)
                 {
-                    int timeout = 30_000;
-
-                    await MasterKeyWorkflow(device, timeout);
-
-                    if (!await ButtonWorkflow(device, timeout))
-                        throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
-
-                    var showStatusTask = ShowWaitStatus(device, timeout);
-                    var pinTask = PinWorkflow(device, timeout);
-
-                    var t = Task.WhenAll(showStatusTask, pinTask);
-                    await t;
-                    Debug.Assert(t.Status == TaskStatus.RanToCompletion);
-
-                    if (!device.AccessLevel.IsLocked &&
-                        !device.AccessLevel.IsButtonRequired && 
-                        !device.AccessLevel.IsPinRequired &&
-                        !device.AccessLevel.IsNewPinRequired)
-                    {
-                        if (_workstationUnlocker.IsConnected)
-                            success = await TryUnlockWorkstation(device);
-                    }
+                    if (_workstationUnlocker.IsConnected)
+                        success = await TryUnlockWorkstation(device);
                 }
             }
             catch (HideezException ex)
@@ -151,13 +143,20 @@ namespace HideezMiddleware
         {
             await _ui.SendNotification("Reading credentials from the device...");
 
-            //await WaitForPrimaryAccountUpdate();
+            // read in parallel info from the HES and credentials from the device
+            var infoTask = IsNeedUpdateDevice(device);
+            var credentialsTask = GetCredentials(device);
 
-            //await NeedUpdatePrimaryAccount();
+            Task.WaitAll(infoTask, credentialsTask);
 
-            ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
+            var credentials = credentialsTask.Result;
 
-            var credentials = await GetCredentials(device, primaryAccountKey);
+            // if the device needs to be updated, update and read credentials again
+            if (infoTask.Result)
+            {
+                await WaitForRemoteDeviceUpdate(device.Mac);
+                credentials = await GetCredentials(device);
+            }
 
             // send credentials to the Credential Provider to unlock the PC
             await _ui.SendNotification("Unlocking the PC...");
@@ -165,6 +164,24 @@ namespace HideezMiddleware
                 .SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
 
             return success;
+        }
+
+        async Task<bool> IsNeedUpdateDevice(IDevice device)
+        {
+            try
+            {
+                if (_hesConnection.State == HesConnectionState.Connected)
+                {
+                    var info = await _hesConnection.GetInfoByMac(device.Mac);
+                    return info.NeedUpdate;
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
+
+            return false;
         }
 
         async Task ShowWaitStatus(IDevice device, int timeout)
@@ -386,15 +403,16 @@ namespace HideezMiddleware
         //    throw new Exception($"Update of the primary account has been timed out");
         //}
 
-        async Task WaitForRemoteDeviceUpdate(DeviceInfoDto info)
+        async Task WaitForRemoteDeviceUpdate(string mac) //todo - refactor to use callbacks from server
         {
-            if (_hesConnection == null)
+            if (_hesConnection.State != HesConnectionState.Connected)
                 throw new Exception("Cannot update device. Not connected to the HES.");
 
-            if (info.NeedUpdate == false)
-                return;
+            //if (info?.NeedUpdate == false)
+            //    return;
 
-            var mac = info.DeviceMac;
+            //var mac = info.DeviceMac;
+            DeviceInfoDto info;
             for (int i = 0; i < 10; i++)
             {
                 //todo - GetInfoBySerialNo
@@ -404,7 +422,14 @@ namespace HideezMiddleware
                 await Task.Delay(3000);
             }
 
-            throw new Exception($"Update of the primary account has been timed out");
+            throw new Exception($"Remote device update has been timed out");
+        }
+
+        async Task<Credentials> GetCredentials(IDevice device)
+        {
+            ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
+            var credentials = await GetCredentials(device, primaryAccountKey);
+            return credentials;
         }
 
         async Task<Credentials> GetCredentials(IDevice device, ushort key)
