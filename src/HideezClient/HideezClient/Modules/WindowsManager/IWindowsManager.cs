@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HideezClient.Models;
+using HideezClient.Controls;
 
 namespace HideezClient.Modules
 {
@@ -17,10 +18,20 @@ namespace HideezClient.Modules
         bool IsMainWindowVisible { get; }
         void ShowDialogAddCredential(Device device);
         void ShowInfoAboutDevice(Device device);
+        Task ShowDeviceLockedAsync();
+        void CloseWindow(Guid id);
 
         void ShowInfo(string message, string title = null);
         void ShowWarn(string message, string title = null);
         void ShowError(string message, string title = null);
         Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd);
+        void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel);
+
+        #region PIN
+        Task<bool> ShowDialogEnterPinAsync(EnterPinViewModel viewModel);
+        void ShowPinNotVerified(Device device);
+        void ShowSetPin(Device device);
+        void ShowChangePin(Device device);
+        #endregion PIN
     }
 }

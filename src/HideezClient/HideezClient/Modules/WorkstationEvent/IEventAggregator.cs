@@ -1,4 +1,6 @@
-﻿using Hideez.SDK.Communication.WorkstationEvents;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.WorkstationEvents;
+using HideezClient.HideezServiceReference;
 using System.Threading.Tasks;
 
 namespace HideezClient.Modules
