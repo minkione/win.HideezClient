@@ -76,7 +76,7 @@ namespace HideezMiddleware
 
                 await WaitDeviceInitialization(mac, device);
 
-                if (device.AccessLevel.IsLocked)
+                if (device.AccessLevel.IsLocked || device.AccessLevel.IsLinkRequired)
                 {
                     // request hes to update this device
                     await _hesConnection.FixDevice(device);
@@ -86,7 +86,10 @@ namespace HideezMiddleware
                 if (device.AccessLevel.IsLocked)
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);
 
-                int timeout = 30_000;
+                if (device.AccessLevel.IsLinkRequired)
+                    throw new HideezException(HideezErrorCode.DeviceRequiresLink);
+
+                const int timeout = 30_000;
 
                 await MasterKeyWorkflow(device, timeout);
 
@@ -96,9 +99,7 @@ namespace HideezMiddleware
                 var showStatusTask = ShowWaitStatus(device, timeout);
                 var pinTask = PinWorkflow(device, timeout);
 
-                var t = Task.WhenAll(showStatusTask, pinTask);
-                await t;
-                Debug.Assert(t.Status == TaskStatus.RanToCompletion);
+                Task.WaitAll(showStatusTask, pinTask);
 
                 if (!device.AccessLevel.IsLocked &&
                     !device.AccessLevel.IsButtonRequired &&
@@ -329,96 +330,11 @@ namespace HideezMiddleware
             }
         }
 
-        /// <summary>
-        /// Unlock workstation using device with specified mac address
-        /// </summary>
-        /// <exception cref="HideezException" />
-        /// <exception cref="Exception" />
-        //async Task UnlockWorkstation(string mac, SessionSwitchSubject unlockMethod, UserInfo info = null)
-        //{
-        //    try
-        //    {
-        //        IDevice device = await ConnectDevice(mac);
-
-        //        await WaitDeviceInitialization(mac, device);
-
-        //        // No point in reading credentials if CredentialProvider is not connected
-        //        if (!_workstationUnlocker.IsConnected)
-        //            return;
-
-        //        // get info from the HES to check if primary account update is needed
-        //        if (_hesConnection?.State == HesConnectionState.Connected)
-        //        {
-        //            if (info == null)
-        //                info = await _hesConnection.GetInfoByMac(mac);
-
-        //            if (info == null)
-        //                throw new Exception($"Device not found");
-
-        //            await _ui.SendNotification("Waiting for the primary account update...");
-        //            await WaitForPrimaryAccountUpdate(info);
-        //        }
-
-        //        await _ui.SendNotification("Reading credentials from the device...");
-        //        ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
-        //        var credentials = await GetCredentials(device, primaryAccountKey);
-
-        //        SessionSwitchManager.SetEventSubject(unlockMethod, device.SerialNo);
-
-        //        // send credentials to the Credential Provider to unlock the PC
-        //        await _ui.SendNotification("Unlocking the PC...");
-        //        var logonSuccessful = await _workstationUnlocker.SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
-
-        //        if (!logonSuccessful)
-        //            await device.Disconnect();
-
-        //        WriteLine($"UnlockWorkstation result: {logonSuccessful}");
-        //    }
-        //    catch (HideezException ex)
-        //    {
-        //        var message = HideezExceptionLocalization.GetErrorAsString(ex);
-        //        WriteLine(message);
-        //        await _ui.SendNotification("");
-        //        await _ui.SendError(message);
-        //        throw;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        WriteLine(ex);
-        //        await _ui.SendNotification("");
-        //        await _ui.SendError(ex.Message);
-        //        throw;
-        //    }
-        //}
-
-        //async Task WaitForPrimaryAccountUpdate(string rfid, UserInfo info)
-        //{
-        //    if (_hesConnection == null)
-        //        throw new Exception("Cannot update primary account. Not connected to the HES.");
-
-        //    if (info.NeedUpdatePrimaryAccount == false)
-        //        return;
-
-        //    for (int i = 0; i < 10; i++)
-        //    {
-        //        info = await _hesConnection.GetInfoByRfid(rfid);
-        //        if (info.NeedUpdatePrimaryAccount == false)
-        //            return;
-        //        await Task.Delay(3000);
-        //    }
-
-        //    throw new Exception($"Update of the primary account has been timed out");
-        //}
-
         async Task WaitForRemoteDeviceUpdate(string mac) //todo - refactor to use callbacks from server
         {
             if (_hesConnection.State != HesConnectionState.Connected)
                 throw new Exception("Cannot update device. Not connected to the HES.");
 
-            //if (info?.NeedUpdate == false)
-            //    return;
-
-            //var mac = info.DeviceMac;
             DeviceInfoDto info;
             for (int i = 0; i < 10; i++)
             {
@@ -480,9 +396,9 @@ namespace HideezMiddleware
             return credentials;
         }
 
-        async void ActivateWorkstationScreen()
+        void ActivateWorkstationScreen()
         {
-            await Task.Run(() =>
+            Task.Run(() =>
             {
                 try
                 {
