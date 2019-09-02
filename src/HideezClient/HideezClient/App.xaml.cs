@@ -212,7 +212,7 @@ namespace HideezClient
 
         private void OnFirstLaunch()
         {
-            logger.Info("First Hideez Client 3 launch");
+            logger.Info("First Hideez Client launch");
         }
 
         private void InitializeDIContainer()

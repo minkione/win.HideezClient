@@ -118,7 +118,7 @@
                  Guid="{D9A5AE43-23E1-434A-9150-153672919CD9}">
         
         <Shortcut Id="ApplicationStartMenuShortcut"
-                  Name="Hideez Client 3"
+                  Name="Hideez Client"
                   Target="[#HideezClient.exe]"
                   WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
         
@@ -137,7 +137,7 @@
             Root="HKLM" 
             Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run"                                         
             Type="string"
-            Name="Hideez Client 3"
+            Name="Hideez Client"
             Value="[INSTALLFOLDER]HideezClient.exe"/>
     </Component>
   </DirectoryRef>
