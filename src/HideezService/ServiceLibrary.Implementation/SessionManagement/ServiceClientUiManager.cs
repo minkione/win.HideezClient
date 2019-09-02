@@ -141,7 +141,8 @@ namespace ServiceLibrary.Implementation.SessionManagement
 
         public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
+            //throw new NotImplementedException();
         }
     }
 }

@@ -2,10 +2,7 @@
 using HideezClient.Mvvm;
 using NLog;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HideezClient.ViewModels
 {
@@ -37,5 +34,7 @@ namespace HideezClient.ViewModels
         public Version BootloaderVersion => device.BootloaderVersion;
         public uint StorageTotalSize => device.StorageTotalSize;
         public uint StorageFreeSize => device.StorageFreeSize;
+        public bool IsFaulted => device.IsFaulted;
+        public string FaultMessage => device.FaultMessage;
     }
 }
