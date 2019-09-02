@@ -1422,14 +1422,16 @@ namespace WinSampleApp.ViewModel
             if (_getPinWindow != null)
                 return Task.CompletedTask;
 
-            Task.Run(() => 
+            SendError("");
+
+            Task.Run(() =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     if (_getPinWindow == null)
                     {
                         var vm = new GetPinViewModel();
-                        _getPinWindow = new GetPinWindow(vm, (pin, oldPin) => 
+                        _getPinWindow = new GetPinWindow(vm, (pin, oldPin) =>
                         {
                             PinReceived?.Invoke(this, new PinReceivedEventArgs()
                             {
@@ -1455,7 +1457,7 @@ namespace WinSampleApp.ViewModel
             });
 
             SendNotification("");
-            SendError("");
+            //SendError("");
             return Task.CompletedTask;
         }
 

@@ -14,17 +14,15 @@ namespace HideezMiddleware.DeviceConnection
             _connectionFlowProcessor = connectionFlowProcessor;
         }
 
-        public virtual Task ConnectDeviceByMac(string mac)
+        public virtual async Task ConnectDeviceByMac(string mac)
         {
             var connectionTask = _connectionFlowProcessor.ConnectAndUnlock(mac);
             var timeoutNotificationTask = Task.Delay(TIMEOUT_MS);
 
-            Task.WaitAny(connectionTask, timeoutNotificationTask);
+            await Task.WhenAny(connectionTask, timeoutNotificationTask);
 
             if (timeoutNotificationTask.IsCompleted && !connectionTask.IsCompleted)
                 WriteLine($"Device connection not finished after {TIMEOUT_MS} ms", LogErrorSeverity.Error);
-
-            return Task.CompletedTask;
         }
 
     }

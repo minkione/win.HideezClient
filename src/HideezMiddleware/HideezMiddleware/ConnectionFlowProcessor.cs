@@ -67,7 +67,7 @@ namespace HideezMiddleware
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
 
-            bool success = true;
+            bool success = false;
             IDevice device = null;
             try
             {
@@ -99,7 +99,7 @@ namespace HideezMiddleware
                 var showStatusTask = ShowWaitStatus(device, timeout);
                 var pinTask = PinWorkflow(device, timeout);
 
-                Task.WaitAll(showStatusTask, pinTask);
+                await Task.WhenAll(showStatusTask, pinTask);
 
                 if (!device.AccessLevel.IsLocked &&
                     !device.AccessLevel.IsButtonRequired &&
@@ -108,6 +108,8 @@ namespace HideezMiddleware
                 {
                     if (_workstationUnlocker.IsConnected)
                         success = await TryUnlockWorkstation(device);
+                    else
+                        success = true;
                 }
             }
             catch (HideezException ex)
@@ -120,7 +122,6 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
-                success = false;
                 WriteLine(ex);
                 await _ui.SendNotification("");
                 await _ui.SendError(ex.Message);
@@ -144,7 +145,7 @@ namespace HideezMiddleware
             var infoTask = IsNeedUpdateDevice(device);
             var credentialsTask = GetCredentials(device);
 
-            Task.WaitAll(infoTask, credentialsTask);
+            await Task.WhenAll(infoTask, credentialsTask);
 
             var credentials = credentialsTask.Result;
 
