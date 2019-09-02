@@ -24,6 +24,7 @@ namespace HideezMiddleware
 
     public class ConnectionFlowProcessor : Logger
     {
+        const int CONNECT_RETRY_DELAY = 1000;
         readonly BleDeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
         readonly IScreenActivator _screenActivator;
@@ -283,14 +284,25 @@ namespace HideezMiddleware
 
         async Task<IDevice> ConnectDevice(string mac, int tryCount = 2)
         {
-            //todo - handle try count
+            IDevice device = null;
+
             await _ui.SendNotification("Connecting to the device...");
-            var device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
-            if (device == null)
+
+            do
             {
-                await _deviceManager.RemoveByMac(mac);
-                throw new Exception($"Failed to connect device '{mac}'. Please try again.");
+                device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
+                if (device == null)
+                {
+                    await _deviceManager.RemoveByMac(mac);
+                    await _ui.SendNotification("Connection failed. Retrying...");
+                    await Task.Delay(CONNECT_RETRY_DELAY); // Wait one second before trying to connect device again
+                }
             }
+            while (--tryCount > 0 && device == null);
+
+            if (device == null)
+                throw new Exception($"Failed to connect device '{mac}' after {tryCount} attempts. Please try again.");
+
             return device;
         }
 
