@@ -17,11 +17,6 @@ using Hideez.SDK.Communication.WorkstationEvents;
 
 namespace HideezMiddleware
 {
-    public class AccessDeniedAuthException : Exception
-    {
-        public override string Message => "Authorization cancelled: Access denied";
-    }
-
     public class ConnectionFlowProcessor : Logger
     {
         const int CONNECT_RETRY_DELAY = 1000;

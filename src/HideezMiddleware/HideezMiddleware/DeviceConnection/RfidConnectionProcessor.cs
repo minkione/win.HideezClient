@@ -1,21 +1,17 @@
 ﻿using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Log;
-using HideezMiddleware.Settings;
 using System;
-using System.Collections.Concurrent;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection
 {
-    public class RfidConnectionProcessor : BlacklistConnectionProcessor, IDisposable
+    public class RfidConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
         readonly IClientUiManager _clientUiManager;
         readonly HesAppConnection _hesConnection;
         readonly RfidServiceConnection _rfidService;
         readonly IScreenActivator _screenActivator;
-        readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
 
         int _isConnecting = 0;
 
@@ -25,7 +21,6 @@ namespace HideezMiddleware.DeviceConnection
             RfidServiceConnection rfidService, 
             IScreenActivator screenActivator,
             IClientUiManager clientUiManager, 
-            ISettingsManager<UnlockerSettings> unlockerSettingsManager,
             ILog log) 
             : base(connectionFlowProcessor, nameof(RfidConnectionProcessor), log)
         {
@@ -33,12 +28,8 @@ namespace HideezMiddleware.DeviceConnection
             _rfidService = rfidService;
             _screenActivator = screenActivator;
             _clientUiManager = clientUiManager;
-            _unlockerSettingsManager = unlockerSettingsManager;
 
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
-            _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
-
-            SetAccessListFromSettings(_unlockerSettingsManager.Settings);
         }
 
         #region IDisposable
@@ -57,7 +48,6 @@ namespace HideezMiddleware.DeviceConnection
             if (disposing)
             {
                 _rfidService.RfidReceivedEvent -= RfidService_RfidReceivedEvent;
-                _unlockerSettingsManager.SettingsChanged -= UnlockerSettingsManager_SettingsChanged;
             }
 
             disposed = true;
@@ -70,23 +60,6 @@ namespace HideezMiddleware.DeviceConnection
         #endregion
 
         // Todo: Maybe add Start/Stop methods to RfidConnectionProcessor
-
-        void SetAccessListFromSettings(UnlockerSettings settings)
-        {
-            AccessList = settings.DeviceUnlockerSettings
-                .Where(s => s.AllowRfid)
-                .Select(s => new ShortDeviceInfo()
-                {
-                    Mac = s.Mac,
-                    SerialNo = s.SerialNo
-                })
-                .ToList();
-        }
-
-        void UnlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<UnlockerSettings> e)
-        {
-            SetAccessListFromSettings(e.NewSettings);
-        }
 
         async void RfidService_RfidReceivedEvent(object sender, RfidReceivedEventArgs e)
         {
@@ -124,15 +97,11 @@ namespace HideezMiddleware.DeviceConnection
                     }
                 }
             }
-            catch (AccessDeniedAuthException ex)
+            catch (Exception ex)
             {
                 WriteLine(ex);
                 await _clientUiManager.SendNotification("");
                 await _clientUiManager.SendError(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                WriteLine(ex);
             }
         }
 

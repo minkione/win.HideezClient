@@ -34,7 +34,6 @@ namespace ServiceLibrary.Implementation
         static ProximityMonitorManager _proximityMonitorManager;
         static IScreenActivator _screenActivator;
         static WcfDeviceFactory _wcfDeviceManager;
-        static DeviceAccessController _deviceAccessController;
         static EventAggregator _eventAggregator;
         static IWorkstationEventFactory _workstationEventFactory = new WorkstationEventFactory();
         static ServiceClientUiManager _clientProxy;
@@ -133,22 +132,6 @@ namespace ServiceLibrary.Implementation
             // StatusManager =============================
             _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _unlockerSettingsManager, sdkLogger);
 
-
-            // Ignore Workstation Ownership Setting
-            bool ignoreWorkstationOwnershipSecurity = false;
-            try
-            {
-                ignoreWorkstationOwnershipSecurity = GetIgnoreWorkstationOwnershipSecurity();
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
-
-#if DEBUG
-            ignoreWorkstationOwnershipSecurity = true;
-#endif
-
             // ConnectionFlowProcessor
             _connectionFlowProcessor = new ConnectionFlowProcessor(
                 _deviceManager,
@@ -168,14 +151,12 @@ namespace ServiceLibrary.Implementation
                 _rfidService, 
                 _screenActivator, 
                 _uiProxy, 
-                _unlockerSettingsManager, 
                 sdkLogger);
             _tapProcessor = new TapConnectionProcessor(
                 _connectionFlowProcessor,
                 _connectionManager,
                 _screenActivator,
                 _uiProxy,
-                _unlockerSettingsManager,
                 sdkLogger);
             _proximityProcessor = new ProximityConnectionProcessor(
                 _connectionFlowProcessor,
@@ -188,9 +169,6 @@ namespace ServiceLibrary.Implementation
                 _credentialProviderProxy,
                 sdkLogger);
 
-            _tapProcessor.IgnoreAccessList = ignoreWorkstationOwnershipSecurity;
-            _rfidProcessor.IgnoreAccessList = ignoreWorkstationOwnershipSecurity;
-
             // Proximity Monitor ==================================
             UnlockerSettings unlockerSettings = _unlockerSettingsManager.GetSettingsAsync().Result;
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, sdkLogger, unlockerSettings.LockProximity, unlockerSettings.UnlockProximity, unlockerSettings.LockTimeoutSeconds);
@@ -200,17 +178,7 @@ namespace ServiceLibrary.Implementation
 
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_proximityMonitorManager, _workstationLocker, sdkLogger);
-
-            // Device Access Controller ==================================
-            if (ignoreWorkstationOwnershipSecurity)
-            {
-                _log.WriteLine("Device Access Controller is disabled due to workstation ownership options", LogErrorSeverity.Warning);
-            }
-            else
-            {
-                _deviceAccessController = new DeviceAccessController(_unlockerSettingsManager, _deviceManager, _workstationLocker, sdkLogger);
-                _deviceAccessController.Start();
-            }
+        
 
             // Audit Log / Event Aggregator =============================
             _eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
