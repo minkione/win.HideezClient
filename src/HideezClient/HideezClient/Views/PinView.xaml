@@ -1,0 +1,262 @@
+﻿<Metro:MetroWindow
+    x:Class="HideezClient.Views.PinView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:adorners="http://gu.se/Adorners"
+    xmlns:controls="clr-namespace:HideezClient.Controls"
+    xmlns:converters="clr-namespace:HideezClient.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    xmlns:local="clr-namespace:HideezClient.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="clr-namespace:HideezClient.Mvvm"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    Title="{l:Localization AppName}"
+    Width="300"
+    Background="{DynamicResource WindowLeftColumBrush}"
+    Foreground="Black"
+    ResizeMode="NoResize"
+    SizeToContent="Height"
+    TitleCharacterCasing="Normal"
+    WindowStartupLocation="CenterOwner"
+    WindowTitleBrush="{DynamicResource WindowTitleBrush}"
+    mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding CancelCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <StackPanel>
+        <!--  Wait press button  -->
+        <Grid Background="Green">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ButtonState}" Value="ButtonPressed">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <ContentPresenter
+                Width="40"
+                Height="40"
+                Margin="20"
+                VerticalAlignment="Center"
+                Content="{StaticResource HedeezKeySimpleIMG}" />
+            <TextBlock
+                Grid.Column="1"
+                Margin="0,20,20,20"
+                VerticalAlignment="Center"
+                Background="Transparent"
+                Text="{l:Localization Pin.BtnConfirmed}"
+                TextWrapping="WrapWithOverflow" />
+        </Grid>
+
+        <!--  Button presed  -->
+        <Grid Background="Red">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ButtonState}" Value="WaitPressButton">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <ContentPresenter
+                Width="40"
+                Height="40"
+                Margin="20"
+                VerticalAlignment="Center"
+                Content="{StaticResource HedeezKeySimpleIMG}" />
+            <iconPacks:PackIconMaterial
+                Width="30"
+                Height="30"
+                Margin="5,0,0,5"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Foreground="Blue"
+                Kind="GestureTap" />
+            <TextBlock
+                Grid.Column="1"
+                Margin="0,20,20,20"
+                VerticalAlignment="Center"
+                Background="Transparent"
+                Text="{l:Localization Pin.ReqBtnConfirm}"
+                TextWrapping="WrapWithOverflow" />
+        </Grid>
+
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="containerWaitUserAction">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding State}" Value="WaitUserAction">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <!--  PIN code  -->
+            </Grid>
+
+            <!--  Operation in progress  -->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding State}" Value="Progress">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <TextBlock
+                    x:Name="progresLabel"
+                    Grid.Row="0"
+                    HorizontalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Type}" Value="Enter">
+                                    <Setter Property="TextBlock.Text" Value="{l:Localization Pin.VerifyingPIN}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Type}" Value="Set">
+                                    <Setter Property="TextBlock.Text" Value="{l:Localization Pin.SetInProgres}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Type}" Value="Change">
+                                    <Setter Property="TextBlock.Text" Value="{l:Localization Pin.ChangeInProgres}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <Metro:ProgressRing Grid.Row="2" Foreground="White" />
+            </Grid>
+
+            <!--  Successes  -->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding State}" Value="Successful">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <TextBlock Grid.Row="0" HorizontalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Type}" Value="Enter">
+                                    <Setter Property="TextBlock.Text" Value="{l:Localization Pin.ConfirmedPIN}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Type}" Value="Set">
+                                    <Setter Property="TextBlock.Text" Value="{l:Localization Pin.PinSeved}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Type}" Value="Change">
+                                    <Setter Property="TextBlock.Text" Value="{l:Localization Pin.PinChange}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <iconPacks:PackIconFontAwesome
+                    Grid.Row="2"
+                    Width="50"
+                    Height="50"
+                    HorizontalAlignment="Center"
+                    Foreground="Green"
+                    Kind="CheckCircleSolid" />
+
+                <Button
+                    Grid.Row="4"
+                    HorizontalAlignment="Right"
+                    Click="Button_Ok_Click"
+                    Content="{l:Localization Button.Ok}"
+                    IsDefault="True"
+                    Style="{DynamicResource ButtonBlue}" />
+            </Grid>
+
+            <Button
+                Grid.Row="2"
+                HorizontalAlignment="Left"
+                Click="Button_Click"
+                Command="{Binding ConfirmCommand}"
+                CommandParameter="{Binding ElementName=enterPin}"
+                Content="{l:Localization Button.Confirm}"
+                IsDefault="True">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource PinkButton}" TargetType="Button">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding State}" Value="WaitUserAction">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button
+                Grid.Row="2"
+                HorizontalAlignment="Right"
+                Click="Button_Cancel_Click"
+                Content="{l:Localization Button.Cancel}"
+                IsCancel="True">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource ButtonBlue}" TargetType="Button">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding State}" Value="WaitUserAction">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding State}" Value="Progress">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+    </StackPanel>
+</Metro:MetroWindow>

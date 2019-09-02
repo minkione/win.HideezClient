@@ -40,6 +40,7 @@ using Unity.Injection;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
 using HideezClient.Messages;
+using HideezClient.Controls;
 
 namespace HideezClient
 {
@@ -232,6 +233,10 @@ namespace HideezClient
             Container.RegisterType<DevicesExpanderViewModel>();
             Container.RegisterType<AddCredentialViewModel>();
             Container.RegisterType<NotificationsContainerViewModel>();
+            Container.RegisterType<PinNotVerifiedNotificationViewModel>();
+            Container.RegisterType<EnterPinViewModel>();
+            Container.RegisterType<SetPinViewModel>();
+            Container.RegisterType<ChangePinViewModel>();
 
             #endregion ViewModels
 

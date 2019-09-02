@@ -88,7 +88,7 @@ namespace HideezClient.Modules.ActionHandler
 
                 inputCache.CacheInputField();
 
-                if (BeforeCondition())
+                if (BeforeCondition(devicesId))
                 {
                     Account[] accounts = await GetAccountsByAppInfoAsync(currentAppInfo, devicesId);
                     accounts = FilterAccounts(accounts, devicesId);
@@ -145,7 +145,7 @@ namespace HideezClient.Modules.ActionHandler
             return Task.Run(() =>
             {
                 List<Account> accounts = new List<Account>();
-                foreach (var device in deviceManager.Devices.Where(d => d.IsConnected && d.IsInitialized && devicesId.Contains(d.Id)))
+                foreach (var device in deviceManager.Devices.Where(d => d.IsConnected && d.IsInitialized && d.IsVerifiedPin && devicesId.Contains(d.Id)))
                 {
                     accounts.AddRange(device.FindAccountsByApp(appInfo));
                 }
@@ -211,9 +211,22 @@ namespace HideezClient.Modules.ActionHandler
         /// Condition after get AppInfo, cache input fild and before try to input data
         /// </summary>
         /// <returns>Can be input data for this field or application</returns>
-        protected virtual bool BeforeCondition()
+        protected virtual bool BeforeCondition(string[] devicesId)
         {
-            return currentAppInfo != null;
+            if (currentAppInfo != null)
+            {
+                var connectedDevices = deviceManager.Devices.Where(d => d.IsConnected && d.IsInitialized && devicesId.Contains(d.Id)).ToArray();
+                foreach (var device in connectedDevices.Where(d => !d.IsVerifiedPin))
+                {
+                    windowsManager.ShowPinNotVerified(device);
+                }
+
+                return connectedDevices.Where(d => d.IsVerifiedPin).Any();
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>

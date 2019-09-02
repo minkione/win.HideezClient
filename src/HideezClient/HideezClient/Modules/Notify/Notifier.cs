@@ -1,6 +1,7 @@
 ﻿using HideezClient.Controls;
 using HideezClient.Models;
 using HideezClient.Modules.ActionHandler;
+using HideezClient.Mvvm;
 using HideezClient.Utilities;
 using HideezClient.ViewModels;
 using HideezClient.Views;
@@ -51,8 +52,7 @@ namespace HideezClient.Modules
 
         private void ShowSimpleNotification(string title, string message, NotificationOptions options, SimpleNotificationType notificationType)
         {
-            IntPtr foregroundWindow = Win32Helper.GetForegroundWindow();
-            Screen screen = Screen.FromHandle(foregroundWindow);
+            Screen screen = GetCurrentScreen();
             SimpleNotification notification = new SimpleNotification(options ?? new NotificationOptions(), notificationType)
             {
                 DataContext = new SimpleNotificationViewModel { Title = title, Message = message, }
@@ -134,6 +134,69 @@ namespace HideezClient.Modules
         {
             // Because this is a static event, you must detach your event handlers when your application is disposed.
             SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
+        }
+
+        private static HashSet<string> viewLoadingCredentialsForDevices = new HashSet<string>();
+        public void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel)
+        {
+            if (!viewLoadingCredentialsForDevices.Contains(viewModel.DeviceSN))
+            {
+                viewLoadingCredentialsForDevices.Add(viewModel.DeviceSN);
+                Screen screen = GetCurrentScreen();
+                NotificationOptions options = new NotificationOptions
+                {
+                    CloseTimeout = TimeSpan.Zero,
+                };
+
+                CredentialsLoadNotification notification = null;
+                notification = new CredentialsLoadNotification(options);
+                notification.DataContext = viewModel;
+                AddNotification(screen, notification);
+
+                notification.Closed += (sender, e) => viewLoadingCredentialsForDevices.Remove(viewModel.DeviceSN);
+            }
+        }
+
+        private static Dictionary<string, Guid> pinNotVerifiedForDevices = new Dictionary<string, Guid>();
+        public void ShowPinNotVerified(Device device)
+        {
+            if (!pinNotVerifiedForDevices.Keys.Contains(device.SerialNo))
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    Screen screen = GetCurrentScreen();
+                    PinNotVerifiedNotification notification = new PinNotVerifiedNotification(new NotificationOptions { SetFocus = true });
+                    if (notification.DataContext is PinNotVerifiedNotificationViewModel viewModel)
+                    {
+                        viewModel.Device = device;
+                        notification.Closed += (sender, e) => pinNotVerifiedForDevices.Remove(device.SerialNo);
+                        AddNotification(screen, notification);
+                        pinNotVerifiedForDevices.Add(device.SerialNo, viewModel.ID);
+                    }
+                });
+            }
+            else
+            {
+                GetNotifications(pinNotVerifiedForDevices[device.SerialNo]).ToList().ForEach(n => n.ResetCloseTimer());
+            }
+        }
+
+        private Screen GetCurrentScreen()
+        {
+            IntPtr foregroundWindow = Win32Helper.GetForegroundWindow();
+            Screen screen = Screen.FromHandle(foregroundWindow);
+            return screen;
+        }
+
+        public IEnumerable<NotificationBase> GetNotifications(Guid id)
+        {
+            return windowsForNotifications.Values.OfType<NotificationsContainerViewModel>()
+                .SelectMany(vm => vm.Items.Where(nb => (nb.DataContext as IRequireViewIdentification)?.ID == id));
+        }
+
+        public void CloseNotifications(Guid id)
+        {
+            GetNotifications(id).ToList().ForEach(n => n.Close());
         }
     }
 }

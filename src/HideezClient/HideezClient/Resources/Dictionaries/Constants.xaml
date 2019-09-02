@@ -19,7 +19,9 @@
         <GradientStop Offset="1" Color="#43C7D9" />
         <GradientStop Offset="0" Color="#0E5F93" />
     </LinearGradientBrush>
-
+    
+    <SolidColorBrush x:Key="ErrorBorderBrush">Red</SolidColorBrush>
+    
     <Color x:Key="Pink">#FC3085</Color>
     <Color x:Key="LightPink">#FB679B</Color>
     <Color x:Key="DarkPink">#BB255C</Color>

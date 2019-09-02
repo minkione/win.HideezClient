@@ -212,18 +212,44 @@
     <Compile Include="Controls\Notification\AccountSelector\AccountSelectorViewModel.cs" />
     <Compile Include="Controls\Notification\AccountSelector\AccountViewModel.cs" />
     <Compile Include="Controls\Notification\IconType.cs" />
+    <Compile Include="Controls\Notification\ViewModel\CredentialsLoadNotificationViewModel.cs" />
+    <Compile Include="Controls\Notification\ViewModel\PinNotVerifiedNotificationViewModel.cs" />
+    <Compile Include="Controls\Notification\ViewModel\SimpleNotificationViewModel.cs" />
+    <Compile Include="Controls\Notification\View\CredentialsLoadNotification.xaml.cs">
+      <DependentUpon>CredentialsLoadNotification.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Notification\View\PinNotVerifiedNotification.xaml.cs">
+      <DependentUpon>PinNotVerifiedNotification.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Notification\View\SimpleNotification.xaml.cs">
+      <DependentUpon>SimpleNotification.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PIN\ChangePin.xaml.cs">
+      <DependentUpon>ChangePin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PIN\EnterPin.xaml.cs">
+      <DependentUpon>EnterPin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PIN\SetPin.xaml.cs">
+      <DependentUpon>SetPin.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\BooleanToVisibilityCollapsedConverter.cs" />
+    <Compile Include="Converters\FormatStringConverter.cs" />
     <Compile Include="Converters\LowBatteryIndicatorVisibilityConverter.cs" />
     <Compile Include="Converters\NullToVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Converters\ProximityToOpacityConverter.cs" />
     <Compile Include="Converters\SerialNoAndFirmwareVerFormater.cs" />
     <Compile Include="Converters\StringToResource.cs" />
-    <Compile Include="Exception\HIdeezClientException.cs" />
+    <Compile Include="Exception\HideezClientException.cs" />
+    <Compile Include="Extension\SecureStringExtension.cs" />
     <Compile Include="Extension\TaskExtension.cs" />
     <Compile Include="Messages\ActivateScreenMessage.cs" />
     <Compile Include="Messages\ButtonPressedMessage.cs" />
     <Compile Include="Messages\ConnectionChangedMessage.cs" />
+    <Compile Include="Messages\ConnectionDongleChangedMessage.cs" />
+    <Compile Include="Messages\ConnectionHESChangedMessage.cs" />
+    <Compile Include="Messages\ConnectionRFIDChangedMessage.cs" />
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
     <Compile Include="Messages\DeviceConnectionStateChangedMessage.cs" />
     <Compile Include="Messages\DeviceInitializedMessage.cs" />
@@ -259,7 +285,6 @@
     <Compile Include="Modules\ActionHandler\UserActionHandler.cs" />
     <Compile Include="Modules\DeviceManager\DeviceManager.cs" />
     <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
-    <Compile Include="Modules\Exception\HideezClientException.cs" />
     <Compile Include="Controls\Notification\NotificationBase.cs" />
     <Compile Include="Modules\Notify\INotifier.cs" />
     <Compile Include="Modules\Notify\NotificationOptions.cs" />
@@ -272,23 +297,29 @@
     <Compile Include="Modules\SettingsManager\HSSettingsManager.cs" />
     <Compile Include="Modules\WorkstationEvent\EventAggregator.cs" />
     <Compile Include="Modules\WorkstationEvent\IEventAggregator.cs" />
+    <Compile Include="Mvvm\BindingRaiseevent.cs" />
+    <Compile Include="Mvvm\IRequireViewIdentification.cs" />
+    <Compile Include="Mvvm\LocalizedObject.cs" />
+    <Compile Include="Mvvm\ObservableObject.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
+    <Compile Include="Utilities\PasswordHelper.cs" />
     <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
-    <Compile Include="ViewModels\DeviceViewModelBase.cs" />
+    <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Notification\NotificationsContainerViewModel.cs" />
+    <Compile Include="ViewModels\PIN\ChangePinViewModal.cs" />
+    <Compile Include="ViewModels\PIN\EnterPinViewModel.cs" />
+    <Compile Include="ViewModels\PIN\PinViewModalBase.cs" />
+    <Compile Include="ViewModels\PIN\SetPinViewModal.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="Views\AboutDeviceView.xaml.cs">
       <DependentUpon>AboutDeviceView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\DeviceLockedView.xaml.cs" />
     <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
       <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Notification\SimpleNotification.xaml.cs">
-      <DependentUpon>SimpleNotification.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\Notification\SimpleNotificationViewModel.cs" />
     <Compile Include="Modules\SessionStateMonitor\ISessionStateMonitor.cs" />
     <Compile Include="Modules\SessionStateMonitor\SessionStateMonitor.cs" />
     <Compile Include="Modules\SupportMailContentGenerator\ISupportMailContentGenerator.cs" />
@@ -303,6 +334,7 @@
     <Compile Include="Views\AddCredentialView.xaml.cs">
       <DependentUpon>AddCredentialView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\PinView.xaml.cs" />
     <Compile Include="Views\SimpleMainView.xaml.cs">
       <DependentUpon>SimpleMainView.xaml</DependentUpon>
     </Compile>
@@ -326,6 +358,30 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\Notification\View\CredentialsLoadNotification.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\Notification\View\PinNotVerifiedNotification.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\Notification\View\SimpleNotification.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\PIN\ChangePin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\PIN\EnterPin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\PIN\SetPin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\StateControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -338,11 +394,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\NotificationsContainerWindow.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="Views\DeviceLockedView.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\Notification\SimpleNotification.xaml">
+    <Page Include="Views\NotificationsContainerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -427,11 +483,9 @@
     <Compile Include="Modules\TaskbarIconManager\ITaskbarIconManager.cs" />
     <Compile Include="Modules\TaskbarIconManager\TaskbarIconDataSource.cs" />
     <Compile Include="Modules\TaskbarIconManager\TaskbarIconManager.cs" />
-    <Compile Include="Mvvm\LocalizedObject.cs" />
     <Compile Include="Modules\Localize\TranslationSource.cs" />
     <Compile Include="Modules\WindowsManager\IWindowsManager.cs" />
     <Compile Include="Modules\WindowsManager\WindowsManager.cs" />
-    <Compile Include="Mvvm\ObservableObject.cs" />
     <Compile Include="PagesView\LockSettingsPage.xaml.cs">
       <DependentUpon>LockSettingsPage.xaml</DependentUpon>
     </Compile>
@@ -447,7 +501,7 @@
     <Compile Include="Models\Settings\ApplicationSettings.cs" />
     <Compile Include="Utilities\Constants.cs" />
     <Compile Include="Utilities\Win32Helper.cs" />
-    <Compile Include="ViewModels\Controls\DeviceViewModel.cs" />
+    <Compile Include="ViewModels\Controls\DeviceForExpanderViewModel.cs" />
     <Compile Include="ViewModels\Taskbar\LanguageMenuItemViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\Taskbar\MenuItemViewModel.cs" />
@@ -457,6 +511,10 @@
       <DependentUpon>MainWindowView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\PinView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\SimpleMainView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -484,7 +542,9 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Strings.ru.resx" />
-    <EmbeddedResource Include="Resources\Strings.uk.resx" />
+    <EmbeddedResource Include="Resources\Strings.uk.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <None Include="app.manifest" />
     <None Include="Connected Services\HideezServiceReference\configuration91.svcinfo" />
     <None Include="Connected Services\HideezServiceReference\configuration.svcinfo" />
