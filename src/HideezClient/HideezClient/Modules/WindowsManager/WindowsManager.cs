@@ -284,7 +284,6 @@ namespace HideezClient.Modules
             SetPinViewModel viewModel = viewModelLocator.SetPinViewModel;
             viewModel.Device = device;
             viewModel.State = ViewPinState.WaitUserAction;
-            viewModel.ButtonState = ConfirmButtonState.None;
             ShowPinViewAsync(viewModel);
         }
 
@@ -293,7 +292,6 @@ namespace HideezClient.Modules
             ChangePinViewModel viewModel = viewModelLocator.ChangePinViewModel;
             viewModel.Device = device;
             viewModel.State = ViewPinState.WaitUserAction;
-            viewModel.ButtonState = ConfirmButtonState.None;
             ShowPinViewAsync(viewModel);
         }
 

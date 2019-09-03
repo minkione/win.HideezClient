@@ -56,6 +56,7 @@ namespace HideezClient
         private IServiceWatchdog serviceWatchdog;
         private IDeviceManager deviceManager;
         private IHotkeyManager hotkeyManager;
+        private IPinHelper pinHelper;
 
         public static IUnityContainer Container { get; private set; }
 
@@ -173,6 +174,8 @@ namespace HideezClient
             hotkeyManager = Container.Resolve<IHotkeyManager>();
             hotkeyManager.Enabled = true;
 
+            pinHelper = Container.Resolve<IPinHelper>();
+
             if (settings.IsFirstLaunch)
             {
                 OnFirstLaunch();
@@ -256,6 +259,7 @@ namespace HideezClient
             Container.RegisterType<ISessionStateMonitor, SessionStateMonitor>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ISupportMailContentGenerator, SupportMailContentGenerator>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IPinHelper, PinHelper>(new ContainerControlledLifetimeManager());
 
             // Settings
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()

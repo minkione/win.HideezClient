@@ -26,6 +26,10 @@ namespace HideezServiceHost
         {
         }
 
+        public void HidePinUi()
+        {
+        }
+
         public void LockWorkstationRequest()
         {
         }
@@ -51,6 +55,10 @@ namespace HideezServiceHost
         }
 
         public void ServiceNotificationReceived(string message)
+        {
+        }
+
+        public void ShowPinUi(string deviceId, bool withConfirm, bool askOldPin)
         {
         }
     }

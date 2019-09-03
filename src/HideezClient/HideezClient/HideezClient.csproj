@@ -255,6 +255,7 @@
     <Compile Include="Messages\DeviceInitializedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
+    <Compile Include="Messages\HidePinUiMessage.cs" />
     <Compile Include="Messages\HotkeyPressedMessage.cs" />
     <Compile Include="Messages\HotkeyStateChangedMessage.cs" />
     <Compile Include="Messages\LockWorkstationMessage.cs" />
@@ -266,6 +267,7 @@
     <Compile Include="Messages\ServiceErrorReceivedMessage.cs" />
     <Compile Include="Messages\ServiceNotificationReceivedMessage.cs" />
     <Compile Include="Messages\SettingsChangedMessage.cs" />
+    <Compile Include="Messages\ShowPinUiMessage.cs" />
     <Compile Include="Models\Device.cs" />
     <Compile Include="Models\Account.cs" />
     <Compile Include="Modules\AccountManager\AccountExtensions.cs" />
@@ -290,6 +292,8 @@
     <Compile Include="Modules\Notify\NotificationOptions.cs" />
     <Compile Include="Modules\Notify\NotificationPosition.cs" />
     <Compile Include="Modules\Notify\Notifier.cs" />
+    <Compile Include="Modules\PinHelper\IPinHelper.cs" />
+    <Compile Include="Modules\PinHelper\PinHelper.cs" />
     <Compile Include="Modules\Remote\IRemoteDeviceFactory.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceCommands.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceEvents.cs" />

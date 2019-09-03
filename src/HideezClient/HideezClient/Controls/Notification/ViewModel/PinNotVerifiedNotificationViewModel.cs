@@ -54,7 +54,6 @@ namespace HideezClient.Controls
                         EnterPinViewModel viewModel = viewModelLocator.EnterPinViewModel;
                         viewModel.Device = Device;
                         viewModel.State = ViewPinState.WaitUserAction;
-                        viewModel.ButtonState = ConfirmButtonState.None;
                         windowsManager.ShowDialogEnterPinAsync(viewModel);
                     }
                 };

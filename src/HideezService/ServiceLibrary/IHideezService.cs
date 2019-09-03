@@ -1,5 +1,4 @@
-﻿using Hideez.SDK.Communication;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary
@@ -56,6 +55,13 @@ namespace ServiceLibrary
         [FaultContract(typeof(HideezServiceFault))]
         void PublishEvent(WorkstationEventDTO workstationEvent);
 
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void SendPin(string deviceId, byte[] pin, byte[] oldPin);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void CancelPin();
     }
 
     public interface ICallbacks
@@ -77,6 +83,7 @@ namespace ServiceLibrary
         void ServiceErrorReceived(string error);
 
 
+
         [OperationContract(IsOneWay = true)]
         void DevicesCollectionChanged(DeviceDTO[] devices);
 
@@ -86,6 +93,7 @@ namespace ServiceLibrary
         [OperationContract(IsOneWay = true)]
         void DeviceInitialized(DeviceDTO device);
 
+
         [OperationContract(IsOneWay = true)]
         void RemoteConnection_RssiReceived(string serialNo, double rssi);
 
@@ -94,6 +102,13 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void RemoteConnection_StorageModified(string serialNo);
+
+
+        [OperationContract(IsOneWay = true)]
+        void ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);
+
+        [OperationContract(IsOneWay = true)]
+        void HidePinUi();
     }
 
     public enum Adapter

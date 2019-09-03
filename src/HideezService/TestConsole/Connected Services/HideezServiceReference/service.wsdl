@@ -149,6 +149,24 @@
   <wsdl:message name="IHideezService_PublishEvent_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q12="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q12:HideezServiceFault" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_SendPin_InputMessage">
+    <wsdl:part name="parameters" element="tns:SendPin" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_SendPin_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SendPinResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_SendPin_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q13="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q13:HideezServiceFault" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_CancelPin_InputMessage">
+    <wsdl:part name="parameters" element="tns:CancelPin" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_CancelPin_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CancelPinResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_CancelPin_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q14="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q14:HideezServiceFault" />
+  </wsdl:message>
   <wsdl:message name="IHideezService_LockWorkstationRequest_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:LockWorkstationRequest" />
   </wsdl:message>
@@ -181,6 +199,12 @@
   </wsdl:message>
   <wsdl:message name="IHideezService_RemoteConnection_StorageModified_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:RemoteConnection_StorageModified" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_ShowPinUi_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ShowPinUi" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_HidePinUi_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:HidePinUi" />
   </wsdl:message>
   <wsdl:portType msc:usingSession="true" name="IHideezService">
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AttachClient">
@@ -243,6 +267,16 @@
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/PublishEventResponse" message="tns:IHideezService_PublishEvent_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/PublishEventHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_PublishEvent_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SendPin">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/SendPin" message="tns:IHideezService_SendPin_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/SendPinResponse" message="tns:IHideezService_SendPin_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/SendPinHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_SendPin_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="CancelPin">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/CancelPin" message="tns:IHideezService_CancelPin_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/CancelPinResponse" message="tns:IHideezService_CancelPin_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/CancelPinHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_CancelPin_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="LockWorkstationRequest">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/LockWorkstationRequest" message="tns:IHideezService_LockWorkstationRequest_OutputCallbackMessage" />
     </wsdl:operation>
@@ -275,6 +309,12 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_StorageModified">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_StorageModified" message="tns:IHideezService_RemoteConnection_StorageModified_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ShowPinUi">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ShowPinUi" message="tns:IHideezService_ShowPinUi_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="HidePinUi">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/HidePinUi" message="tns:IHideezService_HidePinUi_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetNamedPipeBinding_IHideezService" type="tns:IHideezService">
@@ -425,6 +465,30 @@
         <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
+    <wsdl:operation name="SendPin">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/SendPin" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="CancelPin">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/CancelPin" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
     <wsdl:operation name="LockWorkstationRequest">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/LockWorkstationRequest" style="document" />
       <wsdl:output>
@@ -487,6 +551,18 @@
     </wsdl:operation>
     <wsdl:operation name="RemoteConnection_StorageModified">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_StorageModified" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ShowPinUi">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/ShowPinUi" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HidePinUi">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/HidePinUi" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

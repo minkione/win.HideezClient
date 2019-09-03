@@ -200,5 +200,31 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
                 log.Error(ex);
             }
         }
+
+        public void ShowPinUi(string deviceId, bool withConfirm, bool askOldPin)
+        {
+            try
+            {
+                log.Info($"Show pin ui message for ({deviceId}; confirm: {withConfirm}; old pin: {askOldPin})");
+                messenger.Send(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
+        public void HidePinUi()
+        {
+            try
+            {
+                log.Info($"Hide pin ui message");
+                messenger.Send(new HidePinUiMessage());
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
     }
 }

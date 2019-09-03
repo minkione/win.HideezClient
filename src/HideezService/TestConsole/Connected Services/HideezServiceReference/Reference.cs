@@ -637,6 +637,20 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/PublishEvent", ReplyAction="http://tempuri.org/IHideezService/PublishEventResponse")]
         System.Threading.Tasks.Task PublishEventAsync(TestConsole.HideezServiceReference.WorkstationEventDTO workstationEvent);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SendPin", ReplyAction="http://tempuri.org/IHideezService/SendPinResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/SendPinHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void SendPin(string deviceId, byte[] pin, byte[] oldPin);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SendPin", ReplyAction="http://tempuri.org/IHideezService/SendPinResponse")]
+        System.Threading.Tasks.Task SendPinAsync(string deviceId, byte[] pin, byte[] oldPin);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/CancelPin", ReplyAction="http://tempuri.org/IHideezService/CancelPinResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/CancelPinHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void CancelPin();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/CancelPin", ReplyAction="http://tempuri.org/IHideezService/CancelPinResponse")]
+        System.Threading.Tasks.Task CancelPinAsync();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -674,6 +688,12 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_StorageModified")]
         void RemoteConnection_StorageModified(string serialNo);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ShowPinUi")]
+        void ShowPinUi(string deviceId, bool withConfirm, bool askOldPin);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HidePinUi")]
+        void HidePinUi();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -798,6 +818,22 @@ namespace TestConsole.HideezServiceReference {
         
         public System.Threading.Tasks.Task PublishEventAsync(TestConsole.HideezServiceReference.WorkstationEventDTO workstationEvent) {
             return base.Channel.PublishEventAsync(workstationEvent);
+        }
+        
+        public void SendPin(string deviceId, byte[] pin, byte[] oldPin) {
+            base.Channel.SendPin(deviceId, pin, oldPin);
+        }
+        
+        public System.Threading.Tasks.Task SendPinAsync(string deviceId, byte[] pin, byte[] oldPin) {
+            return base.Channel.SendPinAsync(deviceId, pin, oldPin);
+        }
+        
+        public void CancelPin() {
+            base.Channel.CancelPin();
+        }
+        
+        public System.Threading.Tasks.Task CancelPinAsync() {
+            return base.Channel.CancelPinAsync();
         }
     }
 }

@@ -46,6 +46,7 @@ namespace HideezMiddleware
 
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
+        public event EventHandler<EventArgs> PinCancelled;
 
         public bool IsConnected => _pipeServer.IsConnected;
 

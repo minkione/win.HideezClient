@@ -21,6 +21,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HideezMiddleware.DeviceConnection;
 using Hideez.SDK.Communication;
+using System.Text;
 
 namespace ServiceLibrary.Implementation
 {
@@ -708,6 +709,35 @@ namespace ServiceLibrary.Implementation
             {
                 Error(ex);
                 ThrowException(ex);
+            }
+        }
+        #endregion
+
+        #region PIN
+        public void SendPin(string deviceId, byte[] pin, byte[] oldPin)
+        {
+            try
+            {
+                var s_pin = Encoding.UTF8.GetString(pin);
+                var s_oldPin = Encoding.UTF8.GetString(oldPin);
+
+                _clientProxy.EnterPin(deviceId, s_pin, s_oldPin);
+            }
+            catch (Exception ex)
+            {
+                _log.WriteDebugLine(ex);
+            }
+        }
+
+        public void CancelPin()
+        {
+            try
+            {
+                _clientProxy.CancelPin();
+            }
+            catch (Exception ex)
+            {
+                _log.WriteDebugLine(ex);
             }
         }
         #endregion

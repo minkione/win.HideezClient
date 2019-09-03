@@ -80,5 +80,15 @@ namespace ServiceLibrary
         {
             throw new NotImplementedException();
         }
+
+        public void SendPin(string deviceId, byte[] pin, byte[] oldPin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CancelPin()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
