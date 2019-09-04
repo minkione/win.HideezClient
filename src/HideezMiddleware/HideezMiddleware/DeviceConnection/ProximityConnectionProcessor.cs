@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
@@ -23,7 +24,7 @@ namespace HideezMiddleware.DeviceConnection
         readonly IBleConnectionManager _bleConnectionManager;
         readonly IScreenActivator _screenActivator;
         readonly IClientUiManager _clientUiManager;
-        readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
+        readonly ISettingsManager<ProximitySettings> _proximitySettingsManager;
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly BleDeviceManager _bleDeviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
@@ -37,7 +38,7 @@ namespace HideezMiddleware.DeviceConnection
             IBleConnectionManager bleConnectionManager,
             IScreenActivator screenActivator,
             IClientUiManager clientUi,
-            ISettingsManager<UnlockerSettings> unlockerSettingsManager,
+            ISettingsManager<ProximitySettings> proximitySettingsManager,
             AdvertisementIgnoreList advIgnoreListMonitor,
             BleDeviceManager bleDeviceManager,
             IWorkstationUnlocker workstationUnlocker,
@@ -47,15 +48,15 @@ namespace HideezMiddleware.DeviceConnection
             _bleConnectionManager = bleConnectionManager;
             _screenActivator = screenActivator;
             _clientUiManager = clientUi;
-            _unlockerSettingsManager = unlockerSettingsManager;
+            _proximitySettingsManager = proximitySettingsManager;
             _advIgnoreListMonitor = advIgnoreListMonitor;
             _bleDeviceManager = bleDeviceManager;
             _workstationUnlocker = workstationUnlocker;
             
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
-            _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
+            _proximitySettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
 
-            SetAccessListFromSettings(_unlockerSettingsManager.Settings);
+            SetAccessListFromSettings(_proximitySettingsManager.Settings);
         }
 
         #region IDisposable
@@ -74,7 +75,7 @@ namespace HideezMiddleware.DeviceConnection
             if (disposing)
             {
                 _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
-                _unlockerSettingsManager.SettingsChanged -= UnlockerSettingsManager_SettingsChanged;
+                _proximitySettingsManager.SettingsChanged -= UnlockerSettingsManager_SettingsChanged;
             }
 
             disposed = true;
@@ -88,15 +89,12 @@ namespace HideezMiddleware.DeviceConnection
 
         // Todo: Maybe add Start/Stop methods to TapConnectionProcessor
 
-        void SetAccessListFromSettings(UnlockerSettings settings)
+        void SetAccessListFromSettings(ProximitySettings settings)
         {
-            MacListToConnect = settings.DeviceUnlockerSettings
-                .Where(s => s.AllowProximity)
-                .Select(s => s.Mac)
-                .ToList();
+            MacListToConnect = settings.DevicesProximity.Select(s => s.Mac).ToList();
         }
 
-        void UnlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<UnlockerSettings> e)
+        void UnlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
         {
             SetAccessListFromSettings(e.NewSettings);
         }
@@ -125,7 +123,8 @@ namespace HideezMiddleware.DeviceConnection
                 return;
 
             var proximity = BleUtils.RssiToProximity(adv.Rssi);
-            if (proximity < _unlockerSettingsManager.Settings.UnlockProximity)
+            var settings = _proximitySettingsManager.Settings.GetProximitySettings(mac);
+            if (proximity < settings.UnlockProximity)
                 return;
 
             if (_advIgnoreListMonitor.IsIgnored(mac))

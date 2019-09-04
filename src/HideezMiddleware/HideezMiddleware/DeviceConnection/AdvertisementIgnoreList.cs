@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Utils;
@@ -14,7 +15,7 @@ namespace HideezMiddleware.DeviceConnection
 
         readonly IBleConnectionManager _bleConnectionManager;
         readonly BleDeviceManager _bleDeviceManager;
-        readonly ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
+        readonly ISettingsManager<ProximitySettings> _proximitySettingsManager;
 
         readonly List<string> _ignoreList = new List<string>();
         readonly Dictionary<string, DateTime> _lastAdvRecTime = new Dictionary<string, DateTime>();
@@ -23,13 +24,13 @@ namespace HideezMiddleware.DeviceConnection
         public AdvertisementIgnoreList(
             IBleConnectionManager bleConnectionManager,
             BleDeviceManager bleDeviceManager,
-            ISettingsManager<UnlockerSettings> unlockerSettingsManager,
-            ILog log) 
+            ISettingsManager<ProximitySettings> proximitySettingsManager,
+            ILog log)
             : base(nameof(AdvertisementIgnoreList), log)
         {
             _bleConnectionManager = bleConnectionManager;
             _bleDeviceManager = bleDeviceManager;
-            _unlockerSettingsManager = unlockerSettingsManager;
+            _proximitySettingsManager = proximitySettingsManager;
 
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
         }
@@ -54,7 +55,7 @@ namespace HideezMiddleware.DeviceConnection
 
             disposed = true;
         }
-        
+
         ~AdvertisementIgnoreList()
         {
             Dispose(false);
@@ -85,7 +86,7 @@ namespace HideezMiddleware.DeviceConnection
 
         public bool IsIgnored(string mac)
         {
-            lock(_lock)
+            lock (_lock)
             {
                 // Remove MAC's from ignore list if we did not receive an advertisement from them in MAC_IGNORELIST_TIMEOUT_SECONDS seconds
                 _ignoreList.RemoveAll(m => (DateTime.UtcNow - _lastAdvRecTime[m]).Seconds >= MAC_IGNORELIST_TIMEOUT_SECONDS);
@@ -96,14 +97,15 @@ namespace HideezMiddleware.DeviceConnection
 
         void BleConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
-            lock(_lock)
+            lock (_lock)
             {
                 var mac = MacUtils.GetMacFromShortMac(e.Id);
                 if (_ignoreList.Any(m => m == mac))
                 {
                     var proximity = BleUtils.RssiToProximity(e.Rssi);
 
-                    if (proximity <= _unlockerSettingsManager.Settings.LockProximity)
+                    var settings = _proximitySettingsManager.Settings.GetProximitySettings(mac);
+                    if (proximity <= settings.LockProximity)
                         _ignoreList.Remove(mac);
                     else
                         _lastAdvRecTime[mac] = DateTime.UtcNow;

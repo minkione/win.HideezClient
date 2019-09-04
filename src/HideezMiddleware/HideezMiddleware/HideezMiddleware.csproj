@@ -78,7 +78,6 @@
       <Link>Version.cs</Link>
     </Compile>
     <Compile Include="CredentialProviderProxy.cs" />
-    <Compile Include="DeviceAccessController.cs" />
     <Compile Include="DeviceConnection\AdvertisementIgnoreList.cs" />
     <Compile Include="DeviceConnection\BaseConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\ProximityConnectionProcessor.cs" />
@@ -97,7 +96,7 @@
     <Compile Include="Modules\Settings\SettingAttribute.cs" />
     <Compile Include="Modules\Settings\Manager\SettingsManager.cs" />
     <Compile Include="Modules\Settings\FileSerializer\XmlFileSerializer.cs" />
-    <Compile Include="Modules\Settings\UnlockerSettings.cs" />
+    <Compile Include="Modules\Settings\ProximitySettings.cs" />
     <Compile Include="Modules\WorkstationEventFactory\WorkstationEventFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\ErrorCode.Designer.cs" />

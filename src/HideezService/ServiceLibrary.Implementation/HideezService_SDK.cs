@@ -43,7 +43,7 @@ namespace ServiceLibrary.Implementation
         static WcfWorkstationLocker _workstationLocker;
         static WorkstationLockProcessor _workstationLockProcessor;
 
-        static ISettingsManager<UnlockerSettings> _unlockerSettingsManager;
+        static ISettingsManager<ProximitySettings> _proximitySettingsManager;
 
         static ConnectionFlowProcessor _connectionFlowProcessor;
         static AdvertisementIgnoreList _advIgnoreList;
@@ -95,10 +95,10 @@ namespace ServiceLibrary.Implementation
             {
                 Directory.CreateDirectory(settingsDirectory);
             }
-            string ulockerSettingsPath = Path.Combine(settingsDirectory, "Unlocker.xml");
+            string proximitySettingsPath = Path.Combine(settingsDirectory, "Proximity.xml");
             IFileSerializer fileSerializer = new XmlFileSerializer(sdkLogger);
-            _unlockerSettingsManager = new SettingsManager<UnlockerSettings>(ulockerSettingsPath, fileSerializer);
-            _unlockerSettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
+            _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
+            _proximitySettingsManager.SettingsChanged += ProximitySettingsManager_SettingsChanged;
 
             // Get HES address from registry ==================================
             // HKLM\SOFTWARE\Hideez\Client, client_hes_address REG_SZ
@@ -118,7 +118,18 @@ namespace ServiceLibrary.Implementation
 
             // HES Connection ==================================
             _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, sdkLogger);
-            _hesConnection.HubSettingsArrived += (sender, settings) => _unlockerSettingsManager.SaveSettings(new UnlockerSettings(settings));
+            _hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
+            {
+                ProximitySettings settings = await _proximitySettingsManager.GetSettingsAsync();
+                settings.DevicesProximity = receivedSettings.ToArray();
+                _proximitySettingsManager.SaveSettings(settings);
+            };
+            _hesConnection.HubRFIDIndicatorStateArrived += async (sender, isEnabled) =>
+            {
+                ProximitySettings settings = await _proximitySettingsManager.GetSettingsAsync();
+                settings.IsRFIDIndicatorEnabled = isEnabled;
+                _proximitySettingsManager.SaveSettings(settings);
+            };
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
 
             // ScreenActivator ==================================
@@ -131,7 +142,7 @@ namespace ServiceLibrary.Implementation
             _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, sdkLogger);
 
             // StatusManager =============================
-            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _unlockerSettingsManager, sdkLogger);
+            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _proximitySettingsManager, sdkLogger);
 
             // ConnectionFlowProcessor
             _connectionFlowProcessor = new ConnectionFlowProcessor(
@@ -144,14 +155,14 @@ namespace ServiceLibrary.Implementation
             _advIgnoreList = new AdvertisementIgnoreList(
                 _connectionManager,
                 _deviceManager,
-                _unlockerSettingsManager,
+                _proximitySettingsManager,
                 sdkLogger);
             _rfidProcessor = new RfidConnectionProcessor(
-                _connectionFlowProcessor, 
-                _hesConnection, 
-                _rfidService, 
-                _screenActivator, 
-                _uiProxy, 
+                _connectionFlowProcessor,
+                _hesConnection,
+                _rfidService,
+                _screenActivator,
+                _uiProxy,
                 sdkLogger);
             _tapProcessor = new TapConnectionProcessor(
                 _connectionFlowProcessor,
@@ -164,29 +175,29 @@ namespace ServiceLibrary.Implementation
                 _connectionManager,
                 _screenActivator,
                 _uiProxy,
-                _unlockerSettingsManager,
+                _proximitySettingsManager,
                 _advIgnoreList,
                 _deviceManager,
                 _credentialProviderProxy,
                 sdkLogger);
 
             // Proximity Monitor ==================================
-            UnlockerSettings unlockerSettings = _unlockerSettingsManager.GetSettingsAsync().Result;
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, sdkLogger, unlockerSettings.LockProximity, unlockerSettings.UnlockProximity, unlockerSettings.LockTimeoutSeconds);
+            ProximitySettings proximitySettings = _proximitySettingsManager.GetSettingsAsync().Result;
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, sdkLogger, proximitySettings.DevicesProximity);
 
             // WorkstationLocker ==================================
             _workstationLocker = new WcfWorkstationLocker(SessionManager, sdkLogger);
 
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_proximityMonitorManager, _workstationLocker, sdkLogger);
-        
+
 
             // Audit Log / Event Aggregator =============================
             _eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
             SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
 
             // SDK initialization finished, start essential components
-                _credentialProviderProxy.Start();
+            _credentialProviderProxy.Start();
             _rfidService.Start();
             _hesConnection.Start(hesAddress);
 
@@ -199,9 +210,9 @@ namespace ServiceLibrary.Implementation
             {
                 Task.Run(async () => { await _hesConnection.Stop(); });
 
-                Error("Hideez Service has encountered an error during HES connection initialization" 
-                    + Environment.NewLine 
-                    + "New connection establishment will be attempted after service restart" 
+                Error("Hideez Service has encountered an error during HES connection initialization"
+                    + Environment.NewLine
+                    + "New connection establishment will be attempted after service restart"
                     + Environment.NewLine
                     + _hesConnection.ErrorMessage);
             }
@@ -209,17 +220,14 @@ namespace ServiceLibrary.Implementation
 
         #region Event Handlers
 
-        private void UnlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<UnlockerSettings> e)
+        private void ProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
         {
             try
             {
-                UnlockerSettings settings = e.NewSettings;
                 if (_proximityMonitorManager != null)
                 {
-                    _proximityMonitorManager.LockProximity = settings.LockProximity;
-                    _proximityMonitorManager.UnlockProximity = settings.UnlockProximity;
-                    _proximityMonitorManager.LockTimeoutSeconds = settings.LockTimeoutSeconds;
-                    _log.WriteLine("Updated unlocker settings in proximity monitor.");
+                    _proximityMonitorManager.ProximitySettings = e.NewSettings.DevicesProximity;
+                    _log.WriteLine("Updated proximity settings in proximity monitor.");
                 }
             }
             catch (Exception ex)
