@@ -31,11 +31,15 @@ namespace HideezClient.ViewModels
         public int Battery => device.Battery;
         public bool IsInitializing => device.IsInitializing;
         public bool IsInitialized => device.IsInitialized;
+        public bool IsAuthorizing => device.IsAuthorizing;
+        public bool IsAuthorized => device.IsAuthorized;
         public bool IsLoadingStorage => device.IsLoadingStorage;
         public bool IsStorageLoaded => device.IsStorageLoaded;
         public Version FirmwareVersion => device.FirmwareVersion;
         public Version BootloaderVersion => device.BootloaderVersion;
         public uint StorageTotalSize => device.StorageTotalSize;
         public uint StorageFreeSize => device.StorageFreeSize;
+        public bool IsFaulted => device.IsFaulted;
+        public string FaultMessage => device.FaultMessage;
     }
 }

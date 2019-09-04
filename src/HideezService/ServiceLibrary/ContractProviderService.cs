@@ -56,7 +56,7 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public Task<byte[]> RemoteConnection_AuthCommandAsync(string serialNo, byte[] data)
+        public Task<byte[]> RemoteConnection_VerifyCommandAsync(string serialNo, byte[] data)
         {
             throw new NotImplementedException();
         }
@@ -77,6 +77,16 @@ namespace ServiceLibrary
         }
 
         public void Shutdown()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendPin(string deviceId, byte[] pin, byte[] oldPin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CancelPin()
         {
             throw new NotImplementedException();
         }

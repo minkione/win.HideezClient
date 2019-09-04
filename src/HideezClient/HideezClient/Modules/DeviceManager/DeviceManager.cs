@@ -52,6 +52,7 @@ namespace HideezClient.Modules.DeviceManager
             messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
             messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
             messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
+            messenger.Register<DeviceAuthorizedMessage>(this, OnDeviceAuthorized);
 
             _serviceProxy.Disconnected += OnServiceProxyConnectionStateChanged;
             _serviceProxy.Connected += OnServiceProxyConnectionStateChanged;
@@ -99,7 +100,7 @@ namespace HideezClient.Modules.DeviceManager
                     {
                         dvm.LoadFrom(message.Device);
 
-                        if (message.Device.IsInitialized && dvm.IsConnected)
+                        if (message.Device.IsAuthorized && dvm.IsConnected)
                             _ = TryCreateRemoteDeviceAsync(dvm);
                     }
                 }
@@ -120,7 +121,28 @@ namespace HideezClient.Modules.DeviceManager
                     {
                         dvm.LoadFrom(message.Device);
 
-                        if (message.Device.IsInitialized && dvm.IsConnected)
+                        if (message.Device.IsAuthorized && dvm.IsConnected)
+                            _ = TryCreateRemoteDeviceAsync(dvm);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log.Error(ex);
+                }
+            });
+        }
+
+        void OnDeviceAuthorized(DeviceAuthorizedMessage message)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    if (_devices.TryGetValue(message.Device.Id, out Device dvm))
+                    {
+                        dvm.LoadFrom(message.Device);
+
+                        if (message.Device.IsAuthorized && dvm.IsConnected)
                             _ = TryCreateRemoteDeviceAsync(dvm);
                     }
                 }
@@ -186,7 +208,7 @@ namespace HideezClient.Modules.DeviceManager
 
             if (_devices.TryAdd(device.Id, device))
             {
-                if (dto.IsInitialized && device.IsConnected)
+                if (dto.IsAuthorized && device.IsConnected)
                     _ = TryCreateRemoteDeviceAsync(device); // Fire and forget
 
                 DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, device));
@@ -220,7 +242,7 @@ namespace HideezClient.Modules.DeviceManager
 
         async Task TryCreateRemoteDeviceAsync(Device device)
         {
-            if (!device.IsInitialized && !device.IsInitializing)
+            if (!device.IsInitialized && !device.IsInitializing && !device.IsAuthorized && !device.IsAuthorizing)
                 await device.EstablishRemoteDeviceConnection();
         }
     }

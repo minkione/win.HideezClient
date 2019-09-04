@@ -115,7 +115,20 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
                 log.Info($"Device ({device.Id}) is initialized");
                 messenger.Send(new DeviceInitializedMessage(device));
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
+        public void DeviceAuthorized(DeviceDTO device)
+        {
+            try
+            {
+                log.Info($"Devoce ({device.Id}) is authorized");
+                messenger.Send(new DeviceAuthorizedMessage(device));
+            }
+            catch (Exception ex)
             {
                 log.Error(ex);
             }
@@ -194,6 +207,32 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             {
                 log.Info($"Error message from service: {error}");
                 messenger.Send(new ServiceErrorReceivedMessage(error));
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
+        public void ShowPinUi(string deviceId, bool withConfirm, bool askOldPin)
+        {
+            try
+            {
+                log.Info($"Show pin ui message for ({deviceId}; confirm: {withConfirm}; old pin: {askOldPin})");
+                messenger.Send(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
+        public void HidePinUi()
+        {
+            try
+            {
+                log.Info($"Hide pin ui message");
+                messenger.Send(new HidePinUiMessage());
             }
             catch (Exception ex)
             {

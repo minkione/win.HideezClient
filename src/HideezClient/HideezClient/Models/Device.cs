@@ -10,15 +10,11 @@ using HideezClient.Utilities;
 using MvvmExtensions.Attributes;
 using NLog;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security;
 using System.ServiceModel;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using HideezClient.Extension;
-using System.Collections.ObjectModel;
 
 namespace HideezClient.Models
 {
@@ -47,6 +43,8 @@ namespace HideezClient.Models
         int battery;
         bool isInitializing;
         bool isInitialized;
+        bool isAuthorizing;
+        bool isAuthorized;
         bool isLoadingStorage;
         bool isStorageLoaded;
         private Version firmwareVersion;
@@ -137,6 +135,18 @@ namespace HideezClient.Models
         {
             get { return isInitialized; }
             private set { Set(ref isInitialized, value); }
+        }
+
+        public bool IsAuthorizing
+        {
+            get { return isAuthorizing; }
+            private set { Set(ref isAuthorizing, value); }
+        }
+
+        public bool IsAuthorized
+        {
+            get { return IsAuthorized; }
+            private set { Set(ref isAuthorized, value); }
         }
 
         public bool IsLoadingStorage
@@ -315,8 +325,8 @@ namespace HideezClient.Models
                 // Removing this line will result in slower workstation unlock
                 await Task.Delay(3000);
 
-                const int AUTH_CHANNEL = 2;
-                const int AUTH_WAIT = 20_000;
+                const int VERIFY_CHANNEL = 2;
+                const int VERIFY_WAIT = 20_000;
                 const int INIT_WAIT = 5_000;
                 const int RETRY_DELAY = 2_500;
 
@@ -327,14 +337,16 @@ namespace HideezClient.Models
                         try
                         {
                             _log.Info($"Device ({SerialNo}), establishing remote device connection");
-                            _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, AUTH_CHANNEL);
+                            _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, VERIFY_CHANNEL);
 
                             if (_remoteDevice == null)
                                 continue;
 
-                            await _remoteDevice.Authenticate(AUTH_CHANNEL);
-                            await _remoteDevice.WaitAuthentication(AUTH_WAIT);
+                            await _remoteDevice.Verify(VERIFY_CHANNEL);
+                            await _remoteDevice.WaitVerification(VERIFY_WAIT);
                             await _remoteDevice.Initialize(INIT_WAIT);
+
+                            // Todo: Master password, Pin-code and Button flow
 
                             if (_remoteDevice.SerialNo != SerialNo)
                             {

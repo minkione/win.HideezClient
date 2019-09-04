@@ -22,7 +22,15 @@ namespace HideezServiceHost
         {
         }
 
+        public void DeviceAuthorized(DeviceDTO device)
+        {
+        }
+
         public void DevicesCollectionChanged(DeviceDTO[] devices)
+        {
+        }
+
+        public void HidePinUi()
         {
         }
 
@@ -51,6 +59,10 @@ namespace HideezServiceHost
         }
 
         public void ServiceNotificationReceived(string message)
+        {
+        }
+
+        public void ShowPinUi(string deviceId, bool withConfirm, bool askOldPin)
         {
         }
     }

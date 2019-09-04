@@ -28,13 +28,6 @@ namespace HideezClient.ViewModels
         Error,
     }
 
-    public enum ConfirmButtonState
-    {
-        None = 0,
-        WaitPressButton = 1,
-        ButtonPressed = 2,
-    }
-
     public enum PinViewType
     {
         Enter,
@@ -50,7 +43,6 @@ namespace HideezClient.ViewModels
         private uint minLenghtPin = 1;
         private uint maxLenghtPin = 8;
         private ViewPinState state;
-        private ConfirmButtonState buttonState;
         protected bool forceValidate = false;
         protected readonly IWindowsManager windowsManager;
         protected CancellationTokenSource cancelTokenSource;
@@ -81,12 +73,6 @@ namespace HideezClient.ViewModels
         {
             get { return state; }
             set { Set(ref state, value); }
-        }
-
-        public ConfirmButtonState ButtonState
-        {
-            get { return buttonState; }
-            set { Set(ref buttonState, value); }
         }
 
         public uint MaxLenghtPin

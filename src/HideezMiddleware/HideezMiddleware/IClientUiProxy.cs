@@ -39,6 +39,7 @@ namespace HideezMiddleware
     {
         event EventHandler<EventArgs> ClientConnected;
         event EventHandler<PinReceivedEventArgs> PinReceived;
+        event EventHandler<EventArgs> PinCancelled;
 
         bool IsConnected { get; }
 

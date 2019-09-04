@@ -12,6 +12,7 @@ namespace ServiceLibrary.Implementation.SessionManagement
 
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
+        public event EventHandler<EventArgs> PinCancelled;
 
         public bool IsConnected
         {
@@ -59,19 +60,6 @@ namespace ServiceLibrary.Implementation.SessionManagement
         void ClientSessionManager_SessionAdded(object sender, ServiceClientSession e)
         {
             ClientConnected?.Invoke(this, EventArgs.Empty);
-        }
-
-
-        public async Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false)
-        {
-            // Todo:
-            return await Task.FromResult(string.Empty);
-        }
-
-        public async Task HidePinUi()
-        {
-            // Todo:
-            await Task.CompletedTask;
         }
 
         public async Task SendError(string message)
@@ -139,10 +127,58 @@ namespace ServiceLibrary.Implementation.SessionManagement
             });
         }
 
+
         public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
         {
+            foreach(var session in _clientSessionManager.Sessions)
+            {
+                try
+                {
+                    session.Callbacks.ShowPinUi(deviceId, withConfirm, askOldPin);
+                }
+                catch (Exception) { }
+            }
+
             return Task.CompletedTask;
-            //throw new NotImplementedException();
+        }
+
+        public Task HidePinUi()
+        {
+            foreach(var session in _clientSessionManager.Sessions)
+            {
+                try
+                {
+                    session.Callbacks.HidePinUi();
+                }
+                catch (Exception) { }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public void EnterPin(string deviceId, string pin, string oldPin = "")
+        {
+            try
+            {
+                var args = new PinReceivedEventArgs()
+                {
+                    DeviceId = deviceId,
+                    Pin = pin,
+                    OldPin = oldPin,
+                };
+
+                PinReceived?.Invoke(this, args);
+            }
+            catch (Exception) { }
+        }
+
+        public void CancelPin()
+        {
+            try
+            {
+                PinCancelled?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception) { }
         }
     }
 }

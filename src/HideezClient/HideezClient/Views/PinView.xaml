@@ -31,6 +31,7 @@
     </i:Interaction.Triggers>
     <StackPanel>
         <!--  Wait press button  -->
+        <!--
         <Grid Background="Green">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -60,8 +61,10 @@
                 Text="{l:Localization Pin.BtnConfirmed}"
                 TextWrapping="WrapWithOverflow" />
         </Grid>
+        -->
 
         <!--  Button presed  -->
+        <!--
         <Grid Background="Red">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -99,6 +102,7 @@
                 Text="{l:Localization Pin.ReqBtnConfirm}"
                 TextWrapping="WrapWithOverflow" />
         </Grid>
+        -->
 
         <Grid Margin="20">
             <Grid.RowDefinitions>
