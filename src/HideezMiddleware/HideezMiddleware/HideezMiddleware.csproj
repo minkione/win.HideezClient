@@ -107,7 +107,6 @@
     <Compile Include="Utils\LocalToMSAccountConverter.cs" />
     <Compile Include="Utils\MacUtils.cs" />
     <Compile Include="Utils\WorkstationHelper.cs" />
-    <Compile Include="WaitPinFromCredentialProviderProc .cs" />
     <Compile Include="WorkstationInfoProvider.cs" />
     <Compile Include="ConnectionFlowProcessor.cs" />
     <Compile Include="WorkstationLockProcessor.cs" />

@@ -1423,6 +1423,7 @@ namespace WinSampleApp.ViewModel
         public bool IsConnected => true;
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
+        public event EventHandler<EventArgs> PinCancelled;
 
         public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
         {
