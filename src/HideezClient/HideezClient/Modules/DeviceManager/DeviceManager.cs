@@ -99,9 +99,6 @@ namespace HideezClient.Modules.DeviceManager
                     if (_devices.TryGetValue(message.Device.Id, out Device dvm))
                     {
                         dvm.LoadFrom(message.Device);
-
-                        if (message.Device.IsAuthorized && dvm.IsConnected)
-                            _ = TryCreateRemoteDeviceAsync(dvm);
                     }
                 }
                 catch (Exception ex)
@@ -120,9 +117,6 @@ namespace HideezClient.Modules.DeviceManager
                     if (_devices.TryGetValue(message.Device.Id, out Device dvm))
                     {
                         dvm.LoadFrom(message.Device);
-
-                        if (message.Device.IsAuthorized && dvm.IsConnected)
-                            _ = TryCreateRemoteDeviceAsync(dvm);
                     }
                 }
                 catch (Exception ex)
@@ -208,8 +202,6 @@ namespace HideezClient.Modules.DeviceManager
 
             if (_devices.TryAdd(device.Id, device))
             {
-                if (dto.IsAuthorized && device.IsConnected)
-                    _ = TryCreateRemoteDeviceAsync(device); // Fire and forget
 
                 DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, device));
             }
@@ -219,8 +211,8 @@ namespace HideezClient.Modules.DeviceManager
         {
             if(sender is Device device && e.PropertyName == nameof(Device.IsLoadingStorage) && device.IsLoadingStorage)
             {
-            CredentialsLoadNotificationViewModel viewModal = new CredentialsLoadNotificationViewModel(device);
-            _windowsManager.ShowCredentialsLoading(viewModal);
+                CredentialsLoadNotificationViewModel viewModal = new CredentialsLoadNotificationViewModel(device);
+                _windowsManager.ShowCredentialsLoading(viewModal);
             }
         }
 
@@ -243,7 +235,7 @@ namespace HideezClient.Modules.DeviceManager
         async Task TryCreateRemoteDeviceAsync(Device device)
         {
             if (!device.IsInitialized && !device.IsInitializing && !device.IsAuthorized && !device.IsAuthorizing)
-                await device.EstablishRemoteDeviceConnection();
+                await device.InitializeRemoteDevice();
         }
     }
 }
