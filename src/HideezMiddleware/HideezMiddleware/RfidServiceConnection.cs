@@ -4,7 +4,7 @@ using System;
 
 namespace HideezMiddleware
 {
-    public class RfidReceivedEventArgs
+    public class RfidReceivedEventArgs : EventArgs
     {
         public string Rfid { get; set; }
     }
@@ -20,11 +20,7 @@ namespace HideezMiddleware
         public event EventHandler<EventArgs> RfidServiceStateChanged;
         public event EventHandler<EventArgs> RfidReaderStateChanged;
 
-        public RfidServiceConnection(ILog log)
-            : base(nameof(RfidServiceConnection), log)
-        {
-            _pipeClient = new PipeClient("hideezrfid", log);
-        }
+
 
         public bool ServiceConnected => _pipeClient.Connected;
 
@@ -39,6 +35,12 @@ namespace HideezMiddleware
                 _readerConnected = value;
                 RfidReaderStateChanged?.Invoke(this, EventArgs.Empty);
             }
+        }
+
+        public RfidServiceConnection(ILog log)
+            : base(nameof(RfidServiceConnection), log)
+        {
+            _pipeClient = new PipeClient("hideezrfid", log);
         }
 
         public void Start()

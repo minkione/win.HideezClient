@@ -28,7 +28,7 @@ namespace WinSampleApp.ViewModel
         readonly EventLogger _log;
         readonly BleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
-        readonly CredentialProviderProxy _credentialProviderConnection;
+        readonly CredentialProviderProxy _credentialProviderProxy;
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
         private readonly RfidConnectionProcessor _rfidProcessor;
         private readonly TapConnectionProcessor _tapProcessor;
@@ -773,86 +773,93 @@ namespace WinSampleApp.ViewModel
 
         public MainWindowViewModel()
         {
-            AccessParams = new AccessParams()
+            try
             {
-                MasterKey_Bond = true,
-                MasterKey_Connect = false,
-                MasterKey_Link = false,
-                MasterKey_Channel = false,
+                AccessParams = new AccessParams()
+                {
+                    MasterKey_Bond = true,
+                    MasterKey_Connect = false,
+                    MasterKey_Link = false,
+                    MasterKey_Channel = false,
 
-                Button_Bond = false,
-                Button_Connect = false,
-                Button_Link = true,
-                Button_Channel = true,
+                    Button_Bond = false,
+                    Button_Connect = false,
+                    Button_Link = true,
+                    Button_Channel = true,
 
-                Pin_Bond = false,
-                Pin_Connect = true,
-                Pin_Link = false,
-                Pin_Channel = false,
+                    Pin_Bond = false,
+                    Pin_Connect = true,
+                    Pin_Link = false,
+                    Pin_Channel = false,
 
-                PinMinLength = 4,
-                PinMaxTries = 3,
-                MasterKeyExpirationPeriod = 24 * 60 * 60,
-                PinExpirationPeriod = 15 * 60,
-                ButtonExpirationPeriod = 15,
-            };
+                    PinMinLength = 4,
+                    PinMaxTries = 3,
+                    MasterKeyExpirationPeriod = 24 * 60 * 60,
+                    PinExpirationPeriod = 15 * 60,
+                    ButtonExpirationPeriod = 15,
+                };
 
-            _log = new EventLogger("ExampleApp");
+                _log = new EventLogger("ExampleApp");
 
-            // BleConnectionManager ============================
-            _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
-            _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
-            _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
-            _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+                // BleConnectionManager ============================
+                _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
+                _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+                _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
+                _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
+                _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
 
-            // BLE ============================
-            _deviceManager = new BleDeviceManager(_log, _connectionManager);
-            _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
-            _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
+                // BLE ============================
+                _deviceManager = new BleDeviceManager(_log, _connectionManager);
+                _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
+                _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
 
-            // WorkstationInfoProvider ==================================
-            //WorkstationHelper.Log = sdkLogger;
-            var workstationInfoProvider = new WorkstationInfoProvider(HesAddress, _log); //todo - HesAddress?
+                // WorkstationInfoProvider ==================================
+                //WorkstationHelper.Log = sdkLogger;
+                var workstationInfoProvider = new WorkstationInfoProvider(HesAddress, _log); //todo - HesAddress?
 
-            // HES Connection ==================================
-            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _log);
-            _hesConnection.HubConnectionStateChanged += (sender, e) => NotifyPropertyChanged(nameof(HesState));
-            _hesConnection.Start(HesAddress);
+                // HES Connection ==================================
+                _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _log);
+                _hesConnection.HubConnectionStateChanged += (sender, e) => NotifyPropertyChanged(nameof(HesState));
+                _hesConnection.Start(HesAddress);
 
-            // Named Pipes Server ==============================
-            _credentialProviderConnection = new CredentialProviderProxy(_log);
-            _credentialProviderConnection.Start();
+                // Credential provider ==============================
+                _credentialProviderProxy = new CredentialProviderProxy(_log);
+                _credentialProviderProxy.Start();
 
-            // RFID Service Connection ============================
-            _rfidService = new RfidServiceConnection(_log);
-            _rfidService.Start();
+                // RFID Service Connection ============================
+                _rfidService = new RfidServiceConnection(_log);
+                _rfidService.Start();
 
-            // Unlocker Settings Manager ==================================
-            var unlockerSettingsManager = new SettingsManager<UnlockerSettings>(string.Empty, new XmlFileSerializer(_log));
+                // Unlocker Settings Manager ==================================
+                var unlockerSettingsManager = new SettingsManager<UnlockerSettings>(string.Empty, new XmlFileSerializer(_log));
 
-            // UI proxy ==================================
-            var uiProxyManager = new UiProxyManager(_credentialProviderConnection, this, _log);
+                // UI proxy ==================================
+                var uiProxyManager = new UiProxyManager(_credentialProviderProxy, this, _log);
 
-            // ConnectionFlowProcessor ==================================
-            _connectionFlowProcessor = new ConnectionFlowProcessor(
-                _deviceManager, 
-                _hesConnection,
-                _credentialProviderConnection, // as IWorkstationUnlocker
-                null,
-                uiProxyManager,
-                _log);
+                // ConnectionFlowProcessor ==================================
+                _connectionFlowProcessor = new ConnectionFlowProcessor(
+                    _deviceManager,
+                    _hesConnection,
+                    _credentialProviderProxy, // as IWorkstationUnlocker
+                    null,
+                    uiProxyManager,
+                    _log);
 
-            _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, null, uiProxyManager, _log);
+                _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, null, uiProxyManager, _log);
 
-            _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _connectionManager, null, uiProxyManager, _log);
+                _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _connectionManager, null, uiProxyManager, _log);
 
-            // StatusManager =============================
-            var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxyManager, unlockerSettingsManager, _log);
+                // StatusManager =============================
+                var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxyManager, unlockerSettingsManager, _log);
 
-            _connectionManager.StartDiscovery();
+                _connectionManager.StartDiscovery();
 
-            ClientConnected?.Invoke(this, EventArgs.Empty);
+                ClientConnected?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                ClientUiError = ex.Message;
+            }
         }
 
         void ConnectHes()
@@ -883,7 +890,7 @@ namespace WinSampleApp.ViewModel
         {
             await _hesConnection.Stop();
             _rfidService?.Stop();
-            _credentialProviderConnection?.Stop();
+            _credentialProviderProxy?.Stop();
         }
 
         void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)

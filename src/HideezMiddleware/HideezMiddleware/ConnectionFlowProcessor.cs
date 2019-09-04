@@ -71,6 +71,9 @@ namespace HideezMiddleware
             IDevice device = null;
             try
             {
+                await _ui.SendNotification("");
+                await _ui.SendError("");
+
                 _screenActivator?.ActivateScreen();
                 device = await ConnectDevice(mac);
 
