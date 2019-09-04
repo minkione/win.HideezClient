@@ -10,6 +10,7 @@ using HideezClient.Utilities;
 using MvvmExtensions.Attributes;
 using NLog;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
@@ -33,6 +34,7 @@ namespace HideezClient.Models
         readonly IServiceProxy _serviceProxy;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         RemoteDevice _remoteDevice;
+        DelayedMethodCaller dmc = new DelayedMethodCaller(2000);
 
         string id;
         string name;
@@ -206,6 +208,19 @@ namespace HideezClient.Models
             }
         }
 
+        public void LoadFrom(DeviceDTO dto)
+        {
+            id = dto.Id;
+            Name = dto.Name;
+            OwnerName = dto.Owner ?? "...unspecified...";
+            IsConnected = dto.IsConnected;
+            SerialNo = dto.SerialNo;
+            FirmwareVersion = dto.FirmwareVersion;
+            BootloaderVersion = dto.BootloaderVersion;
+            StorageTotalSize = dto.StorageTotalSize;
+            StorageFreeSize = dto.StorageFreeSize;
+        }
+
         #region PIN
 
         public bool IsVerifiedPin
@@ -309,106 +324,214 @@ namespace HideezClient.Models
 
         #endregion PIN
 
-        int remoteConnectionEstablishment = 0;
-        public async Task EstablishRemoteDeviceConnection()
+
+        const int VERIFY_CHANNEL = 2;
+        const int VERIFY_WAIT = 20_000;
+        const int INIT_WAIT = 5_000;
+        const int RETRY_DELAY = 2_500;
+        const int CREDENTIAL_TIMEOUT = 30_000;
+
+        public async Task InitializeRemoteDevice()
         {
-            if (IsInitialized)
+            if (IsInitialized && IsInitializing)
                 return;
 
-            if (Interlocked.CompareExchange(ref remoteConnectionEstablishment, 1, 0) == 0)
+            IsInitializing = true;
+
+            // Todo: Do something about remote device creation delay
+            // Allow other services to interact with the device first because
+            // remote device connection establishmebt blocks communication
+            // A 3s delay should be enough
+            // Removing this line will result in slower workstation unlock
+            await Task.Delay(3000);
+
+            try
             {
-                IsInitializing = true;
-
-                // Allow other services to interact with the device first because
-                // remote device connection establishmebt blocks communication
-                // A 3s delay should be enough
-                // Removing this line will result in slower workstation unlock
-                await Task.Delay(3000);
-
-                const int VERIFY_CHANNEL = 2;
-                const int VERIFY_WAIT = 20_000;
-                const int INIT_WAIT = 5_000;
-                const int RETRY_DELAY = 2_500;
-
-                try
+                while (IsInitializing && !IsInitialized)
                 {
-                    while (IsInitializing)
+                    try
                     {
-                        try
+                        _log.Info($"Device ({SerialNo}), establishing remote device connection");
+                        _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, VERIFY_CHANNEL);
+
+                        await _remoteDevice.Verify(VERIFY_CHANNEL);
+                        await _remoteDevice.WaitVerification(VERIFY_WAIT);
+                        await _remoteDevice.Initialize(INIT_WAIT);
+
+                        if (_remoteDevice.SerialNo != SerialNo)
                         {
-                            _log.Info($"Device ({SerialNo}), establishing remote device connection");
-                            _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, VERIFY_CHANNEL);
-
-                            if (_remoteDevice == null)
-                                continue;
-
-                            await _remoteDevice.Verify(VERIFY_CHANNEL);
-                            await _remoteDevice.WaitVerification(VERIFY_WAIT);
-                            await _remoteDevice.Initialize(INIT_WAIT);
-
-                            // Todo: Master password, Pin-code and Button flow
-
-                            if (_remoteDevice.SerialNo != SerialNo)
-                            {
-                                _serviceProxy.GetService().RemoveDevice(_remoteDevice.DeviceId);
-                                throw new Exception("Remote device serial number does not match enumerated serial number");
-                            }
-
-                            _remoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
-                            _remoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
-                            _remoteDevice.StorageModified += RemoteDevice_StorageModified;
-
-                            Proximity = _remoteDevice.Proximity;
-                            Battery = _remoteDevice.Battery;
-
-                            _log.Info($"Device ({SerialNo}) connection established with remote device");
-
-                            IsStorageLoaded = false;
-
-                            IsLoadingStorage = true;
-
-                            _log.Info($"Device ({SerialNo}) loading storage");
-
-                            PasswordManager = new DevicePasswordManager(_remoteDevice, null);
-                            await PasswordManager.Load();
-
-                            _log.Info($"Device ({SerialNo}) loaded {PasswordManager.Accounts.Count} entries");
-
-                            IsStorageLoaded = true;
-                            IsInitialized = true;
-                            FaultMessage = string.Empty;
-                            break;
+                            _serviceProxy.GetService().RemoveDevice(_remoteDevice.DeviceId);
+                            throw new Exception("Remote device serial number does not match enumerated serial number");
                         }
-                        catch (FaultException<HideezServiceFault> ex)
-                        {
-                            _log.Error(ex.FormattedMessage());
-                        }
-                        catch (HideezException ex)
-                        {
-                            _log.Error(ex);
-                            FaultMessage = ex.Message;
-                        }
-                        catch (Exception ex)
-                        {
-                            _log.Error(ex);
-                        }
-                        finally
-                        {
 
-                            IsLoadingStorage = false;
+                        _remoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
+                        _remoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
+                        _remoteDevice.StorageModified += RemoteDevice_StorageModified;
 
-                            if (IsInitializing)
-                                await Task.Delay(RETRY_DELAY);
-                        }
+                        Proximity = _remoteDevice.Proximity;
+                        Battery = _remoteDevice.Battery;
+
+                        IsInitialized = true;
+                        FaultMessage = string.Empty;
+
+                        _log.Info($"Remote device ({SerialNo}) initialized");
+                    }
+                    catch (FaultException<HideezServiceFault> ex)
+                    {
+                        _log.Error(ex.FormattedMessage());
+                    }
+                    catch (HideezException ex)
+                    {
+                        _log.Error(ex);
+                        FaultMessage = ex.Message;
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.Error(ex);
+                    }
+                    finally
+                    {
+                        if (IsInitializing)
+                            await Task.Delay(RETRY_DELAY);
                     }
                 }
-                finally
+            }
+            finally
+            {
+                IsInitializing = false;
+            }
+        }
+
+        public async Task AuthorizeRemoteDevice()
+        {
+            if (!IsInitialized)
+                return; // Todo:
+
+            if (IsAuthorized && IsAuthorizing)
+                return;
+
+            try
+            {
+                IsAuthorizing = true;
+
+                if (_remoteDevice.IsLocked)
+                    throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                else if (_remoteDevice.IsLinkRequired)
+                    throw new HideezException(HideezErrorCode.DeviceRequiresLink);
+
+                if (!await ButtonWorkflow())
+                    throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
+
+                var pinTask = PinWorkflow();
+
+                if (_remoteDevice.IsAuthorized)
+                    _log.Info($"Remote device ({_remoteDevice.DeviceId}) authorized");
+                else
+                    _log.Info($"Remote device ({_remoteDevice.DeviceId}) is not authorized");
+            }
+            catch (FaultException<HideezServiceFault> ex)
+            {
+                _log.Error(ex.FormattedMessage());
+            }
+            catch (HideezException ex)
+            {
+                _log.Error(ex);
+                FaultMessage = ex.Message;
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+            }
+        }
+
+        async Task<bool> ButtonWorkflow()
+        {
+            if (!IsInitialized)
+                throw new Exception(); // Todo
+
+            if (!_remoteDevice.IsButtonRequired)
+                return true;
+
+            //await _ui.SendNotification("Please press the Button on your Hideez Key");
+            var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT);
+            return res;
+        }
+
+        Task<bool> PinWorkflow()
+        {
+            if (_remoteDevice.IsNewPinRequired)
+            {
+                return SetPinWorkflow();
+            }
+            else if (_remoteDevice.IsPinRequired)
+            {
+                return EnterPinWorkflow();
+            }
+
+            return Task.FromResult(true);
+        }
+
+        async Task<bool> SetPinWorkflow()
+        {
+            var pin = string.Empty;
+            //string pin = await _ui.GetPin(device.Id, timeout, withConfirm: true);
+            if (string.IsNullOrWhiteSpace(pin))
+                return false;
+            bool res = await _remoteDevice.SetPin(pin); //this using default timeout for BLE commands
+
+            return res;
+        }
+
+        async Task<bool> EnterPinWorkflow()
+        {
+            Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow +++++++++++++++++++++++++++++++++++++++");
+
+            bool res = false;
+            while (!_remoteDevice.IsLocked)
+            {
+                var pin = string.Empty;
+                //string pin = await _ui.GetPin(device.Id, timeout, withConfirm: true);
+                Debug.WriteLine($">>>>>>>>>>>>>>> PIN: {pin}");
+                if (string.IsNullOrWhiteSpace(pin))
+                    break;
+
+                res = await _remoteDevice.EnterPin(pin); //this using default timeout for BLE commands
+
+                if (res)
                 {
-                    Interlocked.Exchange(ref remoteConnectionEstablishment, 0);
-                    IsInitializing = false;
-                    IsLoadingStorage = false;
+                    Debug.WriteLine($">>>>>>>>>>>>>>> PIN OK");
+                    break;
+                }
+                else
+                {
+                    Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({_remoteDevice.PinAttemptsRemain} attempts left)");
+                    //if (device.AccessLevel.IsLocked)
+                    //    await _ui.SendError($"Device is locked");
+                    //else
+                    //    await _ui.SendError($"Wrong PIN ({device.PinAttemptsRemain} attempts left)");
                 }
             }
+            Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow ------------------------------");
+            return res;
+        }
+
+
+        public async Task LoadStorage()
+        {
+            IsStorageLoaded = false;
+
+            IsLoadingStorage = true;
+
+            _log.Info($"Device ({SerialNo}) loading storage");
+
+            PasswordManager = new DevicePasswordManager(_remoteDevice, null);
+            await PasswordManager.Load();
+
+            _log.Info($"Device ({SerialNo}) loaded {PasswordManager.Accounts.Count} entries");
+
+            IsStorageLoaded = true;
+
+            IsLoadingStorage = false;
         }
 
         public void CloseRemoteDeviceConnection()
@@ -441,8 +564,6 @@ namespace HideezClient.Models
         {
             Battery = battery;
         }
-
-        DelayedMethodCaller dmc = new DelayedMethodCaller(2000);
 
         void RemoteDevice_StorageModified(object sender, EventArgs e)
         {
@@ -479,19 +600,6 @@ namespace HideezClient.Models
             {
                 IsLoadingStorage = false;
             }
-        }
-
-        public void LoadFrom(DeviceDTO dto)
-        {
-            id = dto.Id;
-            Name = dto.Name;
-            OwnerName = dto.Owner ?? "...unspecified...";
-            IsConnected = dto.IsConnected;
-            SerialNo = dto.SerialNo;
-            FirmwareVersion = dto.FirmwareVersion;
-            BootloaderVersion = dto.BootloaderVersion;
-            StorageTotalSize = dto.StorageTotalSize;
-            StorageFreeSize = dto.StorageFreeSize;
         }
     }
 }
