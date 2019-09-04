@@ -153,35 +153,46 @@
                                     FontSize="18"
                                     Text="{Binding Proximity, StringFormat='{}{0,3}%'}"
                                     TextAlignment="Right"
-                                    Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                                    ToolTip="Device proximity level"
+                                    />
 
                                 <Grid Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <StackPanel Orientation="Horizontal" Visibility="{Binding IsInitialized, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" >
                                         <iconPacks:PackIconModern
                                             x:Name="ConnectingIco"
                                             Width="16"
                                             Height="22"
                                             Margin="8,0,0,2"
                                             Foreground="{DynamicResource InitializingBrush}"
-                                            Kind="Disconnect" />
+                                            Kind="Disconnect" 
+                                            ToolTip="Connecting device"
+                                            Visibility="{Binding IsInitializing, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                            />
+                                        <Grid Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <iconPacks:PackIconMaterial
+                                                x:Name="NotAuthorizedIco"
+                                                Width="16"
+                                                Height="22"
+                                                Margin="8,0,0,2"
+                                                Foreground="Yellow"
+                                                Kind="Lock" 
+                                                ToolTip="Not authorized"
+                                                Visibility="{Binding IsAuthorized, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
+                                                />
+                                        </Grid>
                                         <iconPacks:PackIconOcticons
                                             x:Name="Sync"
                                             Width="16"
                                             Height="22"
                                             Margin="8,0,0,2"
                                             Foreground="{DynamicResource InitializingBrush}"
-                                            Kind="Sync" />
+                                            Kind="Sync" 
+                                            ToolTip="Loading storage"
+                                            Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                            />
                                     </StackPanel>
                                 </Grid>
-
-                                <iconPacks:PackIconMaterial
-                                    x:Name="Download"
-                                    Width="14"
-                                    Height="18"
-                                    Margin="8,4,0,2"
-                                    Foreground="White"
-                                    Kind="Download"
-                                    Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                                 <StackPanel>
                                     <StackPanel.Visibility>

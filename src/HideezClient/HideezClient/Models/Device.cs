@@ -10,15 +10,11 @@ using HideezClient.Utilities;
 using MvvmExtensions.Attributes;
 using NLog;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security;
 using System.ServiceModel;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using HideezClient.Extension;
-using System.Collections.ObjectModel;
 
 namespace HideezClient.Models
 {
@@ -47,6 +43,8 @@ namespace HideezClient.Models
         int battery;
         bool isInitializing;
         bool isInitialized;
+        bool isAuthorizing;
+        bool isAuthorized;
         bool isLoadingStorage;
         bool isStorageLoaded;
         private Version firmwareVersion;
@@ -137,6 +135,18 @@ namespace HideezClient.Models
         {
             get { return isInitialized; }
             private set { Set(ref isInitialized, value); }
+        }
+
+        public bool IsAuthorizing
+        {
+            get { return isAuthorizing; }
+            private set { Set(ref isAuthorizing, value); }
+        }
+
+        public bool IsAuthorized
+        {
+            get { return IsAuthorized; }
+            private set { Set(ref isAuthorized, value); }
         }
 
         public bool IsLoadingStorage
