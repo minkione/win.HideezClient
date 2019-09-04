@@ -98,7 +98,7 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="RemoteConnection_AuthCommand">
+  <xs:element name="RemoteConnection_VerifyCommand">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="connectionId" nillable="true" type="xs:string" />
@@ -106,10 +106,10 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="RemoteConnection_AuthCommandResponse">
+  <xs:element name="RemoteConnection_VerifyCommandResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="RemoteConnection_AuthCommandResult" nillable="true" type="xs:base64Binary" />
+        <xs:element minOccurs="0" name="RemoteConnection_VerifyCommandResult" nillable="true" type="xs:base64Binary" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -229,6 +229,13 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q6:DeviceDTO" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeviceAuthorized">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q7:DeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

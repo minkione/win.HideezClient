@@ -113,13 +113,13 @@
   <wsdl:message name="IHideezService_EstablishRemoteDeviceConnection_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q8="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q8:HideezServiceFault" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_RemoteConnection_AuthCommand_InputMessage">
-    <wsdl:part name="parameters" element="tns:RemoteConnection_AuthCommand" />
+  <wsdl:message name="IHideezService_RemoteConnection_VerifyCommand_InputMessage">
+    <wsdl:part name="parameters" element="tns:RemoteConnection_VerifyCommand" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_RemoteConnection_AuthCommand_OutputMessage">
-    <wsdl:part name="parameters" element="tns:RemoteConnection_AuthCommandResponse" />
+  <wsdl:message name="IHideezService_RemoteConnection_VerifyCommand_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RemoteConnection_VerifyCommandResponse" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_RemoteConnection_AuthCommand_HideezServiceFaultFault_FaultMessage">
+  <wsdl:message name="IHideezService_RemoteConnection_VerifyCommand_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q9="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q9:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_RemoteConnection_RemoteCommand_InputMessage">
@@ -191,6 +191,9 @@
   <wsdl:message name="IHideezService_DeviceInitialized_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:DeviceInitialized" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_DeviceAuthorized_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:DeviceAuthorized" />
+  </wsdl:message>
   <wsdl:message name="IHideezService_RemoteConnection_RssiReceived_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:RemoteConnection_RssiReceived" />
   </wsdl:message>
@@ -247,10 +250,10 @@
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnectionResponse" message="tns:IHideezService_EstablishRemoteDeviceConnection_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnectionHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_EstablishRemoteDeviceConnection_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_AuthCommand">
-      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommand" message="tns:IHideezService_RemoteConnection_AuthCommand_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandResponse" message="tns:IHideezService_RemoteConnection_AuthCommand_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_RemoteConnection_AuthCommand_HideezServiceFaultFault_FaultMessage" />
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_VerifyCommand">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_VerifyCommand" message="tns:IHideezService_RemoteConnection_VerifyCommand_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_VerifyCommandResponse" message="tns:IHideezService_RemoteConnection_VerifyCommand_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_VerifyCommandHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_RemoteConnection_VerifyCommand_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_RemoteCommand">
       <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommand" message="tns:IHideezService_RemoteConnection_RemoteCommand_InputMessage" />
@@ -300,6 +303,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceInitialized">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceInitialized" message="tns:IHideezService_DeviceInitialized_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceAuthorized">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceAuthorized" message="tns:IHideezService_DeviceAuthorized_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_RssiReceived">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_RssiReceived" message="tns:IHideezService_RemoteConnection_RssiReceived_OutputCallbackMessage" />
@@ -417,8 +423,8 @@
         <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
-    <wsdl:operation name="RemoteConnection_AuthCommand">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_AuthCommand" style="document" />
+    <wsdl:operation name="RemoteConnection_VerifyCommand">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_VerifyCommand" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -533,6 +539,12 @@
     </wsdl:operation>
     <wsdl:operation name="DeviceInitialized">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceInitialized" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeviceAuthorized">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceAuthorized" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

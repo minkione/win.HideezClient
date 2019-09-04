@@ -41,7 +41,7 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data);
+        Task<byte[]> RemoteConnection_VerifyCommandAsync(string connectionId, byte[] data);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
@@ -92,6 +92,9 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void DeviceInitialized(DeviceDTO device);
+
+        [OperationContract(IsOneWay = true)]
+        void DeviceAuthorized(DeviceDTO device);
 
 
         [OperationContract(IsOneWay = true)]

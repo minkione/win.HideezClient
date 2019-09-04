@@ -20,6 +20,7 @@ namespace ServiceLibrary
             IsInitialized = device.IsInitialized;
             StorageTotalSize = device.StorageTotalSize;
             StorageFreeSize = device.StorageFreeSize;
+            IsAuthorized = device.IsAuthorized;
         }
 
         [DataMember]
@@ -51,6 +52,9 @@ namespace ServiceLibrary
 
         [DataMember]
         public bool IsInitialized { get; private set; }
+
+        [DataMember]
+        public bool IsAuthorized { get; private set; }
 
         [DataMember]
         public uint StorageTotalSize { get; private set; }

@@ -251,6 +251,7 @@
     <Compile Include="Messages\ConnectionHESChangedMessage.cs" />
     <Compile Include="Messages\ConnectionRFIDChangedMessage.cs" />
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
+    <Compile Include="Messages\DeviceAuthorizedMessage.cs" />
     <Compile Include="Messages\DeviceConnectionStateChangedMessage.cs" />
     <Compile Include="Messages\DeviceInitializedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />

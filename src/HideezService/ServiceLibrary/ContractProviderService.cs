@@ -56,7 +56,7 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public Task<byte[]> RemoteConnection_AuthCommandAsync(string serialNo, byte[] data)
+        public Task<byte[]> RemoteConnection_VerifyCommandAsync(string serialNo, byte[] data)
         {
             throw new NotImplementedException();
         }

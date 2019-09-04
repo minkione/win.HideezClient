@@ -115,7 +115,20 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
                 log.Info($"Device ({device.Id}) is initialized");
                 messenger.Send(new DeviceInitializedMessage(device));
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
+        public void DeviceAuthorized(DeviceDTO device)
+        {
+            try
+            {
+                log.Info($"Devoce ({device.Id}) is authorized");
+                messenger.Send(new DeviceAuthorizedMessage(device));
+            }
+            catch (Exception ex)
             {
                 log.Error(ex);
             }

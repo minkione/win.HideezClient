@@ -31,12 +31,12 @@ namespace HideezClient.Modules.Remote
             }
         }
 
-        public async Task SendAuthCommand(byte[] data)
+        public async Task SendVerifyCommand(byte[] data)
         {
             try
             {
-                var response = await _serviceProxy.GetService().RemoteConnection_AuthCommandAsync(RemoteDevice.DeviceId, data);
-                RemoteDevice.OnAuthResponse(response);
+                var response = await _serviceProxy.GetService().RemoteConnection_VerifyCommandAsync(RemoteDevice.DeviceId, data);
+                RemoteDevice.OnVerifyResponse(response);
             }
             catch (FaultException<HideezServiceFault> ex)
             {

@@ -158,6 +158,9 @@ namespace HideezServiceHost.HideezServiceReference {
         private string IdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsAuthorizedField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsBootField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -239,6 +242,19 @@ namespace HideezServiceHost.HideezServiceReference {
                 if ((object.ReferenceEquals(this.IdField, value) != true)) {
                     this.IdField = value;
                     this.RaisePropertyChanged("Id");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsAuthorized {
+            get {
+                return this.IsAuthorizedField;
+            }
+            set {
+                if ((this.IsAuthorizedField.Equals(value) != true)) {
+                    this.IsAuthorizedField = value;
+                    this.RaisePropertyChanged("IsAuthorized");
                 }
             }
         }
@@ -607,13 +623,13 @@ namespace HideezServiceHost.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnection", ReplyAction="http://tempuri.org/IHideezService/EstablishRemoteDeviceConnectionResponse")]
         System.Threading.Tasks.Task<string> EstablishRemoteDeviceConnectionAsync(string serialNo, byte channelNo);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandHideezServiceFaultF" +
-            "ault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        byte[] RemoteConnection_AuthCommand(string connectionId, byte[] data);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_VerifyCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_VerifyCommandResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/RemoteConnection_VerifyCommandHideezServiceFaul" +
+            "tFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        byte[] RemoteConnection_VerifyCommand(string connectionId, byte[] data);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_AuthCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_AuthCommandResponse")]
-        System.Threading.Tasks.Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_VerifyCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_VerifyCommandResponse")]
+        System.Threading.Tasks.Task<byte[]> RemoteConnection_VerifyCommandAsync(string connectionId, byte[] data);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommand", ReplyAction="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommandResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/RemoteConnection_RemoteCommandHideezServiceFaul" +
@@ -679,6 +695,9 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceInitialized")]
         void DeviceInitialized(HideezServiceHost.HideezServiceReference.DeviceDTO device);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceAuthorized")]
+        void DeviceAuthorized(HideezServiceHost.HideezServiceReference.DeviceDTO device);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_RssiReceived")]
         void RemoteConnection_RssiReceived(string serialNo, double rssi);
@@ -788,12 +807,12 @@ namespace HideezServiceHost.HideezServiceReference {
             return base.Channel.EstablishRemoteDeviceConnectionAsync(serialNo, channelNo);
         }
         
-        public byte[] RemoteConnection_AuthCommand(string connectionId, byte[] data) {
-            return base.Channel.RemoteConnection_AuthCommand(connectionId, data);
+        public byte[] RemoteConnection_VerifyCommand(string connectionId, byte[] data) {
+            return base.Channel.RemoteConnection_VerifyCommand(connectionId, data);
         }
         
-        public System.Threading.Tasks.Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data) {
-            return base.Channel.RemoteConnection_AuthCommandAsync(connectionId, data);
+        public System.Threading.Tasks.Task<byte[]> RemoteConnection_VerifyCommandAsync(string connectionId, byte[] data) {
+            return base.Channel.RemoteConnection_VerifyCommandAsync(connectionId, data);
         }
         
         public byte[] RemoteConnection_RemoteCommand(string connectionId, byte[] data) {

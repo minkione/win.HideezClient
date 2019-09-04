@@ -22,6 +22,10 @@ namespace HideezServiceHost
         {
         }
 
+        public void DeviceAuthorized(DeviceDTO device)
+        {
+        }
+
         public void DevicesCollectionChanged(DeviceDTO[] devices)
         {
         }

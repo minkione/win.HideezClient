@@ -236,6 +236,7 @@ namespace ServiceLibrary.Implementation
             {
                 device.ConnectionStateChanged += Device_ConnectionStateChanged;
                 device.Initialized += Device_Initialized;
+                device.Authorized += Device_Authorized;
                 device.StorageModified += RemoteConnection_StorageModified;
                 device.Disconnected += Device_Disconnected;
             }
@@ -249,6 +250,7 @@ namespace ServiceLibrary.Implementation
             {
                 device.ConnectionStateChanged -= Device_ConnectionStateChanged;
                 device.Initialized -= Device_Initialized;
+                device.Authorized -= Device_Authorized;
                 device.StorageModified -= RemoteConnection_StorageModified;
                 device.Disconnected -= Device_Disconnected;
 
@@ -379,9 +381,18 @@ namespace ServiceLibrary.Implementation
             {
                 if (sender is IDevice device)
                 {
-                    foreach (var client in SessionManager.Sessions)
+                    foreach (var session in SessionManager.Sessions)
                     {
-                        client.Callbacks.DeviceInitialized(new DeviceDTO(device));
+                        // Separate error handling block for each callback ensures we try to notify 
+                        // every session, even if an error occurs
+                        try
+                        {
+                            session.Callbacks.DeviceInitialized(new DeviceDTO(device));
+                        }
+                        catch (Exception ex)
+                        {
+                            Error(ex);
+                        }
                     }
 
                     if (!device.IsRemote || device.ChannelNo > 2)
@@ -406,6 +417,25 @@ namespace ServiceLibrary.Implementation
             {
                 Error(ex);
             }
+        }
+
+        void Device_Authorized(object sender, EventArgs e)
+        {
+            if (sender is IDevice device)
+            {
+                foreach (var session in SessionManager.Sessions)
+                {
+                    try
+                    {
+                        session.Callbacks.DeviceAuthorized(new DeviceDTO(device));
+                    }
+                    catch (Exception ex)
+                    {
+                        Error(ex);
+                    }
+                }
+            }
+
         }
 
         async void SessionManager_SessionClosed(object sender, ServiceClientSession e)
@@ -661,13 +691,13 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public async Task<byte[]> RemoteConnection_AuthCommandAsync(string connectionId, byte[] data)
+        public async Task<byte[]> RemoteConnection_VerifyCommandAsync(string connectionId, byte[] data)
         {
             try
             {
                 var wcfDevice = (IWcfDevice)_deviceManager.Find(connectionId);
 
-                var response = await wcfDevice.OnAuthCommandAsync(data);
+                var response = await wcfDevice.OnVerifyCommandAsync(data);
 
                 return response;
             }
