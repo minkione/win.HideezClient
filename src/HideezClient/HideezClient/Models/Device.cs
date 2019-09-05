@@ -147,7 +147,7 @@ namespace HideezClient.Models
 
         public bool IsAuthorized
         {
-            get { return IsAuthorized; }
+            get { return isAuthorized; }
             private set { Set(ref isAuthorized, value); }
         }
 

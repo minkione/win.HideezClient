@@ -87,7 +87,6 @@
     <Compile Include="IClientUiProxy.cs" />
     <Compile Include="IScreenActivator.cs" />
     <Compile Include="IWorkstationLocker.cs" />
-    <Compile Include="Modules\WorkstationEventFactory\IWorkstationEventFactory.cs" />
     <Compile Include="Modules\NLogWrapper.cs" />
     <Compile Include="Modules\SessionSwitchManager.cs" />
     <Compile Include="Modules\Settings\BaseSettings.cs" />
@@ -97,7 +96,6 @@
     <Compile Include="Modules\Settings\Manager\SettingsManager.cs" />
     <Compile Include="Modules\Settings\FileSerializer\XmlFileSerializer.cs" />
     <Compile Include="Modules\Settings\ProximitySettings.cs" />
-    <Compile Include="Modules\WorkstationEventFactory\WorkstationEventFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\ErrorCode.Designer.cs" />
     <Compile Include="RfidServiceConnection.cs" />
