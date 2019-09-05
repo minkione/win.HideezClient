@@ -7,7 +7,6 @@ using Hideez.SDK.Communication.WCF;
 using Hideez.SDK.Communication.WorkstationEvents;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
-using HideezMiddleware.Modules;
 using HideezMiddleware.Settings;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ScreenActivation;
@@ -36,7 +35,6 @@ namespace ServiceLibrary.Implementation
         static IScreenActivator _screenActivator;
         static WcfDeviceFactory _wcfDeviceManager;
         static EventAggregator _eventAggregator;
-        static IWorkstationEventFactory _workstationEventFactory = new WorkstationEventFactory();
         static ServiceClientUiManager _clientProxy;
         static UiProxyManager _uiProxy;
         static StatusManager _statusManager;
@@ -267,7 +265,7 @@ namespace ServiceLibrary.Implementation
 
                 if (!device.IsRemote && device.IsInitialized)
                 {
-                    WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+                    WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
                     workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
                     workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
                     workstationEvent.Severity = WorkstationEventSeverity.Warning;
@@ -281,7 +279,7 @@ namespace ServiceLibrary.Implementation
         {
             if (sender is IDevice device && device.IsInitialized && (!device.IsRemote || device.ChannelNo > 2))
             {
-                WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
                 workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
                 workstationEvent.Severity = WorkstationEventSeverity.Info;
                 workstationEvent.DeviceId = device.SerialNo;
@@ -301,7 +299,7 @@ namespace ServiceLibrary.Implementation
         {
             if (_connectionManager != null && (_connectionManager.State == BluetoothAdapterState.Unknown || _connectionManager.State == BluetoothAdapterState.PoweredOn))
             {
-                var we = _workstationEventFactory.GetBaseInitializedInstance();
+                var we = WorkstationEvent.GetBaseInitializedInstance();
                 if (_connectionManager.State == BluetoothAdapterState.PoweredOn)
                 {
                     we.EventId = WorkstationEventType.DonglePlugged;
@@ -321,7 +319,7 @@ namespace ServiceLibrary.Implementation
         {
             bool isConnected = _rfidService != null ? _rfidService.ServiceConnected && _rfidService.ReaderConnected : false;
 
-            var we = _workstationEventFactory.GetBaseInitializedInstance();
+            var we = WorkstationEvent.GetBaseInitializedInstance();
             we.EventId = isConnected ? WorkstationEventType.RFIDAdapterPlugged : WorkstationEventType.RFIDAdapterUnplugged;
             we.Severity = isConnected ? WorkstationEventSeverity.Ok : WorkstationEventSeverity.Warning;
             Task.Run(() => _eventAggregator?.AddNewAsync(we));
@@ -331,7 +329,7 @@ namespace ServiceLibrary.Implementation
         {
             if (_hesConnection != null)
             {
-                var we = _workstationEventFactory.GetBaseInitializedInstance();
+                var we = WorkstationEvent.GetBaseInitializedInstance();
                 we.UserSession = SessionSwitchManager.UserSessionName;
                 if (_hesConnection.State == HesConnectionState.Connected)
                 {
@@ -405,12 +403,12 @@ namespace ServiceLibrary.Implementation
 
                     if (!device.IsRemote || device.ChannelNo > 2)
                     {
-                        WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+                        WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
                         workstationEvent.Severity = WorkstationEventSeverity.Info;
+                        workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
                         workstationEvent.DeviceId = device.SerialNo;
                         if (device.IsRemote)
                         {
-                            workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
                             workstationEvent.EventId = WorkstationEventType.RemoteConnect;
                         }
                         else
@@ -591,6 +589,7 @@ namespace ServiceLibrary.Implementation
         {
             WorkstationEvent we = new WorkstationEvent
             {
+                Version = WorkstationEvent.CurrentVersion,
                 Id = workstationEvent.Id,
                 Date = workstationEvent.Date,
                 WorkstationId = workstationEvent.WorkstationId,
@@ -816,7 +815,7 @@ namespace ServiceLibrary.Implementation
 
         public static async Task OnServiceStartedAsync()
         {
-            WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+            WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
             workstationEvent.EventId = WorkstationEventType.ServiceStarted;
@@ -825,7 +824,7 @@ namespace ServiceLibrary.Implementation
 
         public static async Task OnServiceStoppedAsync()
         {
-            WorkstationEvent workstationEvent = _workstationEventFactory.GetBaseInitializedInstance();
+            WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
             workstationEvent.EventId = WorkstationEventType.ServiceStopped;

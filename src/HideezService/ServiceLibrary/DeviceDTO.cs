@@ -42,7 +42,7 @@ namespace ServiceLibrary
         public bool IsBoot { get; private set; }
 
         [DataMember]
-        public int Battery { get; set; }
+        public sbyte Battery { get; set; }
 
         [DataMember]
         public Version FirmwareVersion { get; private set; }

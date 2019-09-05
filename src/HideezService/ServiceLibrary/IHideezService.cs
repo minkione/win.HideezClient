@@ -98,10 +98,10 @@ namespace ServiceLibrary
 
 
         [OperationContract(IsOneWay = true)]
-        void RemoteConnection_RssiReceived(string serialNo, double rssi);
+        void RemoteConnection_RssiReceived(string serialNo, sbyte rssi);
 
         [OperationContract(IsOneWay = true)]
-        void RemoteConnection_BatteryChanged(string serialNo, int battery);
+        void RemoteConnection_BatteryChanged(string serialNo, sbyte battery);
 
         [OperationContract(IsOneWay = true)]
         void RemoteConnection_StorageModified(string serialNo);

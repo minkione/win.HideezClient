@@ -2,13 +2,13 @@
 {
     class Remote_RssiReceivedMessage : Remote_BaseMessage
     {
-        public Remote_RssiReceivedMessage(string serialNo, double rssi)
+        public Remote_RssiReceivedMessage(string serialNo, sbyte rssi)
             : base(serialNo)
         {
             Rssi = rssi;
         }
 
 
-        public double Rssi { get; }
+        public sbyte Rssi { get; }
     }
 }
