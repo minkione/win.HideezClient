@@ -1007,7 +1007,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                device.Device.Connection.Connect();
+                device.Device.Connect();
             }
             catch (Exception ex)
             {
