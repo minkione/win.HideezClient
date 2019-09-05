@@ -324,7 +324,6 @@ namespace HideezClient.Models
 
         #endregion PIN
 
-
         const int VERIFY_CHANNEL = 2;
         const int VERIFY_WAIT = 20_000;
         const int INIT_WAIT = 5_000;
@@ -363,6 +362,8 @@ namespace HideezClient.Models
                             _serviceProxy.GetService().RemoveDevice(_remoteDevice.DeviceId);
                             throw new Exception("Remote device serial number does not match enumerated serial number");
                         }
+
+                        PasswordManager = new DevicePasswordManager(_remoteDevice, null);
 
                         _remoteDevice.ProximityChanged += RemoteDevice_ProximityChanged;
                         _remoteDevice.BatteryChanged += RemoteDevice_BatteryChanged;
@@ -446,9 +447,6 @@ namespace HideezClient.Models
 
         async Task<bool> ButtonWorkflow()
         {
-            if (!IsInitialized)
-                throw new Exception(); // Todo
-
             if (!_remoteDevice.AccessLevel.IsButtonRequired)
                 return true;
 
@@ -519,23 +517,33 @@ namespace HideezClient.Models
             return res;
         }
 
-
         public async Task LoadStorage()
         {
-            IsStorageLoaded = false;
+            if (PasswordManager == null)
+                return; // Todo:
 
-            IsLoadingStorage = true;
+            try
+            {
+                IsStorageLoaded = false;
 
-            _log.Info($"Device ({SerialNo}) loading storage");
+                IsLoadingStorage = true;
 
-            PasswordManager = new DevicePasswordManager(_remoteDevice, null);
-            await PasswordManager.Load();
+                _log.Info($"Device ({SerialNo}) loading storage");
 
-            _log.Info($"Device ({SerialNo}) loaded {PasswordManager.Accounts.Count} entries");
+                await PasswordManager.Load();
 
-            IsStorageLoaded = true;
+                _log.Info($"Device ({SerialNo}) loaded {PasswordManager.Accounts.Count} entries from storage");
 
-            IsLoadingStorage = false;
+                IsStorageLoaded = true;
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+            }
+            finally
+            {
+                IsLoadingStorage = false;
+            }
         }
 
         public void CloseRemoteDeviceConnection()
@@ -579,33 +587,9 @@ namespace HideezClient.Models
 
             Task.Run(() =>
             {
-                dmc.CallMethod(async () => { await LoadStorageAsync(); });
+                dmc.CallMethod(async () => { await LoadStorage(); });
             });
 
-        }
-
-        async Task LoadStorageAsync()
-        {
-            try
-            {
-                IsStorageLoaded = false;
-
-                IsLoadingStorage = true;
-
-                PasswordManager = new DevicePasswordManager(_remoteDevice, null);
-                await PasswordManager.Load();
-                _log.Info($"Device ({SerialNo}) reloaded {PasswordManager.Accounts.Count} entries");
-
-                IsStorageLoaded = true;
-            }
-            catch (Exception ex)
-            {
-                _log.Error(ex);
-            }
-            finally
-            {
-                IsLoadingStorage = false;
-            }
         }
     }
 }
