@@ -647,7 +647,7 @@ namespace ServiceLibrary.Implementation
             RemoteWcfDevices.Remove(wcfDevice);
         }
 
-        void RemoteConnection_RssiReceived(object sender, double rssi)
+        void RemoteConnection_RssiReceived(object sender, sbyte rssi)
         {
             try
             {
@@ -665,7 +665,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void RemoteConnection_BatteryChanged(object sender, int battery)
+        void RemoteConnection_BatteryChanged(object sender, sbyte battery)
         {
             try
             {
