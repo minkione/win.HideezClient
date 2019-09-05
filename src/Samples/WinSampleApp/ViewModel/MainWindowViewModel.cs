@@ -831,7 +831,7 @@ namespace WinSampleApp.ViewModel
                 _rfidService.Start();
 
                 // Unlocker Settings Manager ==================================
-                var unlockerSettingsManager = new SettingsManager<UnlockerSettings>(string.Empty, new XmlFileSerializer(_log));
+                var proximitySettingsManager = new SettingsManager<ProximitySettings>(string.Empty, new XmlFileSerializer(_log));
 
                 // UI proxy ==================================
                 var uiProxyManager = new UiProxyManager(_credentialProviderProxy, this, _log);
@@ -850,7 +850,7 @@ namespace WinSampleApp.ViewModel
                 _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _connectionManager, null, uiProxyManager, _log);
 
                 // StatusManager =============================
-                var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxyManager, unlockerSettingsManager, _log);
+                var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxyManager, proximitySettingsManager, _log);
 
                 _connectionManager.StartDiscovery();
 
