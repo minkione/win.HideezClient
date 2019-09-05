@@ -74,7 +74,7 @@ namespace HideezClient.ViewModels
                 switch (operation)
                 {
                     case PinOperation.Error:
-                        NAttempts = await Device?.GetCountAttemptsEnterPinAsync();
+                        NAttempts = Device.PinAttemptsRemain;
                         State = ViewPinState.WaitUserAction;
                         break;
                     case PinOperation.Successful:

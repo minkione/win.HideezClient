@@ -1,22 +1,20 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using HideezClient.Modules.DeviceManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Modules.ServiceProxy;
 using Moq;
 using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
-using System.Threading;
 
 namespace HideezClient.Modules.DeviceManager.Tests
 {
     [TestClass()]
     public class DeviceManagerTests
     {
+        // Todo: These tests will definitelly fail if ran in parallel. Make DeviceDTO collection local for each test.
         private readonly List<DeviceDTO> devices = new List<DeviceDTO>();
 
         [TestMethod()]
@@ -46,14 +44,14 @@ namespace HideezClient.Modules.DeviceManager.Tests
 
             await serviceProxy.ConnectAsync();
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count() == 1);
+            Assert.IsTrue(deviceManager.Devices.Count() == 3);
             await serviceProxy.DisconnectAsync();
             await Task.Delay(500);
             Assert.IsTrue(deviceManager.Devices.Count() == 0);
 
             await serviceProxy.ConnectAsync();
             await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count() == 1);
+            Assert.IsTrue(deviceManager.Devices.Count() == 3);
             await serviceProxy.DisconnectAsync();
             await Task.Delay(500);
             Assert.IsTrue(deviceManager.Devices.Count() == 0);

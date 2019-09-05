@@ -29,7 +29,7 @@ namespace HideezClient.Modules
 
         #region PIN
         Task<bool> ShowDialogEnterPinAsync(EnterPinViewModel viewModel);
-        void ShowPinNotVerified(Device device);
+        void ShowDeviceNotAuthorized(Device device);
         void ShowSetPin(Device device);
         void ShowChangePin(Device device);
         #endregion PIN

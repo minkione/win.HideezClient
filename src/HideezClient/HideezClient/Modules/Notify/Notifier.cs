@@ -157,8 +157,9 @@ namespace HideezClient.Modules
             }
         }
 
+        // Todo: Refactor this from PIN to not authorized device
         private static Dictionary<string, Guid> pinNotVerifiedForDevices = new Dictionary<string, Guid>();
-        public void ShowPinNotVerified(Device device)
+        public void ShowDeviceNotAuthorized(Device device)
         {
             if (!pinNotVerifiedForDevices.Keys.Contains(device.SerialNo))
             {

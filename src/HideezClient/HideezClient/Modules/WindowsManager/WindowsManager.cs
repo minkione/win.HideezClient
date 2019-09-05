@@ -267,15 +267,15 @@ namespace HideezClient.Modules
             return tcs.Task;
         }
 
-        public void ShowPinNotVerified(Device device)
+        public void ShowDeviceNotAuthorized(Device device)
         {
             if (UIDispatcher.CheckAccess())
             {
-                notifier.ShowPinNotVerified(device);
+                notifier.ShowDeviceNotAuthorized(device);
             }
             else
             {
-                UIDispatcher.Invoke(() => notifier.ShowPinNotVerified(device));
+                UIDispatcher.Invoke(() => notifier.ShowDeviceNotAuthorized(device));
             }
         }
 

@@ -145,7 +145,7 @@ namespace HideezClient.Modules.ActionHandler
             return Task.Run(() =>
             {
                 List<Account> accounts = new List<Account>();
-                foreach (var device in deviceManager.Devices.Where(d => d.IsConnected && d.IsInitialized && d.IsVerifiedPin && devicesId.Contains(d.Id)))
+                foreach (var device in deviceManager.Devices.Where(d => d.IsConnected && d.IsAuthorized && d.IsStorageLoaded && devicesId.Contains(d.Id)))
                 {
                     accounts.AddRange(device.FindAccountsByApp(appInfo));
                 }
@@ -216,12 +216,12 @@ namespace HideezClient.Modules.ActionHandler
             if (currentAppInfo != null)
             {
                 var connectedDevices = deviceManager.Devices.Where(d => d.IsConnected && d.IsInitialized && devicesId.Contains(d.Id)).ToArray();
-                foreach (var device in connectedDevices.Where(d => !d.IsVerifiedPin))
+                foreach (var device in connectedDevices.Where(d => !d.IsAuthorized))
                 {
-                    windowsManager.ShowPinNotVerified(device);
+                    windowsManager.ShowDeviceNotAuthorized(device);
                 }
 
-                return connectedDevices.Where(d => d.IsVerifiedPin).Any();
+                return connectedDevices.Where(d => d.IsAuthorized).Any();
             }
             else
             {

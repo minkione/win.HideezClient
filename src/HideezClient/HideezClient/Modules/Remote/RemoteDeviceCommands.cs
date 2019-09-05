@@ -23,7 +23,7 @@ namespace HideezClient.Modules.Remote
         {
             try
             {
-                await _serviceProxy.GetService().RemoteConnection_ResetChannelAsync(RemoteDevice.DeviceId);
+                await _serviceProxy.GetService().RemoteConnection_ResetChannelAsync(RemoteDevice.Id);
             }
             catch (FaultException<HideezServiceFault> ex)
             {
@@ -35,7 +35,7 @@ namespace HideezClient.Modules.Remote
         {
             try
             {
-                var response = await _serviceProxy.GetService().RemoteConnection_VerifyCommandAsync(RemoteDevice.DeviceId, data);
+                var response = await _serviceProxy.GetService().RemoteConnection_VerifyCommandAsync(RemoteDevice.Id, data);
                 RemoteDevice.OnVerifyResponse(response);
             }
             catch (FaultException<HideezServiceFault> ex)
@@ -49,7 +49,7 @@ namespace HideezClient.Modules.Remote
         {
             try
             {
-                var response = await _serviceProxy.GetService().RemoteConnection_RemoteCommandAsync(RemoteDevice.DeviceId, data);
+                var response = await _serviceProxy.GetService().RemoteConnection_RemoteCommandAsync(RemoteDevice.Id, data);
                 RemoteDevice.OnCommandResponse(response);
             }
             catch (FaultException<HideezServiceFault> ex)
