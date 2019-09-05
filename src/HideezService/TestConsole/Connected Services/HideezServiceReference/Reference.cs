@@ -146,7 +146,7 @@ namespace TestConsole.HideezServiceReference {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int BatteryField;
+        private sbyte BatteryField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Version BootloaderVersionField;
@@ -195,7 +195,7 @@ namespace TestConsole.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int Battery {
+        public sbyte Battery {
             get {
                 return this.BatteryField;
             }
@@ -700,10 +700,10 @@ namespace TestConsole.HideezServiceReference {
         void DeviceAuthorized(TestConsole.HideezServiceReference.DeviceDTO device);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_RssiReceived")]
-        void RemoteConnection_RssiReceived(string serialNo, double rssi);
+        void RemoteConnection_RssiReceived(string serialNo, sbyte rssi);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_BatteryChanged")]
-        void RemoteConnection_BatteryChanged(string serialNo, int battery);
+        void RemoteConnection_BatteryChanged(string serialNo, sbyte battery);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_StorageModified")]
         void RemoteConnection_StorageModified(string serialNo);

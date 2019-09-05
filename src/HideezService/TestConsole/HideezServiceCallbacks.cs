@@ -32,11 +32,11 @@ namespace TestConsole
         {
         }
 
-        public void RemoteConnection_BatteryChanged(string serialNo, int battery)
+        public void RemoteConnection_BatteryChanged(string serialNo, sbyte battery)
         {
         }
 
-        public void RemoteConnection_RssiReceived(string serialNo, double rssi)
+        public void RemoteConnection_RssiReceived(string serialNo, sbyte rssi)
         {
         }
 

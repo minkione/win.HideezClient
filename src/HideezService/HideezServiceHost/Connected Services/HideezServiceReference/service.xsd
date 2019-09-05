@@ -243,7 +243,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="rssi" type="xs:double" />
+        <xs:element minOccurs="0" name="rssi" type="xs:byte" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -251,7 +251,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="battery" type="xs:int" />
+        <xs:element minOccurs="0" name="battery" type="xs:byte" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

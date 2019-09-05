@@ -19,9 +19,9 @@ namespace HideezClient.Modules.Remote
             _messenger.Register<Remote_StorageModifiedMessage>(this, OnStorageModified);
         }
 
-        public event EventHandler<double> RssiReceived;
-        public event EventHandler<int> BatteryChanged;
-        public event EventHandler StorageModified;
+        public event EventHandler<sbyte> RssiReceived;
+        public event EventHandler<sbyte> BatteryChanged;
+        public event EventHandler<EventArgs> StorageModified;
 
         // Temporary duct tape, until IRemoteDeviceConnection is refactored
         public RemoteDevice RemoteDevice { get; set; }

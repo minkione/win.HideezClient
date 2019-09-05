@@ -414,9 +414,9 @@ namespace HideezClient.Models
             {
                 IsAuthorizing = true;
 
-                if (_remoteDevice.IsLocked)
+                if (_remoteDevice.AccessLevel.IsLocked)
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);
-                else if (_remoteDevice.IsLinkRequired)
+                else if (_remoteDevice.AccessLevel.IsLinkRequired)
                     throw new HideezException(HideezErrorCode.DeviceRequiresLink);
 
                 if (!await ButtonWorkflow())
@@ -424,7 +424,7 @@ namespace HideezClient.Models
 
                 var pinTask = PinWorkflow();
 
-                if (_remoteDevice.IsAuthorized)
+                if (_remoteDevice.AccessLevel.IsAuthorized)
                     _log.Info($"Remote device ({_remoteDevice.DeviceId}) authorized");
                 else
                     _log.Info($"Remote device ({_remoteDevice.DeviceId}) is not authorized");
@@ -449,7 +449,7 @@ namespace HideezClient.Models
             if (!IsInitialized)
                 throw new Exception(); // Todo
 
-            if (!_remoteDevice.IsButtonRequired)
+            if (!_remoteDevice.AccessLevel.IsButtonRequired)
                 return true;
 
             //await _ui.SendNotification("Please press the Button on your Hideez Key");
@@ -459,11 +459,11 @@ namespace HideezClient.Models
 
         Task<bool> PinWorkflow()
         {
-            if (_remoteDevice.IsNewPinRequired)
+            if (_remoteDevice.AccessLevel.IsNewPinRequired)
             {
                 return SetPinWorkflow();
             }
-            else if (_remoteDevice.IsPinRequired)
+            else if (_remoteDevice.AccessLevel.IsPinRequired)
             {
                 return EnterPinWorkflow();
             }
@@ -487,7 +487,7 @@ namespace HideezClient.Models
             Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
             bool res = false;
-            while (!_remoteDevice.IsLocked)
+            while (!_remoteDevice.AccessLevel.IsLocked)
             {
                 var pin = string.Empty;
                 //string pin = await _ui.GetPin(device.Id, timeout, withConfirm: true);
@@ -505,10 +505,14 @@ namespace HideezClient.Models
                 else
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({_remoteDevice.PinAttemptsRemain} attempts left)");
-                    //if (device.AccessLevel.IsLocked)
-                    //    await _ui.SendError($"Device is locked");
-                    //else
-                    //    await _ui.SendError($"Wrong PIN ({device.PinAttemptsRemain} attempts left)");
+                    if (_remoteDevice.AccessLevel.IsLocked)
+                    {
+                        //await _ui.SendError($"Device is locked");
+                    }
+                    else
+                    {
+                        //await _ui.SendError($"Wrong PIN ({device.PinAttemptsRemain} attempts left)");
+                    }
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow ------------------------------");
@@ -552,15 +556,17 @@ namespace HideezClient.Models
             IsInitializing = false;
             IsStorageLoaded = false;
             IsLoadingStorage = false;
+            IsAuthorizing = false;
+            IsAuthorized = false;
             FaultMessage = string.Empty;
         }
 
-        void RemoteDevice_ProximityChanged(object sender, int proximity)
+        void RemoteDevice_ProximityChanged(object sender, double proximity)
         {
             Proximity = proximity;
         }
 
-        void RemoteDevice_BatteryChanged(object sender, int battery)
+        void RemoteDevice_BatteryChanged(object sender, sbyte battery)
         {
             Battery = battery;
         }

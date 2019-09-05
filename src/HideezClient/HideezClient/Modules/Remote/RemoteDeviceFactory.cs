@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
+using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Remote;
 using HideezClient.Modules.Remote;
 using HideezClient.Modules.ServiceProxy;
@@ -10,11 +11,13 @@ namespace HideezClient.Modules
     {
         readonly IServiceProxy _serviceProxy;
         readonly IMessenger _messenger;
+        readonly ILog _log;
 
-        public RemoteDeviceFactory(IServiceProxy serviceProxy, IMessenger messenger)
+        public RemoteDeviceFactory(IServiceProxy serviceProxy, IMessenger messenger, ILog log)
         {
             _serviceProxy = serviceProxy;
             _messenger = messenger;
+            _log = log;
         }
 
         public async Task<RemoteDevice> CreateRemoteDeviceAsync(string serialNo, byte channelNo)
@@ -24,7 +27,7 @@ namespace HideezClient.Modules
             var remoteCommands = new RemoteDeviceCommands(_serviceProxy);
             var remoteEvents = new RemoteDeviceEvents(_messenger);
 
-            var device = new RemoteDevice(connectionId, remoteCommands, remoteEvents);
+            var device = new RemoteDevice(connectionId, remoteCommands, remoteEvents, _log);
 
             remoteCommands.RemoteDevice = device;
             remoteEvents.RemoteDevice = device;
