@@ -204,8 +204,6 @@ namespace HideezClient.Modules.DeviceManager
                     await Task.Delay(3000);
 
                     await device.InitializeRemoteDevice();
-                    await device.AuthorizeRemoteDevice();
-                    await device.LoadStorage();
                 }
                 catch (Exception ex)
                 {

@@ -25,6 +25,8 @@ namespace HideezClient.Modules.ServiceProxy
             this.callback = callback;
             this.messenger = messenger;
 
+            messenger.Register<SendPinMessage>(this, OnSendPinMessage);
+
             this.Connected += ServiceProxy_ConnectionChanged;
             this.Disconnected += ServiceProxy_ConnectionChanged;
         }
@@ -32,6 +34,21 @@ namespace HideezClient.Modules.ServiceProxy
         private void ServiceProxy_ConnectionChanged(object sender, EventArgs e)
         {
             messenger.Send(new ConnectionServiceChangedMessage(IsConnected));
+        }
+
+        private async void OnSendPinMessage(SendPinMessage obj)
+        {
+            try
+            {
+                if (IsConnected)
+                {
+                    await service.SendPinAsync(obj.DeviceId, obj.Pin ?? new byte[0], obj.OldPin ?? new byte[0]);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
         }
 
         public bool IsConnected

@@ -3,6 +3,7 @@ using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
+using Hideez.SDK.Communication.Utils;
 using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
 using HideezClient.Modules;
@@ -12,6 +13,7 @@ using HideezClient.Utilities;
 using MvvmExtensions.Attributes;
 using NLog;
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel;
@@ -42,8 +44,11 @@ namespace HideezClient.Models
         readonly ILogger _log = LogManager.GetCurrentClassLogger();
         readonly IServiceProxy _serviceProxy;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
+        readonly IMessenger _messenger;
         RemoteDevice _remoteDevice;
         DelayedMethodCaller dmc = new DelayedMethodCaller(2000);
+        readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetPinRequests
+            = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
 
         string id;
         string name;
@@ -61,13 +66,19 @@ namespace HideezClient.Models
 
         string faultMessage = string.Empty;
 
-        public Device(IServiceProxy serviceProxy, IRemoteDeviceFactory remoteDeviceFactory, IMessenger messenger, DeviceDTO dto)
+        public Device(
+            IServiceProxy serviceProxy, 
+            IRemoteDeviceFactory remoteDeviceFactory, 
+            IMessenger messenger, 
+            DeviceDTO dto)
         {
             _serviceProxy = serviceProxy;
             _remoteDeviceFactory = remoteDeviceFactory;
+            _messenger = messenger;
 
-            messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
-            messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
+            _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
+            _messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
+            _messenger.Register<SendPinMessage>(this, OnPinReceived);
 
             RegisterDependencies();
 
@@ -257,6 +268,13 @@ namespace HideezClient.Models
                 LoadFrom(obj.Device);
         }
 
+        void OnPinReceived(SendPinMessage obj)
+        {
+            if (_pendingGetPinRequests.TryGetValue(obj.DeviceId, out TaskCompletionSource<byte[]> tcs))
+                tcs.TrySetResult(obj.Pin);
+        }
+
+
         void LoadFrom(DeviceDTO dto)
         {
             Id = dto.Id;
@@ -269,102 +287,6 @@ namespace HideezClient.Models
             StorageTotalSize = dto.StorageTotalSize;
             StorageFreeSize = dto.StorageFreeSize;
         }
-
-        #region PIN
-
-        public async Task<PinOperation> SetPinAsync(byte[] pin, CancellationToken cancellationToken)
-        {
-            PinOperation operationState = PinOperation.Unknown;
-            // TODO: implement save PIN
-            await Task.Delay(2_000);
-
-            if (cancellationToken.IsCancellationRequested)
-            {
-                operationState = PinOperation.Canceled;
-            }
-            else
-            {
-                if (countAttemptsEnterPin >= 5)
-                {
-                    operationState = PinOperation.AccessDenied;
-                }
-                else
-                {
-                    operationState = Enumerable.SequenceEqual(pin, Encoding.UTF8.GetBytes("1234")) ? PinOperation.Successful : PinOperation.Error;
-                }
-            }
-
-            return operationState;
-        }
-
-        public async Task<PinOperation> ChangePin(byte[] oldPin, byte[] newPin, CancellationToken cancellationToken)
-        {
-            PinOperation operationState = PinOperation.Unknown;
-            // TODO: implement change PIN
-            await Task.Delay(2_000);
-            if (cancellationToken.IsCancellationRequested)
-            {
-                operationState = PinOperation.Canceled;
-            }
-            else
-            {
-                if (countAttemptsEnterPin >= 5)
-                {
-                    operationState = PinOperation.AccessDenied;
-                }
-                else
-                {
-                    operationState = Enumerable.SequenceEqual(oldPin, Encoding.UTF8.GetBytes("1234")) ? PinOperation.Successful : PinOperation.Error;
-                }
-            }
-
-            return operationState;
-        }
-
-        public async Task<int> GetCountAttemptsEnterPinAsync()
-        {
-            // TODO: implement get count attempts enter pin
-            await Task.Delay(1_000);
-
-            return countAttemptsEnterPin;
-        }
-
-        int countAttemptsEnterPin = 0;
-        public async Task<PinOperation> VerifyPinAsync(byte[] pin, CancellationToken cancellationToken)
-        {
-            PinOperation operationState = PinOperation.Unknown;
-            // TODO: implement verify PIN
-            await Task.Delay(2_000);
-
-            if (cancellationToken.IsCancellationRequested)
-            {
-                operationState = PinOperation.Canceled;
-            }
-            else
-            {
-                if (countAttemptsEnterPin >= 5)
-                {
-                    operationState = PinOperation.AccessDenied;
-                }
-                else
-                {
-                    ++countAttemptsEnterPin;
-                    if (Enumerable.SequenceEqual(pin, Encoding.UTF8.GetBytes("1234")))
-                    {
-                        operationState = PinOperation.Successful;
-                        countAttemptsEnterPin = 0;
-                    }
-                    else
-                    {
-                        operationState = PinOperation.Error;
-                    }
-                }
-            }
-
-            return operationState;
-        }
-        
-        #endregion PIN
 
         public async Task InitializeRemoteDevice()
         {
@@ -470,6 +392,7 @@ namespace HideezClient.Models
             }
             finally
             {
+                _messenger.Send(new HidePinUiMessage());
                 IsAuthorizing = false;
             }
         }
@@ -479,7 +402,7 @@ namespace HideezClient.Models
             if (!_remoteDevice.AccessLevel.IsButtonRequired)
                 return true;
 
-            //await _ui.SendNotification("Please press the Button on your Hideez Key");
+            _messenger.Send(new ShowButtonConfirmUiMessage(Id));
             var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT);
             return res;
         }
@@ -500,11 +423,10 @@ namespace HideezClient.Models
 
         async Task<bool> SetPinWorkflow()
         {
-            var pin = string.Empty;
-            //string pin = await _ui.GetPin(device.Id, timeout, withConfirm: true);
-            if (string.IsNullOrWhiteSpace(pin))
+            var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, withConfirm: true);
+            if (pin == null || pin.Count() == 0)
                 return false;
-            bool res = await _remoteDevice.SetPin(pin); //this using default timeout for BLE commands
+            bool res = await _remoteDevice.SetPin(Encoding.UTF8.GetString(pin)); //this using default timeout for BLE commands
 
             return res;
         }
@@ -513,18 +435,17 @@ namespace HideezClient.Models
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
-            bool res = false;
+            bool pinOk = false;
             while (!_remoteDevice.AccessLevel.IsLocked)
             {
-                var pin = string.Empty;
-                //string pin = await _ui.GetPin(device.Id, timeout, withConfirm: true);
+                var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, withConfirm: true);
                 Debug.WriteLine($">>>>>>>>>>>>>>> PIN: {pin}");
-                if (string.IsNullOrWhiteSpace(pin))
+                if (pin == null || pin.Count() == 0)
                     break;
 
-                res = await _remoteDevice.EnterPin(pin); //this using default timeout for BLE commands
+                pinOk = await _remoteDevice.EnterPin(Encoding.UTF8.GetString(pin)); //this using default timeout for BLE commands
 
-                if (res)
+                if (pinOk)
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> PIN OK");
                     break;
@@ -533,17 +454,13 @@ namespace HideezClient.Models
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({_remoteDevice.PinAttemptsRemain} attempts left)");
                     if (_remoteDevice.AccessLevel.IsLocked)
-                    {
-                        //await _ui.SendError($"Device is locked");
-                    }
+                        _messenger.Send(new ShowErrorNotificationMessage($"Device is locked"));
                     else
-                    {
-                        //await _ui.SendError($"Wrong PIN ({device.PinAttemptsRemain} attempts left)");
-                    }
+                        _messenger.Send(new ShowErrorNotificationMessage($"Wrong PIN ({PinAttemptsRemain} attempts left)"));
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow ------------------------------");
-            return res;
+            return pinOk;
         }
 
         public async Task LoadStorage()
@@ -594,5 +511,125 @@ namespace HideezClient.Models
             IsStorageLoaded = false;
             FaultMessage = string.Empty;
         }
+
+        async Task<byte[]> GetPin(string deviceId, int timeout, bool withConfirm = false, bool askOldPin = false)
+        {
+            _messenger.Send(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
+
+            var tcs = _pendingGetPinRequests.GetOrAdd(deviceId, (x) =>
+            {
+                return new TaskCompletionSource<byte[]>();
+            });
+
+            try
+            {
+                return await tcs.Task.TimeoutAfter(timeout);
+            }
+            catch (TimeoutException)
+            {
+                return null;
+            }
+            finally
+            {
+                _pendingGetPinRequests.TryRemove(deviceId, out TaskCompletionSource<byte[]> removed);
+            }
+        }
+
+        #region Old PIN
+
+        public async Task<PinOperation> SetPinAsync(byte[] pin, CancellationToken cancellationToken)
+        {
+            PinOperation operationState = PinOperation.Unknown;
+            // TODO: implement save PIN
+            await Task.Delay(2_000);
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                operationState = PinOperation.Canceled;
+            }
+            else
+            {
+                if (countAttemptsEnterPin >= 5)
+                {
+                    operationState = PinOperation.AccessDenied;
+                }
+                else
+                {
+                    operationState = Enumerable.SequenceEqual(pin, Encoding.UTF8.GetBytes("1234")) ? PinOperation.Successful : PinOperation.Error;
+                }
+            }
+
+            return operationState;
+        }
+
+        public async Task<PinOperation> ChangePin(byte[] oldPin, byte[] newPin, CancellationToken cancellationToken)
+        {
+            PinOperation operationState = PinOperation.Unknown;
+            // TODO: implement change PIN
+            await Task.Delay(2_000);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                operationState = PinOperation.Canceled;
+            }
+            else
+            {
+                if (countAttemptsEnterPin >= 5)
+                {
+                    operationState = PinOperation.AccessDenied;
+                }
+                else
+                {
+                    operationState = Enumerable.SequenceEqual(oldPin, Encoding.UTF8.GetBytes("1234")) ? PinOperation.Successful : PinOperation.Error;
+                }
+            }
+
+            return operationState;
+        }
+
+        public async Task<int> GetCountAttemptsEnterPinAsync()
+        {
+            // TODO: implement get count attempts enter pin
+            await Task.Delay(1_000);
+
+            return countAttemptsEnterPin;
+        }
+
+        int countAttemptsEnterPin = 0;
+        public async Task<PinOperation> VerifyPinAsync(byte[] pin, CancellationToken cancellationToken)
+        {
+            PinOperation operationState = PinOperation.Unknown;
+            // TODO: implement verify PIN
+            await Task.Delay(2_000);
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                operationState = PinOperation.Canceled;
+            }
+            else
+            {
+                if (countAttemptsEnterPin >= 5)
+                {
+                    operationState = PinOperation.AccessDenied;
+                }
+                else
+                {
+                    ++countAttemptsEnterPin;
+                    if (Enumerable.SequenceEqual(pin, Encoding.UTF8.GetBytes("1234")))
+                    {
+                        operationState = PinOperation.Successful;
+                        countAttemptsEnterPin = 0;
+                    }
+                    else
+                    {
+                        operationState = PinOperation.Error;
+                    }
+                }
+            }
+
+            return operationState;
+        }
+
+        #endregion PIN
+
     }
 }

@@ -10,6 +10,9 @@ using System.Linq;
 using System.Windows.Threading;
 using HideezClient.Models;
 using HideezClient.Controls;
+using GalaSoft.MvvmLight.Messaging;
+using HideezClient.Messages;
+using System.Threading;
 
 namespace HideezClient.Modules
 {
@@ -20,13 +23,23 @@ namespace HideezClient.Modules
         private readonly INotifier notifier;
         private readonly Logger log = LogManager.GetCurrentClassLogger();
         private bool isMainWindowVisible;
+        IMessenger _messenger; // Todo: Remove _messenger dependency (message registration in constructor is fine)
 
         public event EventHandler<bool> MainWindowVisibleChanged;
 
-        public WindowsManager(INotifier notifier, ViewModelLocator viewModelLocator)
+        public WindowsManager(INotifier notifier, ViewModelLocator viewModelLocator, IMessenger messenger)
         {
             this.notifier = notifier;
             this.viewModelLocator = viewModelLocator;
+            _messenger = messenger;
+
+            messenger.Register<ShowInfoNotificationMessage>(this, (p) => ShowInfo(p.Message, p.Title));
+            messenger.Register<ShowWarningNotificationMessage>(this, (p) => ShowWarn(p.Message, p.Title));
+            messenger.Register<ShowErrorNotificationMessage>(this, (p) => ShowError(p.Message, p.Title));
+
+            messenger.Register<ShowButtonConfirmUiMessage>(this, ShowButtonConfirmAsync);
+            messenger.Register<ShowPinUiMessage>(this, ShowPinAsync);
+            messenger.Register<HidePinUiMessage>(this, HidePinAsync);
         }
 
         public void ActivateMainWindow()
@@ -250,7 +263,36 @@ namespace HideezClient.Modules
             }
         }
 
-        #region PIN
+        // This message may be repeatedly received every 300ms
+        async void ShowButtonConfirmAsync(ShowButtonConfirmUiMessage obj)
+        {
+            // Todo:
+        }
+
+        int pinShown = 0;
+        // This message may be repeatedly received every 300ms
+        async void ShowPinAsync(ShowPinUiMessage obj)
+        {
+            if (Interlocked.CompareExchange(ref pinShown, 1, 0) == 0)
+            {
+                try
+                {
+                    await Task.Delay(2000);
+                    _messenger.Send(new SendPinMessage(obj.DeviceId, System.Text.Encoding.UTF8.GetBytes("1111")));
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref pinShown, 0);
+                }
+            }
+        }
+
+        async void HidePinAsync(HidePinUiMessage obj)
+        {
+            // Todo:
+        }
+
+        #region Old PIN
 
         public Task ShowDeviceLockedAsync()
         {
@@ -314,7 +356,6 @@ namespace HideezClient.Modules
         }
 
         #endregion PIN
-
 
         public void ShowInfoAboutDevice(Device device)
         {

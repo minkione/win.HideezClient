@@ -2,11 +2,11 @@
 {
     class ShowPinUiMessage
     {
-        public string DeviceId { get; set; }
+        public string DeviceId { get; }
 
-        public bool ConfirmPin { get; set; }
+        public bool ConfirmPin { get; }
 
-        public bool OldPin { get; set; }
+        public bool OldPin { get; }
 
         public ShowPinUiMessage(string deviceId, bool withConfirm, bool askOldPin)
         {
