@@ -405,10 +405,10 @@ namespace ServiceLibrary.Implementation
                     {
                         WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
                         workstationEvent.Severity = WorkstationEventSeverity.Info;
-                        workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
                         workstationEvent.DeviceId = device.SerialNo;
                         if (device.IsRemote)
                         {
+                            workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
                             workstationEvent.EventId = WorkstationEventType.RemoteConnect;
                         }
                         else
