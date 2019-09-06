@@ -20,6 +20,7 @@ namespace HideezClient.Modules.DeviceManager
     class DeviceManager : IDeviceManager
     {
         private readonly Logger _log = LogManager.GetCurrentClassLogger();
+        private readonly IMessenger _messenger;
         private readonly IServiceProxy _serviceProxy;
         private readonly IWindowsManager _windowsManager;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
@@ -45,14 +46,13 @@ namespace HideezClient.Modules.DeviceManager
         public DeviceManager(IMessenger messenger, IServiceProxy serviceProxy,
             IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory)
         {
+            _messenger = messenger;
             _serviceProxy = serviceProxy;
             _windowsManager = windowsManager;
             _remoteDeviceFactory = remoteDeviceFactory;
 
-            messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
-            messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
-            messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
-            messenger.Register<DeviceAuthorizedMessage>(this, OnDeviceAuthorized);
+            _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
+            _messenger.Register<DeviceAuthorizedMessage>(this, OnDeviceAuthorized);
 
             _serviceProxy.Disconnected += OnServiceProxyConnectionStateChanged;
             _serviceProxy.Connected += OnServiceProxyConnectionStateChanged;
@@ -90,42 +90,6 @@ namespace HideezClient.Modules.DeviceManager
             });
         }
 
-        void OnDeviceConnectionStateChanged(DeviceConnectionStateChangedMessage message)
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    if (_devices.TryGetValue(message.Device.Id, out Device dvm))
-                    {
-                        dvm.LoadFrom(message.Device);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _log.Error(ex);
-                }
-            });
-        }
-
-        void OnDeviceInitialized(DeviceInitializedMessage message)
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    if (_devices.TryGetValue(message.Device.Id, out Device dvm))
-                    {
-                        dvm.LoadFrom(message.Device);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _log.Error(ex);
-                }
-            });
-        }
-
         void OnDeviceAuthorized(DeviceAuthorizedMessage message)
         {
             Task.Run(() =>
@@ -134,8 +98,6 @@ namespace HideezClient.Modules.DeviceManager
                 {
                     if (_devices.TryGetValue(message.Device.Id, out Device dvm))
                     {
-                        dvm.LoadFrom(message.Device);
-
                         if (message.Device.IsAuthorized && dvm.IsConnected)
                             _ = TryCreateRemoteDeviceAsync(dvm);
                     }
@@ -178,7 +140,6 @@ namespace HideezClient.Modules.DeviceManager
                 foreach (var deviceDto in serviceDevices)
                     AddDevice(deviceDto);
 
-
                 // delete device from UI if its deleted from service
                 Device[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
                 RemoveDevices(missingDevices);
@@ -195,14 +156,11 @@ namespace HideezClient.Modules.DeviceManager
 
         void AddDevice(DeviceDTO dto)
         {
-            var device = new Device(_serviceProxy, _remoteDeviceFactory);
+            var device = new Device(_serviceProxy, _remoteDeviceFactory, _messenger, dto);
             device.PropertyChanged += Device_PropertyChanged;
-
-            device.LoadFrom(dto);
 
             if (_devices.TryAdd(device.Id, device))
             {
-
                 DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, device));
             }
         }
@@ -235,7 +193,23 @@ namespace HideezClient.Modules.DeviceManager
         async Task TryCreateRemoteDeviceAsync(Device device)
         {
             if (!device.IsInitialized && !device.IsInitializing && !device.IsAuthorized && !device.IsAuthorizing)
-                await device.InitializeRemoteDevice();
+            {
+                try
+                {
+                    // Todo: Do something about remote device creation delay
+                    // Allow other services to interact with the device first because
+                    // remote device connection establishmebt blocks communication
+                    // A 3s delay should be enough
+                    // Removing this line will result in slower workstation unlock
+                    await Task.Delay(3000);
+
+                    await device.InitializeRemoteDevice();
+                }
+                catch (Exception ex)
+                {
+                    _log.Error(ex);
+                }
+            }
         }
     }
 }

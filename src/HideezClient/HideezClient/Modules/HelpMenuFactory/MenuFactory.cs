@@ -90,7 +90,7 @@ namespace HideezClient.Modules
 
         public MenuItemViewModel GetMenuItem(Device device, MenuItemType type)
         {
-            if(device == null)
+            if (device == null)
             {
                 Debug.Assert(false, "Device can not be null.");
             }
@@ -105,6 +105,8 @@ namespace HideezClient.Modules
                     return GetMenuRemoveDevice(device);
                 case MenuItemType.AboutDevice:
                     return GetMenuAboutDevice(device);
+                case MenuItemType.AuthorizeDeviceAndLoadStorage:
+                    return GetMenuAuthorizeAndLoadStorage(device);
                 default:
                     Debug.Assert(false, $"The type: {type} of menu is not supported.");
                     return null;
@@ -178,9 +180,31 @@ namespace HideezClient.Modules
             };
         }
 
-        private async void OnDisconnectDevice(object paran)
+        private MenuItemViewModel GetMenuAuthorizeAndLoadStorage(Device device)
         {
-            if (paran is Device device)
+            return new MenuItemViewModel
+            {
+                Header = "Authorize",
+                Command = new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    device.IsConnected &&
+                    device.IsInitialized &&
+                    !device.IsAuthorizing &&
+                    !device.IsAuthorized &&
+                    !device.IsLoadingStorage &&
+                    !device.IsStorageLoaded,
+                    CommandAction = (x) =>
+                    {
+                        OnAuthorizeAndLoadStorage(x);
+                    }
+                },
+            };
+        }
+
+        private async void OnDisconnectDevice(object param)
+        {
+            if (param is Device device)
             {
                 try
                 {
@@ -204,9 +228,9 @@ namespace HideezClient.Modules
             }
         }
 
-        private async void OnRemoveDevice(object paran)
+        private async void OnRemoveDevice(object param)
         {
-            if (paran is Device device)
+            if (param is Device device)
             {
                 try
                 {
@@ -364,6 +388,26 @@ namespace HideezClient.Modules
             }
 
             return logsMenu;
+        }
+
+        private async void OnAuthorizeAndLoadStorage(object param)
+        {
+            if (param is Device device)
+            {
+                try
+                {
+                    await device.AuthorizeRemoteDevice();
+                    await device.LoadStorage();
+                }
+                catch (FaultException<HideezServiceFault> ex)
+                {
+                    windowsManager.ShowError(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    windowsManager.ShowError(ex.Message);
+                }
+            }
         }
     }
 }

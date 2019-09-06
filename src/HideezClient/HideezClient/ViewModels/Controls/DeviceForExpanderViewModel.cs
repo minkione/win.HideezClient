@@ -22,6 +22,7 @@ namespace HideezClient.ViewModels
             MenuItems = new ObservableCollection<MenuItemViewModel>
             {
                 menuFactory.GetMenuItem(device, MenuItemType.AddCredential),
+                menuFactory.GetMenuItem(device, MenuItemType.AuthorizeDeviceAndLoadStorage),
                 menuFactory.GetMenuItem(device, MenuItemType.DisconnectDevice),
                 menuFactory.GetMenuItem(device, MenuItemType.RemoveDevice),
                 menuFactory.GetMenuItem(device, MenuItemType.AboutDevice),

@@ -12,7 +12,7 @@ namespace HideezClient.Modules
         void ShowWarn(string title, string message, NotificationOptions options = null);
         void ShowError(string title, string message, NotificationOptions options = null);
         void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel);
-        void ShowPinNotVerified(Device device);
+        void ShowDeviceNotAuthorized(Device device);
         Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd);
         IEnumerable<NotificationBase> GetNotifications(Guid id);
         void CloseNotifications(Guid id);

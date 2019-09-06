@@ -264,11 +264,16 @@
     <Compile Include="Messages\Remote\Remote_BatteryChangedMessage.cs" />
     <Compile Include="Messages\Remote\Remote_RssiReceivedMessage.cs" />
     <Compile Include="Messages\Remote\Remote_StorageModifiedMessage.cs" />
+    <Compile Include="Messages\SendPinMessage.cs" />
     <Compile Include="Messages\ServiceComponentsStateChangedMessage.cs" />
     <Compile Include="Messages\ServiceErrorReceivedMessage.cs" />
     <Compile Include="Messages\ServiceNotificationReceivedMessage.cs" />
     <Compile Include="Messages\SettingsChangedMessage.cs" />
+    <Compile Include="Messages\ShowButtonConfirmUiMessage.cs" />
+    <Compile Include="Messages\ShowErrorNotificationMessage.cs" />
+    <Compile Include="Messages\ShowInfoNotificationMessage.cs" />
     <Compile Include="Messages\ShowPinUiMessage.cs" />
+    <Compile Include="Messages\ShowWarningNotificationMessage.cs" />
     <Compile Include="Models\Device.cs" />
     <Compile Include="Models\Account.cs" />
     <Compile Include="Modules\AccountManager\AccountExtensions.cs" />
@@ -316,8 +321,6 @@
     <Compile Include="ViewModels\PIN\EnterPinViewModel.cs" />
     <Compile Include="ViewModels\PIN\PinViewModalBase.cs" />
     <Compile Include="ViewModels\PIN\SetPinViewModal.cs" />
-    <Compile Include="ViewModel\MainViewModel.cs" />
-    <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="Views\AboutDeviceView.xaml.cs">
       <DependentUpon>AboutDeviceView.xaml</DependentUpon>
     </Compile>
