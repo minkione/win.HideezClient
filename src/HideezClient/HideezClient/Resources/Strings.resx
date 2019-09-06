@@ -338,7 +338,7 @@ Device is not connected</value>
     <value>Password entry cancelled. Field not protected.</value>
   </data>
   <data name="Exception.AccountNotFound" xml:space="preserve">
-    <value>Accout for {0} is not found.</value>
+    <value>Account for {0} is not found.</value>
   </data>
   <data name="NoAnyConnectedDevice" xml:space="preserve">
     <value>Not found any connected device.</value>

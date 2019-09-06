@@ -321,8 +321,6 @@
     <Compile Include="ViewModels\PIN\EnterPinViewModel.cs" />
     <Compile Include="ViewModels\PIN\PinViewModalBase.cs" />
     <Compile Include="ViewModels\PIN\SetPinViewModal.cs" />
-    <Compile Include="ViewModel\MainViewModel.cs" />
-    <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="Views\AboutDeviceView.xaml.cs">
       <DependentUpon>AboutDeviceView.xaml</DependentUpon>
     </Compile>
