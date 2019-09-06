@@ -24,9 +24,9 @@
             <Label Grid.Row="1" Grid.Column="0" Content="PIN"/>
             <Label Grid.Row="2" Grid.Column="0" Content="Confirm PIN"/>
 
-            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding OldPin}" Margin="5"/>
-            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Pin}" Margin="5"/>
-            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ConfirmPin}" Margin="5"/>
+            <TextBox Name="myOldPin" Grid.Row="0" Grid.Column="1" Margin="5"/>
+            <TextBox Name="myPin" Grid.Row="1" Grid.Column="1" Margin="5" />
+            <TextBox Name="myConfirmPin" Grid.Row="2" Grid.Column="1" Margin="5"/>
 
         </Grid>
 

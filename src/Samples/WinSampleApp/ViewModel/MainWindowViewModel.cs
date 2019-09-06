@@ -23,7 +23,7 @@ using Microsoft.Win32;
 
 namespace WinSampleApp.ViewModel
 {
-    public class MainWindowViewModel : ViewModelBase, IClientUiProxy
+    public class MainWindowViewModel : ViewModelBase, IClientUiProxy, IWorkstationUnlocker
     {
         readonly EventLogger _log;
         readonly BleConnectionManager _connectionManager;
@@ -840,7 +840,7 @@ namespace WinSampleApp.ViewModel
                 _connectionFlowProcessor = new ConnectionFlowProcessor(
                     _deviceManager,
                     _hesConnection,
-                    _credentialProviderProxy, // as IWorkstationUnlocker
+                    _credentialProviderProxy, // use _credentialProviderProxy as IWorkstationUnlocker in real app
                     null,
                     uiProxyManager,
                     _log);
@@ -1420,10 +1420,9 @@ namespace WinSampleApp.ViewModel
         }
 
         #region IClientUiProxy
-        public bool IsConnected => true;
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
-        public event EventHandler<EventArgs> PinCancelled;
+        public event EventHandler<EventArgs> PinCancelled { add { } remove { } }
 
         public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
         {
@@ -1438,8 +1437,7 @@ namespace WinSampleApp.ViewModel
                 {
                     if (_getPinWindow == null)
                     {
-                        var vm = new GetPinViewModel();
-                        _getPinWindow = new GetPinWindow(vm, (pin, oldPin) =>
+                        _getPinWindow = new GetPinWindow((pin, oldPin) =>
                         {
                             PinReceived?.Invoke(this, new PinReceivedEventArgs()
                             {
@@ -1487,6 +1485,17 @@ namespace WinSampleApp.ViewModel
             return Task.CompletedTask;
         }
 
+
         #endregion IClientUiProxy
+
+        #region IWorkstationUnlocker
+        public bool IsConnected => true;
+
+        public Task<bool> SendLogonRequest(string login, string password, string previousPassword)
+        {
+            Debug.WriteLine($"IWorkstationUnlocker.SendLogonRequest: {login}, {password}, {previousPassword}");
+            return Task.FromResult(true);
+        }
+        #endregion IWorkstationUnlocker
     }
 }

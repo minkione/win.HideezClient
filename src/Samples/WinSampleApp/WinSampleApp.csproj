@@ -173,7 +173,6 @@
     </Compile>
     <Compile Include="Utils\DelegateCommand.cs" />
     <Compile Include="ViewModel\DeviceViewModel.cs" />
-    <Compile Include="ViewModel\GetPinViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Page Include="AccessParamsWindow.xaml">

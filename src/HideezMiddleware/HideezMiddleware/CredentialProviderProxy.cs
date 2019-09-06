@@ -159,9 +159,6 @@ namespace HideezMiddleware
                 DeviceId = deviceId,
                 Pin = pin
             });
-
-            //if (_pendingGetPinRequests.TryGetValue(deviceId, out TaskCompletionSource<string> tcs))
-            //    tcs.TrySetResult(pin);
         }
         #endregion CP Message handlers 
 
@@ -213,8 +210,11 @@ namespace HideezMiddleware
 
         public async Task SendError(string message)
         {
-            WriteLine($"SendError: {message}");
-            await SendMessageAsync(CredentialProviderCommandCode.Error, true, $"{DateTime.Now.ToShortTimeString()}: {message}");
+            if (!string.IsNullOrEmpty(message))
+            {
+                WriteLine($"SendError: {message}");
+                await SendMessageAsync(CredentialProviderCommandCode.Error, true, $"{DateTime.Now.ToShortTimeString()}: {message}");
+            }
         }
 
         public async Task SendNotification(string message)

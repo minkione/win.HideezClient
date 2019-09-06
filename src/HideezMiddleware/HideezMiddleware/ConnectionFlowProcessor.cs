@@ -155,7 +155,7 @@ namespace HideezMiddleware
             // if the device needs to be updated, update and read credentials again
             if (infoTask.Result)
             {
-                await WaitForRemoteDeviceUpdate(device.Mac);
+                await WaitForRemoteDeviceUpdate(device.SerialNo);
                 credentials = await GetCredentials(device);
             }
 
@@ -173,7 +173,7 @@ namespace HideezMiddleware
             {
                 if (_hesConnection.State == HesConnectionState.Connected)
                 {
-                    var info = await _hesConnection.GetInfoByMac(device.Mac);
+                    var info = await _hesConnection.GetInfoBySerialNo(device.SerialNo);
                     return info.NeedUpdate;
                 }
             }
@@ -267,7 +267,7 @@ namespace HideezMiddleware
 
         async Task<bool> EnterPinWorkflow(IDevice device, int timeout)
         {
-            Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow +++++++++++++++++++++++++++++++++++++++");
+            Debug.WriteLine(">>>>>>>>>>>>>>> EnterPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
             bool res = false;
             while (!device.AccessLevel.IsLocked)
@@ -275,7 +275,11 @@ namespace HideezMiddleware
                 string pin = await _ui.GetPin(device.Id, timeout);
                 Debug.WriteLine($">>>>>>>>>>>>>>> PIN: {pin}");
                 if (string.IsNullOrWhiteSpace(pin))
-                    break;
+                {
+                    Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY PIN");
+                    WriteLine("Received empty PIN");
+                    continue;
+                }
 
                 res = await device.EnterPin(pin); //this using default timeout for BLE commands
 
@@ -334,7 +338,7 @@ namespace HideezMiddleware
             }
         }
 
-        async Task WaitForRemoteDeviceUpdate(string mac) //todo - refactor to use callbacks from server
+        async Task WaitForRemoteDeviceUpdate(string serialNo) //todo - refactor to use callbacks from server
         {
             if (_hesConnection.State != HesConnectionState.Connected)
                 throw new Exception("Cannot update device. Not connected to the HES.");
@@ -342,8 +346,7 @@ namespace HideezMiddleware
             DeviceInfoDto info;
             for (int i = 0; i < 10; i++)
             {
-                //todo - GetInfoBySerialNo
-                info = await _hesConnection.GetInfoByMac(mac);
+                info = await _hesConnection.GetInfoBySerialNo(serialNo);
                 if (info.NeedUpdate == false)
                     return;
                 await Task.Delay(3000);
