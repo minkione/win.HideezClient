@@ -173,7 +173,7 @@
                                             <iconPacks:PackIconMaterial
                                                 x:Name="NotAuthorizedIco"
                                                 Width="16"
-                                                Height="22"
+                                                Height="18"
                                                 Margin="8,0,0,2"
                                                 Foreground="Yellow"
                                                 Kind="Lock" 

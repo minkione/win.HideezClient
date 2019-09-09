@@ -2,11 +2,11 @@
 {
     abstract class Remote_BaseMessage
     {
-        public Remote_BaseMessage(string serialNo)
+        public Remote_BaseMessage(string id)
         {
-            SerialNo = serialNo;
+            Id = id;
         }
 
-        public string SerialNo { get; }
+        public string Id { get; }
     }
 }

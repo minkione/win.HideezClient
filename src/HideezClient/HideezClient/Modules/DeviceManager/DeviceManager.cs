@@ -52,6 +52,7 @@ namespace HideezClient.Modules.DeviceManager
             _remoteDeviceFactory = remoteDeviceFactory;
 
             _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
+            // Todo: Add remote device creation when service is already running, but UI is restarted
             _messenger.Register<DeviceAuthorizedMessage>(this, OnDeviceAuthorized);
 
             _serviceProxy.Disconnected += OnServiceProxyConnectionStateChanged;

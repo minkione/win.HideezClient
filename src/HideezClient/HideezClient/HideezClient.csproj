@@ -247,9 +247,6 @@
     <Compile Include="Messages\ActivateScreenMessage.cs" />
     <Compile Include="Messages\ButtonPressedMessage.cs" />
     <Compile Include="Messages\ConnectionChangedMessage.cs" />
-    <Compile Include="Messages\ConnectionDongleChangedMessage.cs" />
-    <Compile Include="Messages\ConnectionHESChangedMessage.cs" />
-    <Compile Include="Messages\ConnectionRFIDChangedMessage.cs" />
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
     <Compile Include="Messages\DeviceAuthorizedMessage.cs" />
     <Compile Include="Messages\DeviceConnectionStateChangedMessage.cs" />
@@ -261,9 +258,8 @@
     <Compile Include="Messages\HotkeyStateChangedMessage.cs" />
     <Compile Include="Messages\LockWorkstationMessage.cs" />
     <Compile Include="Messages\Remote\Remote_BaseMessage.cs" />
-    <Compile Include="Messages\Remote\Remote_BatteryChangedMessage.cs" />
-    <Compile Include="Messages\Remote\Remote_RssiReceivedMessage.cs" />
     <Compile Include="Messages\Remote\Remote_StorageModifiedMessage.cs" />
+    <Compile Include="Messages\Remote\Remote_SystemStateReceivedMessage.cs" />
     <Compile Include="Messages\SendPinMessage.cs" />
     <Compile Include="Messages\ServiceComponentsStateChangedMessage.cs" />
     <Compile Include="Messages\ServiceErrorReceivedMessage.cs" />

@@ -199,6 +199,7 @@ namespace HideezClient.Modules
                         OnAuthorizeAndLoadStorage(x);
                     }
                 },
+                CommandParameter = device,
             };
         }
 

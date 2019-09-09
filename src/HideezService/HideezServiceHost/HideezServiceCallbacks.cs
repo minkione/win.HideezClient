@@ -38,14 +38,6 @@ namespace HideezServiceHost
         {
         }
 
-        public void RemoteConnection_BatteryChanged(string serialNo, sbyte battery)
-        {
-        }
-
-        public void RemoteConnection_RssiReceived(string serialNo, sbyte rssi)
-        {
-        }
-
         public void RemoteConnection_StorageModified(string serialNo)
         {
         }
@@ -63,6 +55,10 @@ namespace HideezServiceHost
         }
 
         public void ShowPinUi(string deviceId, bool withConfirm, bool askOldPin)
+        {
+        }
+
+        public void RemoteConnection_SystemStateReceived(string deviceId, byte[] systemStateData)
         {
         }
     }

@@ -42,46 +42,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
                 log.Error(ex);
             }
         }
-        /*
-        public void DongleConnectionStateChanged(bool isConnected)
-        {
-            try
-            {
-                log.Info($"Dongle connection state changed: {isConnected}");
-                messenger.Send(new ConnectionDongleChangedMessage(isConnected));
-            }
-            catch (System.Exception ex)
-            {
-                log.Error(ex);
-            }
-        }
 
-        public void HESConnectionStateChanged(bool isConnected)
-        {
-            try
-            {
-                log.Info($"HES connection state changed: {isConnected}");
-                messenger.Send(new ConnectionHESChangedMessage(isConnected));
-            }
-            catch (System.Exception ex)
-            {
-                log.Error(ex);
-            }
-        }
-
-        public void RFIDConnectionStateChanged(bool isConnected)
-        {
-            try
-            {
-                log.Info($"RFID connection state changed: {isConnected}");
-                messenger.Send(new ConnectionRFIDChangedMessage(isConnected));
-            }
-            catch (System.Exception ex)
-            {
-                log.Error(ex);
-            }
-        }
-        */
         public void DevicesCollectionChanged(DeviceDTO[] devices)
         {
             try
@@ -125,7 +86,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
         {
             try
             {
-                log.Info($"Devoce ({device.Id}) is authorized");
+                log.Info($"Device ({device.Id}) is authorized");
                 messenger.Send(new DeviceAuthorizedMessage(device));
             }
             catch (Exception ex)
@@ -134,41 +95,27 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             }
         }
 
-        public void RemoteConnection_RssiReceived(string serialNo, sbyte rssi)
+        public void RemoteConnection_StorageModified(string deviceId)
         {
             try
             {
-                // to many messages are printed into log due to the line bellow
-                //log.Info($"Remote ({connectionId}) rssi received ({rssi})");
-                messenger.Send(new Remote_RssiReceivedMessage(serialNo, rssi));
+                log.Info($"Remote ({deviceId}) storage modified");
+                messenger.Send(new Remote_StorageModifiedMessage(deviceId));
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 log.Error(ex);
             }
         }
 
-        public void RemoteConnection_BatteryChanged(string serialNo, sbyte battery)
+        public void RemoteConnection_SystemStateReceived(string deviceId, byte[] systemStateData)
         {
             try
             {
-                log.Info($"Remote ({serialNo}) battery changed to {battery}");
-                messenger.Send(new Remote_BatteryChangedMessage(serialNo, battery));
+                //log.Info($"Remote ({deviceId}) system state received");
+                messenger.Send(new Remote_SystemStateReceivedMessage(deviceId, systemStateData));
             }
-            catch (System.Exception ex)
-            {
-                log.Error(ex);
-            }
-        }
-
-        public void RemoteConnection_StorageModified(string serialNo)
-        {
-            try
-            {
-                log.Info($"Remote ({serialNo}) storage modified");
-                messenger.Send(new Remote_StorageModifiedMessage(serialNo));
-            }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 log.Error(ex);
             }

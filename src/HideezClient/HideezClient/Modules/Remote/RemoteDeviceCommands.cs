@@ -16,7 +16,7 @@ namespace HideezClient.Modules.Remote
             _serviceProxy = serviceProxy;
         }
 
-        // Temporary duct tape, until IRemoteDeviceConnection is refactored
+        // Todo: fix cyclic dependency between RemoteDevice and RemoteCommands/RemoteEvents
         public RemoteDevice RemoteDevice { get; set; }
 
         public async Task ResetChannel()

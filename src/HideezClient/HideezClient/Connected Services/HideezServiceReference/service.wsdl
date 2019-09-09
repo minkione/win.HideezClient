@@ -194,14 +194,11 @@
   <wsdl:message name="IHideezService_DeviceAuthorized_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:DeviceAuthorized" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_RemoteConnection_RssiReceived_OutputCallbackMessage">
-    <wsdl:part name="parameters" element="tns:RemoteConnection_RssiReceived" />
-  </wsdl:message>
-  <wsdl:message name="IHideezService_RemoteConnection_BatteryChanged_OutputCallbackMessage">
-    <wsdl:part name="parameters" element="tns:RemoteConnection_BatteryChanged" />
-  </wsdl:message>
   <wsdl:message name="IHideezService_RemoteConnection_StorageModified_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:RemoteConnection_StorageModified" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_RemoteConnection_SystemStateReceived_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:RemoteConnection_SystemStateReceived" />
   </wsdl:message>
   <wsdl:message name="IHideezService_ShowPinUi_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:ShowPinUi" />
@@ -307,14 +304,11 @@
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceAuthorized">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceAuthorized" message="tns:IHideezService_DeviceAuthorized_OutputCallbackMessage" />
     </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_RssiReceived">
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_RssiReceived" message="tns:IHideezService_RemoteConnection_RssiReceived_OutputCallbackMessage" />
-    </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_BatteryChanged">
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_BatteryChanged" message="tns:IHideezService_RemoteConnection_BatteryChanged_OutputCallbackMessage" />
-    </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_StorageModified">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_StorageModified" message="tns:IHideezService_RemoteConnection_StorageModified_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_SystemStateReceived">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_SystemStateReceived" message="tns:IHideezService_RemoteConnection_SystemStateReceived_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ShowPinUi">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ShowPinUi" message="tns:IHideezService_ShowPinUi_OutputCallbackMessage" />
@@ -549,20 +543,14 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="RemoteConnection_RssiReceived">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_RssiReceived" style="document" />
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="RemoteConnection_BatteryChanged">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_BatteryChanged" style="document" />
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="RemoteConnection_StorageModified">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_StorageModified" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoteConnection_SystemStateReceived">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/RemoteConnection_SystemStateReceived" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

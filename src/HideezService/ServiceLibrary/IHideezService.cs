@@ -97,15 +97,12 @@ namespace ServiceLibrary
         void DeviceAuthorized(DeviceDTO device);
 
 
-        [OperationContract(IsOneWay = true)]
-        void RemoteConnection_RssiReceived(string serialNo, sbyte rssi);
 
         [OperationContract(IsOneWay = true)]
-        void RemoteConnection_BatteryChanged(string serialNo, sbyte battery);
+        void RemoteConnection_StorageModified(string deviceId);
 
         [OperationContract(IsOneWay = true)]
-        void RemoteConnection_StorageModified(string serialNo);
-
+        void RemoteConnection_SystemStateReceived(string deviceId, byte[] systemStateData);
 
         [OperationContract(IsOneWay = true)]
         void ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);

@@ -234,7 +234,16 @@ namespace HideezClient.Models
         [DependsOn(nameof(AccessLevel))]
         public bool IsAuthorized
         {
-            get { return _remoteDevice != null ? _remoteDevice.AccessLevel.IsAuthorized : false; }
+            get
+            {
+                if (_remoteDevice == null)
+                    return false;
+
+                if (_remoteDevice.AccessLevel == null)
+                    return false;
+
+                return _remoteDevice.AccessLevel.IsAuthorized;
+            }
         }
 
 
@@ -305,6 +314,7 @@ namespace HideezClient.Models
                         _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, VERIFY_CHANNEL);
                         _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
                         _remoteDevice.StorageModified += RemoteDevice_StorageModified;
+
 
                         await _remoteDevice.Verify(VERIFY_CHANNEL);
                         await _remoteDevice.WaitVerification(VERIFY_WAIT);
@@ -467,9 +477,6 @@ namespace HideezClient.Models
         {
             if (!IsInitialized)
                 throw new Exception("Remote not initialized"); // Todo: proper exception
-
-            if (!IsAuthorized)
-                throw new HideezException(HideezErrorCode.ERR_UNAUTHORIZED);
 
             try
             {

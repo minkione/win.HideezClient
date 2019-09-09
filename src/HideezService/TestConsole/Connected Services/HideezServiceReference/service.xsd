@@ -239,26 +239,18 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="RemoteConnection_RssiReceived">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="rssi" type="xs:byte" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="RemoteConnection_BatteryChanged">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="battery" type="xs:byte" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
   <xs:element name="RemoteConnection_StorageModified">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoteConnection_SystemStateReceived">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="systemStateData" nillable="true" type="xs:base64Binary" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

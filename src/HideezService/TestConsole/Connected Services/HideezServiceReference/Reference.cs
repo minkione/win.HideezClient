@@ -699,14 +699,11 @@ namespace TestConsole.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceAuthorized")]
         void DeviceAuthorized(TestConsole.HideezServiceReference.DeviceDTO device);
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_RssiReceived")]
-        void RemoteConnection_RssiReceived(string serialNo, sbyte rssi);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_BatteryChanged")]
-        void RemoteConnection_BatteryChanged(string serialNo, sbyte battery);
-        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_StorageModified")]
-        void RemoteConnection_StorageModified(string serialNo);
+        void RemoteConnection_StorageModified(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_SystemStateReceived")]
+        void RemoteConnection_SystemStateReceived(string deviceId, byte[] systemStateData);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ShowPinUi")]
         void ShowPinUi(string deviceId, bool withConfirm, bool askOldPin);

@@ -243,7 +243,6 @@ namespace ServiceLibrary.Implementation
                 device.ConnectionStateChanged += Device_ConnectionStateChanged;
                 device.Initialized += Device_Initialized;
                 device.Authorized += Device_Authorized;
-                device.StorageModified += RemoteConnection_StorageModified;
                 device.Disconnected += Device_Disconnected;
             }
         }
@@ -257,7 +256,6 @@ namespace ServiceLibrary.Implementation
                 device.ConnectionStateChanged -= Device_ConnectionStateChanged;
                 device.Initialized -= Device_Initialized;
                 device.Authorized -= Device_Authorized;
-                device.StorageModified -= RemoteConnection_StorageModified;
                 device.Disconnected -= Device_Disconnected;
 
                 if (device is IWcfDevice wcfDevice)
@@ -635,61 +633,45 @@ namespace ServiceLibrary.Implementation
         void SubscribeToWcfDeviceEvents(IWcfDevice wcfDevice)
         {
             RemoteWcfDevices.Add(wcfDevice);
-            wcfDevice.RssiReceived += RemoteConnection_RssiReceived;
-            wcfDevice.BatteryChanged += RemoteConnection_BatteryChanged;
+            wcfDevice.StorageModified += RemoteConnection_StorageModified;
+            // todo: Subscribe to event and invoke RemoteConnection_SystemStateReceived
         }
 
         void UnsubscribeFromWcfDeviceEvents(IWcfDevice wcfDevice)
         {
-            wcfDevice.RssiReceived -= RemoteConnection_RssiReceived;
-            wcfDevice.BatteryChanged -= RemoteConnection_BatteryChanged;
+            wcfDevice.StorageModified -= RemoteConnection_StorageModified;
+            // todo: Unsubscribe to event and invoke RemoteConnection_SystemStateReceived
             RemoteWcfDevices.Remove(wcfDevice);
-        }
-
-        void RemoteConnection_RssiReceived(object sender, sbyte rssi)
-        {
-            try
-            {
-                if (RemoteWcfDevices.Count > 0)
-                {
-                    if (sender is IWcfDevice wcfDevice)
-                    {
-                        _client.Callbacks.RemoteConnection_RssiReceived(wcfDevice.SerialNo, rssi);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
-        }
-
-        void RemoteConnection_BatteryChanged(object sender, sbyte battery)
-        {
-            try
-            {
-                if (RemoteWcfDevices.Count > 0)
-                {
-                    if (sender is IWcfDevice wcfDevice)
-                    {
-                        _client.Callbacks.RemoteConnection_BatteryChanged(wcfDevice.SerialNo, battery);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
         }
 
         void RemoteConnection_StorageModified(object sender, EventArgs e)
         {
             try
             {
-                if (sender is IDevice device)
+                if (RemoteWcfDevices.Count > 0)
                 {
-                    foreach (var client in SessionManager.Sessions)
-                        client.Callbacks.RemoteConnection_StorageModified(device.SerialNo);
+                    if (sender is IWcfDevice wcfDevice)
+                    {
+                        _client.Callbacks.RemoteConnection_StorageModified(wcfDevice.Id);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        void RemoteConnection_SystemStateReceived(object sender, byte[] systemStateData)
+        {
+            try
+            {
+                if (RemoteWcfDevices.Count > 0)
+                {
+                    if (sender is IWcfDevice wcfDevice)
+                    {
+                        _client.Callbacks.RemoteConnection_SystemStateReceived(wcfDevice.Id, systemStateData);
+                    }
                 }
             }
             catch (Exception ex)

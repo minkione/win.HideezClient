@@ -14,29 +14,15 @@ namespace HideezClient.Modules.Remote
         {
             _messenger = messenger;
 
-            _messenger.Register<Remote_RssiReceivedMessage>(this, OnRssiReceivedMessage);
-            _messenger.Register<Remote_BatteryChangedMessage>(this, OnBatteryChangedMessage);
             _messenger.Register<Remote_StorageModifiedMessage>(this, OnStorageModified);
+            _messenger.Register<Remote_SystemStateReceivedMessage>(this, OnSystemStateReceived);
         }
 
-        public event EventHandler<sbyte> RssiReceived;
-        public event EventHandler<sbyte> BatteryChanged;
         public event EventHandler<EventArgs> StorageModified;
+        public event EventHandler<byte[]> SystemStateReceived;
 
-        // Temporary duct tape, until IRemoteDeviceConnection is refactored
+        // Todo: fix cyclic dependency between RemoteDevice and RemoteCommands/RemoteEvents
         public RemoteDevice RemoteDevice { get; set; }
-
-        void OnRssiReceivedMessage(Remote_RssiReceivedMessage msg)
-        {
-            if (IsMessageFromCurrentDevice(msg))
-                RssiReceived?.Invoke(this, msg.Rssi);
-        }
-
-        void OnBatteryChangedMessage(Remote_BatteryChangedMessage msg)
-        {
-            if (IsMessageFromCurrentDevice(msg))
-                BatteryChanged?.Invoke(this, msg.Battery);
-        }
 
         void OnStorageModified(Remote_StorageModifiedMessage msg)
         {
@@ -44,15 +30,21 @@ namespace HideezClient.Modules.Remote
                 StorageModified?.Invoke(this, EventArgs.Empty);
         }
 
+        void OnSystemStateReceived(Remote_SystemStateReceivedMessage msg)
+        {
+            if (IsMessageFromCurrentDevice(msg))
+                SystemStateReceived?.Invoke(this, msg.SystemStateData);
+        }
+
         bool IsMessageFromCurrentDevice(Remote_BaseMessage msg)
         {
-            if (string.IsNullOrWhiteSpace(msg.SerialNo))
+            if (string.IsNullOrWhiteSpace(msg.Id))
                 return false;
 
             if (RemoteDevice == null)
                 return false;
 
-            return msg.SerialNo == RemoteDevice.SerialNo;
+            return msg.Id == RemoteDevice.Id;
         }
     }
 }
