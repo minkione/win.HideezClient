@@ -52,7 +52,6 @@ namespace HideezClient.Modules.DeviceManager
             _remoteDeviceFactory = remoteDeviceFactory;
 
             _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
-            // Todo: Add remote device creation when service is already running, but UI is restarted
             _messenger.Register<DeviceAuthorizedMessage>(this, OnDeviceAuthorized);
 
             _serviceProxy.Disconnected += OnServiceProxyConnectionStateChanged;
@@ -83,6 +82,12 @@ namespace HideezClient.Modules.DeviceManager
                 try
                 {
                     EnumerateDevices(message.Devices);
+
+                    foreach (var device in Devices.ToList())
+                    {
+                        if (device.IsAuthorized && device.IsConnected)
+                            _ = TryCreateRemoteDeviceAsync(device);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -204,7 +209,10 @@ namespace HideezClient.Modules.DeviceManager
                     // Removing this line will result in slower workstation unlock
                     await Task.Delay(3000);
 
-                    await device.InitializeRemoteDevice();
+                    if (!device.IsInitialized && !device.IsInitializing && !device.IsAuthorized && !device.IsAuthorizing)
+                    {
+                        await device.InitializeRemoteDevice();
+                    }
                 }
                 catch (Exception ex)
                 {
