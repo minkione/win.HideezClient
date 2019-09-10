@@ -52,7 +52,7 @@ namespace TestConsole
         {
         }
 
-        public void RemoteConnection_SystemStateReceived(string deviceId, byte[] systemStateData)
+        public void RemoteConnection_DeviceStateChanged(string deviceId, DeviceStateDTO stateDto)
         {
         }
     }

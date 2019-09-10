@@ -89,19 +89,9 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<PinNotVerifiedNotificationViewModel>(); }
         }
 
-        public EnterPinViewModel EnterPinViewModel
+        public PinViewModel PinViewModel
         {
-            get { return DIContainer.Resolve<EnterPinViewModel>(); }
-        }
-
-        public SetPinViewModel SetPinViewModel
-        {
-            get { return DIContainer.Resolve<SetPinViewModel>(); }
-        }
-
-        public ChangePinViewModel ChangePinViewModel
-        {
-            get { return DIContainer.Resolve<ChangePinViewModel>(); }
+            get { return DIContainer.Resolve<PinViewModel>(); }
         }
     }
 }

@@ -6,7 +6,7 @@
     <!--  Hedeez Key Simple IMG  -->
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        x:Key="HedeezKeySimpleIMG"
+        x:Key="HideezKeySimpleIMG"
         x:Shared="False"
         Stretch="Uniform">
         <Canvas Width="12" Height="12">

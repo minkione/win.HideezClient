@@ -1,4 +1,5 @@
-﻿using System.ServiceModel;
+﻿using Hideez.SDK.Communication.Interfaces;
+using System.ServiceModel;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary
@@ -99,10 +100,7 @@ namespace ServiceLibrary
 
 
         [OperationContract(IsOneWay = true)]
-        void RemoteConnection_StorageModified(string deviceId);
-
-        [OperationContract(IsOneWay = true)]
-        void RemoteConnection_SystemStateReceived(string deviceId, byte[] systemStateData);
+        void RemoteConnection_DeviceStateChanged(string deviceId, DeviceStateDTO stateDto);
 
         [OperationContract(IsOneWay = true)]
         void ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);

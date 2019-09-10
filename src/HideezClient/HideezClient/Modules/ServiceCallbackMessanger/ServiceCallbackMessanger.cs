@@ -3,6 +3,7 @@ using HideezClient.Messages;
 using GalaSoft.MvvmLight.Messaging;
 using HideezClient.HideezServiceReference;
 using HideezClient.Messages.Remote;
+using HideezClient.Extension;
 using System;
 
 namespace HideezClient.Modules.ServiceCallbackMessanger
@@ -95,25 +96,12 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             }
         }
 
-        public void RemoteConnection_StorageModified(string deviceId)
-        {
-            try
-            {
-                log.Info($"Remote ({deviceId}) storage modified");
-                messenger.Send(new Remote_StorageModifiedMessage(deviceId));
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex);
-            }
-        }
-
-        public void RemoteConnection_SystemStateReceived(string deviceId, byte[] systemStateData)
+        public void RemoteConnection_DeviceStateChanged(string deviceId, DeviceStateDTO stateDto)
         {
             try
             {
                 //log.Info($"Remote ({deviceId}) system state received");
-                messenger.Send(new Remote_SystemStateReceivedMessage(deviceId, systemStateData));
+                messenger.Send(new Remote_DeviceStateChangedMessage(deviceId, stateDto.ToDeviceState()));
             }
             catch (Exception ex)
             {

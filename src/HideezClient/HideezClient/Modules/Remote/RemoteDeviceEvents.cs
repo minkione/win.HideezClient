@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Remote;
 using HideezClient.Messages.Remote;
 using System;
@@ -14,26 +15,18 @@ namespace HideezClient.Modules.Remote
         {
             _messenger = messenger;
 
-            _messenger.Register<Remote_StorageModifiedMessage>(this, OnStorageModified);
-            _messenger.Register<Remote_SystemStateReceivedMessage>(this, OnSystemStateReceived);
+            _messenger.Register<Remote_DeviceStateChangedMessage>(this, OnDeviceStateChanged);
         }
 
-        public event EventHandler<EventArgs> StorageModified;
-        public event EventHandler<byte[]> SystemStateReceived;
+        public event EventHandler<DeviceState> DeviceStateChanged;
 
         // Todo: fix cyclic dependency between RemoteDevice and RemoteCommands/RemoteEvents
         public RemoteDevice RemoteDevice { get; set; }
 
-        void OnStorageModified(Remote_StorageModifiedMessage msg)
+        void OnDeviceStateChanged(Remote_DeviceStateChangedMessage msg)
         {
             if (IsMessageFromCurrentDevice(msg))
-                StorageModified?.Invoke(this, EventArgs.Empty);
-        }
-
-        void OnSystemStateReceived(Remote_SystemStateReceivedMessage msg)
-        {
-            if (IsMessageFromCurrentDevice(msg))
-                SystemStateReceived?.Invoke(this, msg.SystemStateData);
+                DeviceStateChanged?.Invoke(this, msg.State);
         }
 
         bool IsMessageFromCurrentDevice(Remote_BaseMessage msg)

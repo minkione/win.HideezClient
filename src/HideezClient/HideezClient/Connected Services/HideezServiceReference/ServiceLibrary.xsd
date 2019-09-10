@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ServiceLibrary" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ServiceLibrary" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:import namespace="http://schemas.datacontract.org/2004/07/System" />
+  <xs:import namespace="http://schemas.datacontract.org/2004/07/Hideez.SDK.Communication" />
   <xs:complexType name="ServiceClientParameters">
     <xs:sequence>
       <xs:element minOccurs="0" name="ClientType" type="tns:ClientType" />
@@ -62,4 +63,26 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="WorkstationEventDTO" nillable="true" type="tns:WorkstationEventDTO" />
+  <xs:complexType name="DeviceStateDTO">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AccessLevel" nillable="true" type="tns:AccessLevelDTO" />
+      <xs:element minOccurs="0" name="Battery" type="xs:byte" />
+      <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/Hideez.SDK.Communication" minOccurs="0" name="Button" type="q3:ButtonPressCode" />
+      <xs:element minOccurs="0" name="PinAttemptsRemain" type="xs:unsignedByte" />
+      <xs:element minOccurs="0" name="Rssi" type="xs:byte" />
+      <xs:element minOccurs="0" name="StorageUpdateCounter" type="xs:unsignedByte" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DeviceStateDTO" nillable="true" type="tns:DeviceStateDTO" />
+  <xs:complexType name="AccessLevelDTO">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="IsButtonRequired" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsLinkRequired" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsLocked" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsMasterKeyRequired" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsNewPinRequired" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsPinRequired" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AccessLevelDTO" nillable="true" type="tns:AccessLevelDTO" />
 </xs:schema>

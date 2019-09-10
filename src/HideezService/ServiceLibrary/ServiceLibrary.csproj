@@ -78,8 +78,10 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccessLevelDTO.cs" />
     <Compile Include="ContractProviderService.cs" />
     <Compile Include="DeviceDTO.cs" />
+    <Compile Include="DeviceStateDTO.cs" />
     <Compile Include="HideezServiceFault.cs" />
     <Compile Include="IHideezService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

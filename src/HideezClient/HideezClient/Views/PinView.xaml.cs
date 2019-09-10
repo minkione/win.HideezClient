@@ -33,49 +33,29 @@ namespace HideezClient.Views
         public PinView()
         {
             InitializeComponent();
-            this.DataContextChanged += PinView_DataContextChanged;
         }
 
-        private void PinView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void CurrentPinPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            if (e.NewValue is EnterPinViewModel enterViewModel)
+            if (DataContext != null)
             {
-                containerWaitUserAction.Children.Add(new EnterPin());
-            }
-            else if (e.NewValue is SetPinViewModel setViewModel)
-            {
-                containerWaitUserAction.Children.Add(new SetPin());
-            }
-            else if (e.NewValue is ChangePinViewModel changeViewModel)
-            {
-                containerWaitUserAction.Children.Add(new ChangePin());
+                ((PinViewModel)DataContext).SecureCurrentPin = ((PasswordBox)sender).SecurePassword;
             }
         }
 
-        protected override void OnClosed(EventArgs e)
+        private void NewPinPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            base.OnClosed(e);
-
-            containerWaitUserAction.Children.OfType<IDisposable>().ToList().ForEach(d => d.Dispose());
-        }
-
-        private void Button_Ok_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = true;
-        }
-
-        private void Button_Cancel_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button)
+            if (DataContext != null)
             {
-                IInputElement focusedControl = Keyboard.FocusedElement;
-                button.Focus();
-                focusedControl?.Focus();
+                ((PinViewModel)DataContext).SecureNewPin = ((PasswordBox)sender).SecurePassword;
+            }
+        }
+
+        private void ConfirmPinPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (DataContext != null)
+            {
+                ((PinViewModel)DataContext).SecureConfirmPin = ((PasswordBox)sender).SecurePassword;
             }
         }
     }

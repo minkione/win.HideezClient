@@ -23,15 +23,6 @@ using System.Threading.Tasks;
 
 namespace HideezClient.Models
 {
-    public enum PinOperation
-    {
-        Unknown,
-        Successful,
-        Canceled,
-        AccessDenied,
-        Error,
-    }
-
     // Todo: Implement thread-safety lock for password manager and remote device
     public class Device : ObservableObject
     {
@@ -541,102 +532,6 @@ namespace HideezClient.Models
                 _pendingGetPinRequests.TryRemove(deviceId, out TaskCompletionSource<byte[]> removed);
             }
         }
-
-        #region Old PIN
-
-        public async Task<PinOperation> SetPinAsync(byte[] pin, CancellationToken cancellationToken)
-        {
-            PinOperation operationState = PinOperation.Unknown;
-            // TODO: implement save PIN
-            await Task.Delay(2_000);
-
-            if (cancellationToken.IsCancellationRequested)
-            {
-                operationState = PinOperation.Canceled;
-            }
-            else
-            {
-                if (countAttemptsEnterPin >= 5)
-                {
-                    operationState = PinOperation.AccessDenied;
-                }
-                else
-                {
-                    operationState = Enumerable.SequenceEqual(pin, Encoding.UTF8.GetBytes("1234")) ? PinOperation.Successful : PinOperation.Error;
-                }
-            }
-
-            return operationState;
-        }
-
-        public async Task<PinOperation> ChangePin(byte[] oldPin, byte[] newPin, CancellationToken cancellationToken)
-        {
-            PinOperation operationState = PinOperation.Unknown;
-            // TODO: implement change PIN
-            await Task.Delay(2_000);
-            if (cancellationToken.IsCancellationRequested)
-            {
-                operationState = PinOperation.Canceled;
-            }
-            else
-            {
-                if (countAttemptsEnterPin >= 5)
-                {
-                    operationState = PinOperation.AccessDenied;
-                }
-                else
-                {
-                    operationState = Enumerable.SequenceEqual(oldPin, Encoding.UTF8.GetBytes("1234")) ? PinOperation.Successful : PinOperation.Error;
-                }
-            }
-
-            return operationState;
-        }
-
-        public async Task<int> GetCountAttemptsEnterPinAsync()
-        {
-            // TODO: implement get count attempts enter pin
-            await Task.Delay(1_000);
-
-            return countAttemptsEnterPin;
-        }
-
-        int countAttemptsEnterPin = 0;
-        public async Task<PinOperation> VerifyPinAsync(byte[] pin, CancellationToken cancellationToken)
-        {
-            PinOperation operationState = PinOperation.Unknown;
-            // TODO: implement verify PIN
-            await Task.Delay(2_000);
-
-            if (cancellationToken.IsCancellationRequested)
-            {
-                operationState = PinOperation.Canceled;
-            }
-            else
-            {
-                if (countAttemptsEnterPin >= 5)
-                {
-                    operationState = PinOperation.AccessDenied;
-                }
-                else
-                {
-                    ++countAttemptsEnterPin;
-                    if (Enumerable.SequenceEqual(pin, Encoding.UTF8.GetBytes("1234")))
-                    {
-                        operationState = PinOperation.Successful;
-                        countAttemptsEnterPin = 0;
-                    }
-                    else
-                    {
-                        operationState = PinOperation.Error;
-                    }
-                }
-            }
-
-            return operationState;
-        }
-
-        #endregion PIN
 
     }
 }

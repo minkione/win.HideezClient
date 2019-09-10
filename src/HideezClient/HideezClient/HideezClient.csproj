@@ -224,15 +224,6 @@
     <Compile Include="Controls\Notification\View\SimpleNotification.xaml.cs">
       <DependentUpon>SimpleNotification.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\PIN\ChangePin.xaml.cs">
-      <DependentUpon>ChangePin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\PIN\EnterPin.xaml.cs">
-      <DependentUpon>EnterPin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\PIN\SetPin.xaml.cs">
-      <DependentUpon>SetPin.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Converters\BooleanToVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\FormatStringConverter.cs" />
     <Compile Include="Converters\LowBatteryIndicatorVisibilityConverter.cs" />
@@ -242,6 +233,8 @@
     <Compile Include="Converters\SerialNoAndFirmwareVerFormater.cs" />
     <Compile Include="Converters\StringToResource.cs" />
     <Compile Include="Exception\HideezClientException.cs" />
+    <Compile Include="Extension\AccessLevelDTOExtension.cs" />
+    <Compile Include="Extension\DeviceStateDTOExtension.cs" />
     <Compile Include="Extension\SecureStringExtension.cs" />
     <Compile Include="Extension\TaskExtension.cs" />
     <Compile Include="Messages\ActivateScreenMessage.cs" />
@@ -258,8 +251,7 @@
     <Compile Include="Messages\HotkeyStateChangedMessage.cs" />
     <Compile Include="Messages\LockWorkstationMessage.cs" />
     <Compile Include="Messages\Remote\Remote_BaseMessage.cs" />
-    <Compile Include="Messages\Remote\Remote_StorageModifiedMessage.cs" />
-    <Compile Include="Messages\Remote\Remote_SystemStateReceivedMessage.cs" />
+    <Compile Include="Messages\Remote\Remote_DeviceStateChangedMessage.cs" />
     <Compile Include="Messages\SendPinMessage.cs" />
     <Compile Include="Messages\ServiceComponentsStateChangedMessage.cs" />
     <Compile Include="Messages\ServiceErrorReceivedMessage.cs" />
@@ -313,10 +305,7 @@
     <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Notification\NotificationsContainerViewModel.cs" />
-    <Compile Include="ViewModels\PIN\ChangePinViewModal.cs" />
-    <Compile Include="ViewModels\PIN\EnterPinViewModel.cs" />
-    <Compile Include="ViewModels\PIN\PinViewModalBase.cs" />
-    <Compile Include="ViewModels\PIN\SetPinViewModal.cs" />
+    <Compile Include="ViewModels\PinViewModel.cs" />
     <Compile Include="Views\AboutDeviceView.xaml.cs">
       <DependentUpon>AboutDeviceView.xaml</DependentUpon>
     </Compile>
@@ -371,18 +360,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\Notification\View\SimpleNotification.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Controls\PIN\ChangePin.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Controls\PIN\EnterPin.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Controls\PIN\SetPin.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -552,6 +529,9 @@
     <None Include="app.manifest" />
     <None Include="Connected Services\HideezServiceReference\configuration91.svcinfo" />
     <None Include="Connected Services\HideezServiceReference\configuration.svcinfo" />
+    <None Include="Connected Services\HideezServiceReference\Hideez.SDK.Communication.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Connected Services\HideezServiceReference\HideezClient.HideezServiceReference.DeviceDTO.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>

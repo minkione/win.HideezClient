@@ -31,7 +31,7 @@ namespace HideezClient.ViewModels
 
         #region Properties
 
-        public string IcoKey { get; } = "HedeezKeySimpleIMG";
+        public string IcoKey { get; } = "HideezKeySimpleIMG";
 
         [Localization]
         public string TypeName { get { return device.TypeName; } }

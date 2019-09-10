@@ -237,9 +237,7 @@ namespace HideezClient
             Container.RegisterType<AddCredentialViewModel>();
             Container.RegisterType<NotificationsContainerViewModel>();
             Container.RegisterType<PinNotVerifiedNotificationViewModel>();
-            Container.RegisterType<EnterPinViewModel>();
-            Container.RegisterType<SetPinViewModel>();
-            Container.RegisterType<ChangePinViewModel>();
+            Container.RegisterType<PinViewModel>();
 
             #endregion ViewModels
 

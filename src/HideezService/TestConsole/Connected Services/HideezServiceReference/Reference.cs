@@ -562,6 +562,297 @@ namespace TestConsole.HideezServiceReference {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="DeviceStateDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+    [System.SerializableAttribute()]
+    public partial class DeviceStateDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TestConsole.HideezServiceReference.AccessLevelDTO AccessLevelField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private sbyte BatteryField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TestConsole.HideezServiceReference.ButtonPressCode ButtonField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private byte PinAttemptsRemainField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private sbyte RssiField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private byte StorageUpdateCounterField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TestConsole.HideezServiceReference.AccessLevelDTO AccessLevel {
+            get {
+                return this.AccessLevelField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.AccessLevelField, value) != true)) {
+                    this.AccessLevelField = value;
+                    this.RaisePropertyChanged("AccessLevel");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public sbyte Battery {
+            get {
+                return this.BatteryField;
+            }
+            set {
+                if ((this.BatteryField.Equals(value) != true)) {
+                    this.BatteryField = value;
+                    this.RaisePropertyChanged("Battery");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TestConsole.HideezServiceReference.ButtonPressCode Button {
+            get {
+                return this.ButtonField;
+            }
+            set {
+                if ((this.ButtonField.Equals(value) != true)) {
+                    this.ButtonField = value;
+                    this.RaisePropertyChanged("Button");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public byte PinAttemptsRemain {
+            get {
+                return this.PinAttemptsRemainField;
+            }
+            set {
+                if ((this.PinAttemptsRemainField.Equals(value) != true)) {
+                    this.PinAttemptsRemainField = value;
+                    this.RaisePropertyChanged("PinAttemptsRemain");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public sbyte Rssi {
+            get {
+                return this.RssiField;
+            }
+            set {
+                if ((this.RssiField.Equals(value) != true)) {
+                    this.RssiField = value;
+                    this.RaisePropertyChanged("Rssi");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public byte StorageUpdateCounter {
+            get {
+                return this.StorageUpdateCounterField;
+            }
+            set {
+                if ((this.StorageUpdateCounterField.Equals(value) != true)) {
+                    this.StorageUpdateCounterField = value;
+                    this.RaisePropertyChanged("StorageUpdateCounter");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AccessLevelDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+    [System.SerializableAttribute()]
+    public partial class AccessLevelDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsButtonRequiredField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsLinkRequiredField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsLockedField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsMasterKeyRequiredField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsNewPinRequiredField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsPinRequiredField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsButtonRequired {
+            get {
+                return this.IsButtonRequiredField;
+            }
+            set {
+                if ((this.IsButtonRequiredField.Equals(value) != true)) {
+                    this.IsButtonRequiredField = value;
+                    this.RaisePropertyChanged("IsButtonRequired");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsLinkRequired {
+            get {
+                return this.IsLinkRequiredField;
+            }
+            set {
+                if ((this.IsLinkRequiredField.Equals(value) != true)) {
+                    this.IsLinkRequiredField = value;
+                    this.RaisePropertyChanged("IsLinkRequired");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsLocked {
+            get {
+                return this.IsLockedField;
+            }
+            set {
+                if ((this.IsLockedField.Equals(value) != true)) {
+                    this.IsLockedField = value;
+                    this.RaisePropertyChanged("IsLocked");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsMasterKeyRequired {
+            get {
+                return this.IsMasterKeyRequiredField;
+            }
+            set {
+                if ((this.IsMasterKeyRequiredField.Equals(value) != true)) {
+                    this.IsMasterKeyRequiredField = value;
+                    this.RaisePropertyChanged("IsMasterKeyRequired");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsNewPinRequired {
+            get {
+                return this.IsNewPinRequiredField;
+            }
+            set {
+                if ((this.IsNewPinRequiredField.Equals(value) != true)) {
+                    this.IsNewPinRequiredField = value;
+                    this.RaisePropertyChanged("IsNewPinRequired");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsPinRequired {
+            get {
+                return this.IsPinRequiredField;
+            }
+            set {
+                if ((this.IsPinRequiredField.Equals(value) != true)) {
+                    this.IsPinRequiredField = value;
+                    this.RaisePropertyChanged("IsPinRequired");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ButtonPressCode", Namespace="http://schemas.datacontract.org/2004/07/Hideez.SDK.Communication")]
+    public enum ButtonPressCode : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        None = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Single = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Double = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Triple = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Quad = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Penta = 5,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Hexa = 6,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Hepta = 7,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Octa = 8,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Multi = 9,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Long = 10,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SuperLong = 11,
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="HideezServiceReference.IHideezService", CallbackContract=typeof(TestConsole.HideezServiceReference.IHideezServiceCallback), SessionMode=System.ServiceModel.SessionMode.Required)]
     public interface IHideezService {
@@ -699,11 +990,8 @@ namespace TestConsole.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceAuthorized")]
         void DeviceAuthorized(TestConsole.HideezServiceReference.DeviceDTO device);
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_StorageModified")]
-        void RemoteConnection_StorageModified(string deviceId);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_SystemStateReceived")]
-        void RemoteConnection_SystemStateReceived(string deviceId, byte[] systemStateData);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_DeviceStateChanged")]
+        void RemoteConnection_DeviceStateChanged(string deviceId, TestConsole.HideezServiceReference.DeviceStateDTO stateDto);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ShowPinUi")]
         void ShowPinUi(string deviceId, bool withConfirm, bool askOldPin);

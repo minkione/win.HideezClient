@@ -37,7 +37,7 @@
                 Height="40"
                 Margin="20"
                 VerticalAlignment="Center"
-                Content="{StaticResource HedeezKeySimpleIMG}" />
+                Content="{StaticResource HideezKeySimpleIMG}" />
             <iconPacks:PackIconMaterial
                 Grid.RowSpan="3"
                 Width="30"

@@ -51,10 +51,13 @@ namespace HideezClient.Controls
                 {
                     CommandAction = x =>
                     {
-                        EnterPinViewModel viewModel = viewModelLocator.EnterPinViewModel;
+                        // Todo: Initiate authorization workflow for device upon notification click
+                        /*
+                        PinViewModel viewModel = viewModelLocator.PinViewModel;
                         viewModel.Device = Device;
                         viewModel.State = ViewPinState.WaitUserAction;
                         windowsManager.ShowDialogEnterPinAsync(viewModel);
+                        */
                     }
                 };
             }

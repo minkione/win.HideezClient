@@ -9,6 +9,7 @@ using NLog;
 
 namespace HideezClient.Modules.ServiceProxy
 {
+    // Todo: Add lock for "service" to improve thread safety
     class ServiceProxy : IServiceProxy, IDisposable
     {
         private readonly Logger log = LogManager.GetCurrentClassLogger();

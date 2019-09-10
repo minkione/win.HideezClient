@@ -292,8 +292,6 @@ namespace HideezClient.Modules
             // Todo:
         }
 
-        #region Old PIN
-
         public Task ShowDeviceLockedAsync()
         {
             TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
@@ -321,6 +319,8 @@ namespace HideezClient.Modules
             }
         }
 
+        #region Old PIN
+        /*
         public void ShowSetPin(Device device)
         {
             SetPinViewModel viewModel = viewModelLocator.SetPinViewModel;
@@ -342,7 +342,7 @@ namespace HideezClient.Modules
             return ShowPinViewAsync(viewModel);
         }
 
-        private Task<bool> ShowPinViewAsync(PinViewModelBase viewModel)
+        private Task<bool> ShowPinViewAsync(PinViewModel viewModel)
         {
             return UIDispatcher.InvokeAsync(() =>
             {
@@ -354,8 +354,8 @@ namespace HideezClient.Modules
                 return dialogResult;
             }).Task;
         }
-
-        #endregion PIN
+        */
+        #endregion
 
         public void ShowInfoAboutDevice(Device device)
         {

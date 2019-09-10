@@ -239,18 +239,11 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="RemoteConnection_StorageModified">
+  <xs:element name="RemoteConnection_DeviceStateChanged">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="RemoteConnection_SystemStateReceived">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="systemStateData" nillable="true" type="xs:base64Binary" />
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="stateDto" nillable="true" type="q8:DeviceStateDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

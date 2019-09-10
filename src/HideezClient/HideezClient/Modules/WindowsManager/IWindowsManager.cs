@@ -18,7 +18,6 @@ namespace HideezClient.Modules
         bool IsMainWindowVisible { get; }
         void ShowDialogAddCredential(Device device);
         void ShowInfoAboutDevice(Device device);
-        Task ShowDeviceLockedAsync();
         void CloseWindow(Guid id);
 
         void ShowInfo(string message, string title = null);
@@ -26,12 +25,15 @@ namespace HideezClient.Modules
         void ShowError(string message, string title = null);
         Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd);
         void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel);
+        Task ShowDeviceLockedAsync();
+        void ShowDeviceNotAuthorized(Device device);
 
         #region PIN
+        /*
         Task<bool> ShowDialogEnterPinAsync(EnterPinViewModel viewModel);
-        void ShowDeviceNotAuthorized(Device device);
         void ShowSetPin(Device device);
         void ShowChangePin(Device device);
+        */
         #endregion PIN
     }
 }

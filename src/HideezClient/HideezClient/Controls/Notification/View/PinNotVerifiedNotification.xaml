@@ -58,7 +58,7 @@
             Grid.RowSpan="3"
             Width="40"
             Height="40"
-            Content="{StaticResource HedeezKeySimpleIMG}" />
+            Content="{StaticResource HideezKeySimpleIMG}" />
 
         <iconPacks:PackIconMaterial
             x:Name="IcoLoadState"

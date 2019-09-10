@@ -633,18 +633,16 @@ namespace ServiceLibrary.Implementation
         void SubscribeToWcfDeviceEvents(IWcfDevice wcfDevice)
         {
             RemoteWcfDevices.Add(wcfDevice);
-            wcfDevice.StorageModified += RemoteConnection_StorageModified;
-            // todo: Subscribe to event and invoke RemoteConnection_SystemStateReceived
+            wcfDevice.DeviceStateChanged += RemoteConnection_DeviceStateChanged;
         }
 
         void UnsubscribeFromWcfDeviceEvents(IWcfDevice wcfDevice)
         {
-            wcfDevice.StorageModified -= RemoteConnection_StorageModified;
-            // todo: Unsubscribe to event and invoke RemoteConnection_SystemStateReceived
+            wcfDevice.DeviceStateChanged -= RemoteConnection_DeviceStateChanged;
             RemoteWcfDevices.Remove(wcfDevice);
         }
 
-        void RemoteConnection_StorageModified(object sender, EventArgs e)
+        void RemoteConnection_DeviceStateChanged(object sender, DeviceStateEventArgs e)
         {
             try
             {
@@ -652,25 +650,7 @@ namespace ServiceLibrary.Implementation
                 {
                     if (sender is IWcfDevice wcfDevice)
                     {
-                        _client.Callbacks.RemoteConnection_StorageModified(wcfDevice.Id);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
-        }
-
-        void RemoteConnection_SystemStateReceived(object sender, byte[] systemStateData)
-        {
-            try
-            {
-                if (RemoteWcfDevices.Count > 0)
-                {
-                    if (sender is IWcfDevice wcfDevice)
-                    {
-                        _client.Callbacks.RemoteConnection_SystemStateReceived(wcfDevice.Id, systemStateData);
+                        _client.Callbacks.RemoteConnection_DeviceStateChanged(wcfDevice.Id, new DeviceStateDTO(e.State));
                     }
                 }
             }
