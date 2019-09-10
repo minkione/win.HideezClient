@@ -36,7 +36,12 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
-        <StackPanel>
+        <StackPanel Visibility="{Binding AskButton, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TextBlock
+                Text="PUSH THE BUTTON" />
+        </StackPanel>
+
+        <StackPanel Visibility="{Binding AskButton, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
             <Grid Margin="20">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
@@ -103,6 +108,7 @@
 
                 <!--  Successes  -->
                 <!-- Might be redundant with the current UI -->
+                <!--
                 <Grid Visibility="{Binding IsSuccess, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -122,6 +128,7 @@
                         Foreground="Green"
                         Kind="CheckCircleSolid" />
                 </Grid>
+                -->
 
                 <Button
                     Grid.Row="2"

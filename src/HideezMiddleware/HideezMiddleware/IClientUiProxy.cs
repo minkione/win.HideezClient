@@ -44,11 +44,12 @@ namespace HideezMiddleware
         bool IsConnected { get; }
 
         Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);
+        Task ShowButtonConfirmUi(string deviceId);
         Task HidePinUi();
 
         Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus);
-        Task SendError(string message);
-        Task SendNotification(string message);
+        Task SendError(string message, string notificationId);
+        Task SendNotification(string message, string notificationId);
     }
 
     public interface IClientUiManager
@@ -59,10 +60,11 @@ namespace HideezMiddleware
 
         Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false, bool askOldPin = false);
         Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);
+        Task ShowButtonConfirmUi(string deviceId);
         Task HidePinUi();
 
         Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus);
-        Task SendError(string message);
-        Task SendNotification(string message);
+        Task SendError(string message, string notificationId = null);
+        Task SendNotification(string message, string notificationId = null);
     }
 }

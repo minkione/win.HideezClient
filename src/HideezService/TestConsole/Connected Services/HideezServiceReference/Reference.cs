@@ -973,10 +973,10 @@ namespace TestConsole.HideezServiceReference {
         void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceNotificationReceived")]
-        void ServiceNotificationReceived(string message);
+        void ServiceNotificationReceived(string message, string notificationId);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceErrorReceived")]
-        void ServiceErrorReceived(string error);
+        void ServiceErrorReceived(string error, string notificationId);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DevicesCollectionChanged")]
         void DevicesCollectionChanged(TestConsole.HideezServiceReference.DeviceDTO[] devices);
@@ -995,6 +995,9 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ShowPinUi")]
         void ShowPinUi(string deviceId, bool withConfirm, bool askOldPin);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ShowButtonConfirmUi")]
+        void ShowButtonConfirmUi(string deviceId);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HidePinUi")]
         void HidePinUi();

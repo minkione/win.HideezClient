@@ -46,11 +46,11 @@ namespace HideezServiceHost
         {
         }
 
-        public void ServiceErrorReceived(string error)
+        public void ServiceErrorReceived(string error, string notificationId)
         {
         }
 
-        public void ServiceNotificationReceived(string message)
+        public void ServiceNotificationReceived(string message, string notificationId)
         {
         }
 
@@ -59,6 +59,10 @@ namespace HideezServiceHost
         }
 
         public void RemoteConnection_DeviceStateChanged(string deviceId, DeviceStateDTO stateDto)
+        {
+        }
+
+        public void ShowButtonConfirmUi(string deviceId)
         {
         }
     }

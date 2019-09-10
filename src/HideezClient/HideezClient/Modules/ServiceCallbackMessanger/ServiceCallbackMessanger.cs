@@ -123,12 +123,12 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             }
         }
 
-        public void ServiceNotificationReceived(string message)
+        public void ServiceNotificationReceived(string message, string notificationId)
         {
             try
             {
-                log.Info($"Notification message from service: {message}");
-                messenger.Send(new ServiceNotificationReceivedMessage(message));
+                log.Info($"Notification message from service: {message} ({notificationId})");
+                messenger.Send(new ServiceNotificationReceivedMessage(notificationId, message));
             }
             catch (Exception ex)
             {
@@ -136,12 +136,12 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             }
         }
 
-        public void ServiceErrorReceived(string error)
+        public void ServiceErrorReceived(string error, string notificationId)
         {
             try
             {
-                log.Info($"Error message from service: {error}");
-                messenger.Send(new ServiceErrorReceivedMessage(error));
+                log.Info($"Error message from service: {error} ({notificationId})");
+                messenger.Send(new ServiceErrorReceivedMessage(notificationId, error));
             }
             catch (Exception ex)
             {
@@ -155,6 +155,19 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             {
                 log.Info($"Show pin ui message for ({deviceId}; confirm: {withConfirm}; old pin: {askOldPin})");
                 messenger.Send(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
+        public void ShowButtonConfirmUi(string deviceId)
+        {
+            try
+            {
+                log.Info($"Show button ui message for ({deviceId})");
+                messenger.Send(new ShowButtonConfirmUiMessage(deviceId));
             }
             catch (Exception ex)
             {

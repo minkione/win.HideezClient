@@ -18,20 +18,21 @@ namespace HideezClient.Modules
 {
     class WindowsManager : IWindowsManager
     {
-        private readonly ViewModelLocator viewModelLocator;
+        private readonly ViewModelLocator _viewModelLocator;
         private string titleNotification;
         private readonly INotifier notifier;
         private readonly Logger log = LogManager.GetCurrentClassLogger();
         private bool isMainWindowVisible;
-        IMessenger _messenger; // Todo: Remove _messenger dependency (message registration in constructor is fine)
+
+        object pinWindowLock = new object();
+        PinView pinView = null;
 
         public event EventHandler<bool> MainWindowVisibleChanged;
 
         public WindowsManager(INotifier notifier, ViewModelLocator viewModelLocator, IMessenger messenger)
         {
             this.notifier = notifier;
-            this.viewModelLocator = viewModelLocator;
-            _messenger = messenger;
+            this._viewModelLocator = viewModelLocator;
             
             messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message));
             messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message));
@@ -159,6 +160,9 @@ namespace HideezClient.Modules
 
         public void ShowError(string message, string title = null)
         {
+            if (string.IsNullOrWhiteSpace(message) && string.IsNullOrWhiteSpace(title))
+                return;
+
             if (UIDispatcher.CheckAccess())
             {
                 notifier.ShowError(title ?? GetTitle(), message);
@@ -173,6 +177,9 @@ namespace HideezClient.Modules
 
         public void ShowWarn(string message, string title = null)
         {
+            if (string.IsNullOrWhiteSpace(message) && string.IsNullOrWhiteSpace(title))
+                return;
+
             if (UIDispatcher.CheckAccess())
             {
                 notifier.ShowWarn(title ?? GetTitle(), message);
@@ -187,6 +194,9 @@ namespace HideezClient.Modules
 
         public void ShowInfo(string message, string title = null)
         {
+            if (string.IsNullOrWhiteSpace(message) && string.IsNullOrWhiteSpace(title))
+                return;
+
             if (UIDispatcher.CheckAccess())
             {
                 notifier.ShowInfo(title ?? GetTitle(), message);
@@ -203,7 +213,10 @@ namespace HideezClient.Modules
         {
             if (titleNotification == null)
             {
-                titleNotification = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
+                // Commented, because assembly name does not contain a space between two words and 
+                // assembly name will not be changed just for notification titles
+                //titleNotification = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}";
+                titleNotification = "Hideez Client";
             }
 
             return titleNotification;
@@ -267,33 +280,141 @@ namespace HideezClient.Modules
         }
 
         // This message may be repeatedly received every 300ms
-        async void ShowButtonConfirmAsync(ShowButtonConfirmUiMessage obj)
+        void ShowButtonConfirmAsync(ShowButtonConfirmUiMessage obj)
         {
-            // Todo:
-        }
-
-        int pinShown = 0;
-        // This message may be repeatedly received every 300ms
-        async void ShowPinAsync(ShowPinUiMessage obj)
-        {
-            if (Interlocked.CompareExchange(ref pinShown, 1, 0) == 0)
+            lock (pinWindowLock)
             {
-                try
+                if (pinView == null)
                 {
-                    await Task.Delay(2000);
-                    _messenger.Send(new SendPinMessage(obj.DeviceId, System.Text.Encoding.UTF8.GetBytes("1111")));
+                    if (UIDispatcher.CheckAccess())
+                    {
+                        pinView = new PinView()
+                        {
+                            DataContext = _viewModelLocator.PinViewModel,
+                        };
+                        pinView.Closed += PinView_Closed;
+                        pinView.Show();
+                    }
+                    else
+                    {
+                        // Do non UI Thread stuff
+                        UIDispatcher.Invoke(() =>
+                        {
+                            pinView = new PinView()
+                            {
+                                DataContext = _viewModelLocator.PinViewModel,
+                            };
+                            pinView.Closed += PinView_Closed;
+                            pinView.Show();
+                        });
+                    }
                 }
-                finally
+
+                if (pinView != null)
                 {
-                    Interlocked.Exchange(ref pinShown, 0);
+                    if (UIDispatcher.CheckAccess())
+                    {
+                        ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, true);
+                    }
+                    else
+                    {
+                        UIDispatcher.Invoke(() =>
+                        {
+                            ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, true);
+                        });
+                    }
                 }
             }
         }
 
-        async void HidePinAsync(HidePinUiMessage obj)
+        // This message may be repeatedly received every 300ms
+        void ShowPinAsync(ShowPinUiMessage obj)
         {
-            // Todo:
+            lock (pinWindowLock)
+            {
+                if (pinView == null)
+                {
+                    if (UIDispatcher.CheckAccess())
+                    {
+                        pinView = new PinView()
+                        {
+                            DataContext = _viewModelLocator.PinViewModel,
+                        };
+                        pinView.Closed += PinView_Closed;
+                        pinView.Show();
+                    }
+                    else
+                    {
+                        // Do non UI Thread stuff
+                        UIDispatcher.Invoke(() =>
+                        {
+                            pinView = new PinView()
+                            {
+                                DataContext = _viewModelLocator.PinViewModel,
+                            };
+                            pinView.Closed += PinView_Closed;
+                            pinView.Show();
+                        });
+                    }
+                }
+
+                if (pinView != null)
+                {
+                    if (UIDispatcher.CheckAccess())
+                    {
+                        ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, obj.OldPin, obj.ConfirmPin);
+                    }
+                    else
+                    {
+                        UIDispatcher.Invoke(() =>
+                        {
+                            ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, obj.OldPin, obj.ConfirmPin);
+                        });
+                    }
+                }
+            }
         }
+
+        void HidePinAsync(HidePinUiMessage obj)
+        {
+            lock (pinWindowLock)
+            {
+                try
+                {
+                    if (UIDispatcher.CheckAccess())
+                    {
+                        pinView?.Close();
+                    }
+                    else
+                    {
+                        // Do non UI Thread stuff
+                        UIDispatcher.Invoke(() =>
+                        {
+                            try
+                            {
+                                pinView?.Close();
+                            }
+                            catch { }
+                        });
+                    }
+                }
+                catch { }
+                pinView = null;
+            }
+        }
+
+        void PinView_Closed(object sender, EventArgs e)
+        {
+            lock (pinWindowLock)
+            {
+                if (pinView != null)
+                {
+                    pinView.Closed -= PinView_Closed;
+                    pinView = null;
+                }
+            }
+        }
+
 
         public Task ShowDeviceLockedAsync()
         {

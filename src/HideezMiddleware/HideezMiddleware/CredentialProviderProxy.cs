@@ -200,6 +200,13 @@ namespace HideezMiddleware
             await SendMessageAsync(code, true, $"{deviceId}");
         }
 
+        public async Task ShowButtonConfirmUi(string deviceId)
+        {
+            // Ignore 
+            // Handled by notifications
+            await Task.CompletedTask;
+        }
+
         public async Task HidePinUi()
         {
             WriteLine($"HidePinUi");
@@ -208,7 +215,7 @@ namespace HideezMiddleware
             await SendError("");
         }
 
-        public async Task SendError(string message)
+        public async Task SendError(string message, string notificationId = null)
         {
             if (!string.IsNullOrEmpty(message))
             {
@@ -217,7 +224,7 @@ namespace HideezMiddleware
             }
         }
 
-        public async Task SendNotification(string message)
+        public async Task SendNotification(string message, string notificationId = null)
         {
             WriteLine($"SendNotification: {message}");
 

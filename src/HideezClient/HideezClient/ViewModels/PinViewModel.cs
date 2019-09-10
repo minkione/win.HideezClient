@@ -2,22 +2,27 @@
 using HideezClient.Extension;
 using HideezClient.Messages;
 using HideezClient.Models;
+using HideezClient.Modules.DeviceManager;
 using HideezClient.Mvvm;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.Commands;
 using System.Security;
 using System.Windows.Input;
+using System.Linq;
 
 namespace HideezClient.ViewModels
 {
-    public class PinViewModel : ObservableObject
+    class PinViewModel : ObservableObject
     {
         readonly IMessenger _messenger;
+        readonly IDeviceManager _deviceManager;
+        readonly byte[] _emptyBytes = new byte[0];
 
         SecureString _secureCurrentPin;
         SecureString _secureNewPin;
         SecureString _secureConfirmPin;
 
+        bool _askButton = false;
         bool _askOldPin = false;
         bool _confirmNewPin = false;
         bool _inProgress = false;
@@ -27,9 +32,10 @@ namespace HideezClient.ViewModels
         uint _minLenghtPin = 1;
         uint _maxLenghtPin = 8;
 
-        public PinViewModel(IMessenger messenger)
+        public PinViewModel(IMessenger messenger, IDeviceManager deviceManager)
         {
             _messenger = messenger;
+            _deviceManager = deviceManager;
 
             RegisterDependencies();
         }
@@ -55,6 +61,12 @@ namespace HideezClient.ViewModels
         }
 
         // Properties received from service
+        public bool AskButton
+        {
+            get { return _askButton; }
+            set { Set(ref _askButton, value); }
+        }
+
         public bool AskOldPin
         {
             get { return _askOldPin; }
@@ -199,15 +211,29 @@ namespace HideezClient.ViewModels
         }
         #endregion
 
-
-        public void UpdateViewModel(Device device, bool askOldPin, bool confirmNewPin)
+        public void UpdateViewModel(string deviceId, bool askButton)
         {
+            if (Device == null)
+            {
+                Device = _deviceManager.Devices.FirstOrDefault(d => d.Id == deviceId);
+            }
+            else if (Device?.Id != deviceId)
+                return;
+
+            AskButton = askButton;
+        }
+
+        public void UpdateViewModel(string deviceId, bool askOldPin, bool confirmNewPin)
+        {
+            if (Device == null)
+            {
+                Device = _deviceManager.Devices.FirstOrDefault(d => d.Id == deviceId);
+            }
+            else if (Device?.Id != deviceId)
+                return;
+
             AskOldPin = askOldPin;
             ConfirmNewPin = confirmNewPin;
-
-            ClearPasswordBoxes();
-
-            ErrorMessage = string.Empty;
         }
 
         bool AreAllRequiredFieldsSet()
@@ -260,8 +286,6 @@ namespace HideezClient.ViewModels
                 confirmPin = SecureConfirmPin;
             }
 
-            ClearPasswordBoxes();
-
             if (IsNewPin || IsChangePin)
             {
                 if (IsConfirmPinCorrect(pin, confirmPin))
@@ -272,7 +296,12 @@ namespace HideezClient.ViewModels
                 }
             }
 
-            _messenger.Send(new SendPinMessage(Device.Id, pin.ToUtf8Bytes(), oldPin.ToUtf8Bytes()));
+            var pinBytes = pin != null ? pin.ToUtf8Bytes() : _emptyBytes;
+            var oldPinBytes = oldPin != null ? oldPin.ToUtf8Bytes() : _emptyBytes;
+
+            _messenger.Send(new SendPinMessage(Device.Id, pinBytes, oldPinBytes));
+
+            ClearPasswordBoxes();
         }
 
         void OnCancel()
@@ -282,9 +311,9 @@ namespace HideezClient.ViewModels
 
         void ClearPasswordBoxes()
         {
-            SecureCurrentPin.Clear();
-            SecureNewPin.Clear();
-            SecureConfirmPin.Clear();
+            SecureCurrentPin?.Clear();
+            SecureNewPin?.Clear();
+            SecureConfirmPin?.Clear();
         }
 
         /// <summary>
@@ -297,6 +326,9 @@ namespace HideezClient.ViewModels
         /// </returns>
         int IsValidLength(SecureString pin)
         {
+            if (pin == null)
+                return -1;
+
             if (pin.Length < MinLenghtPin)
                 return -1;
             else if (pin.Length > MaxLenghtPin)
@@ -307,6 +339,9 @@ namespace HideezClient.ViewModels
 
         bool IsConfirmPinCorrect(SecureString pin, SecureString confirmPin)
         {
+            if (pin == null || confirmPin == null)
+                return false;
+
             return pin.IsEqualTo(confirmPin);
         }
     }

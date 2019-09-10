@@ -62,72 +62,6 @@ namespace ServiceLibrary.Implementation.SessionManagement
             ClientConnected?.Invoke(this, EventArgs.Empty);
         }
 
-        public async Task SendError(string message)
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    foreach (var session in _clientSessionManager.Sessions)
-                    {
-                        session.Callbacks.ServiceErrorReceived(message);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex);
-                }
-            });
-        }
-
-        public async Task SendNotification(string message)
-        {
-            await Task.Run(() =>
-            {
-                
-                foreach (var session in _clientSessionManager.Sessions)
-                {
-                    try
-                    {
-                        session.Callbacks.ServiceNotificationReceived(message);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex);
-                    }
-                }
-            });
-        }
-
-        public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
-        {
-            await Task.Run(() =>
-            {
-                var isHesOk = hesStatus == HesStatus.Ok;
-
-                var showHesStatus = true; // Placeholder for the future. HES indicator will be hidden in a consumer version
-
-                var isRfidOk = rfidStatus == RfidStatus.Ok;
-
-                var showRfidStatus = rfidStatus != RfidStatus.Disabled;
-
-                var isBleOk = bluetoothStatus == BluetoothStatus.Ok;
-
-                foreach (var session in _clientSessionManager.Sessions)
-                {
-                    try
-                    {
-                        session.Callbacks.ServiceComponentsStateChanged(isHesOk, showHesStatus, isRfidOk, showRfidStatus, isBleOk);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex);
-                    }
-                }
-            });
-        }
-
-
         public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
         {
             foreach(var session in _clientSessionManager.Sessions)
@@ -135,6 +69,20 @@ namespace ServiceLibrary.Implementation.SessionManagement
                 try
                 {
                     session.Callbacks.ShowPinUi(deviceId, withConfirm, askOldPin);
+                }
+                catch (Exception) { }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task ShowButtonConfirmUi(string deviceId)
+        {
+            foreach (var session in _clientSessionManager.Sessions)
+            {
+                try
+                {
+                    session.Callbacks.ShowButtonConfirmUi(deviceId);
                 }
                 catch (Exception) { }
             }
@@ -180,5 +128,72 @@ namespace ServiceLibrary.Implementation.SessionManagement
             }
             catch (Exception) { }
         }
+
+
+        public async Task SendError(string message, string notificationId)
+        {
+            await Task.Run(() =>
+            {
+                try
+                {
+                    foreach (var session in _clientSessionManager.Sessions)
+                    {
+                        session.Callbacks.ServiceErrorReceived(message, notificationId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+            });
+        }
+
+        public async Task SendNotification(string message, string notificationId)
+        {
+            await Task.Run(() =>
+            {
+
+                foreach (var session in _clientSessionManager.Sessions)
+                {
+                    try
+                    {
+                        session.Callbacks.ServiceNotificationReceived(message, notificationId);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex);
+                    }
+                }
+            });
+        }
+
+        public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
+        {
+            await Task.Run(() =>
+            {
+                var isHesOk = hesStatus == HesStatus.Ok;
+
+                var showHesStatus = true; // Placeholder for the future. HES indicator will be hidden in a consumer version
+
+                var isRfidOk = rfidStatus == RfidStatus.Ok;
+
+                var showRfidStatus = rfidStatus != RfidStatus.Disabled;
+
+                var isBleOk = bluetoothStatus == BluetoothStatus.Ok;
+
+                foreach (var session in _clientSessionManager.Sessions)
+                {
+                    try
+                    {
+                        session.Callbacks.ServiceComponentsStateChanged(isHesOk, showHesStatus, isRfidOk, showRfidStatus, isBleOk);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex);
+                    }
+                }
+            });
+        }
+
     }
 }

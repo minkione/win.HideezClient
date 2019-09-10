@@ -6,7 +6,7 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Hideez Client")]
+[assembly: AssemblyTitle("HideezClient")]
 [assembly: AssemblyDescription("Hideez Client")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Hideez Group Inc.")]

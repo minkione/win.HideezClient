@@ -78,10 +78,10 @@ namespace ServiceLibrary
         void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected);
 
         [OperationContract(IsOneWay = true)]
-        void ServiceNotificationReceived(string message);
+        void ServiceNotificationReceived(string message, string notificationId);
 
         [OperationContract(IsOneWay = true)]
-        void ServiceErrorReceived(string error);
+        void ServiceErrorReceived(string error, string notificationId);
 
 
 
@@ -106,7 +106,11 @@ namespace ServiceLibrary
         void ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);
 
         [OperationContract(IsOneWay = true)]
+        void ShowButtonConfirmUi(string deviceId);
+
+        [OperationContract(IsOneWay = true)]
         void HidePinUi();
+
     }
 
     public enum Adapter

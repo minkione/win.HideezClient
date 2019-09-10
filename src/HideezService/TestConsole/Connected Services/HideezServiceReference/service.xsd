@@ -201,6 +201,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="message" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="notificationId" nillable="true" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -208,6 +209,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="error" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="notificationId" nillable="true" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -253,6 +255,13 @@
         <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="withConfirm" type="xs:boolean" />
         <xs:element minOccurs="0" name="askOldPin" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ShowButtonConfirmUi">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

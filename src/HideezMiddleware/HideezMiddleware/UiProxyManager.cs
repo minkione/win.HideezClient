@@ -123,6 +123,12 @@ namespace HideezMiddleware
             }
         }
 
+        public Task ShowButtonConfirmUi(string deviceId)
+        {
+            var ui = GetCurrentClientUi() ?? throw new HideezException(HideezErrorCode.NoConnectedUI);
+            return ui.ShowButtonConfirmUi(deviceId);
+        }
+
         public async Task HidePinUi()
         {
             var ui = GetCurrentClientUi();
@@ -139,21 +145,26 @@ namespace HideezMiddleware
                 await ui.SendStatus(hesStatus, rfidStatus, bluetoothStatus);
         }
 
-        public async Task SendNotification(string notification)
+        public async Task SendNotification(string notification, string notificationId = null)
         {
             var ui = GetCurrentClientUi();
 
+            if (string.IsNullOrWhiteSpace(notificationId))
+                notificationId = Guid.NewGuid().ToString();
+
             if (ui != null)
-                await ui.SendNotification(notification);
+                await ui.SendNotification(notification, notificationId);
         }
 
-        public async Task SendError(string error)
+        public async Task SendError(string error, string notificationId = null)
         {
             var ui = GetCurrentClientUi();
 
-            if (ui != null)
-                await ui.SendError(error);
-        }
+            if (string.IsNullOrWhiteSpace(notificationId))
+                notificationId = Guid.NewGuid().ToString();
 
+            if (ui != null)
+                await ui.SendError(error, notificationId);
+        }
     }
 }
