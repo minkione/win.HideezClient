@@ -32,11 +32,14 @@ namespace HideezClient.Modules
             this.notifier = notifier;
             this.viewModelLocator = viewModelLocator;
             _messenger = messenger;
+            
+            messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message));
+            messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message));
 
             messenger.Register<ShowInfoNotificationMessage>(this, (p) => ShowInfo(p.Message, p.Title));
             messenger.Register<ShowWarningNotificationMessage>(this, (p) => ShowWarn(p.Message, p.Title));
             messenger.Register<ShowErrorNotificationMessage>(this, (p) => ShowError(p.Message, p.Title));
-
+            
             messenger.Register<ShowButtonConfirmUiMessage>(this, ShowButtonConfirmAsync);
             messenger.Register<ShowPinUiMessage>(this, ShowPinAsync);
             messenger.Register<HidePinUiMessage>(this, HidePinAsync);
