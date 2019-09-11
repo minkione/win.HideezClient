@@ -9,6 +9,7 @@ using MvvmExtensions.Commands;
 using System.Security;
 using System.Windows.Input;
 using System.Linq;
+using Hideez.SDK.Communication.Interfaces;
 
 namespace HideezClient.ViewModels
 {
@@ -17,6 +18,8 @@ namespace HideezClient.ViewModels
         readonly IMessenger _messenger;
         readonly IDeviceManager _deviceManager;
         readonly byte[] _emptyBytes = new byte[0];
+
+        readonly object initLock = new object();
 
         SecureString _secureCurrentPin;
         SecureString _secureNewPin;
@@ -211,29 +214,34 @@ namespace HideezClient.ViewModels
         }
         #endregion
 
-        public void UpdateViewModel(string deviceId, bool askButton)
+        public void Initialize(string deviceId)
         {
-            if (Device == null)
+            lock (initLock)
             {
-                Device = _deviceManager.Devices.FirstOrDefault(d => d.Id == deviceId);
+                if (Device == null && !string.IsNullOrWhiteSpace(deviceId))
+                {
+                    var device = _deviceManager.Devices.FirstOrDefault(d => d.Id == deviceId);
+                    if (device != null)
+                    {
+                        Device = device;
+                        Device.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
+                    }
+
+                    ResetProgress();
+                }
             }
-            else if (Device?.Id != deviceId)
+        }
+
+        public void UpdateViewModel(string deviceId, bool askButton, bool askOldPin, bool confirmNewPin)
+        {
+            if (Device?.Id != deviceId)
                 return;
 
             AskButton = askButton;
-        }
-
-        public void UpdateViewModel(string deviceId, bool askOldPin, bool confirmNewPin)
-        {
-            if (Device == null)
-            {
-                Device = _deviceManager.Devices.FirstOrDefault(d => d.Id == deviceId);
-            }
-            else if (Device?.Id != deviceId)
-                return;
-
             AskOldPin = askOldPin;
             ConfirmNewPin = confirmNewPin;
+
+            ResetProgress();
         }
 
         bool AreAllRequiredFieldsSet()
@@ -314,6 +322,12 @@ namespace HideezClient.ViewModels
             SecureCurrentPin?.Clear();
             SecureNewPin?.Clear();
             SecureConfirmPin?.Clear();
+        }
+
+        void ResetProgress()
+        {
+            ClearPasswordBoxes();
+            InProgress = false;
         }
 
         /// <summary>

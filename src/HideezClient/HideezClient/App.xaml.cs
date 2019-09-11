@@ -236,7 +236,7 @@ namespace HideezClient
             Container.RegisterType<DevicesExpanderViewModel>();
             Container.RegisterType<AddCredentialViewModel>();
             Container.RegisterType<NotificationsContainerViewModel>();
-            Container.RegisterType<PinNotVerifiedNotificationViewModel>();
+            Container.RegisterType<DeviceNotAuthorizedNotificationViewModel>();
             Container.RegisterType<PinViewModel>();
 
             #endregion ViewModels

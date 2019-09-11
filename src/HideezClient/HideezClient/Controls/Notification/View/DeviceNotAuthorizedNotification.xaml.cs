@@ -19,9 +19,9 @@ namespace HideezClient.Controls
     /// <summary>
     /// Interaction logic for PinNotVerifiedNotification.xaml
     /// </summary>
-    public partial class PinNotVerifiedNotification : NotificationBase
+    public partial class DeviceNotAuthorizedNotification : NotificationBase
     {
-        public PinNotVerifiedNotification(NotificationOptions options)
+        public DeviceNotAuthorizedNotification(NotificationOptions options)
             : base(options)
         {
             InitializeComponent();

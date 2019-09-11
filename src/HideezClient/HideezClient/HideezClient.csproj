@@ -213,13 +213,13 @@
     <Compile Include="Controls\Notification\AccountSelector\AccountViewModel.cs" />
     <Compile Include="Controls\Notification\IconType.cs" />
     <Compile Include="Controls\Notification\ViewModel\CredentialsLoadNotificationViewModel.cs" />
-    <Compile Include="Controls\Notification\ViewModel\PinNotVerifiedNotificationViewModel.cs" />
+    <Compile Include="Controls\Notification\ViewModel\DeviceNotAuthorizedNotificationViewModel.cs" />
     <Compile Include="Controls\Notification\ViewModel\SimpleNotificationViewModel.cs" />
     <Compile Include="Controls\Notification\View\CredentialsLoadNotification.xaml.cs">
       <DependentUpon>CredentialsLoadNotification.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Notification\View\PinNotVerifiedNotification.xaml.cs">
-      <DependentUpon>PinNotVerifiedNotification.xaml</DependentUpon>
+    <Compile Include="Controls\Notification\View\DeviceNotAuthorizedNotification.xaml.cs">
+      <DependentUpon>DeviceNotAuthorizedNotification.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\Notification\View\SimpleNotification.xaml.cs">
       <DependentUpon>SimpleNotification.xaml</DependentUpon>
@@ -355,7 +355,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\Notification\View\PinNotVerifiedNotification.xaml">
+    <Page Include="Controls\Notification\View\DeviceNotAuthorizedNotification.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

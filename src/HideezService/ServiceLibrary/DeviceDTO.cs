@@ -21,6 +21,7 @@ namespace ServiceLibrary
             StorageTotalSize = device.StorageTotalSize;
             StorageFreeSize = device.StorageFreeSize;
             IsAuthorized = device.IsAuthorized;
+            PinAttemptsRemain = device.PinAttemptsRemain;
         }
 
         [DataMember]
@@ -61,5 +62,8 @@ namespace ServiceLibrary
 
         [DataMember]
         public uint StorageFreeSize { get; private set; }
+
+        [DataMember]
+        public int PinAttemptsRemain { get; private set; }
     }
 }

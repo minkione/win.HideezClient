@@ -13,13 +13,13 @@ using System.Windows.Input;
 
 namespace HideezClient.Controls
 {
-    class PinNotVerifiedNotificationViewModel : ObservableObject
+    class DeviceNotAuthorizedNotificationViewModel : ObservableObject
     {
         private Device device;
         private readonly IWindowsManager windowsManager;
         private readonly ViewModelLocator viewModelLocator;
 
-        public PinNotVerifiedNotificationViewModel(IWindowsManager windowsManager, ViewModelLocator viewModelLocator)
+        public DeviceNotAuthorizedNotificationViewModel(IWindowsManager windowsManager, ViewModelLocator viewModelLocator)
         {
             this.windowsManager = windowsManager;
             this.viewModelLocator = viewModelLocator;

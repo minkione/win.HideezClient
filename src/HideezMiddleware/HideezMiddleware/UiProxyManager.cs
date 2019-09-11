@@ -92,8 +92,11 @@ namespace HideezMiddleware
 
         public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
         {
-            var ui = GetCurrentClientUi() ?? throw new HideezException(HideezErrorCode.NoConnectedUI);
-            return ui.ShowPinUi(deviceId, withConfirm, askOldPin);
+            return Task.CompletedTask;
+
+            // Intentionally not impelented
+            //var ui = GetCurrentClientUi() ?? throw new HideezException(HideezErrorCode.NoConnectedUI);
+            //return ui.ShowPinUi(deviceId, withConfirm, askOldPin);
         }
 
         public async Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false, bool askOldPin = false)

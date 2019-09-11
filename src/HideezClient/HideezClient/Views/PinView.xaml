@@ -23,7 +23,7 @@
     ResizeMode="NoResize"
     SizeToContent="Height"
     TitleCharacterCasing="Normal"
-    WindowStartupLocation="CenterOwner"
+    WindowStartupLocation="CenterScreen"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     mc:Ignorable="d">
     <Metro:MetroWindow.Resources>

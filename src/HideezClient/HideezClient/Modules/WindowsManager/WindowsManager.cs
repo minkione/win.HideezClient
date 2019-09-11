@@ -279,7 +279,6 @@ namespace HideezClient.Modules
             }
         }
 
-        // This message may be repeatedly received every 300ms
         void ShowButtonConfirmAsync(ShowButtonConfirmUiMessage obj)
         {
             lock (pinWindowLock)
@@ -288,9 +287,11 @@ namespace HideezClient.Modules
                 {
                     if (UIDispatcher.CheckAccess())
                     {
+                        var vm = _viewModelLocator.PinViewModel;
+                        vm.Initialize(obj.DeviceId);
                         pinView = new PinView()
                         {
-                            DataContext = _viewModelLocator.PinViewModel,
+                            DataContext = vm,
                         };
                         pinView.Closed += PinView_Closed;
                         pinView.Show();
@@ -300,9 +301,11 @@ namespace HideezClient.Modules
                         // Do non UI Thread stuff
                         UIDispatcher.Invoke(() =>
                         {
+                            var vm = _viewModelLocator.PinViewModel;
+                            vm.Initialize(obj.DeviceId);
                             pinView = new PinView()
                             {
-                                DataContext = _viewModelLocator.PinViewModel,
+                                DataContext = vm,
                             };
                             pinView.Closed += PinView_Closed;
                             pinView.Show();
@@ -314,20 +317,19 @@ namespace HideezClient.Modules
                 {
                     if (UIDispatcher.CheckAccess())
                     {
-                        ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, true);
+                        ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, true, false, false);
                     }
                     else
                     {
                         UIDispatcher.Invoke(() =>
                         {
-                            ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, true);
+                            ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, true, false, false);
                         });
                     }
                 }
             }
         }
 
-        // This message may be repeatedly received every 300ms
         void ShowPinAsync(ShowPinUiMessage obj)
         {
             lock (pinWindowLock)
@@ -336,9 +338,11 @@ namespace HideezClient.Modules
                 {
                     if (UIDispatcher.CheckAccess())
                     {
+                        var vm = _viewModelLocator.PinViewModel;
+                        vm.Initialize(obj.DeviceId);
                         pinView = new PinView()
                         {
-                            DataContext = _viewModelLocator.PinViewModel,
+                            DataContext = vm,
                         };
                         pinView.Closed += PinView_Closed;
                         pinView.Show();
@@ -348,9 +352,11 @@ namespace HideezClient.Modules
                         // Do non UI Thread stuff
                         UIDispatcher.Invoke(() =>
                         {
+                            var vm = _viewModelLocator.PinViewModel;
+                            vm.Initialize(obj.DeviceId);
                             pinView = new PinView()
                             {
-                                DataContext = _viewModelLocator.PinViewModel,
+                                DataContext = vm,
                             };
                             pinView.Closed += PinView_Closed;
                             pinView.Show();
@@ -362,13 +368,13 @@ namespace HideezClient.Modules
                 {
                     if (UIDispatcher.CheckAccess())
                     {
-                        ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, obj.OldPin, obj.ConfirmPin);
+                        ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, false, obj.OldPin, obj.ConfirmPin);
                     }
                     else
                     {
                         UIDispatcher.Invoke(() =>
                         {
-                            ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, obj.OldPin, obj.ConfirmPin);
+                            ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, false, obj.OldPin, obj.ConfirmPin);
                         });
                     }
                 }
@@ -377,30 +383,28 @@ namespace HideezClient.Modules
 
         void HidePinAsync(HidePinUiMessage obj)
         {
-            lock (pinWindowLock)
+            try
             {
-                try
+                if (UIDispatcher.CheckAccess())
                 {
-                    if (UIDispatcher.CheckAccess())
-                    {
-                        pinView?.Close();
-                    }
-                    else
-                    {
-                        // Do non UI Thread stuff
-                        UIDispatcher.Invoke(() =>
-                        {
-                            try
-                            {
-                                pinView?.Close();
-                            }
-                            catch { }
-                        });
-                    }
+                    pinView?.Close();
+                    pinView = null;
                 }
-                catch { }
-                pinView = null;
+                else
+                {
+                    // Do non UI Thread stuff
+                    UIDispatcher.Invoke(() =>
+                    {
+                        try
+                        {
+                            pinView?.Close();
+                            pinView = null;
+                        }
+                        catch { }
+                    });
+                }
             }
+            catch { }
         }
 
         void PinView_Closed(object sender, EventArgs e)

@@ -54,6 +54,7 @@ namespace HideezClient.Models
         bool isAuthorizing;
         bool isLoadingStorage;
         bool isStorageLoaded;
+        int pinAttemptsRemain;
 
         string faultMessage = string.Empty;
 
@@ -214,7 +215,8 @@ namespace HideezClient.Models
 
         public int PinAttemptsRemain
         {
-            get { return _remoteDevice != null ? _remoteDevice.PinAttemptsRemain : 0; }
+            get { return pinAttemptsRemain; }
+            set { Set(ref pinAttemptsRemain, value); }
         }
 
         public bool IsInitialized
@@ -286,6 +288,7 @@ namespace HideezClient.Models
             BootloaderVersion = dto.BootloaderVersion;
             StorageTotalSize = dto.StorageTotalSize;
             StorageFreeSize = dto.StorageFreeSize;
+            PinAttemptsRemain = dto.PinAttemptsRemain;
         }
 
         public async Task InitializeRemoteDevice()

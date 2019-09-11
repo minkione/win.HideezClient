@@ -84,9 +84,9 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<NotificationsContainerViewModel>(); }
         }
 
-        public PinNotVerifiedNotificationViewModel PinNotVerifiedNotification
+        public DeviceNotAuthorizedNotificationViewModel PinNotVerifiedNotification
         {
-            get { return DIContainer.Resolve<PinNotVerifiedNotificationViewModel>(); }
+            get { return DIContainer.Resolve<DeviceNotAuthorizedNotificationViewModel>(); }
         }
 
         public PinViewModel PinViewModel

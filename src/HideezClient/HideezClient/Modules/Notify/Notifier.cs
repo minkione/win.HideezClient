@@ -157,28 +157,28 @@ namespace HideezClient.Modules
             }
         }
 
-        // Todo: Refactor this from PIN to not authorized device
-        private static Dictionary<string, Guid> pinNotVerifiedForDevices = new Dictionary<string, Guid>();
+        private static Dictionary<string, Guid> displayedNotAuthorizedDeviceNotifications = new Dictionary<string, Guid>();
         public void ShowDeviceNotAuthorized(Device device)
         {
-            if (!pinNotVerifiedForDevices.Keys.Contains(device.SerialNo))
+            // Prevent multiple not authorized notifications for the same device
+            if (!displayedNotAuthorizedDeviceNotifications.Keys.Contains(device.SerialNo))
             {
                 App.Current.Dispatcher.Invoke(() =>
                 {
                     Screen screen = GetCurrentScreen();
-                    PinNotVerifiedNotification notification = new PinNotVerifiedNotification(new NotificationOptions { SetFocus = true });
-                    if (notification.DataContext is PinNotVerifiedNotificationViewModel viewModel)
+                    DeviceNotAuthorizedNotification notification = new DeviceNotAuthorizedNotification(new NotificationOptions { SetFocus = true });
+                    if (notification.DataContext is DeviceNotAuthorizedNotificationViewModel viewModel)
                     {
                         viewModel.Device = device;
-                        notification.Closed += (sender, e) => pinNotVerifiedForDevices.Remove(device.SerialNo);
+                        notification.Closed += (sender, e) => displayedNotAuthorizedDeviceNotifications.Remove(device.SerialNo);
                         AddNotification(screen, notification);
-                        pinNotVerifiedForDevices.Add(device.SerialNo, viewModel.ID);
+                        displayedNotAuthorizedDeviceNotifications.Add(device.SerialNo, viewModel.ID);
                     }
                 });
             }
             else
             {
-                GetNotifications(pinNotVerifiedForDevices[device.SerialNo]).ToList().ForEach(n => n.ResetCloseTimer());
+                GetNotifications(displayedNotAuthorizedDeviceNotifications[device.SerialNo]).ToList().ForEach(n => n.ResetCloseTimer());
             }
         }
 

@@ -239,6 +239,7 @@ namespace HideezMiddleware
                 return true;
 
             await _ui.SendNotification("Please press the Button on your Hideez Key", _nid);
+            await _ui.ShowButtonConfirmUi(device.Id);
             var res = await device.WaitButtonConfirmation(timeout);
             return res;
         }
