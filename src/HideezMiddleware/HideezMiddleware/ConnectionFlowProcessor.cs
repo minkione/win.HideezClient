@@ -96,11 +96,9 @@ namespace HideezMiddleware
                 if (device.AccessLevel.IsLinkRequired)
                     throw new HideezException(HideezErrorCode.DeviceRequiresLink);
 
-                const int timeout = 30_000;
+                const int timeout = 60_000;
 
                 await MasterKeyWorkflow(device, timeout);
-
-                await Task.Delay(1500).ConfigureAwait(false);
 
                 if (!await ButtonWorkflow(device, timeout))
                     throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
@@ -110,6 +108,10 @@ namespace HideezMiddleware
                 //await Task.WhenAll(showStatusTask, pinTask);
 
                 await PinWorkflow(device, timeout);
+
+                // check the button again as it may be outdated while PIN workflow was running
+                if (!await ButtonWorkflow(device, timeout))
+                    throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
 
                 if (!device.AccessLevel.IsLocked &&
                     !device.AccessLevel.IsButtonRequired &&
@@ -198,39 +200,39 @@ namespace HideezMiddleware
             return false;
         }
 
-        async Task ShowWaitStatus(IDevice device, int timeout)
-        {
-            Debug.WriteLine(">>>>>>>>>>>>>>> ShowWaitStatus ++++++++++++++++++++++++++++++++++++");
-            var startedTime = DateTime.Now;
-            var elapsed = startedTime - DateTime.Now;
+        //async Task ShowWaitStatus(IDevice device, int timeout)
+        //{
+        //    Debug.WriteLine(">>>>>>>>>>>>>>> ShowWaitStatus ++++++++++++++++++++++++++++++++++++");
+        //    var startedTime = DateTime.Now;
+        //    var elapsed = startedTime - DateTime.Now;
 
-            while ( elapsed.TotalMilliseconds < timeout && 
-                    !device.AccessLevel.IsLocked &&
-                    (device.AccessLevel.IsButtonRequired || device.AccessLevel.IsPinRequired || device.AccessLevel.IsNewPinRequired))
-            {
-                var statuses = new List<string>();
+        //    while ( elapsed.TotalMilliseconds < timeout && 
+        //            !device.AccessLevel.IsLocked &&
+        //            (device.AccessLevel.IsButtonRequired || device.AccessLevel.IsPinRequired || device.AccessLevel.IsNewPinRequired))
+        //    {
+        //        var statuses = new List<string>();
 
-                if (device.AccessLevel.IsButtonRequired)
-                    statuses.Add("Waiting for the BUTTON confirmation...");
+        //        if (device.AccessLevel.IsButtonRequired)
+        //            statuses.Add("Waiting for the BUTTON confirmation...");
 
-                if (device.AccessLevel.IsPinRequired)
-                {
-                    await _ui.ShowPinUi(device.Id);
-                    statuses.Add("Waiting for the PIN...");
-                }
-                else if (device.AccessLevel.IsNewPinRequired)
-                {
-                    await _ui.ShowPinUi(device.Id, withConfirm: true);
-                    statuses.Add("Waiting for the PIN...");
-                }
+        //        if (device.AccessLevel.IsPinRequired)
+        //        {
+        //            await _ui.ShowPinUi(device.Id);
+        //            statuses.Add("Waiting for the PIN...");
+        //        }
+        //        else if (device.AccessLevel.IsNewPinRequired)
+        //        {
+        //            await _ui.ShowPinUi(device.Id, withConfirm: true);
+        //            statuses.Add("Waiting for the PIN...");
+        //        }
 
-                await _ui.SendNotification(string.Join("; ", statuses), _infNid);
+        //        await _ui.SendNotification(string.Join("; ", statuses), _infNid);
 
-                await Task.Delay(300);
-                elapsed = DateTime.Now - startedTime;
-            }
-            Debug.WriteLine(">>>>>>>>>>>>>>> ShowWaitStatus ------------------------------");
-        }
+        //        await Task.Delay(300);
+        //        elapsed = DateTime.Now - startedTime;
+        //    }
+        //    Debug.WriteLine(">>>>>>>>>>>>>>> ShowWaitStatus ------------------------------");
+        //}
 
         async Task MasterKeyWorkflow(IDevice device, int timeout)
         {
@@ -272,6 +274,7 @@ namespace HideezMiddleware
             bool res = false;
             while (device.AccessLevel.IsNewPinRequired)
             {
+                await _ui.SendNotification("Please create new PIN code for your Hideez Key", _infNid);
                 string pin = await _ui.GetPin(device.Id, timeout, withConfirm: true);
 
                 if (pin == null)
@@ -297,6 +300,7 @@ namespace HideezMiddleware
             bool res = false;
             while (!device.AccessLevel.IsLocked)
             {
+                await _ui.SendNotification("Please enter the PIN code for your Hideez Key", _infNid);
                 string pin = await _ui.GetPin(device.Id, timeout);
 
                 if (pin == null)
