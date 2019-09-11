@@ -286,8 +286,6 @@
     <Compile Include="Modules\Notify\NotificationOptions.cs" />
     <Compile Include="Modules\Notify\NotificationPosition.cs" />
     <Compile Include="Modules\Notify\Notifier.cs" />
-    <Compile Include="Modules\PinHelper\IPinHelper.cs" />
-    <Compile Include="Modules\PinHelper\PinHelper.cs" />
     <Compile Include="Modules\Remote\IRemoteDeviceFactory.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceCommands.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceEvents.cs" />

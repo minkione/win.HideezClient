@@ -11,6 +11,7 @@ namespace HideezClient.ViewModels
         private string header;
         private bool isCheckable;
         private bool isChecked;
+        private bool isVisible = true;
         private ICommand menuItemCommand;
         private object commandParameter;
         private ObservableCollection<MenuItemViewModel> menuItems;
@@ -44,6 +45,12 @@ namespace HideezClient.ViewModels
             {
                 Set(ref isChecked, value);
             }
+        }
+
+        public bool IsVisible
+        {
+            get { return isVisible; }
+            set { Set(ref isVisible, value); }
         }
 
         public ICommand Command

@@ -10,12 +10,12 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
 {
     class ServiceCallbackMessanger : IHideezServiceCallback
     {
-        private readonly IMessenger messenger;
-        private readonly Logger log = LogManager.GetCurrentClassLogger();
+        readonly IMessenger _messenger;
+        readonly Logger log = LogManager.GetCurrentClassLogger();
 
         public ServiceCallbackMessanger(IMessenger messenger)
         {
-            this.messenger = messenger;
+            this._messenger = messenger;
         }
 
         public void ActivateWorkstationScreenRequest()
@@ -23,7 +23,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             try
             {
                 log.Info($"Activate screen request");
-                messenger.Send(new ActivateScreenMessage());
+                _messenger.Send(new ActivateScreenMessage());
             }
             catch (System.Exception ex)
             {
@@ -36,7 +36,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             try
             {
                 log.Info($"Lock workstation request");
-                messenger.Send(new LockWorkstationMessage());
+                _messenger.Send(new LockWorkstationMessage());
             }
             catch (System.Exception ex)
             {
@@ -49,7 +49,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             try
             {
                 log.Info($"Paired devices collection changed. Count: {devices.Length}");
-                messenger.Send(new DevicesCollectionChangedMessage(devices));
+                _messenger.Send(new DevicesCollectionChangedMessage(devices));
             }
             catch (System.Exception ex)
             {
@@ -62,7 +62,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             try
             {
                 log.Info($"Device ({device.Id}) connection state changed to: {device.IsConnected}");
-                messenger.Send(new DeviceConnectionStateChangedMessage(device));
+                _messenger.Send(new DeviceConnectionStateChangedMessage(device));
             }
             catch (System.Exception ex)
             {
@@ -75,7 +75,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             try
             {
                 log.Info($"Device ({device.Id}) is initialized");
-                messenger.Send(new DeviceInitializedMessage(device));
+                _messenger.Send(new DeviceInitializedMessage(device));
             }
             catch (Exception ex)
             {
@@ -88,7 +88,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             try
             {
                 log.Info($"Device ({device.Id}) is authorized");
-                messenger.Send(new DeviceAuthorizedMessage(device));
+                _messenger.Send(new DeviceAuthorizedMessage(device));
             }
             catch (Exception ex)
             {
@@ -101,7 +101,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             try
             {
                 //log.Info($"Remote ({deviceId}) system state received");
-                messenger.Send(new Remote_DeviceStateChangedMessage(deviceId, stateDto.ToDeviceState()));
+                _messenger.Send(new Remote_DeviceStateChangedMessage(deviceId, stateDto.ToDeviceState()));
             }
             catch (Exception ex)
             {
@@ -115,7 +115,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             {
                 log.Info($"Service components state changed (hes:{hesConnected}; showHes:{showHesStatus}; " +
                     $"rfid:{rfidConnected}; showRfid:{showRfidStatus};  ble:{bleConnected})");
-                messenger.Send(new ServiceComponentsStateChangedMessage(hesConnected, showHesStatus, rfidConnected, showRfidStatus, bleConnected));
+                _messenger.Send(new ServiceComponentsStateChangedMessage(hesConnected, showHesStatus, rfidConnected, showRfidStatus, bleConnected));
             }
             catch (Exception ex)
             {
@@ -128,7 +128,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             try
             {
                 log.Info($"Notification message from service: {message} ({notificationId})");
-                messenger.Send(new ServiceNotificationReceivedMessage(notificationId, message));
+                _messenger.Send(new ServiceNotificationReceivedMessage(notificationId, message));
             }
             catch (Exception ex)
             {
@@ -141,7 +141,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             try
             {
                 log.Info($"Error message from service: {error} ({notificationId})");
-                messenger.Send(new ServiceErrorReceivedMessage(notificationId, error));
+                _messenger.Send(new ServiceErrorReceivedMessage(notificationId, error));
             }
             catch (Exception ex)
             {
@@ -154,7 +154,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             try
             {
                 log.Info($"Show pin ui message for ({deviceId}; confirm: {withConfirm}; old pin: {askOldPin})");
-                messenger.Send(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
+                _messenger.Send(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
             }
             catch (Exception ex)
             {
@@ -167,7 +167,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             try
             {
                 log.Info($"Show button ui message for ({deviceId})");
-                messenger.Send(new ShowButtonConfirmUiMessage(deviceId));
+                _messenger.Send(new ShowButtonConfirmUiMessage(deviceId));
             }
             catch (Exception ex)
             {
@@ -180,7 +180,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             try
             {
                 log.Info($"Hide pin ui message");
-                messenger.Send(new HidePinUiMessage());
+                _messenger.Send(new HidePinUiMessage());
             }
             catch (Exception ex)
             {

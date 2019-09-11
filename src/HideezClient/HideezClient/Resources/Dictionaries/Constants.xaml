@@ -40,10 +40,12 @@
     <SolidColorBrush x:Key="PinkBrush" Color="{StaticResource Pink}" />
     <SolidColorBrush x:Key="PinkBrushIsMouseOver" Color="{StaticResource LightPink}" />
     <SolidColorBrush x:Key="PinkBrushIsPressed" Color="{StaticResource DarkPink}" />
+    <SolidColorBrush x:Key="PinkBrushIsDisabled" Color="{StaticResource Gray}" />
 
     <SolidColorBrush x:Key="BlueBrush" Color="{StaticResource Blue}" />
     <SolidColorBrush x:Key="BlueBrushIsMouseOver" Color="{StaticResource LightBlue}" />
     <SolidColorBrush x:Key="BlueBrushIsPressed" Color="{StaticResource DarkBlue}" />
+    <SolidColorBrush x:Key="BlueBrushIsDisabled" Color="{StaticResource Gray}" />
     <SolidColorBrush x:Key="NavyBlueBrush" Color="{StaticResource NavyBlue}" />
 
     <SolidColorBrush x:Key="SliderBlueBrush" Color="#251BA2DC" />

@@ -17,6 +17,7 @@
     xmlns:Converters="clr-namespace:MvvmExtensions.Converters;assembly=MvvmExtensions"
     xmlns:ma="http://metro.mahapps.com/winfx/xaml/controls"
     Title="{l:Localization AppName}"
+    MinHeight="200"
     Width="300"
     Background="{DynamicResource WindowLeftColumBrush}"
     Foreground="Black"
@@ -29,106 +30,157 @@
     <Metro:MetroWindow.Resources>
         <Converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <Converters:InvertBooleanToVisibilityConverter x:Key="InvertBooleanToVisibilityConverter" />
+        <!--<Behaviors:TabOnEnterBehavior x:Key="TabOnEnterBehavior" />-->
+
+        <Style x:Key="TitleTextBlockStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="TextAlignment" Value="Center" />
+        </Style>
+        
+        <Style x:Key="LabelTextBlockStyle" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TitleTextBlockStyle}">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="TextAlignment" Value="Left" />
+        </Style>
+
+        <Style x:Key="PinPasswordBoxStyle" TargetType="{x:Type PasswordBox}">
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="#26000000" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="CaretBrush" Value="White" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        
     </Metro:MetroWindow.Resources>
+    
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding CancelCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
+    
     <Grid>
+        <!-- Button UI -->
         <StackPanel Visibility="{Binding AskButton, Converter={StaticResource BooleanToVisibilityConverter}}">
             <TextBlock
-                Text="PUSH THE BUTTON" />
+                Style="{StaticResource TitleTextBlockStyle}"
+                Margin="20,15,20,0"
+                VerticalAlignment="Center"
+                Text="Press the button on your device to confirm authorization" />
+            <Grid >
+                <ContentPresenter
+                    Width="40"
+                    Height="40"
+                    Margin="20"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Content="{StaticResource HideezKeySimpleIMG}" />
+                <iconPacks:PackIconMaterial
+                    Width="30"
+                    Height="30"
+                    Margin="11,0,0,5"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    Foreground="#cf0000"
+                    Kind="GestureTap" />
+            </Grid>
+            <Metro:ProgressRing 
+                Margin="10,15,10,25"
+                Width="30"
+                Height="30"
+                Foreground="White" />
         </StackPanel>
 
-        <StackPanel Visibility="{Binding AskButton, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
-            <Grid Margin="20">
+        <!-- PIN UI -->
+        <StackPanel 
+            Margin="20,15,20,20" 
+            Visibility="{Binding AskButton, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+            <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="25" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <!-- PIN request UI -->
-                <Grid Visibility="{Binding InProgress, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
-                    <StackPanel>
+                <StackPanel 
+                    Width="180"
+                    Visibility="{Binding InProgress, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+                    <Grid>
                         <TextBlock
+                            Style="{StaticResource TitleTextBlockStyle}"
                             Text="Set up new PIN for device"
-                            HorizontalAlignment="Center"
                             Visibility="{Binding IsNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <TextBlock
+                            Style="{StaticResource TitleTextBlockStyle}"
                             Text="Enter device PIN"
-                            HorizontalAlignment="Center"
                             Visibility="{Binding IsEnterPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <TextBlock
+                            Style="{StaticResource TitleTextBlockStyle}"
                             Text="Change device PIN"
-                            HorizontalAlignment="Center"
                             Visibility="{Binding IsChangePin, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </Grid>
+
+                    <StackPanel Margin="0,10,0,0">
+                        <TextBlock
+                            Margin="0,10,0,0"
+                            Style="{StaticResource LabelTextBlockStyle}"
+                            Text="Current PIN"
+                            Visibility="{Binding AskCurrentPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <PasswordBox
+                            x:Name="CurrentPinPasswordBox"
+                            Style="{StaticResource PinPasswordBoxStyle}"
+                            Margin="0,6,0,0"
+                            ma:TextBoxHelper.Watermark="Enter current PIN"
+                            PasswordChanged="CurrentPinPasswordBox_PasswordChanged"
+                            Visibility="{Binding AskCurrentPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                        <TextBlock
+                            Margin="0,10,0,0"
+                            Style="{StaticResource LabelTextBlockStyle}"
+                            Text="New PIN"
+                            Visibility="{Binding AskNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <PasswordBox
+                            x:Name="NewPinPasswordBox"
+                            Style="{StaticResource PinPasswordBoxStyle}"
+                            Margin="0,6,0,0"
+                            ma:TextBoxHelper.Watermark="Enter new PIN"
+                            PasswordChanged="NewPinPasswordBox_PasswordChanged"
+                            Visibility="{Binding AskNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                        <TextBlock
+                            Margin="0,10,0,0"
+                            Style="{StaticResource LabelTextBlockStyle}"
+                            Text="Confirm PIN"
+                            Visibility="{Binding AskConfirmPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <PasswordBox
+                            x:Name="ConfirmPinPasswordBox"
+                            Style="{StaticResource PinPasswordBoxStyle}"
+                            Margin="0,6,0,0"
+                            ma:TextBoxHelper.Watermark="Confirm new PIN"
+                            PasswordChanged="ConfirmPinPasswordBox_PasswordChanged"
+                            Visibility="{Binding AskConfirmPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     </StackPanel>
-
-                    <PasswordBox
-                        x:Name="CurrentPinPasswordBox"
-                        HorizontalAlignment="Center"
-                        Margin="0,10,0,0"
-                        ma:TextBoxHelper.Watermark="Enter current PIN"
-                        PasswordChanged="CurrentPinPasswordBox_PasswordChanged"
-                        Visibility="{Binding AskCurrentPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <PasswordBox
-                        x:Name="NewPinPasswordBox"
-                        HorizontalAlignment="Center"
-                        Margin="0,10,0,0"
-                        ma:TextBoxHelper.Watermark="Enter new PIN"
-                        PasswordChanged="NewPinPasswordBox_PasswordChanged"
-                        Visibility="{Binding AskNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <PasswordBox
-                        x:Name="ConfirmPinPasswordBox"
-                        HorizontalAlignment="Center"
-                        Margin="0,10,0,0"
-                        ma:TextBoxHelper.Watermark="Confirm new PIN"
-                        PasswordChanged="ConfirmPinPasswordBox_PasswordChanged"
-                        Visibility="{Binding AskConfirmPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
-
-                </Grid>
+                </StackPanel>
 
                 <!--  Operation in progress  -->
-                <Grid Visibility="{Binding InProgress, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="20" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+                <StackPanel Visibility="{Binding InProgress, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock
-                        Grid.Row="0"
+                        Style="{StaticResource TitleTextBlockStyle}"
                         Text="Processing"
                         HorizontalAlignment="Center" />
                     <Metro:ProgressRing 
-                        Grid.Row="2" 
-                        Foreground="White" />
-                </Grid>
-
-                <!--  Successes  -->
-                <!-- Might be redundant with the current UI -->
-                <!--
-                <Grid Visibility="{Binding IsSuccess, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="20" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <TextBlock 
-                        Grid.Row="0" 
-                        HorizontalAlignment="Center"
-                        Text="Success" />
-
-                    <iconPacks:PackIconFontAwesome
-                        Grid.Row="2"
+                        Margin="0,20,0,0"
                         Width="50"
                         Height="50"
-                        HorizontalAlignment="Center"
-                        Foreground="Green"
-                        Kind="CheckCircleSolid" />
-                </Grid>
-                -->
+                        Foreground="White" />
+                </StackPanel>
 
                 <Button
                     Grid.Row="2"
@@ -143,8 +195,7 @@
                     Style="{StaticResource ButtonBlue}"
                     HorizontalAlignment="Right"
                     Command="{Binding CancelCommand}"
-                    Content="{l:Localization Button.Cancel}"
-                    IsCancel="True" />
+                    Content="{l:Localization Button.Cancel}" />
             </Grid>
         </StackPanel>
     </Grid>

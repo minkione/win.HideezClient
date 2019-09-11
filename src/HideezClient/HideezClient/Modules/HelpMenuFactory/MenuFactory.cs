@@ -200,6 +200,9 @@ namespace HideezClient.Modules
                     }
                 },
                 CommandParameter = device,
+                // Todo: Add support for Menu item hiding
+                // This will allow us to hide Authoriz menu item, if its no longe relevant (i.e. device alrady authorized)
+                //IsVisible = !device.IsAuthorized,
             };
         }
 

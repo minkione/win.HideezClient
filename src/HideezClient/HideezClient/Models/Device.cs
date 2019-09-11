@@ -376,7 +376,7 @@ namespace HideezClient.Models
                 if (!await ButtonWorkflow())
                     throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
 
-                var pinTask = PinWorkflow();
+                var pinTask = await PinWorkflow();
 
                 if (IsAuthorized)
                     _log.Info($"Remote device ({_remoteDevice.Id}) is authorized");
@@ -427,7 +427,7 @@ namespace HideezClient.Models
 
         async Task<bool> SetPinWorkflow()
         {
-            var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, withConfirm: true);
+            var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, withConfirm:true);
             if (pin == null || pin.Count() == 0)
                 return false;
             bool res = await _remoteDevice.SetPin(Encoding.UTF8.GetString(pin)); //this using default timeout for BLE commands
@@ -442,7 +442,7 @@ namespace HideezClient.Models
             bool pinOk = false;
             while (!_remoteDevice.AccessLevel.IsLocked)
             {
-                var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, withConfirm: true);
+                var pin = await GetPin(Id, CREDENTIAL_TIMEOUT);
                 Debug.WriteLine($">>>>>>>>>>>>>>> PIN: {pin}");
                 if (pin == null || pin.Count() == 0)
                     break;
@@ -471,6 +471,9 @@ namespace HideezClient.Models
         {
             if (!IsInitialized)
                 throw new Exception("Remote not initialized"); // Todo: proper exception
+
+            if (!IsAuthorized)
+                throw new Exception("Remote not authorized"); // Todo: proper exception
 
             try
             {

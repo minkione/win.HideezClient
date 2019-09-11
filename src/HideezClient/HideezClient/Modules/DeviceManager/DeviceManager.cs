@@ -82,12 +82,6 @@ namespace HideezClient.Modules.DeviceManager
                 try
                 {
                     EnumerateDevices(message.Devices);
-
-                    foreach (var device in Devices.ToList())
-                    {
-                        if (device.IsAuthorized && device.IsConnected)
-                            _ = TryCreateRemoteDeviceAsync(device);
-                    }
                 }
                 catch (Exception ex)
                 {
@@ -149,6 +143,13 @@ namespace HideezClient.Modules.DeviceManager
                 // delete device from UI if its deleted from service
                 Device[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
                 RemoveDevices(missingDevices);
+
+                // Create remote devices if they are not already created
+                foreach (var dvm in Devices.ToList().Where(d => d.IsConnected))
+                {
+                    if (serviceDevices.Any(d => d.Id == dvm.Id && d.IsAuthorized))
+                        _ = TryCreateRemoteDeviceAsync(dvm);
+                }
             }
             catch (FaultException<HideezServiceFault> ex)
             {
@@ -212,6 +213,11 @@ namespace HideezClient.Modules.DeviceManager
                     if (!device.IsInitialized && !device.IsInitializing && !device.IsAuthorized && !device.IsAuthorizing)
                     {
                         await device.InitializeRemoteDevice();
+
+                        // With certain configuration, the device will be authorized without pin code or button confirmation
+                        // In that case we can immediatelly begin loading storage
+                        if (device.IsAuthorized)
+                            await device.LoadStorage();
                     }
                 }
                 catch (Exception ex)

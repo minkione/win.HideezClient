@@ -1,4 +1,6 @@
-﻿using HideezClient.Mvvm;
+﻿using GalaSoft.MvvmLight.Messaging;
+using HideezClient.Messages;
+using HideezClient.Mvvm;
 using MvvmExtensions.Commands;
 using System;
 using System.Reflection;

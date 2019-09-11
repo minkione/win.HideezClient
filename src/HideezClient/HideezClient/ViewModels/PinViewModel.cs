@@ -194,7 +194,7 @@ namespace HideezClient.ViewModels
                 return new DelegateCommand
                 {
                     CommandAction = x => OnConfirm(),
-                    CanExecuteFunc = () => AreAllRequiredFieldsSet(),
+                    CanExecuteFunc = () => AreAllRequiredFieldsSet() && !InProgress,
                 };
             }
         }
