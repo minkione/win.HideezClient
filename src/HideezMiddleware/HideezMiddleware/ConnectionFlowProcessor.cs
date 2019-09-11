@@ -105,10 +105,11 @@ namespace HideezMiddleware
                 if (!await ButtonWorkflow(device, timeout))
                     throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
 
-                var showStatusTask = ShowWaitStatus(device, timeout);
-                var pinTask = PinWorkflow(device, timeout);
+                //var showStatusTask = ShowWaitStatus(device, timeout);
+                //var pinTask = PinWorkflow(device, timeout);
+                //await Task.WhenAll(showStatusTask, pinTask);
 
-                await Task.WhenAll(showStatusTask, pinTask);
+                await PinWorkflow(device, timeout);
 
                 if (!device.AccessLevel.IsLocked &&
                     !device.AccessLevel.IsButtonRequired &&
@@ -139,11 +140,11 @@ namespace HideezMiddleware
             finally
             {
                 await _ui.SendNotification("", _infNid);
-                await _ui.SendError("", _errNid);
-
                 await _ui.HidePinUi();
 
-                if (!success)
+                if (success)
+                    await _ui.SendError("", _errNid);
+                else
                     await device?.Disconnect();
 
                 _infNid = string.Empty;
@@ -268,13 +269,24 @@ namespace HideezMiddleware
 
         async Task<bool> SetPinWorkflow(IDevice device, int timeout)
         {
-            string pin = await _ui.GetPin(device.Id, timeout, withConfirm: true);
-            if (string.IsNullOrWhiteSpace(pin))
-                return false;
-            bool res = await device.SetPin(pin); //this using default timeout for BLE commands
+            bool res = false;
+            while (device.AccessLevel.IsNewPinRequired)
+            {
+                string pin = await _ui.GetPin(device.Id, timeout, withConfirm: true);
 
-            // тут почему-то метка просит нажать кнопку
+                if (pin == null)
+                    return false; // finished by timeout from the _ui.GetPin
 
+                if (string.IsNullOrWhiteSpace(pin))
+                {
+                    // we received an empty PIN from the user. Trying again with the same timeout.
+                    Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY PIN");
+                    WriteLine("Received empty PIN");
+                    continue;
+                }
+
+                res = await device.SetPin(pin); //this using default timeout for BLE commands
+            }
             return res;
         }
 
@@ -319,8 +331,6 @@ namespace HideezMiddleware
             Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow ------------------------------");
             return res;
         }
-
-        //------------------------------------
 
         async Task<IDevice> ConnectDevice(string mac, int tryCount = 2)
         {
