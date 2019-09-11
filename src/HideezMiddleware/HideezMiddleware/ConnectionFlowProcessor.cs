@@ -98,6 +98,8 @@ namespace HideezMiddleware
 
                 await MasterKeyWorkflow(device, timeout);
 
+                await Task.Delay(1500).ConfigureAwait(false);
+
                 if (!await ButtonWorkflow(device, timeout))
                     throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
 
@@ -278,11 +280,17 @@ namespace HideezMiddleware
             while (!device.AccessLevel.IsLocked)
             {
                 string pin = await _ui.GetPin(device.Id, timeout);
+
+                if (pin == null)
+                    return false; // finished by timeout from the _ui.GetPin
+
                 Debug.WriteLine($">>>>>>>>>>>>>>> PIN: {pin}");
                 if (string.IsNullOrWhiteSpace(pin))
                 {
+                    // we received an empty PIN from the user. Trying again with the same timeout.
                     Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY PIN");
                     WriteLine("Received empty PIN");
+
                     continue;
                 }
 

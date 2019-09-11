@@ -1429,7 +1429,7 @@ namespace WinSampleApp.ViewModel
             if (_getPinWindow != null)
                 return Task.CompletedTask;
 
-            SendError("");
+            SendError("", null);
 
             Task.Run(() =>
             {
@@ -1462,7 +1462,7 @@ namespace WinSampleApp.ViewModel
                 _getPinWindow = null;
             });
 
-            SendNotification("");
+            SendNotification("", null);
             //SendError("");
             return Task.CompletedTask;
         }
@@ -1473,18 +1473,22 @@ namespace WinSampleApp.ViewModel
             return Task.CompletedTask;
         }
 
-        public Task SendError(string message)
+        public Task SendError(string message, string notificationId)
         {
             ClientUiError = string.IsNullOrEmpty(message) ? "" : $"{DateTime.Now:T} {message}";
             return Task.CompletedTask;
         }
 
-        public Task SendNotification(string message)
+        public Task SendNotification(string message, string notificationId)
         {
             ClientUiNotification = string.IsNullOrEmpty(message) ? "" : $"{DateTime.Now:T} {message}";
             return Task.CompletedTask;
         }
 
+        public Task ShowButtonConfirmUi(string deviceId)
+        {
+            return Task.CompletedTask;
+        }
 
         #endregion IClientUiProxy
 
