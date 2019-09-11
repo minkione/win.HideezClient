@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace HideezClient.Mvvm
+﻿namespace HideezClient.Mvvm
 {
     public interface IRequireViewIdentification
     {
-        Guid ID { get; }
+        string ObservableId { get; }
     }
 }

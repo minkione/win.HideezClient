@@ -10,6 +10,8 @@ namespace HideezClient.Mvvm
     /// </summary>
     public class ObservableObject : PropertyChangedImplementation, IRequireViewIdentification
     {
+        public string ObservableId { get; set; } = Guid.NewGuid().ToString();
+
         /// <summary>
         /// Assigns a new value to the property. Then, raises the PropertyChanged event if needed. 
         /// </summary>
@@ -30,8 +32,6 @@ namespace HideezClient.Mvvm
             RaisePropertyChanged(propertyName);
             return true;
         }
-
-        public Guid ID { get; } = Guid.NewGuid();
 
         /// <summary>
         /// Raises the PropertyChanged event.

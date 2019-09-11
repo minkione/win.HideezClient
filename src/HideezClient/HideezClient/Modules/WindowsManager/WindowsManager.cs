@@ -20,7 +20,7 @@ namespace HideezClient.Modules
     {
         private readonly ViewModelLocator _viewModelLocator;
         private string titleNotification;
-        private readonly INotifier notifier;
+        private readonly INotifier _notifier;
         private readonly Logger log = LogManager.GetCurrentClassLogger();
         private bool isMainWindowVisible;
 
@@ -31,11 +31,11 @@ namespace HideezClient.Modules
 
         public WindowsManager(INotifier notifier, ViewModelLocator viewModelLocator, IMessenger messenger)
         {
-            this.notifier = notifier;
-            this._viewModelLocator = viewModelLocator;
+            _notifier = notifier;
+            _viewModelLocator = viewModelLocator;
             
-            messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message));
-            messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message));
+            messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message, notificationId:p.Id));
+            messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message, notificationId: p.Id));
 
             messenger.Register<ShowInfoNotificationMessage>(this, (p) => ShowInfo(p.Message, p.Title));
             messenger.Register<ShowWarningNotificationMessage>(this, (p) => ShowWarn(p.Message, p.Title));
@@ -158,55 +158,43 @@ namespace HideezClient.Modules
             });
         }
 
-        public void ShowError(string message, string title = null)
+        public void ShowError(string message, string title = null, string notificationId = "")
         {
-            if (string.IsNullOrWhiteSpace(message) && string.IsNullOrWhiteSpace(title))
-                return;
-
             if (UIDispatcher.CheckAccess())
             {
-                notifier.ShowError(title ?? GetTitle(), message);
+                _notifier.ShowError(notificationId, title ?? GetTitle(), message);
             }
             else
             {
                 // Do non UI Thread stuff
-                UIDispatcher.Invoke(() => notifier.ShowError(title ?? GetTitle(), message));
+                UIDispatcher.Invoke(() => _notifier.ShowError(notificationId, title ?? GetTitle(), message));
             }
-            // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        public void ShowWarn(string message, string title = null)
+        public void ShowWarn(string message, string title = null, string notificationId = "")
         {
-            if (string.IsNullOrWhiteSpace(message) && string.IsNullOrWhiteSpace(title))
-                return;
-
             if (UIDispatcher.CheckAccess())
             {
-                notifier.ShowWarn(title ?? GetTitle(), message);
+                _notifier.ShowWarn(notificationId, title ?? GetTitle(), message);
             }
             else
             {
                 // Do non UI Thread stuff
-                UIDispatcher.Invoke(() => notifier.ShowWarn(title ?? GetTitle(), message));
+                UIDispatcher.Invoke(() => _notifier.ShowWarn(notificationId, title ?? GetTitle(), message));
             }
-            // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
-        public void ShowInfo(string message, string title = null)
+        public void ShowInfo(string message, string title = null, string notificationId = "")
         {
-            if (string.IsNullOrWhiteSpace(message) && string.IsNullOrWhiteSpace(title))
-                return;
-
             if (UIDispatcher.CheckAccess())
             {
-                notifier.ShowInfo(title ?? GetTitle(), message);
+                _notifier.ShowInfo(notificationId, title ?? GetTitle(), message);
             }
             else
             {
                 // Do non UI Thread stuff
-                UIDispatcher.Invoke(() => notifier.ShowInfo(title ?? GetTitle(), message));
+                UIDispatcher.Invoke(() => _notifier.ShowInfo(notificationId, title ?? GetTitle(), message));
             }
-            // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private string GetTitle()
@@ -226,12 +214,12 @@ namespace HideezClient.Modules
         {
             if (UIDispatcher.CheckAccess())
             {
-                return notifier.SelectAccountAsync(accounts, hwnd);
+                return _notifier.SelectAccountAsync(accounts, hwnd);
             }
             else
             {
                 // Do non UI Thread stuff
-                return UIDispatcher.Invoke(() => notifier.SelectAccountAsync(accounts, hwnd));
+                return UIDispatcher.Invoke(() => _notifier.SelectAccountAsync(accounts, hwnd));
             }
         }
 
@@ -240,12 +228,12 @@ namespace HideezClient.Modules
 
             if (UIDispatcher.CheckAccess())
             {
-                notifier.ShowCredentialsLoading(viewModel);
+                _notifier.ShowStorageLoadingNotification(viewModel);
             }
             else
             {
                 // Do non UI Thread stuff
-                UIDispatcher.Invoke(() => notifier.ShowCredentialsLoading(viewModel));
+                UIDispatcher.Invoke(() => _notifier.ShowStorageLoadingNotification(viewModel));
             }
         }
 
@@ -255,7 +243,7 @@ namespace HideezClient.Modules
             {
                 foreach (Window window in Application.Current.Windows)
                 {
-                    if (window.DataContext is IRequireViewIdentification vm && vm.ID.Equals(id))
+                    if (window.DataContext is IRequireViewIdentification vm && vm.ObservableId.Equals(id))
                     {
                         window.Close();
                     }
@@ -387,8 +375,12 @@ namespace HideezClient.Modules
             {
                 if (UIDispatcher.CheckAccess())
                 {
-                    pinView?.Close();
-                    pinView = null;
+                    try
+                    {
+                        pinView?.Close();
+                        pinView = null;
+                    }
+                    catch { }
                 }
                 else
                 {
@@ -439,51 +431,13 @@ namespace HideezClient.Modules
         {
             if (UIDispatcher.CheckAccess())
             {
-                notifier.ShowDeviceNotAuthorized(device);
+                _notifier.ShowDeviceNotAuthorizedNotification(device);
             }
             else
             {
-                UIDispatcher.Invoke(() => notifier.ShowDeviceNotAuthorized(device));
+                UIDispatcher.Invoke(() => _notifier.ShowDeviceNotAuthorizedNotification(device));
             }
         }
-
-        #region Old PIN
-        /*
-        public void ShowSetPin(Device device)
-        {
-            SetPinViewModel viewModel = viewModelLocator.SetPinViewModel;
-            viewModel.Device = device;
-            viewModel.State = ViewPinState.WaitUserAction;
-            ShowPinViewAsync(viewModel);
-        }
-
-        public void ShowChangePin(Device device)
-        {
-            ChangePinViewModel viewModel = viewModelLocator.ChangePinViewModel;
-            viewModel.Device = device;
-            viewModel.State = ViewPinState.WaitUserAction;
-            ShowPinViewAsync(viewModel);
-        }
-
-        public Task<bool> ShowDialogEnterPinAsync(EnterPinViewModel viewModel)
-        {
-            return ShowPinViewAsync(viewModel);
-        }
-
-        private Task<bool> ShowPinViewAsync(PinViewModel viewModel)
-        {
-            return UIDispatcher.InvokeAsync(() =>
-            {
-                bool mainWindowWasOpen = IsMainWindowVisible;
-                PinView view = new PinView();
-                view.DataContext = viewModel;
-                SetStartupLocation(view, mainWindowWasOpen, true);
-                bool dialogResult = view.ShowDialog() ?? false;
-                return dialogResult;
-            }).Task;
-        }
-        */
-        #endregion
 
         public void ShowInfoAboutDevice(Device device)
         {

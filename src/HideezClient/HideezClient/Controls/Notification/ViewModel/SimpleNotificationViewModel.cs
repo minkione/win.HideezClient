@@ -1,34 +1,29 @@
-﻿using GalaSoft.MvvmLight;
+﻿using HideezClient.Mvvm;
 using MvvmExtensions.Commands;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace HideezClient.Controls
 {
     class SimpleNotificationViewModel : ObservableObject
     {
-        private string title;
-        private string message;
+        string _title;
+        string _message;
 
         public string Title
         {
-            get { return title; }
+            get { return _title; }
             set
             {
-                Set(nameof(Title), ref title, value);
+                Set(ref _title, value);
             }
         }
 
         public string Message
         {
-            get { return message; }
+            get { return _message; }
             set
             {
-                Set(nameof(Message), ref message, value);
+                Set(ref _message, value);
             }
         }
 

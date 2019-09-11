@@ -1,6 +1,5 @@
 ﻿using HideezClient.Controls;
 using HideezClient.Models;
-using HideezClient.Modules.ActionHandler;
 using HideezClient.Mvvm;
 using HideezClient.Utilities;
 using HideezClient.ViewModels;
@@ -8,80 +7,95 @@ using HideezClient.Views;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Media;
-using System.Windows.Threading;
 
 namespace HideezClient.Modules
 {
+    // Todo: Create base class for all notification types and refactor logic for notification adding, removal and timeout so tha its tied only to Content & NotificationId
+    // Actually, the content may only be relevant to the generic notifications and the rest might work exclusivelly with NotificationId
     class Notifier : INotifier, IDisposable
     {
-        private Dictionary<string, NotificationsContainerWindow> windowsForNotifications = new Dictionary<string, NotificationsContainerWindow>();
-        private readonly object lockObj = new object();
+        readonly object lockObj = new object();
+
+        Dictionary<string, NotificationsContainerWindow> windowsForNotifications = new Dictionary<string, NotificationsContainerWindow>();
+
+        static HashSet<string> viewLoadingCredentialsForDevices = new HashSet<string>();
+        static Dictionary<string, NotificationBase> displayedNotAuthorizedDeviceNotifications = new Dictionary<string, NotificationBase>();
 
         public Notifier()
         {
             SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
         }
 
-        private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
+        void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
         {
             ClearContainers();
         }
 
+        #region IDisposable
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        bool disposed = false;
+        void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+
+            }
+
+            // Because this is a static event, you must detach your event handlers when your application is disposed.
+            SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
+
+            disposed = true;
+        }
+
+        ~Notifier()
+        {
+            Dispose(false);
+        }
+        #endregion
+        
         public void ShowInfo(string title, string message, NotificationOptions options = null)
         {
-            ShowSimpleNotification(title, message, options, SimpleNotificationType.Info);
+            ShowInfo(string.Empty, title, message, options);
         }
+
+        public void ShowInfo(string notificationId, string title, string message, NotificationOptions options = null)
+        {
+            ShowSimpleNotification(notificationId, title, message, options, SimpleNotificationType.Info);
+        }
+
 
         public void ShowWarn(string title, string message, NotificationOptions options = null)
         {
-            ShowSimpleNotification(title, message, options, SimpleNotificationType.Warn);
+            ShowWarn(string.Empty, title, message, options);
         }
+
+        public void ShowWarn(string notificationid, string title, string message, NotificationOptions options = null)
+        {
+            ShowSimpleNotification(notificationid, title, message, options, SimpleNotificationType.Warn);
+        }
+
 
         public void ShowError(string title, string message, NotificationOptions options = null)
         {
-            ShowSimpleNotification(title, message, options, SimpleNotificationType.Error);
+            ShowError(string.Empty, title, message, options);
         }
 
-        private void ShowSimpleNotification(string title, string message, NotificationOptions options, SimpleNotificationType notificationType)
+        public void ShowError(string notificationId, string title, string message, NotificationOptions options = null)
         {
-            Screen screen = GetCurrentScreen();
-            SimpleNotification notification = new SimpleNotification(options ?? new NotificationOptions(), notificationType)
-            {
-                DataContext = new SimpleNotificationViewModel { Title = title, Message = message, }
-            };
-            AddNotification(screen, notification);
+            ShowSimpleNotification(notificationId, title, message, options, SimpleNotificationType.Error);
         }
 
-        /// <summary>
-        /// Close all windows for notification if screens is not valid
-        /// Example: disconnect one or more monitors
-        /// </summary>
-        private void ClearContainers()
-        {
-            try
-            {
-                lock (lockObj)
-                {
-                    foreach (var screen in windowsForNotifications.Keys.Except(Screen.AllScreens.Select(s => s.DeviceName)).ToArray())
-                    {
-                        if (windowsForNotifications.TryGetValue(screen, out NotificationsContainerWindow window))
-                        {
-                            window.Close();
-                            windowsForNotifications.Remove(screen);
-                        }
-                    }
-                }
-            }
-            catch { }
-        }
 
         public async Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd)
         {
@@ -106,13 +120,96 @@ namespace HideezClient.Modules
             return null;
         }
 
+        public void ShowStorageLoadingNotification(CredentialsLoadNotificationViewModel viewModel)
+        {
+            if (!viewLoadingCredentialsForDevices.Contains(viewModel.DeviceSN))
+            {
+                viewLoadingCredentialsForDevices.Add(viewModel.DeviceSN);
+                Screen screen = GetCurrentScreen();
+                NotificationOptions options = new NotificationOptions
+                {
+                    CloseTimeout = TimeSpan.Zero,
+                };
+
+                CredentialsLoadNotification notification = null;
+                notification = new CredentialsLoadNotification(options)
+                {
+                    DataContext = viewModel
+                };
+                AddNotification(screen, notification);
+
+                notification.Closed += (sender, e) => viewLoadingCredentialsForDevices.Remove(viewModel.DeviceSN);
+            }
+        }
+
+        public void ShowDeviceNotAuthorizedNotification(Device device)
+        {
+            // Prevent multiple not authorized notifications for the same device
+            if (!displayedNotAuthorizedDeviceNotifications.Keys.Contains(device.SerialNo))
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    Screen screen = GetCurrentScreen();
+                    DeviceNotAuthorizedNotification notification = new DeviceNotAuthorizedNotification(new NotificationOptions { SetFocus = true });
+                    if (notification.DataContext is DeviceNotAuthorizedNotificationViewModel viewModel)
+                    {
+                        viewModel.Device = device;
+                        notification.Closed += (sender, e) => displayedNotAuthorizedDeviceNotifications.Remove(device.SerialNo);
+                        AddNotification(screen, notification);
+                        displayedNotAuthorizedDeviceNotifications.Add(device.SerialNo, notification);
+                    }
+                });
+            }
+            else
+            {
+                displayedNotAuthorizedDeviceNotifications[device.SerialNo]?.ResetCloseTimer();
+            }
+        }
+
+
+        void ShowSimpleNotification(string notificationId, string title, string message, NotificationOptions options, SimpleNotificationType notificationType)
+        {
+            Screen screen = GetCurrentScreen();
+
+            if (string.IsNullOrWhiteSpace(notificationId))
+                notificationId = Guid.NewGuid().ToString();
+
+            // If notification with matching ID and content is found, extend its duration
+            // If ID matches but content is different, close old notification and display a new one
+            // If no copy is found, show new notification
+            var matchingNotificationView = GetNotifications().FirstOrDefault(n => (n.DataContext as SimpleNotificationViewModel)?.ObservableId == notificationId);
+            if (matchingNotificationView?.DataContext is SimpleNotificationViewModel matchingNotificationViewModel)
+            {
+                if (matchingNotificationViewModel.Message == message &&
+                matchingNotificationViewModel.Title == title)
+                {
+                    matchingNotificationView.ResetCloseTimer();
+                    return;
+                }
+                else
+                {
+                    matchingNotificationView.Close();
+                }
+            }
+
+            // Do not create notifications without content
+            if (string.IsNullOrWhiteSpace(message))
+                return;
+
+            SimpleNotification notification = new SimpleNotification(options ?? new NotificationOptions(), notificationType)
+            {
+                DataContext = new SimpleNotificationViewModel { Title = title, Message = message, ObservableId = notificationId, }
+            };
+            AddNotification(screen, notification);
+        }
+
         /// <summary>
         /// Find container for notification by screen if not found container create new and then add notification to container associated with the screen
         /// </summary>
         /// <param name="screen">Screen where show notification</param>
         /// <param name="notification">Notification</param>
         /// <param name="addForce">If tru Add to stack notifications if count notification more then max</param>
-        private void AddNotification(Screen screen, NotificationBase notification, bool addForce = false)
+        void AddNotification(Screen screen, NotificationBase notification, bool addForce = false)
         {
             NotificationsContainerWindow window = null;
             lock (lockObj)
@@ -130,74 +227,43 @@ namespace HideezClient.Modules
            (window.DataContext as NotificationsContainerViewModel)?.AddNotification(notification, addForce);
         }
 
-        public void Dispose()
-        {
-            // Because this is a static event, you must detach your event handlers when your application is disposed.
-            SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
-        }
-
-        private static HashSet<string> viewLoadingCredentialsForDevices = new HashSet<string>();
-        public void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel)
-        {
-            if (!viewLoadingCredentialsForDevices.Contains(viewModel.DeviceSN))
-            {
-                viewLoadingCredentialsForDevices.Add(viewModel.DeviceSN);
-                Screen screen = GetCurrentScreen();
-                NotificationOptions options = new NotificationOptions
-                {
-                    CloseTimeout = TimeSpan.Zero,
-                };
-
-                CredentialsLoadNotification notification = null;
-                notification = new CredentialsLoadNotification(options);
-                notification.DataContext = viewModel;
-                AddNotification(screen, notification);
-
-                notification.Closed += (sender, e) => viewLoadingCredentialsForDevices.Remove(viewModel.DeviceSN);
-            }
-        }
-
-        private static Dictionary<string, Guid> displayedNotAuthorizedDeviceNotifications = new Dictionary<string, Guid>();
-        public void ShowDeviceNotAuthorized(Device device)
-        {
-            // Prevent multiple not authorized notifications for the same device
-            if (!displayedNotAuthorizedDeviceNotifications.Keys.Contains(device.SerialNo))
-            {
-                App.Current.Dispatcher.Invoke(() =>
-                {
-                    Screen screen = GetCurrentScreen();
-                    DeviceNotAuthorizedNotification notification = new DeviceNotAuthorizedNotification(new NotificationOptions { SetFocus = true });
-                    if (notification.DataContext is DeviceNotAuthorizedNotificationViewModel viewModel)
-                    {
-                        viewModel.Device = device;
-                        notification.Closed += (sender, e) => displayedNotAuthorizedDeviceNotifications.Remove(device.SerialNo);
-                        AddNotification(screen, notification);
-                        displayedNotAuthorizedDeviceNotifications.Add(device.SerialNo, viewModel.ID);
-                    }
-                });
-            }
-            else
-            {
-                GetNotifications(displayedNotAuthorizedDeviceNotifications[device.SerialNo]).ToList().ForEach(n => n.ResetCloseTimer());
-            }
-        }
-
-        private Screen GetCurrentScreen()
+        Screen GetCurrentScreen()
         {
             IntPtr foregroundWindow = Win32Helper.GetForegroundWindow();
             Screen screen = Screen.FromHandle(foregroundWindow);
             return screen;
         }
 
-        public IEnumerable<NotificationBase> GetNotifications(Guid id)
+        IEnumerable<NotificationBase> GetNotifications()
         {
-            return windowsForNotifications.Values.OfType<NotificationsContainerViewModel>()
-                .SelectMany(vm => vm.Items.Where(nb => (nb.DataContext as IRequireViewIdentification)?.ID == id));
+            return windowsForNotifications
+                .Values
+                .OfType<NotificationsContainerWindow>()
+                .SelectMany(vm => (vm.DataContext as NotificationsContainerViewModel).Items)
+                .ToList();
         }
 
-        public void CloseNotifications(Guid id)
+        /// <summary>
+        /// Close all windows for notification if screens is not valid
+        /// Example: disconnect one or more monitors
+        /// </summary>
+        void ClearContainers()
         {
-            GetNotifications(id).ToList().ForEach(n => n.Close());
+            try
+            {
+                lock (lockObj)
+                {
+                    foreach (var screen in windowsForNotifications.Keys.Except(Screen.AllScreens.Select(s => s.DeviceName)).ToArray())
+                    {
+                        if (windowsForNotifications.TryGetValue(screen, out NotificationsContainerWindow window))
+                        {
+                            window.Close();
+                            windowsForNotifications.Remove(screen);
+                        }
+                    }
+                }
+            }
+            catch { }
         }
     }
 }

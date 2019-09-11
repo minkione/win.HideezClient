@@ -2,19 +2,22 @@
 using HideezClient.Controls;
 using HideezClient.Models;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace HideezClient.Modules
 {
     interface INotifier
     {
         void ShowInfo(string title, string message, NotificationOptions options = null);
+        void ShowInfo(string notificationId, string title, string message, NotificationOptions options = null);
+
         void ShowWarn(string title, string message, NotificationOptions options = null);
+        void ShowWarn(string notificationId, string title, string message, NotificationOptions options = null);
+
         void ShowError(string title, string message, NotificationOptions options = null);
-        void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel);
-        void ShowDeviceNotAuthorized(Device device);
+        void ShowError(string notificationId, string title, string message, NotificationOptions options = null);
+
+        void ShowStorageLoadingNotification(CredentialsLoadNotificationViewModel viewModel);
+        void ShowDeviceNotAuthorizedNotification(Device device);
         Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd);
-        IEnumerable<NotificationBase> GetNotifications(Guid id);
-        void CloseNotifications(Guid id);
     }
 }

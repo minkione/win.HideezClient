@@ -20,20 +20,12 @@ namespace HideezClient.Modules
         void ShowInfoAboutDevice(Device device);
         void CloseWindow(Guid id);
 
-        void ShowInfo(string message, string title = null);
-        void ShowWarn(string message, string title = null);
-        void ShowError(string message, string title = null);
+        void ShowInfo(string message, string title = null, string notificationId = null);
+        void ShowWarn(string message, string title = null, string notificationId = null);
+        void ShowError(string message, string title = null, string notificationId = null);
         Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd);
         void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel);
         Task ShowDeviceLockedAsync();
         void ShowDeviceNotAuthorized(Device device);
-
-        #region PIN
-        /*
-        Task<bool> ShowDialogEnterPinAsync(EnterPinViewModel viewModel);
-        void ShowSetPin(Device device);
-        void ShowChangePin(Device device);
-        */
-        #endregion PIN
     }
 }

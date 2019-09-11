@@ -24,7 +24,8 @@ namespace HideezMiddleware
         readonly HesAppConnection _hesConnection;
 
         int _isConnecting = 0;
-        string _nid = string.Empty; // Notification Id, which must be the same for the entire duration of MainWorkflow
+        string _infNid = string.Empty; // Notification Id, which must be the same for the entire duration of MainWorkflow
+        string _errNid = string.Empty; // Error Notification Id
 
         public ConnectionFlowProcessor(BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
@@ -70,11 +71,12 @@ namespace HideezMiddleware
 
             bool success = false;
             IDevice device = null;
-            _nid = Guid.NewGuid().ToString();
+            _infNid = Guid.NewGuid().ToString();
+            _errNid = Guid.NewGuid().ToString();
             try
             {
-                await _ui.SendNotification("", _nid);
-                await _ui.SendError("", _nid);
+                await _ui.SendNotification("", _infNid);
+                await _ui.SendError("", _errNid);
 
                 _screenActivator?.ActivateScreen();
                 device = await ConnectDevice(mac);
@@ -123,32 +125,36 @@ namespace HideezMiddleware
             {
                 var message = HideezExceptionLocalization.GetErrorAsString(ex);
                 WriteLine(message);
-                await _ui.SendNotification("", _nid);
-                await _ui.SendError(message, _nid);
+                await _ui.SendNotification("", _infNid);
+                await _ui.SendError(message, _errNid);
                 throw;
             }
             catch (Exception ex)
             {
                 WriteLine(ex);
-                await _ui.SendNotification("", _nid);
-                await _ui.SendError(ex.Message, _nid);
+                await _ui.SendNotification("", _infNid);
+                await _ui.SendError(ex.Message, _errNid);
                 throw;
             }
             finally
             {
+                await _ui.SendNotification("", _infNid);
+                await _ui.SendError("", _errNid);
+
                 await _ui.HidePinUi();
 
                 if (!success)
                     await device?.Disconnect();
 
-                _nid = string.Empty;
+                _infNid = string.Empty;
+                _errNid = string.Empty;
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
         }
 
         async Task<bool> TryUnlockWorkstation(IDevice device)
         {
-            await _ui.SendNotification("Reading credentials from the device...", _nid);
+            await _ui.SendNotification("Reading credentials from the device...", _infNid);
 
             // read in parallel info from the HES and credentials from the device
             var infoTask = IsNeedUpdateDevice(device);
@@ -166,7 +172,7 @@ namespace HideezMiddleware
             }
 
             // send credentials to the Credential Provider to unlock the PC
-            await _ui.SendNotification("Unlocking the PC...", _nid);
+            await _ui.SendNotification("Unlocking the PC...", _infNid);
             var success = await _workstationUnlocker
                 .SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
 
@@ -217,7 +223,7 @@ namespace HideezMiddleware
                     statuses.Add("Waiting for the PIN...");
                 }
 
-                await _ui.SendNotification(string.Join("; ", statuses), _nid);
+                await _ui.SendNotification(string.Join("; ", statuses), _infNid);
 
                 await Task.Delay(300);
                 elapsed = DateTime.Now - startedTime;
@@ -230,9 +236,9 @@ namespace HideezMiddleware
             if (!device.AccessLevel.IsMasterKeyRequired)
                 return;
 
-            await _ui.SendNotification("Waiting for HES authorization...", _nid);
+            await _ui.SendNotification("Waiting for HES authorization...", _infNid);
             await _hesConnection.FixDevice(device);
-            await _ui.SendNotification("", _nid);
+            await _ui.SendNotification("", _infNid);
         }
 
         async Task<bool> ButtonWorkflow(IDevice device, int timeout)
@@ -240,7 +246,7 @@ namespace HideezMiddleware
             if (!device.AccessLevel.IsButtonRequired)
                 return true;
 
-            await _ui.SendNotification("Please press the Button on your Hideez Key", _nid);
+            await _ui.SendNotification("Please press the Button on your Hideez Key", _infNid);
             await _ui.ShowButtonConfirmUi(device.Id);
             var res = await device.WaitButtonConfirmation(timeout);
             return res;
@@ -305,9 +311,9 @@ namespace HideezMiddleware
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({device.PinAttemptsRemain} attempts left)");
                     if (device.AccessLevel.IsLocked)
-                        await _ui.SendError($"Device is locked", _nid);
+                        await _ui.SendError($"Device is locked", _errNid);
                     else
-                        await _ui.SendError($"Wrong PIN ({device.PinAttemptsRemain} attempts left)", _nid);
+                        await _ui.SendError($"Wrong PIN ({device.PinAttemptsRemain} attempts left)", _errNid);
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow ------------------------------");
@@ -320,7 +326,7 @@ namespace HideezMiddleware
         {
             IDevice device = null;
 
-            await _ui.SendNotification("Connecting to the device...", _nid);
+            await _ui.SendNotification("Connecting to the device...", _infNid);
 
             do
             {
@@ -328,7 +334,7 @@ namespace HideezMiddleware
                 if (device == null)
                 {
                     await _deviceManager.RemoveByMac(mac);
-                    await _ui.SendNotification("Connection failed. Retrying...", _nid);
+                    await _ui.SendNotification("Connection failed. Retrying...", _infNid);
                     await Task.Delay(CONNECT_RETRY_DELAY); // Wait one second before trying to connect device again
                 }
             }
@@ -342,7 +348,7 @@ namespace HideezMiddleware
 
         async Task WaitDeviceInitialization(string mac, IDevice device)
         {
-            await _ui.SendNotification("Waiting for the device initialization...", _nid);
+            await _ui.SendNotification("Waiting for the device initialization...", _infNid);
             await device.WaitInitialization(BleDefines.DeviceInitializationTimeout);
             if (device.IsErrorState)
             {
