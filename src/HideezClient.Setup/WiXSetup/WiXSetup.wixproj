@@ -106,11 +106,11 @@
     <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
   </Target>
   <PropertyGroup>
-    <PreBuildEvent>if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" "$(SolutionDir)..\HideezClient\HideezClient\bin\$(PlatformName)\$(ConfigurationName)\HideezClient.exe" "Hideez Client"%3b
-if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" "$(SolutionDir)..\HideezService\HideezServiceHost\bin\$(PlatformName)\$(ConfigurationName)\HideezServiceHost.exe" "Hideez Client"</PreBuildEvent>
+    <PostBuildEvent>if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" $(TargetPath) "Hideez Client Update"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" $(TargetPath) "Hideez Client Update"</PostBuildEvent>
+    <PreBuildEvent>if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" "$(SolutionDir)HideezClient\HideezClient\bin\$(PlatformName)\$(ConfigurationName)\HideezClient.exe" "Hideez Client"%3b
+if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" "$(SolutionDir)HideezService\HideezServiceHost\bin\$(PlatformName)\$(ConfigurationName)\HideezServiceHost.exe" "Hideez Client"</PreBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
