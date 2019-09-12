@@ -39,5 +39,30 @@ namespace HideezClient.Views
                 ((PinViewModel)DataContext).SecureConfirmPin = ((PasswordBox)sender).SecurePassword;
             }
         }
+
+        private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            FocusFirstVisiblePasswordBox();
+        }
+
+        private void PasswordBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            FocusFirstVisiblePasswordBox();
+        }
+
+        void FocusFirstVisiblePasswordBox()
+        {
+            // Set focus to the first password box that is visible
+            var passwordBoxes = new PasswordBox[] { CurrentPinPasswordBox, NewPinPasswordBox, ConfirmPinPasswordBox };
+
+            foreach (var pb in passwordBoxes)
+            {
+                if (pb.IsVisible)
+                {
+                    FocusManager.SetFocusedElement(this, pb);
+                    break;
+                }
+            }
+        }
     }
 }
