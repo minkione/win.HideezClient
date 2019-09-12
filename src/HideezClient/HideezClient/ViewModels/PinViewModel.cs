@@ -296,9 +296,9 @@ namespace HideezClient.ViewModels
 
             if (IsNewPin || IsChangePin)
             {
-                if (IsConfirmPinCorrect(pin, confirmPin))
+                if (!IsConfirmPinCorrect(pin, confirmPin))
                 {
-                    ErrorMessage = "The new PIN and confirmation PIN does not match";
+                    _messenger.Send(new ShowErrorNotificationMessage("The new PIN and confirmation PIN does not match"));
                     InProgress = false;
                     return;
                 }
