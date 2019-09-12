@@ -51,6 +51,8 @@
                 Margin="0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
+                Foreground="White"
+                FontWeight="SemiBold"
                 Text="X" />
         </Button>
 
@@ -103,7 +105,7 @@
                                 <TextBlock
                                     Cursor="Hand"
                                     FontStyle="Italic"
-                                    Foreground="Blue"
+                                    Foreground="White"
                                     Text="{TemplateBinding Content}"
                                     TextDecorations="Underline" />
                             </ControlTemplate>

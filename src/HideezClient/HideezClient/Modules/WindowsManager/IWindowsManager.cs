@@ -18,7 +18,7 @@ namespace HideezClient.Modules
         bool IsMainWindowVisible { get; }
         void ShowDialogAddCredential(Device device);
         void ShowInfoAboutDevice(Device device);
-        void CloseWindow(Guid id);
+        void CloseWindow(string id);
 
         void ShowInfo(string message, string title = null, string notificationId = null);
         void ShowWarn(string message, string title = null, string notificationId = null);
