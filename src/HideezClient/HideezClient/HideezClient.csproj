@@ -540,10 +540,10 @@
     <Content Include="Browsers.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
-    </Content>
+    </None>
     <None Include="Connected Services\HideezServiceReference\service.wsdl" />
     <None Include="Connected Services\HideezServiceReference\service.xsd">
       <SubType>Designer</SubType>
