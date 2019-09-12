@@ -14,6 +14,11 @@ namespace HideezClient.Views
         public PinView()
         {
             InitializeComponent();
+
+            if (DataContext != null)
+            {
+                ((PinViewModel)DataContext).ViewModelUpdated += PinView_ViewModelUpdated;
+            }
         }
 
         private void CurrentPinPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
@@ -40,12 +45,17 @@ namespace HideezClient.Views
             }
         }
 
-        private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
+        void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
             FocusFirstVisiblePasswordBox();
         }
 
-        private void PasswordBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        void PinView_ViewModelUpdated(object sender, System.EventArgs e)
+        {
+            FocusFirstVisiblePasswordBox();
+        }
+
+        void PasswordBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             FocusFirstVisiblePasswordBox();
         }
@@ -59,7 +69,9 @@ namespace HideezClient.Views
             {
                 if (pb.IsVisible)
                 {
+                    pb.Focusable = true;
                     FocusManager.SetFocusedElement(this, pb);
+                    pb.Focus();
                     break;
                 }
             }

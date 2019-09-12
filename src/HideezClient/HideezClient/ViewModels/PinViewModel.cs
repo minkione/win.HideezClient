@@ -10,6 +10,7 @@ using System.Security;
 using System.Windows.Input;
 using System.Linq;
 using Hideez.SDK.Communication.Interfaces;
+using System;
 
 namespace HideezClient.ViewModels
 {
@@ -34,6 +35,8 @@ namespace HideezClient.ViewModels
         Device _device;
         uint _minLenghtPin = 1;
         uint _maxLenghtPin = 8;
+
+        public event EventHandler ViewModelUpdated;
 
         public PinViewModel(IMessenger messenger, IDeviceManager deviceManager)
         {
@@ -242,6 +245,7 @@ namespace HideezClient.ViewModels
             ConfirmNewPin = confirmNewPin;
 
             ResetProgress();
+            ViewModelUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         bool AreAllRequiredFieldsSet()
