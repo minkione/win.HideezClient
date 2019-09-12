@@ -820,7 +820,7 @@ namespace WinSampleApp.ViewModel
                 // HES Connection ==================================
                 _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _log);
                 _hesConnection.HubConnectionStateChanged += (sender, e) => NotifyPropertyChanged(nameof(HesState));
-                _hesConnection.Start(HesAddress);
+                //_hesConnection.Start(HesAddress);
 
                 // Credential provider ==============================
                 _credentialProviderProxy = new CredentialProviderProxy(_log);
