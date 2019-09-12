@@ -55,7 +55,6 @@ namespace HideezClient.Controls
                         case LoadedCredentialsState.Loaded:
                             this.StartTimer(TimeSpan.FromSeconds(15));
                             IcoLoadState.Kind = PackIconFontAwesomeKind.CheckCircleSolid;
-                            IcoLoadState.Foreground = Brushes.Black;
                             break;
                         case LoadedCredentialsState.Fail:
                         case LoadedCredentialsState.Cancel:

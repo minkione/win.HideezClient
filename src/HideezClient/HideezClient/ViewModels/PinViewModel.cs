@@ -25,7 +25,7 @@ namespace HideezClient.ViewModels
         SecureString _secureNewPin;
         SecureString _secureConfirmPin;
 
-        bool _askButton = false;
+        bool _askButton = true;
         bool _askOldPin = false;
         bool _confirmNewPin = false;
         bool _inProgress = false;
@@ -85,30 +85,30 @@ namespace HideezClient.ViewModels
         //...
 
         // Current PIN operation
-        [DependsOn(nameof(AskOldPin), nameof(ConfirmNewPin))]
+        [DependsOn(nameof(AskOldPin), nameof(ConfirmNewPin), nameof(AskButton))]
         public bool IsNewPin
         {
             get
             {
-                return !AskOldPin && ConfirmNewPin;
+                return !AskOldPin && ConfirmNewPin && !AskButton;
             }
         }
 
-        [DependsOn(nameof(AskOldPin), nameof(ConfirmNewPin))]
+        [DependsOn(nameof(AskOldPin), nameof(ConfirmNewPin), nameof(AskButton))]
         public bool IsEnterPin
         {
             get
             {
-                return !AskOldPin && !ConfirmNewPin;
+                return !AskOldPin && !ConfirmNewPin && !AskButton;
             }
         }
 
-        [DependsOn(nameof(AskOldPin), nameof(ConfirmNewPin))]
+        [DependsOn(nameof(AskOldPin), nameof(ConfirmNewPin), nameof(AskButton))]
         public bool IsChangePin
         {
             get
             {
-                return AskOldPin && ConfirmNewPin;
+                return AskOldPin && ConfirmNewPin && !AskButton;
             }
         }
         //...
@@ -296,9 +296,9 @@ namespace HideezClient.ViewModels
 
             if (IsNewPin || IsChangePin)
             {
-                if (IsConfirmPinCorrect(pin, confirmPin))
+                if (!IsConfirmPinCorrect(pin, confirmPin))
                 {
-                    ErrorMessage = "The new PIN and confirmation PIN does not match";
+                    _messenger.Send(new ShowErrorNotificationMessage("The new PIN and confirmation PIN does not match"));
                     InProgress = false;
                     return;
                 }

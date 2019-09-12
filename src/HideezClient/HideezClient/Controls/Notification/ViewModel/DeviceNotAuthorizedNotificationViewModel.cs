@@ -1,13 +1,11 @@
-﻿using HideezClient.Models;
+﻿using HideezClient.HideezServiceReference;
+using HideezClient.Models;
 using HideezClient.Modules;
 using HideezClient.Mvvm;
-using HideezClient.ViewModels;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.Commands;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.ServiceModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -15,14 +13,13 @@ namespace HideezClient.Controls
 {
     class DeviceNotAuthorizedNotificationViewModel : ObservableObject
     {
-        private Device device;
-        private readonly IWindowsManager windowsManager;
-        private readonly ViewModelLocator viewModelLocator;
+        readonly IWindowsManager _windowsManager;
 
-        public DeviceNotAuthorizedNotificationViewModel(IWindowsManager windowsManager, ViewModelLocator viewModelLocator)
+        Device device;
+
+        public DeviceNotAuthorizedNotificationViewModel(IWindowsManager windowsManager)
         {
-            this.windowsManager = windowsManager;
-            this.viewModelLocator = viewModelLocator;
+            _windowsManager = windowsManager;
         }
 
         public Device Device
@@ -51,13 +48,24 @@ namespace HideezClient.Controls
                 {
                     CommandAction = x =>
                     {
-                        // Todo: Initiate authorization workflow for device upon notification click
-                        /*
-                        PinViewModel viewModel = viewModelLocator.PinViewModel;
-                        viewModel.Device = Device;
-                        viewModel.State = ViewPinState.WaitUserAction;
-                        windowsManager.ShowDialogEnterPinAsync(viewModel);
-                        */
+                        Task.Run(async () =>
+                        {
+                            // Todo: Copy-paste of MenuFactory "OnAuthorizeAndLoadStorage" method
+                            try
+                            {
+                                await device.AuthorizeRemoteDevice();
+                                await device.LoadStorage();
+                            }
+                            catch (FaultException<HideezServiceFault> ex)
+                            {
+                                _windowsManager.ShowError(ex.Message);
+                            }
+                            catch (Exception ex)
+                            {
+                                _windowsManager.ShowError(ex.Message);
+                            }
+                        });
+                        _windowsManager.CloseWindow(ObservableId); // Todo: Is this the correct way to close notification?
                     }
                 };
             }

@@ -237,13 +237,13 @@ namespace HideezClient.Modules
             }
         }
 
-        public void CloseWindow(Guid id)
+        public void CloseWindow(string id)
         {
             UIDispatcher.Invoke(() =>
             {
                 foreach (Window window in Application.Current.Windows)
                 {
-                    if (window.DataContext is IRequireViewIdentification vm && vm.ObservableId.Equals(id))
+                    if (window.DataContext is IRequireViewIdentification vm && vm.ObservableId == id)
                     {
                         window.Close();
                     }

@@ -27,7 +27,9 @@ namespace HideezClient.Modules
 
         public void LockPC()
         {
-            //Win32Helper.LockWorkStation();
+#if !DEBUG
+            Win32Helper.LockWorkStation();
+#endif
         }
 
         public void ForceShutdown()

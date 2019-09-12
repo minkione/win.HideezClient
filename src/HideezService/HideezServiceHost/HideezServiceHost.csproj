@@ -188,6 +188,7 @@
   <ItemGroup>
     <None Include="..\..\HideezMiddleware\HideezMiddleware\NLog.config">
       <Link>NLog.config</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
     <None Include="app.manifest" />
