@@ -212,22 +212,6 @@
                                         Foreground="{DynamicResource LowBatteryIndicatorBrush}"
                                         Kind="Alert" />
                                 </StackPanel>
-
-                                <Border
-                                    CornerRadius="2"
-                                    BorderThickness="2"
-                                    BorderBrush="{DynamicResource SyncErrorIndicatorBrush}"
-                                    Margin="8,2,0,4"
-                                    Visibility="{Binding IsFaulted, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    ToolTip="{Binding FaultMessage}">
-                                    <TextBlock 
-                                        Margin="4,0"
-                                        Text="ERR"
-                                        FontWeight="SemiBold"
-                                        Foreground="{DynamicResource SyncErrorIndicatorBrush}"
-                                        FontSize="12"
-                                        />
-                                </Border>
                             </StackPanel>
 
                             <TextBlock

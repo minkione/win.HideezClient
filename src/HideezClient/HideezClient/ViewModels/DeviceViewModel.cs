@@ -41,7 +41,5 @@ namespace HideezClient.ViewModels
         public Version BootloaderVersion => device.BootloaderVersion;
         public uint StorageTotalSize => device.StorageTotalSize;
         public uint StorageFreeSize => device.StorageFreeSize;
-        public bool IsFaulted => device.IsFaulted;
-        public string FaultMessage => device.FaultMessage;
     }
 }
