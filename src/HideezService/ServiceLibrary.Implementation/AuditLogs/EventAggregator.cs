@@ -177,6 +177,9 @@ namespace ServiceLibrary.Implementation
 
         private async Task SendEventToServerAsync(List<WorkstationEvent> listEvents)
         {
+            // Todo: EventAggregator is temporarily disabled
+            return;
+
             foreach (var set in SplitIntoSets(listEvents, 50))
             {
                 if (set != null && set.Any()

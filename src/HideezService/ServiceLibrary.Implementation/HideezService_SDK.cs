@@ -191,8 +191,8 @@ namespace ServiceLibrary.Implementation
 
 
             // Audit Log / Event Aggregator =============================
-            _eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
-            SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
+            //_eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
+            //SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
 
             // SDK initialization finished, start essential components
             _credentialProviderProxy.Start();
