@@ -1,5 +1,6 @@
 ﻿using HideezClient.ViewModels;
 using MahApps.Metro.Controls;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,6 +12,8 @@ namespace HideezClient.Views
     /// </summary>
     public partial class PinView : MetroWindow
     {
+        readonly Regex onlyDigitsRegex = new Regex("[0-9]+");
+
         public PinView()
         {
             InitializeComponent();
@@ -75,6 +78,13 @@ namespace HideezClient.Views
                     break;
                 }
             }
+        }
+
+        void PasswordBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Ignore all entered symbols except digits
+            if (!onlyDigitsRegex.IsMatch(e.Text))
+                e.Handled = true;
         }
     }
 }

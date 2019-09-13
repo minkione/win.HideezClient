@@ -157,12 +157,14 @@ namespace HideezClient.ViewModels
             set { Set(ref _errorMessage, value); }
         }
 
+        // Todo: Retrieve Max Pin Length from the device
         public uint MaxLenghtPin
         {
             get { return _maxLenghtPin; }
             set { Set(ref _maxLenghtPin, value); }
         }
-
+        
+        // Todo: Retrieve Min Pin Length from the device
         public uint MinLenghtPin
         {
             get { return _minLenghtPin; }
