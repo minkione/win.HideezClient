@@ -781,7 +781,8 @@ namespace ServiceLibrary.Implementation
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
             workstationEvent.EventId = WorkstationEventType.ServiceStarted;
-            await _eventAggregator?.AddNewAsync(workstationEvent); //todo - null reference exception at startup
+            if (_eventAggregator != null)
+                await _eventAggregator?.AddNewAsync(workstationEvent); //todo - null reference exception at startup
         }
 
         public static async Task OnServiceStoppedAsync()
