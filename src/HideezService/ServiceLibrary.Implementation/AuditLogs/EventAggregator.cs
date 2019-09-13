@@ -15,43 +15,71 @@ namespace ServiceLibrary.Implementation
 {
     class EventAggregator : Logger
     {
-        private readonly HesAppConnection hesAppConnection;
-        private readonly string eventDirectory = $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\Hideez\WorkstationEvents\";
-        private readonly List<WorkstationEvent> workstationEvents = new List<WorkstationEvent>();
-        private readonly object lockObj = new object();
-        private readonly System.Timers.Timer sendTimer = new System.Timers.Timer();
-        private readonly double timeIntervalSend = 1_000;
-        private readonly int minCountForSend = 10;
+        const double FORCE_SEND_INTERVAL = 300_000;
+        const int MIN_EVENTS_FOR_SEND = 20;
+        const int EVENTS_PER_SET = 25;
+        const int SET_INTERVAL = 5_000; // Interval between multiple sets
+
+        readonly HesAppConnection _hesAppConnection;
+        readonly FileSystemWatcher _fileSystemWatcher;
+
+        readonly string eventDirectoryPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\Hideez\WorkstationEvents\";
+        readonly System.Timers.Timer automaticEventSendingTimer = new System.Timers.Timer(FORCE_SEND_INTERVAL);
+
         // default is false, set 1 for true.
-        private int _threadSafeBoolBackValue = 0;
+        int _threadSafeBoolBackValue = 0;
 
         public EventAggregator(HesAppConnection hesAppConnection, ILog log)
             : base(nameof(EventAggregator), log)
         {
-            if (!Directory.Exists(eventDirectory))
-            {
-                Directory.CreateDirectory(eventDirectory);
-            }
+            if (!Directory.Exists(eventDirectoryPath))
+                Directory.CreateDirectory(eventDirectoryPath);
 
-            this.hesAppConnection = hesAppConnection;
-            sendTimer.Interval = timeIntervalSend;
-            sendTimer.Elapsed += SendTimer_Elapsed;
-            sendTimer.Start();
+            _hesAppConnection = hesAppConnection;
+            _fileSystemWatcher = new FileSystemWatcher(eventDirectoryPath);
+            _fileSystemWatcher.Created += FileSystemWatcher_OnFileCreated;
+
+            automaticEventSendingTimer.Elapsed += SendTimer_Elapsed;
+            automaticEventSendingTimer.Start();
         }
 
-        private bool IsSendToServer
+        async void FileSystemWatcher_OnFileCreated(object sender, FileSystemEventArgs e)
         {
-            get { return (Interlocked.CompareExchange(ref _threadSafeBoolBackValue, 1, 1) == 1); }
-            set
+            try
             {
-                if (value) Interlocked.CompareExchange(ref _threadSafeBoolBackValue, 1, 0);
-                else Interlocked.CompareExchange(ref _threadSafeBoolBackValue, 0, 1);
+                if (GetEventsCount() >= MIN_EVENTS_FOR_SEND)
+                {
+                    await SendEventsAsync().ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
             }
         }
 
-        private void SendTimer_Elapsed(object sender, ElapsedEventArgs e)
+        async void SendTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            Task task = SendEventsAsync();
+            try
+            {
+                await SendEventsAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
+        }
+
+        int GetEventsCount()
+        {
+            try
+            {
+                if (Directory.Exists(eventDirectoryPath))
+                    return Directory.GetFiles(eventDirectoryPath).Count();
+            }
+            catch (Exception) { }
+
+            return 0;
         }
 
         public async Task AddNewAsync(WorkstationEvent workstationEvent, bool forceSendNow = false)
@@ -60,113 +88,23 @@ namespace ServiceLibrary.Implementation
             {
                 try
                 {
-                    WriteLine("Added new workstation event.");
-                    lock (lockObj)
-                    {
-                        workstationEvents.Add(workstationEvent);
-                        string json = JsonConvert.SerializeObject(workstationEvent);
-                        string file = $"{eventDirectory}{workstationEvent.Id}";
-                        File.WriteAllText(file, json);
-                        // File.SetAttributes(file, FileAttributes.ReadOnly | FileAttributes.Hidden);
-                    }
+                    WriteLine($"New workstation event: {workstationEvent.EventId}");
 
-                    if (forceSendNow || workstationEvents.Count >= minCountForSend)
-                    {
-                        await SendEventsAsync();
-                    }
+                    string json = JsonConvert.SerializeObject(workstationEvent);
+                    string file = $"{eventDirectoryPath}{workstationEvent.Id}";
+                    File.WriteAllText(file, json);
+
+                    if (forceSendNow)
+                        await SendEventsAsync(true);
                 }
                 catch (Exception ex)
                 {
                     WriteLine(ex);
-                    Debug.Assert(false);
                 }
             });
         }
 
-        private async Task SendEventsAsync()
-        {
-            try
-            {
-                if (hesAppConnection != null 
-                    && hesAppConnection.State == HesConnectionState.Connected 
-                    && !IsSendToServer 
-                    && workstationEvents.Count > 0)
-                {
-                    WriteLine("Sending to HES workstation events.");
-                    IsSendToServer = true;
-                    List<WorkstationEvent> newQueue = null;
-                    sendTimer.Stop();
-                    lock (lockObj)
-                    {
-                        newQueue = new List<WorkstationEvent>(workstationEvents);
-                    }
-
-                    WriteLine($"Current event queue length: {newQueue.Count}");
-                    await SendEventToServerAsync(newQueue);
-
-                    newQueue.Clear();
-                    try
-                    {
-                        lock (lockObj)
-                        {
-                            foreach (var file in Directory.GetFiles(eventDirectory))
-                            {
-                                try
-                                {
-                                    string data = File.ReadAllText(file);
-                                    dynamic jsonObj = JsonConvert.DeserializeObject(data);
-                                    string versionData = jsonObj[nameof(WorkstationEvent.Version)];
-
-                                    if (versionData == WorkstationEvent.CurrentVersion)
-                                    {
-                                        WorkstationEvent we = JsonConvert.DeserializeObject<WorkstationEvent>(data);
-
-                                        if (workstationEvents.FindIndex(e => e.Id == we.Id) < 0)
-                                        {
-                                            newQueue.Add(we);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new NotSupportedException($"This version: {versionData} data for deserialize workstation event is not supported.");
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    WriteLine(ex);
-                                    Debug.Assert(false);
-                                    try
-                                    {
-                                        // File.SetAttributes(file, FileAttributes.Normal);
-                                        File.Delete(file);
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        WriteLine(e);
-                                    }
-                                }
-                            }
-                        }
-
-                        await SendEventToServerAsync(newQueue);
-
-                        WriteLine("End sending to HES workstation events.");
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteLine(ex);
-                        Debug.Assert(false);
-                    }
-                }
-            }
-            finally
-            {
-                sendTimer.Start();
-                IsSendToServer = false;
-            }
-        }
-
-        public static IEnumerable<IEnumerable<T>> SplitIntoSets<T>(IEnumerable<T> source, int itemsPerSet)
+        IEnumerable<IEnumerable<T>> SplitIntoSets<T>(IEnumerable<T> source, int itemsPerSet)
         {
             var sourceList = source as List<T> ?? source.ToList();
             for (var index = 0; index < sourceList.Count; index += itemsPerSet)
@@ -175,44 +113,107 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        private async Task SendEventToServerAsync(List<WorkstationEvent> listEvents)
+        List<WorkstationEvent> DeserializeEvents()
         {
-            foreach (var set in SplitIntoSets(listEvents, 50))
-            {
-                if (set != null && set.Any()
-                    && hesAppConnection != null
-                    && hesAppConnection.State == HesConnectionState.Connected)
-                {
-                    // StringBuilder sb = new StringBuilder();
-                    // foreach (var item in set)
-                    // {
-                    //    sb.Append(JsonConvert.SerializeObject(item));
-                    // }
-                    // var sizeOfMessage = System.Text.ASCIIEncoding.ASCII.GetByteCount(sb.ToString());
+            List<WorkstationEvent> events = new List<WorkstationEvent>();
 
+            if (!Directory.Exists(eventDirectoryPath))
+                return events;
+
+            try
+            {
+                var eventFiles = Directory.GetFiles(eventDirectoryPath);
+                
+                foreach (var file in eventFiles)
+                {
                     try
                     {
-                        if (await hesAppConnection.SaveClientEventsAsync(set.ToArray()))
+                        string data = File.ReadAllText(file);
+                        dynamic jsonObj = JsonConvert.DeserializeObject(data);
+                        string eventVersion = jsonObj[nameof(WorkstationEvent.Version)];
+
+                        if (eventVersion != WorkstationEvent.CurrentVersion)
+                            throw new NotSupportedException($"This version: {eventVersion} data for deserialize workstation event is not supported.");
+
+                        WorkstationEvent we = JsonConvert.DeserializeObject<WorkstationEvent>(data);
+                        events.Add(we);
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLine(ex);
+
+                        try
                         {
-                            lock (lockObj)
+                            File.Delete(file);
+                        }
+                        catch (Exception e)
+                        {
+                            WriteLine(e);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
+
+            return events;
+        }
+
+        async Task SendEventsAsync(bool skipSetInterval = false)
+        {
+            if (_hesAppConnection != null 
+                && _hesAppConnection.State == HesConnectionState.Connected 
+                && GetEventsCount() > 0 
+                && Interlocked.CompareExchange(ref _threadSafeBoolBackValue, 1, 0) == 0)
+            {
+                try
+                { 
+                    WriteLine("Sending workstation events to HES");
+                    automaticEventSendingTimer.Stop();
+
+                    var eventsQueue = DeserializeEvents();
+                    WriteLine($"Current event queue length: {eventsQueue.Count}");
+
+                    await BreakIntoSetsAndSendToServer(eventsQueue, skipSetInterval);
+
+                    WriteLine("End sending to HES workstation events.");
+                }
+                catch (Exception ex)
+                {
+                    WriteLine(ex);
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref _threadSafeBoolBackValue, 0);
+                    automaticEventSendingTimer.Start();
+                }
+            }
+        }
+
+        async Task BreakIntoSetsAndSendToServer(List<WorkstationEvent> listEvents, bool skipSendDelay = false)
+        {
+            foreach (var set in SplitIntoSets(listEvents, EVENTS_PER_SET))
+            {
+                if (set != null && set.Any()
+                    && _hesAppConnection != null
+                    && _hesAppConnection.State == HesConnectionState.Connected)
+                {
+                    try
+                    {
+                        if (await _hesAppConnection.SaveClientEventsAsync(set.ToArray()))
+                        {
+                            foreach (var we in set)
                             {
-                                foreach (var we in set)
+                                try
                                 {
-                                    try
-                                    {
-                                        int index = workstationEvents.FindIndex(e => e.Id == we.Id);
-                                        if (index >= 0)
-                                        {
-                                            workstationEvents.RemoveAt(index);
-                                        }
-                                        string file = $"{eventDirectory}{we.Id}";
-                                        File.Delete(file);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        WriteLine(ex);
-                                        Debug.Assert(false);
-                                    }
+                                    var file = Path.Combine(eventDirectoryPath, we.Id);
+                                    File.Delete(file);
+                                }
+                                catch (Exception ex)
+                                {
+                                    WriteLine(ex);
                                 }
                             }
                         }
@@ -220,8 +221,11 @@ namespace ServiceLibrary.Implementation
                     catch (Exception ex)
                     {
                         WriteLine(ex);
-                        Debug.Assert(false);
                     }
+
+                    // Todo: (EventAggregator) Set delay should not be called if current set is the last set
+                    if (!skipSendDelay)
+                        await Task.Delay(SET_INTERVAL);
                 }
 
             }

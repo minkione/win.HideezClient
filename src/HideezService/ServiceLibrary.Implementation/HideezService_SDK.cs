@@ -751,7 +751,6 @@ namespace ServiceLibrary.Implementation
 
                 if (sessionLocked)
                 {
-                    _advIgnoreList.SetIgnoreList(_deviceManager?.Devices.Where(d => d.IsConnected).Select(d => d.Mac).ToArray());
                     _deviceManager?.Devices.ToList().ForEach(d => d.Disconnect());
                 }
             }
@@ -781,7 +780,8 @@ namespace ServiceLibrary.Implementation
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
             workstationEvent.EventId = WorkstationEventType.ServiceStarted;
-            await _eventAggregator?.AddNewAsync(workstationEvent); //todo - null reference exception at startup
+            if (_eventAggregator != null)
+                await _eventAggregator?.AddNewAsync(workstationEvent);
         }
 
         public static async Task OnServiceStoppedAsync()
@@ -790,7 +790,8 @@ namespace ServiceLibrary.Implementation
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
             workstationEvent.EventId = WorkstationEventType.ServiceStopped;
-            await _eventAggregator?.AddNewAsync(workstationEvent, true);
+            if (_eventAggregator != null)
+                await _eventAggregator?.AddNewAsync(workstationEvent, true);
         }
         #endregion
     }

@@ -10,6 +10,7 @@ using System.Security;
 using System.Windows.Input;
 using System.Linq;
 using Hideez.SDK.Communication.Interfaces;
+using System;
 
 namespace HideezClient.ViewModels
 {
@@ -34,6 +35,8 @@ namespace HideezClient.ViewModels
         Device _device;
         uint _minLenghtPin = 1;
         uint _maxLenghtPin = 8;
+
+        public event EventHandler ViewModelUpdated;
 
         public PinViewModel(IMessenger messenger, IDeviceManager deviceManager)
         {
@@ -154,12 +157,14 @@ namespace HideezClient.ViewModels
             set { Set(ref _errorMessage, value); }
         }
 
+        // Todo: Retrieve Max Pin Length from the device
         public uint MaxLenghtPin
         {
             get { return _maxLenghtPin; }
             set { Set(ref _maxLenghtPin, value); }
         }
-
+        
+        // Todo: Retrieve Min Pin Length from the device
         public uint MinLenghtPin
         {
             get { return _minLenghtPin; }
@@ -242,6 +247,7 @@ namespace HideezClient.ViewModels
             ConfirmNewPin = confirmNewPin;
 
             ResetProgress();
+            ViewModelUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         bool AreAllRequiredFieldsSet()

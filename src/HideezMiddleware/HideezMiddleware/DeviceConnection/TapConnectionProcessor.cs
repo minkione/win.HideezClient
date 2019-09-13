@@ -76,11 +76,9 @@ namespace HideezMiddleware.DeviceConnection
                         var mac = MacUtils.GetMacFromShortMac(adv.Id);
                         await _connectionFlowProcessor.ConnectAndUnlock(mac);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        WriteLine(ex);
-                        await _clientUiManager.SendNotification("");
-                        await _clientUiManager.SendError(ex.Message);
+                        // Silent handling. Log is already printed inside of _connectionFlowProcessor.ConnectAndUnlock()
                     }
                     finally
                     {

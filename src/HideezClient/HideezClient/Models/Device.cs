@@ -30,7 +30,7 @@ namespace HideezClient.Models
         const int VERIFY_WAIT = 20_000;
         const int INIT_WAIT = 5_000;
         const int RETRY_DELAY = 2_500;
-        const int CREDENTIAL_TIMEOUT = 30_000;
+        const int CREDENTIAL_TIMEOUT = 60_000;
 
         readonly ILogger _log = LogManager.GetCurrentClassLogger();
         readonly IServiceProxy _serviceProxy;
@@ -40,6 +40,9 @@ namespace HideezClient.Models
         DelayedMethodCaller dmc = new DelayedMethodCaller(2000);
         readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetPinRequests
             = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
+
+        string _infNid = Guid.NewGuid().ToString(); // Notification Id, which must be the same for the entire duration of MainWorkflow
+        string _errNid = Guid.NewGuid().ToString(); // Error Notification Id
 
         string id;
         string name;
@@ -176,27 +179,6 @@ namespace HideezClient.Models
             private set { Set(ref isStorageLoaded, value); }
         }
 
-        [DependsOn(nameof(FaultMessage))]
-        public bool IsFaulted
-        {
-            get
-            {
-                return !string.IsNullOrWhiteSpace(FaultMessage);
-            }
-        }
-
-        public string FaultMessage
-        {
-            get
-            {
-                return faultMessage;
-            }
-            private set
-            {
-                Set(ref faultMessage, value);
-            }
-        }
-
         // These properties are tied to the RemoteDevice 
         public double Proximity
         {
@@ -215,8 +197,7 @@ namespace HideezClient.Models
 
         public int PinAttemptsRemain
         {
-            get { return pinAttemptsRemain; }
-            set { Set(ref pinAttemptsRemain, value); }
+            get { return _remoteDevice != null ? (int)_remoteDevice?.PinAttemptsRemain : 0; }
         }
 
         public bool IsInitialized
@@ -288,7 +269,6 @@ namespace HideezClient.Models
             BootloaderVersion = dto.BootloaderVersion;
             StorageTotalSize = dto.StorageTotalSize;
             StorageFreeSize = dto.StorageFreeSize;
-            PinAttemptsRemain = dto.PinAttemptsRemain;
         }
 
         public async Task InitializeRemoteDevice()
@@ -324,24 +304,22 @@ namespace HideezClient.Models
 
                         PasswordManager = new DevicePasswordManager(_remoteDevice, null);
 
-                        FaultMessage = string.Empty;
-
                         _log.Info($"Remote device ({SerialNo}) initialized");
                     }
                     catch (FaultException<HideezServiceFault> ex)
                     {
                         _log.Error(ex.FormattedMessage());
-                        FaultMessage = ex.FormattedMessage();
+                        ShowError(ex.FormattedMessage(), _errNid);
                     }
                     catch (HideezException ex)
                     {
                         _log.Error(ex);
-                        FaultMessage = ex.Message;
+                        ShowError(ex.Message, _errNid);
                     }
                     catch (Exception ex)
                     {
                         _log.Error(ex);
-                        FaultMessage = ex.Message;
+                        ShowError(ex.Message, _errNid);
                     }
                     finally
                     {
@@ -368,6 +346,9 @@ namespace HideezClient.Models
             {
                 IsAuthorizing = true;
 
+                _infNid = Guid.NewGuid().ToString();
+                _errNid = Guid.NewGuid().ToString();
+
                 if (_remoteDevice.AccessLevel.IsLocked)
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);
                 else if (_remoteDevice.AccessLevel.IsLinkRequired)
@@ -378,25 +359,38 @@ namespace HideezClient.Models
 
                 var pinTask = await PinWorkflow();
 
+                // check the button again as it may be outdated while PIN workflow was running
+                if (!await ButtonWorkflow())
+                    throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
+
                 if (IsAuthorized)
                     _log.Info($"Remote device ({_remoteDevice.Id}) is authorized");
+                else
+                    ShowError($"Authorization for device ({SerialNo}) failed", _errNid);
             }
             catch (FaultException<HideezServiceFault> ex)
             {
                 _log.Error(ex.FormattedMessage());
+                ShowError(ex.FormattedMessage(), _errNid);
             }
             catch (HideezException ex)
             {
                 _log.Error(ex);
-                FaultMessage = ex.Message;
+                ShowError(ex.Message, _errNid);
             }
             catch (Exception ex)
             {
                 _log.Error(ex);
+                ShowError(ex.Message, _errNid);
             }
             finally
             {
+                ShowInfo("", _infNid);
                 _messenger.Send(new HidePinUiMessage());
+
+                if (IsAuthorized)
+                    ShowError("", _errNid);
+
                 IsAuthorizing = false;
             }
         }
@@ -406,6 +400,7 @@ namespace HideezClient.Models
             if (!_remoteDevice.AccessLevel.IsButtonRequired)
                 return true;
 
+            ShowInfo("Please press the Button on your Hideez Key", _infNid);
             _messenger.Send(new ShowButtonConfirmUiMessage(Id));
             var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT);
             return res;
@@ -427,25 +422,50 @@ namespace HideezClient.Models
 
         async Task<bool> SetPinWorkflow()
         {
-            var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, withConfirm:true);
-            if (pin == null || pin.Count() == 0)
-                return false;
-            bool res = await _remoteDevice.SetPin(Encoding.UTF8.GetString(pin)); //this using default timeout for BLE commands
+            bool pinOk = false;
+            while (AccessLevel.IsNewPinRequired)
+            {
+                ShowInfo("Please create new PIN code for your Hideez Key", _infNid);
+                var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, withConfirm:true);
 
-            return res;
+                if (pin == null)
+                    return false; // finished by timeout from the _ui.GetPin
+
+                if (pin.Length == 0)
+                {
+                    // we received an empty PIN from the user. Trying again with the same timeout.
+                    Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY PIN");
+                    _log.Info("Received empty PIN");
+                    continue;
+                }
+
+                pinOk = await _remoteDevice.SetPin(Encoding.UTF8.GetString(pin)); //this using default timeout for BLE commands
+            }
+
+            return pinOk;
         }
 
         async Task<bool> EnterPinWorkflow()
         {
-            Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow +++++++++++++++++++++++++++++++++++++++");
+            Debug.WriteLine(">>>>>>>>>>>>>>> EnterPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
             bool pinOk = false;
-            while (!_remoteDevice.AccessLevel.IsLocked)
+            while (!AccessLevel.IsLocked)
             {
+                ShowInfo("Please enter the PIN code for your Hideez Key", _infNid);
                 var pin = await GetPin(Id, CREDENTIAL_TIMEOUT);
-                Debug.WriteLine($">>>>>>>>>>>>>>> PIN: {pin}");
-                if (pin == null || pin.Count() == 0)
-                    break;
+
+                if (pin == null)
+                    return false; // finished by timeout from the _ui.GetPin
+
+                if (pin.Length == 0)
+                {
+                    // we received an empty PIN from the user. Trying again with the same timeout.
+                    Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY PIN");
+                    _log.Info("Received empty PIN");
+
+                    continue;
+                }
 
                 pinOk = await _remoteDevice.EnterPin(Encoding.UTF8.GetString(pin)); //this using default timeout for BLE commands
 
@@ -456,11 +476,11 @@ namespace HideezClient.Models
                 }
                 else
                 {
-                    Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({_remoteDevice.PinAttemptsRemain} attempts left)");
-                    if (_remoteDevice.AccessLevel.IsLocked)
-                        _messenger.Send(new ShowErrorNotificationMessage($"Device is locked"));
+                    Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({PinAttemptsRemain} attempts left)");
+                    if (AccessLevel.IsLocked)
+                        ShowError($"Device is locked", _errNid);
                     else
-                        _messenger.Send(new ShowErrorNotificationMessage($"Wrong PIN ({PinAttemptsRemain} attempts left)"));
+                        ShowError($"Wrong PIN ({PinAttemptsRemain} attempts left)", _errNid);
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow ------------------------------");
@@ -513,7 +533,6 @@ namespace HideezClient.Models
             IsAuthorizing = false;
             IsLoadingStorage = false;
             IsStorageLoaded = false;
-            FaultMessage = string.Empty;
         }
 
         async Task<byte[]> GetPin(string deviceId, int timeout, bool withConfirm = false, bool askOldPin = false)
@@ -539,5 +558,19 @@ namespace HideezClient.Models
             }
         }
 
+        void ShowInfo(string message, string notificationId)
+        {
+            _messenger?.Send(new ShowInfoNotificationMessage(message, notificationId: notificationId));
+        }
+
+        void ShowError(string message, string notificationId)
+        {
+            _messenger?.Send(new ShowErrorNotificationMessage(message, notificationId: notificationId));
+        }
+
+        void ShowWarn(string message, string notificationId)
+        {
+            _messenger?.Send(new ShowWarningNotificationMessage(message, notificationId: notificationId));
+        }
     }
 }

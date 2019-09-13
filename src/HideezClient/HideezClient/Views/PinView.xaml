@@ -141,6 +141,8 @@
                             ma:TextBoxHelper.Watermark="Enter current PIN"
                             PasswordChanged="CurrentPinPasswordBox_PasswordChanged"
                             IsVisibleChanged="PasswordBox_IsVisibleChanged"
+                            MaxLength="{Binding MaxLenghtPin}"
+                            PreviewTextInput="PasswordBox_PreviewTextInput"
                             Visibility="{Binding AskCurrentPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                         <TextBlock
@@ -155,6 +157,8 @@
                             ma:TextBoxHelper.Watermark="Enter new PIN"
                             PasswordChanged="NewPinPasswordBox_PasswordChanged"
                             IsVisibleChanged="PasswordBox_IsVisibleChanged"
+                            MaxLength="{Binding MaxLenghtPin}"
+                            PreviewTextInput="PasswordBox_PreviewTextInput"
                             Visibility="{Binding AskNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                         <TextBlock
@@ -169,6 +173,8 @@
                             ma:TextBoxHelper.Watermark="Confirm new PIN"
                             PasswordChanged="ConfirmPinPasswordBox_PasswordChanged"
                             IsVisibleChanged="PasswordBox_IsVisibleChanged"
+                            MaxLength="{Binding MaxLenghtPin}"
+                            PreviewTextInput="PasswordBox_PreviewTextInput"
                             Visibility="{Binding AskConfirmPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     </StackPanel>
                 </StackPanel>
