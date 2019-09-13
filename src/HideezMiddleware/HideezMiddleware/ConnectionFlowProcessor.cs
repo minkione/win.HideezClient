@@ -82,6 +82,7 @@ namespace HideezMiddleware
 
                 await WaitDeviceInitialization(mac, device);
 
+                //todo device.AccessLevel can be null
                 if (device.AccessLevel.IsLocked || device.AccessLevel.IsLinkRequired)
                 {
                     // request hes to update this device
@@ -101,10 +102,6 @@ namespace HideezMiddleware
 
                 if (!await ButtonWorkflow(device, timeout))
                     throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
-
-                //var showStatusTask = ShowWaitStatus(device, timeout);
-                //var pinTask = PinWorkflow(device, timeout);
-                //await Task.WhenAll(showStatusTask, pinTask);
 
                 await PinWorkflow(device, timeout);
 
@@ -129,14 +126,12 @@ namespace HideezMiddleware
                 WriteLine(message);
                 await _ui.SendNotification("", _infNid);
                 await _ui.SendError(message, _errNid);
-                throw;
             }
             catch (Exception ex)
             {
                 WriteLine(ex);
                 await _ui.SendNotification("", _infNid);
                 await _ui.SendError(ex.Message, _errNid);
-                throw;
             }
             finally
             {
@@ -158,6 +153,12 @@ namespace HideezMiddleware
         {
             await _ui.SendNotification("Reading credentials from the device...", _infNid);
 
+            /*
+            bool needUpdate = await IsNeedUpdateDevice(device);
+            var credentials = await GetCredentials(device);
+            */
+
+            
             // read in parallel info from the HES and credentials from the device
             var infoTask = IsNeedUpdateDevice(device);
             var credentialsTask = GetCredentials(device);
@@ -172,6 +173,7 @@ namespace HideezMiddleware
                 await WaitForRemoteDeviceUpdate(device.SerialNo);
                 credentials = await GetCredentials(device);
             }
+            
 
             // send credentials to the Credential Provider to unlock the PC
             await _ui.SendNotification("Unlocking the PC...", _infNid);
@@ -198,40 +200,6 @@ namespace HideezMiddleware
 
             return false;
         }
-
-        //async Task ShowWaitStatus(IDevice device, int timeout)
-        //{
-        //    Debug.WriteLine(">>>>>>>>>>>>>>> ShowWaitStatus ++++++++++++++++++++++++++++++++++++");
-        //    var startedTime = DateTime.Now;
-        //    var elapsed = startedTime - DateTime.Now;
-
-        //    while ( elapsed.TotalMilliseconds < timeout && 
-        //            !device.AccessLevel.IsLocked &&
-        //            (device.AccessLevel.IsButtonRequired || device.AccessLevel.IsPinRequired || device.AccessLevel.IsNewPinRequired))
-        //    {
-        //        var statuses = new List<string>();
-
-        //        if (device.AccessLevel.IsButtonRequired)
-        //            statuses.Add("Waiting for the BUTTON confirmation...");
-
-        //        if (device.AccessLevel.IsPinRequired)
-        //        {
-        //            await _ui.ShowPinUi(device.Id);
-        //            statuses.Add("Waiting for the PIN...");
-        //        }
-        //        else if (device.AccessLevel.IsNewPinRequired)
-        //        {
-        //            await _ui.ShowPinUi(device.Id, withConfirm: true);
-        //            statuses.Add("Waiting for the PIN...");
-        //        }
-
-        //        await _ui.SendNotification(string.Join("; ", statuses), _infNid);
-
-        //        await Task.Delay(300);
-        //        elapsed = DateTime.Now - startedTime;
-        //    }
-        //    Debug.WriteLine(">>>>>>>>>>>>>>> ShowWaitStatus ------------------------------");
-        //}
 
         async Task MasterKeyWorkflow(IDevice device, int timeout)
         {
@@ -335,26 +303,30 @@ namespace HideezMiddleware
             return res;
         }
 
-        async Task<IDevice> ConnectDevice(string mac, int tryCount = 2)
+        async Task<IDevice> ConnectDevice(string mac)
         {
-            IDevice device = null;
-
             await _ui.SendNotification("Connecting to the device...", _infNid);
 
-            do
-            {
-                device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
-                if (device == null)
-                {
-                    await _deviceManager.RemoveByMac(mac);
-                    await _ui.SendNotification("Connection failed. Retrying...", _infNid);
-                    await Task.Delay(CONNECT_RETRY_DELAY); // Wait one second before trying to connect device again
-                }
-            }
-            while (--tryCount > 0 && device == null);
+            var device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
 
             if (device == null)
-                throw new Exception($"Failed to connect device '{mac}' after {tryCount} attempts. Please try again.");
+            {
+                await Task.Delay(CONNECT_RETRY_DELAY); // Wait one second before trying to connect device again
+                await _ui.SendNotification("Connection failed. Retrying...", _infNid);
+                device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
+            }
+
+            if (device == null)
+            {
+                // remove the bond and try one more time
+                await _deviceManager.RemoveByMac(mac);
+                await _ui.SendNotification("Connection failed. Trying re-bond the device...", _infNid);
+                await Task.Delay(CONNECT_RETRY_DELAY); // Wait one second before trying to connect device again
+                device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
+            }
+
+            if (device == null)
+                throw new Exception($"Failed to connect device '{mac}'.");
 
             return device;
         }

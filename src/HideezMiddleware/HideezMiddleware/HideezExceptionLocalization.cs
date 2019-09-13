@@ -96,6 +96,9 @@ namespace HideezMiddleware
 
         public static string GetErrorAsString(HideezException exception, CultureInfo culture = null)
         {
+            if (exception.ErrorCode == HideezErrorCode.NonHideezException)
+                return exception.Message;
+
             string localizedStr = ErrorCode.ResourceManager.GetString(exception.ErrorCode.ToString(), culture ?? ErrorCode.Culture);
 
             if (localizedStr == null)
