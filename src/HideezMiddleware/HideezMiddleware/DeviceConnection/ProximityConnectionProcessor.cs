@@ -111,8 +111,8 @@ namespace HideezMiddleware.DeviceConnection
             if (adv == null)
                 return;
 
-            //if (!_workstationUnlocker.IsConnected)
-            //    return;
+            if (!_workstationUnlocker.IsConnected)
+                return;
 
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 1) == 1)
                 return;
