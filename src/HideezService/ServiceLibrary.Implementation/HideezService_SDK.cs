@@ -191,8 +191,8 @@ namespace ServiceLibrary.Implementation
 
 
             // Audit Log / Event Aggregator =============================
-            //_eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
-            //SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
+            _eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
+            SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
 
             // SDK initialization finished, start essential components
             _credentialProviderProxy.Start();
@@ -781,7 +781,7 @@ namespace ServiceLibrary.Implementation
             workstationEvent.Severity = WorkstationEventSeverity.Info;
             workstationEvent.EventId = WorkstationEventType.ServiceStarted;
             if (_eventAggregator != null)
-                await _eventAggregator?.AddNewAsync(workstationEvent); //todo - null reference exception at startup
+                await _eventAggregator?.AddNewAsync(workstationEvent);
         }
 
         public static async Task OnServiceStoppedAsync()
@@ -790,7 +790,8 @@ namespace ServiceLibrary.Implementation
             workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
             workstationEvent.EventId = WorkstationEventType.ServiceStopped;
-            await _eventAggregator?.AddNewAsync(workstationEvent, true);
+            if (_eventAggregator != null)
+                await _eventAggregator?.AddNewAsync(workstationEvent, true);
         }
         #endregion
     }
