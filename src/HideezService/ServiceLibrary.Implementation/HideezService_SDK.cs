@@ -751,7 +751,6 @@ namespace ServiceLibrary.Implementation
 
                 if (sessionLocked)
                 {
-                    _advIgnoreList.SetIgnoreList(_deviceManager?.Devices.Where(d => d.IsConnected).Select(d => d.Mac).ToArray());
                     _deviceManager?.Devices.ToList().ForEach(d => d.Disconnect());
                 }
             }

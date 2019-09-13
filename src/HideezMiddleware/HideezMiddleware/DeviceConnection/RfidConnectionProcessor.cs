@@ -93,6 +93,10 @@ namespace HideezMiddleware.DeviceConnection
                     {
                         await _connectionFlowProcessor.ConnectAndUnlock(info.DeviceMac);
                     }
+                    catch (Exception)
+                    {
+                        // Silent handling. Log is already printed inside of _connectionFlowProcessor.ConnectAndUnlock()
+                    }
                     finally
                     {
                         Interlocked.Exchange(ref _isConnecting, 0);

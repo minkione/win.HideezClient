@@ -111,8 +111,8 @@ namespace HideezMiddleware.DeviceConnection
             if (adv == null)
                 return;
 
-            if (!_workstationUnlocker.IsConnected)
-                return;
+            //if (!_workstationUnlocker.IsConnected)
+            //    return;
 
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 1) == 1)
                 return;
@@ -132,25 +132,23 @@ namespace HideezMiddleware.DeviceConnection
             if (_advIgnoreListMonitor.IsIgnored(mac))
                 return;
 
-            if (_bleDeviceManager.Devices.Any(d => d.Mac == mac && d.IsConnected))
-                return;
-
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
             { 
                 try
                 {
-                    _screenActivator?.ActivateScreen();
-                    await _connectionFlowProcessor.ConnectAndUnlock(mac);
+                    if (!_bleDeviceManager.Devices.Any(d => d.Mac == mac && !d.IsRemote && !d.IsBoot && d.IsConnected))
+                    { 
+                        _screenActivator?.ActivateScreen();
+                        await _connectionFlowProcessor.ConnectAndUnlock(mac);
+                    }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    WriteLine(ex);
-                    await _clientUiManager.SendNotification("");
-                    await _clientUiManager.SendError(ex.Message);
-                    _advIgnoreListMonitor.Ignore(mac);
+                    // Silent handling. Log is already printed inside of _connectionFlowProcessor.ConnectAndUnlock()
                 }
                 finally
                 {
+                    _advIgnoreListMonitor.Ignore(mac);
                     Interlocked.Exchange(ref _isConnecting, 0);
                 }
             }
