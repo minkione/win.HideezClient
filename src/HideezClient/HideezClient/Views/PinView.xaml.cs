@@ -51,16 +51,19 @@ namespace HideezClient.Views
         void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
             FocusFirstVisiblePasswordBox();
+            ActivateWindowAndBringToTop();
         }
 
         void PinView_ViewModelUpdated(object sender, System.EventArgs e)
         {
             FocusFirstVisiblePasswordBox();
+            ActivateWindowAndBringToTop();
         }
 
         void PasswordBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             FocusFirstVisiblePasswordBox();
+            ActivateWindowAndBringToTop();
         }
 
         void FocusFirstVisiblePasswordBox()
@@ -78,6 +81,19 @@ namespace HideezClient.Views
                     break;
                 }
             }
+        }
+
+        void ActivateWindowAndBringToTop()
+        {
+            if (WindowState == WindowState.Minimized)
+                WindowState = WindowState.Normal;
+
+            Activate();
+
+            Topmost = true;
+            Topmost = false;
+
+            Focus();
         }
 
         void PasswordBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
