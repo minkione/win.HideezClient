@@ -302,6 +302,24 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand WipeDeviceManualCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        WipeDeviceManual(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         public ICommand UnlockDeviceCommand
         {
             get
@@ -1312,6 +1330,18 @@ namespace WinSampleApp.ViewModel
             try
             {
                 await device.Device.Wipe(Encoding.UTF8.GetBytes("passphrase"));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void WipeDeviceManual(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.Wipe(Encoding.UTF8.GetBytes(""));
             }
             catch (Exception ex)
             {
