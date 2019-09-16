@@ -27,7 +27,6 @@ namespace HideezClient.Models
     public class Device : ObservableObject
     {
         const int VERIFY_CHANNEL = 2;
-        const int VERIFY_WAIT = 20_000;
         const int INIT_WAIT = 5_000;
         const int RETRY_DELAY = 2_500;
         const int CREDENTIAL_TIMEOUT = 60_000;
@@ -291,7 +290,6 @@ namespace HideezClient.Models
 
 
                         await _remoteDevice.Verify(VERIFY_CHANNEL);
-                        await _remoteDevice.WaitVerification(VERIFY_WAIT);
                         await _remoteDevice.Initialize(INIT_WAIT);
 
                         if (_remoteDevice.SerialNo != SerialNo)
