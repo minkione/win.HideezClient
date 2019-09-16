@@ -81,7 +81,7 @@ namespace ServiceLibrary.Implementation
                 else
                 {
                     throw new FaultException<HideezServiceFault>(
-                        new HideezServiceFault(baseEx.Message, (int)HideezErrorCode.GenericException), baseEx.Message);
+                        new HideezServiceFault(baseEx.Message, (int)HideezErrorCode.NonHideezException), baseEx.Message);
                 }
             }
             else
@@ -94,7 +94,7 @@ namespace ServiceLibrary.Implementation
                 else
                 {
                     throw new FaultException<HideezServiceFault>(
-                        new HideezServiceFault(ex.Message, (int)HideezErrorCode.GenericException), ex.Message);
+                        new HideezServiceFault(ex.Message, (int)HideezErrorCode.NonHideezException), ex.Message);
                 }
             }
         }
