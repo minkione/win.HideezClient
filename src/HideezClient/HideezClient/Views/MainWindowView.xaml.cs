@@ -33,12 +33,10 @@ namespace HideezClient.Views
             InitializeComponent();
         }
 
-        private void ToggleButton_Click(object sender, RoutedEventArgs e)
+        private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (sender is ToggleButton toggleButton && toggleButton.IsChecked != true)
-            {
-                toggleButton.IsChecked = true;
-            }
+            this.Visibility = Visibility.Collapsed;
+            e.Cancel = true;
         }
     }
 }

@@ -297,12 +297,24 @@
     <Compile Include="Mvvm\IRequireViewIdentification.cs" />
     <Compile Include="Mvvm\LocalizedObject.cs" />
     <Compile Include="Mvvm\ObservableObject.cs" />
+    <Compile Include="PagesView\HelpPage.xaml.cs">
+      <DependentUpon>HelpPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PagesView\PasswordManagerPage.xaml.cs">
+      <DependentUpon>PasswordManagerPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PagesView\SettingsPage.xaml.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PageViewModels\HelpPageViewModel.cs" />
+    <Compile Include="PageViewModels\SettingsPageViewModel.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
     <Compile Include="Utilities\PasswordHelper.cs" />
     <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Notification\NotificationsContainerViewModel.cs" />
+    <Compile Include="PageViewModels\PasswordManagerViewModel.cs" />
     <Compile Include="ViewModels\PinViewModel.cs" />
     <Compile Include="Views\AboutDeviceView.xaml.cs">
       <DependentUpon>AboutDeviceView.xaml</DependentUpon>
@@ -366,6 +378,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\ChangePasswordDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PagesView\HelpPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PagesView\PasswordManagerPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PagesView\SettingsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -516,11 +540,14 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Strings.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\Strings.ru.resx" />
+    <EmbeddedResource Include="Resources\Strings.ru.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\Strings.uk.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>

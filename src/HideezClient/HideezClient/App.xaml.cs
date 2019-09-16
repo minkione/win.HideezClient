@@ -235,6 +235,9 @@ namespace HideezClient
             Container.RegisterType<NotificationsContainerViewModel>();
             Container.RegisterType<DeviceNotAuthorizedNotificationViewModel>();
             Container.RegisterType<PinViewModel>();
+            Container.RegisterType<HelpPageViewModel>();
+            Container.RegisterType<SettingsPageViewModel>();
+            Container.RegisterType<PasswordManagerViewModel>(new ContainerControlledLifetimeManager());
 
             #endregion ViewModels
 

@@ -9,7 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="About device"
     Background="{DynamicResource WindowLeftColumBrush}"
-    FontFamily="{DynamicResource FontFamily}"
+    FontFamily="{DynamicResource MainFontFamily}"
     FontSize="14"
     ResizeMode="NoResize"
     SizeToContent="WidthAndHeight"

@@ -256,8 +256,8 @@ Device is not connected</value>
   <data name="Status.Dongle" xml:space="preserve">
     <value>Dongle</value>
   </data>
-  <data name="Status.HES" xml:space="preserve">
-    <value>HES</value>
+  <data name="Status.Server" xml:space="preserve">
+    <value>Server</value>
   </data>
   <data name="Status.RFID" xml:space="preserve">
     <value>RFID</value>
@@ -268,7 +268,7 @@ Device is not connected</value>
   <data name="Status.Tooltip.ConectedDongle" xml:space="preserve">
     <value>Hideez Dongle connected</value>
   </data>
-  <data name="Status.Tooltip.ConectedHES" xml:space="preserve">
+  <data name="Status.Tooltip.ConectedServer" xml:space="preserve">
     <value>Connected to the server</value>
   </data>
   <data name="Status.Tooltip.ConectedRFID" xml:space="preserve">
@@ -280,7 +280,7 @@ Device is not connected</value>
   <data name="Status.Tooltip.DisconectedDongle" xml:space="preserve">
     <value>Hideez Dongle disconnected</value>
   </data>
-  <data name="Status.Tooltip.DisconectedHES" xml:space="preserve">
+  <data name="Status.Tooltip.DisconectedServer" xml:space="preserve">
     <value>No connection to the server</value>
   </data>
   <data name="Status.Tooltip.DisconectedRFID" xml:space="preserve">

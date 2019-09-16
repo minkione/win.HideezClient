@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
+using HideezClient.Models;
 using HideezClient.Mvvm;
 using MvvmExtensions.Commands;
 using System;
@@ -13,12 +14,7 @@ namespace HideezClient.ViewModels
         #region Properties
 
         private Uri displayPage;
-
-        public Uri DisplayPage
-        {
-            get { return displayPage; }
-            set { Set(ref displayPage, value); }
-        }
+        private Device device;
 
         public string Version
         {
@@ -28,12 +24,19 @@ namespace HideezClient.ViewModels
             }
         }
 
-        #endregion Properties
-
-        public void ProcessNavRequest(string page)
+        public Uri DisplayPage
         {
-            DisplayPage = new Uri($"pack://application:,,,/HideezClient;component/PagesView/{page}.xaml", UriKind.Absolute);
+            get { return displayPage; }
+            set { Set(ref displayPage, value); }
         }
+
+        public Device SelectedDevice
+        {
+            get { return device; }
+            set { Set(ref device, value); }
+        }
+
+        #endregion Properties
 
         #region Command
 
@@ -46,17 +49,59 @@ namespace HideezClient.ViewModels
                     CommandAction = x =>
                     {
                         if (x is bool isChecked && isChecked)
-                            OnShowLocker();
+                            OnOpenLocker();
                     },
+                };
+            }
+        }
+
+        public ICommand OpenHelpCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x => OnOpenHelpCommand(),
+                };
+            }
+        }
+
+        public ICommand OpenSettingsCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x => OnOpenSettingsCommand(),
                 };
             }
         }
 
         #endregion Command
 
-        private void OnShowLocker()
+
+        #region Navigation
+
+        public void ProcessNavRequest(string page)
+        {
+            DisplayPage = new Uri($"pack://application:,,,/HideezClient;component/PagesView/{page}.xaml", UriKind.Absolute);
+        }
+
+        private void OnOpenLocker()
         {
             ProcessNavRequest("LoginSystemPage");
         }
+
+        private void OnOpenSettingsCommand()
+        {
+            ProcessNavRequest("SettingsPage");
+        }
+
+        private void OnOpenHelpCommand()
+        {
+            ProcessNavRequest("HelpPage");
+        }
+
+        #endregion
     }
 }

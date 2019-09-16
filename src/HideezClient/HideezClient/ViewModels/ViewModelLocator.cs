@@ -93,5 +93,20 @@ namespace HideezClient.ViewModels
         {
             get { return DIContainer.Resolve<PinViewModel>(); }
         }
+
+        public HelpPageViewModel HelpPage
+        {
+            get { return DIContainer.Resolve<HelpPageViewModel>(); }
+        }
+
+        public SettingsPageViewModel SettingsPage
+        {
+            get { return DIContainer.Resolve<SettingsPageViewModel>(); }
+        }
+
+        public PasswordManagerViewModel PasswordManager
+        {
+            get { return DIContainer.Resolve<PasswordManagerViewModel>(); }
+        }
     }
 }

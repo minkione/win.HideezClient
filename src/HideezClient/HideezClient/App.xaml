@@ -9,7 +9,7 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:vm="clr-namespace:HideezClient.ViewModels"
     d1p1:Ignorable="d"
-    StartupUri="Views\SimpleMainView.xaml">
+    StartupUri="Views\MainWindowView.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <SolidColorBrush

@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     MinWidth="350"
     MinHeight="60"
-    Background="{DynamicResource NotificationLeftColumnBrush}"
+    Background="{DynamicResource NotificationBackground}"
     FontSize="14"
     Foreground="Black"
     mc:Ignorable="d">

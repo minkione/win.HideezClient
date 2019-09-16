@@ -13,13 +13,8 @@
     VerticalContentAlignment="Center"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    DataContext="{Binding DevicesExpander, Mode=OneWay, Source={StaticResource Locator}}"
     mc:Ignorable="d">
-    <UserControl.DataContext>
-        <Binding
-            Mode="OneWay"
-            Path="DevicesExpander"
-            Source="{StaticResource Locator}" />
-    </UserControl.DataContext>
     <UserControl.Resources>
         <ResourceDictionary>
             <ext:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -34,14 +29,14 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="16">
+    <Grid Margin="0,16">
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock
-            FontSize="18"
+            Margin="16,0"
             Text="{l:Localization Expander.NoDevice}"
             Visibility="{Binding ElementName=devicesList, Path=HasItems, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
         <ScrollViewer
@@ -55,20 +50,7 @@
                 ItemsSource="{Binding Devices}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid Margin="0,5" Focusable="False">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
+                        <StackPanel>
                             <Rectangle
                                 x:Name="separator"
                                 Grid.Row="0"
@@ -77,194 +59,251 @@
                                 Margin="0,7"
                                 HorizontalAlignment="Stretch"
                                 Fill="#22446D" />
-
-                            <TextBlock
-                                Grid.Row="1"
-                                FontSize="18"
-                                Text="{Binding OwnerName}"
-                                Visibility="Collapsed" />
-                            <StackPanel
-                                Grid.Row="2"
-                                Margin="0,9,0,5"
-                                Orientation="Horizontal">
-                                <ContentPresenter
-                                    x:Name="deviceIco"
-                                    Width="12"
-                                    Height="12"
-                                    VerticalAlignment="Center"
-                                    Content="{Binding IcoKey, Converter={StaticResource StringToResource}}" />
-                                <TextBlock
-                                    x:Name="deviceType"
-                                    Margin="5,0,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding TypeName}" />
-                            </StackPanel>
-
-                            <StackPanel Grid.Row="3" Orientation="Horizontal">
-                                <TextBlock
-                                    x:Name="deviceName"
-                                    VerticalAlignment="Stretch"
-                                    FontSize="18"
-                                    Text="{Binding Name}" />
-                                <Grid
-                                    x:Name="connectionQuality"
-                                    Grid.Row="1"
-                                    Grid.Column="4"
-                                    Width="24"
-                                    Margin="6,0,0,0"
-                                    Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <Viewbox
-                                        Width="Auto"
-                                        Height="Auto"
-                                        SnapsToDevicePixels="True">
-                                        <Canvas Width="24.000" Height="24.000">
-                                            <Path
-                                                Data="F1 M 5.000,16.000 L 7.000,16.000 L 7.000,20.000 L 5.000,20.000 L 5.000,16.000 Z"
-                                                Fill="#ffffffff"
-                                                Opacity="{Binding Proximity, ConverterParameter=20, Converter={StaticResource ProximityToOpacityConverter}}" />
-                                            <Path
-                                                Data="F1 M 9.000,12.000 L 11.000,12.000 L 11.000,20.000 L 9.000,20.000 L 9.000,12.000 Z"
-                                                Fill="#ffffffff"
-                                                Opacity="{Binding Proximity, ConverterParameter=40, Converter={StaticResource ProximityToOpacityConverter}}" />
-                                            <Path
-                                                Data="F1 M 13.000,8.000 L 15.000,8.000 L 15.000,20.000 L 13.000,20.000 L 13.000,8.000 Z"
-                                                Fill="#ffffffff"
-                                                Opacity="{Binding Proximity, ConverterParameter=60, Converter={StaticResource ProximityToOpacityConverter}}" />
-                                            <Path
-                                                Data="F1 M 17.000,4.000 L 19.000,4.000 L 19.000,20.000 L 17.000,20.000 L 17.000,4.000 Z"
-                                                Fill="#ffffffff"
-                                                Opacity="{Binding Proximity, ConverterParameter=80, Converter={StaticResource ProximityToOpacityConverter}}" />
-                                        </Canvas>
-                                    </Viewbox>
-                                </Grid>
-
-                                <!--  Icons  -->
-                                <iconPacks:PackIconModern
-                                    x:Name="noConnectionIco"
-                                    Width="16"
-                                    Height="22"
-                                    Margin="8,0,0,2"
-                                    Foreground="{DynamicResource DisconnectedBrush}"
-                                    Kind="Connect"
-                                    Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
-                                <TextBlock
-                                    Width="43"
-                                    VerticalAlignment="Stretch"
-                                    FontSize="18"
-                                    Text="{Binding Proximity, StringFormat='{}{0,3}%'}"
-                                    TextAlignment="Right"
-                                    Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" 
-                                    ToolTip="Device proximity level"
-                                    />
-
-                                <Grid Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <StackPanel Orientation="Horizontal" >
-                                        <iconPacks:PackIconModern
-                                            x:Name="ConnectingIco"
-                                            Width="16"
-                                            Height="22"
-                                            Margin="8,0,0,2"
-                                            Foreground="{DynamicResource InitializingBrush}"
-                                            Kind="Disconnect" 
-                                            ToolTip="Connecting device"
-                                            Visibility="{Binding IsInitializing, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                            />
-                                        <Grid Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                            <iconPacks:PackIconMaterial
-                                                x:Name="NotAuthorizedIco"
-                                                Width="16"
-                                                Height="18"
-                                                Margin="8,0,0,2"
-                                                Foreground="Yellow"
-                                                Kind="Lock" 
-                                                ToolTip="Not authorized"
-                                                Visibility="{Binding IsAuthorized, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
-                                                />
-                                        </Grid>
-                                        <iconPacks:PackIconOcticons
-                                            x:Name="Sync"
-                                            Width="16"
-                                            Height="22"
-                                            Margin="8,0,0,2"
-                                            Foreground="{DynamicResource InitializingBrush}"
-                                            Kind="Sync" 
-                                            ToolTip="Loading storage"
-                                            Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                            />
-                                    </StackPanel>
-                                </Grid>
-
-                                <StackPanel>
-                                    <StackPanel.Visibility>
-                                        <MultiBinding Converter="{StaticResource LowBatteryIndicatorVisibilityConverter}">
-                                            <Binding Path="IsConnected" />
-                                            <Binding Path="Battery" />
-                                        </MultiBinding>
-                                    </StackPanel.Visibility>
-                                    <iconPacks:PackIconModern
-                                        Width="16"
-                                        Height="22"
-                                        Margin="8,-5,0,0"
-                                        Foreground="{DynamicResource LowBatteryIndicatorBrush}"
-                                        Kind="Battery1" />
-                                    <iconPacks:PackIconMaterial
-                                        Width="16"
-                                        Height="22"
-                                        Margin="20,-13,0,0"
-                                        Foreground="{DynamicResource LowBatteryIndicatorBrush}"
-                                        Kind="Alert" />
-                                </StackPanel>
-
-                                <Border
-                                    CornerRadius="2"
-                                    BorderThickness="2"
-                                    BorderBrush="{DynamicResource SyncErrorIndicatorBrush}"
-                                    Margin="8,2,0,4"
-                                    Visibility="{Binding IsFaulted, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    ToolTip="{Binding FaultMessage}">
-                                    <TextBlock 
-                                        Margin="4,0"
-                                        Text="ERR"
-                                        FontWeight="SemiBold"
-                                        Foreground="{DynamicResource SyncErrorIndicatorBrush}"
-                                        FontSize="12"
-                                        />
-                                </Border>
-                            </StackPanel>
-
-                            <TextBlock
-                                Grid.Row="4"
-                                Margin="0,-2,0,0"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Top"
-                                FontSize="12"
-                                Opacity="0.5">
-                                <TextBlock.Text>
-                                    <MultiBinding Converter="{StaticResource SerialNoAndFirmwareVerFormater}">
-                                        <Binding Path="SerialNo" />
-                                        <Binding Path="FirmwareVersion" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-
                             <ToggleButton
                                 x:Name="toggleButton"
-                                Grid.Row="1"
-                                Grid.Column="2"
+                                Margin="0"
+                                Padding="0"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Top"
-                                Background="Transparent"
                                 BorderThickness="0"
                                 FocusVisualStyle="{x:Null}"
-                                Foreground="White"
-                                Visibility="Collapsed">
+                                FontSize="{Binding FontSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                FontWeight="{Binding FontWeight, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                IsChecked="{Binding IsSelected, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}"
+                                Visibility="Visible">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                        <Label
-                                            x:Name="content"
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch"
-                                            Content="{StaticResource ResourceKey=UpExpander}" />
+                                        <StackPanel>
+                                            <Grid
+                                                x:Name="MainGrid"
+                                                Margin="16,10,16,5"
+                                                HorizontalAlignment="Stretch"
+                                                Focusable="False">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="5" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="5" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <Rectangle
+                                                    Grid.Row="0"
+                                                    Grid.RowSpan="5"
+                                                    Grid.Column="0"
+                                                    Grid.ColumnSpan="3"
+                                                    HorizontalAlignment="Stretch"
+                                                    VerticalAlignment="Stretch"
+                                                    Fill="White"
+                                                    Opacity="0.0001" />
+
+                                                <Label
+                                                    x:Name="content"
+                                                    Grid.Row="2"
+                                                    Grid.RowSpan="3"
+                                                    Grid.Column="2"
+                                                    Grid.ColumnSpan="5"
+                                                    Margin="0,6,10,0"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Top"
+                                                    Content="{StaticResource ResourceKey=UpExpander}" />
+
+                                                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                                    <ContentPresenter
+                                                        x:Name="deviceIco"
+                                                        Width="12"
+                                                        Height="12"
+                                                        VerticalAlignment="Center"
+                                                        Content="{Binding IcoKey, Converter={StaticResource StringToResource}}" />
+                                                    <TextBlock
+                                                        Margin="5,0,0,0"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="13"
+                                                        Opacity="0.5">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding Converter="{StaticResource SerialNoAndFirmwareVerFormater}">
+                                                                <Binding Path="SerialNo" />
+                                                                <Binding Path="FirmwareVersion" />
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                                    <TextBlock
+                                                        x:Name="deviceName"
+                                                        VerticalAlignment="Stretch"
+                                                        FontSize="18"
+                                                        Text="{Binding Name}" />
+                                                    <Grid
+                                                        x:Name="connectionQuality"
+                                                        Grid.Row="1"
+                                                        Grid.Column="4"
+                                                        Width="24"
+                                                        Margin="6,0,0,0"
+                                                        Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <Viewbox
+                                                            Width="Auto"
+                                                            Height="Auto"
+                                                            SnapsToDevicePixels="True">
+                                                            <Canvas Width="24.000" Height="24.000">
+                                                                <Path
+                                                                    Data="F1 M 5.000,16.000 L 7.000,16.000 L 7.000,20.000 L 5.000,20.000 L 5.000,16.000 Z"
+                                                                    Fill="#ffffffff"
+                                                                    Opacity="{Binding Proximity, ConverterParameter=20, Converter={StaticResource ProximityToOpacityConverter}}" />
+                                                                <Path
+                                                                    Data="F1 M 9.000,12.000 L 11.000,12.000 L 11.000,20.000 L 9.000,20.000 L 9.000,12.000 Z"
+                                                                    Fill="#ffffffff"
+                                                                    Opacity="{Binding Proximity, ConverterParameter=40, Converter={StaticResource ProximityToOpacityConverter}}" />
+                                                                <Path
+                                                                    Data="F1 M 13.000,8.000 L 15.000,8.000 L 15.000,20.000 L 13.000,20.000 L 13.000,8.000 Z"
+                                                                    Fill="#ffffffff"
+                                                                    Opacity="{Binding Proximity, ConverterParameter=60, Converter={StaticResource ProximityToOpacityConverter}}" />
+                                                                <Path
+                                                                    Data="F1 M 17.000,4.000 L 19.000,4.000 L 19.000,20.000 L 17.000,20.000 L 17.000,4.000 Z"
+                                                                    Fill="#ffffffff"
+                                                                    Opacity="{Binding Proximity, ConverterParameter=80, Converter={StaticResource ProximityToOpacityConverter}}" />
+                                                            </Canvas>
+                                                        </Viewbox>
+                                                    </Grid>
+
+                                                    <!--  Icons  -->
+                                                    <iconPacks:PackIconModern
+                                                        x:Name="noConnectionIco"
+                                                        Width="16"
+                                                        Height="22"
+                                                        Margin="8,0,0,2"
+                                                        Foreground="{DynamicResource DisconnectedBrush}"
+                                                        Kind="Connect"
+                                                        Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
+                                                    <TextBlock
+                                                        Width="43"
+                                                        VerticalAlignment="Stretch"
+                                                        FontSize="18"
+                                                        Text="{Binding Proximity, StringFormat='{}{0,3}%'}"
+                                                        TextAlignment="Right"
+                                                        ToolTip="Device proximity level"
+                                                        Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                                    <Grid Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <iconPacks:PackIconModern
+                                                                x:Name="ConnectingIco"
+                                                                Width="16"
+                                                                Height="22"
+                                                                Margin="8,0,0,2"
+                                                                Foreground="{DynamicResource InitializingBrush}"
+                                                                Kind="Disconnect"
+                                                                ToolTip="Connecting device"
+                                                                Visibility="{Binding IsInitializing, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                            <Grid Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                <iconPacks:PackIconMaterial
+                                                                    x:Name="NotAuthorizedIco"
+                                                                    Width="16"
+                                                                    Height="18"
+                                                                    Margin="8,0,0,2"
+                                                                    Foreground="Yellow"
+                                                                    Kind="Lock"
+                                                                    ToolTip="Not authorized"
+                                                                    Visibility="{Binding IsAuthorized, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
+                                                            </Grid>
+                                                            <iconPacks:PackIconOcticons
+                                                                x:Name="Sync"
+                                                                Width="16"
+                                                                Height="22"
+                                                                Margin="8,0,0,2"
+                                                                Foreground="{DynamicResource InitializingBrush}"
+                                                                Kind="Sync"
+                                                                ToolTip="Loading storage"
+                                                                Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                        </StackPanel>
+                                                    </Grid>
+
+                                                    <StackPanel>
+                                                        <StackPanel.Visibility>
+                                                            <MultiBinding Converter="{StaticResource LowBatteryIndicatorVisibilityConverter}">
+                                                                <Binding Path="IsConnected" />
+                                                                <Binding Path="Battery" />
+                                                            </MultiBinding>
+                                                        </StackPanel.Visibility>
+                                                        <iconPacks:PackIconModern
+                                                            Width="16"
+                                                            Height="22"
+                                                            Margin="8,-5,0,0"
+                                                            Foreground="{DynamicResource LowBatteryIndicatorBrush}"
+                                                            Kind="Battery1" />
+                                                        <iconPacks:PackIconMaterial
+                                                            Width="16"
+                                                            Height="22"
+                                                            Margin="20,-13,0,0"
+                                                            Foreground="{DynamicResource LowBatteryIndicatorBrush}"
+                                                            Kind="Alert" />
+                                                    </StackPanel>
+
+                                                    <Border
+                                                        Margin="8,2,0,4"
+                                                        BorderBrush="{DynamicResource SyncErrorIndicatorBrush}"
+                                                        BorderThickness="2"
+                                                        CornerRadius="2"
+                                                        ToolTip="{Binding FaultMessage}"
+                                                        Visibility="{Binding IsFaulted, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <TextBlock
+                                                            Margin="4,0"
+                                                            FontSize="12"
+                                                            FontWeight="SemiBold"
+                                                            Foreground="{DynamicResource SyncErrorIndicatorBrush}"
+                                                            Text="ERR" />
+                                                    </Border>
+                                                </StackPanel>
+
+                                                <TextBlock
+                                                    Grid.Row="4"
+                                                    FontSize="13"
+                                                    Opacity="0.5"
+                                                    Text="{Binding OwnerName}" />
+
+                                                <mah:DropDownButton
+                                                    Grid.RowSpan="4"
+                                                    Grid.ColumnSpan="3"
+                                                    Margin="2,2,2,2"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    ArrowVisibility="Collapsed"
+                                                    ItemContainerStyle="{StaticResource MenuItemStyle}"
+                                                    ItemsSource="{Binding MenuItems}"
+                                                    Orientation="Vertical"
+                                                    Style="{DynamicResource LightDropDownButtonStyle}"
+                                                    Visibility="Collapsed">
+                                                    <mah:DropDownButton.Icon>
+                                                        <iconPacks:PackIconOcticons Foreground="White" Kind="KebabVertical" />
+                                                    </mah:DropDownButton.Icon>
+                                                </mah:DropDownButton>
+
+
+                                            </Grid>
+                                            <Rectangle Height="20" />
+                                            <RadioButton
+                                                Command="{Binding OpenPasswordManagerCommand}"
+                                                Style="{DynamicResource LeftColumMenuStyle}"
+                                                Tag="LockSolid"
+                                                Visibility="{TemplateBinding IsChecked,
+                                                                             Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <Grid>
+                                                    <TextBlock
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Top"
+                                                        Text="Password manager" />
+                                                    <TextBlock HorizontalAlignment="Right" Text="{Binding CountAccounts}" />
+                                                </Grid>
+                                            </RadioButton>
+                                        </StackPanel>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsChecked" Value="True">
                                                 <Setter TargetName="content" Property="Content" Value="{StaticResource ResourceKey=DownExpander}" />
@@ -273,28 +312,7 @@
                                     </ControlTemplate>
                                 </ToggleButton.Template>
                             </ToggleButton>
-
-                            <mah:DropDownButton
-                                Grid.RowSpan="4"
-                                Grid.ColumnSpan="3"
-                                Margin="2,2,2,2"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                ArrowVisibility="Collapsed"
-                                ItemContainerStyle="{StaticResource MenuItemStyle}"
-                                ItemsSource="{Binding MenuItems}"
-                                Orientation="Vertical"
-                                Style="{DynamicResource LightDropDownButtonStyle}">
-                                <mah:DropDownButton.Icon>
-                                    <iconPacks:PackIconOcticons Foreground="White" Kind="KebabVertical" />
-                                </mah:DropDownButton.Icon>
-                            </mah:DropDownButton>
-
-                            <Grid
-                                Grid.Row="4"
-                                Height="100"
-                                Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=toggleButton}" />
-                        </Grid>
+                        </StackPanel>
                         <DataTemplate.Triggers>
                             <Trigger Property="ItemsControl.AlternationIndex" Value="0">
                                 <Setter TargetName="separator" Property="Visibility" Value="Collapsed" />

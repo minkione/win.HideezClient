@@ -13,6 +13,7 @@ using HideezClient.Controls;
 using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
 using System.Threading;
+using System.Diagnostics;
 
 namespace HideezClient.Modules
 {
@@ -448,6 +449,19 @@ namespace HideezClient.Modules
                 view.DataContext = new DeviceViewModel(device);
                 view.Show();
             });
+        }
+
+        public void OpenPage(string pageName)
+        {
+            try
+            {
+                _viewModelLocator.Main.ProcessNavRequest(pageName);
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+                Debug.Assert(false);
+            }
         }
     }
 }
