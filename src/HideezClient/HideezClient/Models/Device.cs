@@ -280,7 +280,7 @@ namespace HideezClient.Models
 
             try
             {
-                while (IsInitializing && !IsInitialized)
+                while (IsInitializing && !IsInitialized && IsConnected)
                 {
                     try
                     {

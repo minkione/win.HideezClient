@@ -49,8 +49,8 @@ namespace HideezClient.Modules.Remote
             }
             catch (FaultException<HideezServiceFault> ex)
             {
-                error = ex.InnerException.Message;
-                WriteLine(ex.InnerException);
+                error = ex.Message;
+                WriteLine(ex);
                 _messenger.Send(new ShowErrorNotificationMessage(error));
             }
             catch (Exception ex)
@@ -85,8 +85,8 @@ namespace HideezClient.Modules.Remote
             }
             catch (FaultException<HideezServiceFault> ex)
             {
-                error = ex.InnerException.Message;
-                WriteLine(ex.InnerException);
+                error = ex.Message;
+                WriteLine(ex);
                 _messenger.Send(new ShowErrorNotificationMessage(error));
             }
             catch (Exception ex)
