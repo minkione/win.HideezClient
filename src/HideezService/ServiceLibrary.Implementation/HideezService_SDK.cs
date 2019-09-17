@@ -218,7 +218,7 @@ namespace ServiceLibrary.Implementation
 
         #region Event Handlers
 
-        private void ProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
+        void ProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
         {
             try
             {
@@ -273,7 +273,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        private void Device_Disconnected(object sender, EventArgs e)
+        void Device_Disconnected(object sender, EventArgs e)
         {
             if (sender is IDevice device && device.IsInitialized && (!device.IsRemote || device.ChannelNo > 2))
             {
@@ -293,53 +293,68 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
+        async void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
-            if (_connectionManager != null && (_connectionManager.State == BluetoothAdapterState.Unknown || _connectionManager.State == BluetoothAdapterState.PoweredOn))
+            if (_connectionManager.State == BluetoothAdapterState.Unknown || _connectionManager.State == BluetoothAdapterState.PoweredOn)
             {
                 var we = WorkstationEvent.GetBaseInitializedInstance();
                 if (_connectionManager.State == BluetoothAdapterState.PoweredOn)
                 {
                     we.EventId = WorkstationEventType.DonglePlugged;
-                    we.Severity = WorkstationEventSeverity.Ok;
+                    we.Severity = WorkstationEventSeverity.Info;
                 }
                 else
                 {
                     we.EventId = WorkstationEventType.DongleUnplugged;
                     we.Severity = WorkstationEventSeverity.Warning;
                 }
-                Task.Run(() => _eventAggregator?.AddNewAsync(we));
+
+                if (_eventAggregator != null)
+                    await _eventAggregator.AddNewAsync(we).ConfigureAwait(false);
             }
         }
 
         //todo - if RFID is not present, do not monitor this event
-        void RFIDService_ReaderStateChanged(object sender, EventArgs e)
+        bool prevRfidIsConnectedState = false;
+        async void RFIDService_ReaderStateChanged(object sender, EventArgs e)
         {
-            bool isConnected = _rfidService != null ? _rfidService.ServiceConnected && _rfidService.ReaderConnected : false;
+            var isConnected = _rfidService.ServiceConnected && _rfidService.ReaderConnected;
+            if (prevRfidIsConnectedState != isConnected)
+            {
+                prevRfidIsConnectedState = isConnected;
 
-            var we = WorkstationEvent.GetBaseInitializedInstance();
-            we.EventId = isConnected ? WorkstationEventType.RFIDAdapterPlugged : WorkstationEventType.RFIDAdapterUnplugged;
-            we.Severity = isConnected ? WorkstationEventSeverity.Ok : WorkstationEventSeverity.Warning;
-            Task.Run(() => _eventAggregator?.AddNewAsync(we));
+                var we = WorkstationEvent.GetBaseInitializedInstance();
+                we.EventId = isConnected ? WorkstationEventType.RFIDAdapterPlugged : WorkstationEventType.RFIDAdapterUnplugged;
+                we.Severity = isConnected ? WorkstationEventSeverity.Info : WorkstationEventSeverity.Warning;
+
+                if (_eventAggregator != null)
+                    await _eventAggregator.AddNewAsync(we).ConfigureAwait(false);
+            }
         }
 
-        void HES_ConnectionStateChanged(object sender, EventArgs e)
+        bool prevHesIsConnectedState = false;
+        async void HES_ConnectionStateChanged(object sender, EventArgs e)
         {
-            if (_hesConnection != null)
+            var isConnected = _hesConnection.State == HesConnectionState.Connected;
+            if (prevHesIsConnectedState != isConnected)
             {
+                prevHesIsConnectedState = isConnected;
+
                 var we = WorkstationEvent.GetBaseInitializedInstance();
                 we.UserSession = SessionSwitchManager.UserSessionName;
                 if (_hesConnection.State == HesConnectionState.Connected)
                 {
                     we.EventId = WorkstationEventType.HESConnected;
-                    we.Severity = WorkstationEventSeverity.Ok;
+                    we.Severity = WorkstationEventSeverity.Info;
                 }
                 else
                 {
                     we.EventId = WorkstationEventType.HESDisconnected;
                     we.Severity = WorkstationEventSeverity.Warning;
                 }
-                Task.Run(() => _eventAggregator?.AddNewAsync(we));
+
+                if (_eventAggregator != null)
+                    await _eventAggregator.AddNewAsync(we).ConfigureAwait(false);
             }
         }
 
