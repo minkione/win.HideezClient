@@ -31,12 +31,10 @@ namespace HideezClient.Modules.ActionHandler
         protected readonly ISettingsManager<ApplicationSettings> settingsManager;
         private readonly IWindowsManager windowsManager;
         private readonly IDeviceManager deviceManager;
-        private readonly IEventAggregator eventAggregator;
 
         protected InputBase(IInputHandler inputHandler, ITemporaryCacheAccount temporaryCacheAccount
             , IInputCache inputCache, ISettingsManager<ApplicationSettings> settingsManager
-            , IWindowsManager windowsManager, IDeviceManager deviceManager
-            , IEventAggregator eventAggregator)
+            , IWindowsManager windowsManager, IDeviceManager deviceManager)
         {
             this.inputHandler = inputHandler;
             this.temporaryCacheAccount = temporaryCacheAccount;
@@ -44,7 +42,6 @@ namespace HideezClient.Modules.ActionHandler
             this.settingsManager = settingsManager;
             this.windowsManager = windowsManager;
             this.deviceManager = deviceManager;
-            this.eventAggregator = eventAggregator;
         }
 
         /// <summary>
@@ -162,20 +159,13 @@ namespace HideezClient.Modules.ActionHandler
         /// <param name="account">Accounts data for input</param>
         private async Task InputAsync(Account account)
         {
-            if (!await InputAccountAsync(account))
+            if (await InputAccountAsync(account))
             {
-                OnAccountNotFoundError(currentAppInfo, new[] { account.Device.Id });
+                OnAccountEntered(currentAppInfo, account);
             }
             else
             {
-                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                workstationEvent.EventId = WorkstationEventType.CredentialsUsed;
-                workstationEvent.AccountName = account.Name;
-                workstationEvent.AccountLogin = account.Login;
-                workstationEvent.DeviceId = account.Device.SerialNo;
-                workstationEvent.Severity = WorkstationEventSeverity.Info;
-                workstationEvent.Note = currentAppInfo.Title;
-                eventAggregator?.PublishEventAsync(workstationEvent);
+                OnAccountNotFoundError(currentAppInfo, new[] { account.Device.Id });
             }
         }
 
@@ -185,6 +175,15 @@ namespace HideezClient.Modules.ActionHandler
         /// <param name="appInfo">AppInfo of app for which an account is missing</param>
         /// <param name="devicesId">Devices on which the search was performed</param>
         protected abstract void OnAccountNotFoundError(AppInfo appInfo, string[] devicesId);
+
+        /// <summary>
+        /// Called when account was successfully entered into target application
+        /// </summary>
+        /// <param name="appInfo"></param>
+        /// <param name="account"></param>
+        protected virtual void OnAccountEntered(AppInfo appInfo, Account account)
+        {
+        }
 
         /// <summary>
         /// Processing input data

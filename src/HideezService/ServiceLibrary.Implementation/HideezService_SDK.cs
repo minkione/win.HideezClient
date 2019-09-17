@@ -598,24 +598,23 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public void PublishEvent(WorkstationEventDTO workstationEvent)
+        public async void PublishEvent(WorkstationEventDTO workstationEvent)
         {
-            WorkstationEvent we = new WorkstationEvent
-            {
-                Version = WorkstationEvent.CurrentVersion,
-                Id = workstationEvent.Id,
-                Date = workstationEvent.Date,
-                WorkstationId = workstationEvent.WorkstationId,
-                EventId = (WorkstationEventType)workstationEvent.EventId,
-                Severity = (WorkstationEventSeverity)workstationEvent.Severity,
-                Note = workstationEvent.Note,
-                DeviceId = workstationEvent.DeviceId,
-                UserSession = workstationEvent.UserSession,
-                AccountName = workstationEvent.AccountName,
-                AccountLogin = workstationEvent.AccountLogin,
-            };
+            // TODO: Service should be able to get WorkstationId and UserSession by itself
+            var we = WorkstationEvent.GetBaseInitializedInstance();
 
-            Task.Run(() => _eventAggregator.AddNewAsync(we));
+            we.Version = WorkstationEvent.CurrentVersion;
+            we.Id = workstationEvent.Id;
+            we.Date = workstationEvent.Date;
+            we.EventId = (WorkstationEventType)workstationEvent.EventId;
+            we.Severity = (WorkstationEventSeverity)workstationEvent.Severity;
+            we.Note = workstationEvent.Note;
+            we.DeviceId = workstationEvent.DeviceId;
+            we.AccountName = workstationEvent.AccountName;
+            we.AccountLogin = workstationEvent.AccountLogin;
+
+            if (_eventAggregator != null)
+                await  _eventAggregator.AddNewAsync(we).ConfigureAwait(false);
         }
 
         #region Remote device management

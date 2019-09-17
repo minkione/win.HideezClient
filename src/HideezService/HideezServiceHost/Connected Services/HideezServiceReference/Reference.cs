@@ -422,12 +422,6 @@ namespace HideezServiceHost.HideezServiceReference {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int SeverityField;
         
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string UserSessionField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string WorkstationIdField;
-        
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
             get {
@@ -538,32 +532,6 @@ namespace HideezServiceHost.HideezServiceReference {
                 if ((this.SeverityField.Equals(value) != true)) {
                     this.SeverityField = value;
                     this.RaisePropertyChanged("Severity");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string UserSession {
-            get {
-                return this.UserSessionField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.UserSessionField, value) != true)) {
-                    this.UserSessionField = value;
-                    this.RaisePropertyChanged("UserSession");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string WorkstationId {
-            get {
-                return this.WorkstationIdField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.WorkstationIdField, value) != true)) {
-                    this.WorkstationIdField = value;
-                    this.RaisePropertyChanged("WorkstationId");
                 }
             }
         }
