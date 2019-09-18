@@ -76,6 +76,7 @@
       <Link>Version.cs</Link>
     </Compile>
     <Compile Include="AuditLogs\EventAggregator.cs" />
+    <Compile Include="AuditLogs\EventFactory.cs" />
     <Compile Include="AuditLogs\SessionSwitchLogger.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="HideezService_FatalException.cs" />

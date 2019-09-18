@@ -126,7 +126,7 @@ namespace ServiceLibrary.Implementation.AuditLogs
             }
         }
 
-        void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
+        async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
             if (!reason.HasFlag(SessionSwitchReason.SessionLock | SessionSwitchReason.SessionLogoff 
                 | SessionSwitchReason.SessionLogon | SessionSwitchReason.SessionUnlock))
@@ -157,68 +157,16 @@ namespace ServiceLibrary.Implementation.AuditLogs
                     break;
             }
 
-            if (isLock)
-                RecordWorkstationLock(sessionId, eventType);
-            else if (isUnlock)
-                RecordWorkstationUnlock(sessionId, eventType);
-
-            //var we = WorkstationEvent.GetBaseInitializedInstance();
-            //
-            //we.EventId = WorkstationEventType.
-            //
-            //_eventAggregator?.AddNewAsync(we, true);
-        }
-
-        void RecordWorkstationLock(int sessionId, WorkstationEventType eventType)
-        {
-            lock (listsLock)
+            try
             {
-                var now = DateTime.UtcNow;
-                var latestLockEvent = lockEventsList.Values
-                    .Where(e => (now - e.EventTime).TotalSeconds < LOCK_EVENT_LIFETIME)
-                    .OrderByDescending(e => e.EventTime)
-                    .FirstOrDefault();
-
-                var we = WorkstationEvent.GetBaseInitializedInstance();
-
-                we.EventId = eventType;
-                we.Severity = WorkstationEventSeverity.Info;
-
-                if (latestLockEvent != null)
-                {
-                    we.Note = latestLockEvent.Reason.ToString();
-                    we.DeviceId = _bleDeviceManager.Find(latestLockEvent.Mac, 1)?.SerialNo;
-                }
-
-                Task.Run(() => _eventAggregator?.AddNewAsync(we, true));
-
-                lockEventsList.Clear();
+                if (isLock)
+                    await RecordWorkstationLock(sessionId, eventType);
+                else if (isUnlock)
+                    await RecordWorkstationUnlock(sessionId, eventType);
             }
-        }
-
-        void RecordWorkstationUnlock(int sessionId, WorkstationEventType eventType)
-        {
-            lock (listsLock)
+            catch (Exception ex)
             {
-                var now = DateTime.UtcNow;
-
-                var latestUnlockEvent = unlockEventsList.Values
-                    .Where(e => (now - e.EventTime).TotalSeconds < UNLOCK_EVENT_LIFETIME)
-                    .OrderByDescending(e => e.EventTime)
-                    .FirstOrDefault();
-
-                var we = WorkstationEvent.GetBaseInitializedInstance();
-                we.EventId = eventType;
-                we.Severity = WorkstationEventSeverity.Info;
-                if (latestUnlockEvent != null)
-                {
-                    we.Note = latestUnlockEvent.Reason.ToString();
-                    we.DeviceId = _bleDeviceManager.Find(latestUnlockEvent.Mac, 1)?.SerialNo;
-                }
-
-                Task.Run(() => _eventAggregator?.AddNewAsync(we, true));
-
-                unlockEventsList.Clear();
+                WriteLine(ex);
             }
         }
 
@@ -253,5 +201,56 @@ namespace ServiceLibrary.Implementation.AuditLogs
             Dispose(false);
         }
         #endregion
+
+        async Task RecordWorkstationLock(int sessionId, WorkstationEventType eventType)
+        {
+            var we = EventFactory.GetWorkstationEvent();
+            we.EventId = eventType;
+
+            lock (listsLock)
+            {
+                var now = DateTime.UtcNow;
+                var latestLockEvent = lockEventsList.Values
+                    .Where(e => (now - e.EventTime).TotalSeconds < LOCK_EVENT_LIFETIME)
+                    .OrderByDescending(e => e.EventTime)
+                    .FirstOrDefault();
+
+                if (latestLockEvent != null)
+                {
+                    we.Note = latestLockEvent.Reason.ToString();
+                    we.DeviceId = _bleDeviceManager.Find(latestLockEvent.Mac, 1)?.SerialNo;
+                }
+
+                lockEventsList.Clear();
+            }
+
+            await _eventAggregator?.AddNewAsync(we, true);
+        }
+
+        async Task RecordWorkstationUnlock(int sessionId, WorkstationEventType eventType)
+        {
+            var we = EventFactory.GetWorkstationEvent();
+            we.EventId = eventType;
+
+            lock (listsLock)
+            {
+                var now = DateTime.UtcNow;
+
+                var latestUnlockEvent = unlockEventsList.Values
+                    .Where(e => (now - e.EventTime).TotalSeconds < UNLOCK_EVENT_LIFETIME)
+                    .OrderByDescending(e => e.EventTime)
+                    .FirstOrDefault();
+
+                if (latestUnlockEvent != null)
+                {
+                    we.Note = latestUnlockEvent.Reason.ToString();
+                    we.DeviceId = _bleDeviceManager.Find(latestUnlockEvent.Mac, 1)?.SerialNo;
+                }
+
+                unlockEventsList.Clear();
+            }
+
+            await _eventAggregator?.AddNewAsync(we, true);
+        }
     }
 }

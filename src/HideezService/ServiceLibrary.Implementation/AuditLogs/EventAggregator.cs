@@ -142,7 +142,7 @@ namespace ServiceLibrary.Implementation
                         dynamic jsonObj = JsonConvert.DeserializeObject(data);
                         string eventVersion = jsonObj[nameof(WorkstationEvent.Version)];
 
-                        if (eventVersion != WorkstationEvent.CurrentVersion)
+                        if (eventVersion != WorkstationEvent.ClassVersion)
                             throw new NotSupportedException($"This version: {eventVersion} data for deserialize workstation event is not supported.");
 
                         WorkstationEvent we = JsonConvert.DeserializeObject<WorkstationEvent>(data);

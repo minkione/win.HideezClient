@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware.Utils;
 using System;
 using System.Collections.Generic;
@@ -18,8 +19,12 @@ namespace HideezMiddleware
     {
         [DllImport("Wtsapi32.dll")]
         static extern bool WTSQuerySessionInformation(IntPtr hServer, int sessionId, WtsInfoClass wtsInfoClass, out IntPtr ppBuffer, out int pBytesReturned);
+
         [DllImport("Wtsapi32.dll")]
         static extern void WTSFreeMemory(IntPtr pointer);
+
+        [DllImport("kernel32.dll")]
+        static extern int WTSGetActiveConsoleSessionId();
 
         private enum WtsInfoClass
         {
@@ -131,7 +136,7 @@ namespace HideezMiddleware
             return result.ToArray();
         }
 
-        public static string GetUserName(int sessionId)
+        public static string GetSessionName(int sessionId)
         {
             string username = "SYSTEM";
             if (WTSQuerySessionInformation(IntPtr.Zero, sessionId, WtsInfoClass.WTSUserName, out IntPtr buffer, out int strLen) && strLen > 1)
@@ -140,6 +145,24 @@ namespace HideezMiddleware
                 WTSFreeMemory(buffer);
             }
             return username;
+        }
+
+        public static int GetSessionId()
+        {
+            return WTSGetActiveConsoleSessionId();
+        }
+
+        public static SessionInfo GetSessionInfo()
+        {
+            var sessionId = GetSessionId();
+
+            var sessionInfo = new SessionInfo()
+            {
+                SessionId = sessionId,
+                SessionName = GetSessionName(sessionId),
+            };
+
+            return sessionInfo;
         }
     }
 }

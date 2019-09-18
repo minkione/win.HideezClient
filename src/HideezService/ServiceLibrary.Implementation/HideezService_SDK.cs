@@ -133,6 +133,9 @@ namespace ServiceLibrary.Implementation
             };
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
 
+            // Audit Log / Event Aggregator =============================
+            _eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
+
             // ScreenActivator ==================================
             _screenActivator = new WcfScreenActivator(SessionManager);
 
@@ -192,11 +195,7 @@ namespace ServiceLibrary.Implementation
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_proximityMonitorManager, _workstationLocker, sdkLogger);
 
-
-            // Audit Log / Event Aggregator =============================
-            _eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
-
-            _sessionSwitchLogger = new SessionSwitchLogger(_eventAggregator, 
+            _sessionSwitchLogger = new SessionSwitchLogger(_eventAggregator,
                 _tapProcessor, _rfidProcessor, _proximityProcessor, 
                 _workstationLockProcessor, _deviceManager, _sdkLogger);
 
@@ -269,7 +268,7 @@ namespace ServiceLibrary.Implementation
 
                 if (!device.IsRemote && device.IsInitialized)
                 {
-                    WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                    var workstationEvent = EventFactory.GetWorkstationEvent();
                     workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
                     workstationEvent.Severity = WorkstationEventSeverity.Warning;
                     workstationEvent.DeviceId = device.SerialNo;
@@ -282,7 +281,7 @@ namespace ServiceLibrary.Implementation
         {
             if (sender is IDevice device && device.IsInitialized && (!device.IsRemote || device.ChannelNo > 2))
             {
-                WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                var workstationEvent = EventFactory.GetWorkstationEvent();
                 workstationEvent.Severity = WorkstationEventSeverity.Info;
                 workstationEvent.DeviceId = device.SerialNo;
                 if (device.IsRemote)
@@ -301,7 +300,7 @@ namespace ServiceLibrary.Implementation
         {
             if (_connectionManager.State == BluetoothAdapterState.Unknown || _connectionManager.State == BluetoothAdapterState.PoweredOn)
             {
-                var we = WorkstationEvent.GetBaseInitializedInstance();
+                var we = EventFactory.GetWorkstationEvent();
                 if (_connectionManager.State == BluetoothAdapterState.PoweredOn)
                 {
                     we.EventId = WorkstationEventType.DonglePlugged;
@@ -313,8 +312,7 @@ namespace ServiceLibrary.Implementation
                     we.Severity = WorkstationEventSeverity.Warning;
                 }
 
-                if (_eventAggregator != null)
-                    await _eventAggregator.AddNewAsync(we).ConfigureAwait(false);
+                await _eventAggregator?.AddNewAsync(we);
             }
         }
 
@@ -327,12 +325,11 @@ namespace ServiceLibrary.Implementation
             {
                 prevRfidIsConnectedState = isConnected;
 
-                var we = WorkstationEvent.GetBaseInitializedInstance();
+                var we = EventFactory.GetWorkstationEvent();
                 we.EventId = isConnected ? WorkstationEventType.RFIDAdapterPlugged : WorkstationEventType.RFIDAdapterUnplugged;
                 we.Severity = isConnected ? WorkstationEventSeverity.Info : WorkstationEventSeverity.Warning;
 
-                if (_eventAggregator != null)
-                    await _eventAggregator.AddNewAsync(we).ConfigureAwait(false);
+                await _eventAggregator?.AddNewAsync(we);
             }
         }
 
@@ -344,7 +341,7 @@ namespace ServiceLibrary.Implementation
             {
                 prevHesIsConnectedState = isConnected;
 
-                var we = WorkstationEvent.GetBaseInitializedInstance();
+                var we = EventFactory.GetWorkstationEvent();
                 if (_hesConnection.State == HesConnectionState.Connected)
                 {
                     we.EventId = WorkstationEventType.HESConnected;
@@ -356,8 +353,7 @@ namespace ServiceLibrary.Implementation
                     we.Severity = WorkstationEventSeverity.Warning;
                 }
 
-                if (_eventAggregator != null)
-                    await _eventAggregator.AddNewAsync(we).ConfigureAwait(false);
+                await _eventAggregator?.AddNewAsync(we);
             }
         }
 
@@ -419,7 +415,7 @@ namespace ServiceLibrary.Implementation
 
                     if (!device.IsRemote || device.ChannelNo > 2)
                     {
-                        WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
+                        var workstationEvent = EventFactory.GetWorkstationEvent();
                         workstationEvent.Severity = WorkstationEventSeverity.Info;
                         workstationEvent.DeviceId = device.SerialNo;
                         if (device.IsRemote)
@@ -602,10 +598,8 @@ namespace ServiceLibrary.Implementation
 
         public async void PublishEvent(WorkstationEventDTO workstationEvent)
         {
-            // TODO: Service should be able to get WorkstationId and UserSession by itself
-            var we = WorkstationEvent.GetBaseInitializedInstance();
-
-            we.Version = WorkstationEvent.CurrentVersion;
+            var we = EventFactory.GetWorkstationEvent();
+            we.Version = WorkstationEvent.ClassVersion;
             we.Id = workstationEvent.Id;
             we.Date = workstationEvent.Date;
             we.EventId = (WorkstationEventType)workstationEvent.EventId;
@@ -614,9 +608,7 @@ namespace ServiceLibrary.Implementation
             we.DeviceId = workstationEvent.DeviceId;
             we.AccountName = workstationEvent.AccountName;
             we.AccountLogin = workstationEvent.AccountLogin;
-
-            if (_eventAggregator != null)
-                await  _eventAggregator.AddNewAsync(we).ConfigureAwait(false);
+            await  _eventAggregator?.AddNewAsync(we);
         }
 
         #region Remote device management
@@ -792,20 +784,16 @@ namespace ServiceLibrary.Implementation
 
         public static async Task OnServiceStartedAsync()
         {
-            WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-            workstationEvent.Severity = WorkstationEventSeverity.Info;
+            var workstationEvent = EventFactory.GetWorkstationEvent();
             workstationEvent.EventId = WorkstationEventType.ServiceStarted;
-            if (_eventAggregator != null)
-                await _eventAggregator?.AddNewAsync(workstationEvent);
+            await _eventAggregator?.AddNewAsync(workstationEvent);
         }
 
         public static async Task OnServiceStoppedAsync()
         {
-            WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-            workstationEvent.Severity = WorkstationEventSeverity.Info;
+            var workstationEvent = EventFactory.GetWorkstationEvent();
             workstationEvent.EventId = WorkstationEventType.ServiceStopped;
-            if (_eventAggregator != null)
-                await _eventAggregator?.AddNewAsync(workstationEvent, true);
+            await _eventAggregator?.AddNewAsync(workstationEvent, true);
         }
         #endregion
     }

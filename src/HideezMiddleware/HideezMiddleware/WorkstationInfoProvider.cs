@@ -86,10 +86,6 @@ namespace HideezMiddleware
             return workstationInfo;
         }
 
-        public Task<SessionInfo> GetSessionInfoAsync()
-        {
-            // Todo: GetSessionInfoAsync()
-            throw new NotImplementedException();
-        }
+
     }
 }
