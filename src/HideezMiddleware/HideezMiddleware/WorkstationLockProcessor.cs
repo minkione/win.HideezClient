@@ -1,9 +1,10 @@
 ﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
-using Hideez.SDK.Communication.WorkstationEvents;
 using System;
+using System.Collections.Generic;
 
 namespace HideezMiddleware
 {
@@ -11,16 +12,26 @@ namespace HideezMiddleware
     {
         readonly ProximityMonitorManager _proximityMonitorManager;
         readonly IWorkstationLocker _workstationLocker;
+        readonly BleDeviceManager _deviceManager;
 
-        public WorkstationLockProcessor(ProximityMonitorManager proximityMonitorManager, IWorkstationLocker workstationLocker, ILog log)
+        List<IDevice> _subscribedDevicesList = new List<IDevice>();
+        List<IDevice> _authorizedDevicesList = new List<IDevice>();
+
+        readonly object _deviceListsLock = new object();
+
+        public WorkstationLockProcessor(ProximityMonitorManager proximityMonitorManager, BleDeviceManager deviceManager, IWorkstationLocker workstationLocker, ILog log)
             :base(nameof(WorkstationLockProcessor), log)
         {
             _proximityMonitorManager = proximityMonitorManager;
             _workstationLocker = workstationLocker;
+            _deviceManager = deviceManager;
 
-            _proximityMonitorManager.DeviceConnectionLost += _proximityMonitorManager_DeviceConnectionLost;
-            _proximityMonitorManager.DeviceBelowLockForToLong += _proximityMonitorManager_DeviceBelowLockForToLong;
-            _proximityMonitorManager.DeviceProximityTimeout += _proximityMonitorManager_DeviceProximityTimeout;
+            _deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
+            _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
+
+            _proximityMonitorManager.DeviceConnectionLost += ProximityMonitorManager_DeviceConnectionLost;
+            _proximityMonitorManager.DeviceBelowLockForToLong += ProximityMonitorManager_DeviceBelowLockForToLong;
+            _proximityMonitorManager.DeviceProximityTimeout += ProximityMonitorManager_DeviceProximityTimeout;
         }
 
         #region IDisposable
@@ -38,9 +49,15 @@ namespace HideezMiddleware
 
             if (disposing)
             {
-                _proximityMonitorManager.DeviceConnectionLost -= _proximityMonitorManager_DeviceConnectionLost;
-                _proximityMonitorManager.DeviceBelowLockForToLong -= _proximityMonitorManager_DeviceBelowLockForToLong;
-                _proximityMonitorManager.DeviceProximityTimeout -= _proximityMonitorManager_DeviceProximityTimeout;
+                _deviceManager.DeviceAdded -= DeviceManager_DeviceAdded;
+                _deviceManager.DeviceRemoved -= DeviceManager_DeviceRemoved;
+
+                _proximityMonitorManager.DeviceConnectionLost -= ProximityMonitorManager_DeviceConnectionLost;
+                _proximityMonitorManager.DeviceBelowLockForToLong -= ProximityMonitorManager_DeviceBelowLockForToLong;
+                _proximityMonitorManager.DeviceProximityTimeout -= ProximityMonitorManager_DeviceProximityTimeout;
+
+                foreach (var device in _subscribedDevicesList)
+                    device.Authorized -= Device_Authorized;
             }
 
             disposed = true;
@@ -64,34 +81,101 @@ namespace HideezMiddleware
             IsEnabled = false;
         }
 
-        void _proximityMonitorManager_DeviceConnectionLost(object sender, IDevice device)
+        void DeviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
         {
-            if (!IsEnabled)
+            if (e.RemovedDevice == null)
                 return;
 
-            WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Device ID: {device.Id}");
-            SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
-            _workstationLocker.LockWorkstation();
+            lock (_deviceListsLock)
+            {
+                e.RemovedDevice.Authorized -= Device_Authorized;
+                _subscribedDevicesList.Remove(e.RemovedDevice);
+                _authorizedDevicesList.Remove(e.RemovedDevice);
+            }
         }
 
-        void _proximityMonitorManager_DeviceBelowLockForToLong(object sender, IDevice device)
+        void DeviceManager_DeviceAdded(object sender, DeviceCollectionChangedEventArgs e)
         {
-            if (!IsEnabled)
+            if (e.AddedDevice == null)
                 return;
 
-            WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Device ID: {device.Id}");
-            SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
-            _workstationLocker.LockWorkstation();
+            lock (_deviceListsLock)
+            {
+                if (!e.AddedDevice.IsRemote && !e.AddedDevice.IsBoot)
+                {
+                    e.AddedDevice.Authorized += Device_Authorized;
+                    e.AddedDevice.ConnectionStateChanged += Device_ConnectionStateChanged;
+                    _subscribedDevicesList.Add(e.AddedDevice);
+                }
+            }
         }
 
-        void _proximityMonitorManager_DeviceProximityTimeout(object sender, IDevice device)
+        private void Device_ConnectionStateChanged(object sender, EventArgs e)
         {
-            if (!IsEnabled)
-                return;
+            if (sender is IDevice device)
+            {
+                lock (_deviceListsLock)
+                {
+                    if (!device.IsConnected)
+                        _authorizedDevicesList.Remove(device);
+                }
+            }
+        }
 
-            WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Device ID: {device.Id}");
-            SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
-            _workstationLocker.LockWorkstation();
+        void Device_Authorized(object sender, EventArgs e)
+        {
+            if (sender is IDevice device)
+            {
+                lock (_deviceListsLock)
+                {
+                    WriteLine($"Device ({device.Id}) added as valid to trigger workstation lock");
+                    _authorizedDevicesList.Add(device);
+                }
+            }
+        }
+
+        void ProximityMonitorManager_DeviceConnectionLost(object sender, IDevice device)
+        {
+            lock (_deviceListsLock)
+            {
+                if (!CanLock(device))
+                    return;
+
+                WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Device ID: {device.Id}");
+                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
+                _workstationLocker.LockWorkstation();
+            }
+        }
+
+        void ProximityMonitorManager_DeviceBelowLockForToLong(object sender, IDevice device)
+        {
+            lock (_deviceListsLock)
+            {
+                if (!CanLock(device))
+                    return;
+
+                WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Device ID: {device.Id}");
+                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
+                _workstationLocker.LockWorkstation();
+            }
+        }
+
+        void ProximityMonitorManager_DeviceProximityTimeout(object sender, IDevice device)
+        {
+            lock (_deviceListsLock)
+            {
+                if (!CanLock(device))
+                    return;
+
+                WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Device ID: {device.Id}");
+                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
+                _workstationLocker.LockWorkstation();
+            }
+        }
+
+        bool CanLock(IDevice device)
+        {
+            return IsEnabled && _authorizedDevicesList.Contains(device);
         }
     }
 }

@@ -188,7 +188,7 @@ namespace ServiceLibrary.Implementation
             _workstationLocker = new WcfWorkstationLocker(SessionManager, sdkLogger);
 
             // WorkstationLockProcessor ==================================
-            _workstationLockProcessor = new WorkstationLockProcessor(_proximityMonitorManager, _workstationLocker, sdkLogger);
+            _workstationLockProcessor = new WorkstationLockProcessor(_proximityMonitorManager, _deviceManager, _workstationLocker, sdkLogger);
 
 
             // Audit Log / Event Aggregator =============================
