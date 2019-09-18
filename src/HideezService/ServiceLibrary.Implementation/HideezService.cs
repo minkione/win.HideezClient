@@ -5,6 +5,7 @@ using HideezMiddleware;
 using Hideez.SDK.Communication;
 using ServiceLibrary.Implementation.SessionManagement;
 using Hideez.SDK.Communication.Log;
+using System.Reflection;
 
 namespace ServiceLibrary.Implementation
 {
@@ -41,7 +42,7 @@ namespace ServiceLibrary.Implementation
                 _sdkLogger = new NLogWrapper();
                 _log = new Logger(nameof(HideezService), _sdkLogger);
 
-                _log.WriteLine(">>>>>> Starting service");
+                _log.WriteLine($">>>>>> Starting service: {Assembly.GetEntryAssembly().GetName().Version}");
 
                 _log.WriteLine($"CLR Version: {Environment.Version}");
                 _log.WriteLine($"OS: {Environment.OSVersion}");

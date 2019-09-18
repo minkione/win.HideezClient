@@ -334,7 +334,10 @@ namespace HideezMiddleware
         async Task WaitDeviceInitialization(string mac, IDevice device)
         {
             await _ui.SendNotification("Waiting for the device initialization...", _infNid);
-            await device.WaitInitialization(BleDefines.DeviceInitializationTimeout);
+
+            if (!await device.WaitInitialization(BleDefines.DeviceInitializationTimeout))
+                throw new Exception($"Failed to initialize device connection '{mac}'. Please try again.");
+
             if (device.IsErrorState)
             {
                 await _deviceManager.Remove(device);
