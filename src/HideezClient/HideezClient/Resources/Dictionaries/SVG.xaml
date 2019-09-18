@@ -56,7 +56,7 @@
         </Canvas>
     </Viewbox>
 
-    <!--  Down Expander  -->
+    <!--  Down Expander TODO: del -->
     <Path
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Key="DownExpander"
@@ -67,7 +67,7 @@
         </Path.Data>
     </Path>
 
-    <!--  Up Expander  -->
+    <!--  Up Expander TODO: del  -->
     <Path
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Key="UpExpander"

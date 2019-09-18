@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace HideezClient.Mvvm
 {
-    class BindingRaiseevent<T>
+    class BindingRaiseevent
     {
         private readonly string path;
 
@@ -21,13 +21,13 @@ namespace HideezClient.Mvvm
             if(e.PropertyName == path)
             {
                 var value = sender.GetType().GetProperty(path)?.GetValue(sender);
-                if(value != null && value is T)
+                if(value != null)
                 {
-                    ValueChanged?.Invoke((T)value);
+                    ValueChanged?.Invoke(value);
                 }
             }
         }
 
-        public event Action<T> ValueChanged;
+        public event Action<object> ValueChanged;
     }
 }

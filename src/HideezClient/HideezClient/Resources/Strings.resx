@@ -156,7 +156,7 @@
   <data name="Error.SaveCredential" xml:space="preserve">
     <value>Error save credential.</value>
   </data>
-  <data name="Expander.NoDevice" xml:space="preserve">
+  <data name="Info.NoDevice" xml:space="preserve">
     <value>No device</value>
   </data>
   <data name="Icon.DeviceNotConnected" xml:space="preserve">
@@ -452,5 +452,14 @@ to access stored credentials</value>
   </data>
   <data name="Pin.SetInProgres" xml:space="preserve">
     <value>Save PIN in progres</value>
+  </data>
+  <data name="Menu.Help" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="Menu.PasswordManager" xml:space="preserve">
+    <value>Password manager</value>
+  </data>
+  <data name="Menu.Settings" xml:space="preserve">
+    <value>Settings</value>
   </data>
 </root>

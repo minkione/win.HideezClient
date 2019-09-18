@@ -1,5 +1,4 @@
-﻿using HideezClient.ViewModels;
-using MahApps.Metro.Controls;
+﻿using HideezClient.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +17,11 @@ using System.Windows.Shapes;
 namespace HideezClient.Controls
 {
     /// <summary>
-    /// Interaction logic for DevicesExpander.xaml
+    /// Interaction logic for DeviceInfo.xaml
     /// </summary>
-    public partial class DevicesExpander : UserControl
+    public partial class DeviceInfo : UserControl
     {
-        public DevicesExpander()
+        public DeviceInfo()
         {
             InitializeComponent();
         }

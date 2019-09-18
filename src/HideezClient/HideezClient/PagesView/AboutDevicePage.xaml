@@ -1,0 +1,21 @@
+﻿<Page
+    x:Class="HideezClient.PagesView.AboutDevicePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:HideezClient.PagesView"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="AboutDevicePage"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    DataContext="{Binding AboutDevicePageViewModel, Mode=OneWay, Source={StaticResource Locator}}"
+    Style="{DynamicResource PageStyle}"
+    mc:Ignorable="d">
+    <Grid>
+        <TextBlock
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="{Binding ObservableId, StringFormat='About device {0}'}" />
+        <TextBlock Text="{Binding Device.SerialNo, StringFormat='SerialNo: {0}'}" />
+    </Grid>
+</Page>

@@ -26,7 +26,6 @@ namespace HideezClient.Modules
         AddCredential,
         DisconnectDevice,
         RemoveDevice,
-        AboutDevice,
         AuthorizeDeviceAndLoadStorage
     }
 

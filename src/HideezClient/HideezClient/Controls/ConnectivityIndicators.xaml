@@ -10,53 +10,45 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="250"
     d:DesignWidth="300"
-    DataContext="{Binding Source={StaticResource Locator}, Path=Indicators, Mode=OneWay}"
+    DataContext="{Binding Source={StaticResource Locator}, Path=IndicatorsViewModel, Mode=OneWay}"
     mc:Ignorable="d">
     <UserControl.Resources>
-        <Converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <Converters:BooleanToVisibilityCollapsedConverter x:Key="BooleanToVisibilityCollapsedConverter" />
         <Style TargetType="local:StateControl">
+            <Setter Property="Margin" Value="18,22" />
             <Setter Property="NoConnectionBackground" Value="{DynamicResource DisconnectedBrush}" />
             <Setter Property="HasConnectionBackground" Value="{DynamicResource ConnectedBrush}" />
             <Setter Property="EffectConnected" Value="{DynamicResource EffectConnected}" />
             <Setter Property="EffectDisconnected" Value="{DynamicResource EffectDisconnected}" />
+
+            <Setter Property="HasConnectionText" Value="{Binding HasConnectionText}" />
+            <Setter Property="NoConnectionText" Value="{Binding NoConnectionText}" />
+            <Setter Property="Header" Value="{Binding Name}" />
+            <Setter Property="State" Value="{Binding State}" />
+            <Setter Property="Visibility" Value="{Binding Visible, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
         </Style>
     </UserControl.Resources>
 
     <Grid>
         <local:StateControl
             HorizontalAlignment="Stretch"
-            HasConnectionText="{l:Localization Status.Tooltip.ConectedService}"
-            Header="{l:Localization Status.Service}"
-            NoConnectionText="{l:Localization Status.Tooltip.DisconectedService}"
-            State="{Binding Service.State}"
-            Visibility="{Binding Service.State, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+            DataContext="{Binding Service}"
+            Visibility="{Binding State, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
 
-        <Grid
-            HorizontalAlignment="Stretch"
+        <ItemsControl
+            HorizontalAlignment="Center"
             Focusable="False"
+            ItemsSource="{Binding Indicators}"
             Visibility="{Binding Service.State, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <local:StateControl
-                HorizontalAlignment="Left"
-                HasConnectionText="{l:Localization Status.Tooltip.ConectedServer}"
-                Header="{l:Localization Status.Server}"
-                NoConnectionText="{l:Localization Status.Tooltip.DisconectedServer}"
-                State="{Binding Server.State}"
-                Visibility="{Binding Server.Visible, Converter={StaticResource BooleanToVisibilityConverter}}" />
-            <local:StateControl
-                HorizontalAlignment="Center"
-                HasConnectionText="{l:Localization Status.Tooltip.DisconectedRFID}"
-                Header="{l:Localization Status.RFID}"
-                NoConnectionText="{l:Localization Status.Tooltip.ConectedRFID}"
-                State="{Binding RFID.State}"
-                Visibility="{Binding RFID.Visible, Converter={StaticResource BooleanToVisibilityConverter}}" />
-            <local:StateControl
-                HorizontalAlignment="Right"
-                HasConnectionText="{l:Localization Status.Tooltip.ConectedDongle}"
-                Header="{l:Localization Status.Dongle}"
-                NoConnectionText="{l:Localization Status.Tooltip.DisconectedDongle}"
-                State="{Binding Dongle.State}"
-                Visibility="{Binding Dongle.Visible, Converter={StaticResource BooleanToVisibilityConverter}}" />
-        </Grid>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <local:StateControl />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </UserControl>

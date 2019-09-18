@@ -15,8 +15,8 @@ namespace HideezClient.Converters
             StringBuilder sb = new StringBuilder();
             try
             {
-                string serialNo = values[0].ToString();
-                string firmwareVersion = values[1].ToString();
+                string serialNo = values[0]?.ToString();
+                string firmwareVersion = values[1]?.ToString();
 
                 if (!string.IsNullOrWhiteSpace(serialNo))
                 {

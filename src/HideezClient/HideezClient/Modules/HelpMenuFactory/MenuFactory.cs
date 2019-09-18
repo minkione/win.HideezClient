@@ -103,34 +103,12 @@ namespace HideezClient.Modules
                     return GetMenuDisconnectDevice(device);
                 case MenuItemType.RemoveDevice:
                     return GetMenuRemoveDevice(device);
-                case MenuItemType.AboutDevice:
-                    return GetMenuAboutDevice(device);
                 case MenuItemType.AuthorizeDeviceAndLoadStorage:
                     return GetMenuAuthorizeAndLoadStorage(device);
                 default:
                     Debug.Assert(false, $"The type: {type} of menu is not supported.");
                     return null;
             }
-        }
-
-        private MenuItemViewModel GetMenuAboutDevice(Device device)
-        {
-            return new MenuItemViewModel
-            {
-                Header = "Menu.AboutDevice",
-                Command = new DelegateCommand
-                {
-                    CommandAction = x =>
-                    {
-                        if (x is Device d)
-                        {
-                            windowsManager.ShowInfoAboutDevice(d);
-                        }
-                    },
-                    CanExecuteFunc = () => device.IsConnected
-                },
-                CommandParameter = device,
-            };
         }
 
         private MenuItemViewModel GetMenuAddCredential(Device device)

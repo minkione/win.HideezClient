@@ -439,30 +439,6 @@ namespace HideezClient.Modules
                 UIDispatcher.Invoke(() => _notifier.ShowDeviceNotAuthorizedNotification(device));
             }
         }
-
-        public void ShowInfoAboutDevice(Device device)
-        {
-            UIDispatcher.Invoke(() =>
-            {
-                AboutDeviceView view = new AboutDeviceView();
-                view.Owner = MainWindow;
-                view.DataContext = new DeviceViewModel(device);
-                view.Show();
-            });
-        }
-
-        public void OpenPage(string pageName)
-        {
-            try
-            {
-                _viewModelLocator.Main.ProcessNavRequest(pageName);
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex);
-                Debug.Assert(false);
-            }
-        }
     }
 }
 

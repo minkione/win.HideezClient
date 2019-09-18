@@ -10,8 +10,10 @@
     <SolidColorBrush x:Key="WindowBackground">#F4FEFF</SolidColorBrush>
 
     <LinearGradientBrush x:Key="WindowLeftColumBrush" MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="0,1">
+        <!--<GradientStop Offset="1" Color="#081C33" />
+        <GradientStop Offset="0" Color="#0E3059" />-->
+        <GradientStop Offset="0" Color="#22446D" />
         <GradientStop Offset="1" Color="#081C33" />
-        <GradientStop Offset="0" Color="#0E3059" />
     </LinearGradientBrush>
 
     <LinearGradientBrush x:Key="DevicesStackBrush" MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="0,1">

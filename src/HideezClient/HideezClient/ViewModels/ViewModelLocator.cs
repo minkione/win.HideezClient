@@ -49,49 +49,53 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public MainViewModel Main
+        #region Windows
+
+        public MainViewModel MainViewModel
         {
             get { return DIContainer.Resolve<MainViewModel>(); }
         }
 
-        public LoginSystemPageViewModel LoginSystemViewModel
-        {
-            get { return DIContainer.Resolve<LoginSystemPageViewModel>(); }
-        }
-
-        public LockSettingsPageViewModel LockSettingsPage
-        {
-            get { return DIContainer.Resolve<LockSettingsPageViewModel>(); }
-        }
-
-        public IndicatorsViewModel Indicators
-        {
-            get { return DIContainer.Resolve<IndicatorsViewModel>(); }
-        }
-
-        public DevicesExpanderViewModel DevicesExpander
-        {
-            get { return DIContainer.Resolve<DevicesExpanderViewModel>(); }
-        }
-
-        public AddCredentialViewModel AddCredential
-        {
-            get { return DIContainer.Resolve<AddCredentialViewModel>(); }
-        }
-
-        public NotificationsContainerViewModel NotificationsContainer
+        public NotificationsContainerViewModel NotificationsContainerViewModel
         {
             get { return DIContainer.Resolve<NotificationsContainerViewModel>(); }
         }
 
-        public DeviceNotAuthorizedNotificationViewModel PinNotVerifiedNotification
+        #endregion
+
+        #region Controls
+
+        public IndicatorsViewModel IndicatorsViewModel
         {
-            get { return DIContainer.Resolve<DeviceNotAuthorizedNotificationViewModel>(); }
+            get { return DIContainer.Resolve<IndicatorsViewModel>(); }
+        }
+
+        #endregion
+
+        #region Dialog
+
+        public AddCredentialViewModel AddCredentialViewModel
+        {
+            get { return DIContainer.Resolve<AddCredentialViewModel>(); }
         }
 
         public PinViewModel PinViewModel
         {
             get { return DIContainer.Resolve<PinViewModel>(); }
+        }
+
+        public DeviceNotAuthorizedNotificationViewModel PinNotVerifiedNotificationViewModel
+        {
+            get { return DIContainer.Resolve<DeviceNotAuthorizedNotificationViewModel>(); }
+        }
+
+        #endregion
+
+        #region Page
+
+        public DefaultPageViewModel DefaultPageViewModel
+        {
+            get { return DIContainer.Resolve<DefaultPageViewModel>(); }
         }
 
         public HelpPageViewModel HelpPage
@@ -108,5 +112,27 @@ namespace HideezClient.ViewModels
         {
             get { return DIContainer.Resolve<PasswordManagerViewModel>(); }
         }
+
+        public AboutDevicePageViewModel AboutDevicePageViewModel
+        {
+            get { return DIContainer.Resolve<AboutDevicePageViewModel>(); }
+        }
+
+        #region WaitingDelete
+        // TODO: Delete
+
+        public LockSettingsPageViewModel LockSettingsPage
+        {
+            get { return DIContainer.Resolve<LockSettingsPageViewModel>(); }
+        }
+
+        public LoginSystemPageViewModel LoginSystemViewModel
+        {
+            get { return DIContainer.Resolve<LoginSystemPageViewModel>(); }
+        }
+
+        #endregion
+
+        #endregion
     }
 }

@@ -13,15 +13,18 @@ namespace HideezClient.ViewModels
         private readonly Logger log = LogManager.GetCurrentClassLogger();
         private readonly IMessenger messenger;
         private readonly IServiceProxy serviceProxy;
-        private ConnectionIndicatorViewModel service = new ConnectionIndicatorViewModel();
-        private ConnectionIndicatorViewModel server = new ConnectionIndicatorViewModel();
-        private ConnectionIndicatorViewModel rfid = new ConnectionIndicatorViewModel();
-        private ConnectionIndicatorViewModel dongle = new ConnectionIndicatorViewModel();
+
+        private ConnectionIndicatorViewModel service;
+        private ConnectionIndicatorViewModel server;
+        private ConnectionIndicatorViewModel rfid;
+        private ConnectionIndicatorViewModel dongle;
 
         public IndicatorsViewModel(IMessenger messenger, IServiceProxy serviceProxy)
         {
             this.messenger = messenger;
             this.serviceProxy = serviceProxy;
+
+            InitIndicators();
 
             messenger.Register<ConnectionServiceChangedMessage>(this, c => ResetIndicators(c.IsConnected), true);
             messenger.Register<ServiceComponentsStateChangedMessage>(this, message =>
@@ -36,6 +39,10 @@ namespace HideezClient.ViewModels
             }
             , true);
         }
+
+        #region Properties
+
+        public ObservableCollection<ConnectionIndicatorViewModel> Indicators { get; } = new ObservableCollection<ConnectionIndicatorViewModel>();
 
         public ConnectionIndicatorViewModel Service
         {
@@ -59,6 +66,42 @@ namespace HideezClient.ViewModels
         {
             get { return dongle; }
             set { Set(ref dongle, value); }
+        }
+
+        #endregion
+        
+        private void InitIndicators()
+        {
+            Service = new ConnectionIndicatorViewModel
+            {
+                Name = "Status.Service",
+                HasConnectionText = "Status.Tooltip.ConectedService",
+                NoConnectionText = "Status.Tooltip.DisconectedService",
+            };
+
+            Server = new ConnectionIndicatorViewModel
+            {
+                Name = "Status.Server",
+                HasConnectionText = "Status.Tooltip.ConectedServer",
+                NoConnectionText = "Status.Tooltip.DisconectedServer",
+            };
+
+            RFID = new ConnectionIndicatorViewModel
+            {
+                Name = "Status.RFID",
+                HasConnectionText = "Status.Tooltip.ConectedRFID",
+                NoConnectionText = "Status.Tooltip.DisconectedRFID",
+            };
+
+            Dongle = new ConnectionIndicatorViewModel
+            {
+                Name = "Status.Dongle",
+                HasConnectionText = "Status.Tooltip.ConectedDongle",
+                NoConnectionText = "Status.Tooltip.DisconectedDongle",
+            };
+            Indicators.Add(Server);
+            Indicators.Add(RFID);
+            Indicators.Add(Dongle);
         }
 
         private void ResetIndicators(bool isServiceisConnected)

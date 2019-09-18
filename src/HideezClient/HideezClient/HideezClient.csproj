@@ -206,6 +206,9 @@
     <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\DeviceInfo.xaml.cs">
+      <DependentUpon>DeviceInfo.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Notification\AccountSelector\AccountSelector.xaml.cs">
       <DependentUpon>AccountSelector.xaml</DependentUpon>
     </Compile>
@@ -297,6 +300,12 @@
     <Compile Include="Mvvm\IRequireViewIdentification.cs" />
     <Compile Include="Mvvm\LocalizedObject.cs" />
     <Compile Include="Mvvm\ObservableObject.cs" />
+    <Compile Include="PagesView\AboutDevicePage.xaml.cs">
+      <DependentUpon>AboutDevicePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PagesView\DefaultPage.xaml.cs">
+      <DependentUpon>DefaultPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PagesView\HelpPage.xaml.cs">
       <DependentUpon>HelpPage.xaml</DependentUpon>
     </Compile>
@@ -306,20 +315,19 @@
     <Compile Include="PagesView\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PageViewModels\AboutDevicePageViewModel.cs" />
     <Compile Include="PageViewModels\HelpPageViewModel.cs" />
     <Compile Include="PageViewModels\SettingsPageViewModel.cs" />
+    <Compile Include="PageViewModels\DefaultPageViewModel.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
     <Compile Include="Utilities\PasswordHelper.cs" />
-    <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
+    <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
-    <Compile Include="ViewModels\Notification\NotificationsContainerViewModel.cs" />
+    <Compile Include="ViewModels\NotificationsContainerViewModel.cs" />
     <Compile Include="PageViewModels\PasswordManagerViewModel.cs" />
-    <Compile Include="ViewModels\PinViewModel.cs" />
-    <Compile Include="Views\AboutDeviceView.xaml.cs">
-      <DependentUpon>AboutDeviceView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\DeviceLockedView.xaml.cs" />
+    <Compile Include="ViewModels\Dialog\PinViewModel.cs" />
+    <Compile Include="Views\Dialog\DeviceLockedView.xaml.cs" />
     <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
       <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>
     </Compile>
@@ -331,16 +339,13 @@
     <Compile Include="Utilities\LocalToMSAccountConverter.cs" />
     <Compile Include="Utilities\LogManagement.cs" />
     <Compile Include="Utilities\TemporaryCache.cs" />
-    <Compile Include="ViewModels\AddCredentialViewModel.cs" />
+    <Compile Include="ViewModels\Dialog\AddCredentialViewModel.cs" />
     <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
     <Compile Include="ViewModels\Controls\IndicatorsViewModel.cs" />
-    <Compile Include="Views\AddCredentialView.xaml.cs">
+    <Compile Include="Views\Dialog\AddCredentialView.xaml.cs">
       <DependentUpon>AddCredentialView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PinView.xaml.cs" />
-    <Compile Include="Views\SimpleMainView.xaml.cs">
-      <DependentUpon>SimpleMainView.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Views\Dialog\PinView.xaml.cs" />
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -349,7 +354,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\DevicesExpander.xaml">
+    <Page Include="Controls\DeviceInfo.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -381,6 +386,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="PagesView\AboutDevicePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PagesView\DefaultPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="PagesView\HelpPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -393,11 +406,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\AboutDeviceView.xaml">
+    <Page Include="Resources\Dictionaries\Converters.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\DeviceLockedView.xaml">
+    <Page Include="Views\Dialog\DeviceLockedView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -425,7 +438,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\AddCredentialView.xaml">
+    <Page Include="Views\Dialog\AddCredentialView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -442,13 +455,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="Controls\DevicesExpander.xaml.cs">
-      <DependentUpon>DevicesExpander.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Controls\StateControl.xaml.cs">
       <DependentUpon>StateControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Dialogs\ChangePasswordDialog.xaml.cs">
       <DependentUpon>ChangePasswordDialog.xaml</DependentUpon>
     </Compile>
@@ -504,7 +513,6 @@
     <Compile Include="Models\Settings\ApplicationSettings.cs" />
     <Compile Include="Utilities\Constants.cs" />
     <Compile Include="Utilities\Win32Helper.cs" />
-    <Compile Include="ViewModels\Controls\DeviceForExpanderViewModel.cs" />
     <Compile Include="ViewModels\Taskbar\LanguageMenuItemViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\Taskbar\MenuItemViewModel.cs" />
@@ -514,13 +522,9 @@
       <DependentUpon>MainWindowView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Views\PinView.xaml">
+    <Page Include="Views\Dialog\PinView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\SimpleMainView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -548,9 +552,7 @@
     <EmbeddedResource Include="Resources\Strings.ru.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\Strings.uk.resx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Strings.uk.resx" />
     <None Include="app.manifest" />
     <None Include="Connected Services\HideezServiceReference\configuration91.svcinfo" />
     <None Include="Connected Services\HideezServiceReference\configuration.svcinfo" />

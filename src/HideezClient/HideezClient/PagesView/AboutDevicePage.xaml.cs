@@ -1,5 +1,4 @@
-﻿using MahApps.Metro.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,23 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace HideezClient.Views
+namespace HideezClient.PagesView
 {
     /// <summary>
-    /// Interaction logic for AboutDeviceView.xaml
+    /// Interaction logic for AboutDevicePage.xaml
     /// </summary>
-    public partial class AboutDeviceView : MetroWindow
+    public partial class AboutDevicePage : Page
     {
-        public AboutDeviceView()
+        public AboutDevicePage()
         {
             InitializeComponent();
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
         }
     }
 }

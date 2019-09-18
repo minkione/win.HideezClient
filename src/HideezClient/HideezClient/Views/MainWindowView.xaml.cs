@@ -20,6 +20,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using HideezClient.Mvvm;
+using System.ComponentModel;
 
 namespace HideezClient.Views
 {
@@ -28,12 +30,26 @@ namespace HideezClient.Views
     /// </summary>
     public partial class MainWindowView : MetroWindow
     {
+        private BindingRaiseevent bindingRaiseeventSelectedDevice;
+        private BindingRaiseevent bindingRaiseeventIsConnected;
+
         public MainWindowView()
         {
+            DataContextChanged += DeviceInfo_DataContextChanged;
             InitializeComponent();
         }
 
-        private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void DeviceInfo_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            bindingRaiseeventSelectedDevice = new BindingRaiseevent(e.NewValue, nameof(MainViewModel.SelectedDevice));
+            bindingRaiseeventSelectedDevice.ValueChanged += device =>
+            {
+                bindingRaiseeventIsConnected = new BindingRaiseevent(device, nameof(DeviceViewModel.IsConnected));
+                bindingRaiseeventIsConnected.ValueChanged += value => this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
+            };
+        }
+
+        private void MetroWindow_Closing(object sender, CancelEventArgs e)
         {
             this.Visibility = Visibility.Collapsed;
             e.Cancel = true;

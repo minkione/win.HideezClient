@@ -230,7 +230,6 @@ namespace HideezClient
             Container.RegisterType<LoginSystemPageViewModel>();
             Container.RegisterType<LockSettingsPageViewModel>();
             Container.RegisterType<IndicatorsViewModel>();
-            Container.RegisterType<DevicesExpanderViewModel>();
             Container.RegisterType<AddCredentialViewModel>();
             Container.RegisterType<NotificationsContainerViewModel>();
             Container.RegisterType<DeviceNotAuthorizedNotificationViewModel>();
@@ -238,6 +237,8 @@ namespace HideezClient
             Container.RegisterType<HelpPageViewModel>();
             Container.RegisterType<SettingsPageViewModel>();
             Container.RegisterType<PasswordManagerViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<DefaultPageViewModel>();
+            Container.RegisterType<AboutDevicePageViewModel>(new ContainerControlledLifetimeManager());
 
             #endregion ViewModels
 

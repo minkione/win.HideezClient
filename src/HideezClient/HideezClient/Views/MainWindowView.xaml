@@ -5,6 +5,7 @@
     xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:controls="clr-namespace:HideezClient.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     xmlns:local="clr-namespace:HideezClient.Views"
@@ -20,7 +21,7 @@
     MaxWidth="1280"
     MaxHeight="770"
     Closing="MetroWindow_Closing"
-    DataContext="{Binding Main, Mode=OneWay, Source={StaticResource Locator}}"
+    DataContext="{Binding MainViewModel, Mode=OneWay, Source={StaticResource Locator}}"
     Style="{DynamicResource WindowStyle}"
     TitleCharacterCasing="Normal"
     Visibility="Visible"
@@ -35,7 +36,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Grid VerticalAlignment="Stretch">
+        <Grid VerticalAlignment="Stretch" Background="{DynamicResource WindowLeftColumBrush}">
 
             <Grid.RowDefinitions>
                 <!--  1 DevicesExpander  -->
@@ -51,34 +52,63 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <controls:DevicesExpander
-                Grid.Row="0"
-                VerticalAlignment="Top"
-                Background="{DynamicResource DevicesStackBrush}" />
+            <StackPanel Grid.Row="1">
 
-            <Rectangle
-                Grid.Row="1"
-                Grid.RowSpan="6"
-                Fill="{DynamicResource WindowLeftColumBrush}" />
+                <TextBlock
+                    Margin="16,26,30,5"
+                    Text="{l:Localization Info.NoDevice}"
+                    Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityCollapsedConverter}}" />
 
+                <RadioButton Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityConverter}}">
+                    <RadioButton.Style>
+                        <Style BasedOn="{StaticResource BaseLeftColumMenuStyle}" TargetType="{x:Type RadioButton}">
+                            <Setter Property="Command" Value="{Binding MenuAboutDevice.Command}" />
+                            <Setter Property="IsChecked" Value="{Binding MenuAboutDevice.IsChecked}" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="RadioButton">
+                                        <ContentPresenter DataContext="{TemplateBinding DataContext}" />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </RadioButton.Style>
+                    <!--<i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Checked">
+                            <i:InvokeCommandAction Command="{Binding MenuAboutDevice.Command}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>-->
+
+                    <controls:DeviceInfo
+                        Margin="16,26,30,5"
+                        VerticalAlignment="Top"
+                        DataContext="{Binding SelectedDevice}" />
+                </RadioButton>
+
+                <Border Visibility="{Binding SelectedDevice.IsStorageLoaded, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}">
+                    <RadioButton
+                        DataContext="{Binding MenuPasswordManager}"
+                        Style="{DynamicResource LeftColumMenuStyle}"
+                        Tag="LockSolid" />
+                </Border>
+            </StackPanel>
+
+            <!--  Menu  -->
             <StackPanel Grid.Row="2">
                 <RadioButton
-                    Command="{Binding OpenHelpCommand}"
+                    DataContext="{Binding MenuDefaultPage}"
                     Style="{DynamicResource LeftColumMenuStyle}"
-                    Tag="QuestionCircleSolid">
-                    <TextBlock
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        Text="Help" />
-                </RadioButton>
+                    Visibility="Collapsed" />
+                <RadioButton
+                    DataContext="{Binding MenuHelp}"
+                    Style="{DynamicResource LeftColumMenuStyle}"
+                    Tag="QuestionCircleSolid" />
 
                 <Rectangle Height="10" />
                 <RadioButton
-                    Command="{Binding OpenSettingsCommand}"
+                    DataContext="{Binding MenuSettings}"
                     Style="{DynamicResource LeftColumMenuStyle}"
-                    Tag="CogSolid">
-                    <TextBlock VerticalAlignment="Top" Text="Settings" />
-                </RadioButton>
+                    Tag="CogSolid" />
             </StackPanel>
 
             <Rectangle
@@ -89,7 +119,6 @@
 
             <controls:ConnectivityIndicators
                 Grid.Row="6"
-                Margin="24"
                 Padding="0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"

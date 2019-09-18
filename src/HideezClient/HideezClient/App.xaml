@@ -16,7 +16,6 @@
                 x:Key="BlackColorBrush"
                 Opacity="0.75"
                 Color="#FF195F7C" />
-            <converters:FormatStringConverter x:Key="FormatStringConverter" />
             <sys:Double x:Key="HorizontalThumbWidth">20</sys:Double>
             <sys:Double x:Key="HorizontalThumbHeight">20</sys:Double>
             <Style x:Key="MahApps.Metro.Styles.Slider.Thumb" TargetType="Thumb">
@@ -49,6 +48,7 @@
             <vm:ViewModelLocator x:Key="Locator" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Dictionaries/Constants.xaml" />
+                <ResourceDictionary Source="Resources/Dictionaries/Converters.xaml" />
                 <ResourceDictionary Source="Resources/Dictionaries/SVG.xaml" />
                 <ResourceDictionary Source="Resources/Dictionaries/ResourceDictionary.xaml" />
                 <!--  MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive!  -->
