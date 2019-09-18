@@ -215,7 +215,7 @@ namespace HideezClient.Models
                 if (_remoteDevice.AccessLevel == null)
                     return false;
 
-                return _remoteDevice.AccessLevel.IsAuthorized;
+                return _remoteDevice.AccessLevel.IsAllOk;
             }
         }
 
