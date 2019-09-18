@@ -138,7 +138,7 @@ namespace TestConsole
                         return;
                 }
 
-                SessionSwitchManager.SystemSessionSwitch(System.Diagnostics.Process.GetCurrentProcess().SessionId, e.Reason);
+                SessionSwitchMonitor.SystemSessionSwitch(System.Diagnostics.Process.GetCurrentProcess().SessionId, e.Reason);
             }
             catch (Exception ex)
             {

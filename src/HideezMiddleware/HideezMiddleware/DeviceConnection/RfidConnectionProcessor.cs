@@ -16,6 +16,8 @@ namespace HideezMiddleware.DeviceConnection
 
         int _isConnecting = 0;
 
+        public event EventHandler<string> WorkstationUnlockPerformed;
+
         public RfidConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor, 
             HesAppConnection hesConnection,
@@ -91,7 +93,10 @@ namespace HideezMiddleware.DeviceConnection
                 {
                     try
                     {
-                        await _connectionFlowProcessor.ConnectAndUnlock(info.DeviceMac);
+                        var result = await _connectionFlowProcessor.ConnectAndUnlock(info.DeviceMac);
+
+                        if (result.UnlockSuccessful)
+                            WorkstationUnlockPerformed?.Invoke(this, info.DeviceMac);
                     }
                     catch (Exception)
                     {

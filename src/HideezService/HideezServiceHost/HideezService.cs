@@ -110,7 +110,7 @@ namespace HideezServiceHost
                         return;
                 }
 
-                SessionSwitchManager.SystemSessionSwitch(sessionChangeDescription.SessionId, (Microsoft.Win32.SessionSwitchReason)sessionChangeDescription.Reason);
+                SessionSwitchMonitor.SystemSessionSwitch(sessionChangeDescription.SessionId, (Microsoft.Win32.SessionSwitchReason)sessionChangeDescription.Reason);
             }
             catch (Exception ex)
             {

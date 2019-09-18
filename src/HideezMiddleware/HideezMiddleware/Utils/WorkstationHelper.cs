@@ -8,6 +8,7 @@ using System.Management;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading.Tasks;
 
@@ -15,6 +16,18 @@ namespace HideezMiddleware
 {
     public class WorkstationHelper
     {
+        [DllImport("Wtsapi32.dll")]
+        static extern bool WTSQuerySessionInformation(IntPtr hServer, int sessionId, WtsInfoClass wtsInfoClass, out IntPtr ppBuffer, out int pBytesReturned);
+        [DllImport("Wtsapi32.dll")]
+        static extern void WTSFreeMemory(IntPtr pointer);
+
+        private enum WtsInfoClass
+        {
+            WTSUserName = 5,
+            WTSDomainName = 7,
+        }
+
+
         public static ILog Log { get; set; }
 
         public static PhysicalAddress GetCurrentMAC(IPAddress localIPAddres)
@@ -116,6 +129,17 @@ namespace HideezMiddleware
             }
 
             return result.ToArray();
+        }
+
+        public static string GetUserName(int sessionId)
+        {
+            string username = "SYSTEM";
+            if (WTSQuerySessionInformation(IntPtr.Zero, sessionId, WtsInfoClass.WTSUserName, out IntPtr buffer, out int strLen) && strLen > 1)
+            {
+                username = Marshal.PtrToStringAnsi(buffer);
+                WTSFreeMemory(buffer);
+            }
+            return username;
         }
     }
 }

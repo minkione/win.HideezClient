@@ -34,6 +34,8 @@ namespace HideezMiddleware.DeviceConnection
 
         int _isConnecting = 0;
 
+        public event EventHandler<string> WorkstationUnlockPerformed;
+
         public ProximityConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
@@ -139,7 +141,10 @@ namespace HideezMiddleware.DeviceConnection
                     if (!_bleDeviceManager.Devices.Any(d => d.Mac == mac && !d.IsRemote && !d.IsBoot && d.IsConnected))
                     { 
                         _screenActivator?.ActivateScreen();
-                        await _connectionFlowProcessor.ConnectAndUnlock(mac);
+                        var result = await _connectionFlowProcessor.ConnectAndUnlock(mac);
+
+                        if (result.UnlockSuccessful)
+                            WorkstationUnlockPerformed?.Invoke(this, mac);
                     }
                 }
                 catch (Exception)

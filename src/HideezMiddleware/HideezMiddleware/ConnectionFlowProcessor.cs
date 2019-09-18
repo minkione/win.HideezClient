@@ -41,16 +41,14 @@ namespace HideezMiddleware
             _hesConnection = hesConnection;
         }
 
-        public async Task<bool> ConnectAndUnlock(string mac)
+        public async Task<ConnectionFlowResult> ConnectAndUnlock(string mac)
         {
-            bool res = false;
             // ignore, if workflow for any device already initialized
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
             {
-                res = true;
                 try
                 {
-                    await MainWorkflow(mac);
+                    return await MainWorkflow(mac);
                 }
                 finally
                 {
@@ -61,14 +59,16 @@ namespace HideezMiddleware
                     Interlocked.Exchange(ref _isConnecting, 0);
                 }
             }
-            return res;
+
+            return new ConnectionFlowResult();
         }
 
-        async Task MainWorkflow(string mac)
+        async Task<ConnectionFlowResult> MainWorkflow(string mac)
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
 
             bool success = false;
+            var flowResult = new ConnectionFlowResult();
             IDevice device = null;
             _infNid = Guid.NewGuid().ToString();
             _errNid = Guid.NewGuid().ToString();
@@ -115,7 +115,10 @@ namespace HideezMiddleware
                     !device.AccessLevel.IsNewPinRequired)
                 {
                     if (_workstationUnlocker.IsConnected)
+                    {
                         success = await TryUnlockWorkstation(device);
+                        flowResult.UnlockSuccessful = success;
+                    }
                     else
                         success = true;
                 }
@@ -139,14 +142,22 @@ namespace HideezMiddleware
                 await _ui.HidePinUi();
 
                 if (success)
+                {
                     await _ui.SendError("", _errNid);
+                    flowResult.ConnectSuccessful = true;
+                }
                 else
+                {
                     await device?.Disconnect();
+                    flowResult.ConnectSuccessful = false;
+                }
 
                 _infNid = string.Empty;
                 _errNid = string.Empty;
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
+
+            return flowResult;
         }
 
         async Task<bool> TryUnlockWorkstation(IDevice device)

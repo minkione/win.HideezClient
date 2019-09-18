@@ -21,6 +21,8 @@ using System.Threading.Tasks;
 using HideezMiddleware.DeviceConnection;
 using Hideez.SDK.Communication;
 using System.Text;
+using System.Reflection;
+using ServiceLibrary.Implementation.AuditLogs;
 
 namespace ServiceLibrary.Implementation
 {
@@ -48,6 +50,7 @@ namespace ServiceLibrary.Implementation
         static RfidConnectionProcessor _rfidProcessor;
         static TapConnectionProcessor _tapProcessor;
         static ProximityConnectionProcessor _proximityProcessor;
+        static SessionSwitchLogger _sessionSwitchLogger;
 
         void InitializeSDK()
         {
@@ -192,7 +195,10 @@ namespace ServiceLibrary.Implementation
 
             // Audit Log / Event Aggregator =============================
             _eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
-            SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
+
+            _sessionSwitchLogger = new SessionSwitchLogger(_eventAggregator, 
+                _tapProcessor, _rfidProcessor, _proximityProcessor, 
+                _workstationLockProcessor, _deviceManager, _sdkLogger);
 
             // SDK initialization finished, start essential components
             _credentialProviderProxy.Start();
@@ -264,7 +270,6 @@ namespace ServiceLibrary.Implementation
                 if (!device.IsRemote && device.IsInitialized)
                 {
                     WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                    workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
                     workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
                     workstationEvent.Severity = WorkstationEventSeverity.Warning;
                     workstationEvent.DeviceId = device.SerialNo;
@@ -278,7 +283,6 @@ namespace ServiceLibrary.Implementation
             if (sender is IDevice device && device.IsInitialized && (!device.IsRemote || device.ChannelNo > 2))
             {
                 WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-                workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
                 workstationEvent.Severity = WorkstationEventSeverity.Info;
                 workstationEvent.DeviceId = device.SerialNo;
                 if (device.IsRemote)
@@ -341,7 +345,6 @@ namespace ServiceLibrary.Implementation
                 prevHesIsConnectedState = isConnected;
 
                 var we = WorkstationEvent.GetBaseInitializedInstance();
-                we.UserSession = SessionSwitchManager.UserSessionName;
                 if (_hesConnection.State == HesConnectionState.Connected)
                 {
                     we.EventId = WorkstationEventType.HESConnected;
@@ -421,7 +424,6 @@ namespace ServiceLibrary.Implementation
                         workstationEvent.DeviceId = device.SerialNo;
                         if (device.IsRemote)
                         {
-                            workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
                             workstationEvent.EventId = WorkstationEventType.RemoteConnect;
                         }
                         else
@@ -791,7 +793,6 @@ namespace ServiceLibrary.Implementation
         public static async Task OnServiceStartedAsync()
         {
             WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-            workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
             workstationEvent.EventId = WorkstationEventType.ServiceStarted;
             if (_eventAggregator != null)
@@ -801,7 +802,6 @@ namespace ServiceLibrary.Implementation
         public static async Task OnServiceStoppedAsync()
         {
             WorkstationEvent workstationEvent = WorkstationEvent.GetBaseInitializedInstance();
-            workstationEvent.UserSession = SessionSwitchManager.UserSessionName;
             workstationEvent.Severity = WorkstationEventSeverity.Info;
             workstationEvent.EventId = WorkstationEventType.ServiceStopped;
             if (_eventAggregator != null)

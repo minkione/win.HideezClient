@@ -77,6 +77,7 @@
     <Compile Include="..\..\Version.cs">
       <Link>Version.cs</Link>
     </Compile>
+    <Compile Include="ConnectionFlowResult.cs" />
     <Compile Include="CredentialProviderProxy.cs" />
     <Compile Include="DeviceConnection\AdvertisementIgnoreList.cs" />
     <Compile Include="DeviceConnection\BaseConnectionProcessor.cs" />
@@ -88,7 +89,7 @@
     <Compile Include="IScreenActivator.cs" />
     <Compile Include="IWorkstationLocker.cs" />
     <Compile Include="Modules\NLogWrapper.cs" />
-    <Compile Include="SessionSwitchManager.cs" />
+    <Compile Include="SessionSwitchMonitor.cs" />
     <Compile Include="Modules\Settings\BaseSettings.cs" />
     <Compile Include="Modules\Settings\FileSerializer\IFileSerializer.cs" />
     <Compile Include="Modules\Settings\Manager\ISettingsManager.cs" />
@@ -106,7 +107,9 @@
     <Compile Include="Utils\WorkstationHelper.cs" />
     <Compile Include="WorkstationInfoProvider.cs" />
     <Compile Include="ConnectionFlowProcessor.cs" />
+    <Compile Include="WorkstationLockingEventArgs.cs" />
     <Compile Include="WorkstationLockProcessor.cs" />
+    <Compile Include="WorkstationLockingReason.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\ErrorCode.resx">

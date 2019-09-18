@@ -1,8 +1,6 @@
-﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.Interfaces;
+﻿using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
-using Hideez.SDK.Communication.WorkstationEvents;
 using System;
 
 namespace HideezMiddleware
@@ -11,6 +9,8 @@ namespace HideezMiddleware
     {
         readonly ProximityMonitorManager _proximityMonitorManager;
         readonly IWorkstationLocker _workstationLocker;
+
+        public event EventHandler<WorkstationLockingEventArgs> WorkstationLocking;
 
         public WorkstationLockProcessor(ProximityMonitorManager proximityMonitorManager, IWorkstationLocker workstationLocker, ILog log)
             :base(nameof(WorkstationLockProcessor), log)
@@ -70,7 +70,7 @@ namespace HideezMiddleware
                 return;
 
             WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Device ID: {device.Id}");
-            SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
+            WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceConnectionLost));
             _workstationLocker.LockWorkstation();
         }
 
@@ -80,7 +80,7 @@ namespace HideezMiddleware
                 return;
 
             WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Device ID: {device.Id}");
-            SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
+            WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceBelowThreshold));
             _workstationLocker.LockWorkstation();
         }
 
@@ -90,7 +90,7 @@ namespace HideezMiddleware
                 return;
 
             WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Device ID: {device.Id}");
-            SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
+            WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.ProximityTimeout));
             _workstationLocker.LockWorkstation();
         }
     }

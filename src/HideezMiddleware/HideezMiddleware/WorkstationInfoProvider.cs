@@ -3,25 +3,23 @@ using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.Workstation;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Text;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
-    public class WorkstationInfoProvider : IWorkstationInfoProvider
+    public class WorkstationInfoProvider : Logger, IWorkstationInfoProvider
     {
-        public ILog log;
-        private readonly IPEndPoint endPoint;
+        readonly IPEndPoint endPoint;
 
         public WorkstationInfoProvider(string hostNameOrAddress, ILog log)
+            : base(nameof(WorkstationInfoProvider), log)
         {
-            this.log = log;
             try
             {
                 if (UrlUtils.TryGetUri(hostNameOrAddress, out Uri uri))
@@ -42,10 +40,6 @@ namespace HideezMiddleware
 
         public async Task<WorkstationInfo> GetWorkstationInfoAsync()
         {
-#if DEBUG
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-#endif
             WorkstationInfo workstationInfo = new WorkstationInfo();
 
             try
@@ -64,8 +58,8 @@ namespace HideezMiddleware
                 }
                 catch (Exception ex)
                 {
-                    log?.WriteLine(nameof(WorkstationInfoProvider), ex);
-                    Debug.Assert(false);
+                    WriteLine(ex);
+                    Debug.Assert(false, "An exception occured while querrying workstation operating system");
                 }
 
                 if (endPoint != null)
@@ -78,23 +72,24 @@ namespace HideezMiddleware
                 }
                 else
                 {
-                    log?.WriteLine(nameof(WorkstationInfoProvider), $"{nameof(endPoint)} is null or none.", LogErrorSeverity.Error);
+                    WriteLine($"{nameof(endPoint)} is null or none.", LogErrorSeverity.Error);
                 }
 
                 workstationInfo.Users = await WorkstationHelper.GetAllUserNamesAsync();
             }
             catch (Exception ex)
             {
-                log?.WriteLine(nameof(WorkstationInfoProvider), ex);
+                WriteLine(ex);
                 Debug.Assert(false);
             }
 
-#if DEBUG
-            stopwatch.Stop();
-            var elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
-#endif
-
             return workstationInfo;
+        }
+
+        public Task<SessionInfo> GetSessionInfoAsync()
+        {
+            // Todo: GetSessionInfoAsync()
+            throw new NotImplementedException();
         }
     }
 }
