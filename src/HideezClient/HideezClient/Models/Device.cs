@@ -223,12 +223,22 @@ namespace HideezClient.Models
         void RemoteDevice_StorageModified(object sender, EventArgs e)
         {
             _log.Info($"Device ({SerialNo}) storage modified");
-            if (!IsInitialized || IsLoadingStorage)
+            if (!IsAuthorized || IsLoadingStorage)
                 return;
 
             Task.Run(() =>
             {
-                dmc.CallMethod(async () => { await LoadStorage(); });
+                dmc.CallMethod(async () => 
+                {
+                    try
+                    {
+                        await LoadStorage();
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.Error(ex);
+                    }
+                });
             });
 
         }
@@ -286,7 +296,6 @@ namespace HideezClient.Models
                         _log.Info($"Device ({SerialNo}), establishing remote device connection");
                         _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, VERIFY_CHANNEL);
                         _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
-                        _remoteDevice.StorageModified += RemoteDevice_StorageModified;
 
 
                         await _remoteDevice.Verify(VERIFY_CHANNEL);
@@ -295,11 +304,11 @@ namespace HideezClient.Models
                         if (_remoteDevice.SerialNo != SerialNo)
                         {
                             _remoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
-                            _remoteDevice.StorageModified -= RemoteDevice_StorageModified;
                             _serviceProxy.GetService().RemoveDevice(_remoteDevice.Id);
-                            throw new Exception("Remote device serial number does not match enumerated serial number");
+                            throw new Exception("Remote device serial number does not match the enumerated serial");
                         }
 
+                        _remoteDevice.StorageModified += RemoteDevice_StorageModified;
                         PasswordManager = new DevicePasswordManager(_remoteDevice, null);
 
                         _log.Info($"Remote device ({SerialNo}) initialized");
