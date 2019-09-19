@@ -89,8 +89,8 @@ namespace HideezMiddleware
             lock (_deviceListsLock)
             {
                 e.RemovedDevice.Authorized -= Device_Authorized;
-                _subscribedDevicesList.Remove(e.RemovedDevice);
-                _authorizedDevicesList.Remove(e.RemovedDevice);
+                _subscribedDevicesList.RemoveAll(d => d == e.RemovedDevice);
+                _authorizedDevicesList.RemoveAll(d => d == e.RemovedDevice);
             }
         }
 
@@ -103,9 +103,12 @@ namespace HideezMiddleware
             {
                 if (!e.AddedDevice.IsRemote && !e.AddedDevice.IsBoot)
                 {
-                    e.AddedDevice.Authorized += Device_Authorized;
-                    e.AddedDevice.ConnectionStateChanged += Device_ConnectionStateChanged;
-                    _subscribedDevicesList.Add(e.AddedDevice);
+                    if (!_subscribedDevicesList.Contains(e.AddedDevice))
+                    {
+                        e.AddedDevice.Authorized += Device_Authorized;
+                        e.AddedDevice.ConnectionStateChanged += Device_ConnectionStateChanged;
+                        _subscribedDevicesList.Add(e.AddedDevice);
+                    }
                 }
             }
         }
@@ -116,8 +119,11 @@ namespace HideezMiddleware
             {
                 lock (_deviceListsLock)
                 {
-                    if (!device.IsConnected)
+                    if (device.IsConnected && _authorizedDevicesList.Contains(device))
+                    {
+                        WriteLine($"Device ({device.Id}) is no longer a valid trigger for workstation lock");
                         _authorizedDevicesList.Remove(device);
+                    }
                 }
             }
         }
@@ -128,8 +134,11 @@ namespace HideezMiddleware
             {
                 lock (_deviceListsLock)
                 {
-                    WriteLine($"Device ({device.Id}) added as valid to trigger workstation lock");
-                    _authorizedDevicesList.Add(device);
+                    if (!_authorizedDevicesList.Contains(device))
+                    {
+                        WriteLine($"Device ({device.Id}) added as valid to trigger workstation lock");
+                        _authorizedDevicesList.Add(device);
+                    }
                 }
             }
         }
