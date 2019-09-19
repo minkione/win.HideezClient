@@ -42,7 +42,6 @@ namespace ServiceLibrary.Implementation
                 fatalLogger.Fatal($"Unhandled exception in {assemblyName.Name} v{assemblyName.Version} {source}");
                 fatalLogger.Fatal(e);
                 LogManager.Flush();
-                LogManager.Shutdown();
             }
             catch (Exception)
             {
