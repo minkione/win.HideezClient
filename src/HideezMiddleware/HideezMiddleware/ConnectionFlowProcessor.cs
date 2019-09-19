@@ -69,9 +69,12 @@ namespace HideezMiddleware
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
 
             bool success = false;
+            bool fatalError = false;
+            string errorMessage = null;
             IDevice device = null;
             _infNid = Guid.NewGuid().ToString();
             _errNid = Guid.NewGuid().ToString();
+
             try
             {
                 await _ui.SendNotification("", _infNid);
@@ -82,7 +85,6 @@ namespace HideezMiddleware
 
                 await WaitDeviceInitialization(mac, device);
 
-                //todo device.AccessLevel can be null
                 if (device.AccessLevel.IsLocked || device.AccessLevel.IsLinkRequired)
                 {
                     // request hes to update this device
@@ -94,7 +96,7 @@ namespace HideezMiddleware
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);
 
                 if (device.AccessLevel.IsLinkRequired)
-                    throw new HideezException(HideezErrorCode.DeviceRequiresLink);
+                    throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
                 const int timeout = 60_000;
 
@@ -120,32 +122,50 @@ namespace HideezMiddleware
                         success = true;
                 }
             }
+            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceNotAssignedToUser)
+            {
+                fatalError = true;
+                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
+            }
             catch (HideezException ex)
             {
-                var message = HideezExceptionLocalization.GetErrorAsString(ex);
-                WriteLine(message);
-                await _ui.SendNotification("", _infNid);
-                await _ui.SendError(message, _errNid);
+                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
             }
             catch (Exception ex)
             {
-                WriteLine(ex);
+                errorMessage = ex.Message;
+            }
+
+
+            try
+            {
+                await _ui.HidePinUi();
                 await _ui.SendNotification("", _infNid);
-                await _ui.SendError(ex.Message, _errNid);
+
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    WriteLine(errorMessage);
+                    await _ui.SendError(errorMessage, _errNid);
+                }
+
+                if (device != null)
+                {
+                    if (fatalError)
+                        await _deviceManager.Remove(device);
+                    else if (!success)
+                        await device.Disconnect();
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex, LogErrorSeverity.Fatal);
             }
             finally
             {
-                await _ui.SendNotification("", _infNid);
-                await _ui.HidePinUi();
-
-                if (success)
-                    await _ui.SendError("", _errNid);
-                else
-                    await device?.Disconnect();
-
                 _infNid = string.Empty;
                 _errNid = string.Empty;
             }
+
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
         }
 
