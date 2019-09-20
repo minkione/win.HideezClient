@@ -102,12 +102,12 @@ namespace HideezMiddleware
                 if (device.AccessLevel.IsLinkRequired)
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
+                const int timeout = 60_000;
+
+                await MasterKeyWorkflow(device, timeout);
+
                 if (_workstationUnlocker.IsConnected)
                 {
-                    const int timeout = 60_000;
-
-                    await MasterKeyWorkflow(device, timeout);
-
                     if (!await ButtonWorkflow(device, timeout))
                         throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
 
