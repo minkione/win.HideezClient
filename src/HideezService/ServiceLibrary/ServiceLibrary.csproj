@@ -78,6 +78,9 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Version.cs">
+      <Link>Version.cs</Link>
+    </Compile>
     <Compile Include="AccessLevelDTO.cs" />
     <Compile Include="ContractProviderService.cs" />
     <Compile Include="DeviceDTO.cs" />
