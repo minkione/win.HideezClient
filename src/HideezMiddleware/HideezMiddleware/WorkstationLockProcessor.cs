@@ -10,28 +10,48 @@ namespace HideezMiddleware
 {
     public class WorkstationLockProcessor : Logger, IDisposable
     {
+        readonly ConnectionFlowProcessor _flowProcessor;
         readonly ProximityMonitorManager _proximityMonitorManager;
         readonly IWorkstationLocker _workstationLocker;
         readonly BleDeviceManager _deviceManager;
 
-        List<IDevice> _subscribedDevicesList = new List<IDevice>();
         List<IDevice> _authorizedDevicesList = new List<IDevice>();
 
         readonly object _deviceListsLock = new object();
 
-        public WorkstationLockProcessor(ProximityMonitorManager proximityMonitorManager, BleDeviceManager deviceManager, IWorkstationLocker workstationLocker, ILog log)
+        public WorkstationLockProcessor(ConnectionFlowProcessor flowProcessor, ProximityMonitorManager proximityMonitorManager, BleDeviceManager deviceManager, IWorkstationLocker workstationLocker, ILog log)
             :base(nameof(WorkstationLockProcessor), log)
         {
+            _flowProcessor = flowProcessor;
             _proximityMonitorManager = proximityMonitorManager;
             _workstationLocker = workstationLocker;
             _deviceManager = deviceManager;
 
-            _deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
+            _flowProcessor.DeviceFinishedMainFlow += FlowProcessor_DeviceFinishedMainFlow;
             _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
 
             _proximityMonitorManager.DeviceConnectionLost += ProximityMonitorManager_DeviceConnectionLost;
             _proximityMonitorManager.DeviceBelowLockForToLong += ProximityMonitorManager_DeviceBelowLockForToLong;
             _proximityMonitorManager.DeviceProximityTimeout += ProximityMonitorManager_DeviceProximityTimeout;
+        }
+
+        void FlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
+        {
+            if (device == null)
+                return;
+
+            lock (_deviceListsLock)
+            {
+                if (!device.IsRemote && !device.IsBoot)
+                {
+                    if (!_authorizedDevicesList.Contains(device))
+                    {
+                        WriteLine($"Device ({device.Id}) added as valid to trigger workstation lock");
+                        device.ConnectionStateChanged += Device_ConnectionStateChanged;
+                        _authorizedDevicesList.Add(device);
+                    }
+                }
+            }
         }
 
         #region IDisposable
@@ -49,15 +69,15 @@ namespace HideezMiddleware
 
             if (disposing)
             {
-                _deviceManager.DeviceAdded -= DeviceManager_DeviceAdded;
+                _flowProcessor.DeviceFinishedMainFlow -= FlowProcessor_DeviceFinishedMainFlow;
                 _deviceManager.DeviceRemoved -= DeviceManager_DeviceRemoved;
 
                 _proximityMonitorManager.DeviceConnectionLost -= ProximityMonitorManager_DeviceConnectionLost;
                 _proximityMonitorManager.DeviceBelowLockForToLong -= ProximityMonitorManager_DeviceBelowLockForToLong;
                 _proximityMonitorManager.DeviceProximityTimeout -= ProximityMonitorManager_DeviceProximityTimeout;
 
-                foreach (var device in _subscribedDevicesList)
-                    device.Authorized -= Device_Authorized;
+                foreach (var device in _authorizedDevicesList)
+                    device.Authorized -= Device_ConnectionStateChanged;
             }
 
             disposed = true;
@@ -88,28 +108,8 @@ namespace HideezMiddleware
 
             lock (_deviceListsLock)
             {
-                e.RemovedDevice.Authorized -= Device_Authorized;
-                _subscribedDevicesList.RemoveAll(d => d == e.RemovedDevice);
                 _authorizedDevicesList.RemoveAll(d => d == e.RemovedDevice);
-            }
-        }
-
-        void DeviceManager_DeviceAdded(object sender, DeviceCollectionChangedEventArgs e)
-        {
-            if (e.AddedDevice == null)
-                return;
-
-            lock (_deviceListsLock)
-            {
-                if (!e.AddedDevice.IsRemote && !e.AddedDevice.IsBoot)
-                {
-                    if (!_subscribedDevicesList.Contains(e.AddedDevice))
-                    {
-                        e.AddedDevice.Authorized += Device_Authorized;
-                        e.AddedDevice.ConnectionStateChanged += Device_ConnectionStateChanged;
-                        _subscribedDevicesList.Add(e.AddedDevice);
-                    }
-                }
+                e.RemovedDevice.Authorized -= Device_ConnectionStateChanged;
             }
         }
 
@@ -123,21 +123,6 @@ namespace HideezMiddleware
                     {
                         WriteLine($"Device ({device.Id}) is no longer a valid trigger for workstation lock");
                         _authorizedDevicesList.Remove(device);
-                    }
-                }
-            }
-        }
-
-        void Device_Authorized(object sender, EventArgs e)
-        {
-            if (sender is IDevice device)
-            {
-                lock (_deviceListsLock)
-                {
-                    if (!_authorizedDevicesList.Contains(device))
-                    {
-                        WriteLine($"Device ({device.Id}) added as valid to trigger workstation lock");
-                        _authorizedDevicesList.Add(device);
                     }
                 }
             }
