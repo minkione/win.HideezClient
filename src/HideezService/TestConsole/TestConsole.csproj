@@ -165,6 +165,7 @@
     </Compile>
     <None Include="..\..\HideezMiddleware\HideezMiddleware\NLog.config">
       <Link>NLog.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
     <None Include="app.manifest" />
