@@ -9,6 +9,79 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:tb="http://www.hardcodet.net/taskbar">
 
+    <!--  Adorner text style  -->
+    <Style x:Key="AdornerTextStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontStyle" Value="Normal" />
+        <Setter Property="Opacity" Value="0.5" />
+    </Style>
+
+    <!--  Separator style  -->
+    <Style x:Key="SeparatorStyle" TargetType="{x:Type Separator}">
+        <Setter Property="Background" Value="#1BA2DC" />
+        <Setter Property="Opacity" Value="0.15" />
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
+
+    <!--  Change button style  -->
+    <Style x:Key="ChangeButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="#E1F3F8" />
+        <Setter Property="Foreground" Value="{StaticResource DarkForeground}" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Padding" Value="30,9" />
+        <Setter Property="FontSize" Value="16" />
+        <!--<Setter Property="BitmapEffect">
+            <Setter.Value>
+                <DropShadowBitmapEffect
+                    Direction="300"
+                    Opacity="0.3"
+                    ShadowDepth="10"
+                    Softness="10"
+                    Color="Black" />
+            </Setter.Value>
+        </Setter>-->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border
+                        x:Name="border"
+                        Padding="20,7"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="4">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="LightBlue" />
+                            <Setter Property="Cursor" Value="Hand" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="Blue" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource PinkBrushInDisabled}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+    </Style>
+
+    <!--  Confirm button style  -->
+    <Style x:Key="ConfirmButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="#E1F3F8" />
+    </Style>
+
+    <!--  Cancel button style  -->
+    <Style x:Key="CancelButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="#E1F3F8" />
+    </Style>
+
+    <!--  Clickable transparent background style  -->
     <Style x:Key="ClickableTransparentBackgroundStyle" TargetType="{x:Type Shape}">
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Stretch" />
@@ -21,6 +94,7 @@
         </Style.Triggers>
     </Style>
 
+    <!--  Window style  -->
     <Style x:Key="WindowStyle" TargetType="Window">
         <Setter Property="FontFamily" Value="{DynamicResource MainFontFamily}" />
         <Setter Property="Foreground" Value="{DynamicResource MainFontForeground}" />
@@ -29,6 +103,7 @@
         <Setter Property="Background" Value="{DynamicResource WindowBackground}" />
     </Style>
 
+    <!--  Page style  -->
     <Style x:Key="PageStyle" TargetType="Page">
         <Setter Property="FontFamily" Value="{DynamicResource MainFontFamily}" />
         <Setter Property="Foreground" Value="{DynamicResource MainFontForeground}" />
@@ -150,7 +225,7 @@
         </Style.Triggers>
     </Style>
 
-    <!--  DropDownItemCommandContainerStyle  -->
+    <!--  Drop down item command container style  -->
     <Style x:Key="MenuItemStyle" TargetType="{x:Type MenuItem}">
         <Setter Property="Padding" Value="5" />
         <Setter Property="Command" Value="{Binding Command}" />
@@ -172,7 +247,7 @@
         </Style.Triggers>
     </Style>
 
-    <!--  LightButtonDropDownStyle  -->
+    <!--  Light button drop down style  -->
     <Style
         x:Key="LightButtonDropDownStyle"
         BasedOn="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"

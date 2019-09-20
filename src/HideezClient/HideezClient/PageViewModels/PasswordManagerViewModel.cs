@@ -12,6 +12,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using HideezClient.Extension;
+using System.Windows.Input;
+using MvvmExtensions.Commands;
 
 namespace HideezClient.PageViewModels
 {
@@ -32,7 +35,7 @@ namespace HideezClient.PageViewModels
             new AccountViewModel { Name = "Johnson & Johnson", Login = "keith.richards@example.com", HasOpt = true, },
             new AccountViewModel { Name = "Starbucks", Login = "logan.hopkins@example.com", },
             new AccountViewModel { Name = "Facebook", Login = "kelly.howard@example.com", },
-            new AccountViewModel { Name = "L'Oréal", Login = "jeff.anderson@example.com", },
+            new AccountViewModel {  Login = "jeff.anderson@example.com", },
             new AccountViewModel { Name = "Mitsubishi", Login = "dan.romero@example.com", HasOpt = true, },
             new AccountViewModel { Name = "Apple", Login = "gary.herrera@example.com", },
             new AccountViewModel { Name = "Louis Vuitton", Login = "jessica.hanson@example.com", },
@@ -78,7 +81,7 @@ namespace HideezClient.PageViewModels
                 {
                     SelectedAccount = enumerator.Current as AccountViewModel;
                 }
-                
+
                 return view;
             }
         }
@@ -101,18 +104,41 @@ namespace HideezClient.PageViewModels
             if (string.IsNullOrWhiteSpace(SearchQuery))
                 return true;
 
-            var account = item as AccountViewModel;
-            var trimmedSearchString = SearchQuery.Trim();
+            if (item is AccountViewModel account)
+            {
+                var filter = SearchQuery.Trim();
+                return Contains(account.Name, filter) || Contains(account.Login, filter) || (account.WebSiteApp?.Any(s => Contains(s, filter)) ?? false);
+            }
 
-            // Check search string match for each parameter
-            bool nameMatch = account.Name?.IndexOf(trimmedSearchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
-            bool loginMatch = account.Login?.IndexOf(trimmedSearchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
-            bool keywordsMatch = (account.WebSiteApp != null) 
-                ? string.Join(",", account.WebSiteApp).IndexOf(trimmedSearchString, StringComparison.InvariantCultureIgnoreCase) >= 0 
-                : false;
+            return false;
+        }
+        private bool Contains(string source, string toCheck)
+        {
+            return source != null && toCheck != null && source.IndexOf(toCheck, StringComparison.InvariantCultureIgnoreCase) >= 0;
+        }
 
-            // Filter by name, keywords or login
-            return nameMatch || loginMatch || keywordsMatch;
+        #region Command
+
+        public ICommand AddAccountCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        OnAddAccount();
+                    },
+                };
+            }
+        }
+
+        #endregion
+
+        private void OnAddAccount()
+        {
+            // TODO: Implement add account
+            MessageBox.Show("Add account");
         }
     }
 
@@ -158,6 +184,30 @@ namespace HideezClient.PageViewModels
         {
             get { return webSiteApp; }
             set { Set(ref webSiteApp, value); }
+        }
+
+        #region Command
+
+        public ICommand EditAccountCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        OnEditAccount();
+                    },
+                };
+            }
+        }
+
+        #endregion
+
+        private void OnEditAccount()
+        {
+            // TODO: Implement edit account
+            MessageBox.Show("Edit account");
         }
     }
 }
