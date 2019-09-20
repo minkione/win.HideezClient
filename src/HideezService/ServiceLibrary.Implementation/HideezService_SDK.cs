@@ -194,8 +194,8 @@ namespace ServiceLibrary.Implementation
 
 
             // Audit Log / Event Aggregator =============================
-            _eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
-            SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
+            //_eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
+            //SessionSwitchManager.SessionSwitch += we => _eventAggregator?.AddNewAsync(we);
 
             // SDK initialization finished, start essential components
             _credentialProviderProxy.Start();
@@ -600,7 +600,7 @@ namespace ServiceLibrary.Implementation
                 AccountLogin = workstationEvent.AccountLogin,
             };
 
-            Task.Run(() => _eventAggregator.AddNewAsync(we));
+            Task.Run(() => _eventAggregator?.AddNewAsync(we));
         }
 
         #region Remote device management
