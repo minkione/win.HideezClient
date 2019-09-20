@@ -98,28 +98,32 @@ namespace HideezMiddleware
                 if (device.AccessLevel.IsLinkRequired)
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
-                const int timeout = 60_000;
-
-                await MasterKeyWorkflow(device, timeout);
-
-                if (!await ButtonWorkflow(device, timeout))
-                    throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
-
-                await PinWorkflow(device, timeout);
-
-                // check the button again as it may be outdated while PIN workflow was running
-                if (!await ButtonWorkflow(device, timeout))
-                    throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
-
-                if (!device.AccessLevel.IsLocked &&
-                    !device.AccessLevel.IsButtonRequired &&
-                    !device.AccessLevel.IsPinRequired &&
-                    !device.AccessLevel.IsNewPinRequired)
+                if (_workstationUnlocker.IsConnected)
                 {
-                    if (_workstationUnlocker.IsConnected)
+                    const int timeout = 60_000;
+
+                    await MasterKeyWorkflow(device, timeout);
+
+                    if (!await ButtonWorkflow(device, timeout))
+                        throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
+
+                    await PinWorkflow(device, timeout);
+
+                    // check the button again as it may be outdated while PIN workflow was running
+                    if (!await ButtonWorkflow(device, timeout))
+                        throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
+
+                    if (!device.AccessLevel.IsLocked &&
+                        !device.AccessLevel.IsButtonRequired &&
+                        !device.AccessLevel.IsPinRequired &&
+                        !device.AccessLevel.IsNewPinRequired)
+                    {
                         success = await TryUnlockWorkstation(device);
-                    else
-                        success = true;
+                    }
+                }
+                else
+                {
+                    success = true;
                 }
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceNotAssignedToUser)
@@ -154,6 +158,8 @@ namespace HideezMiddleware
                         await _deviceManager.Remove(device);
                     else if (!success)
                         await device.Disconnect();
+                    //else
+                    //todo - set custom user property
                 }
             }
             catch (Exception ex)
@@ -173,12 +179,6 @@ namespace HideezMiddleware
         {
             await _ui.SendNotification("Reading credentials from the device...", _infNid);
 
-            /*
-            bool needUpdate = await IsNeedUpdateDevice(device);
-            var credentials = await GetCredentials(device);
-            */
-
-            
             // read in parallel info from the HES and credentials from the device
             var infoTask = IsNeedUpdateDevice(device);
             var credentialsTask = GetCredentials(device);
@@ -193,7 +193,6 @@ namespace HideezMiddleware
                 await WaitForRemoteDeviceUpdate(device.SerialNo);
                 credentials = await GetCredentials(device);
             }
-            
 
             // send credentials to the Credential Provider to unlock the PC
             await _ui.SendNotification("Unlocking the PC...", _infNid);
