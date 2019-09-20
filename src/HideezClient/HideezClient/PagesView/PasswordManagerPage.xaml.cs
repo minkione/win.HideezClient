@@ -27,26 +27,33 @@ namespace HideezClient.PagesView
         public PasswordManagerPage()
         {
             InitializeComponent();
-            Loaded += PasswordManagerPage_Loaded;   
+            AccountsList.Loaded += AccountsList_Loaded;
         }
 
-        private void PasswordManagerPage_Loaded(object sender, RoutedEventArgs e)
+        private void AccountsList_Loaded(object sender, RoutedEventArgs e)
         {
             AnimationHideAccountInfo = this.FindResource("AnimationHideAccountInfo") as Storyboard;
             AnimationShowAccountInfo = this.FindResource("AnimationShowAccountInfo") as Storyboard;
+
+            UpdateAnimation();
         }
 
         private void AccountsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            UpdateAnimation();
+        }
+
+        private void UpdateAnimation()
+        {
             if (AccountsList.SelectedItem == null)
             {
-                AnimationShowAccountInfo.Stop();
-                AnimationHideAccountInfo.Begin();
+                AnimationShowAccountInfo?.Stop();
+                AnimationHideAccountInfo?.Begin();
             }
             else
             {
-                AnimationHideAccountInfo.Stop();
-                AnimationShowAccountInfo.Begin();
+                AnimationHideAccountInfo?.Stop();
+                AnimationShowAccountInfo?.Begin();
             }
         }
     }
