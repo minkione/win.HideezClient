@@ -214,7 +214,7 @@ namespace HideezClient.ViewModels
                         OnOpenPasswordManager();
                         viewModelLocator.PasswordManager.Device = SelectedDevice;
                     },
-                    CanExecuteFunc = () => SelectedDevice?.IsStorageLoaded ?? false,
+                    // CanExecuteFunc = () => SelectedDevice?.IsStorageLoaded ?? false,
                 };
             }
         }

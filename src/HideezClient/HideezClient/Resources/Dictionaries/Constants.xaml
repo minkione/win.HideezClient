@@ -5,6 +5,10 @@
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
+    <SolidColorBrush x:Key="DarkForeground" Color="#22446D" />
+    <SolidColorBrush x:Key="Foreground" Color="#6E89A4" />
+    <SolidColorBrush x:Key="LightForeground" Color="#F4FEFF" />
+
     <!--  Main Window  -->
     <SolidColorBrush x:Key="WindowTitleBrush" Color="#22446D" />
     <SolidColorBrush x:Key="WindowBackground">#F4FEFF</SolidColorBrush>

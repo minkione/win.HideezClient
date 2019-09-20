@@ -85,9 +85,10 @@
                         DataContext="{Binding SelectedDevice}" />
                 </RadioButton>
 
-                <Border Visibility="{Binding SelectedDevice.IsStorageLoaded, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}">
+                <Border Visibility="Visible">
                     <RadioButton
                         DataContext="{Binding MenuPasswordManager}"
+                        IsChecked="True"
                         Style="{DynamicResource LeftColumMenuStyle}"
                         Tag="LockSolid" />
                 </Border>

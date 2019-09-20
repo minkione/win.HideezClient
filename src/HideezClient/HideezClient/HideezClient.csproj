@@ -55,7 +55,7 @@
     <StartupObject>HideezClient.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resources\Icon\Idle\64x64.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\Icon\Idle\32x32.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -629,7 +629,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Icon\Alert\Alert1.ico" />
-    <Resource Include="Resources\Icon\Idle\Idle1.ico" />
     <Resource Include="Resources\Icon\NoCon\NoCon1.ico" />
     <Resource Include="Resources\Icon\NoKeyAlert\NoKeyAlert1.ico" />
     <Resource Include="Resources\Icon\NoKey\NoKey1.ico" />
