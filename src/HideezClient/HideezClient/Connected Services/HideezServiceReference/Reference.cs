@@ -152,6 +152,9 @@ namespace HideezClient.HideezServiceReference {
         private System.Version BootloaderVersionField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool FinishedMainFlowField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Version FirmwareVersionField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -219,6 +222,19 @@ namespace HideezClient.HideezServiceReference {
                 if ((object.ReferenceEquals(this.BootloaderVersionField, value) != true)) {
                     this.BootloaderVersionField = value;
                     this.RaisePropertyChanged("BootloaderVersion");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool FinishedMainFlow {
+            get {
+                return this.FinishedMainFlowField;
+            }
+            set {
+                if ((this.FinishedMainFlowField.Equals(value) != true)) {
+                    this.FinishedMainFlowField = value;
+                    this.RaisePropertyChanged("FinishedMainFlow");
                 }
             }
         }
@@ -1003,8 +1019,8 @@ namespace HideezClient.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceInitialized")]
         void DeviceInitialized(HideezClient.HideezServiceReference.DeviceDTO device);
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceAuthorized")]
-        void DeviceAuthorized(HideezClient.HideezServiceReference.DeviceDTO device);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceFinishedMainFlow")]
+        void DeviceFinishedMainFlow(HideezClient.HideezServiceReference.DeviceDTO device);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_DeviceStateChanged")]
         void RemoteConnection_DeviceStateChanged(string deviceId, HideezClient.HideezServiceReference.DeviceStateDTO stateDto);

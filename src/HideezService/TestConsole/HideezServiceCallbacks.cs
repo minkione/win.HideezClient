@@ -16,7 +16,7 @@ namespace TestConsole
         {
         }
 
-        public void DeviceAuthorized(DeviceDTO device)
+        public void DeviceFinishedMainFlow(DeviceDTO device)
         {
         }
 

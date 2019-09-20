@@ -344,7 +344,7 @@ namespace HideezClient.Models
         public async Task AuthorizeRemoteDevice()
         {
             if (!IsInitialized)
-                throw new Exception("Remote not initialized"); // Todo: proper exception
+                throw new HideezException(HideezErrorCode.ChannelNotInitialized); // Todo: proper exception
 
             if (IsAuthorized || IsAuthorizing)
                 return; // Remote is already authorized
@@ -358,8 +358,9 @@ namespace HideezClient.Models
 
                 if (_remoteDevice.AccessLevel.IsLocked)
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);
+
                 else if (_remoteDevice.AccessLevel.IsLinkRequired)
-                    throw new HideezException(HideezErrorCode.DeviceRequiresLink);
+                    throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
                 if (!await ButtonWorkflow())
                     throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
@@ -497,10 +498,13 @@ namespace HideezClient.Models
         public async Task LoadStorage()
         {
             if (!IsInitialized)
-                throw new Exception("Remote not initialized"); // Todo: proper exception
+                throw new HideezException(HideezErrorCode.ChannelNotInitialized);
 
             if (!IsAuthorized)
-                throw new Exception("Remote not authorized"); // Todo: proper exception
+                throw new HideezException(HideezErrorCode.ChannelNotAuthorized);
+
+            if (IsLoadingStorage)
+                return;
 
             try
             {

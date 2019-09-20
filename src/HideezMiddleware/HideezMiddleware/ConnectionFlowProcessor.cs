@@ -15,6 +15,8 @@ namespace HideezMiddleware
 {
     public class ConnectionFlowProcessor : Logger
     {
+        public const string FLOW_FINISHED_PROP = "MainFlowFinished"; 
+
         const int CONNECT_RETRY_DELAY = 1000;
         readonly BleDeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
@@ -25,6 +27,8 @@ namespace HideezMiddleware
         int _isConnecting = 0;
         string _infNid = string.Empty; // Notification Id, which must be the same for the entire duration of MainWorkflow
         string _errNid = string.Empty; // Error Notification Id
+
+        public event EventHandler<IDevice> DeviceFinishedMainFlow;
 
         public ConnectionFlowProcessor(BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
@@ -158,8 +162,11 @@ namespace HideezMiddleware
                         await _deviceManager.Remove(device);
                     else if (!success)
                         await device.Disconnect();
-                    //else
-                    //todo - set custom user property
+                    else
+                    {
+                        device.SetUserProperty(FLOW_FINISHED_PROP, true);
+                        DeviceFinishedMainFlow?.Invoke(this, device);
+                    }
                 }
             }
             catch (Exception ex)

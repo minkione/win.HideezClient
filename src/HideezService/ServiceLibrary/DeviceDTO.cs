@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
+using HideezMiddleware;
 using System;
 using System.Runtime.Serialization;
 
@@ -22,6 +23,7 @@ namespace ServiceLibrary
             StorageFreeSize = device.StorageFreeSize;
             IsAuthorized = device.IsAuthorized;
             PinAttemptsRemain = device.PinAttemptsRemain;
+            FinishedMainFlow = device.GetUserProperty<bool>(ConnectionFlowProcessor.FLOW_FINISHED_PROP);
         }
 
         [DataMember]
@@ -65,5 +67,8 @@ namespace ServiceLibrary
 
         [DataMember]
         public int PinAttemptsRemain { get; private set; }
+
+        [DataMember]
+        public bool FinishedMainFlow { get; private set; }
     }
 }

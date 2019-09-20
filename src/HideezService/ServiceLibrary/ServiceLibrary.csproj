@@ -98,6 +98,10 @@
       <Project>{bf57e350-d719-47a1-950a-7b6a08e58bd7}</Project>
       <Name>Communication</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\HideezMiddleware\HideezMiddleware\HideezMiddleware.csproj">
+      <Project>{2A5ABF59-55EE-461B-8C6F-2A294481129B}</Project>
+      <Name>HideezMiddleware</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

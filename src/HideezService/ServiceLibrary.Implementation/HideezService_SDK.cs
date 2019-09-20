@@ -151,6 +151,7 @@ namespace ServiceLibrary.Implementation
                 _screenActivator,
                 _uiProxy,
                 sdkLogger);
+            _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreList = new AdvertisementIgnoreList(
                 _connectionManager,
                 _deviceManager,
@@ -243,7 +244,6 @@ namespace ServiceLibrary.Implementation
             {
                 device.ConnectionStateChanged += Device_ConnectionStateChanged;
                 device.Initialized += Device_Initialized;
-                device.Authorized += Device_Authorized;
                 device.Disconnected += Device_Disconnected;
             }
         }
@@ -256,7 +256,6 @@ namespace ServiceLibrary.Implementation
             {
                 device.ConnectionStateChanged -= Device_ConnectionStateChanged;
                 device.Initialized -= Device_Initialized;
-                device.Authorized -= Device_Authorized;
                 device.Disconnected -= Device_Disconnected;
 
                 if (device is IWcfDevice wcfDevice)
@@ -370,6 +369,9 @@ namespace ServiceLibrary.Implementation
                 {
                     foreach (var client in SessionManager.Sessions)
                     {
+                        if (!device.IsConnected)
+                            device.SetUserProperty(ConnectionFlowProcessor.FLOW_FINISHED_PROP, false);
+
                         client.Callbacks.DeviceConnectionStateChanged(new DeviceDTO(device));
                     }
                 }
@@ -424,23 +426,19 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void Device_Authorized(object sender, EventArgs e)
+        void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
         {
-            if (sender is IDevice device)
+            foreach (var session in SessionManager.Sessions)
             {
-                foreach (var session in SessionManager.Sessions)
+                try
                 {
-                    try
-                    {
-                        session.Callbacks.DeviceAuthorized(new DeviceDTO(device));
-                    }
-                    catch (Exception ex)
-                    {
-                        Error(ex);
-                    }
+                    session.Callbacks.DeviceFinishedMainFlow(new DeviceDTO(device));
+                }
+                catch (Exception ex)
+                {
+                    Error(ex);
                 }
             }
-
         }
 
         async void SessionManager_SessionClosed(object sender, ServiceClientSession e)
