@@ -13,7 +13,7 @@ using Hideez.SDK.Communication.Utils;
 
 namespace HideezMiddleware
 {
-    public class ConnectionFlowProcessor : Logger
+    public class ConnectionFlowProcessor : Logger, IConnectionFlow
     {
         public const string FLOW_FINISHED_PROP = "MainFlowFinished"; 
 
@@ -70,6 +70,12 @@ namespace HideezMiddleware
 
         async Task MainWorkflow(string mac)
         {
+            // Ignore MainFlow requests for devices that are already connected
+            // IsConnected-true indicates that device already finished main flow or is in progress
+            var existingDevice = _deviceManager.Find(mac, 1); // Todo: Replace channel magic number <1> with defined const
+            if (existingDevice != null && existingDevice.IsConnected)
+                return;
+
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
 
             bool success = false;

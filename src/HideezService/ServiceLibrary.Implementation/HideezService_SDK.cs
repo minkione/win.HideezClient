@@ -115,7 +115,7 @@ namespace ServiceLibrary.Implementation
             var workstationInfoProvider = new WorkstationInfoProvider(hesAddress, sdkLogger);
 
             // HES Connection ==================================
-            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, sdkLogger);
+            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _connectionFlowProcessor, sdkLogger);
             _hesConnection.ReconnectDelayMs = 10_000; // Todo: remove hes recoonect delay overwrite in stable version
             _hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
             {
