@@ -118,9 +118,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <None Include="NLog.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\win.sdk\Communication\Communication.csproj">

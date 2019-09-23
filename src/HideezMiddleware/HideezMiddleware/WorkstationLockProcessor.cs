@@ -1,26 +1,59 @@
-﻿using Hideez.SDK.Communication.Interfaces;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
 using System;
+using System.Collections.Generic;
 
 namespace HideezMiddleware
 {
     public class WorkstationLockProcessor : Logger, IDisposable
     {
+        readonly ConnectionFlowProcessor _flowProcessor;
         readonly ProximityMonitorManager _proximityMonitorManager;
         readonly IWorkstationLocker _workstationLocker;
+        readonly BleDeviceManager _deviceManager;
+
+        List<IDevice> _authorizedDevicesList = new List<IDevice>();
+
+        readonly object _deviceListsLock = new object();
 
         public event EventHandler<WorkstationLockingEventArgs> WorkstationLocking;
 
-        public WorkstationLockProcessor(ProximityMonitorManager proximityMonitorManager, IWorkstationLocker workstationLocker, ILog log)
+        public WorkstationLockProcessor(ConnectionFlowProcessor flowProcessor, ProximityMonitorManager proximityMonitorManager, BleDeviceManager deviceManager, IWorkstationLocker workstationLocker, ILog log)
             :base(nameof(WorkstationLockProcessor), log)
         {
+            _flowProcessor = flowProcessor;
             _proximityMonitorManager = proximityMonitorManager;
             _workstationLocker = workstationLocker;
+            _deviceManager = deviceManager;
 
-            _proximityMonitorManager.DeviceConnectionLost += _proximityMonitorManager_DeviceConnectionLost;
-            _proximityMonitorManager.DeviceBelowLockForToLong += _proximityMonitorManager_DeviceBelowLockForToLong;
-            _proximityMonitorManager.DeviceProximityTimeout += _proximityMonitorManager_DeviceProximityTimeout;
+            _flowProcessor.DeviceFinishedMainFlow += FlowProcessor_DeviceFinishedMainFlow;
+            _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
+
+            _proximityMonitorManager.DeviceConnectionLost += ProximityMonitorManager_DeviceConnectionLost;
+            _proximityMonitorManager.DeviceBelowLockForToLong += ProximityMonitorManager_DeviceBelowLockForToLong;
+            _proximityMonitorManager.DeviceProximityTimeout += ProximityMonitorManager_DeviceProximityTimeout;
+        }
+
+        void FlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
+        {
+            if (device == null)
+                return;
+
+            lock (_deviceListsLock)
+            {
+                if (!device.IsRemote && !device.IsBoot)
+                {
+                    if (!_authorizedDevicesList.Contains(device))
+                    {
+                        WriteLine($"Device ({device.Id}) added as valid to trigger workstation lock");
+                        device.ConnectionStateChanged += Device_ConnectionStateChanged;
+                        _authorizedDevicesList.Add(device);
+                    }
+                }
+            }
         }
 
         #region IDisposable
@@ -38,9 +71,15 @@ namespace HideezMiddleware
 
             if (disposing)
             {
-                _proximityMonitorManager.DeviceConnectionLost -= _proximityMonitorManager_DeviceConnectionLost;
-                _proximityMonitorManager.DeviceBelowLockForToLong -= _proximityMonitorManager_DeviceBelowLockForToLong;
-                _proximityMonitorManager.DeviceProximityTimeout -= _proximityMonitorManager_DeviceProximityTimeout;
+                _flowProcessor.DeviceFinishedMainFlow -= FlowProcessor_DeviceFinishedMainFlow;
+                _deviceManager.DeviceRemoved -= DeviceManager_DeviceRemoved;
+
+                _proximityMonitorManager.DeviceConnectionLost -= ProximityMonitorManager_DeviceConnectionLost;
+                _proximityMonitorManager.DeviceBelowLockForToLong -= ProximityMonitorManager_DeviceBelowLockForToLong;
+                _proximityMonitorManager.DeviceProximityTimeout -= ProximityMonitorManager_DeviceProximityTimeout;
+
+                foreach (var device in _authorizedDevicesList)
+                    device.Authorized -= Device_ConnectionStateChanged;
             }
 
             disposed = true;
@@ -64,34 +103,75 @@ namespace HideezMiddleware
             IsEnabled = false;
         }
 
-        void _proximityMonitorManager_DeviceConnectionLost(object sender, IDevice device)
+        void DeviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
         {
-            if (!IsEnabled)
+            if (e.RemovedDevice == null)
                 return;
 
-            WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Device ID: {device.Id}");
-            WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceConnectionLost));
-            _workstationLocker.LockWorkstation();
+            lock (_deviceListsLock)
+            {
+                _authorizedDevicesList.RemoveAll(d => d == e.RemovedDevice);
+                e.RemovedDevice.Authorized -= Device_ConnectionStateChanged;
+            }
         }
 
-        void _proximityMonitorManager_DeviceBelowLockForToLong(object sender, IDevice device)
+        private void Device_ConnectionStateChanged(object sender, EventArgs e)
         {
-            if (!IsEnabled)
-                return;
-
-            WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Device ID: {device.Id}");
-            WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceBelowThreshold));
-            _workstationLocker.LockWorkstation();
+            if (sender is IDevice device)
+            {
+                lock (_deviceListsLock)
+                {
+                    if (device.IsConnected && _authorizedDevicesList.Contains(device))
+                    {
+                        WriteLine($"Device ({device.Id}) is no longer a valid trigger for workstation lock");
+                        _authorizedDevicesList.Remove(device);
+                    }
+                }
+            }
         }
 
-        void _proximityMonitorManager_DeviceProximityTimeout(object sender, IDevice device)
+        void ProximityMonitorManager_DeviceConnectionLost(object sender, IDevice device)
         {
-            if (!IsEnabled)
-                return;
+            lock (_deviceListsLock)
+            {
+                if (!CanLock(device))
+                    return;
 
-            WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Device ID: {device.Id}");
-            WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.ProximityTimeout));
-            _workstationLocker.LockWorkstation();
+                WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Device ID: {device.Id}");
+                WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceConnectionLost));
+                _workstationLocker.LockWorkstation();
+            }
+        }
+
+        void ProximityMonitorManager_DeviceBelowLockForToLong(object sender, IDevice device)
+        {
+            lock (_deviceListsLock)
+            {
+                if (!CanLock(device))
+                    return;
+
+                WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Device ID: {device.Id}");
+                WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceBelowThreshold));
+                _workstationLocker.LockWorkstation();
+            }
+        }
+
+        void ProximityMonitorManager_DeviceProximityTimeout(object sender, IDevice device)
+        {
+            lock (_deviceListsLock)
+            {
+                if (!CanLock(device))
+                    return;
+
+                WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Device ID: {device.Id}");
+                WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.ProximityTimeout));
+                _workstationLocker.LockWorkstation();
+            }
+        }
+
+        bool CanLock(IDevice device)
+        {
+            return IsEnabled && _authorizedDevicesList.Contains(device);
         }
     }
 }

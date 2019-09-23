@@ -52,7 +52,7 @@ namespace HideezClient.Modules.DeviceManager
             _remoteDeviceFactory = remoteDeviceFactory;
 
             _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
-            _messenger.Register<DeviceAuthorizedMessage>(this, OnDeviceAuthorized);
+            _messenger.Register<DeviceFinishedMainFlowMessage>(this, OnDeviceFinishedMainFlow);
 
             _serviceProxy.Disconnected += OnServiceProxyConnectionStateChanged;
             _serviceProxy.Connected += OnServiceProxyConnectionStateChanged;
@@ -90,7 +90,7 @@ namespace HideezClient.Modules.DeviceManager
             });
         }
 
-        void OnDeviceAuthorized(DeviceAuthorizedMessage message)
+        void OnDeviceFinishedMainFlow(DeviceFinishedMainFlowMessage message)
         {
             Task.Run(() =>
             {
@@ -98,7 +98,7 @@ namespace HideezClient.Modules.DeviceManager
                 {
                     if (_devices.TryGetValue(message.Device.Id, out Device dvm))
                     {
-                        if (message.Device.IsAuthorized && dvm.IsConnected)
+                        if (dvm.IsConnected && message.Device.FinishedMainFlow)
                             _ = TryCreateRemoteDeviceAsync(dvm);
                     }
                 }
@@ -147,7 +147,7 @@ namespace HideezClient.Modules.DeviceManager
                 // Create remote devices if they are not already created
                 foreach (var dvm in Devices.ToList().Where(d => d.IsConnected))
                 {
-                    if (serviceDevices.Any(d => d.Id == dvm.Id && d.IsAuthorized))
+                    if (serviceDevices.Any(d => d.Id == dvm.Id && d.FinishedMainFlow))
                         _ = TryCreateRemoteDeviceAsync(dvm);
                 }
             }
@@ -199,31 +199,25 @@ namespace HideezClient.Modules.DeviceManager
 
         async Task TryCreateRemoteDeviceAsync(Device device)
         {
-            if (!device.IsInitialized && !device.IsInitializing && !device.IsAuthorized && !device.IsAuthorizing)
+            try
             {
-                try
+                if (device.IsAuthorized && !device.IsStorageLoaded && !device.IsLoadingStorage)
                 {
-                    // Todo: Do something about remote device creation delay
-                    // Allow other services to interact with the device first because
-                    // remote device connection establishmebt blocks communication
-                    // A 3s delay should be enough
-                    // Removing this line will result in slower workstation unlock
-                    await Task.Delay(3000);
-
-                    if (!device.IsInitialized && !device.IsInitializing && !device.IsAuthorized && !device.IsAuthorizing)
-                    {
-                        await device.InitializeRemoteDevice();
-
-                        // With certain configuration, the device will be authorized without pin code or button confirmation
-                        // In that case we can immediatelly begin loading storage
-                        if (device.IsAuthorized)
-                            await device.LoadStorage();
-                    }
+                    await device.LoadStorage();
                 }
-                catch (Exception ex)
+                else if (!device.IsInitialized && !device.IsInitializing && !device.IsAuthorized && !device.IsAuthorizing)
                 {
-                    _log.Error(ex);
+                    await device.InitializeRemoteDevice();
+
+                    // With certain configuration, the device will be authorized without pin code or button confirmation
+                    // In that case we can immediatelly begin loading storage
+                    if (device.IsAuthorized && !device.IsStorageLoaded && !device.IsLoadingStorage)
+                        await device.LoadStorage();
                 }
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
             }
         }
     }

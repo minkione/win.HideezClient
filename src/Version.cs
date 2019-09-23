@@ -13,6 +13,6 @@ using System.Resources;
 // [assembly: AssemblyVersion("1.0.*")]
 
 // Client application version
-[assembly: AssemblyVersion("3.1.0.5")]
-[assembly: AssemblyFileVersion("3.1.0.5")]
+[assembly: AssemblyVersion("3.1.0.10")]
+[assembly: AssemblyFileVersion("3.1.0.10")]
 [assembly: NeutralResourcesLanguage("en")]

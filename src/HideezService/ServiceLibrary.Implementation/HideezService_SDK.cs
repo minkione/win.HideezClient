@@ -118,7 +118,8 @@ namespace ServiceLibrary.Implementation
             var workstationInfoProvider = new WorkstationInfoProvider(hesAddress, sdkLogger);
 
             // HES Connection ==================================
-            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, sdkLogger);
+            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _connectionFlowProcessor, sdkLogger);
+            _hesConnection.ReconnectDelayMs = 10_000; // Todo: remove hes recoonect delay overwrite in stable version
             _hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
             {
                 ProximitySettings settings = await _proximitySettingsManager.GetSettingsAsync();
@@ -156,6 +157,7 @@ namespace ServiceLibrary.Implementation
                 _screenActivator,
                 _uiProxy,
                 sdkLogger);
+            _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreList = new AdvertisementIgnoreList(
                 _connectionManager,
                 _deviceManager,
@@ -193,7 +195,8 @@ namespace ServiceLibrary.Implementation
             _workstationLocker = new WcfWorkstationLocker(SessionManager, sdkLogger);
 
             // WorkstationLockProcessor ==================================
-            _workstationLockProcessor = new WorkstationLockProcessor(_proximityMonitorManager, _workstationLocker, sdkLogger);
+            _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager, 
+                _deviceManager, _workstationLocker, sdkLogger);
 
             _sessionSwitchLogger = new SessionSwitchLogger(_eventAggregator,
                 _tapProcessor, _rfidProcessor, _proximityProcessor, 
@@ -247,7 +250,6 @@ namespace ServiceLibrary.Implementation
             {
                 device.ConnectionStateChanged += Device_ConnectionStateChanged;
                 device.Initialized += Device_Initialized;
-                device.Authorized += Device_Authorized;
                 device.Disconnected += Device_Disconnected;
             }
         }
@@ -260,7 +262,6 @@ namespace ServiceLibrary.Implementation
             {
                 device.ConnectionStateChanged -= Device_ConnectionStateChanged;
                 device.Initialized -= Device_Initialized;
-                device.Authorized -= Device_Authorized;
                 device.Disconnected -= Device_Disconnected;
 
                 if (device is IWcfDevice wcfDevice)
@@ -383,6 +384,9 @@ namespace ServiceLibrary.Implementation
                 {
                     foreach (var client in SessionManager.Sessions)
                     {
+                        if (!device.IsConnected)
+                            device.SetUserProperty(ConnectionFlowProcessor.FLOW_FINISHED_PROP, false);
+
                         client.Callbacks.DeviceConnectionStateChanged(new DeviceDTO(device));
                     }
                 }
@@ -436,23 +440,19 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void Device_Authorized(object sender, EventArgs e)
+        void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
         {
-            if (sender is IDevice device)
+            foreach (var session in SessionManager.Sessions)
             {
-                foreach (var session in SessionManager.Sessions)
+                try
                 {
-                    try
-                    {
-                        session.Callbacks.DeviceAuthorized(new DeviceDTO(device));
-                    }
-                    catch (Exception ex)
-                    {
-                        Error(ex);
-                    }
+                    session.Callbacks.DeviceFinishedMainFlow(new DeviceDTO(device));
+                }
+                catch (Exception ex)
+                {
+                    Error(ex);
                 }
             }
-
         }
 
         async void SessionManager_SessionClosed(object sender, ServiceClientSession e)

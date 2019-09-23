@@ -241,8 +241,8 @@
     <Compile Include="Messages\ButtonPressedMessage.cs" />
     <Compile Include="Messages\ConnectionChangedMessage.cs" />
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
-    <Compile Include="Messages\DeviceAuthorizedMessage.cs" />
     <Compile Include="Messages\DeviceConnectionStateChangedMessage.cs" />
+    <Compile Include="Messages\DeviceFinishedMainFlowMessage.cs" />
     <Compile Include="Messages\DeviceInitializedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />

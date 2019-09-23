@@ -192,8 +192,8 @@
   <wsdl:message name="IHideezService_DeviceInitialized_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:DeviceInitialized" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_DeviceAuthorized_OutputCallbackMessage">
-    <wsdl:part name="parameters" element="tns:DeviceAuthorized" />
+  <wsdl:message name="IHideezService_DeviceFinishedMainFlow_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:DeviceFinishedMainFlow" />
   </wsdl:message>
   <wsdl:message name="IHideezService_RemoteConnection_DeviceStateChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:RemoteConnection_DeviceStateChanged" />
@@ -302,8 +302,8 @@
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceInitialized">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceInitialized" message="tns:IHideezService_DeviceInitialized_OutputCallbackMessage" />
     </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceAuthorized">
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceAuthorized" message="tns:IHideezService_DeviceAuthorized_OutputCallbackMessage" />
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceFinishedMainFlow">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceFinishedMainFlow" message="tns:IHideezService_DeviceFinishedMainFlow_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_DeviceStateChanged">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_DeviceStateChanged" message="tns:IHideezService_RemoteConnection_DeviceStateChanged_OutputCallbackMessage" />
@@ -538,8 +538,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="DeviceAuthorized">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceAuthorized" style="document" />
+    <wsdl:operation name="DeviceFinishedMainFlow">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceFinishedMainFlow" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>
