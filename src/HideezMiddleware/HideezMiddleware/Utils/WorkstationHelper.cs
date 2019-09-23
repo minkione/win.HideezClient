@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
-    public class WorkstationHelper
+    public partial class WorkstationHelper
     {
         [DllImport("Wtsapi32.dll")]
         static extern bool WTSQuerySessionInformation(IntPtr hServer, int sessionId, WtsInfoClass wtsInfoClass, out IntPtr ppBuffer, out int pBytesReturned);

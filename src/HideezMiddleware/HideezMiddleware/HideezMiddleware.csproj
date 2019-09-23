@@ -105,6 +105,7 @@
     <Compile Include="Utils\LocalToMSAccountConverter.cs" />
     <Compile Include="Utils\MacUtils.cs" />
     <Compile Include="Utils\WorkstationHelper.cs" />
+    <Compile Include="Utils\WorkstationHelper_UnlockCheck.cs" />
     <Compile Include="WorkstationInfoProvider.cs" />
     <Compile Include="ConnectionFlowProcessor.cs" />
     <Compile Include="WorkstationLockingEventArgs.cs" />
