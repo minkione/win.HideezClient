@@ -8,9 +8,10 @@ using Hideez.SDK.Communication.WorkstationEvents;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
 using HideezMiddleware.Settings;
+using HideezMiddleware.Audit;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ScreenActivation;
-using ServiceLibrary.Implementation.SessionManagement;
+using ServiceLibrary.Implementation.ClientManagement;
 using ServiceLibrary.Implementation.WorkstationLock;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,6 @@ using HideezMiddleware.DeviceConnection;
 using Hideez.SDK.Communication;
 using System.Text;
 using System.Reflection;
-using ServiceLibrary.Implementation.AuditLogs;
 
 namespace ServiceLibrary.Implementation
 {
@@ -36,7 +36,8 @@ namespace ServiceLibrary.Implementation
         static ProximityMonitorManager _proximityMonitorManager;
         static IScreenActivator _screenActivator;
         static WcfDeviceFactory _wcfDeviceManager;
-        static EventAggregator _eventAggregator;
+        static EventSaver _eventSaver;
+        static EventSender _eventSender;
         static ServiceClientUiManager _clientProxy;
         static UiProxyManager _uiProxy;
         static StatusManager _statusManager;
@@ -52,9 +53,13 @@ namespace ServiceLibrary.Implementation
         static ProximityConnectionProcessor _proximityProcessor;
         static SessionSwitchLogger _sessionSwitchLogger;
 
+        readonly string auditEventsDirectoryPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\Hideez\WorkstationEvents\";
+
         void InitializeSDK()
         {
             var sdkLogger = new NLogWrapper();
+
+            _eventSaver = new EventSaver(auditEventsDirectoryPath, sdkLogger);
 
 #if DEBUG
             _log.WriteLine($">>>>>> Verifying error codes.");
@@ -118,7 +123,7 @@ namespace ServiceLibrary.Implementation
             var workstationInfoProvider = new WorkstationInfoProvider(hesAddress, sdkLogger);
 
             // HES Connection ==================================
-            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _connectionFlowProcessor, sdkLogger);
+            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, sdkLogger);
             _hesConnection.ReconnectDelayMs = 10_000; // Todo: remove hes recoonect delay overwrite in stable version
             _hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
             {
@@ -135,7 +140,7 @@ namespace ServiceLibrary.Implementation
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
 
             // Audit Log / Event Aggregator =============================
-            _eventAggregator = new EventAggregator(_hesConnection, sdkLogger);
+            _eventSender = new EventSender(_hesConnection, _eventSaver, sdkLogger);
 
             // ScreenActivator ==================================
             _screenActivator = new WcfScreenActivator(SessionManager);
@@ -198,7 +203,7 @@ namespace ServiceLibrary.Implementation
             _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager, 
                 _deviceManager, _workstationLocker, sdkLogger);
 
-            _sessionSwitchLogger = new SessionSwitchLogger(_eventAggregator,
+            _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver,
                 _tapProcessor, _rfidProcessor, _proximityProcessor, 
                 _workstationLockProcessor, _deviceManager, _sdkLogger);
 
@@ -269,11 +274,11 @@ namespace ServiceLibrary.Implementation
 
                 if (!device.IsRemote && device.IsInitialized)
                 {
-                    var workstationEvent = EventFactory.GetWorkstationEvent();
+                    var workstationEvent = _eventSaver.GetWorkstationEvent();
                     workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
                     workstationEvent.Severity = WorkstationEventSeverity.Warning;
                     workstationEvent.DeviceId = device.SerialNo;
-                    _eventAggregator?.AddNewAsync(workstationEvent);
+                    _eventSaver.AddNewAsync(workstationEvent);
                 }
             }
         }
@@ -282,7 +287,7 @@ namespace ServiceLibrary.Implementation
         {
             if (sender is IDevice device && device.IsInitialized && (!device.IsRemote || device.ChannelNo > 2))
             {
-                var workstationEvent = EventFactory.GetWorkstationEvent();
+                var workstationEvent = _eventSaver.GetWorkstationEvent();
                 workstationEvent.Severity = WorkstationEventSeverity.Info;
                 workstationEvent.DeviceId = device.SerialNo;
                 if (device.IsRemote)
@@ -293,7 +298,7 @@ namespace ServiceLibrary.Implementation
                 {
                     workstationEvent.EventId = WorkstationEventType.DeviceDisconnect;
                 }
-                _eventAggregator?.AddNewAsync(workstationEvent);
+                _eventSaver.AddNewAsync(workstationEvent);
             }
         }
 
@@ -301,7 +306,7 @@ namespace ServiceLibrary.Implementation
         {
             if (_connectionManager.State == BluetoothAdapterState.Unknown || _connectionManager.State == BluetoothAdapterState.PoweredOn)
             {
-                var we = EventFactory.GetWorkstationEvent();
+                var we = _eventSaver.GetWorkstationEvent();
                 if (_connectionManager.State == BluetoothAdapterState.PoweredOn)
                 {
                     we.EventId = WorkstationEventType.DonglePlugged;
@@ -313,7 +318,7 @@ namespace ServiceLibrary.Implementation
                     we.Severity = WorkstationEventSeverity.Warning;
                 }
 
-                await _eventAggregator?.AddNewAsync(we);
+                await _eventSaver.AddNewAsync(we);
             }
         }
 
@@ -326,11 +331,11 @@ namespace ServiceLibrary.Implementation
             {
                 prevRfidIsConnectedState = isConnected;
 
-                var we = EventFactory.GetWorkstationEvent();
+                var we = _eventSaver.GetWorkstationEvent();
                 we.EventId = isConnected ? WorkstationEventType.RFIDAdapterPlugged : WorkstationEventType.RFIDAdapterUnplugged;
                 we.Severity = isConnected ? WorkstationEventSeverity.Info : WorkstationEventSeverity.Warning;
 
-                await _eventAggregator?.AddNewAsync(we);
+                await _eventSaver.AddNewAsync(we);
             }
         }
 
@@ -342,7 +347,7 @@ namespace ServiceLibrary.Implementation
             {
                 prevHesIsConnectedState = isConnected;
 
-                var we = EventFactory.GetWorkstationEvent();
+                var we = _eventSaver.GetWorkstationEvent();
                 if (_hesConnection.State == HesConnectionState.Connected)
                 {
                     we.EventId = WorkstationEventType.HESConnected;
@@ -354,7 +359,7 @@ namespace ServiceLibrary.Implementation
                     we.Severity = WorkstationEventSeverity.Warning;
                 }
 
-                await _eventAggregator?.AddNewAsync(we);
+                await _eventSaver.AddNewAsync(we);
             }
         }
 
@@ -419,7 +424,7 @@ namespace ServiceLibrary.Implementation
 
                     if (!device.IsRemote || device.ChannelNo > 2)
                     {
-                        var workstationEvent = EventFactory.GetWorkstationEvent();
+                        var workstationEvent = _eventSaver.GetWorkstationEvent();
                         workstationEvent.Severity = WorkstationEventSeverity.Info;
                         workstationEvent.DeviceId = device.SerialNo;
                         if (device.IsRemote)
@@ -430,7 +435,7 @@ namespace ServiceLibrary.Implementation
                         {
                             workstationEvent.EventId = WorkstationEventType.DeviceConnect;
                         }
-                        _eventAggregator?.AddNewAsync(workstationEvent);
+                        _eventSaver.AddNewAsync(workstationEvent);
                     }
                 }
             }
@@ -442,6 +447,8 @@ namespace ServiceLibrary.Implementation
 
         void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
         {
+            _hesConnection?.OnDeviceConnected(device);
+
             foreach (var session in SessionManager.Sessions)
             {
                 try
@@ -598,7 +605,7 @@ namespace ServiceLibrary.Implementation
 
         public async void PublishEvent(WorkstationEventDTO workstationEvent)
         {
-            var we = EventFactory.GetWorkstationEvent();
+            var we = _eventSaver.GetWorkstationEvent();
             we.Version = WorkstationEvent.ClassVersion;
             we.Id = workstationEvent.Id;
             we.Date = workstationEvent.Date;
@@ -608,7 +615,7 @@ namespace ServiceLibrary.Implementation
             we.DeviceId = workstationEvent.DeviceId;
             we.AccountName = workstationEvent.AccountName;
             we.AccountLogin = workstationEvent.AccountLogin;
-            await  _eventAggregator?.AddNewAsync(we);
+            await _eventSaver.AddNewAsync(we);
         }
 
         #region Remote device management
@@ -784,16 +791,16 @@ namespace ServiceLibrary.Implementation
 
         public static async Task OnServiceStartedAsync()
         {
-            var workstationEvent = EventFactory.GetWorkstationEvent();
+            var workstationEvent = _eventSaver.GetWorkstationEvent();
             workstationEvent.EventId = WorkstationEventType.ServiceStarted;
-            await _eventAggregator?.AddNewAsync(workstationEvent);
+            await _eventSaver.AddNewAsync(workstationEvent);
         }
 
         public static async Task OnServiceStoppedAsync()
         {
-            var workstationEvent = EventFactory.GetWorkstationEvent();
+            var workstationEvent = _eventSaver.GetWorkstationEvent();
             workstationEvent.EventId = WorkstationEventType.ServiceStopped;
-            await _eventAggregator?.AddNewAsync(workstationEvent, true);
+            await _eventSaver.AddNewAsync(workstationEvent, true);
         }
         #endregion
     }

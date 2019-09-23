@@ -1,8 +1,6 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.WorkstationEvents;
-using HideezMiddleware;
 using HideezMiddleware.DeviceConnection;
 using Microsoft.Win32;
 using System;
@@ -10,10 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ServiceLibrary.Implementation.AuditLogs
+namespace HideezMiddleware.Audit
 {
     // Todo: Code cleanup for SessionSwitchLogger
-    class SessionSwitchLogger : Logger, IDisposable
+    public class SessionSwitchLogger : Logger, IDisposable
     {
         // There is a delay between successful unlock/logon by application and actual session switch
         const int LOCK_EVENT_LIFETIME = 30;
@@ -37,7 +35,7 @@ namespace ServiceLibrary.Implementation.AuditLogs
             public SessionSwitchSubject Reason { get; set; }
         }
 
-        readonly EventAggregator _eventAggregator;
+        readonly EventSaver _eventSaver;
         readonly TapConnectionProcessor _tapProcessor;
         readonly RfidConnectionProcessor _rfidProcessor;
         readonly ProximityConnectionProcessor _proximityProcessor;
@@ -49,7 +47,7 @@ namespace ServiceLibrary.Implementation.AuditLogs
 
         readonly object listsLock = new object();
 
-        public SessionSwitchLogger(EventAggregator eventAggregator,
+        public SessionSwitchLogger(EventSaver eventSaver,
             TapConnectionProcessor tapProcessor, 
             RfidConnectionProcessor rfidProcessor,
             ProximityConnectionProcessor proximityProcessor,
@@ -58,7 +56,7 @@ namespace ServiceLibrary.Implementation.AuditLogs
             ILog log)
             : base(nameof(SessionSwitchLogger), log)
         {
-            _eventAggregator = eventAggregator;
+            _eventSaver = eventSaver;
             _tapProcessor = tapProcessor;
             _rfidProcessor = rfidProcessor;
             _proximityProcessor = proximityProcessor;
@@ -204,7 +202,10 @@ namespace ServiceLibrary.Implementation.AuditLogs
 
         async Task RecordWorkstationLock(int sessionId, WorkstationEventType eventType)
         {
-            var we = EventFactory.GetWorkstationEvent();
+            if (_eventSaver == null)
+                return;
+
+            var we = _eventSaver.GetPrevSessionWorkstationEvent();
             we.EventId = eventType;
 
             lock (listsLock)
@@ -218,18 +219,22 @@ namespace ServiceLibrary.Implementation.AuditLogs
                 if (latestLockEvent != null)
                 {
                     we.Note = latestLockEvent.Reason.ToString();
-                    we.DeviceId = _bleDeviceManager.Find(latestLockEvent.Mac, 1)?.SerialNo;
+                    we.DeviceId = _bleDeviceManager.Find(latestLockEvent.Mac, 1)?.SerialNo; // Todo: Replace channel magic number with const
                 }
 
                 lockEventsList.Clear();
             }
 
-            await _eventAggregator?.AddNewAsync(we, true);
+            await _eventSaver.AddNewAsync(we, true);
         }
 
         async Task RecordWorkstationUnlock(int sessionId, WorkstationEventType eventType)
         {
-            var we = EventFactory.GetWorkstationEvent();
+
+            if (_eventSaver == null)
+                return;
+
+            var we = _eventSaver.GetWorkstationEvent();
             we.EventId = eventType;
 
             lock (listsLock)
@@ -250,7 +255,7 @@ namespace ServiceLibrary.Implementation.AuditLogs
                 unlockEventsList.Clear();
             }
 
-            await _eventAggregator?.AddNewAsync(we, true);
+            await _eventSaver.AddNewAsync(we, true);
         }
     }
 }

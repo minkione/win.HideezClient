@@ -3,7 +3,7 @@ using System.ServiceModel;
 using System.Linq;
 using HideezMiddleware;
 using Hideez.SDK.Communication;
-using ServiceLibrary.Implementation.SessionManagement;
+using ServiceLibrary.Implementation.ClientManagement;
 using Hideez.SDK.Communication.Log;
 using System.Reflection;
 

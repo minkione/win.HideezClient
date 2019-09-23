@@ -18,13 +18,13 @@ namespace HideezMiddleware
     public partial class WorkstationHelper
     {
         [DllImport("Wtsapi32.dll")]
-        static extern bool WTSQuerySessionInformation(IntPtr hServer, int sessionId, WtsInfoClass wtsInfoClass, out IntPtr ppBuffer, out int pBytesReturned);
+        static extern bool WTSQuerySessionInformation(IntPtr hServer, uint sessionId, WtsInfoClass wtsInfoClass, out IntPtr ppBuffer, out int pBytesReturned);
 
         [DllImport("Wtsapi32.dll")]
         static extern void WTSFreeMemory(IntPtr pointer);
 
         [DllImport("kernel32.dll")]
-        static extern int WTSGetActiveConsoleSessionId();
+        static extern uint WTSGetActiveConsoleSessionId();
 
         private enum WtsInfoClass
         {
@@ -136,7 +136,7 @@ namespace HideezMiddleware
             return result.ToArray();
         }
 
-        public static string GetSessionName(int sessionId)
+        public static string GetSessionName(uint sessionId)
         {
             string username = "SYSTEM";
             if (WTSQuerySessionInformation(IntPtr.Zero, sessionId, WtsInfoClass.WTSUserName, out IntPtr buffer, out int strLen) && strLen > 1)
@@ -147,22 +147,9 @@ namespace HideezMiddleware
             return username;
         }
 
-        public static int GetSessionId()
+        public static uint GetSessionId()
         {
             return WTSGetActiveConsoleSessionId();
-        }
-
-        public static SessionInfo GetSessionInfo()
-        {
-            var sessionId = GetSessionId();
-
-            var sessionInfo = new SessionInfo()
-            {
-                SessionId = sessionId,
-                SessionName = GetSessionName(sessionId),
-            };
-
-            return sessionInfo;
         }
     }
 }

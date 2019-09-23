@@ -9,11 +9,10 @@ using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.WorkstationEvents;
 using Newtonsoft.Json;
-using ServiceLibrary.Implementation.Extensions;
 
-namespace ServiceLibrary.Implementation
+namespace HideezMiddleware.Audit
 {
-    class EventAggregator : Logger
+    public class EventSender : Logger
     {
         // Once per 15 minutes seems ok for release.
         // It equals to 36 checks per work day
@@ -29,8 +28,8 @@ namespace ServiceLibrary.Implementation
 
         readonly HesAppConnection _hesAppConnection;
         readonly FileSystemWatcher _fileSystemWatcher;
+        readonly EventSaver _eventSaver;
 
-        readonly string eventDirectoryPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\Hideez\WorkstationEvents\";
         readonly System.Timers.Timer automaticEventSendingTimer = new System.Timers.Timer(AUTO_SEND_INTERVAL);
 
         // Used for interlocking event sending methods
@@ -39,18 +38,23 @@ namespace ServiceLibrary.Implementation
         // Used for locking operations with events
         readonly object _fileSystemLock = new object();
 
-        public EventAggregator(HesAppConnection hesAppConnection, ILog log)
-            : base(nameof(EventAggregator), log)
+        public EventSender(HesAppConnection hesAppConnection, EventSaver eventSaver, ILog log)
+            : base(nameof(EventSender), log)
         {
-            if (!Directory.Exists(eventDirectoryPath))
-                Directory.CreateDirectory(eventDirectoryPath);
+            _eventSaver = eventSaver;
+            _eventSaver.UrgentEventSaved += EventSaver_UrgentEventSaved;
 
             _hesAppConnection = hesAppConnection;
-            _fileSystemWatcher = new FileSystemWatcher(eventDirectoryPath);
+            _fileSystemWatcher = new FileSystemWatcher(_eventSaver.EventsDirectoryPath);
             _fileSystemWatcher.Created += FileSystemWatcher_OnFileCreated;
 
             automaticEventSendingTimer.Elapsed += SendTimer_Elapsed;
             automaticEventSendingTimer.Start();
+        }
+
+        async void EventSaver_UrgentEventSaved(object sender, EventArgs e)
+        {
+            await SendEventsAsync();
         }
 
         async void FileSystemWatcher_OnFileCreated(object sender, FileSystemEventArgs e)
@@ -84,39 +88,12 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                if (Directory.Exists(eventDirectoryPath))
-                    return Directory.GetFiles(eventDirectoryPath).Count();
+                if (Directory.Exists(_eventSaver.EventsDirectoryPath))
+                    return Directory.GetFiles(_eventSaver.EventsDirectoryPath).Count();
             }
             catch (Exception) { }
 
             return 0;
-        }
-
-        /// <summary>
-        /// Add new workstation event to the events queue
-        /// </summary>
-        /// <param name="workstationEvent">Workstation event to queue</param>
-        /// <param name="sendImmediatelly">If true, event sending is performed immediatelly after queuing event</param>
-        public async Task AddNewAsync(WorkstationEvent workstationEvent, bool sendImmediatelly = false)
-        {
-            await Task.Run(async () =>
-            {
-                try
-                {
-                    WriteLine($"New workstation event: {workstationEvent.EventId}");
-
-                    string json = JsonConvert.SerializeObject(workstationEvent);
-                    string file = $"{eventDirectoryPath}{workstationEvent.Id}";
-                    File.WriteAllText(file, json);
-
-                    if (sendImmediatelly)
-                        await SendEventsAsync(true);
-                }
-                catch (Exception ex)
-                {
-                    WriteLine(ex);
-                }
-            });
         }
 
         /// <summary>
@@ -127,12 +104,12 @@ namespace ServiceLibrary.Implementation
         {
             List<WorkstationEvent> events = new List<WorkstationEvent>();
 
-            if (!Directory.Exists(eventDirectoryPath))
+            if (!Directory.Exists(_eventSaver.EventsDirectoryPath))
                 return events;
 
             try
             {
-                var eventFiles = Directory.GetFiles(eventDirectoryPath).OrderBy(f => new FileInfo(f).LastWriteTimeUtc);
+                var eventFiles = Directory.GetFiles(_eventSaver.EventsDirectoryPath).OrderBy(f => new FileInfo(f).LastWriteTimeUtc);
 
                 foreach (var file in eventFiles)
                 {
@@ -181,7 +158,7 @@ namespace ServiceLibrary.Implementation
             {
                 try
                 {
-                    var file = Path.Combine(eventDirectoryPath, we.Id);
+                    var file = Path.Combine(_eventSaver.EventsDirectoryPath, we.Id);
                     File.Delete(file);
                 }
                 catch (Exception ex)

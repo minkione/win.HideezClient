@@ -1,5 +1,5 @@
 ﻿using HideezMiddleware;
-using ServiceLibrary.Implementation.SessionManagement;
+using ServiceLibrary.Implementation.ClientManagement;
 
 namespace ServiceLibrary.Implementation.ScreenActivation
 {

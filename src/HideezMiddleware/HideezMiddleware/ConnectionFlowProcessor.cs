@@ -13,7 +13,7 @@ using Hideez.SDK.Communication.Utils;
 
 namespace HideezMiddleware
 {
-    public class ConnectionFlowProcessor : Logger, IConnectionFlow
+    public class ConnectionFlowProcessor : Logger
     {
         public const string FLOW_FINISHED_PROP = "MainFlowFinished"; 
 

@@ -77,6 +77,12 @@
     <Compile Include="..\..\Version.cs">
       <Link>Version.cs</Link>
     </Compile>
+    <Compile Include="Audit\EventSaver.cs" />
+    <Compile Include="Audit\EventSender.cs" />
+    <Compile Include="Audit\EventFactory.cs" />
+    <Compile Include="Audit\SessionInfo.cs" />
+    <Compile Include="Audit\SessionInfoProvider.cs" />
+    <Compile Include="Audit\SessionSwitchLogger.cs" />
     <Compile Include="ConnectionFlowResult.cs" />
     <Compile Include="CredentialProviderProxy.cs" />
     <Compile Include="DeviceConnection\AdvertisementIgnoreList.cs" />
@@ -84,19 +90,20 @@
     <Compile Include="DeviceConnection\ProximityConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\RfidConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\TapConnectionProcessor.cs" />
+    <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
     <Compile Include="IClientUiProxy.cs" />
     <Compile Include="IScreenActivator.cs" />
     <Compile Include="IWorkstationLocker.cs" />
-    <Compile Include="Modules\NLogWrapper.cs" />
+    <Compile Include="NLogWrapper.cs" />
     <Compile Include="SessionSwitchMonitor.cs" />
-    <Compile Include="Modules\Settings\BaseSettings.cs" />
-    <Compile Include="Modules\Settings\FileSerializer\IFileSerializer.cs" />
-    <Compile Include="Modules\Settings\Manager\ISettingsManager.cs" />
-    <Compile Include="Modules\Settings\SettingAttribute.cs" />
-    <Compile Include="Modules\Settings\Manager\SettingsManager.cs" />
-    <Compile Include="Modules\Settings\FileSerializer\XmlFileSerializer.cs" />
-    <Compile Include="Modules\Settings\ProximitySettings.cs" />
+    <Compile Include="Settings\BaseSettings.cs" />
+    <Compile Include="Settings\FileSerializer\IFileSerializer.cs" />
+    <Compile Include="Settings\Manager\ISettingsManager.cs" />
+    <Compile Include="Settings\SettingAttribute.cs" />
+    <Compile Include="Settings\Manager\SettingsManager.cs" />
+    <Compile Include="Settings\FileSerializer\XmlFileSerializer.cs" />
+    <Compile Include="Settings\ProximitySettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\ErrorCode.Designer.cs" />
     <Compile Include="RfidServiceConnection.cs" />

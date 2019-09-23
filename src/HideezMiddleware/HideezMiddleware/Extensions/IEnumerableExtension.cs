@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace ServiceLibrary.Implementation.Extensions
+namespace HideezMiddleware
 {
     static class IEnumerableExtension
     {
