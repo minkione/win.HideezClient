@@ -109,8 +109,6 @@ namespace TestConsole
 
                 // Disconnect from service
                 service.Close();
-
-                await HideezService.OnServiceStartedAsync();
             }
             catch (Exception ex)
             {
