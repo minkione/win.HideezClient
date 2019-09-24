@@ -16,6 +16,8 @@ namespace HideezMiddleware.DeviceConnection
 
         int _isConnecting = 0;
 
+        public event EventHandler<string> WorkstationUnlockPerformed;
+
         public TapConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
@@ -74,7 +76,10 @@ namespace HideezMiddleware.DeviceConnection
                     {
                         _screenActivator?.ActivateScreen();
                         var mac = MacUtils.GetMacFromShortMac(adv.Id);
-                        await _connectionFlowProcessor.ConnectAndUnlock(mac);
+                        var result = await _connectionFlowProcessor.ConnectAndUnlock(mac);
+
+                        if (result.UnlockSuccessful)
+                            WorkstationUnlockPerformed?.Invoke(this, mac);
                     }
                     catch (Exception)
                     {

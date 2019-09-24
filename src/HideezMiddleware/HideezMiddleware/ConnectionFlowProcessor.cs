@@ -45,16 +45,14 @@ namespace HideezMiddleware
             _hesConnection = hesConnection;
         }
 
-        public async Task<bool> ConnectAndUnlock(string mac)
+        public async Task<ConnectionFlowResult> ConnectAndUnlock(string mac)
         {
-            bool res = false;
             // ignore, if workflow for any device already initialized
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
             {
-                res = true;
                 try
                 {
-                    await MainWorkflow(mac);
+                    return await MainWorkflow(mac);
                 }
                 finally
                 {
@@ -65,14 +63,22 @@ namespace HideezMiddleware
                     Interlocked.Exchange(ref _isConnecting, 0);
                 }
             }
-            return res;
+
+            return new ConnectionFlowResult();
         }
 
-        async Task MainWorkflow(string mac)
+        async Task<ConnectionFlowResult> MainWorkflow(string mac)
         {
+            // Ignore MainFlow requests for devices that are already connected
+            // IsConnected-true indicates that device already finished main flow or is in progress
+            var existingDevice = _deviceManager.Find(mac, 1); // Todo: Replace channel magic number <1> with defined const
+            if (existingDevice != null && existingDevice.IsConnected)
+                return new ConnectionFlowResult();
+
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
 
             bool success = false;
+            var flowResult = new ConnectionFlowResult();
             bool fatalError = false;
             string errorMessage = null;
             IDevice device = null;
@@ -123,6 +129,7 @@ namespace HideezMiddleware
                         !device.AccessLevel.IsNewPinRequired)
                     {
                         success = await TryUnlockWorkstation(device);
+                        flowResult.UnlockSuccessful = success;
                     }
                 }
                 else
@@ -159,13 +166,20 @@ namespace HideezMiddleware
                 if (device != null)
                 {
                     if (fatalError)
+                    {
                         await _deviceManager.Remove(device);
+                        flowResult.ConnectSuccessful = false;
+                    }
                     else if (!success)
+                    {
                         await device.Disconnect();
+                        flowResult.ConnectSuccessful = false;
+                    }
                     else
                     {
                         device.SetUserProperty(FLOW_FINISHED_PROP, true);
                         DeviceFinishedMainFlow?.Invoke(this, device);
+                        flowResult.ConnectSuccessful = true;
                     }
                 }
             }
@@ -180,6 +194,8 @@ namespace HideezMiddleware
             }
 
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
+
+            return flowResult;
         }
 
         async Task<bool> TryUnlockWorkstation(IDevice device)

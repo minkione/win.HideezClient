@@ -44,8 +44,6 @@ namespace HideezServiceHost
 
                 // Disconnect from service
                 service.Close();
-
-                await ServiceLibrary.Implementation.HideezService.OnServiceStartedAsync();
             }
             catch (Exception ex)
             {
@@ -54,9 +52,9 @@ namespace HideezServiceHost
             }
         }
 
-        protected override void OnShutdown()
+        protected override async void OnShutdown()
         {
-            ServiceLibrary.Implementation.HideezService.OnServiceStoppedAsync().Wait();
+            await ServiceLibrary.Implementation.HideezService.OnServiceStoppedAsync().ConfigureAwait(false);
             base.OnShutdown();
         }
 
@@ -64,7 +62,7 @@ namespace HideezServiceHost
         {
             try
             {
-                ServiceLibrary.Implementation.HideezService.OnServiceStoppedAsync().Wait();
+                await ServiceLibrary.Implementation.HideezService.OnServiceStoppedAsync().ConfigureAwait(false);
 
                 // connect and ask the service to finish all works and close all connections
                 var callback = new HideezServiceCallbacks();
@@ -110,7 +108,7 @@ namespace HideezServiceHost
                         return;
                 }
 
-                SessionSwitchManager.SystemSessionSwitch(sessionChangeDescription.SessionId, (Microsoft.Win32.SessionSwitchReason)sessionChangeDescription.Reason);
+                SessionSwitchMonitor.SystemSessionSwitch(sessionChangeDescription.SessionId, (Microsoft.Win32.SessionSwitchReason)sessionChangeDescription.Reason);
             }
             catch (Exception ex)
             {

@@ -10,15 +10,19 @@ namespace HideezClient.ViewModels
 {
     class IndicatorsViewModel : ObservableObject
     {
-        private readonly Logger log = LogManager.GetCurrentClassLogger();
-        private readonly IMessenger messenger;
-        private readonly IServiceProxy serviceProxy;
-        private ConnectionIndicatorViewModel service;
+        readonly Logger log = LogManager.GetCurrentClassLogger();
+        readonly IMessenger messenger;
+        readonly IServiceProxy serviceProxy;
+
+        ConnectionIndicatorViewModel _service;
+        ConnectionIndicatorViewModel _connectionHES;
+        ConnectionIndicatorViewModel _connectionRFID;
+        ConnectionIndicatorViewModel _connectionDongle;
 
         public ConnectionIndicatorViewModel Service
         {
-            get { return service; }
-            set { Set(ref service, value); }
+            get { return _service; }
+            set { Set(ref _service, value); }
         }
 
         public ObservableCollection<ConnectionIndicatorViewModel> Indicators { get; } = new ObservableCollection<ConnectionIndicatorViewModel>();
@@ -35,58 +39,64 @@ namespace HideezClient.ViewModels
                 NoConnectionText = "Status.Tooltip.DisconectedService",
             };
 
-            var connectionHES = new ConnectionIndicatorViewModel
+            _connectionHES = new ConnectionIndicatorViewModel
             {
                 Name = "Status.HES",
                 HasConnectionText = "Status.Tooltip.ConectedHES",
                 NoConnectionText = "Status.Tooltip.DisconectedHES",
             };
-            Indicators.Add(connectionHES);
+            Indicators.Add(_connectionHES);
 
-            var connectionRFID = new ConnectionIndicatorViewModel
+            _connectionRFID = new ConnectionIndicatorViewModel
             {
                 Name = "Status.RFID",
                 HasConnectionText = "Status.Tooltip.ConectedRFID",
                 NoConnectionText = "Status.Tooltip.DisconectedRFID",
             };
-            Indicators.Add(connectionRFID);
+            Indicators.Add(_connectionRFID);
 
-            var connectionDongle = new ConnectionIndicatorViewModel
+            _connectionDongle = new ConnectionIndicatorViewModel
             {
                 Name = "Status.Dongle",
                 HasConnectionText = "Status.Tooltip.ConectedDongle",
                 NoConnectionText = "Status.Tooltip.DisconectedDongle",
             };
-            Indicators.Add(connectionDongle);
+            Indicators.Add(_connectionDongle);
 
-            void ResetIndicators()
+            messenger.Register<ConnectionServiceChangedMessage>(this, OnConnectionServiceChanged);
+            messenger.Register<ServiceComponentsStateChangedMessage>(this, OnServiceComponentsStateChanged);
+        }
+
+        void OnConnectionServiceChanged(ConnectionServiceChangedMessage message)
+        {
+            ResetIndicators();
+        }
+
+        void OnServiceComponentsStateChanged(ServiceComponentsStateChangedMessage message)
+        {
+            _connectionHES.State = message.HesConnected;
+            _connectionHES.Visible = message.ShowHesStatus;
+
+            _connectionRFID.State = message.RfidConnected;
+            _connectionRFID.Visible = message.ShowRfidStatus;
+
+            _connectionDongle.State = message.BleConnected;
+        }
+
+        void ResetIndicators()
+        {
+            try
             {
-                try
-                {
-                    Service.State = serviceProxy.IsConnected;
-                    connectionDongle.State = false;
-                    connectionRFID.State = false;
-                    connectionRFID.Visible = false;
-                    connectionHES.State = false;
-                }
-                catch (Exception ex)
-                {
-                    log.Error(ex.Message);
-                }
+                Service.State = serviceProxy.IsConnected;
+                _connectionDongle.State = false;
+                _connectionRFID.State = false;
+                _connectionRFID.Visible = false;
+                _connectionHES.State = false;
             }
-
-            messenger.Register<ConnectionServiceChangedMessage>(Service, c => ResetIndicators(), true);
-            messenger.Register<ServiceComponentsStateChangedMessage>(connectionDongle, message =>
+            catch (Exception ex)
             {
-                connectionHES.State = message.HesConnected;
-                connectionHES.Visible = message.ShowHesStatus;
-
-                connectionRFID.State = message.RfidConnected;
-                connectionRFID.Visible = message.ShowRfidStatus;
-
-                connectionDongle.State = message.BleConnected;
+                log.Error(ex.Message);
             }
-            , true);
         }
     }
 }

@@ -109,8 +109,6 @@ namespace TestConsole
 
                 // Disconnect from service
                 service.Close();
-
-                await HideezService.OnServiceStartedAsync();
             }
             catch (Exception ex)
             {
@@ -138,7 +136,7 @@ namespace TestConsole
                         return;
                 }
 
-                SessionSwitchManager.SystemSessionSwitch(System.Diagnostics.Process.GetCurrentProcess().SessionId, e.Reason);
+                SessionSwitchMonitor.SystemSessionSwitch(System.Diagnostics.Process.GetCurrentProcess().SessionId, e.Reason);
             }
             catch (Exception ex)
             {

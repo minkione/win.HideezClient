@@ -17,10 +17,6 @@ namespace ServiceLibrary
         [DataMember]
         public string Note { get; set; }
         [DataMember]
-        public string WorkstationId { get; set; }
-        [DataMember]
-        public string UserSession { get; set; }
-        [DataMember]
         public string DeviceId { get; set; }
         [DataMember]
         public string AccountName { get; set; }

@@ -60,8 +60,6 @@
       <xs:element minOccurs="0" name="Id" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Note" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Severity" type="xs:int" />
-      <xs:element minOccurs="0" name="UserSession" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="WorkstationId" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="WorkstationEventDTO" nillable="true" type="tns:WorkstationEventDTO" />

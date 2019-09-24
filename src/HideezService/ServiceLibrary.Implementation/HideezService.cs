@@ -3,9 +3,11 @@ using System.ServiceModel;
 using System.Linq;
 using HideezMiddleware;
 using Hideez.SDK.Communication;
-using ServiceLibrary.Implementation.SessionManagement;
+using ServiceLibrary.Implementation.ClientManagement;
 using Hideez.SDK.Communication.Log;
 using System.Reflection;
+using System.Threading.Tasks;
+using HideezMiddleware.Audit;
 
 namespace ServiceLibrary.Implementation
 {
@@ -13,6 +15,7 @@ namespace ServiceLibrary.Implementation
     {
         static ILog _sdkLogger;
         static Logger _log;
+        static EventSaver _eventSaver;
 
         static bool _initialized = false;
         static object _initializationLock = new object();
@@ -42,16 +45,19 @@ namespace ServiceLibrary.Implementation
                 _sdkLogger = new NLogWrapper();
                 _log = new Logger(nameof(HideezService), _sdkLogger);
 
-                _log.WriteLine($">>>>>> Starting service: {Assembly.GetEntryAssembly().GetName().Version}");
+                _log.WriteLine($">>>>>> Starting service");
 
+                _log.WriteLine($"Service Version: {Assembly.GetEntryAssembly().GetName().Version}");
                 _log.WriteLine($"CLR Version: {Environment.Version}");
                 _log.WriteLine($"OS: {Environment.OSVersion}");
                 _log.WriteLine($"Command: {Environment.CommandLine}");
 
+                _log.WriteLine(">>>>>> Initilize audit");
+                _eventSaver = new EventSaver(auditEventsDirectoryPath, _sdkLogger);
+                Task.Run(OnServiceStartedAsync);
 
                 _log.WriteLine(">>>>>> Initialize SDK");
                 InitializeSDK();
-                _log.WriteLine(">>>>>> SDK Initialized");
 
                 _log.WriteLine(">>>>>> Service started");
             }
@@ -102,12 +108,12 @@ namespace ServiceLibrary.Implementation
 
         public static void Error(Exception ex, string message = "")
         {
-            _log.WriteLine(message, ex);
+            _log?.WriteLine(message, ex);
         }
 
         public static void Error(string message)
         {
-            _log.WriteLine(message, LogErrorSeverity.Error);
+            _log?.WriteLine(message, LogErrorSeverity.Error);
         }
         #endregion
 
@@ -166,5 +172,21 @@ namespace ServiceLibrary.Implementation
             _log.WriteLine(">>>>>> Shutdown service", LogErrorSeverity.Debug);
             // Todo: shutdown service in a clean way
         }
+
+        #region Host Only
+        public static async Task OnServiceStartedAsync()
+        {
+            var workstationEvent = _eventSaver.GetWorkstationEvent();
+            workstationEvent.EventId = WorkstationEventType.ServiceStarted;
+            await _eventSaver.AddNewAsync(workstationEvent);
+        }
+
+        public static async Task OnServiceStoppedAsync()
+        {
+            var workstationEvent = _eventSaver.GetWorkstationEvent();
+            workstationEvent.EventId = WorkstationEventType.ServiceStopped;
+            await _eventSaver.AddNewAsync(workstationEvent, true);
+        }
+        #endregion
     }
 }

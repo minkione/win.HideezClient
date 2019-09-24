@@ -19,6 +19,8 @@ namespace HideezMiddleware
 
         readonly object _deviceListsLock = new object();
 
+        public event EventHandler<WorkstationLockingEventArgs> WorkstationLocking;
+
         public WorkstationLockProcessor(ConnectionFlowProcessor flowProcessor, ProximityMonitorManager proximityMonitorManager, BleDeviceManager deviceManager, IWorkstationLocker workstationLocker, ILog log)
             :base(nameof(WorkstationLockProcessor), log)
         {
@@ -136,7 +138,7 @@ namespace HideezMiddleware
                     return;
 
                 WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Device ID: {device.Id}");
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
+                WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceConnectionLost));
                 _workstationLocker.LockWorkstation();
             }
         }
@@ -149,7 +151,7 @@ namespace HideezMiddleware
                     return;
 
                 WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Device ID: {device.Id}");
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
+                WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceBelowThreshold));
                 _workstationLocker.LockWorkstation();
             }
         }
@@ -162,7 +164,7 @@ namespace HideezMiddleware
                     return;
 
                 WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Device ID: {device.Id}");
-                SessionSwitchManager.SetEventSubject(SessionSwitchSubject.Proximity, device.SerialNo);
+                WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.ProximityTimeout));
                 _workstationLocker.LockWorkstation();
             }
         }

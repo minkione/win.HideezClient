@@ -1,6 +1,6 @@
 ﻿using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
-using ServiceLibrary.Implementation.SessionManagement;
+using ServiceLibrary.Implementation.ClientManagement;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

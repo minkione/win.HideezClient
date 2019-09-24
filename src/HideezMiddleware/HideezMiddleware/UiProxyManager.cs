@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
@@ -90,6 +91,15 @@ namespace HideezMiddleware
             return null;
         }
 
+        List<IClientUiProxy> GetClientUiList()
+        {
+            return new List<IClientUiProxy>()
+            {
+                _credentialProviderUi,
+                _clientUi,
+            };
+        }
+
         public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
         {
             return Task.CompletedTask;
@@ -134,18 +144,22 @@ namespace HideezMiddleware
 
         public async Task HidePinUi()
         {
-            var ui = GetCurrentClientUi();
-
-            if (ui != null)
-                await ui.HidePinUi();
+            var uiList = GetClientUiList();
+            foreach (var ui in uiList)
+            {
+                if (ui != null)
+                    await ui.HidePinUi();
+            }
         }
 
         public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
         {
-            var ui = GetCurrentClientUi();
-
-            if (ui != null)
-                await ui.SendStatus(hesStatus, rfidStatus, bluetoothStatus);
+            var uiList = GetClientUiList();
+            foreach (var ui in uiList)
+            {
+                if (ui != null)
+                    await ui.SendStatus(hesStatus, rfidStatus, bluetoothStatus);
+            }
         }
 
         public async Task SendNotification(string notification, string notificationId = null)

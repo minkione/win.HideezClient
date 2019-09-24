@@ -290,7 +290,7 @@ namespace HideezClient
 
             Container.RegisterType<INotifier, Notifier>(new ContainerControlledLifetimeManager());
 
-            Container.RegisterType<IEventAggregator, EventAggregator>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IEventPublisher, EventPublisher>(new ContainerControlledLifetimeManager());
 
             logger.Info("Finish initialize DI container");
 
