@@ -126,9 +126,17 @@ namespace HideezMiddleware.Audit
 
         async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
-            if (!reason.HasFlag(SessionSwitchReason.SessionLock | SessionSwitchReason.SessionLogoff 
-                | SessionSwitchReason.SessionLogon | SessionSwitchReason.SessionUnlock))
-                return;
+            // If there is a better way of checking that enum belongs to a range values, use it
+            switch (reason)
+            {
+                case SessionSwitchReason.SessionLock:
+                case SessionSwitchReason.SessionLogoff:
+                case SessionSwitchReason.SessionLogon:
+                case SessionSwitchReason.SessionUnlock:
+                    break;
+                default:
+                    return; // Ignore all events except lock/unlock and logoff/logon
+            }
 
             WorkstationEventType eventType = 0;
 

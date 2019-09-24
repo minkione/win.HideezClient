@@ -33,7 +33,7 @@ namespace HideezMiddleware.Audit
 
         public WorkstationEvent GetPrevSessionWorkstationEvent()
         {
-            return _eventFactory.GetWorkstationEvent();
+            return _eventFactory.GetPreviousSessionEvent();
         }
 
         /// <summary>
@@ -47,8 +47,8 @@ namespace HideezMiddleware.Audit
             {
                 try
                 {
-                    WriteLine($"New workstation event: {workstationEvent.EventId}");
-
+                    WriteLine($"New workstation event: {workstationEvent.EventId} - ({workstationEvent.WorkstationSessionId})");
+                    
                     string json = JsonConvert.SerializeObject(workstationEvent);
                     string file = $"{EventsDirectoryPath}{workstationEvent.Id}";
                     File.WriteAllText(file, json);

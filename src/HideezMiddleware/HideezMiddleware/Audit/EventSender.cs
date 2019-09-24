@@ -54,7 +54,14 @@ namespace HideezMiddleware.Audit
 
         async void EventSaver_UrgentEventSaved(object sender, EventArgs e)
         {
-            await SendEventsAsync();
+            try
+            {
+                await SendEventsAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
         }
 
         async void FileSystemWatcher_OnFileCreated(object sender, FileSystemEventArgs e)
