@@ -444,8 +444,6 @@ namespace ServiceLibrary.Implementation
 
         void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
         {
-            _hesConnection?.OnDeviceConnected(device);
-
             foreach (var session in SessionManager.Sessions)
             {
                 try
