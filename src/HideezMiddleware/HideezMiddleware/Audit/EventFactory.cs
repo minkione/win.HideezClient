@@ -7,6 +7,7 @@ namespace HideezMiddleware.Audit
 {
     class EventFactory
     {
+        const string SYSTEM_SESSION_NAME = "SYSTEM";
         SessionInfoProvider _sessionIdProvider;
 
         public EventFactory(ILog log)
@@ -23,7 +24,7 @@ namespace HideezMiddleware.Audit
                 Date = DateTime.UtcNow,
                 WorkstationId = Environment.MachineName,
                 WorkstationSessionId = _sessionIdProvider.CurrentSession?.SessionId,
-                UserSession = _sessionIdProvider.CurrentSession?.SessionName,
+                UserSession = _sessionIdProvider.CurrentSession?.SessionName ?? SYSTEM_SESSION_NAME,
                 Severity = WorkstationEventSeverity.Info,
             };
         }
@@ -37,7 +38,7 @@ namespace HideezMiddleware.Audit
                 Date = DateTime.UtcNow,
                 WorkstationId = Environment.MachineName,
                 WorkstationSessionId = _sessionIdProvider.PreviousSession?.SessionId,
-                UserSession = _sessionIdProvider.PreviousSession?.SessionName,
+                UserSession = _sessionIdProvider.PreviousSession?.SessionName ?? SYSTEM_SESSION_NAME,
                 Severity = WorkstationEventSeverity.Info,
             };
         }
