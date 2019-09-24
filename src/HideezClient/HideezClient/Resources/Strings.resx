@@ -462,4 +462,28 @@ to access stored credentials</value>
   <data name="Menu.Settings" xml:space="preserve">
     <value>Settings</value>
   </data>
+  <data name="PM.Otp.Disabled" xml:space="preserve">
+    <value>disabled</value>
+  </data>
+  <data name="PM.Otp.Enabled" xml:space="preserve">
+    <value>enabled</value>
+  </data>
+  <data name="WaterMark.Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="WaterMark.SearchSettings" xml:space="preserve">
+    <value>Search settings</value>
+  </data>
+  <data name="PM.Label.AppsAndUrls" xml:space="preserve">
+    <value>Web-site/app</value>
+  </data>
+  <data name="PM.Label.Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="PM.Label.Otp" xml:space="preserve">
+    <value>OTP</value>
+  </data>
+  <data name="PM.Label.Account" xml:space="preserve">
+    <value>ACCOUNT</value>
+  </data>
 </root>

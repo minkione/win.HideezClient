@@ -38,7 +38,7 @@ namespace HideezClient.ViewModels
         public ViewModelLocator()
         {
             // Check for design mode. 
-            if ((bool)(DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(System.Windows.DependencyObject)).DefaultValue))
+            if (IsInDesignMode)
             {
                 // in Design mode
                 DIContainer = new UnityContainer();
@@ -47,6 +47,11 @@ namespace HideezClient.ViewModels
             {
                 DIContainer = App.Container;
             }
+        }
+
+        public static bool IsInDesignMode
+        {
+            get { return (bool)(DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(System.Windows.DependencyObject)).DefaultValue); }
         }
 
         #region Windows

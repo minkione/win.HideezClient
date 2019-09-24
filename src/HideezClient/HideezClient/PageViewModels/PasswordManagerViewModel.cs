@@ -15,6 +15,13 @@ using System.Windows.Data;
 using HideezClient.Extension;
 using System.Windows.Input;
 using MvvmExtensions.Commands;
+using Hideez.SDK.Communication.PasswordManager;
+using System.Security;
+using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
+using DynamicData;
+using DynamicData.Binding;
+using System.Collections.Specialized;
 
 namespace HideezClient.PageViewModels
 {
@@ -24,22 +31,6 @@ namespace HideezClient.PageViewModels
         private DeviceViewModel device;
         private AccountViewModel selectedAccount;
         private string searchQuery;
-
-        private readonly List<AccountViewModel> allAccounts = new List<AccountViewModel>
-        {
-            new AccountViewModel { Name = "Pizza Hut", Login = "john.gardner@example.com", HasOpt = true, },
-            new AccountViewModel { Name = "The Walt Disney Company", Login = "seth.olson@example.com", },
-            new AccountViewModel { Name = "Bank of America", Login = "penny.nichols@example.com", },
-            new AccountViewModel { Name = "eBay", Login = "alice.bryant@example.com", },
-            new AccountViewModel { Name = "MasterCard", Login = "tamara.kuhn@example.com", },
-            new AccountViewModel { Name = "Johnson & Johnson", Login = "keith.richards@example.com", HasOpt = true, },
-            new AccountViewModel { Name = "Starbucks", Login = "logan.hopkins@example.com", },
-            new AccountViewModel { Name = "Facebook", Login = "kelly.howard@example.com", },
-            new AccountViewModel {  Login = "jeff.anderson@example.com", },
-            new AccountViewModel { Name = "Mitsubishi", Login = "dan.romero@example.com", HasOpt = true, },
-            new AccountViewModel { Name = "Apple", Login = "gary.herrera@example.com", },
-            new AccountViewModel { Name = "Louis Vuitton", Login = "jessica.hanson@example.com", },
-        };
 
         public PasswordManagerViewModel()
         {
@@ -73,13 +64,16 @@ namespace HideezClient.PageViewModels
         {
             get
             {
-                var view = CollectionViewSource.GetDefaultView(allAccounts);
-                view.Filter = Filter;
-
-                var enumerator = view.GetEnumerator();
-                if (enumerator.MoveNext())
+                var view = CollectionViewSource.GetDefaultView(Device.Accounts);
+                if (view != null)
                 {
-                    SelectedAccount = enumerator.Current as AccountViewModel;
+                    view.Filter = Filter;
+
+                    var enumerator = view.GetEnumerator();
+                    if (enumerator.MoveNext())
+                    {
+                        SelectedAccount = enumerator.Current as AccountViewModel;
+                    }
                 }
 
                 return view;
@@ -107,7 +101,7 @@ namespace HideezClient.PageViewModels
             if (item is AccountViewModel account)
             {
                 var filter = SearchQuery.Trim();
-                return Contains(account.Name, filter) || Contains(account.Login, filter) || (account.WebSiteApp?.Any(s => Contains(s, filter)) ?? false);
+                return Contains(account.Name, filter) || Contains(account.Login, filter) || account.Apps.Any(a => Contains(a, filter) || account.Urls.Any(u => Contains(u, filter)));
             }
 
             return false;
@@ -142,49 +136,61 @@ namespace HideezClient.PageViewModels
         }
     }
 
-    class AccountViewModel : LocalizedObject
+    class AccountViewModel : ReactiveObject
     {
-        private string name;
-        private string login;
-        private bool hasOpt;
+        private readonly char separator = ';';
 
-        private ObservableCollection<string> webSiteApp = new ObservableCollection<string>()
+        public AccountViewModel(AccountRecord accountRecord)
         {
-            "facebook.com",
-            "google.com",
-            "facebook.com",
-            "facebook.com",
-        };
-
-        public string Name
-        {
-            get { return name; }
-            set { Set(ref name, value); }
+            Init(accountRecord);
         }
 
-        public string Login
+        private void Init(AccountRecord accountRecord)
         {
-            get { return login; }
-            set { Set(ref login, value); }
+            Name = accountRecord.Name;
+            Login = accountRecord.Login;
+            HasOpt = accountRecord.HasOtp;
+
+            if (accountRecord.Apps != null)
+            {
+                foreach (var app in accountRecord.Apps.Split(separator))
+                {
+                    Apps.Add(app);
+                }
+            }
+            if (accountRecord.Urls != null)
+            {
+                foreach (var url in accountRecord.Urls.Split(separator))
+                {
+                    Urls.Add(url);
+                }
+            }
+
+            this.WhenAnyValue(vm => vm.Name, vm => vm.Login, vm => vm.Password, vm => vm.HasOpt, vm => vm.OtpSecret).Subscribe(_ => HasChanges = true);
+            Apps.CollectionChanged += CollectionChanged;
+            Urls.CollectionChanged += CollectionChanged;
         }
 
-        [DependsOn("HasOpt")]
-        public string Otp
+        private void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            get { return HasOpt ? "enabled" : "disabled"; }
+            HasChanges = true;
         }
 
-        public bool HasOpt
-        {
-            get { return hasOpt; }
-            set { hasOpt = value; }
-        }
+        [Reactive]
+        public bool HasChanges { get; set; }
+        [Reactive]
+        public string Name { get; set; }
+        [Reactive]
+        public string Login { get; set; }
+        [Reactive]
+        public SecureString Password { get; set; }
+        [Reactive]
+        public bool HasOpt { get; protected set; }
+        [Reactive]
+        public string OtpSecret { get; set; }
 
-        public ObservableCollection<string> WebSiteApp
-        {
-            get { return webSiteApp; }
-            set { Set(ref webSiteApp, value); }
-        }
+        public ObservableCollection<string> Apps { get; } = new ObservableCollection<string>();
+        public ObservableCollection<string> Urls { get; } = new ObservableCollection<string>();
 
         #region Command
 
@@ -202,12 +208,31 @@ namespace HideezClient.PageViewModels
             }
         }
 
+        public ICommand UpdateAccountCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        OnUpdateAccount();
+                    },
+                };
+            }
+        }
+
         #endregion
 
         private void OnEditAccount()
         {
             // TODO: Implement edit account
             MessageBox.Show("Edit account");
+        }
+
+        private void OnUpdateAccount()
+        {
+            HasChanges = false;
         }
     }
 }

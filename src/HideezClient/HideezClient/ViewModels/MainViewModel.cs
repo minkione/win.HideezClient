@@ -212,8 +212,11 @@ namespace HideezClient.ViewModels
                     CommandAction = x =>
                     {
                         OnOpenPasswordManager();
-                        viewModelLocator.PasswordManager.Device = SelectedDevice;
+                        // viewModelLocator.PasswordManager.Device = SelectedDevice;
+                        // TODO: Del
+                        viewModelLocator.PasswordManager.Device = new DeviceViewModel(null);
                     },
+                    // TODO: Del
                     // CanExecuteFunc = () => SelectedDevice?.IsStorageLoaded ?? false,
                 };
             }

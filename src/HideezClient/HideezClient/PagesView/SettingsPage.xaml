@@ -5,7 +5,8 @@
     xmlns:adorners="http://gu.se/Adorners"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-    xmlns:local="clr-namespace:HideezClient.PagesView"
+    xmlns:local="clr-namespace:HideezClient.PagesView"    
+    xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="SettingsPage"
     d:DesignHeight="450"
@@ -29,7 +30,7 @@
             <TextBox
                 Width="400"
                 VerticalAlignment="Center"
-                adorners:Watermark.Text="Search settings"
+                adorners:Watermark.Text="{l:Localization WaterMark.SearchSettings}"
                 adorners:Watermark.TextStyle="{StaticResource AdornerTextStyle}"
                 adorners:Watermark.VisibleWhen="EmptyAndNotKeyboardFocused"
                 Background="Transparent"

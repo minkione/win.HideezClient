@@ -55,14 +55,11 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="LightBlue" />
+                            <Setter TargetName="border" Property="Background" Value="#CCEBF4" />
                             <Setter Property="Cursor" Value="Hand" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="Blue" />
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="border" Property="Background" Value="{DynamicResource PinkBrushInDisabled}" />
+                            <Setter TargetName="border" Property="Background" Value="#CCEBF4" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
