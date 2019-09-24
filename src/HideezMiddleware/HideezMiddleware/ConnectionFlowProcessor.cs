@@ -213,7 +213,11 @@ namespace HideezMiddleware
             // if the device needs to be updated, update and read credentials again
             if (infoTask.Result)
             {
+                // request hes to update this device
+                await _hesConnection.FixDevice(device);
+
                 await WaitForRemoteDeviceUpdate(device.SerialNo);
+
                 credentials = await GetCredentials(device);
             }
 
