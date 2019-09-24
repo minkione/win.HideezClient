@@ -108,12 +108,12 @@ namespace ServiceLibrary.Implementation
 
         public static void Error(Exception ex, string message = "")
         {
-            _log.WriteLine(message, ex);
+            _log?.WriteLine(message, ex);
         }
 
         public static void Error(string message)
         {
-            _log.WriteLine(message, LogErrorSeverity.Error);
+            _log?.WriteLine(message, LogErrorSeverity.Error);
         }
         #endregion
 
