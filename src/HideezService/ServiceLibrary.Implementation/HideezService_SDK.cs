@@ -137,7 +137,7 @@ namespace ServiceLibrary.Implementation
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
 
             // Audit Log / Event Aggregator =============================
-            _eventSender = new EventSender(_hesConnection, _eventSaver, _sdkLogger);
+            //_eventSender = new EventSender(_hesConnection, _eventSaver, _sdkLogger);
 
             // ScreenActivator ==================================
             _screenActivator = new WcfScreenActivator(SessionManager);
