@@ -52,9 +52,9 @@ namespace HideezServiceHost
             }
         }
 
-        protected override void OnShutdown()
+        protected override async void OnShutdown()
         {
-            ServiceLibrary.Implementation.HideezService.OnServiceStoppedAsync().Wait();
+            await ServiceLibrary.Implementation.HideezService.OnServiceStoppedAsync().ConfigureAwait(false);
             base.OnShutdown();
         }
 
@@ -62,7 +62,7 @@ namespace HideezServiceHost
         {
             try
             {
-                ServiceLibrary.Implementation.HideezService.OnServiceStoppedAsync().Wait();
+                await ServiceLibrary.Implementation.HideezService.OnServiceStoppedAsync().ConfigureAwait(false);
 
                 // connect and ask the service to finish all works and close all connections
                 var callback = new HideezServiceCallbacks();
