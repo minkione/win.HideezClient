@@ -229,6 +229,8 @@ namespace HideezMiddleware.Audit
                     we.Note = latestLockEvent.Reason.ToString();
                     we.DeviceId = _bleDeviceManager.Find(latestLockEvent.Mac, 1)?.SerialNo; // Todo: Replace channel magic number with const
                 }
+                else
+                    we.Note = WorkstationLockingReason.NonHideez.ToString();
 
                 lockEventsList.Clear();
             }
@@ -259,6 +261,8 @@ namespace HideezMiddleware.Audit
                     we.Note = latestUnlockEvent.Reason.ToString();
                     we.DeviceId = _bleDeviceManager.Find(latestUnlockEvent.Mac, 1)?.SerialNo;
                 }
+                else
+                    we.Note = WorkstationLockingReason.NonHideez.ToString();
 
                 unlockEventsList.Clear();
             }

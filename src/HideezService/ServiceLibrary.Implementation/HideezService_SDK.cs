@@ -36,7 +36,6 @@ namespace ServiceLibrary.Implementation
         static ProximityMonitorManager _proximityMonitorManager;
         static IScreenActivator _screenActivator;
         static WcfDeviceFactory _wcfDeviceManager;
-        static EventSaver _eventSaver;
         static EventSender _eventSender;
         static ServiceClientUiManager _clientProxy;
         static UiProxyManager _uiProxy;
@@ -57,13 +56,9 @@ namespace ServiceLibrary.Implementation
 
         void InitializeSDK()
         {
-            var sdkLogger = new NLogWrapper();
-
-            _eventSaver = new EventSaver(auditEventsDirectoryPath, sdkLogger);
-
 #if DEBUG
             _log.WriteLine($">>>>>> Verifying error codes.");
-            var _hideezExceptionLocalization = new HideezExceptionLocalization(sdkLogger);
+            var _hideezExceptionLocalization = new HideezExceptionLocalization(_sdkLogger);
             bool isVerified = _hideezExceptionLocalization.VerifyResourcesForErrorCode(new CultureInfo("en"));
             // Debug.Assert(isVerified, $">>>>>> Verifying error codes resalt: {isVerified}");
 #endif
@@ -72,27 +67,27 @@ namespace ServiceLibrary.Implementation
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
 
-            _connectionManager = new BleConnectionManager(sdkLogger, bondsFilePath);
+            _connectionManager = new BleConnectionManager(_sdkLogger, bondsFilePath);
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
             _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
             _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
 
             // BLE ============================
-            _deviceManager = new BleDeviceManager(sdkLogger, _connectionManager);
+            _deviceManager = new BleDeviceManager(_sdkLogger, _connectionManager);
             _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
             _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
             _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
             _deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
 
             // WCF ============================
-            _wcfDeviceManager = new WcfDeviceFactory(_deviceManager, sdkLogger);
+            _wcfDeviceManager = new WcfDeviceFactory(_deviceManager, _sdkLogger);
 
             // Named Pipes Server ==============================
-            _credentialProviderProxy = new CredentialProviderProxy(sdkLogger);
+            _credentialProviderProxy = new CredentialProviderProxy(_sdkLogger);
 
             // RFID Service Connection ============================
-            _rfidService = new RfidServiceConnection(sdkLogger);
+            _rfidService = new RfidServiceConnection(_sdkLogger);
             _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
 
             // Settings
@@ -102,7 +97,7 @@ namespace ServiceLibrary.Implementation
                 Directory.CreateDirectory(settingsDirectory);
             }
             string proximitySettingsPath = Path.Combine(settingsDirectory, "Proximity.xml");
-            IFileSerializer fileSerializer = new XmlFileSerializer(sdkLogger);
+            IFileSerializer fileSerializer = new XmlFileSerializer(_sdkLogger);
             _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
             _proximitySettingsManager.SettingsChanged += ProximitySettingsManager_SettingsChanged;
 
@@ -119,12 +114,14 @@ namespace ServiceLibrary.Implementation
             }
 
             // WorkstationInfoProvider ==================================
-            WorkstationHelper.Log = sdkLogger;
-            var workstationInfoProvider = new WorkstationInfoProvider(hesAddress, sdkLogger);
+            WorkstationHelper.Log = _sdkLogger;
+            var workstationInfoProvider = new WorkstationInfoProvider(hesAddress, _sdkLogger);
 
             // HES Connection ==================================
-            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, sdkLogger);
-            _hesConnection.ReconnectDelayMs = 10_000; // Todo: remove hes recoonect delay overwrite in stable version
+            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sdkLogger)
+            {
+                ReconnectDelayMs = 10_000 // Todo: remove hes recoonect delay overwrite in stable version
+            };
             _hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
             {
                 ProximitySettings settings = await _proximitySettingsManager.GetSettingsAsync();
@@ -140,7 +137,7 @@ namespace ServiceLibrary.Implementation
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
 
             // Audit Log / Event Aggregator =============================
-            _eventSender = new EventSender(_hesConnection, _eventSaver, sdkLogger);
+            _eventSender = new EventSender(_hesConnection, _eventSaver, _sdkLogger);
 
             // ScreenActivator ==================================
             _screenActivator = new WcfScreenActivator(SessionManager);
@@ -149,10 +146,10 @@ namespace ServiceLibrary.Implementation
             _clientProxy = new ServiceClientUiManager(SessionManager);
 
             // UI Proxy =============================
-            _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, sdkLogger);
+            _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, _sdkLogger);
 
             // StatusManager =============================
-            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _proximitySettingsManager, sdkLogger);
+            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _proximitySettingsManager, _sdkLogger);
 
             // ConnectionFlowProcessor
             _connectionFlowProcessor = new ConnectionFlowProcessor(
@@ -161,26 +158,26 @@ namespace ServiceLibrary.Implementation
                 _credentialProviderProxy,
                 _screenActivator,
                 _uiProxy,
-                sdkLogger);
+                _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreList = new AdvertisementIgnoreList(
                 _connectionManager,
                 _deviceManager,
                 _proximitySettingsManager,
-                sdkLogger);
+                _sdkLogger);
             _rfidProcessor = new RfidConnectionProcessor(
                 _connectionFlowProcessor,
                 _hesConnection,
                 _rfidService,
                 _screenActivator,
                 _uiProxy,
-                sdkLogger);
+                _sdkLogger);
             _tapProcessor = new TapConnectionProcessor(
                 _connectionFlowProcessor,
                 _connectionManager,
                 _screenActivator,
                 _uiProxy,
-                sdkLogger);
+                _sdkLogger);
             _proximityProcessor = new ProximityConnectionProcessor(
                 _connectionFlowProcessor,
                 _connectionManager,
@@ -190,18 +187,18 @@ namespace ServiceLibrary.Implementation
                 _advIgnoreList,
                 _deviceManager,
                 _credentialProviderProxy,
-                sdkLogger);
+                _sdkLogger);
 
             // Proximity Monitor ==================================
             ProximitySettings proximitySettings = _proximitySettingsManager.GetSettingsAsync().Result;
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, sdkLogger, proximitySettings.DevicesProximity);
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _sdkLogger, proximitySettings.DevicesProximity);
 
             // WorkstationLocker ==================================
-            _workstationLocker = new WcfWorkstationLocker(SessionManager, sdkLogger);
+            _workstationLocker = new WcfWorkstationLocker(SessionManager, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager, 
-                _deviceManager, _workstationLocker, sdkLogger);
+                _deviceManager, _workstationLocker, _sdkLogger);
 
             _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver,
                 _tapProcessor, _rfidProcessor, _proximityProcessor, 
@@ -259,7 +256,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void DeviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
+        async void DeviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
         {
             var device = e.RemovedDevice;
 
@@ -278,12 +275,12 @@ namespace ServiceLibrary.Implementation
                     workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
                     workstationEvent.Severity = WorkstationEventSeverity.Warning;
                     workstationEvent.DeviceId = device.SerialNo;
-                    _eventSaver.AddNewAsync(workstationEvent);
+                    await _eventSaver.AddNewAsync(workstationEvent);
                 }
             }
         }
 
-        void Device_Disconnected(object sender, EventArgs e)
+        async void Device_Disconnected(object sender, EventArgs e)
         {
             if (sender is IDevice device && device.IsInitialized && (!device.IsRemote || device.ChannelNo > 2))
             {
@@ -298,7 +295,7 @@ namespace ServiceLibrary.Implementation
                 {
                     workstationEvent.EventId = WorkstationEventType.DeviceDisconnect;
                 }
-                _eventSaver.AddNewAsync(workstationEvent);
+                await _eventSaver.AddNewAsync(workstationEvent);
             }
         }
 
@@ -402,7 +399,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void Device_Initialized(object sender, EventArgs e)
+        async void Device_Initialized(object sender, EventArgs e)
         {
             try
             {
@@ -435,7 +432,7 @@ namespace ServiceLibrary.Implementation
                         {
                             workstationEvent.EventId = WorkstationEventType.DeviceConnect;
                         }
-                        _eventSaver.AddNewAsync(workstationEvent);
+                        await _eventSaver.AddNewAsync(workstationEvent);
                     }
                 }
             }
@@ -787,20 +784,6 @@ namespace ServiceLibrary.Implementation
             {
                 Error(ex);
             }
-        }
-
-        public static async Task OnServiceStartedAsync()
-        {
-            var workstationEvent = _eventSaver.GetWorkstationEvent();
-            workstationEvent.EventId = WorkstationEventType.ServiceStarted;
-            await _eventSaver.AddNewAsync(workstationEvent);
-        }
-
-        public static async Task OnServiceStoppedAsync()
-        {
-            var workstationEvent = _eventSaver.GetWorkstationEvent();
-            workstationEvent.EventId = WorkstationEventType.ServiceStopped;
-            await _eventSaver.AddNewAsync(workstationEvent, true);
         }
         #endregion
     }

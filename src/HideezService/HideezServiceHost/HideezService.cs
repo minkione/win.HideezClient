@@ -44,8 +44,6 @@ namespace HideezServiceHost
 
                 // Disconnect from service
                 service.Close();
-
-                await ServiceLibrary.Implementation.HideezService.OnServiceStartedAsync();
             }
             catch (Exception ex)
             {

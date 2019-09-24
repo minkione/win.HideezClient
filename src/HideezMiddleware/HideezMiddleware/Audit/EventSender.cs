@@ -186,11 +186,10 @@ namespace HideezMiddleware.Audit
                     if (GetEventsCount() == 0)
                         return;
 
-                    WriteLine("Sending workstation events to HES");
                     automaticEventSendingTimer.Stop();
 
                     var eventsQueue = DeserializeEvents();
-                    WriteLine($"Sending {eventsQueue.Count} " + (eventsQueue.Count == 1 ? "event" : "events"));
+                    WriteLine($"Sending {eventsQueue.Count} " + (eventsQueue.Count == 1 ? "event" : "events") + " to HES");
 
                     await BreakIntoSetsAndSendToServer(eventsQueue, skipSetInterval);
                 }

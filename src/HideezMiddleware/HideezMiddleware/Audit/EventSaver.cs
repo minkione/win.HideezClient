@@ -10,6 +10,7 @@ namespace HideezMiddleware.Audit
     public class EventSaver : Logger
     {
         readonly EventFactory _eventFactory;
+        readonly object _writeLock = new object();
 
         public event EventHandler UrgentEventSaved;
 
@@ -45,20 +46,23 @@ namespace HideezMiddleware.Audit
         {
             await Task.Run(() =>
             {
-                try
+                lock (_writeLock)
                 {
-                    WriteLine($"New workstation event: {workstationEvent.EventId} - ({workstationEvent.WorkstationSessionId})");
-                    
-                    string json = JsonConvert.SerializeObject(workstationEvent);
-                    string file = $"{EventsDirectoryPath}{workstationEvent.Id}";
-                    File.WriteAllText(file, json);
+                    try
+                    {
+                        WriteLine($"New event: {workstationEvent.EventId} - (session id: {workstationEvent.WorkstationSessionId})");
 
-                    if (sendImmediatelly)
-                        UrgentEventSaved?.Invoke(this, EventArgs.Empty);
-                }
-                catch (Exception ex)
-                {
-                    WriteLine(ex);
+                        string json = JsonConvert.SerializeObject(workstationEvent);
+                        string file = $"{EventsDirectoryPath}{workstationEvent.Id}";
+                        File.WriteAllText(file, json);
+
+                        if (sendImmediatelly)
+                            UrgentEventSaved?.Invoke(this, EventArgs.Empty);
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLine(ex);
+                    }
                 }
             });
         }
