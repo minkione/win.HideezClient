@@ -51,10 +51,12 @@ namespace HideezClient
     {
         public static ILogger logger;
         private IStartupHelper startupHelper;
+        private IWorkstationManager workstationManager;
         private IMessenger messenger;
         private IWindowsManager windowsManager;
         private IServiceWatchdog serviceWatchdog;
         private IDeviceManager deviceManager;
+        private UserActionHandler userActionHandler;
         private IHotkeyManager hotkeyManager;
 
         public static IUnityContainer Container { get; private set; }
@@ -163,13 +165,13 @@ namespace HideezClient
 
             logger.Info("Resolve DI container");
             startupHelper = Container.Resolve<IStartupHelper>();
-            Container.Resolve<IWorkstationManager>();
+            workstationManager = Container.Resolve<IWorkstationManager>();
             windowsManager = Container.Resolve<IWindowsManager>();
             Container.Resolve<IHideezServiceCallback>();
             serviceWatchdog = Container.Resolve<IServiceWatchdog>();
             serviceWatchdog.Start();
             deviceManager = Container.Resolve<IDeviceManager>();
-            Container.Resolve<UserActionHandler>();
+            userActionHandler = Container.Resolve<UserActionHandler>();
             hotkeyManager = Container.Resolve<IHotkeyManager>();
             hotkeyManager.Enabled = true;
 
