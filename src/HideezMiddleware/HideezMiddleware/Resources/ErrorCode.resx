@@ -117,17 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ERR_UNKNOWN_ERROR" xml:space="preserve">
-    <value>Unknown error</value>
-  </data>
-  <data name="AuthenticationFailed" xml:space="preserve">
-    <value>Channel authentication failed</value>
+  <data name="FwUnknownError" xml:space="preserve">
+    <value>Firmware returned unknown error code: {0}</value>
   </data>
   <data name="BleCharacteristicWriteError" xml:space="preserve">
-    <value>Characteristic write error</value>
+    <value>BLE Characteristic write error</value>
   </data>
   <data name="BleConnectionNotConnected" xml:space="preserve">
-    <value>Device is not connected</value>
+    <value>BLE Device is not connected</value>
   </data>
   <data name="BleInvalidPacketNumber" xml:space="preserve">
     <value>Invalid bluetooth packet number</value>
@@ -141,18 +138,6 @@
   <data name="BleSendError" xml:space="preserve">
     <value>Bluetooth sending error</value>
   </data>
-  <data name="ChannelAlreadyAuthenticated" xml:space="preserve">
-    <value>Channel already authenticated</value>
-  </data>
-  <data name="ChannelAuthenticationInProgress" xml:space="preserve">
-    <value>Channel authentication is already in progress</value>
-  </data>
-  <data name="ChannelAuthenticationTimedOut" xml:space="preserve">
-    <value>Channel authentication timed out</value>
-  </data>
-  <data name="ChannelDoesNotInitialized" xml:space="preserve">
-    <value>Channel is not initialized</value>
-  </data>
   <data name="ChannelNotFound" xml:space="preserve">
     <value>Channel not found</value>
   </data>
@@ -160,64 +145,46 @@
     <value>Remote device is not connected to any host</value>
   </data>
   <data name="ERR_ALREADY_INITIALIZED" xml:space="preserve">
-    <value>Device already initialized</value>
-  </data>
-  <data name="ERR_AUTHORIZATION_FAILED" xml:space="preserve">
-    <value>Authorization failed</value>
-  </data>
-  <data name="ERR_BAD_RECOVERY_DATA" xml:space="preserve">
-    <value>Bad recovery data</value>
+    <value>FW Error: Device already initialized</value>
   </data>
   <data name="ERR_CHANNEL_BUSY" xml:space="preserve">
-    <value>Channel is busy</value>
+    <value>FW Error: Channel is busy</value>
   </data>
   <data name="ERR_DEVICE_BUSY" xml:space="preserve">
-    <value>Device is busy</value>
+    <value>FW Error: Device is busy</value>
   </data>
   <data name="ERR_DEVICE_LOCKED" xml:space="preserve">
-    <value>Device is locked</value>
+    <value>FW Error: Device is locked</value>
   </data>
   <data name="ERR_ENCRYPTION_REQ" xml:space="preserve">
-    <value>Encryption required</value>
+    <value>FW Error: Encryption required</value>
   </data>
   <data name="ERR_HARDWARE_FAULT" xml:space="preserve">
-    <value>Hardware fault</value>
+    <value>FW Error: Hardware fault</value>
   </data>
   <data name="ERR_INVALID_PARAMETER" xml:space="preserve">
-    <value>Invalid parameter</value>
-  </data>
-  <data name="ERR_KEY_USED" xml:space="preserve">
-    <value>Key already taken</value>
+    <value>FW Error: Invalid parameter</value>
   </data>
   <data name="ERR_KEY_WRONG" xml:space="preserve">
-    <value>Invalid key</value>
+    <value>FW Error: Invalid key</value>
   </data>
   <data name="ERR_MESSAGE_TOO_LONG" xml:space="preserve">
-    <value>Sent or received message is to long</value>
-  </data>
-  <data name="ERR_MNEMONIC_INCONSISTENT" xml:space="preserve">
-    <value />
+    <value>FW Error: Sent or received message is to long</value>
   </data>
   <data name="ERR_NOT_INITIALIZED" xml:space="preserve">
-    <value>Device is not initialized</value>
+    <value>FW Error: Device is not initialized</value>
   </data>
   <data name="ERR_NO_ENCRYPTION" xml:space="preserve">
-    <value>No encryption</value>
+    <value>FW Error: No encryption</value>
   </data>
   <data name="ERR_OPERATION_CANCELED" xml:space="preserve">
-    <value>Operation cancelled</value>
-  </data>
-  <data name="ERR_PASSPHRASE_UNKNOWN" xml:space="preserve">
-    <value />
+    <value>FW Error: Operation cancelled</value>
   </data>
   <data name="ERR_UNAUTHORIZED" xml:space="preserve">
-    <value>Unauthorized access</value>
+    <value>FW Error: Unauthorized access</value>
   </data>
   <data name="ERR_UNSUPPORTED" xml:space="preserve">
-    <value>Operation is not supported</value>
-  </data>
-  <data name="ERR_WRONG_PROFILE" xml:space="preserve">
-    <value>Wrong profile</value>
+    <value>FW Error: Operation is not supported</value>
   </data>
   <data name="FailedToEstablishRemoteConnection" xml:space="preserve">
     <value>Failed to establish remote connection</value>
@@ -231,17 +198,11 @@
   <data name="InvalidMessageSignuture" xml:space="preserve">
     <value>Invalid message signature</value>
   </data>
-  <data name="MainChannelNotAuthenticated" xml:space="preserve">
-    <value>Main channel is not authenticated</value>
-  </data>
   <data name="PmLoginCannotBeEmpty" xml:space="preserve">
     <value>Account login cannot be empty</value>
   </data>
-  <data name="PmNotSupported" xml:space="preserve">
-    <value>Password manager is not supported</value>
-  </data>
   <data name="PmOtpSecretHasInvalidFormat" xml:space="preserve">
-    <value>Otp secret has invalid format</value>
+    <value>OTP secret has an invalid format</value>
   </data>
   <data name="PmPasswordCannotBeEmpty" xml:space="preserve">
     <value>Account password cannot be empty</value>
@@ -255,9 +216,6 @@
   <data name="PmPasswordNotFound" xml:space="preserve">
     <value>Account password not found</value>
   </data>
-  <data name="RemoteChannelNotAuthenticated" xml:space="preserve">
-    <value>Remote channel is not authenticated</value>
-  </data>
   <data name="RemoteConnectionTimedOut" xml:space="preserve">
     <value>Remote connection timeout</value>
   </data>
@@ -269,5 +227,203 @@
   </data>
   <data name="WrongReplyData" xml:space="preserve">
     <value>Wrong reply data</value>
+  </data>
+  <data name="BootUnknownError" xml:space="preserve">
+    <value>Botloader returned unknown error code: {0}</value>
+  </data>
+  <data name="BOOT_STATUS_ALREADY_SET" xml:space="preserve">
+    <value>Bootloader error: Already set</value>
+  </data>
+  <data name="BOOT_STATUS_BAD_SIGNATURE" xml:space="preserve">
+    <value>Bootloader error: Bad signature</value>
+  </data>
+  <data name="BOOT_STATUS_CRC_ERROR" xml:space="preserve">
+    <value>Bootloader error: Wrong CRC</value>
+  </data>
+  <data name="BOOT_STATUS_ERASE_REQ" xml:space="preserve">
+    <value>Bootloader error: Erase required</value>
+  </data>
+  <data name="BOOT_STATUS_HARDWARE" xml:space="preserve">
+    <value>Bootloader error: Hardware fault</value>
+  </data>
+  <data name="BOOT_STATUS_INVALID_ADDR" xml:space="preserve">
+    <value>Bootloader error: Invalid address</value>
+  </data>
+  <data name="BOOT_STATUS_LOW_BATTERY" xml:space="preserve">
+    <value>Bootloader error: Low battery</value>
+  </data>
+  <data name="BOOT_STATUS_PARTIAL" xml:space="preserve">
+    <value>Bootloader error: Partial data</value>
+  </data>
+  <data name="BOOT_STATUS_WRITE_ERROR" xml:space="preserve">
+    <value>Bootloader error: Write error</value>
+  </data>
+  <data name="BOOT_STATUS_WRONG_PARAMETER" xml:space="preserve">
+    <value>Bootloader error: Wrong parameter</value>
+  </data>
+  <data name="ERR_BUTTON_REQ" xml:space="preserve">
+    <value>FW Error: Button confirmation required</value>
+  </data>
+  <data name="ERR_NO_DATA" xml:space="preserve">
+    <value>FW Error: No data</value>
+  </data>
+  <data name="ERR_PIN_NOT_SET" xml:space="preserve">
+    <value>FW Error: PIN code is not set</value>
+  </data>
+  <data name="ERR_PIN_REQ" xml:space="preserve">
+    <value>FW Error: PIN code required</value>
+  </data>
+  <data name="ERR_PIN_TOO_SHORT" xml:space="preserve">
+    <value>FW Error: PIN code is too short</value>
+  </data>
+  <data name="ERR_PIN_WRONG" xml:space="preserve">
+    <value>Wrong PIN code</value>
+  </data>
+  <data name="ERR_SC_INVALID_BUFSIZE" xml:space="preserve">
+    <value>Cryptolib error: invalid buffer size</value>
+  </data>
+  <data name="ERR_SC_INVALID_LENGTH" xml:space="preserve">
+    <value>Cryptolib error: invalid length</value>
+  </data>
+  <data name="ERR_SC_INVALID_PARAMS" xml:space="preserve">
+    <value>Cryptolib error: invalid parameter</value>
+  </data>
+  <data name="ERR_SC_INVALID_PRIVKEY" xml:space="preserve">
+    <value>Cryptolib error: invalid private key</value>
+  </data>
+  <data name="ERR_SC_INVALID_PUBKEY" xml:space="preserve">
+    <value>Cryptolib error: invalid public key</value>
+  </data>
+  <data name="ERR_SC_INVALID_SIGNATURE" xml:space="preserve">
+    <value>Cryptolib error: invalid signature</value>
+  </data>
+  <data name="ERR_SC_INVALID_SO" xml:space="preserve">
+    <value>Cryptolib error: invalid SO</value>
+  </data>
+  <data name="ERR_SC_INVALID_STATE" xml:space="preserve">
+    <value>Cryptolib error: invalid state</value>
+  </data>
+  <data name="ERR_SC_NO_RNG_FUNCTION" xml:space="preserve">
+    <value>Cryptolib error: no RNG function</value>
+  </data>
+  <data name="CryptolibUnknownError" xml:space="preserve">
+    <value>Cryptolib returned unknown error code: {0}</value>
+  </data>
+  <data name="ERR_SC_WRONG_SECRET" xml:space="preserve">
+    <value>Cryptolib error: wrong secret</value>
+  </data>
+  <data name="ERR_TIMEOUT" xml:space="preserve">
+    <value>FW Error: Timeout</value>
+  </data>
+  <data name="ERR_UNKNOWN_MESSAGE" xml:space="preserve">
+    <value>FW Error: Unknown message</value>
+  </data>
+  <data name="AlreadyStarted" xml:space="preserve">
+    <value>Operation already started</value>
+  </data>
+  <data name="ButtonConfirmationTimeout" xml:space="preserve">
+    <value>Button confirmation timed out</value>
+  </data>
+  <data name="ChannelAlreadyExists" xml:space="preserve">
+    <value>Channel already exists</value>
+  </data>
+  <data name="ChannelAlreadyVerified" xml:space="preserve">
+    <value>Channel already verified</value>
+  </data>
+  <data name="ChannelInitializationFailed" xml:space="preserve">
+    <value>Channel initialization failed</value>
+  </data>
+  <data name="ChannelNotAuthorized" xml:space="preserve">
+    <value>Channel not authorized</value>
+  </data>
+  <data name="ChannelNotInitialized" xml:space="preserve">
+    <value>Channel is not initialized</value>
+  </data>
+  <data name="ChannelNotVerified" xml:space="preserve">
+    <value>Channel is not verified</value>
+  </data>
+  <data name="ChannelVerificationFailed" xml:space="preserve">
+    <value>Channel verification failed</value>
+  </data>
+  <data name="ChannelVerificationInProgress" xml:space="preserve">
+    <value>Channel verification in progress</value>
+  </data>
+  <data name="ChannelVerificationTimedOut" xml:space="preserve">
+    <value>Channel verification timeout</value>
+  </data>
+  <data name="DeviceAlreadyExists" xml:space="preserve">
+    <value>Device already exists</value>
+  </data>
+  <data name="DeviceIsLocked" xml:space="preserve">
+    <value>Device is locked</value>
+  </data>
+  <data name="DeviceNotAssignedToUser" xml:space="preserve">
+    <value>The device is not assigned to any user</value>
+  </data>
+  <data name="FwUpdateBootBadImageFile" xml:space="preserve">
+    <value>Bad firmware image file</value>
+  </data>
+  <data name="FwUpdateBootConnectFailed" xml:space="preserve">
+    <value>Failed to connect the bootloader</value>
+  </data>
+  <data name="FwUpdateNoBootInImage" xml:space="preserve">
+    <value>Firmware image has not the bootloader in it</value>
+  </data>
+  <data name="HesConnectionNotInitialized" xml:space="preserve">
+    <value>HES connection is not initialized</value>
+  </data>
+  <data name="HesDeviceAuthorizationFailed" xml:space="preserve">
+    <value>Device authorization failed</value>
+  </data>
+  <data name="HesDeviceNotFound" xml:space="preserve">
+    <value>Device not found</value>
+  </data>
+  <data name="HesEmptyDeviceAccessProfile" xml:space="preserve">
+    <value>Access profile is not set for the device</value>
+  </data>
+  <data name="HesEmptyMasterKey" xml:space="preserve">
+    <value>The master key is empty for the device</value>
+  </data>
+  <data name="HesFailedEstablishRemoteDeviceConnection" xml:space="preserve">
+    <value>Failed to establish remote device connection</value>
+  </data>
+  <data name="HesUnknownError" xml:space="preserve">
+    <value>HES unknown error</value>
+  </data>
+  <data name="HesVerificationFailed" xml:space="preserve">
+    <value>HES verification failed</value>
+  </data>
+  <data name="HesWorkstationNotApproved" xml:space="preserve">
+    <value>Workstation is not approved</value>
+  </data>
+  <data name="LongOperationNotFound" xml:space="preserve">
+    <value>Operation not found</value>
+  </data>
+  <data name="MainChannelNotVerified" xml:space="preserve">
+    <value>The main channel is not verified</value>
+  </data>
+  <data name="NoConnectedUI" xml:space="preserve">
+    <value>UI is not connected to the service</value>
+  </data>
+  <data name="NonHideezException" xml:space="preserve">
+    <value>&lt;placeholder&gt;</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="PmInvalidFlagsMask" xml:space="preserve">
+    <value>Invalid flags mask</value>
+  </data>
+  <data name="RemoteChannelNotVerified" xml:space="preserve">
+    <value>Remote channel  is not verified</value>
+  </data>
+  <data name="StorageWriteError" xml:space="preserve">
+    <value>Failed to write the storage</value>
+  </data>
+  <data name="UnknownError" xml:space="preserve">
+    <value>Unknown error</value>
+  </data>
+  <data name="ZeroChannelCannotBeVerfieid" xml:space="preserve">
+    <value>Channel 0 cannot be verified</value>
   </data>
 </root>

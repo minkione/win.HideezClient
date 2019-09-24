@@ -1053,7 +1053,7 @@ namespace WinSampleApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(HideezExceptionLocalization.GetErrorAsString(ex));
             }
         }
 
@@ -1062,6 +1062,16 @@ namespace WinSampleApp.ViewModel
             try
             {
                 var readResult = await device.Device.ReadStorageAsString(35, 1);
+
+                //for (byte i = 1; i < 255; i++)
+                //{
+                //    var ddd = await device.Device.ReadStorageAsString(i, 1);
+                //    if (ddd != null)
+                //    {
+                //        Debug.WriteLine($"Storage: table {i}, row 1: {ddd}");
+                //        //MessageBox.Show(ddd);
+                //    }
+                //}
 
                 if (readResult == null)
                     MessageBox.Show("Empty");
