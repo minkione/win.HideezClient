@@ -554,60 +554,6 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        public ICommand ReadDeviceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        ReadDevice(CurrentDevice);
-                    }
-                };
-            }
-        }
-
-        public ICommand WriteDeviceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        WriteDevice(CurrentDevice);
-                    }
-                };
-            }
-        }
-
-        public ICommand LoadDeviceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        LoadDevice(CurrentDevice);
-                    }
-                };
-            }
-        }
-
         public ICommand PingDeviceCommand
         {
             get
@@ -787,6 +733,24 @@ namespace WinSampleApp.ViewModel
                 };
             }
         }
+        public ICommand StorageCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        OpenStorageVindow(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         #endregion
 
         public MainWindowViewModel()
@@ -1057,91 +1021,6 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void ReadDevice(DeviceViewModel device)
-        {
-            try
-            {
-                var readResult = await device.Device.ReadStorageAsString(35, 1);
-
-                //for (byte i = 1; i < 255; i++)
-                //{
-                //    var ddd = await device.Device.ReadStorageAsString(i, 1);
-                //    if (ddd != null)
-                //    {
-                //        Debug.WriteLine($"Storage: table {i}, row 1: {ddd}");
-                //        //MessageBox.Show(ddd);
-                //    }
-                //}
-
-                if (readResult == null)
-                    MessageBox.Show("Empty");
-                else
-                    MessageBox.Show(readResult);
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        async void WriteDevice(DeviceViewModel device)
-        {
-            try
-            {
-                var pm = new DevicePasswordManager(device.Device, _log);
-
-                // array of records
-                //for (int i = 0; i < 100; i++)
-                //{
-                //    var account = new AccountRecord()
-                //    {
-                //        Key = 0,
-                //        Name = $"My Google Account {i}",
-                //        Login = $"admin_{i}@hideez.com",
-                //        Password = $"my_password_{i}",
-                //        OtpSecret = $"asdasd_{i}",
-                //        Apps = $"12431412412342134_{i}",
-                //        Urls = $"www.hideez.com;www.google.com_{i}",
-                //        IsPrimary = i == 0
-                //    };
-
-                //    var key = await pm.SaveOrUpdateAccount(account.Key, account.Flags, account.Name,
-                //        account.Password, account.Login, account.OtpSecret,
-                //        account.Apps, account.Urls,
-                //        account.IsPrimary);
-
-                //    Debug.WriteLine($"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Writing {i} account");
-                //}
-
-
-                // single record
-                var account = new AccountRecord()
-                {
-                    Key = 1,
-                    Name = $"My Google Account 0",
-                    Login = $"admin_0@hideez.com",
-                    Password = $"my_password_0",
-                    OtpSecret = $"DPMYUOUOQDCAABSIAE5DFBANESXGOHDV",
-                    Apps = $"12431412412342134_0",
-                    Urls = $"www.hideez.com;www.google.com_0",
-                    IsPrimary = true
-                };
-
-                var key = await pm.SaveOrUpdateAccount(account.Key, account.Name,
-                    account.Password, account.Login, account.OtpSecret,
-                    account.Apps, account.Urls,
-                    account.IsPrimary
-                    //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6) 
-                    //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6)
-                    );
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
         async void WritePrimaryAccount(DeviceViewModel device)
         {
             try
@@ -1165,19 +1044,6 @@ namespace WinSampleApp.ViewModel
                     account.Apps, account.Urls,
                     account.IsPrimary
                     );
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        async void LoadDevice(DeviceViewModel device)
-        {
-            try
-            {
-                var pm = new DevicePasswordManager(device.Device, _log);
-                await pm.Load();
             }
             catch (Exception ex)
             {
@@ -1452,6 +1318,19 @@ namespace WinSampleApp.ViewModel
                 var outSecret = await device.Device.ReadStorageAsString((byte)StorageTable.OtpSecrets, 1);
                 var otpReply = await device.Device.GetOtp((byte)StorageTable.OtpSecrets, 1);
                 MessageBox.Show(otpReply.Otp);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        void OpenStorageVindow(DeviceViewModel currentDevice)
+        {
+            try
+            {
+                var wnd = new StorageWindow(CurrentDevice, _log);
+                var res = wnd.ShowDialog();
             }
             catch (Exception ex)
             {

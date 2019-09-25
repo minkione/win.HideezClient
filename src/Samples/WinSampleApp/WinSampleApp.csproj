@@ -59,6 +59,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AsyncEnumerable, Version=3.1.0.0, Culture=neutral, PublicKeyToken=0426b068161bd1d1, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\AsyncEnumerator.3.1.0\lib\net45\AsyncEnumerable.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AspNetCore.Connections.Abstractions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.AspNetCore.Connections.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Connections.Abstractions.dll</HintPath>
     </Reference>
@@ -171,9 +174,13 @@
     <Compile Include="GetPinWindow.xaml.cs">
       <DependentUpon>GetPinWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="StorageWindow.xaml.cs">
+      <DependentUpon>StorageWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\DelegateCommand.cs" />
     <Compile Include="ViewModel\DeviceViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
+    <Compile Include="ViewModel\StorageViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Page Include="AccessParamsWindow.xaml">
       <SubType>Designer</SubType>
@@ -195,6 +202,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="StorageWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

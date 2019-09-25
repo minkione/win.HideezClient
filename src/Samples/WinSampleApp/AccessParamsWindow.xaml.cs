@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using Hideez.SDK.Communication.Command;
-using WinSampleApp.ViewModel;
 
 namespace WinSampleApp
 {
