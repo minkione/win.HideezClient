@@ -22,86 +22,47 @@ using ReactiveUI.Fody.Helpers;
 using DynamicData;
 using DynamicData.Binding;
 using System.Collections.Specialized;
+using System.Reactive.Linq;
 
 namespace HideezClient.PageViewModels
 {
-    class PasswordManagerViewModel : LocalizedObject
+    class PasswordManagerViewModel : ReactiveObject
     {
-        private DelayedAction delayedFilteredPasswordsRefresh;
-        private DeviceViewModel device;
-        private AccountViewModel selectedAccount;
-        private string searchQuery;
-
         public PasswordManagerViewModel()
         {
-            try
-            {
-                delayedFilteredPasswordsRefresh = new DelayedAction(() =>
-                {
-                    Application.Current.Dispatcher.Invoke(() => { Accounts.Refresh(); });
-                }, 100);
-            }
-            catch (Exception ex)
-            {
-            }
+            this.WhenAnyValue(x => x.SearchQuery)
+                 .Throttle(TimeSpan.FromMilliseconds(100))
+                 .Where(term => null != term)
+                 .DistinctUntilChanged()
+                 .InvokeCommand(FilterAccountCommand);
+
+            this.WhenAnyValue(x => x.Device)
+                .Where(x => null != x)
+                .InvokeCommand(FilterAccountCommand);
+
+            Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Accounts, nameof(ObservableCollection<string>.CollectionChanged))
+                      .Subscribe(change => SelectedCredentials = Accounts.FirstOrDefault());
         }
 
-        public DeviceViewModel Device
+        [Reactive]
+        public bool IsInfoMode { get; set; }
+        [Reactive]
+        public DeviceViewModel Device { get; set; }
+        [Reactive]
+        public CredentialsInfoViewModel SelectedCredentials { get; set; }
+        [Reactive]
+        public string SearchQuery { get; set; }
+        public ObservableCollection<CredentialsInfoViewModel> Accounts { get; } = new ObservableCollection<CredentialsInfoViewModel>();
+
+        private bool Contains(CredentialsInfoViewModel account, string value)
         {
-            get { return device; }
-            set { Set(ref device, value); }
-        }
-
-
-        public AccountViewModel SelectedAccount
-        {
-            get { return selectedAccount; }
-            set { Set(ref selectedAccount, value); }
-        }
-
-
-        public ICollectionView Accounts
-        {
-            get
-            {
-                var view = CollectionViewSource.GetDefaultView(Device.Accounts);
-                if (view != null)
-                {
-                    view.Filter = Filter;
-
-                    var enumerator = view.GetEnumerator();
-                    if (enumerator.MoveNext())
-                    {
-                        SelectedAccount = enumerator.Current as AccountViewModel;
-                    }
-                }
-
-                return view;
-            }
-        }
-
-        public string SearchQuery
-        {
-            get { return searchQuery; }
-            set
-            {
-                if (searchQuery != value)
-                {
-                    Set(ref searchQuery, value);
-                    delayedFilteredPasswordsRefresh.RunDelayedAction();
-                }
-            }
-        }
-
-        private bool Filter(object item)
-        {
-            if (string.IsNullOrWhiteSpace(SearchQuery))
+            if (string.IsNullOrWhiteSpace(value))
                 return true;
 
-            if (item is AccountViewModel account)
+            if (null != account)
             {
-                var filter = SearchQuery.Trim();
-                return Contains(account.Name, filter) || Contains(account.Login, filter) || account.Apps.Any(a => Contains(a, filter) || account.Urls.Any(u => Contains(u, filter)));
+                var filter = value.Trim();
+                return Contains(account.Name, filter) || Contains(account.Login, filter) || account.AppsUrls.Any(a => Contains(a, filter));
             }
 
             return false;
@@ -126,74 +87,19 @@ namespace HideezClient.PageViewModels
                 };
             }
         }
-
-        #endregion
-
-        private void OnAddAccount()
+        public ICommand DeleteAccountCommand
         {
-            // TODO: Implement add account
-            MessageBox.Show("Add account");
-        }
-    }
-
-    class AccountViewModel : ReactiveObject
-    {
-        private readonly char separator = ';';
-
-        public AccountViewModel(AccountRecord accountRecord)
-        {
-            Init(accountRecord);
-        }
-
-        private void Init(AccountRecord accountRecord)
-        {
-            Name = accountRecord.Name;
-            Login = accountRecord.Login;
-            HasOpt = accountRecord.HasOtp;
-
-            if (accountRecord.Apps != null)
+            get
             {
-                foreach (var app in accountRecord.Apps.Split(separator))
+                return new DelegateCommand
                 {
-                    Apps.Add(app);
-                }
+                    CommandAction = x =>
+                    {
+                        OnAddAccount();
+                    },
+                };
             }
-            if (accountRecord.Urls != null)
-            {
-                foreach (var url in accountRecord.Urls.Split(separator))
-                {
-                    Urls.Add(url);
-                }
-            }
-
-            this.WhenAnyValue(vm => vm.Name, vm => vm.Login, vm => vm.Password, vm => vm.HasOpt, vm => vm.OtpSecret).Subscribe(_ => HasChanges = true);
-            Apps.CollectionChanged += CollectionChanged;
-            Urls.CollectionChanged += CollectionChanged;
         }
-
-        private void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            HasChanges = true;
-        }
-
-        [Reactive]
-        public bool HasChanges { get; set; }
-        [Reactive]
-        public string Name { get; set; }
-        [Reactive]
-        public string Login { get; set; }
-        [Reactive]
-        public SecureString Password { get; set; }
-        [Reactive]
-        public bool HasOpt { get; protected set; }
-        [Reactive]
-        public string OtpSecret { get; set; }
-
-        public ObservableCollection<string> Apps { get; } = new ObservableCollection<string>();
-        public ObservableCollection<string> Urls { get; } = new ObservableCollection<string>();
-
-        #region Command
-
         public ICommand EditAccountCommand
         {
             get
@@ -202,13 +108,12 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        OnEditAccount();
+                        OnAddAccount();
                     },
                 };
             }
         }
-
-        public ICommand UpdateAccountCommand
+        public ICommand CancelAccountCommand
         {
             get
             {
@@ -216,7 +121,20 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        OnUpdateAccount();
+                        OnAddAccount();
+                    },
+                };
+            }
+        }
+        public ICommand FilterAccountCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        OnFilterAccount();
                     },
                 };
             }
@@ -224,15 +142,20 @@ namespace HideezClient.PageViewModels
 
         #endregion
 
-        private void OnEditAccount()
+        private void OnFilterAccount()
         {
-            // TODO: Implement edit account
-            MessageBox.Show("Edit account");
+            var filteredAccounts = Device.Accounts.Where(a => Contains(a, SearchQuery));
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Accounts.RemoveMany(Accounts.Except(filteredAccounts));
+                Accounts.AddRange(filteredAccounts.Except(Accounts));
+            });
         }
 
-        private void OnUpdateAccount()
+        private void OnAddAccount()
         {
-            HasChanges = false;
+            IsInfoMode = false;
+            var editViewModwl = new EditCredentialsViewModel();
         }
     }
 }

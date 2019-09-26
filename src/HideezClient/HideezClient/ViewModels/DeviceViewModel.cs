@@ -56,7 +56,7 @@ namespace HideezClient.ViewModels
                 foreach (var acc in Testlist)
                 // foreach (var acc in device.PasswordManager.Accounts.Values)
                 {
-                    Accounts.Add(new PageViewModels.AccountViewModel(acc));
+                    Accounts.Add(new CredentialsInfoViewModel(acc));
                 }
             }
         }
@@ -82,6 +82,6 @@ namespace HideezClient.ViewModels
         public uint StorageFreeSize => device.StorageFreeSize;
         public bool IsFaulted => device.IsFaulted;
         public string FaultMessage => device.FaultMessage;
-        public ObservableCollection<PageViewModels.AccountViewModel> Accounts { get; } = new ObservableCollection<PageViewModels.AccountViewModel>();
+        public ObservableCollection<CredentialsInfoViewModel> Accounts { get; } = new ObservableCollection<CredentialsInfoViewModel>();
     }
 }

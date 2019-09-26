@@ -356,14 +356,23 @@
     <Compile Include="PageViewModels\SettingsPageViewModel.cs" />
     <Compile Include="PageViewModels\DefaultPageViewModel.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
-    <Compile Include="Utilities\DelayedAction.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
+    <Compile Include="Utilities\Trie\ITrie.cs" />
+    <Compile Include="Utilities\Trie\Trie.cs" />
+    <Compile Include="Utilities\Trie\TrieNode.cs" />
+    <Compile Include="Utilities\Trie\TrieNodeBase.cs" />
+    <Compile Include="Utilities\Trie\Wrapped.cs" />
+    <Compile Include="Utilities\Url\PublicSuffix.cs" />
+    <Compile Include="Utilities\Url\IPublicSuffix.cs" />
     <Compile Include="Utilities\PasswordHelper.cs" />
+    <Compile Include="Utilities\Url\URLHelper.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
+    <Compile Include="ViewModels\Account\EditCredentialsViewModel.cs" />
     <Compile Include="ViewModels\NotificationsContainerViewModel.cs" />
     <Compile Include="PageViewModels\PasswordManagerViewModel.cs" />
     <Compile Include="ViewModels\Dialog\PinViewModel.cs" />
+    <Compile Include="ViewModels\Account\AccountInfoViewModel.cs" />
     <Compile Include="Views\Dialog\DeviceLockedView.xaml.cs" />
     <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
       <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>
@@ -578,6 +587,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Resources\Data\public_suffix_list.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Resource Include="Resources\Icon\Idle\Idle1.ico" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

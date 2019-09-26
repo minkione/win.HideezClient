@@ -9,6 +9,9 @@
     <SolidColorBrush x:Key="Foreground" Color="#6E89A4" />
     <SolidColorBrush x:Key="LightForeground" Color="#F4FEFF" />
 
+    <SolidColorBrush x:Key="AccountItem.MouseOver.Background" Color="#E1F3F8" />
+    <SolidColorBrush x:Key="AccountItem.Selected.Background" Color="#CCEBF4" />
+    
     <!--  Main Window  -->
     <SolidColorBrush x:Key="WindowTitleBrush" Color="#22446D" />
     <SolidColorBrush x:Key="WindowBackground">#F4FEFF</SolidColorBrush>

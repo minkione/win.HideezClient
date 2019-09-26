@@ -55,7 +55,7 @@
             <StackPanel Grid.Row="1">
 
                 <TextBlock
-                    Margin="16,26,30,5"
+                    Margin="16,16,30,16"
                     Text="{l:Localization Info.NoDevice}"
                     Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityCollapsedConverter}}" />
 
@@ -67,20 +67,48 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="RadioButton">
-                                        <ContentPresenter DataContext="{TemplateBinding DataContext}" />
+                                        <Border Background="{TemplateBinding Background}">
+                                            <ContentPresenter DataContext="{TemplateBinding DataContext}" />
+                                        </Border>
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource LeftColumMenuActiveBrush}" />
+                                </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True" />
+                                        <Condition Property="IsChecked" Value="False" />
+                                    </MultiTrigger.Conditions>
+                                    <MultiTrigger.Setters>
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="1,0">
+                                                    <GradientStop Offset="1.0" Color="#22446D" />
+                                                    <GradientStop Offset="0.1" Color="#22446d" />
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Cursor" Value="Hand" />
+                                    </MultiTrigger.Setters>
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsChecked" Value="False" />
+                                        <Condition Property="IsPressed" Value="True" />
+                                    </MultiTrigger.Conditions>
+                                    <MultiTrigger.Setters>
+                                        <Setter Property="Background" Value="#22446D" />
+                                        <Setter Property="Opacity" Value="0.5" />
+                                    </MultiTrigger.Setters>
+                                </MultiTrigger>
+                            </Style.Triggers>
                         </Style>
                     </RadioButton.Style>
-                    <!--<i:Interaction.Triggers>
-                        <i:EventTrigger EventName="Checked">
-                            <i:InvokeCommandAction Command="{Binding MenuAboutDevice.Command}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>-->
-
                     <controls:DeviceInfo
-                        Margin="16,26,30,5"
+                        Padding="16,16,30,16"
                         VerticalAlignment="Top"
                         DataContext="{Binding SelectedDevice}" />
                 </RadioButton>
