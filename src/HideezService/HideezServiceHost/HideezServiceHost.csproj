@@ -57,9 +57,6 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AsyncEnumerable, Version=3.1.0.0, Culture=neutral, PublicKeyToken=0426b068161bd1d1, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\AsyncEnumerator.3.1.0\lib\net45\AsyncEnumerable.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.AspNetCore.Connections.Abstractions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.AspNetCore.Connections.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Connections.Abstractions.dll</HintPath>
     </Reference>
