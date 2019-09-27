@@ -20,16 +20,16 @@ using ReactiveUI.Fody.Helpers;
 
 namespace HideezClient.ViewModels
 {
-    class EditCredentialsViewModel : ReactiveObject
+    class EditAccountViewModel : ReactiveObject
     {
         private bool isUpdateAppsUrls;
 
-        public EditCredentialsViewModel()
+        public EditAccountViewModel()
         {
             InitDependencies();
         }
 
-        public EditCredentialsViewModel(AccountRecord accountRecord)
+        public EditAccountViewModel(AccountRecord accountRecord)
         {
             InitProp(accountRecord);
             InitDependencies();

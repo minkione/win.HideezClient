@@ -1,31 +1,19 @@
 ﻿using DynamicData;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezClient.Utilities;
-using MvvmExtensions.Commands;
-using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Security;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
 
 
 namespace HideezClient.ViewModels
 {
-    class CredentialsInfoViewModel : ReactiveObject
+    class AccountInfoViewModel
     {
-        public CredentialsInfoViewModel(AccountRecord accountRecord)
+        private readonly AccountRecord accountRecord;
+
+        public AccountInfoViewModel(AccountRecord accountRecord)
         {
-            Name = accountRecord.Name;
-            Login = accountRecord.Login;
-            HasOpt = accountRecord.HasOtp;
+            this.accountRecord = accountRecord;
+
             AppsUrls = new List<string>();
 
             if (accountRecord.Apps != null)
@@ -38,31 +26,10 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public string Name { get; }
-        public string Login { get; }
-        public bool HasOpt { get; }
+        public ushort Key { get { return accountRecord.Key; } }
+        public string Name { get { return accountRecord.Name; } }
+        public string Login { get { return accountRecord.Login; } }
+        public bool HasOpt { get { return accountRecord.HasOtp; } }
         public IList<string> AppsUrls { get; }
-
-        #region Command
-
-        public ICommand EditCredentialsCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CommandAction = x =>
-                    {
-                        OnEditCredentials();
-                    },
-                };
-            }
-        }
-
-        #endregion
-
-        private void OnEditCredentials()
-        {
-        }
     }
 }

@@ -23,7 +23,6 @@
         <Setter Property="Margin" Value="0" />
     </Style>
 
-
     <!--  Change button style  -->
     <Style x:Key="ChangeButtonStyle" TargetType="{x:Type Button}">
         <Setter Property="Background" Value="#E1F3F8" />
@@ -31,7 +30,6 @@
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Focusable" Value="False" />
-        <Setter Property="Padding" Value="30,9" />
         <Setter Property="FontSize" Value="16" />
         <!--<Setter Property="BitmapEffect">
             <Setter.Value>
@@ -48,7 +46,7 @@
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Border
                         x:Name="border"
-                        Padding="20,7"
+                        Padding="30,9"
                         Background="{TemplateBinding Background}"
                         CornerRadius="4">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -91,13 +89,31 @@
         </Style.Triggers>
     </Style>
 
+    <!--  Icon button style  -->
+    <Style x:Key="IconButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Command" Value="{Binding Command}" />
+        <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
+        <Setter Property="ToolTip" Value="{Binding Header}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <ContentPresenter />
+                        <Rectangle Style="{StaticResource ClickableTransparentBackgroundStyle}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  Window style  -->
     <Style x:Key="WindowStyle" TargetType="Window">
         <Setter Property="FontFamily" Value="{DynamicResource MainFontFamily}" />
         <Setter Property="Foreground" Value="{DynamicResource MainFontForeground}" />
         <Setter Property="FontSize" Value="{DynamicResource MainFontSize}" />
         <Setter Property="FontWeight" Value="Normal" />
-        <Setter Property="Background" Value="{DynamicResource WindowBackground}" />
+        <Setter Property="Background" Value="{DynamicResource WindowLeftColumBrush}" />
     </Style>
 
     <!--  Page style  -->
@@ -188,6 +204,23 @@
                                     </Style>
                                 </Polygon.Style>
                             </Polygon>
+
+                            <Border
+                                Grid.ColumnSpan="7"
+                                Height="1"
+                                Margin="6,0,1,0"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Top"
+                                Background="#0c2a4e"
+                                Visibility="{TemplateBinding Property=IsChecked,
+                                                             Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Border.Effect>
+                                    <DropShadowEffect
+                                        BlurRadius="27"
+                                        ShadowDepth="5"
+                                        Color="#0c2a4e" />
+                                </Border.Effect>
+                            </Border>
                         </Grid>
                     </Border>
                 </ControlTemplate>

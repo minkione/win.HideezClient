@@ -41,36 +41,18 @@ namespace HideezClient.PageViewModels
                 .InvokeCommand(FilterAccountCommand);
 
             Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Accounts, nameof(ObservableCollection<string>.CollectionChanged))
-                      .Subscribe(change => SelectedCredentials = Accounts.FirstOrDefault());
+                      .Subscribe(change => SelectedAccount = Accounts.FirstOrDefault());
         }
 
         [Reactive]
-        public bool IsInfoMode { get; set; }
+        public bool IsInfoMode { get; set; } = true;
         [Reactive]
         public DeviceViewModel Device { get; set; }
         [Reactive]
-        public CredentialsInfoViewModel SelectedCredentials { get; set; }
+        public AccountInfoViewModel SelectedAccount { get; set; }
         [Reactive]
         public string SearchQuery { get; set; }
-        public ObservableCollection<CredentialsInfoViewModel> Accounts { get; } = new ObservableCollection<CredentialsInfoViewModel>();
-
-        private bool Contains(CredentialsInfoViewModel account, string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return true;
-
-            if (null != account)
-            {
-                var filter = value.Trim();
-                return Contains(account.Name, filter) || Contains(account.Login, filter) || account.AppsUrls.Any(a => Contains(a, filter));
-            }
-
-            return false;
-        }
-        private bool Contains(string source, string toCheck)
-        {
-            return source != null && toCheck != null && source.IndexOf(toCheck, StringComparison.InvariantCultureIgnoreCase) >= 0;
-        }
+        public ObservableCollection<AccountInfoViewModel> Accounts { get; } = new ObservableCollection<AccountInfoViewModel>();
 
         #region Command
 
@@ -95,11 +77,12 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        OnAddAccount();
+                        OnDeleteAccount();
                     },
                 };
             }
         }
+
         public ICommand EditAccountCommand
         {
             get
@@ -108,12 +91,13 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        OnAddAccount();
+                        OnEditAccount();
                     },
                 };
             }
         }
-        public ICommand CancelAccountCommand
+
+        public ICommand CancelCommand
         {
             get
             {
@@ -121,11 +105,12 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        OnAddAccount();
+                        OnCancel();
                     },
                 };
             }
         }
+
         public ICommand FilterAccountCommand
         {
             get
@@ -141,6 +126,28 @@ namespace HideezClient.PageViewModels
         }
 
         #endregion
+        
+        private void OnAddAccount()
+        {
+            IsInfoMode = false;
+            //var editViewModwl = new EditCredentialsViewModel();
+        }
+
+        private void OnDeleteAccount()
+        {
+            Accounts.Remove(SelectedAccount);
+            // TODO: delite from device
+        }
+
+        private void OnEditAccount()
+        {
+            IsInfoMode = false;
+        }
+
+        private void OnCancel()
+        {
+            IsInfoMode = true;
+        }
 
         private void OnFilterAccount()
         {
@@ -151,11 +158,22 @@ namespace HideezClient.PageViewModels
                 Accounts.AddRange(filteredAccounts.Except(Accounts));
             });
         }
-
-        private void OnAddAccount()
+        private bool Contains(AccountInfoViewModel account, string value)
         {
-            IsInfoMode = false;
-            var editViewModwl = new EditCredentialsViewModel();
+            if (string.IsNullOrWhiteSpace(value))
+                return true;
+
+            if (null != account)
+            {
+                var filter = value.Trim();
+                return Contains(account.Name, filter) || Contains(account.Login, filter) || account.AppsUrls.Any(a => Contains(a, filter));
+            }
+
+            return false;
+        }
+        private bool Contains(string source, string toCheck)
+        {
+            return source != null && toCheck != null && source.IndexOf(toCheck, StringComparison.InvariantCultureIgnoreCase) >= 0;
         }
     }
 }

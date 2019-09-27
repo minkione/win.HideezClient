@@ -219,26 +219,8 @@
             VerticalAlignment="Center"
             Opacity="0.0"
             Orientation="Horizontal">
-            <StackPanel.Resources>
-                <Style x:Key="IconStyle" TargetType="{x:Type Button}">
-                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-                    <Setter Property="Command" Value="{Binding Command}" />
-                    <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
-                    <Setter Property="ToolTip" Value="{Binding Header}" />
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type Button}">
-                                <Grid>
-                                    <ContentPresenter />
-                                    <Rectangle Style="{StaticResource ClickableTransparentBackgroundStyle}" />
-                                </Grid>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </StackPanel.Resources>
             <Border Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Button DataContext="{Binding DisconnectDeviceMenu}" Style="{StaticResource IconStyle}">
+                <Button DataContext="{Binding DisconnectDeviceMenu}" Style="{StaticResource IconButtonStyle}">
                     <iconPacks:PackIconMaterial
                         Margin="3"
                         Foreground="{DynamicResource WindowBackground}"
@@ -248,7 +230,7 @@
             <Button
                 Margin="5,0,5,0"
                 DataContext="{Binding RemoveDeviceMenu}"
-                Style="{StaticResource IconStyle}">
+                Style="{StaticResource IconButtonStyle}">
                 <iconPacks:PackIconFontAwesome
                     Margin="3"
                     Foreground="{DynamicResource DisconnectedBrush}"

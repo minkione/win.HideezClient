@@ -155,13 +155,17 @@
         </Grid>
 
         <!--  page content  -->
-        <Frame
-            Name="MainAPpFrame"
+        <Border
             Grid.Column="1"
-            BorderThickness="0"
-            Focusable="False"
-            NavigationUIVisibility="Hidden"
-            Source="{Binding Path=DisplayPage, Mode=TwoWay}" />
-
+            Background="{DynamicResource WindowBackground}"
+            BorderBrush="Transparent"
+            CornerRadius="8,0,0,0">
+            <Frame
+                Name="MainAPpFrame"
+                BorderThickness="0"
+                Focusable="False"
+                NavigationUIVisibility="Hidden"
+                Source="{Binding Path=DisplayPage, Mode=TwoWay}" />
+        </Border>
     </Grid>
 </Metro:MetroWindow>

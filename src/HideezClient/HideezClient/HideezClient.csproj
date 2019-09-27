@@ -368,7 +368,7 @@
     <Compile Include="Utilities\Url\URLHelper.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
-    <Compile Include="ViewModels\Account\EditCredentialsViewModel.cs" />
+    <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
     <Compile Include="ViewModels\NotificationsContainerViewModel.cs" />
     <Compile Include="PageViewModels\PasswordManagerViewModel.cs" />
     <Compile Include="ViewModels\Dialog\PinViewModel.cs" />
