@@ -1302,7 +1302,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                var reply = await device.Device.Confirm(5);
+                await device.Device.Confirm(15);
             }
             catch (Exception ex)
             {

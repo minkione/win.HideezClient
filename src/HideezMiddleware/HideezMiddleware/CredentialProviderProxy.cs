@@ -53,10 +53,6 @@ namespace HideezMiddleware
         readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _pendingLogonRequests 
             = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
 
-        //readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _pendingGetPinRequests
-        //    = new ConcurrentDictionary<string, TaskCompletionSource<string>>();
-        
-
         public CredentialProviderProxy(ILog log)
             : base(nameof(CredentialProviderProxy), log)
         {
@@ -166,6 +162,8 @@ namespace HideezMiddleware
         public async Task<bool> SendLogonRequest(string login, string password, string prevPassword)
         {
             WriteLine($"SendLogonRequest: {login}");
+
+            login = NormalizeLogin(login);
             await SendMessageAsync(CredentialProviderCommandCode.Logon, true, $"{login}\n{password}\n{prevPassword}");
 
             var tcs = _pendingLogonRequests.GetOrAdd(login, (x) =>
@@ -185,6 +183,20 @@ namespace HideezMiddleware
             {
                 _pendingLogonRequests.TryRemove(login, out TaskCompletionSource<bool> removed);
             }
+        }
+
+        string NormalizeLogin(string login)
+        {
+            if (login.StartsWith(".\\") || login.StartsWith("./"))
+            {
+                login = $"{Environment.MachineName}\\{login.Substring(2)}";
+            }
+            else if (login.StartsWith("@\\") || login.StartsWith("@/"))
+            {
+                login = $"MicrosoftAccount\\{login.Substring(2)}";
+            }
+
+            return login;
         }
 
         public async Task ShowPinUi(string deviceId, bool withConfirm, bool askOldPin)
