@@ -426,4 +426,7 @@
   <data name="ZeroChannelCannotBeVerfieid" xml:space="preserve">
     <value>Channel 0 cannot be verified</value>
   </data>
+  <data name="DeviceHasBeenWiped" xml:space="preserve">
+    <value>The device has been wiped. Try to connect it again.</value>
+  </data>
 </root>
