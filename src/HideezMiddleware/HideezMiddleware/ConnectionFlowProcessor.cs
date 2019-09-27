@@ -108,7 +108,15 @@ namespace HideezMiddleware
                 if (device.AccessLevel.IsLinkRequired)
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
-                const int timeout = 60_000;
+
+                if (await IsNeedUpdateDevice(device))
+                {
+                    // request HES to update this device
+                    await _ui.SendNotification("Uploading new credentials to the device...", _infNid);
+                    await _hesConnection.FixDevice(device);
+                }
+
+                const int timeout = 120_000;
 
                 await MasterKeyWorkflow(device, timeout);
 
@@ -201,25 +209,7 @@ namespace HideezMiddleware
         async Task<bool> TryUnlockWorkstation(IDevice device)
         {
             await _ui.SendNotification("Reading credentials from the device...", _infNid);
-
-            // read in parallel info from the HES and credentials from the device
-            var infoTask = IsNeedUpdateDevice(device);
-            var credentialsTask = GetCredentials(device);
-
-            await Task.WhenAll(infoTask, credentialsTask);
-
-            var credentials = credentialsTask.Result;
-
-            // if the device needs to be updated, update and read credentials again
-            if (infoTask.Result)
-            {
-                // request hes to update this device
-                await _hesConnection.FixDevice(device);
-
-                await WaitForRemoteDeviceUpdate(device.SerialNo);
-
-                credentials = await GetCredentials(device);
-            }
+            var credentials = await GetCredentials(device);
 
             // send credentials to the Credential Provider to unlock the PC
             await _ui.SendNotification("Unlocking the PC...", _infNid);
@@ -228,6 +218,37 @@ namespace HideezMiddleware
 
             return success;
         }
+
+        //async Task<bool> TryUnlockWorkstation(IDevice device)
+        //{
+        //    await _ui.SendNotification("Reading credentials from the device...", _infNid);
+
+        //    // read in parallel info from the HES and credentials from the device
+        //    var infoTask = IsNeedUpdateDevice(device);
+        //    var credentialsTask = GetCredentials(device);
+
+        //    await Task.WhenAll(infoTask, credentialsTask);
+
+        //    var credentials = credentialsTask.Result;
+
+        //    // if the device needs to be updated, update and read credentials again
+        //    if (infoTask.Result)
+        //    {
+        //        // request hes to update this device
+        //        await _hesConnection.FixDevice(device);
+
+        //        await WaitForRemoteDeviceUpdate(device.SerialNo);
+
+        //        credentials = await GetCredentials(device);
+        //    }
+
+        //    // send credentials to the Credential Provider to unlock the PC
+        //    await _ui.SendNotification("Unlocking the PC...", _infNid);
+        //    var success = await _workstationUnlocker
+        //        .SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+
+        //    return success;
+        //}
 
         async Task<bool> IsNeedUpdateDevice(IDevice device)
         {
@@ -391,22 +412,22 @@ namespace HideezMiddleware
             }
         }
 
-        async Task WaitForRemoteDeviceUpdate(string serialNo) //todo - refactor to use callbacks from server
-        {
-            if (_hesConnection.State != HesConnectionState.Connected)
-                throw new Exception("Cannot update device. Not connected to the HES.");
+        //async Task WaitForRemoteDeviceUpdate(string serialNo) //todo - refactor to use callbacks from server
+        //{
+        //    if (_hesConnection.State != HesConnectionState.Connected)
+        //        throw new Exception("Cannot update device. Not connected to the HES.");
 
-            DeviceInfoDto info;
-            for (int i = 0; i < 10; i++)
-            {
-                info = await _hesConnection.GetInfoBySerialNo(serialNo);
-                if (info.NeedUpdate == false)
-                    return;
-                await Task.Delay(3000);
-            }
+        //    DeviceInfoDto info;
+        //    for (int i = 0; i < 10; i++)
+        //    {
+        //        info = await _hesConnection.GetInfoBySerialNo(serialNo);
+        //        if (info.NeedUpdate == false)
+        //            return;
+        //        await Task.Delay(3000);
+        //    }
 
-            throw new Exception($"Remote device update has been timed out");
-        }
+        //    throw new Exception($"Remote device update has been timed out");
+        //}
 
         async Task<Credentials> GetCredentials(IDevice device)
         {
