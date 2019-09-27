@@ -1,5 +1,7 @@
 devenv ..\HideezClient.Setup.sln /Clean "Release|x86"
 devenv ..\HideezClient.Setup.sln /Clean "Release|x64"
+devenv ..\HideezClient.Setup.sln /Clean "Release|x64" /Project Communication
+devenv ..\HideezClient.Setup.sln /Clean "Release|x64" /Project Communication
 devenv ..\HideezClient.Setup.sln /Build "Release|x86" /Project WiXSetup
 devenv ..\HideezClient.Setup.sln /Build "Release|x64" /Project WiXSetup
 devenv ..\HideezClient.Setup.sln /Build "Release|x64" /Project WixBootstrapper
