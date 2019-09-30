@@ -366,6 +366,7 @@
     <Compile Include="Utilities\Url\IPublicSuffix.cs" />
     <Compile Include="Utilities\PasswordHelper.cs" />
     <Compile Include="Utilities\Url\URLHelper.cs" />
+    <Compile Include="Utilities\WeakEvent.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />

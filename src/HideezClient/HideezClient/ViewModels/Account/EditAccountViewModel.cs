@@ -17,38 +17,57 @@ using HideezClient.Utilities;
 using MvvmExtensions.Commands;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using Unity;
 
 namespace HideezClient.ViewModels
 {
     class EditAccountViewModel : ReactiveObject
     {
         private bool isUpdateAppsUrls;
+        private DeviceViewModel device;
 
-        public EditAccountViewModel()
+        public EditAccountViewModel(DeviceViewModel device)
         {
+            this.device = device;
             InitDependencies();
         }
 
-        public EditAccountViewModel(AccountRecord accountRecord)
+        public EditAccountViewModel(DeviceViewModel device, AccountRecord accountRecord)
         {
+            this.device = device;
             InitProp(accountRecord);
             InitDependencies();
         }
 
         private void InitDependencies()
         {
+            Application.Current.MainWindow.Activated += WeakEventHandler.Create(this, (@this, o, args) => Task.Run(@this.UpdateAppsAndUrls));
+
             this.WhenAnyValue(vm => vm.Name, vm => vm.Login, vm => vm.Password, vm => vm.HasOpt, vm => vm.OtpSecret)
                 .Where(_ => IsEditable)
                 .Subscribe(_ => HasChanges = true);
 
+            this.WhenAnyValue(vm => vm.SelectedApp).Subscribe(OnAppSelected);
+            this.WhenAnyValue(vm => vm.SelectedUrl).Subscribe(OnUrlSelected);
+
             Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Apps, nameof(ObservableCollection<string>.CollectionChanged))
                        .Where(_ => IsEditable)
-                      .Subscribe(change => HasChanges = true);
+                      .Subscribe(change => AppsOrUrlsCollectonChanges());
             Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Urls, nameof(ObservableCollection<string>.CollectionChanged))
                        .Where(_ => IsEditable)
-                      .Subscribe(change => HasChanges = true);
+                      .Subscribe(change => AppsOrUrlsCollectonChanges());
 
-            UpdateAppsAndUrls();
+            AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
+            OpenedApps.Add(loadingAppInfo);
+            OpenedForegroundUrls.Add(loadingAppInfo);
+            Task.Run(UpdateAppsAndUrls).ContinueWith(_ =>
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    OpenedApps.Remove(loadingAppInfo);
+                    OpenedForegroundUrls.Remove(loadingAppInfo);
+                });
+            });
         }
 
         private void UpdateAppsAndUrls()
@@ -122,26 +141,23 @@ namespace HideezClient.ViewModels
             }
         }
 
-        [Reactive]
-        public bool IsEditable { get; set; } = true;
-        [Reactive]
-        public bool HasChanges { get; set; }
-        [Reactive]
-        public string Name { get; set; }
-        [Reactive]
-        public string Login { get; set; }
-        [Reactive]
-        public SecureString Password { get; set; }
-        [Reactive]
-        public bool HasOpt { get; protected set; }
-        [Reactive]
-        public string OtpSecret { get; set; }
+        [Reactive] public bool IsEditable { get; set; } = true;
+        [Reactive] public bool HasChanges { get; set; }
+        [Reactive] public string Name { get; set; }
+        [Reactive] public string Login { get; set; }
+        [Reactive] public SecureString Password { get; set; }
+        [Reactive] public bool HasOpt { get; protected set; }
+        [Reactive] public string OtpSecret { get; set; }
 
         public ObservableCollection<string> Apps { get; } = new ObservableCollection<string>();
         public ObservableCollection<string> Urls { get; } = new ObservableCollection<string>();
-
+        public IEnumerable<string> AppsAndUrls { get { return Apps.Concat(Urls); } }
+        public IEnumerable<string> Logins { get { return device?.Accounts.Select(a => a.Login).Distinct(); } }
         public ObservableCollection<AppInfo> OpenedApps { get; } = new ObservableCollection<AppInfo>();
         public ObservableCollection<AppInfo> OpenedForegroundUrls { get; } = new ObservableCollection<AppInfo>();
+
+        [Reactive] public AppInfo SelectedApp { get; set; }
+        [Reactive] public AppInfo SelectedUrl { get; set; }
 
         #region Command
 
@@ -181,7 +197,7 @@ namespace HideezClient.ViewModels
                 {
                     CommandAction = (x) =>
                     {
-                        GeneratePassword();
+                        OnGeneratePassword();
                     }
                 };
             }
@@ -189,7 +205,7 @@ namespace HideezClient.ViewModels
 
         #endregion
 
-        private string GeneratePassword()
+        private string OnGeneratePassword()
         {
             return "";
         }
@@ -204,6 +220,30 @@ namespace HideezClient.ViewModels
         {
             IsEditable = false;
             HasChanges = false;
+        }
+
+        private void OnUrlSelected(AppInfo appInfo)
+        {
+            string url = appInfo?.Domain;
+            if (!string.IsNullOrWhiteSpace(url))
+            {
+                Apps.Add(url);
+            }
+        }
+
+        private void OnAppSelected(AppInfo appInfo)
+        {
+            string app = appInfo?.Title;
+            if (!string.IsNullOrWhiteSpace(app))
+            {
+                Urls.Add(app);
+            }
+        }
+
+        private void AppsOrUrlsCollectonChanges()
+        {
+            HasChanges = true;
+            this.RaisePropertyChanged(nameof(AppsAndUrls));
         }
     }
 }

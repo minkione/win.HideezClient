@@ -44,14 +44,10 @@ namespace HideezClient.PageViewModels
                       .Subscribe(change => SelectedAccount = Accounts.FirstOrDefault());
         }
 
-        [Reactive]
-        public bool IsInfoMode { get; set; } = true;
-        [Reactive]
-        public DeviceViewModel Device { get; set; }
-        [Reactive]
-        public AccountInfoViewModel SelectedAccount { get; set; }
-        [Reactive]
-        public string SearchQuery { get; set; }
+        [Reactive] public DeviceViewModel Device { get; set; }
+        [Reactive] public AccountInfoViewModel SelectedAccount { get; set; }
+        [Reactive] public EditAccountViewModel EditAccount { get; set; }
+        [Reactive] public string SearchQuery { get; set; }
         public ObservableCollection<AccountInfoViewModel> Accounts { get; } = new ObservableCollection<AccountInfoViewModel>();
 
         #region Command
@@ -111,6 +107,20 @@ namespace HideezClient.PageViewModels
             }
         }
 
+        public ICommand SaveAccountCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        OnSaveAccount();
+                    },
+                };
+            }
+        }
+
         public ICommand FilterAccountCommand
         {
             get
@@ -119,34 +129,38 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        OnFilterAccount();
+                        Task.Run(OnFilterAccount);
                     },
                 };
             }
         }
 
         #endregion
-        
+
+        private void OnSaveAccount()
+        {
+            // TODO: Save account
+        }
+
         private void OnAddAccount()
         {
-            IsInfoMode = false;
-            //var editViewModwl = new EditCredentialsViewModel();
+            EditAccount = new EditAccountViewModel(Device);
         }
 
         private void OnDeleteAccount()
         {
             Accounts.Remove(SelectedAccount);
-            // TODO: delite from device
+            EditAccount = null;
         }
 
         private void OnEditAccount()
         {
-            IsInfoMode = false;
+            EditAccount = new EditAccountViewModel(Device);
         }
 
         private void OnCancel()
         {
-            IsInfoMode = true;
+            EditAccount = null;
         }
 
         private void OnFilterAccount()

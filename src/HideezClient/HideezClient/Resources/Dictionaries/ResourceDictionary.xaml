@@ -121,7 +121,7 @@
         <Setter Property="FontFamily" Value="{DynamicResource MainFontFamily}" />
         <Setter Property="Foreground" Value="{DynamicResource MainFontForeground}" />
         <Setter Property="FontSize" Value="{DynamicResource MainFontSize}" />
-        <Setter Property="Foreground" Value="Red" />
+        <Setter Property="Foreground" Value="{DynamicResource Foreground}" />
     </Style>
 
     <!--  Base Left Colum Menu Style  -->
