@@ -19,7 +19,7 @@ namespace HideezClient.Utilities
         MinMax = 16,    // 0b_0001_0000
     }
 
-    class PasswordHelper
+    class PasswordValidator
     {
         private Regex hasNumber = new Regex(@"[0-9]+");
         private Regex hasUpperChar = new Regex(@"[A-Z]+");
@@ -30,7 +30,7 @@ namespace HideezClient.Utilities
         private int max = 8;
         private string symbols = @"[!@#$%^&*()_+=\[{\]};:<>|./?,-]";
 
-        public PasswordHelper()
+        public PasswordValidator()
         {
             hasNumber = new Regex(@"[0-9]+");
             hasUpperChar = new Regex(@"[A-Z]+");
@@ -91,7 +91,7 @@ namespace HideezClient.Utilities
             );
         }
 
-        public bool ValidatePassword(string password, out string ErrorMessage)
+        public bool Validate(string password, out string ErrorMessage)
         {
             var input = password;
             ErrorMessage = string.Empty;

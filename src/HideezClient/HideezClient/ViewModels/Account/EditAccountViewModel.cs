@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Security;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -203,11 +205,31 @@ namespace HideezClient.ViewModels
             }
         }
 
+        public ICommand ScanOtpSecretCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        OnScanOtpSecret();
+                    }
+                };
+            }
+        }
+
         #endregion
+
+        private void OnScanOtpSecret()
+        {
+            throw new NotImplementedException();
+        }
 
         private string OnGeneratePassword()
         {
-            return "";
+            string password = PasswordGenerator.Generate(16);
+            return password;
         }
 
         private void OnCancel()
