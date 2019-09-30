@@ -80,7 +80,6 @@
     <Compile Include="Audit\EventSaver.cs" />
     <Compile Include="Audit\EventSender.cs" />
     <Compile Include="Audit\EventFactory.cs" />
-    <Compile Include="Audit\SessionInfo.cs" />
     <Compile Include="Audit\SessionInfoProvider.cs" />
     <Compile Include="Audit\SessionSwitchLogger.cs" />
     <Compile Include="ConnectionFlowResult.cs" />

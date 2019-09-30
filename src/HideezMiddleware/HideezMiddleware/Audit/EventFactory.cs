@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Workstation;
 using Hideez.SDK.Communication.WorkstationEvents;
 using System;
 
@@ -10,9 +11,9 @@ namespace HideezMiddleware.Audit
         const string SYSTEM_SESSION_NAME = "SYSTEM";
         SessionInfoProvider _sessionIdProvider;
 
-        public EventFactory(ILog log)
+        public EventFactory(SessionInfoProvider sessionInfoProvider, ILog log)
         {
-            _sessionIdProvider = new SessionInfoProvider(log);
+            _sessionIdProvider = sessionInfoProvider;
         }
 
         public WorkstationEvent GetWorkstationEvent()

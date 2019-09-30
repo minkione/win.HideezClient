@@ -118,7 +118,7 @@ namespace ServiceLibrary.Implementation
             var workstationInfoProvider = new WorkstationInfoProvider(hesAddress, _sdkLogger);
 
             // HES Connection ==================================
-            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sdkLogger)
+            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sessionInfoProvider, _sdkLogger)
             {
                 ReconnectDelayMs = 10_000 // Todo: remove hes recoonect delay overwrite in stable version
             };
@@ -140,10 +140,10 @@ namespace ServiceLibrary.Implementation
             //_eventSender = new EventSender(_hesConnection, _eventSaver, _sdkLogger);
 
             // ScreenActivator ==================================
-            _screenActivator = new WcfScreenActivator(SessionManager);
+            _screenActivator = new WcfScreenActivator(sessionManager);
 
             // Client Proxy =============================
-            _clientProxy = new ServiceClientUiManager(SessionManager);
+            _clientProxy = new ServiceClientUiManager(sessionManager);
 
             // UI Proxy =============================
             _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, _sdkLogger);
@@ -194,7 +194,7 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _sdkLogger, proximitySettings.DevicesProximity);
 
             // WorkstationLocker ==================================
-            _workstationLocker = new WcfWorkstationLocker(SessionManager, _sdkLogger);
+            _workstationLocker = new WcfWorkstationLocker(sessionManager, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager, 
@@ -362,7 +362,7 @@ namespace ServiceLibrary.Implementation
 
         void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
         {
-            foreach (var client in SessionManager.Sessions)
+            foreach (var client in sessionManager.Sessions)
                 client.Callbacks.DevicesCollectionChanged(GetDevices());
         }
 
@@ -384,7 +384,7 @@ namespace ServiceLibrary.Implementation
             {
                 if (sender is IDevice device)
                 {
-                    foreach (var client in SessionManager.Sessions)
+                    foreach (var client in sessionManager.Sessions)
                     {
                         if (!device.IsConnected)
                             device.SetUserProperty(ConnectionFlowProcessor.FLOW_FINISHED_PROP, false);
@@ -405,7 +405,7 @@ namespace ServiceLibrary.Implementation
             {
                 if (sender is IDevice device)
                 {
-                    foreach (var session in SessionManager.Sessions)
+                    foreach (var session in sessionManager.Sessions)
                     {
                         // Separate error handling block for each callback ensures we try to notify 
                         // every session, even if an error occurs
@@ -444,7 +444,7 @@ namespace ServiceLibrary.Implementation
 
         void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
         {
-            foreach (var session in SessionManager.Sessions)
+            foreach (var session in sessionManager.Sessions)
             {
                 try
                 {

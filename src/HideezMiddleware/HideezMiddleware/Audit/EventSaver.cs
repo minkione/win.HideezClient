@@ -14,7 +14,7 @@ namespace HideezMiddleware.Audit
 
         public event EventHandler UrgentEventSaved;
 
-        public EventSaver(string eventsDirectoryPath, ILog log)
+        public EventSaver(SessionInfoProvider sessionInfoProvider, string eventsDirectoryPath, ILog log)
             : base(nameof(EventSaver), log)
         {
             EventsDirectoryPath = eventsDirectoryPath;
@@ -22,7 +22,7 @@ namespace HideezMiddleware.Audit
             if (!Directory.Exists(EventsDirectoryPath))
                 Directory.CreateDirectory(EventsDirectoryPath);
 
-            _eventFactory = new EventFactory(log);
+            _eventFactory = new EventFactory(sessionInfoProvider, log);
         }
 
         public string EventsDirectoryPath { get; }

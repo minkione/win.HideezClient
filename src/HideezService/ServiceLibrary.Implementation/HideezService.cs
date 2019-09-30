@@ -19,7 +19,8 @@ namespace ServiceLibrary.Implementation
 
         static bool _initialized = false;
         static object _initializationLock = new object();
-        static ServiceClientSessionManager SessionManager = new ServiceClientSessionManager();
+        static ServiceClientSessionManager sessionManager = new ServiceClientSessionManager();
+        static SessionInfoProvider _sessionInfoProvider;
 
         ServiceClientSession _client;
 
@@ -52,8 +53,11 @@ namespace ServiceLibrary.Implementation
                 _log.WriteLine($"OS: {Environment.OSVersion}");
                 _log.WriteLine($"Command: {Environment.CommandLine}");
 
+                _log.WriteLine(">>>>>> Initialize session monitor");
+                _sessionInfoProvider = new SessionInfoProvider(_sdkLogger);
+
                 _log.WriteLine(">>>>>> Initilize audit");
-                _eventSaver = new EventSaver(auditEventsDirectoryPath, _sdkLogger);
+                _eventSaver = new EventSaver(_sessionInfoProvider, auditEventsDirectoryPath, _sdkLogger);
                 Task.Run(OnServiceStartedAsync);
 
                 _log.WriteLine(">>>>>> Initialize SDK");
@@ -137,7 +141,7 @@ namespace ServiceLibrary.Implementation
             if (prm.ClientType == ClientType.TestConsole ||
                 prm.ClientType == ClientType.ServiceHost)
             {
-                if (SessionManager.Sessions.Any(s =>
+                if (sessionManager.Sessions.Any(s =>
                 s.ClientType == ClientType.ServiceHost ||
                 s.ClientType == ClientType.TestConsole))
                 {
@@ -146,11 +150,11 @@ namespace ServiceLibrary.Implementation
             }
 
             var callback = OperationContext.Current.GetCallbackChannel<ICallbacks>();
-            _client = SessionManager.Add(prm.ClientType, callback);
+            _client = sessionManager.Add(prm.ClientType, callback);
 
             OperationContext.Current.Channel.Closed += Channel_Closed;
             OperationContext.Current.Channel.Faulted += Channel_Faulted;
-            SessionManager.SessionClosed += SessionManager_SessionClosed;
+            sessionManager.SessionClosed += SessionManager_SessionClosed;
 
             return true;
         }
@@ -158,8 +162,8 @@ namespace ServiceLibrary.Implementation
         public void DetachClient()
         {
             _log.WriteLine($">>>>>> DetachClient {_client?.ClientType}", LogErrorSeverity.Debug);
-            SessionManager.Remove(_client);
-            SessionManager.SessionClosed -= SessionManager_SessionClosed;
+            sessionManager.Remove(_client);
+            sessionManager.SessionClosed -= SessionManager_SessionClosed;
         }
 
         public int Ping()

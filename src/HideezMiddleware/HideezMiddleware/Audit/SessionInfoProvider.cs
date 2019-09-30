@@ -1,10 +1,11 @@
 ﻿using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Workstation;
 using Microsoft.Win32;
 using System;
 
 namespace HideezMiddleware.Audit
 {
-    class SessionInfoProvider : Logger
+    public class SessionInfoProvider : Logger, ISessionInfoProvider
     {
         public SessionInfo CurrentSession { get; private set; } = null;
 
