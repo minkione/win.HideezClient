@@ -51,8 +51,7 @@ namespace ServiceLibrary.Implementation
         static TapConnectionProcessor _tapProcessor;
         static ProximityConnectionProcessor _proximityProcessor;
         static SessionSwitchLogger _sessionSwitchLogger;
-
-        readonly string auditEventsDirectoryPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\Hideez\WorkstationEvents\";
+        static SessionTimestampLogger _sessionTimestampLogger;
 
         void InitializeSDK()
         {
@@ -66,7 +65,14 @@ namespace ServiceLibrary.Implementation
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
+            var sessionTimestampPath = $@"{commonAppData}\Hideez\Service\Timestamp\timestamp.dat";
+            string settingsDirectory = $@"{commonAppData}\Hideez\Service\Settings\";
 
+            // Session Timestamp Logger ============================
+            _sessionTimestampLogger = new SessionTimestampLogger(sessionTimestampPath, _sessionInfoProvider, _eventSaver, _sdkLogger);
+            Task.Run(_sessionTimestampLogger.Initialize);
+
+            // Connection Manager ============================
             _connectionManager = new BleConnectionManager(_sdkLogger, bondsFilePath);
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
@@ -91,7 +97,6 @@ namespace ServiceLibrary.Implementation
             _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
 
             // Settings
-            string settingsDirectory = $@"{commonAppData}\Hideez\Service\Settings\";
             if (!Directory.Exists(settingsDirectory))
             {
                 Directory.CreateDirectory(settingsDirectory);
@@ -118,7 +123,7 @@ namespace ServiceLibrary.Implementation
             var workstationInfoProvider = new WorkstationInfoProvider(hesAddress, _sdkLogger);
 
             // HES Connection ==================================
-            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sessionInfoProvider, _sdkLogger)
+            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sdkLogger)
             {
                 ReconnectDelayMs = 10_000 // Todo: remove hes recoonect delay overwrite in stable version
             };
@@ -137,7 +142,7 @@ namespace ServiceLibrary.Implementation
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
 
             // Audit Log / Event Aggregator =============================
-            //_eventSender = new EventSender(_hesConnection, _eventSaver, _sdkLogger);
+            _eventSender = new EventSender(_hesConnection, _eventSaver, _sdkLogger);
 
             // ScreenActivator ==================================
             _screenActivator = new WcfScreenActivator(sessionManager);

@@ -57,6 +57,7 @@ namespace ServiceLibrary.Implementation
                 _sessionInfoProvider = new SessionInfoProvider(_sdkLogger);
 
                 _log.WriteLine(">>>>>> Initilize audit");
+                string auditEventsDirectoryPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\Hideez\WorkstationEvents\";
                 _eventSaver = new EventSaver(_sessionInfoProvider, auditEventsDirectoryPath, _sdkLogger);
                 Task.Run(OnServiceStartedAsync);
 

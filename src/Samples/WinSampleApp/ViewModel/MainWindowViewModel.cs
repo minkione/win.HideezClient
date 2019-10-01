@@ -799,11 +799,8 @@ namespace WinSampleApp.ViewModel
                 // WorkstationInfoProvider ==================================
                 var workstationInfoProvider = new WorkstationInfoProvider(HesAddress, _log); //todo - HesAddress?
 
-                // SessionInfoProvider ==================================
-                var sessionInfoProvider = new SessionInfoProvider(_log);
-
                 // HES Connection ==================================
-                _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, sessionInfoProvider, _log);
+                _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _log);
                 _hesConnection.HubConnectionStateChanged += (sender, e) => NotifyPropertyChanged(nameof(HesState));
                 //_hesConnection.Start(HesAddress);
 

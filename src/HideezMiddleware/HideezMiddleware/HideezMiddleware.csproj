@@ -82,6 +82,8 @@
     <Compile Include="Audit\EventFactory.cs" />
     <Compile Include="Audit\SessionInfoProvider.cs" />
     <Compile Include="Audit\SessionSwitchLogger.cs" />
+    <Compile Include="Audit\SessionTimestamp.cs" />
+    <Compile Include="Audit\SessionTimestampLogger.cs" />
     <Compile Include="ConnectionFlowResult.cs" />
     <Compile Include="CredentialProviderProxy.cs" />
     <Compile Include="DeviceConnection\AdvertisementIgnoreList.cs" />
