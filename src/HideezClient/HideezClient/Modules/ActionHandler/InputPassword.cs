@@ -94,7 +94,7 @@ namespace HideezClient.Modules.ActionHandler
                 Date = DateTime.UtcNow,
                 AccountLogin = account.Login,
                 AccountName = account.Name,
-                DeviceId = account.Device.Id,
+                DeviceId = account.Device.SerialNo,
                 EventId = (int)WorkstationEventType.CredentialsUsed_Password,
                 Note = appInfo.Title,
                 Severity = (int)WorkstationEventSeverity.Info,

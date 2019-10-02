@@ -47,6 +47,7 @@ namespace HideezMiddleware.Audit
             _hesAppConnection = hesAppConnection;
             _fileSystemWatcher = new FileSystemWatcher(_eventSaver.EventsDirectoryPath);
             _fileSystemWatcher.Created += FileSystemWatcher_OnFileCreated;
+            _fileSystemWatcher.EnableRaisingEvents = true;
 
             automaticEventSendingTimer.Elapsed += SendTimer_Elapsed;
             automaticEventSendingTimer.Start();
