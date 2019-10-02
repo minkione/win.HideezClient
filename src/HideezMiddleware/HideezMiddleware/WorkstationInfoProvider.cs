@@ -38,6 +38,14 @@ namespace HideezMiddleware
             }
         }
 
+        public string WorkstationId
+        {
+            get
+            {
+                return Environment.MachineName;
+            }
+        }
+
         public async Task<WorkstationInfo> GetWorkstationInfoAsync()
         {
             WorkstationInfo workstationInfo = new WorkstationInfo();
@@ -85,7 +93,5 @@ namespace HideezMiddleware
 
             return workstationInfo;
         }
-
-
     }
 }
