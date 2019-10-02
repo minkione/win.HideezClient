@@ -46,11 +46,11 @@ namespace HideezMiddleware
 
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
-        public event EventHandler<EventArgs> PinCancelled;
+        public event EventHandler<EventArgs> PinCancelled { add { } remove { } }
 
         public bool IsConnected => _pipeServer.IsConnected;
 
-        readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _pendingLogonRequests 
+        readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _pendingLogonRequests
             = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
 
         public CredentialProviderProxy(ILog log)

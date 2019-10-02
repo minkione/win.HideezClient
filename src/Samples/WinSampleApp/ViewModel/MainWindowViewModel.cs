@@ -800,7 +800,8 @@ namespace WinSampleApp.ViewModel
                 var workstationInfoProvider = new WorkstationInfoProvider(HesAddress, _log); //todo - HesAddress?
 
                 // HES Connection ==================================
-                _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _log);
+                string workstationId = Guid.NewGuid().ToString();
+                _hesConnection = new HesAppConnection(_deviceManager, workstationId, workstationInfoProvider, _log);
                 _hesConnection.HubConnectionStateChanged += (sender, e) => NotifyPropertyChanged(nameof(HesState));
                 //_hesConnection.Start(HesAddress);
 
