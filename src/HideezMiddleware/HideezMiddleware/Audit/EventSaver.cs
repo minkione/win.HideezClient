@@ -55,6 +55,7 @@ namespace HideezMiddleware.Audit
                         string json = JsonConvert.SerializeObject(workstationEvent);
                         string file = $"{EventsDirectoryPath}{workstationEvent.Id}";
                         File.WriteAllText(file, json);
+                        File.SetCreationTimeUtc(file, workstationEvent.Date); // Event file creation date should match the event time
 
                         if (sendImmediatelly)
                             UrgentEventSaved?.Invoke(this, EventArgs.Empty);
