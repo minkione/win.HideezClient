@@ -97,7 +97,6 @@ namespace HideezClient
                 fatalLogger.Fatal($"Unhandled exception in {assemblyName.Name} v{assemblyName.Version}");
                 fatalLogger.Fatal(e);
                 LogManager.Flush();
-                LogManager.Shutdown();
             }
             catch (Exception)
             {
