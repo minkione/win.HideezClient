@@ -51,6 +51,7 @@ namespace HideezMiddleware.Audit
 
             automaticEventSendingTimer.Elapsed += SendTimer_Elapsed;
             automaticEventSendingTimer.Start();
+            SendTimer_Elapsed(null, null); // Trigger 15 minute events check
         }
 
         async void EventSaver_UrgentEventSaved(object sender, EventArgs e)

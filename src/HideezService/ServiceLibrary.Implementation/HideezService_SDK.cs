@@ -348,12 +348,13 @@ namespace ServiceLibrary.Implementation
             if (prevHesIsConnectedState != isConnected)
             {
                 prevHesIsConnectedState = isConnected;
-
+                bool sendImmediately = false;
                 var we = _eventSaver.GetWorkstationEvent();
                 if (_hesConnection.State == HesConnectionState.Connected)
                 {
                     we.EventId = WorkstationEventType.HESConnected;
                     we.Severity = WorkstationEventSeverity.Info;
+                    sendImmediately = true;
                 }
                 else
                 {
@@ -361,7 +362,7 @@ namespace ServiceLibrary.Implementation
                     we.Severity = WorkstationEventSeverity.Warning;
                 }
 
-                await _eventSaver.AddNewAsync(we);
+                await _eventSaver.AddNewAsync(we, sendImmediately);
             }
         }
 
