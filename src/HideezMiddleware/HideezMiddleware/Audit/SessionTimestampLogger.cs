@@ -16,7 +16,7 @@ namespace HideezMiddleware.Audit
     {
         const double TIMESTAMP_SAVE_INTERVAL = 300_000; // 5 minutes. At most results in 5 minute difference between service uptime and shutdown without server connection
 
-        readonly string _timestampFolderPath;
+        readonly string _timestampFilePath;
         readonly SessionInfoProvider _sessionInfoProvider;
         readonly EventSaver _eventSaver;
         readonly Timer _timestampSaveTimer = new Timer(TIMESTAMP_SAVE_INTERVAL);
@@ -28,7 +28,7 @@ namespace HideezMiddleware.Audit
         public SessionTimestampLogger(string timestampFilePath, SessionInfoProvider sessionInfoProvider, EventSaver eventSaver, ILog log)
             : base(nameof(SessionTimestampLogger), log)
         {
-            _timestampFolderPath = timestampFilePath;
+            _timestampFilePath = timestampFilePath;
             _sessionInfoProvider = sessionInfoProvider;
             _eventSaver = eventSaver;
 
@@ -112,12 +112,12 @@ namespace HideezMiddleware.Audit
         {
             lock (_fileLock)
             {
-                if (!File.Exists(_timestampFolderPath))
+                if (!File.Exists(_timestampFilePath))
                     return null;
 
                 try
                 {
-                    using (StreamReader sr = new StreamReader(_timestampFolderPath))
+                    using (StreamReader sr = new StreamReader(_timestampFilePath))
                     {
                         var fileData = sr.ReadToEnd();
                         var savedTimestamp = JsonConvert.DeserializeObject<SessionTimestamp>(fileData);
@@ -141,11 +141,11 @@ namespace HideezMiddleware.Audit
             {
                 try
                 {
-                    var dir = Path.GetDirectoryName(_timestampFolderPath);
+                    var dir = Path.GetDirectoryName(_timestampFilePath);
                     if (!Directory.Exists(dir))
                         Directory.CreateDirectory(dir);
 
-                    using (StreamWriter sw = new StreamWriter(_timestampFolderPath, false))
+                    using (StreamWriter sw = new StreamWriter(_timestampFilePath, false))
                     {
                         var jsonData = JsonConvert.SerializeObject(timestamp);
                         sw.WriteLine(jsonData);
@@ -165,7 +165,7 @@ namespace HideezMiddleware.Audit
         {
             lock (_fileLock)
             {
-                File.Delete(_timestampFolderPath);
+                File.Delete(_timestampFilePath);
             }
         }
 

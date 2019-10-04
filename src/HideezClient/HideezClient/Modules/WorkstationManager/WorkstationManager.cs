@@ -1,21 +1,23 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
+using Hideez.SDK.Communication.Log;
 using HideezClient.Messages;
 using HideezClient.Modules.SessionStateMonitor;
 using HideezClient.Utilities;
-using NLog;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using WindowsInput;
 
 namespace HideezClient.Modules
 {
-    class WorkstationManager : IWorkstationManager
+    class WorkstationManager : Logger, IWorkstationManager
     {
-        readonly Logger logger = LogManager.GetCurrentClassLogger();
         readonly IInputSimulator inputSimulator = new InputSimulator();
         readonly ISessionStateMonitor sessionStateMonitor;
 
-        public WorkstationManager(IMessenger messanger, ISessionStateMonitor sessionStateMonitor)
+        public WorkstationManager(IMessenger messanger, ISessionStateMonitor sessionStateMonitor, ILog log)
+            : base(nameof(WorkstationManager), log)
         {
             this.sessionStateMonitor = sessionStateMonitor;
 
@@ -27,9 +29,13 @@ namespace HideezClient.Modules
 
         public void LockPC()
         {
-#if !DEBUG
-            Win32Helper.LockWorkStation();
-#endif
+            WriteLine($"Calling Win32.LockWorkstation");
+            var result = Win32Helper.LockWorkStation();
+            WriteLine($"Win32.LockWorkstation result: {result}");
+            if (result == false)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
         }
 
         public void ForceShutdown()
@@ -63,7 +69,7 @@ namespace HideezClient.Modules
             }
             catch (Exception ex)
             {
-                logger.Error(ex);
+                WriteLine(ex);
             }
         }
 
@@ -75,7 +81,7 @@ namespace HideezClient.Modules
             }
             catch (Exception ex)
             {
-                logger.Error(ex);
+                WriteLine(ex);
             }
         }
 
@@ -87,7 +93,7 @@ namespace HideezClient.Modules
             }
             catch (Exception ex)
             {
-                logger.Error(ex);
+                WriteLine(ex);
             }
         }
         #endregion Messages handlers

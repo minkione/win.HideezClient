@@ -76,12 +76,12 @@ namespace HideezMiddleware.Audit
         {
             lock (listsLock)
             {
-                lockEventsList.Add(e.Device.Mac, new HideezLockEvent()
+                lockEventsList[e.Device.Mac] = new HideezLockEvent()
                 {
                     EventTime = DateTime.UtcNow,
                     Mac = e.Device.Mac,
                     Reason = e.Reason,
-                });
+                };
             }
         }
 
@@ -89,12 +89,12 @@ namespace HideezMiddleware.Audit
         {
             lock (listsLock)
             {
-                unlockEventsList.Add(e, new HideezUnlockEvent()
+                unlockEventsList[e] = new HideezUnlockEvent()
                 {
                     EventTime = DateTime.UtcNow,
                     Mac = e,
                     Reason = SessionSwitchSubject.Dongle,
-                });
+                };
             }
         }
 
@@ -102,12 +102,12 @@ namespace HideezMiddleware.Audit
         {
             lock (listsLock)
             {
-                unlockEventsList.Add(e, new HideezUnlockEvent()
+                unlockEventsList[e] = new HideezUnlockEvent()
                 {
                     EventTime = DateTime.UtcNow,
                     Mac = e,
                     Reason = SessionSwitchSubject.RFID,
-                });
+                };
             }
         }
 
@@ -115,12 +115,12 @@ namespace HideezMiddleware.Audit
         {
             lock (listsLock)
             {
-                unlockEventsList.Add(e, new HideezUnlockEvent()
+                unlockEventsList[e] = new HideezUnlockEvent()
                 {
                     EventTime = DateTime.UtcNow,
                     Mac = e,
                     Reason = SessionSwitchSubject.Proximity,
-                });
+                };
             }
         }
 

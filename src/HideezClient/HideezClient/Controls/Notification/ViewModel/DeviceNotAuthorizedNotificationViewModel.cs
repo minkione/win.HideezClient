@@ -48,23 +48,7 @@ namespace HideezClient.Controls
                 {
                     CommandAction = x =>
                     {
-                        Task.Run(async () =>
-                        {
-                            // Todo: Copy-paste of MenuFactory "OnAuthorizeAndLoadStorage" method
-                            try
-                            {
-                                await device.AuthorizeRemoteDevice();
-                                await device.LoadStorage();
-                            }
-                            catch (FaultException<HideezServiceFault> ex)
-                            {
-                                _windowsManager.ShowError(ex.Message);
-                            }
-                            catch (Exception ex)
-                            {
-                                _windowsManager.ShowError(ex.Message);
-                            }
-                        });
+                        Task.Run(device.AuthorizeAndLoadStorage);
                         _windowsManager.CloseWindow(ObservableId); // Todo: Is this the correct way to close notification?
                     }
                 };

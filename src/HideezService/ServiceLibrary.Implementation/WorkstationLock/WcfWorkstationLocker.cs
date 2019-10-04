@@ -26,14 +26,16 @@ namespace ServiceLibrary.Implementation.WorkstationLock
         {
             Task.Run(() =>
             {
-                try
+                foreach (var client in _sessionManager.Sessions)
                 {
-                    foreach (var client in _sessionManager.Sessions.ToList())
+                    try
+                    {
                         client.Callbacks.LockWorkstationRequest();
-                }
-                catch (Exception ex)
-                {
-                    WriteLine(ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLine(ex);
+                    }
                 }
             });
         }
