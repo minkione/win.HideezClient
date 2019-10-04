@@ -35,13 +35,14 @@ namespace HideezClient.Modules
             return accounts.ToArray();
         }
 
-        private static bool MatchByDomain(AppInfo appInfo, IEnumerable<string> domains)
+        // Marked as internal for unit tests
+        internal static bool MatchByDomain(AppInfo appInfo, IEnumerable<string> domains)
         {
             return !string.IsNullOrWhiteSpace(appInfo.Domain)
                 && domains.FirstOrDefault(d => appInfo.MatchesDomain(d)) != null;
         }
 
-        private static bool MatchByApp(AppInfo appInfo, IEnumerable<string> apps)
+        internal static bool MatchByApp(AppInfo appInfo, IEnumerable<string> apps)
         {
             foreach (var app in apps)
             {

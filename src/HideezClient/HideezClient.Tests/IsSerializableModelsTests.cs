@@ -2,8 +2,8 @@
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using HideezClient.Models.Settings;
+using NUnit.Framework;
 
 namespace HideezClient.Tests
 {
@@ -11,7 +11,6 @@ namespace HideezClient.Tests
     /// All models must override Equals
     /// Otherwise assertion will fail during comparison
     /// </note>
-    [TestClass]
     public class IsSerializableModelsTests
     {
         /// <summary>
@@ -79,7 +78,7 @@ namespace HideezClient.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void Settings_IsSerializable()
         {
             var settingsObject = new ApplicationSettings();

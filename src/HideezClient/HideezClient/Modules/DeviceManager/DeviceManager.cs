@@ -114,7 +114,7 @@ namespace HideezClient.Modules.DeviceManager
             foreach (var dvm in Devices.ToArray())
                 RemoveDevice(dvm);
         }
-
+        // TODO: Add thread safety
         async Task EnumerateDevices()
         {
             try
