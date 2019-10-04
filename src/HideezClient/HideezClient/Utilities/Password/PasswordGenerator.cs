@@ -18,7 +18,6 @@ namespace HideezClient.Utilities
 
     public class PasswordGenerator
     {
-
         private static readonly int maxCountIdenticalCharacters = 2;
 
         private static readonly int defaultMinLenghy = 8;
@@ -28,6 +27,7 @@ namespace HideezClient.Utilities
         private static readonly char[] lowerCaseChars = "abcdefghijklmnopqrstuvwxyz".ToCharArray();
         private static readonly char[] numericChars = "0123456789".ToCharArray();
         private static readonly char[] specialChars = "!@#$%^&*()_+|}{?><".ToCharArray();
+
 
         public static string Generate()
         {
@@ -94,19 +94,20 @@ namespace HideezClient.Utilities
             }
 
             char[] allCharacters = charGroups.SelectMany(chars => chars).ToArray();
-
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             // Generate random string
-            for (var i = 0; i < passwordLength;)
+            for (var i = 0; i < passwordLength; i++)
             {
                 var randomIndex = random.Next(allCharacters.Length);
                 char c = allCharacters[randomIndex];
                 sb.Append(c);
 
                 // Ensure that generated string has not more than 2 identical characters in a row (e.g., 111 not allowed)
-                if (!IsRepeatChars(sb, c, 0, i, maxCountIdenticalCharacters))
+                while (!IsRepeatChars(sb, c, 0, sb.Length, maxCountIdenticalCharacters))
                 {
-                    i++;
+                    randomIndex = random.Next(allCharacters.Length);
+                    c = allCharacters[randomIndex];
+                    sb[i] = c;
                 }
             }
 
@@ -130,7 +131,7 @@ namespace HideezClient.Utilities
                     var randomSymbolIndex = random.Next(symbols.Length);
                     c = symbols[randomSymbolIndex];
                     sb[randomResIndex] = c;
-                } while (IsRepeatChars(sb, c, 0, sb.Length, maxCountIdenticalCharacters));
+                } while (!IsRepeatChars(sb, c, 0, sb.Length, maxCountIdenticalCharacters));
             }
 
             return sb.ToString();

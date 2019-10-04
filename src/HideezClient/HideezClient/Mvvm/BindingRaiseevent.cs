@@ -1,31 +1,31 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Windows;
 
 namespace HideezClient.Mvvm
 {
-    class BindingRaiseevent
+    class BindingRaiseevent : IWeakEventListener
     {
         private readonly string path;
 
         public BindingRaiseevent(object source, string path)
         {
             this.path = path;
-            if(source is INotifyPropertyChanged notifyPropertyChanged)
+            if (source is INotifyPropertyChanged notifyPropertyChanged)
             {
-                notifyPropertyChanged.PropertyChanged += PropertyChanged_PropertyChanged;
+                PropertyChangedEventManager.AddListener(notifyPropertyChanged, this, path);
             }
         }
 
-        private void PropertyChanged_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        public virtual bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {
-            if(e.PropertyName == path)
+            var value = sender.GetType().GetProperty(path)?.GetValue(sender);
+            if (value != null)
             {
-                var value = sender.GetType().GetProperty(path)?.GetValue(sender);
-                if(value != null)
-                {
-                    ValueChanged?.Invoke(value);
-                }
+                ValueChanged?.Invoke(value);
             }
+
+            return true;
         }
 
         public event Action<object> ValueChanged;

@@ -1,5 +1,8 @@
-﻿using System;
+﻿using HideezClient.Mvvm;
+using HideezClient.ViewModels;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,13 +24,25 @@ namespace HideezClient.PagesView
     /// </summary>
     public partial class PasswordManagerPage : Page
     {
-        Storyboard AnimationHideAccountInfo;
-        Storyboard AnimationShowAccountInfo;
+        private Storyboard AnimationHideAccountInfo;
+        private Storyboard AnimationShowAccountInfo;
+        private BindingRaiseevent bindingEditAccount;
 
         public PasswordManagerPage()
         {
+            this.DataContextChanged += PasswordManagerPage_DataContextChanged;
             InitializeComponent();
             AccountsList.Loaded += AccountsList_Loaded;
+        }
+
+        private void PasswordManagerPage_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            bindingEditAccount = new BindingRaiseevent(DataContext, "EditAccount");
+            bindingEditAccount.ValueChanged += obj =>
+            {
+                this.PasswordBox.Clear();
+                App.Current.Dispatcher.Invoke(AccountName.Focus);
+            }; 
         }
 
         private void AccountsList_Loaded(object sender, RoutedEventArgs e)
@@ -55,6 +70,11 @@ namespace HideezClient.PagesView
                 AnimationHideAccountInfo?.Stop();
                 AnimationShowAccountInfo?.Begin();
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            PasswordBox.Clear();
         }
     }
 }

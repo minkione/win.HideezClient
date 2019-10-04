@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using DynamicData;
 using Hideez.ARM;
@@ -27,6 +28,9 @@ namespace HideezClient.ViewModels
     {
         private bool isUpdateAppsUrls;
         private DeviceViewModel device;
+        private int generatePasswordLength = 16;
+        private readonly AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
+        private readonly AppInfo addUrlAppInfo = new AppInfo { Domain = "<Enter Url>" };
 
         public EditAccountViewModel(DeviceViewModel device)
         {
@@ -45,23 +49,20 @@ namespace HideezClient.ViewModels
         {
             Application.Current.MainWindow.Activated += WeakEventHandler.Create(this, (@this, o, args) => Task.Run(@this.UpdateAppsAndUrls));
 
-            this.WhenAnyValue(vm => vm.Name, vm => vm.Login, vm => vm.Password, vm => vm.HasOpt, vm => vm.OtpSecret)
+            this.WhenAnyValue(vm => vm.Name, vm => vm.Login, vm => vm.HasOpt, vm => vm.OtpSecret)
                 .Where(_ => IsEditable)
                 .Subscribe(_ => HasChanges = true);
 
             this.WhenAnyValue(vm => vm.SelectedApp).Subscribe(OnAppSelected);
             this.WhenAnyValue(vm => vm.SelectedUrl).Subscribe(OnUrlSelected);
 
-            Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Apps, nameof(ObservableCollection<string>.CollectionChanged))
-                       .Where(_ => IsEditable)
-                      .Subscribe(change => AppsOrUrlsCollectonChanges());
-            Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Urls, nameof(ObservableCollection<string>.CollectionChanged))
+            Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(AppsAndUrls, nameof(ObservableCollection<string>.CollectionChanged))
                        .Where(_ => IsEditable)
                       .Subscribe(change => AppsOrUrlsCollectonChanges());
 
-            AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
             OpenedApps.Add(loadingAppInfo);
             OpenedForegroundUrls.Add(loadingAppInfo);
+            OpenedForegroundUrls.Add(addUrlAppInfo);
             Task.Run(UpdateAppsAndUrls).ContinueWith(_ =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
@@ -135,11 +136,11 @@ namespace HideezClient.ViewModels
 
             if (accountRecord.Apps != null)
             {
-                Apps.AddRange(AccountUtility.Split(accountRecord.Apps));
+                AppsAndUrls.AddRange(AccountUtility.Split(accountRecord.Apps).Select(u => new AppViewModel(u)));
             }
             if (accountRecord.Urls != null)
             {
-                Urls.AddRange(AccountUtility.Split(accountRecord.Urls));
+                AppsAndUrls.AddRange(AccountUtility.Split(accountRecord.Urls).Select(u => new AppViewModel(u, true)));
             }
         }
 
@@ -147,13 +148,12 @@ namespace HideezClient.ViewModels
         [Reactive] public bool HasChanges { get; set; }
         [Reactive] public string Name { get; set; }
         [Reactive] public string Login { get; set; }
-        [Reactive] public SecureString Password { get; set; }
         [Reactive] public bool HasOpt { get; protected set; }
         [Reactive] public string OtpSecret { get; set; }
 
-        public ObservableCollection<string> Apps { get; } = new ObservableCollection<string>();
-        public ObservableCollection<string> Urls { get; } = new ObservableCollection<string>();
-        public IEnumerable<string> AppsAndUrls { get { return Apps.Concat(Urls); } }
+        public IEnumerable<string> Apps { get { return AppsAndUrls.Where(x => !x.IsUrl).Select(x => x.Title); } }
+        public IEnumerable<string> Urls { get { return AppsAndUrls.Where(x => x.IsUrl).Select(x => x.Title); } }
+        public ObservableCollection<AppViewModel> AppsAndUrls { get; } = new ObservableCollection<AppViewModel>();
         public IEnumerable<string> Logins { get { return device?.Accounts.Select(a => a.Login).Distinct(); } }
         public ObservableCollection<AppInfo> OpenedApps { get; } = new ObservableCollection<AppInfo>();
         public ObservableCollection<AppInfo> OpenedForegroundUrls { get; } = new ObservableCollection<AppInfo>();
@@ -199,13 +199,17 @@ namespace HideezClient.ViewModels
                 {
                     CommandAction = (x) =>
                     {
-                        OnGeneratePassword();
+                        if (x is PasswordBox passwordBox)
+                        {
+                            string password = OnGeneratePassword();
+                            passwordBox.Password = password;
+                        }
                     }
                 };
             }
         }
 
-        public ICommand ScanOtpSecretCommand
+        public ICommand ScanOtpSecretFromQRCodeCommand
         {
             get
             {
@@ -213,22 +217,97 @@ namespace HideezClient.ViewModels
                 {
                     CommandAction = (x) =>
                     {
-                        OnScanOtpSecret();
+                        OnScanOtpSecretFromQRCode();
                     }
+                };
+            }
+        }
+
+        public ICommand RemoveAppInfoCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        OnRemoveAppInfo(x as AppViewModel);
+                    }
+                };
+            }
+        }
+
+        public ICommand ApplyAppInfoCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        if (x is AppViewModel viewModel)
+                        {
+                            viewModel.ApplyChanges();
+                        }
+                    },
+                };
+            }
+        }
+
+        public ICommand EditAppInfoCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        if (x is AppViewModel viewModel)
+                        {
+                            RemoveEmpty();
+                            viewModel.Edit();
+                        }
+                    },
+                };
+            }
+        }
+
+        public ICommand CancelAppInfoCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        if (x is AppViewModel viewModel)
+                        {
+                            viewModel.CancelEdit();
+                            RemoveEmpty();
+                        }
+                    },
                 };
             }
         }
 
         #endregion
 
-        private void OnScanOtpSecret()
+        private void OnRemoveAppInfo(AppViewModel appViewModel)
         {
-            throw new NotImplementedException();
+            if (appViewModel != null)
+            {
+                AppsAndUrls.Remove(appViewModel);
+            }
+        }
+
+        private void OnScanOtpSecretFromQRCode()
+        {
+            OtpSecret = "scaned otp secret";
         }
 
         private string OnGeneratePassword()
         {
-            string password = PasswordGenerator.Generate(16);
+            string password = PasswordGenerator.Generate(generatePasswordLength);
             return password;
         }
 
@@ -244,28 +323,58 @@ namespace HideezClient.ViewModels
             HasChanges = false;
         }
 
+        private void RemoveEmpty()
+        {
+            foreach (var item in AppsAndUrls.Where(x => string.IsNullOrWhiteSpace(x.Title)).ToArray())
+            {
+                AppsAndUrls.Remove(item);
+            }
+        }
+
         private void OnUrlSelected(AppInfo appInfo)
         {
-            string url = appInfo?.Domain;
-            if (!string.IsNullOrWhiteSpace(url))
+            if (appInfo == null) return;
+
+            RemoveEmpty();
+            if (appInfo == addUrlAppInfo)
             {
-                Apps.Add(url);
+                var newCustomUrl = new AppViewModel("", true) { IsInEditState = true, };
+                AppsAndUrls.Add(newCustomUrl);
             }
+            else if (appInfo != loadingAppInfo)
+            {
+                string url = appInfo?.Domain;
+                if (!string.IsNullOrWhiteSpace(url) && AppsAndUrls.FirstOrDefault(x => x.Title == url) == null)
+                {
+                    AppsAndUrls.Add(new AppViewModel(url, true));
+                }
+            }
+
+            SelectedUrl = null;
         }
 
         private void OnAppSelected(AppInfo appInfo)
         {
-            string app = appInfo?.Title;
-            if (!string.IsNullOrWhiteSpace(app))
+            if (appInfo == null) return;
+
+            RemoveEmpty();
+
+            if (appInfo != loadingAppInfo)
             {
-                Urls.Add(app);
+                string app = appInfo?.Title;
+                if (!string.IsNullOrWhiteSpace(app) && AppsAndUrls.FirstOrDefault(x => x.Title == app) == null)
+                {
+                    AppsAndUrls.Add(new AppViewModel(app));
+                }
             }
+            SelectedApp = null;
         }
 
         private void AppsOrUrlsCollectonChanges()
         {
             HasChanges = true;
-            this.RaisePropertyChanged(nameof(AppsAndUrls));
+            this.RaisePropertyChanged(nameof(Urls));
+            this.RaisePropertyChanged(nameof(Apps));
         }
     }
 }

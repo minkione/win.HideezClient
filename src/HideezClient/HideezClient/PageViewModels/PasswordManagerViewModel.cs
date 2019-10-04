@@ -23,6 +23,7 @@ using DynamicData;
 using DynamicData.Binding;
 using System.Collections.Specialized;
 using System.Reactive.Linq;
+using System.Windows.Controls;
 
 namespace HideezClient.PageViewModels
 {
@@ -39,6 +40,9 @@ namespace HideezClient.PageViewModels
             this.WhenAnyValue(x => x.Device)
                 .Where(x => null != x)
                 .InvokeCommand(FilterAccountCommand);
+
+            this.WhenAnyValue(x => x.SelectedAccount)
+                .InvokeCommand(CancelCommand);
 
             Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Accounts, nameof(ObservableCollection<string>.CollectionChanged))
                       .Subscribe(change => SelectedAccount = Accounts.FirstOrDefault());
@@ -115,7 +119,7 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        OnSaveAccount();
+                        OnSaveAccount((x as PasswordBox)?.SecurePassword);
                     },
                 };
             }
@@ -137,9 +141,18 @@ namespace HideezClient.PageViewModels
 
         #endregion
 
-        private void OnSaveAccount()
+        private void OnSaveAccount(SecureString password)
         {
-            // TODO: Save account
+            string message ="";
+
+            message += $"Account Name: {EditAccount.Name}\n";
+            message += $"Login: {EditAccount.Login}\n";
+            message += $"Password: {password}\n";
+            message += $"AppsAndUrls: {string.Join(";", EditAccount.AppsAndUrls)}\n";
+            message += $"OtpSecret: {EditAccount.OtpSecret}\n";
+
+
+            MessageBox.Show(message);
         }
 
         private void OnAddAccount()
@@ -155,7 +168,10 @@ namespace HideezClient.PageViewModels
 
         private void OnEditAccount()
         {
-            EditAccount = new EditAccountViewModel(Device);
+            if (Device.AccountsRecords.TryGetValue(SelectedAccount.Key, out AccountRecord record))
+            {
+                EditAccount = new EditAccountViewModel(Device, record);
+            }
         }
 
         private void OnCancel()

@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Hideez.SDK.Communication.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace HideezClient.Utilities

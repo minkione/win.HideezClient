@@ -38,25 +38,26 @@ namespace HideezClient.ViewModels
                 Accounts.Clear();
 
                 // TODO: Del
-                var Testlist = new[]
+                AccountsRecords = new Dictionary<ushort, AccountRecord>()
                 {
-                    new AccountRecord {  Name = "Pizza Hut", Login = "john.gardner@example.com", Urls="google.com;google.com.ua" },
-                    new AccountRecord {  Name = "The Walt Disney Company", Login = "seth.olson@example.com", },
-                    new AccountRecord {  Name = "Bank of America", Login = "penny.nichols@example.com", },
-                    new AccountRecord {  Name = "eBay", Login = "alice.bryant@example.com", Apps = "Skype;WinRar", Urls="google.com;google.com.ua" },
-                    new AccountRecord { Name = "MasterCard", Login = "tamara.kuhn@example.com", Flags = (ushort)StorageTableFlags.HAS_OTP, },
-                    new AccountRecord {  Name = "Johnson & Johnson", Login = "keith.richards@example.com" },
-                    new AccountRecord {  Name = "Starbucks", Login = "logan.hopkins@example.com", },
-                    new AccountRecord {  Name = "Facebook", Login = "kelly.howard@example.com", },
-                    new AccountRecord { Name = "Mitsubishi", Login = "dan.romero@example.com", Flags = (ushort)StorageTableFlags.HAS_OTP, },
-                    new AccountRecord {  Name = "Apple", Login = "gary.herrera@example.com", },
-                    new AccountRecord {  Name = "Louis Vuitton", Login = "jessica.hanson@example.com", },
+                    { 1, new AccountRecord {  Name = "Pizza Hut", Login = "john.gardner@example.com", Urls="google.com;google.com.ua" } },
+                    { 2, new AccountRecord {  Name = "The Walt Disney Company", Login = "seth.olson@example.com", } },
+                    { 3, new AccountRecord {  Name = "Bank of America", Login = "penny.nichols@example.com", } },
+                    { 4, new AccountRecord {  Name = "eBay", Login = "alice.bryant@example.com", Apps = "Skype;WinRar", Urls="google.com;google.com.ua" } },
+                    { 5, new AccountRecord { Name = "MasterCard", Login = "tamara.kuhn@example.com", Flags = (ushort)StorageTableFlags.HAS_OTP, } },
+                    { 6, new AccountRecord {  Name = "Johnson & Johnson", Login = "keith.richards@example.com" } },
+                    { 7, new AccountRecord {  Name = "Starbucks", Login = "logan.hopkins@example.com", } },
+                    { 8, new AccountRecord {  Name = "Facebook", Login = "kelly.howard@example.com", } },
+                    { 9, new AccountRecord { Name = "Mitsubishi", Login = "dan.romero@example.com", Flags = (ushort)StorageTableFlags.HAS_OTP, } },
+                    { 10, new AccountRecord {  Name = "Apple", Login = "gary.herrera@example.com", } },
+                    { 11, new AccountRecord {  Name = "Louis Vuitton", Login = "jessica.hanson@example.com", } },
                 };
-
-                foreach (var acc in Testlist)
+                
+                foreach (var acc in AccountsRecords)
                 // foreach (var acc in device.PasswordManager.Accounts.Values)
                 {
-                    Accounts.Add(new AccountInfoViewModel(acc));
+                    acc.Value.Key = acc.Key;
+                    Accounts.Add(new AccountInfoViewModel(acc.Value));
                 }
             }
         }
@@ -82,6 +83,7 @@ namespace HideezClient.ViewModels
         public uint StorageFreeSize => device.StorageFreeSize;
         public bool IsFaulted => device.IsFaulted;
         public string FaultMessage => device.FaultMessage;
+        public IDictionary<ushort, AccountRecord> AccountsRecords { /*get { return device.PasswordManager.Accounts; }*/ get; set; }
         public ObservableCollection<AccountInfoViewModel> Accounts { get; } = new ObservableCollection<AccountInfoViewModel>();
     }
 }
