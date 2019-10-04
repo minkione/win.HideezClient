@@ -195,6 +195,24 @@ namespace WinSampleApp.ViewModel
 
         #region Commands
 
+        public ICommand CancelConnectionFlowCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        CancelConnectionFlow(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         public ICommand SetPinCommand
         {
             get
@@ -1337,6 +1355,12 @@ namespace WinSampleApp.ViewModel
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+
+        void CancelConnectionFlow(DeviceViewModel currentDevice)
+        {
+            _connectionFlowProcessor.Cancel();
         }
 
         #region IClientUiProxy

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
@@ -109,7 +110,7 @@ namespace HideezMiddleware
             //return ui.ShowPinUi(deviceId, withConfirm, askOldPin);
         }
 
-        public async Task<string> GetPin(string deviceId, int timeout, bool withConfirm = false, bool askOldPin = false)
+        public async Task<string> GetPin(string deviceId, int timeout, CancellationToken ct, bool withConfirm = false, bool askOldPin = false)
         {
             WriteLine($"SendGetPin: {deviceId}");
 
@@ -124,15 +125,15 @@ namespace HideezMiddleware
 
             try
             {
-                return await tcs.Task.TimeoutAfter(timeout);
+                return await tcs.Task.TimeoutAfter(timeout, ct);
             }
             catch (TimeoutException)
             {
-                return null;
+                throw new HideezException(HideezErrorCode.GetPinTimeout);
             }
             finally
             {
-                _pendingGetPinRequests.TryRemove(deviceId, out TaskCompletionSource<string> removed);
+                _pendingGetPinRequests.TryRemove(deviceId, out TaskCompletionSource<string> _);
             }
         }
 

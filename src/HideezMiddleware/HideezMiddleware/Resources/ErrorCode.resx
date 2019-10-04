@@ -429,4 +429,10 @@
   <data name="DeviceHasBeenWiped" xml:space="preserve">
     <value>The device has been wiped. Try to connect it again.</value>
   </data>
+  <data name="HesDeviceNotAssignedToAnyUser" xml:space="preserve">
+    <value>This device is not assigned to any user. Contact your system administrator.</value>
+  </data>
+  <data name="GetPinTimeout" xml:space="preserve">
+    <value>PIN request from the user has been timed out</value>
+  </data>
 </root>
