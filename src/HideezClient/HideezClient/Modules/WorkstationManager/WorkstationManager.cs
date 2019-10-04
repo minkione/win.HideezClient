@@ -4,7 +4,9 @@ using HideezClient.Messages;
 using HideezClient.Modules.SessionStateMonitor;
 using HideezClient.Utilities;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using WindowsInput;
 
 namespace HideezClient.Modules
@@ -27,8 +29,13 @@ namespace HideezClient.Modules
 
         public void LockPC()
         {
+            WriteLine($"Calling Win32.LockWorkstation");
             var result = Win32Helper.LockWorkStation();
             WriteLine($"Win32.LockWorkstation result: {result}");
+            if (result == false)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
         }
 
         public void ForceShutdown()
