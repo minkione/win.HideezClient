@@ -398,19 +398,7 @@ namespace HideezClient.Modules
         {
             if (param is Device device)
             {
-                try
-                {
-                    await device.AuthorizeRemoteDevice();
-                    await device.LoadStorage();
-                }
-                catch (FaultException<HideezServiceFault> ex)
-                {
-                    windowsManager.ShowError(ex.Message);
-                }
-                catch (Exception ex)
-                {
-                    windowsManager.ShowError(ex.Message);
-                }
+                await device.AuthorizeAndLoadStorage();
             }
         }
     }

@@ -546,6 +546,26 @@ namespace HideezClient.Models
             IsStorageLoaded = false;
         }
 
+        public async Task AuthorizeAndLoadStorage()
+        {
+            if (!IsAuthorizing && !IsLoadingStorage)
+            {
+                try
+                {
+                    await AuthorizeRemoteDevice();
+                    await LoadStorage();
+                }
+                catch (FaultException<HideezServiceFault> ex)
+                {
+                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                }
+                catch (Exception ex)
+                {
+                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                }
+            }
+        }
+
         async Task<byte[]> GetPin(string deviceId, int timeout, bool withConfirm = false, bool askOldPin = false)
         {
             _messenger.Send(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));

@@ -14,6 +14,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.ServiceModel;
+using HideezClient.HideezServiceReference;
 
 namespace HideezClient.Modules.ActionHandler
 {
@@ -217,7 +219,7 @@ namespace HideezClient.Modules.ActionHandler
                 var connectedDevices = deviceManager.Devices.Where(d => d.IsConnected && d.IsInitialized && devicesId.Contains(d.Id)).ToArray();
                 foreach (var device in connectedDevices.Where(d => !d.IsAuthorized))
                 {
-                    windowsManager.ShowDeviceNotAuthorized(device);
+                    Task.Run(device.AuthorizeAndLoadStorage);
                 }
 
                 return connectedDevices.Where(d => d.IsAuthorized).Any();
