@@ -134,6 +134,24 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand WriteTableCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return Device != null && Device.IsConnected;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        WriteTable();
+                    }
+                };
+            }
+        }
+
         public ICommand DeleteRowCommand
         {
             get
@@ -147,6 +165,24 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         DeleteRow();
+                    }
+                };
+            }
+        }
+
+        public ICommand ClearTableCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null && Device.IsConnected;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        ClearTable();
                     }
                 };
             }
@@ -234,6 +270,9 @@ namespace WinSampleApp.ViewModel
                 Rows.Clear();
 
                 Mouse.OverrideCursor = Cursors.Wait;
+                var sw = new Stopwatch();
+                sw.Start();
+
                 var readResult = Device.EnumRecordsAsync(Table);
 
                 await readResult.ForEachAsync(t =>
@@ -250,6 +289,9 @@ namespace WinSampleApp.ViewModel
                         Rows.Add(vm);
                     });
                 });
+
+                sw.Stop();
+                MessageBox.Show($"Elapsed: {sw.Elapsed}");
             }
             catch (Exception ex)
             {
@@ -282,12 +324,65 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        async void WriteTable()
+        {
+            try
+            {
+                Mouse.OverrideCursor = Cursors.Wait;
+
+                var sw = new Stopwatch();
+                sw.Start();
+
+                for (ushort i = 1; i <= 100; i++)
+                {
+                    var newKey = await Device.WriteStorage(Table, i, $"{i} - 1234567890qwertyuiopasdfghjklzxcvbnm");
+                }
+
+                sw.Stop();
+                MessageBox.Show($"Elapsed: {sw.Elapsed}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
+        }
+
         async void DeleteRow()
         {
             try
             {
                 Mouse.OverrideCursor = Cursors.Wait;
                 await Device.DeleteStorage(Table, Key);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
+        }
+
+        async void ClearTable()
+        {
+            try
+            {
+                Mouse.OverrideCursor = Cursors.Wait;
+                var sw = new Stopwatch();
+                sw.Start();
+
+                foreach (var item in Rows)
+                {
+                    await Device.DeleteStorage(Table, item.Key);
+                }
+
+                sw.Stop();
+                MessageBox.Show($"Elapsed: {sw.Elapsed}");
             }
             catch (Exception ex)
             {

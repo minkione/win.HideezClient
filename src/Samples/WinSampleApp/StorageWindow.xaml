@@ -29,7 +29,9 @@
             <Button Content="Read Row" MinWidth="70" Margin="0,0,10,0" Command="{Binding ReadRowCommand}"/>
             <Button Content="Read Table" MinWidth="70" Margin="0,0,0,0" Command="{Binding ReadTableCommand}"/>
             <Button Content="Write Row" MinWidth="70" Margin="10,0,0,0" Command="{Binding WriteRowCommand}"/>
-            <Button Content="Delete Row" MinWidth="70" Margin="10,0,30,0" Command="{Binding DeleteRowCommand}"/>
+            <Button Content="Write Table" MinWidth="70" Margin="10,0,0,0" Command="{Binding WriteTableCommand}"/>
+            <Button Content="Delete Row" MinWidth="70" Margin="10,0,0,0" Command="{Binding DeleteRowCommand}"/>
+            <Button Content="Clear Table" MinWidth="70" Margin="10,0,30,0" Command="{Binding ClearTableCommand}"/>
             <Button Content="Write Account" MinWidth="100" Margin="10,0,0,0" Command="{Binding WriteAccountCommand}"/>
             <Button Content="Load Pass Manager" MinWidth="100" Padding="10,0,10,0" Margin="10,0,0,0" Command="{Binding LoadPasswordManagerCommand}"/>
         </StackPanel>
