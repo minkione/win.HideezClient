@@ -170,8 +170,7 @@ namespace HideezClient.Modules
                     device.IsInitialized &&
                     !device.IsAuthorizing &&
                     !device.IsAuthorized &&
-                    !device.IsLoadingStorage &&
-                    !device.IsStorageLoaded,
+                    !device.IsLoadingStorage,
                     CommandAction = (x) =>
                     {
                         OnAuthorizeAndLoadStorage(x);

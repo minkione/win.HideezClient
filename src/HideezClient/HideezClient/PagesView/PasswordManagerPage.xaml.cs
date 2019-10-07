@@ -40,8 +40,12 @@ namespace HideezClient.PagesView
             bindingEditAccount = new BindingRaiseevent(DataContext, "EditAccount");
             bindingEditAccount.ValueChanged += obj =>
             {
-                this.PasswordBox.Clear();
-                App.Current.Dispatcher.Invoke(AccountName.Focus);
+                try
+                {
+                    this.PasswordBox.Clear();
+                    App.Current.Dispatcher.Invoke(AccountName.Focus);
+                }
+                catch { }
             }; 
         }
 

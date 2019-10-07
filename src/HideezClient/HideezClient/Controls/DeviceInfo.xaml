@@ -15,15 +15,23 @@
     d:DesignWidth="800"
     mc:Ignorable="d">
 
-    <Grid x:Name="MainGrid" Focusable="False">
+    <Grid
+        x:Name="MainGrid"
+        Background="#00000001"
+        Focusable="False">
         <Grid.Triggers>
             <EventTrigger RoutedEvent="Control.MouseEnter" SourceName="MainGrid">
                 <BeginStoryboard>
                     <Storyboard>
                         <DoubleAnimation
-                            Storyboard.TargetName="menuIcons"
+                            Storyboard.TargetName="ConnectionsMenu"
                             Storyboard.TargetProperty="Opacity"
                             To="1"
+                            Duration="0:0:0.3" />
+                        <DoubleAnimation
+                            Storyboard.TargetName="IconsContainer"
+                            Storyboard.TargetProperty="Opacity"
+                            To="0"
                             Duration="0:0:0.3" />
                     </Storyboard>
                 </BeginStoryboard>
@@ -32,9 +40,14 @@
                 <BeginStoryboard>
                     <Storyboard>
                         <DoubleAnimation
-                            Storyboard.TargetName="menuIcons"
+                            Storyboard.TargetName="ConnectionsMenu"
                             Storyboard.TargetProperty="Opacity"
                             To="0.0"
+                            Duration="0:0:0.3" />
+                        <DoubleAnimation
+                            Storyboard.TargetName="IconsContainer"
+                            Storyboard.TargetProperty="Opacity"
+                            To="1"
                             Duration="0:0:0.3" />
                     </Storyboard>
                 </BeginStoryboard>
@@ -135,8 +148,12 @@
                 ToolTip="Device proximity level"
                 Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-            <Grid Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <StackPanel Orientation="Horizontal">
+            <StackPanel>
+                <StackPanel
+                    x:Name="IconsContainer"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <iconPacks:PackIconModern
                         x:Name="ConnectingIco"
                         Width="16"
@@ -146,17 +163,6 @@
                         Kind="Disconnect"
                         ToolTip="Connecting device"
                         Visibility="{Binding IsInitializing, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <Grid Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <iconPacks:PackIconMaterial
-                            x:Name="NotAuthorizedIco"
-                            Width="16"
-                            Height="18"
-                            Margin="8,0,0,2"
-                            Foreground="Yellow"
-                            Kind="Lock"
-                            ToolTip="Not authorized"
-                            Visibility="{Binding IsAuthorized, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
-                    </Grid>
                     <iconPacks:PackIconOcticons
                         x:Name="Sync"
                         Width="16"
@@ -166,61 +172,72 @@
                         Kind="Sync"
                         ToolTip="Loading storage"
                         Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                </StackPanel>
-            </Grid>
 
-            <StackPanel>
-                <StackPanel.Visibility>
-                    <MultiBinding Converter="{StaticResource LowBatteryIndicatorVisibilityConverter}">
-                        <Binding Path="IsConnected" />
-                        <Binding Path="Battery" />
-                    </MultiBinding>
-                </StackPanel.Visibility>
-                <iconPacks:PackIconModern
-                    Width="16"
-                    Height="22"
-                    Margin="8,-5,0,0"
-                    Foreground="{DynamicResource LowBatteryIndicatorBrush}"
-                    Kind="Battery1" />
-                <iconPacks:PackIconMaterial
-                    Width="16"
-                    Height="22"
-                    Margin="20,-13,0,0"
-                    Foreground="{DynamicResource LowBatteryIndicatorBrush}"
-                    Kind="Alert" />
+                    <StackPanel>
+                        <StackPanel.Visibility>
+                            <MultiBinding Converter="{StaticResource LowBatteryIndicatorVisibilityConverter}">
+                                <Binding Path="IsConnected" />
+                                <Binding Path="Battery" />
+                            </MultiBinding>
+                        </StackPanel.Visibility>
+                        <iconPacks:PackIconModern
+                            Width="16"
+                            Height="22"
+                            Margin="8,-5,0,0"
+                            Foreground="{DynamicResource LowBatteryIndicatorBrush}"
+                            Kind="Battery1" />
+                        <iconPacks:PackIconMaterial
+                            Width="16"
+                            Height="22"
+                            Margin="20,-13,0,0"
+                            Foreground="{DynamicResource LowBatteryIndicatorBrush}"
+                            Kind="Alert" />
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
 
-            <Border
-                Margin="8,2,0,4"
-                BorderBrush="{DynamicResource SyncErrorIndicatorBrush}"
-                BorderThickness="2"
-                CornerRadius="2"
-                ToolTip="{Binding FaultMessage}"
-                Visibility="{Binding IsFaulted, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TextBlock
-                    Margin="4,0"
-                    FontSize="12"
-                    FontWeight="SemiBold"
-                    Foreground="{DynamicResource SyncErrorIndicatorBrush}"
-                    Text="ERR" />
+            <Border Margin="8,0,5,0">
+                <Border.Style>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsConnected}" Value="True" />
+                                    <Condition Binding="{Binding IsInitialized}" Value="True" />
+                                    <Condition Binding="{Binding IsAuthorizing}" Value="False" />
+                                    <Condition Binding="{Binding IsAuthorized}" Value="False" />
+                                    <Condition Binding="{Binding IsLoadingStorage}" Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <MultiDataTrigger.Setters>
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </MultiDataTrigger.Setters>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Button DataContext="{Binding AuthorizeDeviceAndLoadStorageMenu}" Style="{StaticResource IconButtonStyle}">
+                    <iconPacks:PackIconMaterial
+                        x:Name="NotAuthorizedIco"
+                        Width="16"
+                        Height="18"
+                        Foreground="Yellow"
+                        Kind="Lock"
+                        ToolTip="Not authorized" />
+                </Button>
             </Border>
         </StackPanel>
 
-        <!--  Clickable background  -->
-        <Rectangle
-            Grid.RowSpan="5"
-            Grid.ColumnSpan="3"
-            Style="{StaticResource ClickableTransparentBackgroundStyle}" />
-
         <!--  Connect and Disconnect button  -->
         <StackPanel
-            x:Name="menuIcons"
+            x:Name="ConnectionsMenu"
             Grid.Row="2"
             Grid.Column="3"
             HorizontalAlignment="Right"
             VerticalAlignment="Center"
             Opacity="0.0"
             Orientation="Horizontal">
+
             <Border Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Button DataContext="{Binding DisconnectDeviceMenu}" Style="{StaticResource IconButtonStyle}">
                     <iconPacks:PackIconMaterial

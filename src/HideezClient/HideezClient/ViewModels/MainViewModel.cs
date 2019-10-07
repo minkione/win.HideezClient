@@ -108,7 +108,7 @@ namespace HideezClient.ViewModels
 
         private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(Device.IsConnected))
+            if (e.PropertyName == nameof(Device.IsConnected) || e.PropertyName == nameof(Device.IsAuthorized) || e.PropertyName == nameof(Device.IsStorageLoaded))
             {
                 UpdateMenu();
             }
@@ -212,12 +212,8 @@ namespace HideezClient.ViewModels
                     CommandAction = x =>
                     {
                         OnOpenPasswordManager();
-                        // viewModelLocator.PasswordManager.Device = SelectedDevice;
-                        // TODO: Del
-                        viewModelLocator.PasswordManager.Device = new DeviceViewModel(null);
-                    },
-                    // TODO: Del
-                    // CanExecuteFunc = () => SelectedDevice?.IsStorageLoaded ?? false,
+                        viewModelLocator.PasswordManager.Device = SelectedDevice;
+                    }
                 };
             }
         }

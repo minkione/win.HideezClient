@@ -20,12 +20,14 @@ namespace HideezClient.ViewModels
     {
         private MenuItemViewModel disconnectDeviceMenu;
         private MenuItemViewModel removeDeviceMenu;
+        private MenuItemViewModel authorizeDeviceAndLoadStorageMenu;
 
         public DeviceInfoViewModel(Device device, IMenuFactory menuFactory)
             : base(device)
         {
             DisconnectDeviceMenu = menuFactory.GetMenuItem(device, MenuItemType.DisconnectDevice);
             RemoveDeviceMenu = menuFactory.GetMenuItem(device, MenuItemType.RemoveDevice);
+            AuthorizeDeviceAndLoadStorageMenu = menuFactory.GetMenuItem(device, MenuItemType.AuthorizeDeviceAndLoadStorage);
         }
 
         #region Properties
@@ -45,6 +47,12 @@ namespace HideezClient.ViewModels
         {
             get { return removeDeviceMenu; }
             set { Set(ref removeDeviceMenu, value); }
+        }
+
+        public MenuItemViewModel AuthorizeDeviceAndLoadStorageMenu
+        {
+            get { return authorizeDeviceAndLoadStorageMenu; }
+            set { Set(ref authorizeDeviceAndLoadStorageMenu, value); }
         }
 
         #endregion Property

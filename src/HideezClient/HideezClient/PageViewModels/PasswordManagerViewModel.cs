@@ -39,7 +39,7 @@ namespace HideezClient.PageViewModels
 
             this.WhenAnyValue(x => x.Device)
                 .Where(x => null != x)
-                .InvokeCommand(FilterAccountCommand);
+                .Subscribe(d => OnDeviceChanged());
 
             this.WhenAnyValue(x => x.SelectedAccount)
                 .InvokeCommand(CancelCommand);
@@ -143,16 +143,24 @@ namespace HideezClient.PageViewModels
 
         private void OnSaveAccount(SecureString password)
         {
-            string message ="";
+            Device.SaveOrUpdateAccount(0, EditAccount.Name, password.GetAsString(), EditAccount.Login, EditAccount.OtpSecret, string.Join(";", EditAccount.Apps), string.Join(";", EditAccount.Urls));
 
-            message += $"Account Name: {EditAccount.Name}\n";
-            message += $"Login: {EditAccount.Login}\n";
-            message += $"Password: {password}\n";
-            message += $"AppsAndUrls: {string.Join(";", EditAccount.AppsAndUrls)}\n";
-            message += $"OtpSecret: {EditAccount.OtpSecret}\n";
+            //string message ="";
+
+            //message += $"Account Name: {EditAccount.Name}\n";
+            //message += $"Login: {EditAccount.Login}\n";
+            //message += $"Password: {password}\n";
+            //message += $"AppsAndUrls: {string.Join(";", EditAccount.AppsAndUrls)}\n";
+            //message += $"OtpSecret: {EditAccount.OtpSecret}\n";
 
 
-            MessageBox.Show(message);
+            //MessageBox.Show(message);
+        }
+
+        private void OnDeviceChanged()
+        {
+            OnFilterAccount();
+            CollectionChangedEventManager.AddHandler(Device.Accounts, (s, args) => OnFilterAccount());
         }
 
         private void OnAddAccount()

@@ -59,67 +59,40 @@
                     Text="{l:Localization Info.NoDevice}"
                     Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityCollapsedConverter}}" />
 
-                <RadioButton Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityConverter}}">
-                    <RadioButton.Style>
-                        <Style BasedOn="{StaticResource BaseLeftColumMenuStyle}" TargetType="{x:Type RadioButton}">
-                            <Setter Property="Command" Value="{Binding MenuAboutDevice.Command}" />
-                            <Setter Property="IsChecked" Value="{Binding MenuAboutDevice.IsChecked}" />
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="RadioButton">
-                                        <Border Background="{TemplateBinding Background}">
-                                            <ContentPresenter DataContext="{TemplateBinding DataContext}" />
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsChecked" Value="True">
-                                    <Setter Property="Background" Value="{DynamicResource LeftColumMenuActiveBrush}" />
-                                </Trigger>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="IsMouseOver" Value="True" />
-                                        <Condition Property="IsChecked" Value="False" />
-                                    </MultiTrigger.Conditions>
-                                    <MultiTrigger.Setters>
-                                        <Setter Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="1,0">
-                                                    <GradientStop Offset="1.0" Color="#22446D" />
-                                                    <GradientStop Offset="0.1" Color="#22446d" />
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Setter Property="Cursor" Value="Hand" />
-                                    </MultiTrigger.Setters>
-                                </MultiTrigger>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="IsChecked" Value="False" />
-                                        <Condition Property="IsPressed" Value="True" />
-                                    </MultiTrigger.Conditions>
-                                    <MultiTrigger.Setters>
-                                        <Setter Property="Background" Value="#22446D" />
-                                        <Setter Property="Opacity" Value="0.5" />
-                                    </MultiTrigger.Setters>
-                                </MultiTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </RadioButton.Style>
+                <StackPanel Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
                     <controls:DeviceInfo
                         Padding="16,16,30,16"
                         VerticalAlignment="Top"
                         DataContext="{Binding SelectedDevice}" />
-                </RadioButton>
-
-                <Border Visibility="Visible">
                     <RadioButton
-                        DataContext="{Binding MenuPasswordManager}"
-                        IsChecked="True"
+                        Metro:VisibilityHelper.IsVisible="{Binding IsConnected}"
+                        DataContext="{Binding MenuAboutDevice}"
                         Style="{DynamicResource LeftColumMenuStyle}"
                         Tag="LockSolid" />
-                </Border>
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding SelectedDevice.IsAuthorized}" Value="True" />
+                                            <Condition Binding="{Binding SelectedDevice.IsStorageLoaded}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.Setters>
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </MultiDataTrigger.Setters>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <RadioButton
+                            DataContext="{Binding MenuPasswordManager}"
+                            Style="{StaticResource LeftColumMenuStyle}"
+                            Tag="LockSolid" />
+
+                    </Border>
+                </StackPanel>
             </StackPanel>
 
             <!--  Menu  -->
@@ -128,6 +101,7 @@
                     DataContext="{Binding MenuDefaultPage}"
                     Style="{DynamicResource LeftColumMenuStyle}"
                     Visibility="Collapsed" />
+
                 <RadioButton
                     DataContext="{Binding MenuHelp}"
                     Style="{DynamicResource LeftColumMenuStyle}"
