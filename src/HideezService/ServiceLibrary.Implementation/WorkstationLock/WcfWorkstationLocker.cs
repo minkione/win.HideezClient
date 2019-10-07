@@ -1,6 +1,6 @@
 ﻿using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
-using ServiceLibrary.Implementation.SessionManagement;
+using ServiceLibrary.Implementation.ClientManagement;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,14 +26,16 @@ namespace ServiceLibrary.Implementation.WorkstationLock
         {
             Task.Run(() =>
             {
-                try
+                foreach (var client in _sessionManager.Sessions)
                 {
-                    foreach (var client in _sessionManager.Sessions.ToList())
+                    try
+                    {
                         client.Callbacks.LockWorkstationRequest();
-                }
-                catch (Exception ex)
-                {
-                    WriteLine(ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLine(ex);
+                    }
                 }
             });
         }

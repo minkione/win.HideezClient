@@ -7,13 +7,16 @@ using HideezMiddleware.Utils;
 
 namespace HideezMiddleware.DeviceConnection
 {
-    public class TapConnectionProcessor : BaseConnectionProcessor, IDisposable
+    public class TapConnectionProcessor : Logger, IDisposable
     {
+        readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly IBleConnectionManager _bleConnectionManager;
         readonly IScreenActivator _screenActivator;
         readonly IClientUiManager _clientUiManager;
 
         int _isConnecting = 0;
+
+        public event EventHandler<string> WorkstationUnlockPerformed;
 
         public TapConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
@@ -21,11 +24,12 @@ namespace HideezMiddleware.DeviceConnection
             IScreenActivator screenActivator,
             IClientUiManager clientUiManager,
             ILog log) 
-            : base(connectionFlowProcessor, nameof(TapConnectionProcessor), log)
+            : base(nameof(TapConnectionProcessor), log)
         {
-            _bleConnectionManager = bleConnectionManager;
+            _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));
+            _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
+            _clientUiManager = clientUiManager ?? throw new ArgumentNullException(nameof(clientUiManager));
             _screenActivator = screenActivator;
-            _clientUiManager = clientUiManager;
 
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
         }
@@ -72,13 +76,14 @@ namespace HideezMiddleware.DeviceConnection
                     {
                         _screenActivator?.ActivateScreen();
                         var mac = MacUtils.GetMacFromShortMac(adv.Id);
-                        await ConnectDeviceByMac(mac);
+                        var result = await _connectionFlowProcessor.ConnectAndUnlock(mac);
+
+                        if (result.UnlockSuccessful)
+                            WorkstationUnlockPerformed?.Invoke(this, mac);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        WriteLine(ex);
-                        await _clientUiManager.SendNotification("");
-                        await _clientUiManager.SendError(ex.Message);
+                        // Silent handling. Log is already printed inside of _connectionFlowProcessor.ConnectAndUnlock()
                     }
                     finally
                     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ServiceLibrary.Implementation.SessionManagement
+namespace ServiceLibrary.Implementation.ClientManagement
 {
     class ServiceClientSessionManager
     {

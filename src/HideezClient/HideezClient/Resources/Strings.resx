@@ -353,7 +353,7 @@ Device is not connected</value>
     <value>Ok</value>
   </data>
   <data name="AppName" xml:space="preserve">
-    <value>Hideez Safe 3</value>
+    <value>Hideez Client</value>
   </data>
   <data name="Pin.BtnConfirmed" xml:space="preserve">
     <value>Button press confirmed</value>

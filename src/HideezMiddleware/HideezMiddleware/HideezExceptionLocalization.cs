@@ -94,21 +94,33 @@ namespace HideezMiddleware
             return ErrorCode.ResourceManager.GetString(hideezErrorCode.ToString(), culture ?? ErrorCode.Culture);
         }
 
-        public static string GetErrorAsString(HideezException exception, CultureInfo culture = null)
+        public static string GetErrorAsString(Exception exception, CultureInfo culture = null)
         {
-            string localizedStr = ErrorCode.ResourceManager.GetString(exception.ErrorCode.ToString(), culture ?? ErrorCode.Culture);
-
-            if (localizedStr == null)
-                return exception.ErrorCode.ToString();
-            //todo - localizedStr is null
-
-            if (exception.Parameters != null)
+            if (exception is HideezException hideezException)
             {
-                return string.Format(localizedStr, exception.Parameters);
+                var parameters = hideezException.Parameters;
+                var code = hideezException.ErrorCode;
+
+                if (code == HideezErrorCode.NonHideezException)
+                    return exception.Message;
+
+                string localizedStr = ErrorCode.ResourceManager.GetString(code.ToString(), culture ?? ErrorCode.Culture);
+
+                if (localizedStr != null)
+                {
+                    if (parameters != null && parameters.Length > 0)
+                        localizedStr = string.Format(localizedStr, parameters);
+                }
+                else
+                {
+                    localizedStr = code.ToString();
+                }
+
+                return localizedStr;
             }
             else
             {
-                return localizedStr;
+                return exception.Message;
             }
         }
     }

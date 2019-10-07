@@ -26,6 +26,7 @@
     TitleCharacterCasing="Normal"
     WindowStartupLocation="CenterScreen"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
+    Loaded="MetroWindow_Loaded"
     mc:Ignorable="d">
     <Metro:MetroWindow.Resources>
         <Converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -139,6 +140,9 @@
                             Margin="0,6,0,0"
                             ma:TextBoxHelper.Watermark="Enter current PIN"
                             PasswordChanged="CurrentPinPasswordBox_PasswordChanged"
+                            IsVisibleChanged="PasswordBox_IsVisibleChanged"
+                            MaxLength="{Binding MaxLenghtPin}"
+                            PreviewTextInput="PasswordBox_PreviewTextInput"
                             Visibility="{Binding AskCurrentPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                         <TextBlock
@@ -152,6 +156,9 @@
                             Margin="0,6,0,0"
                             ma:TextBoxHelper.Watermark="Enter new PIN"
                             PasswordChanged="NewPinPasswordBox_PasswordChanged"
+                            IsVisibleChanged="PasswordBox_IsVisibleChanged"
+                            MaxLength="{Binding MaxLenghtPin}"
+                            PreviewTextInput="PasswordBox_PreviewTextInput"
                             Visibility="{Binding AskNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                         <TextBlock
@@ -165,6 +172,9 @@
                             Margin="0,6,0,0"
                             ma:TextBoxHelper.Watermark="Confirm new PIN"
                             PasswordChanged="ConfirmPinPasswordBox_PasswordChanged"
+                            IsVisibleChanged="PasswordBox_IsVisibleChanged"
+                            MaxLength="{Binding MaxLenghtPin}"
+                            PreviewTextInput="PasswordBox_PreviewTextInput"
                             Visibility="{Binding AskConfirmPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     </StackPanel>
                 </StackPanel>

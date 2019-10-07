@@ -5,11 +5,9 @@ using HideezClient.Models;
 using HideezClient.Models.Settings;
 using HideezClient.Modules.DeviceManager;
 using HideezClient.Modules.Localize;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Hideez.SDK.Communication;
+using System;
 
 namespace HideezClient.Modules.ActionHandler
 {
@@ -18,12 +16,15 @@ namespace HideezClient.Modules.ActionHandler
     /// </summary>
     class InputLogin : InputBase
     {
+        readonly IEventPublisher _eventPublisher;
+
         public InputLogin(IInputHandler inputHandler, ITemporaryCacheAccount temporaryCacheAccount
                         , IInputCache inputCache, ISettingsManager<ApplicationSettings> settingsManager
                         , IWindowsManager windowsManager, IDeviceManager deviceManager
-                        , IEventAggregator eventAggregator)
-                        : base(inputHandler, temporaryCacheAccount, inputCache, settingsManager, windowsManager, deviceManager, eventAggregator)
+                        , IEventPublisher eventPublisher)
+                        : base(inputHandler, temporaryCacheAccount, inputCache, settingsManager, windowsManager, deviceManager)
         {
+            _eventPublisher = eventPublisher;
         }
 
         /// <summary>
@@ -51,6 +52,23 @@ namespace HideezClient.Modules.ActionHandler
         protected override void OnAccountNotFoundError(AppInfo appInfo, string[] devicesId)
         {
             throw new LoginNotFoundException(string.Format(TranslationSource.Instance["Exception.LoginNotFound"], appInfo.Title), appInfo, devicesId);
+        }
+
+        protected override async void OnAccountEntered(AppInfo appInfo, Account account)
+        {
+            base.OnAccountEntered(appInfo, account);
+
+            await _eventPublisher.PublishEventAsync(new HideezServiceReference.WorkstationEventDTO
+            {
+                Id = Guid.NewGuid().ToString(),
+                Date = DateTime.UtcNow,
+                AccountLogin = account.Login,
+                AccountName = account.Name,
+                DeviceId = account.Device.SerialNo,
+                EventId = (int)WorkstationEventType.CredentialsUsed_Login,
+                Note = appInfo.Title,
+                Severity = (int)WorkstationEventSeverity.Info,
+            });
         }
     }
 }

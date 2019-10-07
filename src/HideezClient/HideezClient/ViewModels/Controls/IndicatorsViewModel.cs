@@ -46,8 +46,8 @@ namespace HideezClient.ViewModels
 
         public ConnectionIndicatorViewModel Service
         {
-            get { return service; }
-            set { Set(ref service, value); }
+            get { return _service; }
+            set { Set(ref _service, value); }
         }
 
         public ConnectionIndicatorViewModel Server
@@ -79,21 +79,21 @@ namespace HideezClient.ViewModels
                 NoConnectionText = "Status.Tooltip.DisconectedService",
             };
 
-            Server = new ConnectionIndicatorViewModel
+            var connectionHES = new ConnectionIndicatorViewModel
             {
                 Name = "Status.Server",
                 HasConnectionText = "Status.Tooltip.ConectedServer",
                 NoConnectionText = "Status.Tooltip.DisconectedServer",
             };
 
-            RFID = new ConnectionIndicatorViewModel
+            var connectionRFID = new ConnectionIndicatorViewModel
             {
                 Name = "Status.RFID",
                 HasConnectionText = "Status.Tooltip.ConectedRFID",
                 NoConnectionText = "Status.Tooltip.DisconectedRFID",
             };
 
-            Dongle = new ConnectionIndicatorViewModel
+            var connectionDongle = new ConnectionIndicatorViewModel
             {
                 Name = "Status.Dongle",
                 HasConnectionText = "Status.Tooltip.ConectedDongle",

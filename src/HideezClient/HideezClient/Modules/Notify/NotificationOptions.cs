@@ -12,7 +12,7 @@ namespace HideezClient.Modules
         /// </summary>
         public bool CloseWhenDeactivate { get; set; }
         public bool SetFocus { get; set; }
-        public TimeSpan CloseTimeout { get; set; } = TimeSpan.FromSeconds(15);
+        public TimeSpan CloseTimeout { get; set; } = TimeSpan.FromSeconds(7);
         public TaskCompletionSource<bool> TaskCompletionSource { get; set; }
     }
 }

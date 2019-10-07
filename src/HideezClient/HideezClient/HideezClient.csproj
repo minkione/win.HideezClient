@@ -131,8 +131,8 @@
     <Reference Include="Hideez.ARM, Version=1.3.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Hideez.ARM.1.3.2\lib\net45\Hideez.ARM.dll</HintPath>
     </Reference>
-    <Reference Include="Hideez.ISM, Version=1.2.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Hideez.ISM.1.2.7\lib\net45\Hideez.ISM.dll</HintPath>
+    <Reference Include="Hideez.ISM, Version=1.2.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Hideez.ISM.1.2.8\lib\net45\Hideez.ISM.dll</HintPath>
     </Reference>
     <Reference Include="Interop.UIAutomationClient, Version=12.0.20617.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\UIAComWrapper.1.1.0.14\lib\net40\Interop.UIAutomationClient.dll</HintPath>
@@ -280,8 +280,8 @@
     <Compile Include="Messages\ButtonPressedMessage.cs" />
     <Compile Include="Messages\ConnectionChangedMessage.cs" />
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
-    <Compile Include="Messages\DeviceAuthorizedMessage.cs" />
     <Compile Include="Messages\DeviceConnectionStateChangedMessage.cs" />
+    <Compile Include="Messages\DeviceFinishedMainFlowMessage.cs" />
     <Compile Include="Messages\DeviceInitializedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
@@ -330,8 +330,8 @@
     <Compile Include="Modules\Remote\RemoteDeviceEvents.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceFactory.cs" />
     <Compile Include="Modules\SettingsManager\HSSettingsManager.cs" />
-    <Compile Include="Modules\WorkstationEvent\EventAggregator.cs" />
-    <Compile Include="Modules\WorkstationEvent\IEventAggregator.cs" />
+    <Compile Include="Modules\EventPublisher\EventPublisher.cs" />
+    <Compile Include="Modules\EventPublisher\IEventPublisher.cs" />
     <Compile Include="Mvvm\BindingRaiseevent.cs" />
     <Compile Include="Mvvm\IRequireViewIdentification.cs" />
     <Compile Include="Mvvm\LocalizedObject.cs" />
@@ -626,10 +626,10 @@
     <Content Include="Browsers.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
-    </Content>
+    </None>
     <None Include="Connected Services\HideezServiceReference\service.wsdl" />
     <None Include="Connected Services\HideezServiceReference\service.xsd">
       <SubType>Designer</SubType>

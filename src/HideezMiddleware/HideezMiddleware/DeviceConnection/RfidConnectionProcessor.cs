@@ -6,14 +6,17 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection
 {
-    public class RfidConnectionProcessor : BaseConnectionProcessor, IDisposable
+    public class RfidConnectionProcessor : Logger, IDisposable
     {
+        readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly IClientUiManager _clientUiManager;
         readonly HesAppConnection _hesConnection;
         readonly RfidServiceConnection _rfidService;
         readonly IScreenActivator _screenActivator;
 
         int _isConnecting = 0;
+
+        public event EventHandler<string> WorkstationUnlockPerformed;
 
         public RfidConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor, 
@@ -22,12 +25,13 @@ namespace HideezMiddleware.DeviceConnection
             IScreenActivator screenActivator,
             IClientUiManager clientUiManager, 
             ILog log) 
-            : base(connectionFlowProcessor, nameof(RfidConnectionProcessor), log)
+            : base(nameof(RfidConnectionProcessor), log)
         {
-            _hesConnection = hesConnection;
-            _rfidService = rfidService;
+            _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));
+            _hesConnection = hesConnection ?? throw new ArgumentNullException(nameof(hesConnection));
+            _rfidService = rfidService ?? throw new ArgumentNullException(nameof(rfidService));
+            _clientUiManager = clientUiManager ?? throw new ArgumentNullException(nameof(clientUiManager));
             _screenActivator = screenActivator;
-            _clientUiManager = clientUiManager;
 
             _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
         }
@@ -89,7 +93,14 @@ namespace HideezMiddleware.DeviceConnection
                 {
                     try
                     {
-                        await ConnectDeviceByMac(info.DeviceMac);
+                        var result = await _connectionFlowProcessor.ConnectAndUnlock(info.DeviceMac);
+
+                        if (result.UnlockSuccessful)
+                            WorkstationUnlockPerformed?.Invoke(this, info.DeviceMac);
+                    }
+                    catch (Exception)
+                    {
+                        // Silent handling. Log is already printed inside of _connectionFlowProcessor.ConnectAndUnlock()
                     }
                     finally
                     {

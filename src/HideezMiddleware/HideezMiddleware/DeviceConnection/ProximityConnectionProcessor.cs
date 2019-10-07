@@ -13,7 +13,7 @@ using HideezMiddleware.Utils;
 namespace HideezMiddleware.DeviceConnection
 {
 
-    public class ProximityConnectionProcessor : BaseConnectionProcessor, IDisposable
+    public class ProximityConnectionProcessor : Logger, IDisposable
     {
         struct ProximityUnlockAccess
         {
@@ -21,6 +21,7 @@ namespace HideezMiddleware.DeviceConnection
             public bool CanConnect { get; set; }
         }
 
+        readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly IBleConnectionManager _bleConnectionManager;
         readonly IScreenActivator _screenActivator;
         readonly IClientUiManager _clientUiManager;
@@ -33,6 +34,8 @@ namespace HideezMiddleware.DeviceConnection
 
         int _isConnecting = 0;
 
+        public event EventHandler<string> WorkstationUnlockPerformed;
+
         public ProximityConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
@@ -43,16 +46,17 @@ namespace HideezMiddleware.DeviceConnection
             BleDeviceManager bleDeviceManager,
             IWorkstationUnlocker workstationUnlocker,
             ILog log) 
-            : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
+            : base(nameof(ProximityConnectionProcessor), log)
         {
-            _bleConnectionManager = bleConnectionManager;
+            _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));
+            _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
+            _clientUiManager = clientUi ?? throw new ArgumentNullException(nameof(clientUi));
+            _proximitySettingsManager = proximitySettingsManager ?? throw new ArgumentNullException(nameof(proximitySettingsManager));
+            _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
+            _bleDeviceManager = bleDeviceManager ?? throw new ArgumentNullException(nameof(bleDeviceManager));
+            _workstationUnlocker = workstationUnlocker ?? throw new ArgumentNullException(nameof(workstationUnlocker));
             _screenActivator = screenActivator;
-            _clientUiManager = clientUi;
-            _proximitySettingsManager = proximitySettingsManager;
-            _advIgnoreListMonitor = advIgnoreListMonitor;
-            _bleDeviceManager = bleDeviceManager;
-            _workstationUnlocker = workstationUnlocker;
-            
+
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
             _proximitySettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
 
@@ -130,25 +134,26 @@ namespace HideezMiddleware.DeviceConnection
             if (_advIgnoreListMonitor.IsIgnored(mac))
                 return;
 
-            if (_bleDeviceManager.Devices.Any(d => d.Mac == mac && d.IsConnected))
-                return;
-
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
             { 
                 try
                 {
-                    _screenActivator?.ActivateScreen();
-                    await ConnectDeviceByMac(mac);
+                    if (!_bleDeviceManager.Devices.Any(d => d.Mac == mac && !d.IsRemote && !d.IsBoot && d.IsConnected))
+                    { 
+                        _screenActivator?.ActivateScreen();
+                        var result = await _connectionFlowProcessor.ConnectAndUnlock(mac);
+
+                        if (result.UnlockSuccessful)
+                            WorkstationUnlockPerformed?.Invoke(this, mac);
+                    }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    WriteLine(ex);
-                    await _clientUiManager.SendNotification("");
-                    await _clientUiManager.SendError(ex.Message);
-                    _advIgnoreListMonitor.Ignore(mac);
+                    // Silent handling. Log is already printed inside of _connectionFlowProcessor.ConnectAndUnlock()
                 }
                 finally
                 {
+                    _advIgnoreListMonitor.Ignore(mac);
                     Interlocked.Exchange(ref _isConnecting, 0);
                 }
             }

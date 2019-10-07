@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ServiceLibrary.Implementation.SessionManagement
+namespace ServiceLibrary.Implementation.ClientManagement
 {
     class ServiceClientUiManager : IClientUiProxy, IDisposable
     {

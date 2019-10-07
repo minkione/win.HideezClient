@@ -6,6 +6,8 @@ using HideezClient.Models;
 using HideezClient.Modules.DeviceManager;
 using Hideez.ARM;
 using HideezMiddleware.Settings;
+using Hideez.SDK.Communication;
+using System;
 
 namespace HideezClient.Modules.ActionHandler
 {
@@ -14,12 +16,15 @@ namespace HideezClient.Modules.ActionHandler
     /// </summary>
     class InputPassword : InputBase
     {
+        readonly IEventPublisher _eventPublisher;
+
         public InputPassword(IInputHandler inputHandler, ITemporaryCacheAccount temporaryCacheAccount
                         , IInputCache inputCache, ISettingsManager<ApplicationSettings> settingsManager
                         , IWindowsManager windowsManager, IDeviceManager deviceManager
-                        , IEventAggregator eventAggregator)
-                        : base(inputHandler, temporaryCacheAccount, inputCache, settingsManager, windowsManager, deviceManager, eventAggregator)
+                        , IEventPublisher eventPublisher)
+                        : base(inputHandler, temporaryCacheAccount, inputCache, settingsManager, windowsManager, deviceManager)
         {
+            _eventPublisher = eventPublisher;
         }
 
         /// <summary>
@@ -77,6 +82,23 @@ namespace HideezClient.Modules.ActionHandler
         {
             var filterdAccounts = base.FilterAccounts(accounts, devicesId);
             return FindValueForPreviousInput(filterdAccounts, temporaryCacheAccount.PasswordReqCache.Value);
+        }
+
+        protected override async void OnAccountEntered(AppInfo appInfo, Account account)
+        {
+            base.OnAccountEntered(appInfo, account);
+
+            await _eventPublisher.PublishEventAsync(new HideezServiceReference.WorkstationEventDTO
+            {
+                Id = Guid.NewGuid().ToString(),
+                Date = DateTime.UtcNow,
+                AccountLogin = account.Login,
+                AccountName = account.Name,
+                DeviceId = account.Device.SerialNo,
+                EventId = (int)WorkstationEventType.CredentialsUsed_Password,
+                Note = appInfo.Title,
+                Severity = (int)WorkstationEventSeverity.Info,
+            });
         }
     }
 }

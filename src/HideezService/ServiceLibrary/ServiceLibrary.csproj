@@ -78,6 +78,9 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Version.cs">
+      <Link>Version.cs</Link>
+    </Compile>
     <Compile Include="AccessLevelDTO.cs" />
     <Compile Include="ContractProviderService.cs" />
     <Compile Include="DeviceDTO.cs" />
@@ -97,6 +100,10 @@
     <ProjectReference Include="..\..\..\..\win.sdk\Communication\Communication.csproj">
       <Project>{bf57e350-d719-47a1-950a-7b6a08e58bd7}</Project>
       <Name>Communication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\HideezMiddleware\HideezMiddleware\HideezMiddleware.csproj">
+      <Project>{2A5ABF59-55EE-461B-8C6F-2A294481129B}</Project>
+      <Name>HideezMiddleware</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

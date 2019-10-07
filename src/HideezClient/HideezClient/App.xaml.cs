@@ -51,10 +51,12 @@ namespace HideezClient
     {
         public static ILogger logger;
         private IStartupHelper startupHelper;
+        private IWorkstationManager workstationManager;
         private IMessenger messenger;
         private IWindowsManager windowsManager;
         private IServiceWatchdog serviceWatchdog;
         private IDeviceManager deviceManager;
+        private UserActionHandler userActionHandler;
         private IHotkeyManager hotkeyManager;
 
         public static IUnityContainer Container { get; private set; }
@@ -95,7 +97,6 @@ namespace HideezClient
                 fatalLogger.Fatal($"Unhandled exception in {assemblyName.Name} v{assemblyName.Version}");
                 fatalLogger.Fatal(e);
                 LogManager.Flush();
-                LogManager.Shutdown();
             }
             catch (Exception)
             {
@@ -163,13 +164,13 @@ namespace HideezClient
 
             logger.Info("Resolve DI container");
             startupHelper = Container.Resolve<IStartupHelper>();
-            Container.Resolve<IWorkstationManager>();
+            workstationManager = Container.Resolve<IWorkstationManager>();
             windowsManager = Container.Resolve<IWindowsManager>();
             Container.Resolve<IHideezServiceCallback>();
             serviceWatchdog = Container.Resolve<IServiceWatchdog>();
             serviceWatchdog.Start();
             deviceManager = Container.Resolve<IDeviceManager>();
-            Container.Resolve<UserActionHandler>();
+            userActionHandler = Container.Resolve<UserActionHandler>();
             hotkeyManager = Container.Resolve<IHotkeyManager>();
             hotkeyManager.Enabled = true;
 
@@ -294,7 +295,7 @@ namespace HideezClient
 
             Container.RegisterType<INotifier, Notifier>(new ContainerControlledLifetimeManager());
 
-            Container.RegisterType<IEventAggregator, EventAggregator>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IEventPublisher, EventPublisher>(new ContainerControlledLifetimeManager());
 
             logger.Info("Finish initialize DI container");
 

@@ -83,6 +83,17 @@
                 VerticalAlignment="Stretch"
                 FontSize="18"
                 Text="{Binding Name}" />
+
+            <!--  Icons  -->
+            <iconPacks:PackIconModern
+                x:Name="noConnectionIco"
+                Width="16"
+                Height="22"
+                Margin="8,0,0,2"
+                Foreground="{DynamicResource DisconnectedBrush}"
+                Kind="Connect"
+                Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
+
             <Grid
                 x:Name="connectionQuality"
                 Grid.Row="1"
@@ -115,15 +126,6 @@
                 </Viewbox>
             </Grid>
 
-            <!--  Icons  -->
-            <iconPacks:PackIconModern
-                x:Name="noConnectionIco"
-                Width="16"
-                Height="22"
-                Margin="8,0,0,2"
-                Foreground="{DynamicResource DisconnectedBrush}"
-                Kind="Connect"
-                Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
             <TextBlock
                 Width="43"
                 VerticalAlignment="Stretch"

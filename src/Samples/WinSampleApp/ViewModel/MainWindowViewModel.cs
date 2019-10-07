@@ -17,6 +17,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.LongOperations;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezMiddleware;
+using HideezMiddleware.Audit;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.Settings;
 using Microsoft.Win32;
@@ -302,6 +303,24 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand WipeDeviceManualCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        WipeDeviceManual(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         public ICommand UnlockDeviceCommand
         {
             get
@@ -536,60 +555,6 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        public ICommand ReadDeviceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        ReadDevice(CurrentDevice);
-                    }
-                };
-            }
-        }
-
-        public ICommand WriteDeviceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        WriteDevice(CurrentDevice);
-                    }
-                };
-            }
-        }
-
-        public ICommand LoadDeviceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        LoadDevice(CurrentDevice);
-                    }
-                };
-            }
-        }
-
         public ICommand PingDeviceCommand
         {
             get
@@ -769,6 +734,24 @@ namespace WinSampleApp.ViewModel
                 };
             }
         }
+        public ICommand StorageCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        OpenStorageVindow(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         #endregion
 
         public MainWindowViewModel()
@@ -814,13 +797,13 @@ namespace WinSampleApp.ViewModel
                 _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
 
                 // WorkstationInfoProvider ==================================
-                //WorkstationHelper.Log = sdkLogger;
                 var workstationInfoProvider = new WorkstationInfoProvider(HesAddress, _log); //todo - HesAddress?
 
                 // HES Connection ==================================
+                string workstationId = Guid.NewGuid().ToString();
                 _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _log);
                 _hesConnection.HubConnectionStateChanged += (sender, e) => NotifyPropertyChanged(nameof(HesState));
-                _hesConnection.Start(HesAddress);
+                //_hesConnection.Start(HesAddress);
 
                 // Credential provider ==============================
                 _credentialProviderProxy = new CredentialProviderProxy(_log);
@@ -1035,82 +1018,7 @@ namespace WinSampleApp.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        async void ReadDevice(DeviceViewModel device)
-        {
-            try
-            {
-                var readResult = await device.Device.ReadStorageAsString(35, 1);
-
-                if (readResult == null)
-                    MessageBox.Show("Empty");
-                else
-                    MessageBox.Show(readResult);
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        async void WriteDevice(DeviceViewModel device)
-        {
-            try
-            {
-                var pm = new DevicePasswordManager(device.Device, _log);
-
-                // array of records
-                //for (int i = 0; i < 100; i++)
-                //{
-                //    var account = new AccountRecord()
-                //    {
-                //        Key = 0,
-                //        Name = $"My Google Account {i}",
-                //        Login = $"admin_{i}@hideez.com",
-                //        Password = $"my_password_{i}",
-                //        OtpSecret = $"asdasd_{i}",
-                //        Apps = $"12431412412342134_{i}",
-                //        Urls = $"www.hideez.com;www.google.com_{i}",
-                //        IsPrimary = i == 0
-                //    };
-
-                //    var key = await pm.SaveOrUpdateAccount(account.Key, account.Flags, account.Name,
-                //        account.Password, account.Login, account.OtpSecret,
-                //        account.Apps, account.Urls,
-                //        account.IsPrimary);
-
-                //    Debug.WriteLine($"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Writing {i} account");
-                //}
-
-
-                // single record
-                var account = new AccountRecord()
-                {
-                    Key = 1,
-                    Name = $"My Google Account 0",
-                    Login = $"admin_0@hideez.com",
-                    Password = $"my_password_0",
-                    OtpSecret = $"DPMYUOUOQDCAABSIAE5DFBANESXGOHDV",
-                    Apps = $"12431412412342134_0",
-                    Urls = $"www.hideez.com;www.google.com_0",
-                    IsPrimary = true
-                };
-
-                var key = await pm.SaveOrUpdateAccount(account.Key, account.Name,
-                    account.Password, account.Login, account.OtpSecret,
-                    account.Apps, account.Urls,
-                    account.IsPrimary
-                    //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6) 
-                    //,(ushort)(StorageTableFlags.RESERVED7 | StorageTableFlags.RESERVED6)
-                    );
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(HideezExceptionLocalization.GetErrorAsString(ex));
             }
         }
 
@@ -1137,19 +1045,6 @@ namespace WinSampleApp.ViewModel
                     account.Apps, account.Urls,
                     account.IsPrimary
                     );
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        async void LoadDevice(DeviceViewModel device)
-        {
-            try
-            {
-                var pm = new DevicePasswordManager(device.Device, _log);
-                await pm.Load();
             }
             catch (Exception ex)
             {
@@ -1319,6 +1214,18 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        async void WipeDeviceManual(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.Wipe(Encoding.UTF8.GetBytes(""));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
         async void UnlockDevice(DeviceViewModel device)
         {
             try
@@ -1396,7 +1303,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                var reply = await device.Device.Confirm(5);
+                await device.Device.Confirm(15);
             }
             catch (Exception ex)
             {
@@ -1412,6 +1319,19 @@ namespace WinSampleApp.ViewModel
                 var outSecret = await device.Device.ReadStorageAsString((byte)StorageTable.OtpSecrets, 1);
                 var otpReply = await device.Device.GetOtp((byte)StorageTable.OtpSecrets, 1);
                 MessageBox.Show(otpReply.Otp);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        void OpenStorageVindow(DeviceViewModel currentDevice)
+        {
+            try
+            {
+                var wnd = new StorageWindow(CurrentDevice, _log);
+                var res = wnd.ShowDialog();
             }
             catch (Exception ex)
             {

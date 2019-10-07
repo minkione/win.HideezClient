@@ -83,12 +83,12 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             }
         }
 
-        public void DeviceAuthorized(DeviceDTO device)
+        public void DeviceFinishedMainFlow(DeviceDTO device)
         {
             try
             {
-                log.Info($"Device ({device.Id}) is authorized");
-                _messenger.Send(new DeviceAuthorizedMessage(device));
+                log.Info($"Device ({device.Id}) has finished main flow");
+                _messenger.Send(new DeviceFinishedMainFlowMessage(device));
             }
             catch (Exception ex)
             {

@@ -174,7 +174,7 @@
       <RegistrySearch Id="FindSavedHESADDRESS"
                       Root="HKLM"
                       Key="SOFTWARE\Hideez\Client"
-                      Name="hs3_hes_address"
+                      Name="client_hes_address"
                       Type="raw" />
     </Property>
     <!-- ... -->

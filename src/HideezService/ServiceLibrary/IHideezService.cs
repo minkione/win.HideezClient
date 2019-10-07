@@ -95,7 +95,7 @@ namespace ServiceLibrary
         void DeviceInitialized(DeviceDTO device);
 
         [OperationContract(IsOneWay = true)]
-        void DeviceAuthorized(DeviceDTO device);
+        void DeviceFinishedMainFlow(DeviceDTO device);
 
 
 

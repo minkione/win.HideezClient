@@ -1,5 +1,4 @@
 ﻿using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Utils;
@@ -62,17 +61,6 @@ namespace HideezMiddleware.DeviceConnection
         }
         #endregion
 
-        // Todo: Should be a private member
-        public void SetIgnoreList(string[] macArray)
-        {
-            lock (_lock)
-            {
-                _ignoreList.Clear();
-                _lastAdvRecTime.Clear();
-                _ignoreList.AddRange(macArray);
-            }
-        }
-
         public void Ignore(string mac)
         {
             lock (_lock)
@@ -88,10 +76,9 @@ namespace HideezMiddleware.DeviceConnection
         {
             lock (_lock)
             {
-                // Remove MAC's from ignore list if we did not receive an advertisement from them in MAC_IGNORELIST_TIMEOUT_SECONDS seconds
-                _ignoreList.RemoveAll(m => (DateTime.UtcNow - _lastAdvRecTime[m]).Seconds >= MAC_IGNORELIST_TIMEOUT_SECONDS);
+                RemoveTimedOutRecords();
 
-                return _ignoreList.Any(m => m == mac);
+                return _ignoreList.Any(m => m == MacUtils.GetMacFromShortMac(mac));
             }
         }
 
@@ -99,17 +86,29 @@ namespace HideezMiddleware.DeviceConnection
         {
             lock (_lock)
             {
-                var mac = MacUtils.GetMacFromShortMac(e.Id);
-                if (_ignoreList.Any(m => m == mac))
+                RemoveTimedOutRecords();
+
+                var shortMac = MacUtils.GetMacFromShortMac(e.Id);
+                if (_ignoreList.Any(m => m == shortMac))
                 {
                     var proximity = BleUtils.RssiToProximity(e.Rssi);
 
-                    var settings = _proximitySettingsManager.Settings.GetProximitySettings(mac);
+                    var settings = _proximitySettingsManager.Settings.GetProximitySettings(shortMac);
                     if (proximity <= settings.LockProximity)
-                        _ignoreList.Remove(mac);
+                        _ignoreList.Remove(shortMac);
                     else
-                        _lastAdvRecTime[mac] = DateTime.UtcNow;
+                        _lastAdvRecTime[shortMac] = DateTime.UtcNow;
                 }
+            }
+        }
+
+        void RemoveTimedOutRecords()
+        {
+            lock (_lock)
+            {
+                // Remove MAC's from ignore list if we did not receive an advertisement from them in MAC_IGNORELIST_TIMEOUT_SECONDS seconds
+                if (_ignoreList.Count > 0)
+                    _ignoreList.RemoveAll(m => (DateTime.UtcNow - _lastAdvRecTime[m]).Seconds >= MAC_IGNORELIST_TIMEOUT_SECONDS);
             }
         }
 

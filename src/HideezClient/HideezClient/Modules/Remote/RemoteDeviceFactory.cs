@@ -24,7 +24,7 @@ namespace HideezClient.Modules
         {
             var connectionId = await _serviceProxy.GetService().EstablishRemoteDeviceConnectionAsync(serialNo, channelNo);
 
-            var remoteCommands = new RemoteDeviceCommands(_serviceProxy);
+            var remoteCommands = new RemoteDeviceCommands(_serviceProxy, _messenger, _log);
             var remoteEvents = new RemoteDeviceEvents(_messenger);
 
             var device = new RemoteDevice(connectionId, remoteCommands, remoteEvents, _log);
