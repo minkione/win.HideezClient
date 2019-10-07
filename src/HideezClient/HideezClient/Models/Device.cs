@@ -10,6 +10,7 @@ using HideezClient.Modules;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using HideezClient.Utilities;
+using Microsoft.Win32;
 using MvvmExtensions.Attributes;
 using NLog;
 using System;
@@ -24,12 +25,12 @@ using System.Threading.Tasks;
 namespace HideezClient.Models
 {
     // Todo: Implement thread-safety lock for password manager and remote device
-    public class Device : ObservableObject
+    public class Device : ObservableObject, IDisposable
     {
         const int VERIFY_CHANNEL = 2;
         const int INIT_WAIT = 5_000;
         const int RETRY_DELAY = 2_500;
-        const int CREDENTIAL_TIMEOUT = 60_000;
+        readonly int CREDENTIAL_TIMEOUT = SdkConfig.MainWorkflowTimeout;
 
         readonly ILogger _log = LogManager.GetCurrentClassLogger();
         readonly IServiceProxy _serviceProxy;
@@ -58,7 +59,7 @@ namespace HideezClient.Models
         bool isStorageLoaded;
         int pinAttemptsRemain;
 
-        string faultMessage = string.Empty;
+        CancellationTokenSource authCancellationTokenSource;
 
         public Device(
             IServiceProxy serviceProxy, 
@@ -69,6 +70,8 @@ namespace HideezClient.Models
             _serviceProxy = serviceProxy;
             _remoteDeviceFactory = remoteDeviceFactory;
             _messenger = messenger;
+
+            SystemEvents.SessionSwitch += OnSessionSwitch;
 
             _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
             _messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
@@ -119,6 +122,7 @@ namespace HideezClient.Models
                 if (!isConnected)
                 {
                     CloseRemoteDeviceConnection();
+                    CancelDeviceAuthorization();
                 }
             }
         }
@@ -266,6 +270,11 @@ namespace HideezClient.Models
                 tcs.TrySetResult(obj.Pin);
         }
 
+        void OnSessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            CancelDeviceAuthorization();
+        }
+
 
         void LoadFrom(DeviceDTO dto)
         {
@@ -341,7 +350,7 @@ namespace HideezClient.Models
             }
         }
 
-        public async Task AuthorizeRemoteDevice()
+        public async Task AuthorizeRemoteDevice(CancellationToken ct)
         {
             if (!IsInitialized)
                 throw new HideezException(HideezErrorCode.ChannelNotInitialized); // Todo: proper exception
@@ -362,16 +371,15 @@ namespace HideezClient.Models
                 else if (_remoteDevice.AccessLevel.IsLinkRequired)
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
-                if (!await ButtonWorkflow())
-                    throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
+                if (await ButtonWorkflow(ct) && await PinWorkflow(ct))
+                {
+                    // check the button again as it may be outdated while PIN workflow was running
+                    await ButtonWorkflow(ct); //todo - fix FW
+                }
 
-                var pinTask = await PinWorkflow();
-
-                // check the button again as it may be outdated while PIN workflow was running
-                if (!await ButtonWorkflow())
-                    throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
-
-                if (IsAuthorized)
+                if (ct.IsCancellationRequested)
+                    ShowError($"Authorization cancelled for device ({SerialNo})", _errNid);
+                else if (IsAuthorized)
                     _log.Info($"Remote device ({_remoteDevice.Id}) is authorized");
                 else
                     ShowError($"Authorization for device ({SerialNo}) failed", _errNid);
@@ -403,38 +411,38 @@ namespace HideezClient.Models
             }
         }
 
-        async Task<bool> ButtonWorkflow()
+        async Task<bool> ButtonWorkflow(CancellationToken ct)
         {
             if (!_remoteDevice.AccessLevel.IsButtonRequired)
                 return true;
 
             ShowInfo("Please press the Button on your Hideez Key", _infNid);
             _messenger.Send(new ShowButtonConfirmUiMessage(Id));
-            var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT);
+            var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT, ct); 
             return res;
         }
 
-        Task<bool> PinWorkflow()
+        Task<bool> PinWorkflow(CancellationToken ct)
         {
             if (_remoteDevice.AccessLevel.IsNewPinRequired)
             {
-                return SetPinWorkflow();
+                return SetPinWorkflow(ct);
             }
             else if (_remoteDevice.AccessLevel.IsPinRequired)
             {
-                return EnterPinWorkflow();
+                return EnterPinWorkflow(ct);
             }
 
             return Task.FromResult(true);
         }
 
-        async Task<bool> SetPinWorkflow()
+        async Task<bool> SetPinWorkflow(CancellationToken ct)
         {
             bool pinOk = false;
             while (AccessLevel.IsNewPinRequired)
             {
                 ShowInfo("Please create new PIN code for your Hideez Key", _infNid);
-                var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, withConfirm:true);
+                var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, ct, withConfirm:true);
 
                 if (pin == null)
                     return false; // finished by timeout from the _ui.GetPin
@@ -453,7 +461,7 @@ namespace HideezClient.Models
             return pinOk;
         }
 
-        async Task<bool> EnterPinWorkflow()
+        async Task<bool> EnterPinWorkflow(CancellationToken ct)
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> EnterPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
@@ -461,7 +469,7 @@ namespace HideezClient.Models
             while (!AccessLevel.IsLocked)
             {
                 ShowInfo("Please enter the PIN code for your Hideez Key", _infNid);
-                var pin = await GetPin(Id, CREDENTIAL_TIMEOUT);
+                var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, ct);
 
                 if (pin == null)
                     return false; // finished by timeout from the _ui.GetPin
@@ -546,14 +554,24 @@ namespace HideezClient.Models
             IsStorageLoaded = false;
         }
 
+        public void CancelDeviceAuthorization()
+        {
+            authCancellationTokenSource?.Cancel();
+        }
+
         public async Task AuthorizeAndLoadStorage()
         {
             if (!IsAuthorizing && !IsLoadingStorage)
             {
                 try
                 {
-                    await AuthorizeRemoteDevice();
-                    await LoadStorage();
+                    authCancellationTokenSource = new CancellationTokenSource();
+                    var ct = authCancellationTokenSource.Token;
+
+                    await AuthorizeRemoteDevice(ct);
+
+                    if (!ct.IsCancellationRequested)
+                        await LoadStorage();
                 }
                 catch (FaultException<HideezServiceFault> ex)
                 {
@@ -563,10 +581,14 @@ namespace HideezClient.Models
                 {
                     _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
                 }
+                finally
+                {
+                    authCancellationTokenSource = null;
+                }
             }
         }
 
-        async Task<byte[]> GetPin(string deviceId, int timeout, bool withConfirm = false, bool askOldPin = false)
+        async Task<byte[]> GetPin(string deviceId, int timeout, CancellationToken ct, bool withConfirm = false, bool askOldPin = false)
         {
             _messenger.Send(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
 
@@ -577,7 +599,7 @@ namespace HideezClient.Models
 
             try
             {
-                return await tcs.Task.TimeoutAfter(timeout);
+                return await tcs.Task.TimeoutAfter(timeout, ct);
             }
             catch (TimeoutException)
             {
@@ -603,5 +625,34 @@ namespace HideezClient.Models
         {
             _messenger?.Send(new ShowWarningNotificationMessage(message, notificationId: notificationId));
         }
+
+        #region IDisposable Support
+        bool disposed = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                }
+
+                SystemEvents.SessionSwitch -= OnSessionSwitch;
+
+                disposed = true;
+            }
+        }
+
+        ~Device()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

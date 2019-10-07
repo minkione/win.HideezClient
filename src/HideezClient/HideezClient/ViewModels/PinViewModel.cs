@@ -321,6 +321,7 @@ namespace HideezClient.ViewModels
         void OnCancel()
         {
             _messenger.Send(new HidePinUiMessage());
+            Device.CancelDeviceAuthorization();
         }
 
         void ClearPasswordBoxes()

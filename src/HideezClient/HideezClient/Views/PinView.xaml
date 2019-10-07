@@ -27,6 +27,9 @@
     WindowStartupLocation="CenterScreen"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     Loaded="MetroWindow_Loaded"
+    ShowCloseButton="False"
+    ShowMinButton="False"
+    ShowMaxRestoreButton="False"
     mc:Ignorable="d">
     <Metro:MetroWindow.Resources>
         <Converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
