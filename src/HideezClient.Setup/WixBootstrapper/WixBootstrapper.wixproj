@@ -60,6 +60,7 @@
       <Link>Include.wxi</Link>
     </Content>
     <Content Include="readme.txt" />
+    <Content Include="redistr\redistr readme.txt" />
     <Content Include="redistr\vc_redist.x64.exe" />
     <Content Include="redistr\vc_redist.x86.exe" />
     <Content Include="Resources\1033\logo.png" />
