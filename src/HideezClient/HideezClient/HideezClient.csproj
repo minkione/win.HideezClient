@@ -463,10 +463,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Resources\Dictionaries\DropDownButton.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\Dialog\DeviceLockedView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
