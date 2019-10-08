@@ -45,7 +45,7 @@
             <Setter Property="HorizontalAlignment" Value="Center" />
             <Setter Property="TextAlignment" Value="Center" />
         </Style>
-        
+
         <Style x:Key="LabelTextBlockStyle" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TitleTextBlockStyle}">
             <Setter Property="FontSize" Value="14" />
             <Setter Property="HorizontalAlignment" Value="Left" />
@@ -60,15 +60,9 @@
             <Setter Property="CaretBrush" Value="White" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
-        
+
     </Metro:MetroWindow.Resources>
-    
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Closing">
-            <i:InvokeCommandAction Command="{Binding CancelCommand}" />
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
-    
+
     <Grid>
         <!-- Button UI -->
         <StackPanel Visibility="{Binding AskButton, Converter={StaticResource BooleanToVisibilityConverter}}">
