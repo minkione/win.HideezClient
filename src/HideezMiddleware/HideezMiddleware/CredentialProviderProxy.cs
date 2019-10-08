@@ -173,7 +173,7 @@ namespace HideezMiddleware
 
             try
             {
-                return await tcs.Task.TimeoutAfter(AppConfig.CredentialProviderLogonTimeout);
+                return await tcs.Task.TimeoutAfter(SdkConfig.CredentialProviderLogonTimeout);
             }
             catch(TimeoutException)
             {

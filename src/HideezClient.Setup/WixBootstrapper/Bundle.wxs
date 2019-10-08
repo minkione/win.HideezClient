@@ -59,7 +59,7 @@
     <bal:Condition Message="#(loc.UnsupportedOS)">
       <![CDATA[Installed OR (VersionNT >= v6.1)]]>
     </bal:Condition>
-
+    
     <!-- Detect InstallFolder of the previous installation -->
     <Variable Name="InstallFolder"
               Type="string"
@@ -72,6 +72,26 @@
     <Chain DisableSystemRestore="yes">
       <!-- Install .Net Framework 4.7.2 -->
       <PackageGroupRef Id="NetFx472Redist"/>
+
+      <!-- Install C++ 2019 Redistr -->
+      <ExePackage Cache="yes" Name="vc_redist.x64.exe"
+                  Permanent="yes"
+                  InstallCommand="/passive /norestart"
+                  InstallCondition="VersionNT64"
+                  Compressed="yes"
+                  SourceFile="redistr\vc_redist.x64.exe">
+        <ExitCode Value="3010" Behavior="success"/>
+        <ExitCode Value="1638" Behavior="success"/>
+      </ExePackage>
+      <ExePackage Cache="yes" Name="vc_redist.x86.exe"
+                  Permanent="yes"
+                  InstallCommand="/passive /norestart"
+                  InstallCondition="NOT VersionNT64"
+                  Compressed="yes"
+                  SourceFile="redistr\vc_redist.x86.exe">
+        <ExitCode Value="3010" Behavior="success"/>
+        <ExitCode Value="1638" Behavior="success"/>
+      </ExePackage>
 
       <MsiPackage DisplayInternalUI="no"                  
                   Name="setup_64"

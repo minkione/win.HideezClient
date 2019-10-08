@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Utils;
@@ -68,7 +69,7 @@ namespace HideezMiddleware.DeviceConnection
             if (adv == null)
                 return;
 
-            if (adv.Rssi > -27)
+            if (adv.Rssi > SdkConfig.TapProximityUnlockThreshold)
             {
                 if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
                 {

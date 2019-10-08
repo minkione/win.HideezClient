@@ -49,6 +49,7 @@
     </WixExtension>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="redistr" />
     <Folder Include="Resources" />
     <Folder Include="Resources\1033" />
     <Folder Include="Resources\1049" />
@@ -59,6 +60,9 @@
       <Link>Include.wxi</Link>
     </Content>
     <Content Include="readme.txt" />
+    <Content Include="redistr\redistr readme.txt" />
+    <Content Include="redistr\vc_redist.x64.exe" />
+    <Content Include="redistr\vc_redist.x86.exe" />
     <Content Include="Resources\1033\logo.png" />
     <Content Include="Resources\1049\HideezTheme.xml" />
     <Content Include="Resources\1049\logo.png" />
