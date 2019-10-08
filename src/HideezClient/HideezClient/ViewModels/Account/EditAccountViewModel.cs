@@ -34,6 +34,7 @@ namespace HideezClient.ViewModels
 
         public EditAccountViewModel(DeviceViewModel device)
         {
+            AccountRecord = new AccountRecord();
             this.device = device;
             InitDependencies();
         }
@@ -41,6 +42,18 @@ namespace HideezClient.ViewModels
         public EditAccountViewModel(DeviceViewModel device, AccountRecord accountRecord)
         {
             this.device = device;
+            AccountRecord = new AccountRecord
+            {
+                Key = accountRecord.Key,
+                Flags = accountRecord.Flags,
+                Name = accountRecord.Name,
+                Login = accountRecord.Login,
+                Password = accountRecord.Password,
+                OtpSecret = accountRecord.OtpSecret,
+                Apps = accountRecord.Apps,
+                Urls = accountRecord.Urls,
+                IsPrimary = accountRecord.IsPrimary,
+            };
             InitProp(accountRecord);
             InitDependencies();
         }
@@ -50,14 +63,12 @@ namespace HideezClient.ViewModels
             Application.Current.MainWindow.Activated += WeakEventHandler.Create(this, (@this, o, args) => Task.Run(@this.UpdateAppsAndUrls));
 
             this.WhenAnyValue(vm => vm.Name, vm => vm.Login, vm => vm.HasOpt, vm => vm.OtpSecret)
-                .Where(_ => IsEditable)
                 .Subscribe(_ => HasChanges = true);
 
             this.WhenAnyValue(vm => vm.SelectedApp).Subscribe(OnAppSelected);
             this.WhenAnyValue(vm => vm.SelectedUrl).Subscribe(OnUrlSelected);
 
             Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(AppsAndUrls, nameof(ObservableCollection<string>.CollectionChanged))
-                       .Where(_ => IsEditable)
                       .Subscribe(change => AppsOrUrlsCollectonChanges());
 
             OpenedApps.Add(loadingAppInfo);
@@ -130,10 +141,6 @@ namespace HideezClient.ViewModels
 
         private void InitProp(AccountRecord accountRecord)
         {
-            Name = accountRecord.Name;
-            Login = accountRecord.Login;
-            HasOpt = accountRecord.HasOtp;
-
             if (accountRecord.Apps != null)
             {
                 AppsAndUrls.AddRange(AccountUtility.Split(accountRecord.Apps).Select(u => new AppViewModel(u)));
@@ -144,12 +151,68 @@ namespace HideezClient.ViewModels
             }
         }
 
-        [Reactive] public bool IsEditable { get; set; } = true;
         [Reactive] public bool HasChanges { get; set; }
-        [Reactive] public string Name { get; set; }
-        [Reactive] public string Login { get; set; }
-        [Reactive] public bool HasOpt { get; protected set; }
-        [Reactive] public string OtpSecret { get; set; }
+        public string Name
+        {
+            get { return AccountRecord.Name; }
+            set
+            {
+                if (AccountRecord.Name != value)
+                {
+                    AccountRecord.Name = value;
+                    this.RaisePropertyChanged(nameof(Name));
+                }
+            }
+        }
+        public string Password
+        {
+            get { return AccountRecord.Password; }
+            set
+            {
+                if (AccountRecord.Password != value)
+                {
+                    AccountRecord.Password = value;
+                    this.RaisePropertyChanged(nameof(Password));
+                }
+            }
+        }
+        public string Login
+        {
+            get { return AccountRecord.Login; }
+            set
+            {
+                if (AccountRecord.Login != value)
+                {
+                    AccountRecord.Login = value;
+                    this.RaisePropertyChanged(nameof(Login));
+                }
+            }
+        }
+        public bool HasOpt { get { return AccountRecord.HasOtp; } }
+        public string OtpSecret
+        {
+            get { return AccountRecord.OtpSecret; }
+            set
+            {
+                if (AccountRecord.OtpSecret != value)
+                {
+                    AccountRecord.OtpSecret = value;
+                    this.RaisePropertyChanged(nameof(OtpSecret));
+                }
+            }
+        }
+        public bool IsPrimary
+        {
+            get { return AccountRecord.IsPrimary; }
+            set
+            {
+                if (AccountRecord.IsPrimary != value)
+                {
+                    AccountRecord.IsPrimary = value;
+                    this.RaisePropertyChanged(nameof(IsPrimary));
+                }
+            }
+        }
 
         public IEnumerable<string> Apps { get { return AppsAndUrls.Where(x => !x.IsUrl).Select(x => x.Title); } }
         public IEnumerable<string> Urls { get { return AppsAndUrls.Where(x => x.IsUrl).Select(x => x.Title); } }
@@ -160,6 +223,8 @@ namespace HideezClient.ViewModels
 
         [Reactive] public AppInfo SelectedApp { get; set; }
         [Reactive] public AppInfo SelectedUrl { get; set; }
+
+        public AccountRecord AccountRecord { get; }
 
         #region Command
 
@@ -313,13 +378,11 @@ namespace HideezClient.ViewModels
 
         private void OnCancel()
         {
-            IsEditable = false;
             HasChanges = false;
         }
 
         private void OnUpdateAccount()
         {
-            IsEditable = false;
             HasChanges = false;
         }
 
@@ -373,6 +436,8 @@ namespace HideezClient.ViewModels
         private void AppsOrUrlsCollectonChanges()
         {
             HasChanges = true;
+            AccountRecord.Apps = AccountUtility.JoinAppsOrUrls(Apps);
+            AccountRecord.Urls = AccountUtility.JoinAppsOrUrls(Urls);
             this.RaisePropertyChanged(nameof(Urls));
             this.RaisePropertyChanged(nameof(Apps));
         }

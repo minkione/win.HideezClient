@@ -63,7 +63,6 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
         <StackPanel
@@ -97,106 +96,134 @@
                 FontSize="18"
                 Text="{Binding Name}" />
 
-            <!--  Icons  -->
-            <iconPacks:PackIconModern
-                x:Name="noConnectionIco"
-                Width="16"
-                Height="22"
-                Margin="8,0,0,2"
-                Foreground="{DynamicResource DisconnectedBrush}"
-                Kind="Connect"
-                Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
+            <StackPanel
+                x:Name="IconsContainer"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-            <Grid
-                x:Name="connectionQuality"
-                Grid.Row="1"
-                Grid.Column="4"
-                Width="24"
-                Margin="6,0,0,0"
-                Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Viewbox
-                    Width="Auto"
-                    Height="Auto"
-                    SnapsToDevicePixels="True">
-                    <Canvas Width="24.000" Height="24.000">
-                        <Path
-                            Data="F1 M 5.000,16.000 L 7.000,16.000 L 7.000,20.000 L 5.000,20.000 L 5.000,16.000 Z"
-                            Fill="#ffffffff"
-                            Opacity="{Binding Proximity, ConverterParameter=20, Converter={StaticResource ProximityToOpacityConverter}}" />
-                        <Path
-                            Data="F1 M 9.000,12.000 L 11.000,12.000 L 11.000,20.000 L 9.000,20.000 L 9.000,12.000 Z"
-                            Fill="#ffffffff"
-                            Opacity="{Binding Proximity, ConverterParameter=40, Converter={StaticResource ProximityToOpacityConverter}}" />
-                        <Path
-                            Data="F1 M 13.000,8.000 L 15.000,8.000 L 15.000,20.000 L 13.000,20.000 L 13.000,8.000 Z"
-                            Fill="#ffffffff"
-                            Opacity="{Binding Proximity, ConverterParameter=60, Converter={StaticResource ProximityToOpacityConverter}}" />
-                        <Path
-                            Data="F1 M 17.000,4.000 L 19.000,4.000 L 19.000,20.000 L 17.000,20.000 L 17.000,4.000 Z"
-                            Fill="#ffffffff"
-                            Opacity="{Binding Proximity, ConverterParameter=80, Converter={StaticResource ProximityToOpacityConverter}}" />
-                    </Canvas>
-                </Viewbox>
-            </Grid>
+                <!--  Icons  -->
+                <iconPacks:PackIconModern
+                    x:Name="noConnectionIco"
+                    Width="16"
+                    Height="22"
+                    Margin="8,0,0,2"
+                    Foreground="{DynamicResource DisconnectedBrush}"
+                    Kind="Connect"
+                    Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
 
-            <TextBlock
-                Width="43"
-                VerticalAlignment="Stretch"
-                FontSize="18"
-                Text="{Binding Proximity, StringFormat='{}{0,3}%'}"
-                TextAlignment="Right"
-                ToolTip="Device proximity level"
-                Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <Grid
+                    x:Name="connectionQuality"
+                    Grid.Row="1"
+                    Grid.Column="4"
+                    Width="24"
+                    Margin="6,0,0,0"
+                    Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Viewbox
+                        Width="Auto"
+                        Height="Auto"
+                        SnapsToDevicePixels="True">
+                        <Canvas Width="24.000" Height="24.000">
+                            <Path
+                                Data="F1 M 5.000,16.000 L 7.000,16.000 L 7.000,20.000 L 5.000,20.000 L 5.000,16.000 Z"
+                                Fill="#ffffffff"
+                                Opacity="{Binding Proximity, ConverterParameter=20, Converter={StaticResource ProximityToOpacityConverter}}" />
+                            <Path
+                                Data="F1 M 9.000,12.000 L 11.000,12.000 L 11.000,20.000 L 9.000,20.000 L 9.000,12.000 Z"
+                                Fill="#ffffffff"
+                                Opacity="{Binding Proximity, ConverterParameter=40, Converter={StaticResource ProximityToOpacityConverter}}" />
+                            <Path
+                                Data="F1 M 13.000,8.000 L 15.000,8.000 L 15.000,20.000 L 13.000,20.000 L 13.000,8.000 Z"
+                                Fill="#ffffffff"
+                                Opacity="{Binding Proximity, ConverterParameter=60, Converter={StaticResource ProximityToOpacityConverter}}" />
+                            <Path
+                                Data="F1 M 17.000,4.000 L 19.000,4.000 L 19.000,20.000 L 17.000,20.000 L 17.000,4.000 Z"
+                                Fill="#ffffffff"
+                                Opacity="{Binding Proximity, ConverterParameter=80, Converter={StaticResource ProximityToOpacityConverter}}" />
+                        </Canvas>
+                    </Viewbox>
+                </Grid>
 
-            <StackPanel>
-                <StackPanel
-                    x:Name="IconsContainer"
+                <TextBlock
+                    Width="43"
+                    VerticalAlignment="Stretch"
+                    FontSize="18"
+                    Text="{Binding Proximity, StringFormat='{}{0,3}%'}"
+                    TextAlignment="Right"
+                    ToolTip="Device proximity level"
+                    Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                <iconPacks:PackIconModern
+                    x:Name="ConnectingIco"
+                    Width="16"
+                    Height="22"
+                    Margin="8,0,0,2"
                     VerticalAlignment="Center"
-                    Orientation="Horizontal"
-                    Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <iconPacks:PackIconModern
-                        x:Name="ConnectingIco"
-                        Width="16"
-                        Height="22"
-                        Margin="8,0,0,2"
-                        Foreground="{DynamicResource InitializingBrush}"
-                        Kind="Disconnect"
-                        ToolTip="Connecting device"
-                        Visibility="{Binding IsInitializing, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <iconPacks:PackIconOcticons
-                        x:Name="Sync"
-                        Width="16"
-                        Height="22"
-                        Margin="8,0,0,2"
-                        Foreground="{DynamicResource InitializingBrush}"
-                        Kind="Sync"
-                        ToolTip="Loading storage"
-                        Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    Foreground="{DynamicResource InitializingBrush}"
+                    Kind="Disconnect"
+                    ToolTip="Connecting device"
+                    Visibility="{Binding IsInitializing, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <iconPacks:PackIconOcticons
+                    x:Name="Sync"
+                    Width="16"
+                    Height="22"
+                    Margin="8,0,0,2"
+                    VerticalAlignment="Center"
+                    Foreground="{DynamicResource InitializingBrush}"
+                    Kind="Sync"
+                    ToolTip="Loading storage"
+                    Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                    <StackPanel>
-                        <StackPanel.Visibility>
-                            <MultiBinding Converter="{StaticResource LowBatteryIndicatorVisibilityConverter}">
-                                <Binding Path="IsConnected" />
-                                <Binding Path="Battery" />
-                            </MultiBinding>
-                        </StackPanel.Visibility>
-                        <iconPacks:PackIconModern
-                            Width="16"
-                            Height="22"
-                            Margin="8,-5,0,0"
-                            Foreground="{DynamicResource LowBatteryIndicatorBrush}"
-                            Kind="Battery1" />
+                <iconPacks:PackIconModern
+                    Width="24"
+                    Height="24"
+                    Margin="8,2,0,0"
+                    VerticalAlignment="Center"
+                    Foreground="{DynamicResource LowBatteryIndicatorBrush}"
+                    Kind="Battery1">
+                    <iconPacks:PackIconModern.Visibility>
+                        <MultiBinding Converter="{StaticResource LowBatteryIndicatorVisibilityConverter}">
+                            <Binding Path="IsConnected" />
+                            <Binding Path="Battery" />
+                        </MultiBinding>
+                    </iconPacks:PackIconModern.Visibility>
+                </iconPacks:PackIconModern>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel
+            Grid.Row="2"
+            Grid.ColumnSpan="2"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Orientation="Horizontal">
+            <!--  Connect and Disconnect button  -->
+            <StackPanel
+                x:Name="ConnectionsMenu"
+                Opacity="0.0"
+                Orientation="Horizontal">
+
+                <Border mah:VisibilityHelper.IsVisible="{Binding IsConnected}">
+                    <Button DataContext="{Binding DisconnectDeviceMenu}" Style="{StaticResource IconButtonStyle}">
                         <iconPacks:PackIconMaterial
-                            Width="16"
-                            Height="22"
-                            Margin="20,-13,0,0"
-                            Foreground="{DynamicResource LowBatteryIndicatorBrush}"
-                            Kind="Alert" />
-                    </StackPanel>
-                </StackPanel>
+                            Margin="3"
+                            Foreground="{DynamicResource WindowBackground}"
+                            Kind="LinkVariantOff" />
+                    </Button>
+                </Border>
+
+                <Button
+                    Margin="2,0,2,0"
+                    DataContext="{Binding RemoveDeviceMenu}"
+                    Style="{StaticResource IconButtonStyle}">
+                    <iconPacks:PackIconFontAwesome
+                        Margin="3"
+                        Foreground="{DynamicResource DisconnectedBrush}"
+                        Kind="TrashSolid" />
+                </Button>
             </StackPanel>
 
-            <Border Margin="8,0,5,0">
+            <Border Margin="2,0,2,0">
                 <Border.Style>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="Visibility" Value="Collapsed" />
@@ -226,35 +253,6 @@
                         ToolTip="Not authorized" />
                 </Button>
             </Border>
-        </StackPanel>
-
-        <!--  Connect and Disconnect button  -->
-        <StackPanel
-            x:Name="ConnectionsMenu"
-            Grid.Row="2"
-            Grid.Column="3"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Center"
-            Opacity="0.0"
-            Orientation="Horizontal">
-
-            <Border Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Button DataContext="{Binding DisconnectDeviceMenu}" Style="{StaticResource IconButtonStyle}">
-                    <iconPacks:PackIconMaterial
-                        Margin="3"
-                        Foreground="{DynamicResource WindowBackground}"
-                        Kind="LinkVariantOff" />
-                </Button>
-            </Border>
-            <Button
-                Margin="5,0,5,0"
-                DataContext="{Binding RemoveDeviceMenu}"
-                Style="{StaticResource IconButtonStyle}">
-                <iconPacks:PackIconFontAwesome
-                    Margin="3"
-                    Foreground="{DynamicResource DisconnectedBrush}"
-                    Kind="TrashSolid" />
-            </Button>
         </StackPanel>
 
         <TextBlock

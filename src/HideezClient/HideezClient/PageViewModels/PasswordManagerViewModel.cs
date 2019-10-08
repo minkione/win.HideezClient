@@ -48,6 +48,7 @@ namespace HideezClient.PageViewModels
                       .Subscribe(change => SelectedAccount = Accounts.FirstOrDefault());
         }
 
+        [Reactive] public bool IsAvailable { get; set; }
         [Reactive] public DeviceViewModel Device { get; set; }
         [Reactive] public AccountInfoViewModel SelectedAccount { get; set; }
         [Reactive] public EditAccountViewModel EditAccount { get; set; }
@@ -143,18 +144,9 @@ namespace HideezClient.PageViewModels
 
         private void OnSaveAccount(SecureString password)
         {
-            Device.SaveOrUpdateAccount(0, EditAccount.Name, password.GetAsString(), EditAccount.Login, EditAccount.OtpSecret, string.Join(";", EditAccount.Apps), string.Join(";", EditAccount.Urls));
-
-            //string message ="";
-
-            //message += $"Account Name: {EditAccount.Name}\n";
-            //message += $"Login: {EditAccount.Login}\n";
-            //message += $"Password: {password}\n";
-            //message += $"AppsAndUrls: {string.Join(";", EditAccount.AppsAndUrls)}\n";
-            //message += $"OtpSecret: {EditAccount.OtpSecret}\n";
-
-
-            //MessageBox.Show(message);
+            IsAvailable = false;
+            EditAccount.Password = password.GetAsString();
+            Device.SaveOrUpdateAccount(EditAccount.AccountRecord);
         }
 
         private void OnDeviceChanged()
@@ -170,7 +162,8 @@ namespace HideezClient.PageViewModels
 
         private void OnDeleteAccount()
         {
-            Accounts.Remove(SelectedAccount);
+            IsAvailable = false;
+            Device.DeleteAccount(SelectedAccount.AccountRecord);
             EditAccount = null;
         }
 
@@ -189,12 +182,14 @@ namespace HideezClient.PageViewModels
 
         private void OnFilterAccount()
         {
-            var filteredAccounts = Device.Accounts.Where(a => Contains(a, SearchQuery));
+            var filteredAccounts = Device.Accounts.Where(a => a.CanVisible).Where(a => Contains(a, SearchQuery));
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Accounts.RemoveMany(Accounts.Except(filteredAccounts));
                 Accounts.AddRange(filteredAccounts.Except(Accounts));
             });
+
+            IsAvailable = true;
         }
         private bool Contains(AccountInfoViewModel account, string value)
         {
