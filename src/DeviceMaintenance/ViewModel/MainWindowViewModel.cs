@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.ServiceProcess;
 using System.Threading.Tasks;
 using System.Timers;
@@ -47,6 +48,15 @@ namespace DeviceMaintenance.ViewModel
             {
                 _hideezServiceController = value;
                 NotifyPropertyChanged();
+            }
+        }
+
+        public string Title
+        {
+            get
+            {
+                var assembly = Assembly.GetExecutingAssembly().GetName();
+                return $"{assembly.Name} v{assembly.Version.ToString()}";
             }
         }
 

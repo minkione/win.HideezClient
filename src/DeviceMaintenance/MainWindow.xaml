@@ -8,7 +8,7 @@
     xmlns:controls="clr-namespace:DeviceMaintenance.Controls" 
     x:Class="DeviceMaintenance.MainWindow"
     mc:Ignorable="d"
-    Title="Device maintenance application" 
+    Title="{Binding Title}" 
     Height="450" 
     Width="800"
     Background="{DynamicResource NotificationLeftColumnBrush}"

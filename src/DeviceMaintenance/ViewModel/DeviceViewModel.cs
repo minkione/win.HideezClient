@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.FW;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
@@ -23,7 +23,7 @@ namespace DeviceMaintenance.ViewModel
         public bool IsConnected => Device?.IsConnected ?? false;
         public int ChannelNo => Device?.ChannelNo ?? 0;
 
-        public ConnectionState ConnectionState => Device?.Connection.State ?? ConnectionState.NotConnected;
+        public ConnectionState ConnectionState => Device.IsConnected == true ? ConnectionState.Connected : ConnectionState.NotConnected;
 
         public string SerialNo => Device?.SerialNo ?? _mac;
         public Version FirmwareVersion => Device?.FirmwareVersion;
