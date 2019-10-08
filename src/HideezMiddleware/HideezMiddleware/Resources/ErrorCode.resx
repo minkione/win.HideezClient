@@ -139,7 +139,7 @@
     <value>Bluetooth sending error</value>
   </data>
   <data name="ChannelNotFound" xml:space="preserve">
-    <value>Channel not found</value>
+    <value>Channel {0} not found</value>
   </data>
   <data name="DeviceNotConnectedToAnyHost" xml:space="preserve">
     <value>Remote device is not connected to any host</value>
@@ -193,7 +193,7 @@
     <value>Not connected to HES</value>
   </data>
   <data name="InvalidChannelNo" xml:space="preserve">
-    <value>Invalid channel number</value>
+    <value>Invalid channel number:  {0} </value>
   </data>
   <data name="InvalidMessageSignuture" xml:space="preserve">
     <value>Invalid message signature</value>
@@ -325,31 +325,31 @@
     <value>Button confirmation timed out</value>
   </data>
   <data name="ChannelAlreadyExists" xml:space="preserve">
-    <value>Channel already exists</value>
+    <value>Channel {0} already exists</value>
   </data>
   <data name="ChannelAlreadyVerified" xml:space="preserve">
-    <value>Channel already verified</value>
+    <value>Channel {0} already verified</value>
   </data>
   <data name="ChannelInitializationFailed" xml:space="preserve">
-    <value>Channel initialization failed</value>
+    <value>Channel {0} initialization failed</value>
   </data>
   <data name="ChannelNotAuthorized" xml:space="preserve">
-    <value>Channel not authorized</value>
+    <value>Channel {0} not authorized</value>
   </data>
   <data name="ChannelNotInitialized" xml:space="preserve">
-    <value>Channel is not initialized</value>
+    <value>Channel {0} is not initialized</value>
   </data>
   <data name="ChannelNotVerified" xml:space="preserve">
-    <value>Channel is not verified</value>
+    <value>Channel {0} is not verified</value>
   </data>
   <data name="ChannelVerificationFailed" xml:space="preserve">
-    <value>Channel verification failed</value>
+    <value>Channel {0} verification failed</value>
   </data>
   <data name="ChannelVerificationInProgress" xml:space="preserve">
-    <value>Channel verification in progress</value>
+    <value>Channel {0} verification in progress</value>
   </data>
   <data name="ChannelVerificationTimedOut" xml:space="preserve">
-    <value>Channel verification timeout</value>
+    <value>Channel {0} verification timeout</value>
   </data>
   <data name="DeviceAlreadyExists" xml:space="preserve">
     <value>Device already exists</value>
@@ -415,7 +415,7 @@
     <value>Invalid flags mask</value>
   </data>
   <data name="RemoteChannelNotVerified" xml:space="preserve">
-    <value>Remote channel  is not verified</value>
+    <value>Remote channel {0} is not verified</value>
   </data>
   <data name="StorageWriteError" xml:space="preserve">
     <value>Failed to write the storage</value>
@@ -428,5 +428,11 @@
   </data>
   <data name="DeviceHasBeenWiped" xml:space="preserve">
     <value>The device has been wiped. Try to connect it again.</value>
+  </data>
+  <data name="HesDeviceNotAssignedToAnyUser" xml:space="preserve">
+    <value>This device is not assigned to any user. Contact your system administrator.</value>
+  </data>
+  <data name="GetPinTimeout" xml:space="preserve">
+    <value>PIN request from the user has been timed out</value>
   </data>
 </root>

@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
-using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
+using Microsoft.Win32;
 
 namespace HideezMiddleware
 {
@@ -17,7 +17,6 @@ namespace HideezMiddleware
     {
         public const string FLOW_FINISHED_PROP = "MainFlowFinished"; 
 
-        const int CONNECT_RETRY_DELAY = 1000;
         readonly BleDeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
         readonly IScreenActivator _screenActivator;
@@ -27,6 +26,7 @@ namespace HideezMiddleware
         int _isConnecting = 0;
         string _infNid = string.Empty; // Notification Id, which must be the same for the entire duration of MainWorkflow
         string _errNid = string.Empty; // Error Notification Id
+        CancellationTokenSource _cts;
 
         public event EventHandler<IDevice> DeviceFinishedMainFlow;
 
@@ -43,6 +43,18 @@ namespace HideezMiddleware
             _screenActivator = screenActivator;
             _ui = ui;
             _hesConnection = hesConnection;
+
+            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
+        }
+
+        void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            Cancel();
+        }
+
+        public void Cancel()
+        {
+            _cts?.Cancel();
         }
 
         public async Task<ConnectionFlowResult> ConnectAndUnlock(string mac)
@@ -52,13 +64,16 @@ namespace HideezMiddleware
             {
                 try
                 {
-                    return await MainWorkflow(mac);
+                    _cts = new CancellationTokenSource();
+                    return await MainWorkflow(mac, _cts.Token);
                 }
                 finally
                 {
                     // this delay allows a user to move away the device from the dongle or RFID
                     // and prevents the repeated call of this method
-                    await Task.Delay(1500);
+                    await Task.Delay(SdkConfig.DelayAfterMainWorkflow);
+                    
+                    _cts = null;
 
                     Interlocked.Exchange(ref _isConnecting, 0);
                 }
@@ -67,11 +82,11 @@ namespace HideezMiddleware
             return new ConnectionFlowResult();
         }
 
-        async Task<ConnectionFlowResult> MainWorkflow(string mac)
+        async Task<ConnectionFlowResult> MainWorkflow(string mac, CancellationToken ct)
         {
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
-            var existingDevice = _deviceManager.Find(mac, 1); // Todo: Replace channel magic number <1> with defined const
+            var existingDevice = _deviceManager.Find(mac, (int)DefaultDeviceChannel.Main); 
             if (existingDevice != null && existingDevice.IsConnected)
                 return new ConnectionFlowResult();
 
@@ -91,7 +106,13 @@ namespace HideezMiddleware
                 await _ui.SendError("", _errNid);
 
                 _screenActivator?.ActivateScreen();
-                device = await ConnectDevice(mac);
+                device = await ConnectDevice(mac, ct);
+
+                device.Disconnected += (object sender, EventArgs e) =>
+                {
+                    // cancel the workflow if the device disconnects
+                    Cancel();
+                };
 
                 await WaitDeviceInitialization(mac, device);
 
@@ -116,28 +137,25 @@ namespace HideezMiddleware
                     await _hesConnection.FixDevice(device);
                 }
 
-                const int timeout = 120_000;
+                int timeout = SdkConfig.MainWorkflowTimeout;
 
-                await MasterKeyWorkflow(device, timeout);
+                await MasterKeyWorkflow(device, ct);
 
                 if (_workstationUnlocker.IsConnected)
                 {
-                    if (!await ButtonWorkflow(device, timeout))
-                        throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
-
-                    await PinWorkflow(device, timeout);
-
-                    // check the button again as it may be outdated while PIN workflow was running
-                    if (!await ButtonWorkflow(device, timeout))
-                        throw new HideezException(HideezErrorCode.ButtonConfirmationTimeout);
-
-                    if (!device.AccessLevel.IsLocked &&
-                        !device.AccessLevel.IsButtonRequired &&
-                        !device.AccessLevel.IsPinRequired &&
-                        !device.AccessLevel.IsNewPinRequired)
+                    if (await ButtonWorkflow(device, timeout, ct) && await PinWorkflow(device, timeout, ct))
                     {
-                        success = await TryUnlockWorkstation(device);
-                        flowResult.UnlockSuccessful = success;
+                        // check the button again as it may be outdated while PIN workflow was running
+                        await ButtonWorkflow(device, timeout, ct);//todo - fix FW
+
+                        if (!device.AccessLevel.IsLocked &&
+                            !device.AccessLevel.IsButtonRequired &&
+                            !device.AccessLevel.IsPinRequired &&
+                            !device.AccessLevel.IsNewPinRequired)
+                        {
+                            success = await TryUnlockWorkstation(device);
+                            flowResult.UnlockSuccessful = success;
+                        }
                     }
                 }
                 else
@@ -268,51 +286,50 @@ namespace HideezMiddleware
             return false;
         }
 
-        async Task MasterKeyWorkflow(IDevice device, int timeout)
+        async Task MasterKeyWorkflow(IDevice device, CancellationToken ct)
         {
             if (!device.AccessLevel.IsMasterKeyRequired)
                 return;
+
+            ct.ThrowIfCancellationRequested();
 
             await _ui.SendNotification("Waiting for HES authorization...", _infNid);
             await _hesConnection.FixDevice(device);
             await _ui.SendNotification("", _infNid);
         }
 
-        async Task<bool> ButtonWorkflow(IDevice device, int timeout)
+        async Task<bool> ButtonWorkflow(IDevice device, int timeout, CancellationToken ct)
         {
             if (!device.AccessLevel.IsButtonRequired)
                 return true;
 
             await _ui.SendNotification("Please press the Button on your Hideez Key", _infNid);
             await _ui.ShowButtonConfirmUi(device.Id);
-            var res = await device.WaitButtonConfirmation(timeout);
+            var res = await device.WaitButtonConfirmation(timeout, ct);
             return res;
         }
 
-        Task<bool> PinWorkflow(IDevice device, int timeout)
+        Task<bool> PinWorkflow(IDevice device, int timeout, CancellationToken ct)
         {
             if (device.AccessLevel.IsNewPinRequired)
             {
-                return SetPinWorkflow(device, timeout);
+                return SetPinWorkflow(device, timeout, ct);
             }
             else if (device.AccessLevel.IsPinRequired)
             {
-                return EnterPinWorkflow(device, timeout);
+                return EnterPinWorkflow(device, timeout, ct);
             }
 
             return Task.FromResult(true);
         }
 
-        async Task<bool> SetPinWorkflow(IDevice device, int timeout)
+        async Task<bool> SetPinWorkflow(IDevice device, int timeout, CancellationToken ct)
         {
             bool res = false;
             while (device.AccessLevel.IsNewPinRequired)
             {
                 await _ui.SendNotification("Please create new PIN code for your Hideez Key", _infNid);
-                string pin = await _ui.GetPin(device.Id, timeout, withConfirm: true);
-
-                if (pin == null)
-                    return false; // finished by timeout from the _ui.GetPin
+                string pin = await _ui.GetPin(device.Id, timeout, ct, withConfirm: true);
 
                 if (string.IsNullOrWhiteSpace(pin))
                 {
@@ -327,7 +344,7 @@ namespace HideezMiddleware
             return res;
         }
 
-        async Task<bool> EnterPinWorkflow(IDevice device, int timeout)
+        async Task<bool> EnterPinWorkflow(IDevice device, int timeout, CancellationToken ct)
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> EnterPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
@@ -335,10 +352,7 @@ namespace HideezMiddleware
             while (!device.AccessLevel.IsLocked)
             {
                 await _ui.SendNotification("Please enter the PIN code for your Hideez Key", _infNid);
-                string pin = await _ui.GetPin(device.Id, timeout);
-
-                if (pin == null)
-                    return false; // finished by timeout from the _ui.GetPin
+                string pin = await _ui.GetPin(device.Id, timeout, ct);
 
                 Debug.WriteLine($">>>>>>>>>>>>>>> PIN: {pin}");
                 if (string.IsNullOrWhiteSpace(pin))
@@ -370,25 +384,26 @@ namespace HideezMiddleware
             return res;
         }
 
-        async Task<IDevice> ConnectDevice(string mac)
+        async Task<IDevice> ConnectDevice(string mac, CancellationToken ct)
         {
+            ct.ThrowIfCancellationRequested();
             await _ui.SendNotification("Connecting to the device...", _infNid);
 
             var device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
 
             if (device == null)
             {
-                await Task.Delay(CONNECT_RETRY_DELAY); // Wait one second before trying to connect device again
+                ct.ThrowIfCancellationRequested();
                 await _ui.SendNotification("Connection failed. Retrying...", _infNid);
-                device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
+                device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout / 2);
             }
 
             if (device == null)
             {
+                ct.ThrowIfCancellationRequested();
                 // remove the bond and try one more time
                 await _deviceManager.RemoveByMac(mac);
                 await _ui.SendNotification("Connection failed. Trying re-bond the device...", _infNid);
-                await Task.Delay(CONNECT_RETRY_DELAY); // Wait one second before trying to connect device again
                 device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
             }
 
@@ -408,26 +423,9 @@ namespace HideezMiddleware
             if (device.IsErrorState)
             {
                 await _deviceManager.Remove(device);
-                throw new Exception($"Failed to initialize device connection '{mac}'. Please try again.");
+                throw new Exception($"Failed to initialize device connection '{mac}' ({device.ErrorMessage}). Please try again.");
             }
         }
-
-        //async Task WaitForRemoteDeviceUpdate(string serialNo) //todo - refactor to use callbacks from server
-        //{
-        //    if (_hesConnection.State != HesConnectionState.Connected)
-        //        throw new Exception("Cannot update device. Not connected to the HES.");
-
-        //    DeviceInfoDto info;
-        //    for (int i = 0; i < 10; i++)
-        //    {
-        //        info = await _hesConnection.GetInfoBySerialNo(serialNo);
-        //        if (info.NeedUpdate == false)
-        //            return;
-        //        await Task.Delay(3000);
-        //    }
-
-        //    throw new Exception($"Remote device update has been timed out");
-        //}
 
         async Task<Credentials> GetCredentials(IDevice device)
         {
@@ -477,19 +475,5 @@ namespace HideezMiddleware
             return credentials;
         }
 
-        void ActivateWorkstationScreen()
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    _screenActivator?.ActivateScreen();
-                }
-                catch (Exception ex)
-                {
-                    WriteLine(ex);
-                }
-            });
-        }
     }
 }

@@ -27,6 +27,9 @@
     WindowStartupLocation="CenterScreen"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     Loaded="MetroWindow_Loaded"
+    ShowCloseButton="False"
+    ShowMinButton="False"
+    ShowMaxRestoreButton="False"
     mc:Ignorable="d">
     <Metro:MetroWindow.Resources>
         <Converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -96,6 +99,12 @@
                 Width="30"
                 Height="30"
                 Foreground="White" />
+            <Button
+                Margin="10"
+                HorizontalAlignment="Center"
+                Style="{StaticResource ButtonBlue}"
+                Command="{Binding CancelCommand}"
+                Content="{l:Localization Button.Cancel}" />
         </StackPanel>
 
         <!-- PIN UI -->
