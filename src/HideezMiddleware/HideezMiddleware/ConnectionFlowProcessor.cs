@@ -72,7 +72,8 @@ namespace HideezMiddleware
                     // this delay allows a user to move away the device from the dongle or RFID
                     // and prevents the repeated call of this method
                     await Task.Delay(SdkConfig.DelayAfterMainWorkflow);
-                    
+
+                    _cts.Dispose();
                     _cts = null;
 
                     Interlocked.Exchange(ref _isConnecting, 0);

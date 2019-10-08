@@ -63,6 +63,8 @@ namespace WinSampleApp.ViewModel
         }
 
         string _data;
+        private DevicePasswordManager _pm;
+
         public string Data
         {
             get
@@ -461,10 +463,12 @@ namespace WinSampleApp.ViewModel
             try
             {
                 Mouse.OverrideCursor = Cursors.Wait;
-                var pm = new DevicePasswordManager(Device, _log);
-                await pm.Load();
 
-                foreach (var a in pm.Accounts.Values)
+                if (_pm == null)
+                    _pm = new DevicePasswordManager(Device, _log);
+                await _pm.Load();
+
+                foreach (var a in _pm.Accounts.Values)
                 {
                     _log.WriteLine("PM", $"Account {a.Key},\t {a.Flags:X},\t {a.IsPrimary},\t {a.Name},\t {a.Login},\t {a.Apps},\t {a.Urls}");
                 }

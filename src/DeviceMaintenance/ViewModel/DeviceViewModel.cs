@@ -23,7 +23,7 @@ namespace DeviceMaintenance.ViewModel
         public bool IsConnected => Device?.IsConnected ?? false;
         public int ChannelNo => Device?.ChannelNo ?? 0;
 
-        public ConnectionState ConnectionState => Device.IsConnected == true ? ConnectionState.Connected : ConnectionState.NotConnected;
+        public ConnectionState ConnectionState => Device?.IsConnected == true ? ConnectionState.Connected : ConnectionState.NotConnected;
 
         public string SerialNo => Device?.SerialNo ?? _mac;
         public Version FirmwareVersion => Device?.FirmwareVersion;

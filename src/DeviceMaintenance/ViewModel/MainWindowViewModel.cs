@@ -386,7 +386,7 @@ namespace DeviceMaintenance.ViewModel
             _log.WriteLine("MainVM", $"Waiting Device connectin {mac} ..........................");
             var dvm = new DeviceViewModel(mac, _log);
 
-            var prevDvm = Devices.FirstOrDefault(d => d.Device.Mac.Replace(":","") == mac);
+            var prevDvm = Devices.FirstOrDefault(d => d.Device != null && d.Device.Mac.Replace(":","") == mac);
             if (prevDvm != null)
                 await _deviceManager.Remove(prevDvm.Device);
 
@@ -395,7 +395,18 @@ namespace DeviceMaintenance.ViewModel
                 Devices.Add(dvm);
             });
 
-            var device = await _deviceManager.ConnectByMac(mac, timeout: 10_000);
+            var device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
+
+            if (device == null)
+            {
+                device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout / 2);
+            }
+
+            if (device == null)
+            {
+                await _deviceManager.RemoveByMac(mac);
+                device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
+            }
 
             if (device != null)
             {
