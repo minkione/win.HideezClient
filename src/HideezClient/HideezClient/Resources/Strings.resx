@@ -486,4 +486,34 @@ to access stored credentials</value>
   <data name="PM.Label.Account" xml:space="preserve">
     <value>ACCOUNT</value>
   </data>
+  <data name="DP.2F.Description" xml:space="preserve">
+    <value>Enable two-factor authentication to ensure the highest security.</value>
+  </data>
+  <data name="DP.2F.Header" xml:space="preserve">
+    <value>Two-factor authentication</value>
+  </data>
+  <data name="DP.PM.Description" xml:space="preserve">
+    <value>Insert your credentials fast with the hotkeys. No need to memorize passwords.</value>
+  </data>
+  <data name="DP.PM.Header" xml:space="preserve">
+    <value>Secure password management</value>
+  </data>
+  <data name="DP.Proximity.Description" xml:space="preserve">
+    <value>The computer is locked automatically and instantly once you walk away.</value>
+  </data>
+  <data name="DP.Proximity.Header" xml:space="preserve">
+    <value>Proximity-based computer lock</value>
+  </data>
+  <data name="EnableDevice.Header" xml:space="preserve">
+    <value>Enable your device</value>
+  </data>
+  <data name="EnableDevice.Step1" xml:space="preserve">
+    <value>Make sure that all indicators below are green.</value>
+  </data>
+  <data name="EnableDevice.Step2" xml:space="preserve">
+    <value>Long touch the dongle with the device untill initication process launches.</value>
+  </data>
+  <data name="EnableDevice.Step3" xml:space="preserve">
+    <value>Follow the screen notifications.</value>
+  </data>
 </root>

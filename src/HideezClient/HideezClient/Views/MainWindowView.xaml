@@ -54,10 +54,51 @@
 
             <StackPanel Grid.Row="1">
 
-                <TextBlock
-                    Margin="16,16,30,16"
-                    Text="{l:Localization Info.NoDevice}"
-                    Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityCollapsedConverter}}" />
+                <StackPanel
+                    Margin="24,34"
+                    Orientation="Vertical"
+                    Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityCollapsedConverter}}">
+                    <TextBlock
+                        FontSize="18"
+                        FontWeight="DemiBold"
+                        Text="{l:Localization EnableDevice.Header}" />
+                    <Rectangle Height="24" />
+                    <Grid TextBlock.FontSize="16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="16" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="16" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Text="1." />
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            Opacity="0.5"
+                            Text="{l:Localization EnableDevice.Step1}"
+                            TextWrapping="Wrap" />
+                        <TextBlock Grid.Row="2" Text="2." />
+                        <TextBlock
+                            Grid.Row="2"
+                            Grid.Column="2"
+                            Opacity="0.5"
+                            Text="{l:Localization EnableDevice.Step2}"
+                            TextWrapping="Wrap" />
+                        <TextBlock Grid.Row="4" Text="2." />
+                        <TextBlock
+                            Grid.Row="4"
+                            Grid.Column="2"
+                            Opacity="0.5"
+                            Text="{l:Localization EnableDevice.Step3}"
+                            TextWrapping="Wrap" />
+                    </Grid>
+                </StackPanel>
 
                 <StackPanel Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
                     <controls:DeviceInfo
