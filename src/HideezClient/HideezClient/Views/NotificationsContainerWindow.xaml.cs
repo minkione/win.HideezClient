@@ -1,6 +1,8 @@
 ﻿using HideezClient.Controls;
+using HideezClient.Extension;
 using HideezClient.Utilities;
 using Microsoft.Win32;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -27,6 +29,7 @@ namespace HideezClient.Views
     /// </summary>
     public partial class NotificationsContainerWindow : Window
     {
+        protected readonly ILogger log = LogManager.GetCurrentClassLogger();
         private readonly string screenName;
 
         public NotificationsContainerWindow(Screen screen)
@@ -81,44 +84,36 @@ namespace HideezClient.Views
 
         private void UpdateWindowContainer()
         {
-            Screen screen = Screen.AllScreens.FirstOrDefault(s => s.DeviceName == screenName);
-            if (screen != null)
+            try
             {
-                UpdateLayout();
-                Height = screen.WorkingArea.Height;
-                var point = GetPositionForBottomRightCorner(screen, ActualWidth, ActualHeight);
-                Left = point.X;
-                Top = point.Y;
+                Screen screen = Screen.AllScreens.FirstOrDefault(s => s.DeviceName == screenName);
+                if (screen != null)
+                {
+                    UpdateLayout();
+                    var dpiTransform = this.GetDpiTransform();
+                    Height = screen.WorkingArea.Height / dpiTransform.Y;
+                    var point = GetPositionForBottomRightCorner(screen, ActualWidth, ActualHeight, dpiTransform);
+                    Left = point.X;
+                    Top = point.Y;
+                }
+                //NotificationBase nb = notifyItems.Items.Cast<NotificationBase>().FirstOrDefault(n => n.Options.SetFocus);
+                //nb?.Focus();
             }
-            //NotificationBase nb = notifyItems.Items.Cast<NotificationBase>().FirstOrDefault(n => n.Options.SetFocus);
-            //nb?.Focus();
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
         }
 
-        private (double X, double Y) GetPositionForBottomRightCorner(Screen screen, double actualWidth, double actualHeight)
+        private (double X, double Y) GetPositionForBottomRightCorner(Screen screen, double actualWidth, double actualHeight, DpiTransform dpiTransform)
         {
-            var dpiTransform = GetDpiTransform();
             double width = actualWidth * dpiTransform.X;
             // double height = actualHeight * dpiTransform.Y;
 
             double pointX = screen.WorkingArea.Right - width;
-            double pointY = screen.WorkingArea.Top;
+            double pointY = screen.WorkingArea.Top;//Bottom - height;
 
             return (pointX / dpiTransform.X, pointY / dpiTransform.Y);
-        }
-
-        private (double X, double Y) GetDpiTransform()
-        {
-            PresentationSource source = PresentationSource.FromVisual(this);
-
-            double dpiXFactor = 1;
-            double dpiYFactor = 1;
-            if (source != null)
-            {
-                dpiXFactor = source.CompositionTarget.TransformToDevice.M11;
-                dpiYFactor = source.CompositionTarget.TransformToDevice.M22;
-            }
-
-            return (dpiXFactor, dpiYFactor);
         }
 
         #region HideWindow
