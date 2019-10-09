@@ -109,7 +109,7 @@ namespace HideezMiddleware.Audit
         /// Deserializes all events saved in events folder and returns them as List<>
         /// </summary>
         /// <returns>Returns all events deserialized from events folder</returns>
-        List<WorkstationEvent> DeserializeEvents()
+        async Task<List<WorkstationEvent>> DeserializeEvents()
         {
             List<WorkstationEvent> events = new List<WorkstationEvent>();
 
@@ -134,18 +134,21 @@ namespace HideezMiddleware.Audit
                         WorkstationEvent we = JsonConvert.DeserializeObject<WorkstationEvent>(data);
                         events.Add(we);
                     }
-                    catch (Exception ex)
+                    catch (JsonException ex)
                     {
                         WriteLine(ex);
 
-                        try
-                        {
-                            File.Delete(file);
-                        }
-                        catch (Exception e)
-                        {
-                            WriteLine(e);
-                        }
+                        await DeleteEventFile(file);
+                    }
+                    catch (NotSupportedException ex)
+                    {
+                        WriteLine(ex);
+
+                        await DeleteEventFile(file);
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLine(ex);
                     }
                 }
             }
@@ -161,19 +164,38 @@ namespace HideezMiddleware.Audit
         /// Delete specified event files in the event folder
         /// </summary>
         /// <param name="workstationEvents"></param>
-        void DeleteEvents(IEnumerable<WorkstationEvent> workstationEvents)
+        async Task DeleteEvents(IEnumerable<WorkstationEvent> workstationEvents)
         {
             foreach (var we in workstationEvents)
             {
+                var file = Path.Combine(_eventSaver.EventsDirectoryPath, we.Id);
+                await DeleteEventFile(file);
+            }
+        }
+
+        async Task DeleteEventFile(string filePath)
+        {
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch (IOException)
+            {
+                // Todo: file-in-use handling is hard to understand, requires refactoring
+                // File in use, try again
+                await Task.Delay(250);
                 try
                 {
-                    var file = Path.Combine(_eventSaver.EventsDirectoryPath, we.Id);
-                    File.Delete(file);
+                    File.Delete(filePath);
                 }
                 catch (Exception ex)
                 {
                     WriteLine(ex);
                 }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
             }
         }
 
@@ -190,7 +212,7 @@ namespace HideezMiddleware.Audit
 
                     automaticEventSendingTimer.Stop();
 
-                    var eventsQueue = DeserializeEvents();
+                    var eventsQueue = await DeserializeEvents();
                     WriteLine($"Sending {eventsQueue.Count} " + (eventsQueue.Count == 1 ? "event" : "events") + " to HES");
 
                     await BreakIntoSetsAndSendToServer(eventsQueue, skipSetInterval);
@@ -225,7 +247,7 @@ namespace HideezMiddleware.Audit
                         if (IsServerProcessedEvents)
                         {
                             WriteLine($"Sent events set. Server: ok");
-                            DeleteEvents(sets[i]);
+                            await DeleteEvents(sets[i]);
                         }
                     }
                     catch (Exception ex)

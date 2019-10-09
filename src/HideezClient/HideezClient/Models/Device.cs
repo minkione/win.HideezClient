@@ -583,6 +583,7 @@ namespace HideezClient.Models
                 }
                 finally
                 {
+                    authCancellationTokenSource.Dispose();
                     authCancellationTokenSource = null;
                 }
             }
