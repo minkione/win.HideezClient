@@ -173,6 +173,11 @@ namespace HideezMiddleware
             {
                 errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
             }
+            catch (OperationCanceledException ex)
+            {
+                // Silent cancellation handling
+                WriteLine(ex);
+            }
             catch (Exception ex)
             {
                 errorMessage = ex.Message;
