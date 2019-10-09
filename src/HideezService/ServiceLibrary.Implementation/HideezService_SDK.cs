@@ -180,14 +180,10 @@ namespace ServiceLibrary.Implementation
             _tapProcessor = new TapConnectionProcessor(
                 _connectionFlowProcessor,
                 _connectionManager,
-                _screenActivator,
-                _uiProxy,
                 _sdkLogger);
             _proximityProcessor = new ProximityConnectionProcessor(
                 _connectionFlowProcessor,
                 _connectionManager,
-                _screenActivator,
-                _uiProxy,
                 _proximitySettingsManager,
                 _advIgnoreList,
                 _deviceManager,

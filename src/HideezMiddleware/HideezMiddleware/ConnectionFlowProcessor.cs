@@ -57,7 +57,7 @@ namespace HideezMiddleware
             _cts?.Cancel();
         }
 
-        public async Task<ConnectionFlowResult> ConnectAndUnlock(string mac)
+        public async Task ConnectAndUnlock(string mac, Action<WorkstationUnlockResult> onSuccessfulUnlock)
         {
             // ignore, if workflow for any device already initialized
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
@@ -65,36 +65,29 @@ namespace HideezMiddleware
                 try
                 {
                     _cts = new CancellationTokenSource();
-                    return await MainWorkflow(mac, _cts.Token);
+                    await MainWorkflow(mac, _cts.Token, onSuccessfulUnlock);
                 }
                 finally
                 {
-                    // this delay allows a user to move away the device from the dongle or RFID
-                    // and prevents the repeated call of this method
-                    await Task.Delay(SdkConfig.DelayAfterMainWorkflow);
-
                     _cts.Dispose();
                     _cts = null;
 
                     Interlocked.Exchange(ref _isConnecting, 0);
                 }
             }
-
-            return new ConnectionFlowResult();
         }
 
-        async Task<ConnectionFlowResult> MainWorkflow(string mac, CancellationToken ct)
+        async Task MainWorkflow(string mac, CancellationToken ct, Action<WorkstationUnlockResult> onUnlockAttempt)
         {
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
-            var existingDevice = _deviceManager.Find(mac, (int)DefaultDeviceChannel.Main); 
+            var existingDevice = _deviceManager.Find(mac, (int)DefaultDeviceChannel.Main);
             if (existingDevice != null && existingDevice.IsConnected)
-                return new ConnectionFlowResult();
+                return;
 
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
 
             bool success = false;
-            var flowResult = new ConnectionFlowResult();
             bool fatalError = false;
             string errorMessage = null;
             IDevice device = null;
@@ -154,8 +147,9 @@ namespace HideezMiddleware
                             !device.AccessLevel.IsPinRequired &&
                             !device.AccessLevel.IsNewPinRequired)
                         {
-                            success = await TryUnlockWorkstation(device);
-                            flowResult.UnlockSuccessful = success;
+                            var unlockResult = await TryUnlockWorkstation(device);
+                            onUnlockAttempt?.Invoke(unlockResult);
+                            success = unlockResult.IsSuccessful;
                         }
                     }
                 }
@@ -175,7 +169,7 @@ namespace HideezMiddleware
             }
             catch (OperationCanceledException ex)
             {
-                // Silent cancellation handling
+                // Silent cancelation handling
                 WriteLine(ex);
             }
             catch (Exception ex)
@@ -200,18 +194,15 @@ namespace HideezMiddleware
                     if (fatalError)
                     {
                         await _deviceManager.Remove(device);
-                        flowResult.ConnectSuccessful = false;
                     }
                     else if (!success)
                     {
                         await device.Disconnect();
-                        flowResult.ConnectSuccessful = false;
                     }
                     else
                     {
                         device.SetUserProperty(FLOW_FINISHED_PROP, true);
                         DeviceFinishedMainFlow?.Invoke(this, device);
-                        flowResult.ConnectSuccessful = true;
                     }
                 }
             }
@@ -226,21 +217,25 @@ namespace HideezMiddleware
             }
 
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
-
-            return flowResult;
         }
 
-        async Task<bool> TryUnlockWorkstation(IDevice device)
+        async Task<WorkstationUnlockResult> TryUnlockWorkstation(IDevice device)
         {
+            var result = new WorkstationUnlockResult();
+
             await _ui.SendNotification("Reading credentials from the device...", _infNid);
             var credentials = await GetCredentials(device);
 
             // send credentials to the Credential Provider to unlock the PC
             await _ui.SendNotification("Unlocking the PC...", _infNid);
-            var success = await _workstationUnlocker
+            result.IsSuccessful = await _workstationUnlocker
                 .SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
 
-            return success;
+            result.AccountName = credentials.Name;
+            result.AccountLogin = credentials.Login;
+            result.DeviceMac = device.Mac;
+
+            return result;
         }
 
         //async Task<bool> TryUnlockWorkstation(IDevice device)
@@ -469,7 +464,8 @@ namespace HideezMiddleware
             }
             else
             {
-                // get the login and password from the Hideez Key
+                // get the account name, login and password from the Hideez Key
+                credentials.Name = await device.ReadStorageAsString((byte)StorageTable.Accounts, key);
                 credentials.Login = await device.ReadStorageAsString((byte)StorageTable.Logins, key);
                 credentials.Password = await device.ReadStorageAsString((byte)StorageTable.Passwords, key);
                 credentials.PreviousPassword = ""; //todo

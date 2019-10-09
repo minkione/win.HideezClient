@@ -12,25 +12,19 @@ namespace HideezMiddleware.DeviceConnection
     {
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly IBleConnectionManager _bleConnectionManager;
-        readonly IScreenActivator _screenActivator;
-        readonly IClientUiManager _clientUiManager;
 
         int _isConnecting = 0;
 
-        public event EventHandler<string> WorkstationUnlockPerformed;
+        public event EventHandler<WorkstationUnlockResult> WorkstationUnlockPerformed;
 
         public TapConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
-            IScreenActivator screenActivator,
-            IClientUiManager clientUiManager,
             ILog log) 
             : base(nameof(TapConnectionProcessor), log)
         {
             _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));
             _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
-            _clientUiManager = clientUiManager ?? throw new ArgumentNullException(nameof(clientUiManager));
-            _screenActivator = screenActivator;
 
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
         }
@@ -75,12 +69,8 @@ namespace HideezMiddleware.DeviceConnection
                 {
                     try
                     {
-                        _screenActivator?.ActivateScreen();
                         var mac = MacUtils.GetMacFromShortMac(adv.Id);
-                        var result = await _connectionFlowProcessor.ConnectAndUnlock(mac);
-
-                        if (result.UnlockSuccessful)
-                            WorkstationUnlockPerformed?.Invoke(this, mac);
+                        await _connectionFlowProcessor.ConnectAndUnlock(mac, OnUnlockAttempt);
                     }
                     catch (Exception)
                     {
@@ -88,10 +78,20 @@ namespace HideezMiddleware.DeviceConnection
                     }
                     finally
                     {
+                        // this delay allows a user to move away the device from the dongle
+                        // and prevents the repeated call of this method
+                        await Task.Delay(SdkConfig.DelayAfterMainWorkflow);
+
                         Interlocked.Exchange(ref _isConnecting, 0);
                     }
                 }
             }
+        }
+
+        void OnUnlockAttempt(WorkstationUnlockResult result)
+        {
+            if (result.IsSuccessful)
+                WorkstationUnlockPerformed?.Invoke(this, result);
         }
     }
 }
