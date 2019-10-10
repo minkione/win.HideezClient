@@ -99,7 +99,7 @@ namespace HideezClient.Views
                 //NotificationBase nb = notifyItems.Items.Cast<NotificationBase>().FirstOrDefault(n => n.Options.SetFocus);
                 //nb?.Focus();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 log.Error(ex);
             }

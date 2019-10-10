@@ -122,7 +122,7 @@ namespace HideezClient
             LogManager.Shutdown();
         }
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
@@ -134,15 +134,11 @@ namespace HideezClient
 
             try
             {
-                var task = Task.Run(async () => // Off Loading Load Programm Settings to non-UI thread
-                {
-                    var appSettingsDirectory = Path.GetDirectoryName(appSettingsManager.SettingsFilePath);
-                    if (!Directory.Exists(appSettingsDirectory))
-                        Directory.CreateDirectory(appSettingsDirectory);
+                var appSettingsDirectory = Path.GetDirectoryName(appSettingsManager.SettingsFilePath);
+                if (!Directory.Exists(appSettingsDirectory))
+                    Directory.CreateDirectory(appSettingsDirectory);
 
-                    settings = await appSettingsManager.LoadSettingsAsync();
-                });
-                task.Wait(); // Block this to ensure that results are usable in next steps of sequence
+                settings = await appSettingsManager.LoadSettingsAsync().ConfigureAwait(true);
 
                 // Init localization
                 var culture = new CultureInfo(settings.SelectedUiLanguage);

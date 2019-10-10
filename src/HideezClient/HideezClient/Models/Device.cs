@@ -394,6 +394,10 @@ namespace HideezClient.Models
                 _log.Error(ex);
                 ShowError(ex.Message, _errNid);
             }
+            catch (OperationCanceledException ex)
+            {
+                _log.Error(ex);
+            }
             catch (Exception ex)
             {
                 _log.Error(ex);

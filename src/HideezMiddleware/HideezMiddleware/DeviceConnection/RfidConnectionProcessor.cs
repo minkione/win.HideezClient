@@ -1,4 +1,5 @@
-﻿using Hideez.SDK.Communication.HES.Client;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Log;
 using System;
 using System.Threading;
@@ -16,7 +17,7 @@ namespace HideezMiddleware.DeviceConnection
 
         int _isConnecting = 0;
 
-        public event EventHandler<string> WorkstationUnlockPerformed;
+        public event EventHandler<WorkstationUnlockResult> WorkstationUnlockPerformed;
 
         public RfidConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor, 
@@ -93,10 +94,7 @@ namespace HideezMiddleware.DeviceConnection
                 {
                     try
                     {
-                        var result = await _connectionFlowProcessor.ConnectAndUnlock(info.DeviceMac);
-
-                        if (result.UnlockSuccessful)
-                            WorkstationUnlockPerformed?.Invoke(this, info.DeviceMac);
+                        await _connectionFlowProcessor.ConnectAndUnlock(info.DeviceMac, OnUnlockAttempt);
                     }
                     catch (Exception)
                     {
@@ -104,6 +102,10 @@ namespace HideezMiddleware.DeviceConnection
                     }
                     finally
                     {
+                        // this delay allows a user to move away the device from the rfid
+                        // and prevents the repeated call of this method
+                        await Task.Delay(SdkConfig.DelayAfterMainWorkflow);
+
                         Interlocked.Exchange(ref _isConnecting, 0);
                     }
                 }
@@ -116,5 +118,10 @@ namespace HideezMiddleware.DeviceConnection
             }
         }
 
+        void OnUnlockAttempt(WorkstationUnlockResult result)
+        {
+            if (result.IsSuccessful)
+                WorkstationUnlockPerformed?.Invoke(this, result);
+        }
     }
 }

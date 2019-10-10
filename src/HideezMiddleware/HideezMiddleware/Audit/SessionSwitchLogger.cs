@@ -32,6 +32,10 @@ namespace HideezMiddleware.Audit
 
             public string Mac { get; set; }
 
+            public string AccountName { get; set; }
+
+            public string AccountLogin { get; set; }
+
             public SessionSwitchSubject Reason { get; set; }
         }
 
@@ -85,40 +89,46 @@ namespace HideezMiddleware.Audit
             }
         }
 
-        void TapProcessor_WorkstationUnlockPerformed(object sender, string e)
+        void TapProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
         {
             lock (listsLock)
             {
-                unlockEventsList[e] = new HideezUnlockEvent()
+                unlockEventsList[e.DeviceMac] = new HideezUnlockEvent()
                 {
                     EventTime = DateTime.UtcNow,
-                    Mac = e,
+                    Mac = e.DeviceMac,
+                    AccountName = e.AccountName,
+                    AccountLogin = e.AccountLogin,
                     Reason = SessionSwitchSubject.Dongle,
                 };
             }
         }
 
-        void RfidProcessor_WorkstationUnlockPerformed(object sender, string e)
+        void RfidProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
         {
             lock (listsLock)
             {
-                unlockEventsList[e] = new HideezUnlockEvent()
+                unlockEventsList[e.DeviceMac] = new HideezUnlockEvent()
                 {
                     EventTime = DateTime.UtcNow,
-                    Mac = e,
+                    Mac = e.DeviceMac,
+                    AccountName = e.AccountName,
+                    AccountLogin = e.AccountLogin,
                     Reason = SessionSwitchSubject.RFID,
                 };
             }
         }
 
-        void ProximityProcessor_WorkstationUnlockPerformed(object sender, string e)
+        void ProximityProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
         {
             lock (listsLock)
             {
-                unlockEventsList[e] = new HideezUnlockEvent()
+                unlockEventsList[e.DeviceMac] = new HideezUnlockEvent()
                 {
                     EventTime = DateTime.UtcNow,
-                    Mac = e,
+                    Mac = e.DeviceMac,
+                    AccountName = e.AccountName,
+                    AccountLogin = e.AccountLogin,
                     Reason = SessionSwitchSubject.Proximity,
                 };
             }
@@ -260,6 +270,8 @@ namespace HideezMiddleware.Audit
                 {
                     we.Note = latestUnlockEvent.Reason.ToString();
                     we.DeviceId = _bleDeviceManager.Find(latestUnlockEvent.Mac, 1)?.SerialNo;
+                    we.AccountName = latestUnlockEvent.AccountName;
+                    we.AccountLogin = latestUnlockEvent.AccountLogin;
                 }
                 else
                     we.Note = WorkstationLockingReason.NonHideez.ToString();

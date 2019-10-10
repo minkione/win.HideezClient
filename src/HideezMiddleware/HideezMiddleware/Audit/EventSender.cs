@@ -240,19 +240,12 @@ namespace HideezMiddleware.Audit
             {
                 if (_hesAppConnection?.State == HesConnectionState.Connected && sets[i] != null && sets[i].Any())
                 {
-                    try
-                    {
-                        var IsServerProcessedEvents = await _hesAppConnection.SaveClientEventsAsync(sets[i].ToArray());
+                    var IsServerProcessedEvents = await _hesAppConnection.SaveClientEventsAsync(sets[i].ToArray());
 
-                        if (IsServerProcessedEvents)
-                        {
-                            WriteLine($"Sent events set. Server: ok");
-                            await DeleteEvents(sets[i]);
-                        }
-                    }
-                    catch (Exception ex)
+                    if (IsServerProcessedEvents)
                     {
-                        WriteLine(ex);
+                        WriteLine($"Sent events set. Server: ok");
+                        await DeleteEvents(sets[i]);
                     }
 
                     // Add delay between multiple sendings of sets

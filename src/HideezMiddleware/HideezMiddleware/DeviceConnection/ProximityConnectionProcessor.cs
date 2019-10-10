@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
@@ -23,8 +24,6 @@ namespace HideezMiddleware.DeviceConnection
 
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly IBleConnectionManager _bleConnectionManager;
-        readonly IScreenActivator _screenActivator;
-        readonly IClientUiManager _clientUiManager;
         readonly ISettingsManager<ProximitySettings> _proximitySettingsManager;
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly BleDeviceManager _bleDeviceManager;
@@ -34,13 +33,11 @@ namespace HideezMiddleware.DeviceConnection
 
         int _isConnecting = 0;
 
-        public event EventHandler<string> WorkstationUnlockPerformed;
+        public event EventHandler<WorkstationUnlockResult> WorkstationUnlockPerformed;
 
         public ProximityConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
-            IScreenActivator screenActivator,
-            IClientUiManager clientUi,
             ISettingsManager<ProximitySettings> proximitySettingsManager,
             AdvertisementIgnoreList advIgnoreListMonitor,
             BleDeviceManager bleDeviceManager,
@@ -50,12 +47,10 @@ namespace HideezMiddleware.DeviceConnection
         {
             _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));
             _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
-            _clientUiManager = clientUi ?? throw new ArgumentNullException(nameof(clientUi));
             _proximitySettingsManager = proximitySettingsManager ?? throw new ArgumentNullException(nameof(proximitySettingsManager));
             _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
             _bleDeviceManager = bleDeviceManager ?? throw new ArgumentNullException(nameof(bleDeviceManager));
             _workstationUnlocker = workstationUnlocker ?? throw new ArgumentNullException(nameof(workstationUnlocker));
-            _screenActivator = screenActivator;
 
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
             _proximitySettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
@@ -139,12 +134,8 @@ namespace HideezMiddleware.DeviceConnection
                 try
                 {
                     if (!_bleDeviceManager.Devices.Any(d => d.Mac == mac && !d.IsRemote && !d.IsBoot && d.IsConnected))
-                    { 
-                        _screenActivator?.ActivateScreen();
-                        var result = await _connectionFlowProcessor.ConnectAndUnlock(mac);
-
-                        if (result.UnlockSuccessful)
-                            WorkstationUnlockPerformed?.Invoke(this, mac);
+                    {
+                        await _connectionFlowProcessor.ConnectAndUnlock(mac, OnUnlockAttempt);
                     }
                 }
                 catch (Exception)
@@ -157,6 +148,12 @@ namespace HideezMiddleware.DeviceConnection
                     Interlocked.Exchange(ref _isConnecting, 0);
                 }
             }
+        }
+
+        void OnUnlockAttempt(WorkstationUnlockResult result)
+        {
+            if (result.IsSuccessful)
+                WorkstationUnlockPerformed?.Invoke(this, result);
         }
     }
 }

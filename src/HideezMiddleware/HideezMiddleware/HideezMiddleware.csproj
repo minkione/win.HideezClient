@@ -84,7 +84,6 @@
     <Compile Include="Audit\SessionSwitchLogger.cs" />
     <Compile Include="Audit\SessionTimestamp.cs" />
     <Compile Include="Audit\SessionTimestampLogger.cs" />
-    <Compile Include="ConnectionFlowResult.cs" />
     <Compile Include="CredentialProviderProxy.cs" />
     <Compile Include="DeviceConnection\AdvertisementIgnoreList.cs" />
     <Compile Include="DeviceConnection\BaseConnectionProcessor.cs" />
@@ -119,6 +118,7 @@
     <Compile Include="WorkstationLockingEventArgs.cs" />
     <Compile Include="WorkstationLockProcessor.cs" />
     <Compile Include="WorkstationLockingReason.cs" />
+    <Compile Include="WorkstationUnlockResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\ErrorCode.resx">

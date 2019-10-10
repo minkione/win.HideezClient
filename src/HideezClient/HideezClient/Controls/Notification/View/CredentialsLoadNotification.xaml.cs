@@ -53,7 +53,7 @@ namespace HideezClient.Controls
                     switch (viewModel.State)
                     {
                         case LoadedCredentialsState.Loaded:
-                            this.StartTimer(TimeSpan.FromSeconds(15));
+                            this.StartTimer(TimeSpan.FromSeconds(3));
                             IcoLoadState.Kind = PackIconFontAwesomeKind.CheckCircleSolid;
                             break;
                         case LoadedCredentialsState.Fail:

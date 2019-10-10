@@ -283,6 +283,7 @@
     <Compile Include="Extension\DeviceStateDTOExtension.cs" />
     <Compile Include="Extension\SecureStringExtension.cs" />
     <Compile Include="Extension\TaskExtension.cs" />
+    <Compile Include="Extension\VisualEx.cs" />
     <Compile Include="Messages\ActivateScreenMessage.cs" />
     <Compile Include="Messages\ButtonPressedMessage.cs" />
     <Compile Include="Messages\ConnectionChangedMessage.cs" />
