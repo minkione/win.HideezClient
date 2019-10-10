@@ -519,4 +519,7 @@ to access stored credentials</value>
   <data name="Notify.NotScanQr" xml:space="preserve">
     <value>Could not scan QR code.</value>
   </data>
+  <data name="DeleteSelectedAccountsMessage" xml:space="preserve">
+    <value>Are you sure you want to delete this account?</value>
+  </data>
 </root>

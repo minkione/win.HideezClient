@@ -86,7 +86,7 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        OnDeleteAccount();
+                        OnDeleteAccountAsync();
                     },
                 };
             }
@@ -128,7 +128,7 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        OnSaveAccount((x as PasswordBox)?.SecurePassword);
+                        OnSaveAccountAsdync((x as PasswordBox)?.SecurePassword);
                     },
                     CanExecuteFunc = () => EditAccount != null && EditAccount.ErrorOtpSecret == null,
                 };
@@ -151,11 +151,21 @@ namespace HideezClient.PageViewModels
 
         #endregion
 
-        private void OnSaveAccount(SecureString password)
+        private async Task OnSaveAccountAsdync(SecureString password)
         {
-            IsAvailable = false;
-            EditAccount.Password = password.GetAsString();
-            Device.SaveOrUpdateAccount(EditAccount.AccountRecord);
+            try
+            {
+                var account = EditAccount;
+                EditAccount = null;
+                IsAvailable = false;
+                account.Password = password.GetAsString();
+                await Device.SaveOrUpdateAccountAsync(account.AccountRecord);
+            }
+            catch (Exception ex)
+            {
+                IsAvailable = true;
+                windowsManager.ShowError(ex.Message);
+            }
         }
 
         private void OnDeviceChanged()
@@ -169,14 +179,22 @@ namespace HideezClient.PageViewModels
             EditAccount = new EditAccountViewModel(Device, windowsManager, qrScannerHelper);
         }
 
-        private void OnDeleteAccount()
+        private async Task OnDeleteAccountAsync()
         {
-            var resalt = MessageBox.Show("DeleteSelectedAccountsMessage", "Delite", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-            if (resalt == MessageBoxResult.Yes)
+            var resalt = MessageBox.Show(LocalizedObject.L("DeleteSelectedAccountsMessage"), "Delite", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (resalt == MessageBoxResult.OK)
             {
                 IsAvailable = false;
-                Device.DeleteAccount(SelectedAccount.AccountRecord);
-                EditAccount = null;
+                try
+                {
+                    EditAccount = null;
+                    await Device.DeleteAccountAsync(SelectedAccount.AccountRecord);
+                }
+                catch (Exception ex)
+                {
+                    IsAvailable = true;
+                    windowsManager.ShowError(ex.Message);
+                }
             }
         }
 

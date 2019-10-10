@@ -65,12 +65,12 @@ namespace HideezClient.ViewModels
         public IDictionary<ushort, AccountRecord> AccountsRecords { get { return device.PasswordManager.Accounts; } }
         public ObservableCollection<AccountInfoViewModel> Accounts { get; } = new ObservableCollection<AccountInfoViewModel>();
 
-        public Task<ushort> SaveOrUpdateAccount(AccountRecord account)
+        public Task<ushort> SaveOrUpdateAccountAsync(AccountRecord account)
         {
-            return device.PasswordManager.SaveOrUpdateAccount(account.Key, account.Name, account.Password, account.Login, account.OtpSecret, account.Apps, account.Urls, account.IsPrimary, account.Flags, account.Flags);
+            return device.PasswordManager.SaveOrUpdateAccount(account.Key, account.Name, account.Password, account.Login, account.OtpSecret, account.Apps, account.Urls, account.IsPrimary);
         }
 
-        public Task DeleteAccount(AccountRecord account)
+        public Task DeleteAccountAsync(AccountRecord account)
         {
             return device.PasswordManager.DeleteAccount(account.Key, account.IsPrimary);
         }

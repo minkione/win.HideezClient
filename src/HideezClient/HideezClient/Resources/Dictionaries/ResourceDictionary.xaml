@@ -231,18 +231,6 @@
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
                                 Text="{Binding Header}" />
-                            <Polygon Grid.Column="6" Points="0,0 -10,20, 0,40">
-                                <Polygon.Style>
-                                    <Style TargetType="Polygon">
-                                        <Setter Property="Fill" Value="Transparent" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" Value="True">
-                                                <Setter Property="Fill" Value="{DynamicResource WindowBackground}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Polygon.Style>
-                            </Polygon>
 
                             <Border
                                 Grid.ColumnSpan="7"

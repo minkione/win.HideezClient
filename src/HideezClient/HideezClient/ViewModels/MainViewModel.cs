@@ -126,7 +126,7 @@ namespace HideezClient.ViewModels
             }
             else
             {
-                if (MenuDefaultPage.IsChecked)
+                if (MenuDefaultPage.IsChecked || (MenuPasswordManager.IsChecked && !SelectedDevice.IsAuthorized))
                 {
                     MenuAboutDevice.IsChecked = true;
                     OnOpenAboutDevicePage();

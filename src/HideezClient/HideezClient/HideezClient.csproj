@@ -278,7 +278,6 @@
     <Compile Include="Converters\SerialNoAndFirmwareVerFormater.cs" />
     <Compile Include="Converters\StringToResource.cs" />
     <Compile Include="Exception\HideezClientException.cs" />
-    <Compile Include="Extension\VisualEx.cs" />
     <Compile Include="Extension\AccessLevelDTOExtension.cs" />
     <Compile Include="Extension\DeviceStateDTOExtension.cs" />
     <Compile Include="Extension\SecureStringExtension.cs" />

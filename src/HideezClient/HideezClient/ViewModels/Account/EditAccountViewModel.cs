@@ -97,6 +97,7 @@ namespace HideezClient.ViewModels
             });
 
             cacheHasOtp = HasOpt;
+            AccountRecord.OtpSecret = "";
         }
 
         private void UpdateAppsAndUrls()
@@ -203,6 +204,7 @@ namespace HideezClient.ViewModels
                 }
             }
         }
+
         #region OTP
         [Reactive] public bool EditOtp { get; set; }
         public bool HasOpt
@@ -253,7 +255,7 @@ namespace HideezClient.ViewModels
                     else
                     {
                         HasOpt = false;
-                        AccountRecord.OtpSecret = null;
+                        AccountRecord.OtpSecret = "";
                         ErrorOtpSecret = null;
                     }
                     this.RaisePropertyChanged(nameof(OtpSecret));
