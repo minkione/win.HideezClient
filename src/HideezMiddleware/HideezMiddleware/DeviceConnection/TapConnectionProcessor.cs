@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
-using HideezMiddleware.Utils;
 
 namespace HideezMiddleware.DeviceConnection
 {
@@ -69,7 +68,7 @@ namespace HideezMiddleware.DeviceConnection
                 {
                     try
                     {
-                        var mac = MacUtils.GetMacFromShortMac(adv.Id);
+                        var mac = BleUtils.ConnectionIdToMac(adv.Id);
                         await _connectionFlowProcessor.ConnectAndUnlock(mac, OnUnlockAttempt);
                     }
                     catch (Exception)

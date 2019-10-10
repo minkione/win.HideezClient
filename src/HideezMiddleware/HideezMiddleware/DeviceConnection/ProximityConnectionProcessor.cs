@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
-using HideezMiddleware.Utils;
 
 namespace HideezMiddleware.DeviceConnection
 {
@@ -117,7 +114,7 @@ namespace HideezMiddleware.DeviceConnection
             if (MacListToConnect.Count == 0)
                 return;
 
-            var mac = MacUtils.GetMacFromShortMac(adv.Id);
+            var mac = BleUtils.ConnectionIdToMac(adv.Id);
             if (!MacListToConnect.Any(m => m == mac))
                 return;
 

@@ -79,15 +79,12 @@ namespace HideezMiddleware
         void PipeServer_MessageReceivedEvent(object sender, MessageReceivedEventArgs e)
         {
             WriteDebugLine($"PipeServer_MessageReceivedEvent {e.Buffer.Length} bytes length");
-            CredentialProviderEventCode code = CredentialProviderEventCode.Unknown;
-
             try
             {
                 byte[] buf = e.Buffer;
                 int readBytes = e.ReadBytes;
 
-                code = (CredentialProviderEventCode)BitConverter.ToInt32(buf, 0);
-
+                var code = (CredentialProviderEventCode)BitConverter.ToInt32(buf, 0);
                 if (code == CredentialProviderEventCode.LogonResolution)
                 {
                     var strings = ParseParams(buf, readBytes, expectedParamCount: 1);

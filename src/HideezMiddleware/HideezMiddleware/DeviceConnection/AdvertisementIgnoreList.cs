@@ -1,10 +1,9 @@
-﻿using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.Log;
-using HideezMiddleware.Settings;
-using HideezMiddleware.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Log;
+using HideezMiddleware.Settings;
 
 namespace HideezMiddleware.DeviceConnection
 {
@@ -13,7 +12,6 @@ namespace HideezMiddleware.DeviceConnection
         const int MAC_IGNORELIST_TIMEOUT_SECONDS = 3;
 
         readonly IBleConnectionManager _bleConnectionManager;
-        readonly BleDeviceManager _bleDeviceManager;
         readonly ISettingsManager<ProximitySettings> _proximitySettingsManager;
 
         readonly List<string> _ignoreList = new List<string>();
@@ -22,13 +20,11 @@ namespace HideezMiddleware.DeviceConnection
 
         public AdvertisementIgnoreList(
             IBleConnectionManager bleConnectionManager,
-            BleDeviceManager bleDeviceManager,
             ISettingsManager<ProximitySettings> proximitySettingsManager,
             ILog log)
             : base(nameof(AdvertisementIgnoreList), log)
         {
             _bleConnectionManager = bleConnectionManager;
-            _bleDeviceManager = bleDeviceManager;
             _proximitySettingsManager = proximitySettingsManager;
 
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
@@ -78,7 +74,7 @@ namespace HideezMiddleware.DeviceConnection
             {
                 RemoveTimedOutRecords();
 
-                return _ignoreList.Any(m => m == MacUtils.GetMacFromShortMac(mac));
+                return _ignoreList.Any(m => m == BleUtils.ConnectionIdToMac(mac));
             }
         }
 
@@ -88,7 +84,7 @@ namespace HideezMiddleware.DeviceConnection
             {
                 RemoveTimedOutRecords();
 
-                var shortMac = MacUtils.GetMacFromShortMac(e.Id);
+                var shortMac = BleUtils.ConnectionIdToMac(e.Id);
                 if (_ignoreList.Any(m => m == shortMac))
                 {
                     var proximity = BleUtils.RssiToProximity(e.Rssi);
