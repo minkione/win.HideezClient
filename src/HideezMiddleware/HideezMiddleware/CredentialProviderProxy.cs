@@ -44,8 +44,11 @@ namespace HideezMiddleware
     {
         readonly PipeServer _pipeServer;
 
+        public event EventHandler<EventArgs> Connected;
+
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
+
         public event EventHandler<EventArgs> PinCancelled { add { } remove { } }
 
         public bool IsConnected => _pipeServer.IsConnected;
@@ -74,6 +77,7 @@ namespace HideezMiddleware
         void PipeServer_ClientConnectedEvent(object sender, ClientConnectedEventArgs e)
         {
             SafeInvoke(ClientConnected, EventArgs.Empty);
+            SafeInvoke(Connected, EventArgs.Empty);
         }
 
         void PipeServer_MessageReceivedEvent(object sender, MessageReceivedEventArgs e)

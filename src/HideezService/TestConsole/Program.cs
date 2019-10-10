@@ -5,6 +5,7 @@ using System;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Threading;
+using System.Threading.Tasks;
 using TestConsole.HideezServiceReference;
 
 namespace TestConsole
@@ -116,8 +117,9 @@ namespace TestConsole
             }
         }
 
-        protected static void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        protected static async void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
+            // This is a direct copy of HideezServiceHost.HideezService.OnSessionChange
             try
             {
                 switch (e.Reason)
@@ -126,6 +128,7 @@ namespace TestConsole
                     case SessionSwitchReason.SessionLogoff:
                         // Session locked
                         HideezService.OnSessionChange(true);
+                        await Task.Delay(250);
                         break;
                     case SessionSwitchReason.SessionUnlock:
                     case SessionSwitchReason.SessionLogon:
@@ -135,7 +138,6 @@ namespace TestConsole
                     default:
                         return;
                 }
-
                 SessionSwitchMonitor.SystemSessionSwitch(System.Diagnostics.Process.GetCurrentProcess().SessionId, e.Reason);
             }
             catch (Exception ex)

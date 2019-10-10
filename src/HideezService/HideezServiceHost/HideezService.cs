@@ -88,8 +88,14 @@ namespace HideezServiceHost
         }
 
         // https://stackoverflow.com/questions/44980/programmatically-determine-a-duration-of-a-locked-workstation
-        protected override void OnSessionChange(SessionChangeDescription sessionChangeDescription)
+        protected override async void OnSessionChange(SessionChangeDescription sessionChangeDescription)
         {
+            // Session changed event has to go exactly in that order:
+            // - Disconnect all devices
+            // - Wait some time
+            // - Notify all other components about session switch
+            // Mainly it is there to eliminate race condition between our own event of workstation unlock and session switch
+            // The delay ensures that the former occurs before the latter
             try
             {
                 switch (sessionChangeDescription.Reason)
@@ -98,6 +104,8 @@ namespace HideezServiceHost
                     case SessionChangeReason.SessionLogoff:
                         // Session locked
                         ServiceLibrary.Implementation.HideezService.OnSessionChange(true);
+                        // A delay allows us to save successful unlock information (device, account, etc) before SessionMonitor is notified about switch
+                        await Task.Delay(250);
                         break;
                     case SessionChangeReason.SessionUnlock:
                     case SessionChangeReason.SessionLogon:

@@ -763,7 +763,18 @@ namespace ServiceLibrary.Implementation
 
                 if (sessionLocked)
                 {
-                    _deviceManager?.Devices.ToList().ForEach(d => d.Disconnect());
+                    _deviceManager?.Devices.ToList().ForEach(d =>
+                    {
+                        try
+                        {
+                            if (d.IsConnected)
+                                d.Disconnect();
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.WriteLine(ex);
+                        }
+                    });
                 }
             }
             catch (Exception ex)

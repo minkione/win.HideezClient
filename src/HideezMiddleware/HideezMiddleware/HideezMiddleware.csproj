@@ -108,6 +108,7 @@
     <Compile Include="Resources\ErrorCode.Designer.cs" />
     <Compile Include="RfidServiceConnection.cs" />
     <Compile Include="StatusManager.cs" />
+    <Compile Include="Tasks\WaitWorkstationUnlockerConnectProc.cs" />
     <Compile Include="UiProxyManager.cs" />
     <Compile Include="Utils\LocalToMSAccountConverter.cs" />
     <Compile Include="Utils\WorkstationHelper.cs" />

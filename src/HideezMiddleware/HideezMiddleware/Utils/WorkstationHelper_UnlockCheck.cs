@@ -175,5 +175,11 @@ namespace HideezMiddleware
                 }
             }
         }
+
+        public static LockState GetCurrentSessionLockState()
+        {
+            var sid = GetSessionId();
+            return GetSessionLockState(sid);
+        }
     }
 }
