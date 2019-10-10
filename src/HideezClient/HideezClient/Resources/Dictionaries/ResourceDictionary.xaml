@@ -24,7 +24,7 @@
     </Style>
 
     <!--  Base button style  -->
-    <Style x:Key="BaseButtonStyle" TargetType="{x:Type Button}">
+    <Style x:Key="BaseButtonStyle" TargetType="{x:Type ButtonBase}">
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Focusable" Value="False" />
@@ -35,12 +35,12 @@
     <Style
         x:Key="ChangeButtonStyle"
         BasedOn="{StaticResource BaseButtonStyle}"
-        TargetType="{x:Type Button}">
+        TargetType="{x:Type ButtonBase}">
         <Setter Property="Background" Value="#E1F3F8" />
         <Setter Property="Foreground" Value="{StaticResource DarkForeground}" />
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Button}">
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
                     <Border
                         x:Name="border"
                         Padding="30,9"
@@ -66,7 +66,7 @@
     <Style
         x:Key="ConfirmButtonStyle"
         BasedOn="{StaticResource BaseButtonStyle}"
-        TargetType="{x:Type Button}">
+        TargetType="{x:Type ButtonBase}">
         <Setter Property="Background">
             <Setter.Value>
                 <LinearGradientBrush MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="1,0">
@@ -78,7 +78,7 @@
         <Setter Property="Foreground" Value="{StaticResource LightForeground}" />
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Button}">
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
                     <Border
                         x:Name="OuterBorder"
                         Background="{TemplateBinding Background}"
@@ -108,7 +108,7 @@
     <Style
         x:Key="CancelButtonStyle"
         BasedOn="{StaticResource ChangeButtonStyle}"
-        TargetType="{x:Type Button}">
+        TargetType="{x:Type ButtonBase}">
         <Setter Property="Background" Value="#E1F3F8" />
     </Style>
 

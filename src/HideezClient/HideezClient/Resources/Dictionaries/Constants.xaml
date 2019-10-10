@@ -67,7 +67,7 @@
     <SolidColorBrush x:Key="SyncErrorIndicatorBrush" Color="#ff631a" />
 
     <!--  Other  -->
-    <SolidColorBrush x:Key="ErrorBorderBrush">Red</SolidColorBrush>
+    <SolidColorBrush x:Key="ErrorBrush">#F6346B</SolidColorBrush>
 
     <DropShadowEffect
         x:Key="ShadowEffect"

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -16,8 +17,11 @@ using DynamicData;
 using Hideez.ARM;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezClient.Modules;
+using HideezClient.Mvvm;
 using HideezClient.Utilities;
+using HideezClient.Utilities.QrCode;
 using MvvmExtensions.Commands;
+using NLog;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Unity;
@@ -26,21 +30,30 @@ namespace HideezClient.ViewModels
 {
     class EditAccountViewModel : ReactiveObject
     {
+        protected readonly ILogger log = LogManager.GetCurrentClassLogger();
+        private readonly IQrScannerHelper qrScannerHelper;
+        private readonly IWindowsManager windowsManager;
         private bool isUpdateAppsUrls;
         private DeviceViewModel device;
         private int generatePasswordLength = 16;
         private readonly AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
         private readonly AppInfo addUrlAppInfo = new AppInfo { Domain = "<Enter Url>" };
+        private bool canScanOtpSecretQrCode = true;
+        private bool cacheHasOtp;
 
-        public EditAccountViewModel(DeviceViewModel device)
+        public EditAccountViewModel(DeviceViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper)
         {
+            this.windowsManager = windowsManager;
+            this.qrScannerHelper = qrScannerHelper;
             AccountRecord = new AccountRecord();
             this.device = device;
             InitDependencies();
         }
 
-        public EditAccountViewModel(DeviceViewModel device, AccountRecord accountRecord)
+        public EditAccountViewModel(DeviceViewModel device, AccountRecord accountRecord, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper)
         {
+            this.windowsManager = windowsManager;
+            this.qrScannerHelper = qrScannerHelper;
             this.device = device;
             AccountRecord = new AccountRecord
             {
@@ -82,6 +95,8 @@ namespace HideezClient.ViewModels
                     OpenedForegroundUrls.Remove(loadingAppInfo);
                 });
             });
+
+            cacheHasOtp = HasOpt;
         }
 
         private void UpdateAppsAndUrls()
@@ -188,7 +203,31 @@ namespace HideezClient.ViewModels
                 }
             }
         }
-        public bool HasOpt { get { return AccountRecord.HasOtp; } }
+        #region OTP
+        [Reactive] public bool EditOtp { get; set; }
+        public bool HasOpt
+        {
+            get
+            {
+                return AccountRecord.HasOtp;
+            }
+            set
+            {
+                if (AccountRecord.HasOtp != value)
+                {
+                    if (value)
+                    {
+                        AccountRecord.Flags = (ushort)(AccountRecord.Flags | (ushort)Hideez.SDK.Communication.StorageTableFlags.HAS_OTP);
+                    }
+                    else
+                    {
+                        AccountRecord.Flags = (ushort)(AccountRecord.Flags & ~(ushort)Hideez.SDK.Communication.StorageTableFlags.HAS_OTP);
+                    }
+
+                    this.RaisePropertyChanged(nameof(HasOpt));
+                }
+            }
+        }
         public string OtpSecret
         {
             get { return AccountRecord.OtpSecret; }
@@ -196,11 +235,35 @@ namespace HideezClient.ViewModels
             {
                 if (AccountRecord.OtpSecret != value)
                 {
-                    AccountRecord.OtpSecret = value;
+                    var secret = value.Replace(" ", "");
+                    if (!string.IsNullOrEmpty(secret))
+                    {
+                        EditOtp = true;
+                        if (ValidateBase32String(secret))
+                        {
+                            AccountRecord.OtpSecret = secret;
+                            ErrorOtpSecret = null;
+                        }
+                        else
+                        {
+                            ErrorOtpSecret = "Not valid OTP secret";
+                            AccountRecord.OtpSecret = value;
+                        }
+                    }
+                    else
+                    {
+                        HasOpt = false;
+                        AccountRecord.OtpSecret = null;
+                        ErrorOtpSecret = null;
+                    }
                     this.RaisePropertyChanged(nameof(OtpSecret));
                 }
             }
         }
+        [Reactive] public string ErrorOtpSecret { get; set; }
+
+        #endregion OTP
+
         public bool IsPrimary
         {
             get { return AccountRecord.IsPrimary; }
@@ -274,20 +337,6 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public ICommand ScanOtpSecretFromQRCodeCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CommandAction = (x) =>
-                    {
-                        OnScanOtpSecretFromQRCode();
-                    }
-                };
-            }
-        }
-
         public ICommand RemoveAppInfoCommand
         {
             get
@@ -355,7 +404,91 @@ namespace HideezClient.ViewModels
             }
         }
 
+        #region OTP
+
+        public ICommand ScanOtpSecretFromQRCodeCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        OnScanOtpSecretFromQRCode();
+                    },
+                    CanExecuteFunc = () => canScanOtpSecretQrCode,
+                };
+            }
+        }
+
+        public ICommand EnterOtpCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        EditOtp = true;
+                    },
+                };
+            }
+        }
+
+        public ICommand EditOtpCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        EditOtp = true;
+                    },
+                };
+            }
+        }
+
+        public ICommand DeleteOtpCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        HasOpt = false;
+                        OtpSecret = "";
+                        EditOtp = false;
+                    },
+                };
+            }
+        }
+
+        public ICommand CancelEditOtpCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        OtpSecret = "";
+                        EditOtp = false;
+                        HasOpt = cacheHasOtp;
+                    },
+                };
+            }
+        }
+
         #endregion
+
+        #endregion
+
+        private bool ValidateBase32String(string base32)
+        {
+            return Base32Encoding.Validate(base32);
+        }
 
         private void OnRemoveAppInfo(AppViewModel appViewModel)
         {
@@ -365,9 +498,33 @@ namespace HideezClient.ViewModels
             }
         }
 
-        private void OnScanOtpSecretFromQRCode()
+        private async void OnScanOtpSecretFromQRCode()
         {
-            OtpSecret = "scaned otp secret";
+            canScanOtpSecretQrCode = false;
+            bool isScanedQr = false;
+
+            try
+            {
+                var screenShot = await windowsManager.GetCurrentScreenImageAsync();
+                var scanResult = qrScannerHelper.DecoreQrFromImage(screenShot);
+
+                if (!string.IsNullOrWhiteSpace(scanResult?.Text))
+                {
+                    OtpSecret = qrScannerHelper.GetOtpSecret(scanResult.Text);
+                    isScanedQr = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+
+            if (!isScanedQr)
+            {
+                windowsManager.ShowWarn(LocalizedObject.L("Notify.NotScanQr"));
+            }
+
+            canScanOtpSecretQrCode = true;
         }
 
         private string OnGeneratePassword()

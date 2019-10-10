@@ -41,6 +41,8 @@ using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
 using HideezClient.Messages;
 using HideezClient.Controls;
+using HideezClient.Utilities.QrCode;
+using ZXing;
 
 namespace HideezClient
 {
@@ -221,7 +223,7 @@ namespace HideezClient
         {
             Container = new UnityContainer();
 #if DEBUG
-            Container.AddExtension(new Diagnostic());
+            // Container.AddExtension(new Diagnostic());
 #endif
             logger.Info("Start initialize DI container");
 
@@ -292,6 +294,10 @@ namespace HideezClient
             Container.RegisterType<InputOtp>();
             Container.RegisterType<InputPassword>();
             Container.RegisterType<InputLogin>();
+
+            // QrScanner
+            Container.RegisterType<IBarcodeReader, BarcodeReader>(new ContainerControlledLifetimeManager(), new InjectionConstructor(), new InjectionProperty("AutoRotate", true));
+            Container.RegisterType<IQrScannerHelper, QrScannerHelper>();
 
             Container.RegisterType<INotifier, Notifier>(new ContainerControlledLifetimeManager());
 

@@ -516,4 +516,7 @@ to access stored credentials</value>
   <data name="EnableDevice.Step3" xml:space="preserve">
     <value>Follow the screen notifications.</value>
   </data>
+  <data name="Notify.NotScanQr" xml:space="preserve">
+    <value>Could not scan QR code.</value>
+  </data>
 </root>

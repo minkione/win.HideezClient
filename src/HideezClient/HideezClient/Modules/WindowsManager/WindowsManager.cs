@@ -14,6 +14,9 @@ using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
 using System.Threading;
 using System.Diagnostics;
+using System.Drawing;
+using HideezClient.Utilities;
+using System.Windows.Interop;
 
 namespace HideezClient.Modules
 {
@@ -34,14 +37,14 @@ namespace HideezClient.Modules
         {
             _notifier = notifier;
             _viewModelLocator = viewModelLocator;
-            
-            messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message, notificationId:p.Id));
+
+            messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message, notificationId: p.Id));
             messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message, notificationId: p.Id));
 
             messenger.Register<ShowInfoNotificationMessage>(this, (p) => ShowInfo(p.Message, p.Title, notificationId: p.NotificationId));
             messenger.Register<ShowWarningNotificationMessage>(this, (p) => ShowWarn(p.Message, p.Title, notificationId: p.NotificationId));
             messenger.Register<ShowErrorNotificationMessage>(this, (p) => ShowError(p.Message, p.Title, notificationId: p.NotificationId));
-            
+
             messenger.Register<ShowButtonConfirmUiMessage>(this, ShowButtonConfirmAsync);
             messenger.Register<ShowPinUiMessage>(this, ShowPinAsync);
             messenger.Register<HidePinUiMessage>(this, HidePinAsync);
@@ -49,28 +52,17 @@ namespace HideezClient.Modules
 
         public void ActivateMainWindow()
         {
-            if (UIDispatcher.CheckAccess())
-            {
-                OnActivateMainWindow();
-            }
-            else
-            {
-                // Do non UI Thread stuff
-                UIDispatcher.Invoke(OnActivateMainWindow);
-            }
+            UIDispatcher.Invoke(OnActivateMainWindow);
         }
 
         public async Task ActivateMainWindowAsync()
         {
-            if (UIDispatcher.CheckAccess())
-            {
-                await Task.Run(new Action(OnActivateMainWindow));
-            }
-            else
-            {
-                // Do non UI Thread stuff
-                await UIDispatcher.InvokeAsync(OnActivateMainWindow);
-            }
+            await UIDispatcher.InvokeAsync(OnActivateMainWindow);
+        }
+
+        public async Task HideMainWindowAsync()
+        {
+            await UIDispatcher.InvokeAsync(OnHideMainWindow);
         }
 
         public bool IsMainWindowVisible
@@ -98,13 +90,36 @@ namespace HideezClient.Modules
             UnsubscribeToMainWindowEvent();
             SubscribeToMainWindowEvent();
 
+            if (!MainWindow.IsVisible)
+            {
+                MainWindow.Show();
+            }
+
             if (MainWindow.WindowState == WindowState.Minimized)
             {
                 MainWindow.WindowState = WindowState.Normal;
             }
 
-            MainWindow.Show();
             MainWindow.Activate();
+            MainWindow.Topmost = true;
+            MainWindow.Topmost = false;
+            MainWindow.Focus();
+        }
+
+        private void OnHideMainWindow()
+        {
+            if (MainWindow == null) return;
+
+            // event is only subscribed to once
+            UnsubscribeToMainWindowEvent();
+            SubscribeToMainWindowEvent();
+
+            if (MainWindow.WindowState == WindowState.Normal)
+            {
+                MainWindow.WindowState = WindowState.Minimized;
+            }
+
+            MainWindow.Hide();
         }
 
         private void SubscribeToMainWindowEvent()
@@ -161,41 +176,17 @@ namespace HideezClient.Modules
 
         public void ShowError(string message, string title = null, string notificationId = "")
         {
-            if (UIDispatcher.CheckAccess())
-            {
-                _notifier.ShowError(notificationId, title ?? GetTitle(), message);
-            }
-            else
-            {
-                // Do non UI Thread stuff
-                UIDispatcher.Invoke(() => _notifier.ShowError(notificationId, title ?? GetTitle(), message));
-            }
+            UIDispatcher.Invoke(() => _notifier.ShowError(notificationId, title ?? GetTitle(), message));
         }
 
         public void ShowWarn(string message, string title = null, string notificationId = "")
         {
-            if (UIDispatcher.CheckAccess())
-            {
-                _notifier.ShowWarn(notificationId, title ?? GetTitle(), message);
-            }
-            else
-            {
-                // Do non UI Thread stuff
-                UIDispatcher.Invoke(() => _notifier.ShowWarn(notificationId, title ?? GetTitle(), message));
-            }
+            UIDispatcher.Invoke(() => _notifier.ShowWarn(notificationId, title ?? GetTitle(), message));
         }
 
         public void ShowInfo(string message, string title = null, string notificationId = "")
         {
-            if (UIDispatcher.CheckAccess())
-            {
-                _notifier.ShowInfo(notificationId, title ?? GetTitle(), message);
-            }
-            else
-            {
-                // Do non UI Thread stuff
-                UIDispatcher.Invoke(() => _notifier.ShowInfo(notificationId, title ?? GetTitle(), message));
-            }
+            UIDispatcher.Invoke(() => _notifier.ShowInfo(notificationId, title ?? GetTitle(), message));
         }
 
         private string GetTitle()
@@ -213,29 +204,12 @@ namespace HideezClient.Modules
 
         public Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd)
         {
-            if (UIDispatcher.CheckAccess())
-            {
-                return _notifier.SelectAccountAsync(accounts, hwnd);
-            }
-            else
-            {
-                // Do non UI Thread stuff
-                return UIDispatcher.Invoke(() => _notifier.SelectAccountAsync(accounts, hwnd));
-            }
+            return UIDispatcher.Invoke(() => _notifier.SelectAccountAsync(accounts, hwnd));
         }
 
         public void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel)
         {
-
-            if (UIDispatcher.CheckAccess())
-            {
-                _notifier.ShowStorageLoadingNotification(viewModel);
-            }
-            else
-            {
-                // Do non UI Thread stuff
-                UIDispatcher.Invoke(() => _notifier.ShowStorageLoadingNotification(viewModel));
-            }
+            UIDispatcher.Invoke(() => _notifier.ShowStorageLoadingNotification(viewModel));
         }
 
         public void CloseWindow(string id)
@@ -274,7 +248,7 @@ namespace HideezClient.Modules
             {
                 if (pinView == null)
                 {
-                    if (UIDispatcher.CheckAccess())
+                    UIDispatcher.Invoke(() =>
                     {
                         var vm = _viewModelLocator.PinViewModel;
                         vm.Initialize(obj.DeviceId);
@@ -284,37 +258,15 @@ namespace HideezClient.Modules
                         };
                         pinView.Closed += PinView_Closed;
                         pinView.Show();
-                    }
-                    else
-                    {
-                        // Do non UI Thread stuff
-                        UIDispatcher.Invoke(() =>
-                        {
-                            var vm = _viewModelLocator.PinViewModel;
-                            vm.Initialize(obj.DeviceId);
-                            pinView = new PinView()
-                            {
-                                DataContext = vm,
-                            };
-                            pinView.Closed += PinView_Closed;
-                            pinView.Show();
-                        });
-                    }
+                    });
                 }
 
                 if (pinView != null)
                 {
-                    if (UIDispatcher.CheckAccess())
+                    UIDispatcher.Invoke(() =>
                     {
                         ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, true, false, false);
-                    }
-                    else
-                    {
-                        UIDispatcher.Invoke(() =>
-                        {
-                            ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, true, false, false);
-                        });
-                    }
+                    });
                 }
             }
         }
@@ -325,7 +277,7 @@ namespace HideezClient.Modules
             {
                 if (pinView == null)
                 {
-                    if (UIDispatcher.CheckAccess())
+                    UIDispatcher.Invoke(() =>
                     {
                         var vm = _viewModelLocator.PinViewModel;
                         vm.Initialize(obj.DeviceId);
@@ -335,37 +287,15 @@ namespace HideezClient.Modules
                         };
                         pinView.Closed += PinView_Closed;
                         pinView.Show();
-                    }
-                    else
-                    {
-                        // Do non UI Thread stuff
-                        UIDispatcher.Invoke(() =>
-                        {
-                            var vm = _viewModelLocator.PinViewModel;
-                            vm.Initialize(obj.DeviceId);
-                            pinView = new PinView()
-                            {
-                                DataContext = vm,
-                            };
-                            pinView.Closed += PinView_Closed;
-                            pinView.Show();
-                        });
-                    }
+                    });
                 }
 
                 if (pinView != null)
                 {
-                    if (UIDispatcher.CheckAccess())
+                    UIDispatcher.Invoke(() =>
                     {
                         ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, false, obj.OldPin, obj.ConfirmPin);
-                    }
-                    else
-                    {
-                        UIDispatcher.Invoke(() =>
-                        {
-                            ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, false, obj.OldPin, obj.ConfirmPin);
-                        });
-                    }
+                    });
                 }
             }
         }
@@ -374,7 +304,7 @@ namespace HideezClient.Modules
         {
             try
             {
-                if (UIDispatcher.CheckAccess())
+                UIDispatcher.Invoke(() =>
                 {
                     try
                     {
@@ -382,20 +312,7 @@ namespace HideezClient.Modules
                         pinView = null;
                     }
                     catch { }
-                }
-                else
-                {
-                    // Do non UI Thread stuff
-                    UIDispatcher.Invoke(() =>
-                    {
-                        try
-                        {
-                            pinView?.Close();
-                            pinView = null;
-                        }
-                        catch { }
-                    });
-                }
+                });
             }
             catch { }
         }
@@ -430,14 +347,58 @@ namespace HideezClient.Modules
 
         public void ShowDeviceNotAuthorized(Device device)
         {
-            if (UIDispatcher.CheckAccess())
+            UIDispatcher.Invoke(() => _notifier.ShowDeviceNotAuthorizedNotification(device));
+        }
+
+        public async Task<Bitmap> GetCurrentScreenImageAsync()
+        {
+            Bitmap screenShot = new Bitmap(1, 1);
+            System.Windows.Forms.Screen screen = System.Windows.Forms.Screen.PrimaryScreen;
+            var isMainWindowVisible = false;
+
+            try
             {
-                _notifier.ShowDeviceNotAuthorizedNotification(device);
+                var hWndForegroundWindow = Win32Helper.GetForegroundWindow();
+                screen = System.Windows.Forms.Screen.FromHandle(hWndForegroundWindow);
+
+                if (MainWindow != null)
+                {
+                    IntPtr hWndMainWindow = new WindowInteropHelper(MainWindow).EnsureHandle();
+                    isMainWindowVisible = hWndForegroundWindow == hWndMainWindow;
+                }
+
+                if (isMainWindowVisible)
+                {
+                    await HideMainWindowAsync();
+                }
+
+                screenShot = GetCurrentScreenImage(screen.Bounds.X, screen.Bounds.Y, screen.Bounds.Width, screen.Bounds.Height);
+
+                if (isMainWindowVisible)
+                {
+                    await ActivateMainWindowAsync();
+                }
+
             }
-            else
+            catch (Exception ex)
             {
-                UIDispatcher.Invoke(() => _notifier.ShowDeviceNotAuthorizedNotification(device));
+                log.Error(ex);
             }
+
+            return screenShot;
+        }
+
+        public Bitmap GetCurrentScreenImage(double sourceX, double sourceY, double width, double height)
+        {
+
+            Bitmap bitmap = new Bitmap((int)width, (int)height);
+
+            using (Graphics g = Graphics.FromImage(bitmap))
+            {
+                g.CopyFromScreen((int)sourceX, (int)sourceY, 0, 0, bitmap.Size);
+            }
+
+            return bitmap;
         }
     }
 }

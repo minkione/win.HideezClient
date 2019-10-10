@@ -24,13 +24,21 @@ using DynamicData.Binding;
 using System.Collections.Specialized;
 using System.Reactive.Linq;
 using System.Windows.Controls;
+using HideezClient.Utilities.QrCode;
+using HideezClient.Modules;
 
 namespace HideezClient.PageViewModels
 {
     class PasswordManagerViewModel : ReactiveObject
     {
-        public PasswordManagerViewModel()
+        private readonly IQrScannerHelper qrScannerHelper;
+        private readonly IWindowsManager windowsManager;
+
+        public PasswordManagerViewModel(IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper)
         {
+            this.windowsManager = windowsManager;
+            this.qrScannerHelper = qrScannerHelper;
+
             this.WhenAnyValue(x => x.SearchQuery)
                  .Throttle(TimeSpan.FromMilliseconds(100))
                  .Where(term => null != term)
@@ -122,6 +130,7 @@ namespace HideezClient.PageViewModels
                     {
                         OnSaveAccount((x as PasswordBox)?.SecurePassword);
                     },
+                    CanExecuteFunc = () => EditAccount != null && EditAccount.ErrorOtpSecret == null,
                 };
             }
         }
@@ -157,21 +166,25 @@ namespace HideezClient.PageViewModels
 
         private void OnAddAccount()
         {
-            EditAccount = new EditAccountViewModel(Device);
+            EditAccount = new EditAccountViewModel(Device, windowsManager, qrScannerHelper);
         }
 
         private void OnDeleteAccount()
         {
-            IsAvailable = false;
-            Device.DeleteAccount(SelectedAccount.AccountRecord);
-            EditAccount = null;
+            var resalt = MessageBox.Show("DeleteSelectedAccountsMessage", "Delite", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (resalt == MessageBoxResult.Yes)
+            {
+                IsAvailable = false;
+                Device.DeleteAccount(SelectedAccount.AccountRecord);
+                EditAccount = null;
+            }
         }
 
         private void OnEditAccount()
         {
             if (Device.AccountsRecords.TryGetValue(SelectedAccount.Key, out AccountRecord record))
             {
-                EditAccount = new EditAccountViewModel(Device, record);
+                EditAccount = new EditAccountViewModel(Device, record, windowsManager, qrScannerHelper);
             }
         }
 

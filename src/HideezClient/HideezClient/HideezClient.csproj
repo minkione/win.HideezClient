@@ -234,6 +234,12 @@
     <Reference Include="XAMLMarkupExtensions, Version=1.5.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\XAMLMarkupExtensions.1.5.1\lib\net452\XAMLMarkupExtensions.dll</HintPath>
     </Reference>
+    <Reference Include="zxing, Version=0.16.4.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ZXing.Net.0.16.4\lib\net47\zxing.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing.presentation, Version=0.16.4.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ZXing.Net.0.16.4\lib\net47\zxing.presentation.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Version.cs">
@@ -357,8 +363,11 @@
     <Compile Include="PageViewModels\SettingsPageViewModel.cs" />
     <Compile Include="PageViewModels\DefaultPageViewModel.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
+    <Compile Include="Utilities\Base32Encoding.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
     <Compile Include="Utilities\Password\PasswordGenerator.cs" />
+    <Compile Include="Utilities\QrCode\IQrScannerHelper.cs" />
+    <Compile Include="Utilities\QrCode\QrScannerHelper.cs" />
     <Compile Include="Utilities\Trie\ITrie.cs" />
     <Compile Include="Utilities\Trie\Trie.cs" />
     <Compile Include="Utilities\Trie\TrieNode.cs" />

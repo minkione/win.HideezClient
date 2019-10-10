@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HideezClient.Models;
 using HideezClient.Controls;
+using System.Drawing;
 
 namespace HideezClient.Modules
 {
@@ -14,6 +15,8 @@ namespace HideezClient.Modules
     {
         void ActivateMainWindow();
         Task ActivateMainWindowAsync();
+        Task HideMainWindowAsync();
+        Task<Bitmap> GetCurrentScreenImageAsync();
         event EventHandler<bool> MainWindowVisibleChanged;
         bool IsMainWindowVisible { get; }
         void ShowDialogAddCredential(Device device);

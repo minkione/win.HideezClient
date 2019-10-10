@@ -239,7 +239,7 @@
                                             Margin="0,4"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
-                                            FontSize="16"
+                                            FontSize="14"
                                             FontWeight="Normal"
                                             Foreground="{StaticResource DarkForeground}"
                                             Text="{TemplateBinding Content}" />

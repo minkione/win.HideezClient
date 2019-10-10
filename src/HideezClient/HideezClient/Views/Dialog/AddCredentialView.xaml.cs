@@ -25,7 +25,7 @@ namespace HideezClient.Views
                 }
                 else
                 {
-                    passwordBox.BorderBrush = passwordBox.TryFindResource("ErrorBorderBrush") as Brush;
+                    passwordBox.BorderBrush = passwordBox.TryFindResource("ErrorBrush") as Brush;
                 }
             }
         }
@@ -37,7 +37,7 @@ namespace HideezClient.Views
             {
                 if (string.IsNullOrWhiteSpace(comboBox.SelectedItem as string))
                 {
-                    comboBox.BorderBrush = passwordBox.TryFindResource("ErrorBorderBrush") as Brush;
+                    comboBox.BorderBrush = passwordBox.TryFindResource("ErrorBrush") as Brush;
                 }
                 else
                 {

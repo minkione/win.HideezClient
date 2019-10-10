@@ -157,7 +157,7 @@
                     x:Name="ConnectingIco"
                     Width="16"
                     Height="22"
-                    Margin="8,0,0,2"
+                    Margin="8,1,0,2"
                     VerticalAlignment="Center"
                     Foreground="{DynamicResource InitializingBrush}"
                     Kind="Disconnect"
