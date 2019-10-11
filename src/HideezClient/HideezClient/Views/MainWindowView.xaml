@@ -109,7 +109,7 @@
                         Metro:VisibilityHelper.IsVisible="{Binding IsConnected}"
                         DataContext="{Binding MenuAboutDevice}"
                         Style="{DynamicResource LeftColumMenuStyle}"
-                        Tag="LockSolid" />
+                        Tag="InfoCircleSolid" />
                     <Border>
                         <Border.Style>
                             <Style TargetType="{x:Type Border}">

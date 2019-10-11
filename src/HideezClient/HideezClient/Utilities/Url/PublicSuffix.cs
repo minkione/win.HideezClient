@@ -107,30 +107,43 @@ namespace HideezClient.Utilities
         private string GetDataWithSuffix()
         {
             string fileContext = "";
-            bool updateSuffixList = !File.Exists(fileFromLocal);
-            if (!updateSuffixList)
+            try
             {
-                try
+                bool updateSuffixList = !File.Exists(fileFromLocal);
+                if (!updateSuffixList)
                 {
-                    fileContext = File.ReadAllText(fileFromLocal, encoding);
+                    try
+                    {
+                        fileContext = File.ReadAllText(fileFromLocal, encoding);
+                    }
+                    catch (Exception ex)
+                    {
+                        Error(ex);
+                        // try to reload data
+                        if (File.Exists(fileFromResource))
+                        {
+                            fileContext = File.ReadAllText(fileFromResource, encoding);
+                        }
+                    }
+
+                    updateSuffixList = DateTime.Now.Date - File.GetLastWriteTime(fileFromLocal).Date > TimeSpan.FromDays(validDays);
                 }
-                catch (Exception ex)
+                else
                 {
-                    Error(ex);
-                    // try to reload data
-                    fileContext = File.ReadAllText(fileFromResource, encoding);
+                    if (File.Exists(fileFromResource))
+                    {
+                        fileContext = File.ReadAllText(fileFromResource, encoding);
+                    }
                 }
 
-                updateSuffixList = DateTime.Now.Date - File.GetLastWriteTime(fileFromLocal).Date > TimeSpan.FromDays(validDays);
+                if (updateSuffixList)
+                {
+                    ThreadPool.QueueUserWorkItem(obj => LoadSuffixListFromWeb());
+                }
             }
-            else
+            catch(Exception ex)
             {
-                fileContext = File.ReadAllText(fileFromResource, encoding);
-            }
-
-            if (updateSuffixList)
-            {
-                ThreadPool.QueueUserWorkItem(obj => LoadSuffixListFromWeb());
+                Error(ex);
             }
 
             return fileContext;
