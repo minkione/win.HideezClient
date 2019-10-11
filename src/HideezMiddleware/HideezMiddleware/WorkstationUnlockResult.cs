@@ -3,6 +3,11 @@
     public class WorkstationUnlockResult
     {
         /// <summary>
+        /// Id of the connection flow that performed workstation unlock
+        /// </summary>
+        public string FlowId { get; set; } = string.Empty;
+
+        /// <summary>
         /// Tells if workstation unlock was successful
         /// </summary>
         public bool IsSuccessful { get; set; } = false;

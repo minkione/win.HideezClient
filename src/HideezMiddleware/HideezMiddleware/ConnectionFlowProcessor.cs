@@ -29,7 +29,13 @@ namespace HideezMiddleware
         string _errNid = string.Empty; // Error Notification Id
         CancellationTokenSource _cts;
 
+        string _flowId = string.Empty;
+
+        public event EventHandler<string> Started;
+
         public event EventHandler<IDevice> DeviceFinishedMainFlow;
+
+        public event EventHandler<string> Finished;
 
         public ConnectionFlowProcessor(BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
@@ -45,12 +51,19 @@ namespace HideezMiddleware
             _ui = ui;
             _hesConnection = hesConnection;
 
-            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
+            SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
         }
 
-        void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
-            WriteDebugLine("Switch reason : " + e.Reason);
+            // TODO: MainFlow can cancel itself after successful unlock
+            Cancel();
+        }
+
+        void OnDeviceDisconnectedDuringFlow(object sender, EventArgs e)
+        {
+            WriteDebugLine("Cancelling because disconnect");
+            // cancel the workflow if the device disconnects
             Cancel();
         }
 
@@ -89,6 +102,9 @@ namespace HideezMiddleware
                 return;
 
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
+
+            _flowId = Guid.NewGuid().ToString();
+            Started?.Invoke(this, _flowId);
 
             bool success = false;
             bool fatalError = false;
@@ -206,7 +222,7 @@ namespace HideezMiddleware
                     device.Disconnected -= OnDeviceDisconnectedDuringFlow;
             }
 
-
+            // Cleanup
             try
             {
                 await _ui.HidePinUi();
@@ -245,14 +261,10 @@ namespace HideezMiddleware
                 _errNid = string.Empty;
             }
 
-            Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
-        }
+            Finished?.Invoke(this, _flowId);
+            _flowId = string.Empty;
 
-        void OnDeviceDisconnectedDuringFlow(object sender, EventArgs e)
-        {
-            WriteDebugLine("Cancelling because disconnect");
-            // cancel the workflow if the device disconnects
-            Cancel();
+            Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
         }
 
         async Task<WorkstationUnlockResult> TryUnlockWorkstation(IDevice device)
@@ -270,6 +282,7 @@ namespace HideezMiddleware
             result.AccountName = credentials.Name;
             result.AccountLogin = credentials.Login;
             result.DeviceMac = device.Mac;
+            result.FlowId = _flowId;
 
             return result;
         }

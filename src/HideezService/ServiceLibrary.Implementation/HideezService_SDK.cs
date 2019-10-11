@@ -35,7 +35,7 @@ namespace ServiceLibrary.Implementation
         static RfidServiceConnection _rfidService;
         static ProximityMonitorManager _proximityMonitorManager;
         static IScreenActivator _screenActivator;
-        static WcfDeviceFactory _wcfDeviceManager;
+        static WcfDeviceFactory _wcfDeviceFactory;
         static EventSender _eventSender;
         static ServiceClientUiManager _clientProxy;
         static UiProxyManager _uiProxy;
@@ -65,12 +65,7 @@ namespace ServiceLibrary.Implementation
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
-            var sessionTimestampPath = $@"{commonAppData}\Hideez\Service\Timestamp\timestamp.dat";
             string settingsDirectory = $@"{commonAppData}\Hideez\Service\Settings\";
-
-            // Session Timestamp Logger ============================
-            _sessionTimestampLogger = new SessionTimestampLogger(sessionTimestampPath, _sessionInfoProvider, _eventSaver, _sdkLogger);
-            Task.Run(_sessionTimestampLogger.Initialize);
 
             // Connection Manager ============================
             _connectionManager = new BleConnectionManager(_sdkLogger, bondsFilePath);
@@ -85,9 +80,10 @@ namespace ServiceLibrary.Implementation
             _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
             _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
             _deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
+            SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
 
             // WCF ============================
-            _wcfDeviceManager = new WcfDeviceFactory(_deviceManager, _sdkLogger);
+            _wcfDeviceFactory = new WcfDeviceFactory(_deviceManager, _sdkLogger);
 
             // Named Pipes Server ==============================
             _credentialProviderProxy = new CredentialProviderProxy(_sdkLogger);
@@ -200,7 +196,8 @@ namespace ServiceLibrary.Implementation
             _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager, 
                 _deviceManager, _workstationLocker, _sdkLogger);
 
-            _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver,
+            // SessionSwitchLogger ==================================
+            _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver, _connectionFlowProcessor,
                 _tapProcessor, _rfidProcessor, _proximityProcessor, 
                 _workstationLockProcessor, _deviceManager, _sdkLogger);
 
@@ -227,7 +224,6 @@ namespace ServiceLibrary.Implementation
         }
 
         #region Event Handlers
-
         void ProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
         {
             try
@@ -470,6 +466,34 @@ namespace ServiceLibrary.Implementation
             }
 
         }
+
+        void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
+        {
+            try
+            {
+                if (reason == SessionSwitchReason.SessionLogoff || reason == SessionSwitchReason.SessionLock)
+                {
+                    // Disconnect all connected devices
+                    // TODO: implement _deviceManager?.DisconnectAll();
+                    _deviceManager?.Devices.ToList().ForEach(d =>
+                    {
+                        try
+                        {
+                            if (d.IsConnected)
+                                d.Disconnect();
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.WriteLine(ex);
+                        }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
         #endregion
 
         public bool GetAdapterState(Adapter adapter)
@@ -551,26 +575,6 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        readonly string _ignoreWorkstationOwnershipSecurityValueName = "ignore_workstation_ownership_security";
-        bool GetIgnoreWorkstationOwnershipSecurity()
-        {
-            var registryKey = GetAppRegistryRootKey();
-            if (registryKey == null)
-                throw new Exception("Couldn't find Hideez Client registry key. (HKLM\\SOFTWARE\\Hideez\\Client)");
-
-            var value = registryKey.GetValue(_ignoreWorkstationOwnershipSecurityValueName);
-            if (value == null)
-            {
-                _log.WriteLine($"{_ignoreWorkstationOwnershipSecurityValueName} value is null or empty.", LogErrorSeverity.Warning);
-                return false;
-            }
-
-            if (!(int.TryParse(value.ToString(), out int result)))
-                throw new FormatException($"Specified {_ignoreWorkstationOwnershipSecurityValueName} is not a correct.");
-
-            return (result != 0);
-        }
-
         public void DisconnectDevice(string id)
         {
             try
@@ -626,7 +630,7 @@ namespace ServiceLibrary.Implementation
                 if (wcfDevice == null)
                 {
                     var device = _deviceManager.FindBySerialNo(serialNo, 1);
-                    wcfDevice = await _wcfDeviceManager.EstablishRemoteDeviceConnection(device.Mac, channelNo);
+                    wcfDevice = await _wcfDeviceFactory.EstablishRemoteDeviceConnection(device.Mac, channelNo);
 
                     SubscribeToWcfDeviceEvents(wcfDevice);
                 }
@@ -753,35 +757,6 @@ namespace ServiceLibrary.Implementation
         #endregion
 
         #region Host only
-        public static void OnSessionChange(bool sessionLocked)
-        {
-            try
-            {
-                var newState = sessionLocked ? "locked" : "unlocked";
-                _log.WriteLine($"Session state changed to: {newState} (sessionLocked: {sessionLocked});");
-
-                if (sessionLocked)
-                {
-                    _deviceManager?.Devices.ToList().ForEach(d =>
-                    {
-                        try
-                        {
-                            if (d.IsConnected)
-                                d.Disconnect();
-                        }
-                        catch (Exception ex)
-                        {
-                            _log.WriteLine(ex);
-                        }
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
-        }
-
         public static void OnLaunchFromSleep()
         {
             try

@@ -44,28 +44,30 @@ namespace HideezMiddleware.Audit
         /// <param name="sendImmediatelly">If true, event sending is performed immediatelly after queuing event</param>
         public async Task AddNewAsync(WorkstationEvent workstationEvent, bool sendImmediatelly = false)
         {
-            await Task.Run(() =>
+            await Task.Run(() => { AddNew(workstationEvent, sendImmediatelly); });
+        }
+
+        public void AddNew(WorkstationEvent workstationEvent, bool sendImmediatelly = false)
+        {
+            lock (_writeLock)
             {
-                lock (_writeLock)
+                try
                 {
-                    try
-                    {
-                        WriteLine($"New event: {workstationEvent.EventId} - (session id: {workstationEvent.WorkstationSessionId})");
+                    WriteLine($"New event: {workstationEvent.EventId} - (session id: {workstationEvent.WorkstationSessionId})");
 
-                        string json = JsonConvert.SerializeObject(workstationEvent);
-                        string file = $"{EventsDirectoryPath}{workstationEvent.Id}";
-                        File.WriteAllText(file, json);
-                        File.SetCreationTimeUtc(file, workstationEvent.Date); // Event file creation date should match the event time
+                    string json = JsonConvert.SerializeObject(workstationEvent);
+                    string file = $"{EventsDirectoryPath}{workstationEvent.Id}";
+                    File.WriteAllText(file, json);
+                    File.SetCreationTimeUtc(file, workstationEvent.Date); // Event file creation date should match the event time
 
-                        if (sendImmediatelly)
-                            UrgentEventSaved?.Invoke(this, EventArgs.Empty);
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteLine(ex);
-                    }
+                    if (sendImmediatelly)
+                        UrgentEventSaved?.Invoke(this, EventArgs.Empty);
                 }
-            });
+                catch (Exception ex)
+                {
+                    WriteLine(ex);
+                }
+            }
         }
     }
 }
