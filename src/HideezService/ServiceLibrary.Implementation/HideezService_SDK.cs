@@ -167,7 +167,6 @@ namespace ServiceLibrary.Implementation
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreList = new AdvertisementIgnoreList(
                 _connectionManager,
-                _deviceManager,
                 _proximitySettingsManager,
                 _sdkLogger);
             _rfidProcessor = new RfidConnectionProcessor(
