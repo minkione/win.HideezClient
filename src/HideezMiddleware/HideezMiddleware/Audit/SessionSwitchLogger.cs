@@ -3,6 +3,7 @@ using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware.DeviceConnection;
+using HideezMiddleware.Tasks;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -16,23 +17,12 @@ namespace HideezMiddleware.Audit
     {
         // There is a slight delay between programmatic lock/unlock by out app and actual session switch
         const int LOCK_EVENT_TIMEOUT = 3_000; 
-        const int UNLOCK_EVENT_TIMEOUT = 10_000;
 
         class LockProcedure
         {
             public DateTime Time { get; set; }
             public string Mac { get; set; }
             public WorkstationLockingReason Reason { get; set; }
-        }
-
-        class UnlockProcedure
-        {
-            public string FlowId { get; set; } // Set on connectionFlow.Started
-            public DateTime EventTime { get; set; } // Set on SessionSwitchMonitor.SessionSwitch
-            public WorkstationUnlockResult UnlockResult { get; set; } = null; // Set on connectionFlow.UnlockAttempt
-            public SessionSwitchSubject UnlockMethod { get; set; } = SessionSwitchSubject.NonHideez; // Changed on connectionFlow.UnlockAttempt
-            public bool SessionSwitched { get; set; } // Set on SessionSwitchMonitor.SessionSwitch
-            public bool FlowFinished { get; set; } // Set on connectionFlow.Finished
         }
 
         readonly EventSaver _eventSaver;
@@ -46,13 +36,13 @@ namespace HideezMiddleware.Audit
         LockProcedure _lockProcedure = null;
         object _lpLock = new object();
 
-        UnlockProcedure _unlockProcedure = null;
+        UnlockSessionSwitchProc _unlockProcedure = null;
         object _upLock = new object();
 
 
         public SessionSwitchLogger(EventSaver eventSaver,
             ConnectionFlowProcessor connectionFlowProcessor,
-            TapConnectionProcessor tapProcessor, 
+            TapConnectionProcessor tapProcessor,
             RfidConnectionProcessor rfidProcessor,
             ProximityConnectionProcessor proximityProcessor,
             WorkstationLockProcessor workstationLockProcessor,
@@ -69,13 +59,7 @@ namespace HideezMiddleware.Audit
             _bleDeviceManager = bleDeviceManager;
 
             _connectionFlowProcessor.Started += ConnectionFlowProcessor_Started;
-            _connectionFlowProcessor.Finished += ConnectionFlowProcessor_Finished;
-            _tapProcessor.WorkstationUnlockPerformed += TapProcessor_WorkstationUnlockPerformed;
-            _rfidProcessor.WorkstationUnlockPerformed += RfidProcessor_WorkstationUnlockPerformed;
-            _proximityProcessor.WorkstationUnlockPerformed += ProximityProcessor_WorkstationUnlockPerformed;
-
             _workstationLockProcessor.WorkstationLocking += WorkstationLockProcessor_WorkstationLocking;
-
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
         }
 
@@ -88,17 +72,13 @@ namespace HideezMiddleware.Audit
         }
 
         bool disposed = false;
-        protected void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!disposed)
             {
                 if (disposing)
                 {
                     _connectionFlowProcessor.Started -= ConnectionFlowProcessor_Started;
-                    _connectionFlowProcessor.Finished -= ConnectionFlowProcessor_Finished;
-                    _tapProcessor.WorkstationUnlockPerformed -= TapProcessor_WorkstationUnlockPerformed;
-                    _rfidProcessor.WorkstationUnlockPerformed -= RfidProcessor_WorkstationUnlockPerformed;
-                    _proximityProcessor.WorkstationUnlockPerformed -= ProximityProcessor_WorkstationUnlockPerformed;
                     _workstationLockProcessor.WorkstationLocking -= WorkstationLockProcessor_WorkstationLocking;
                     SessionSwitchMonitor.SessionSwitch -= SessionSwitchMonitor_SessionSwitch;
                 }
@@ -127,42 +107,6 @@ namespace HideezMiddleware.Audit
             }
         }
 
-        void TapProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
-        {
-            lock (_upLock)
-            {
-                if (_unlockProcedure != null)
-                {
-                    _unlockProcedure.UnlockResult = e;
-                    _unlockProcedure.UnlockMethod = SessionSwitchSubject.Dongle;
-                }
-            }
-        }
-
-        void RfidProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
-        {
-            lock (_upLock)
-            {
-                if (_unlockProcedure != null)
-                {
-                    _unlockProcedure.UnlockResult = e;
-                    _unlockProcedure.UnlockMethod = SessionSwitchSubject.RFID;
-                }
-            }
-        }
-
-        void ProximityProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
-        {
-            lock (_upLock)
-            {
-                if (_unlockProcedure != null)
-                {
-                    _unlockProcedure.UnlockResult = e;
-                    _unlockProcedure.UnlockMethod = SessionSwitchSubject.Proximity;
-                }
-            }
-        }
-
         void ConnectionFlowProcessor_Started(object sender, string e)
         {
             lock (_upLock)
@@ -170,19 +114,7 @@ namespace HideezMiddleware.Audit
                 if (_unlockProcedure != null)
                     return;
 
-                _unlockProcedure = new UnlockProcedure()
-                {
-                    FlowId = e,
-                };
-            }
-        }
-
-        void ConnectionFlowProcessor_Finished(object sender, string e)
-        {
-            lock (_upLock)
-            {
-                if (_unlockProcedure != null && _unlockProcedure.FlowId == e)
-                    _unlockProcedure.FlowFinished = true;
+                _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor);
             }
         }
 
@@ -269,24 +201,16 @@ namespace HideezMiddleware.Audit
                 eventType != WorkstationEventType.ComputerLogon)
                 return;
 
-            WorkstationEvent we = null;
             lock (_upLock)
             { 
-                if (_unlockProcedure == null)
-                {
-                    we = _eventSaver.GetWorkstationEvent();
-                    we.EventId = eventType;
-                    we.Note = WorkstationLockingReason.NonHideez.ToString();
-                }
-                else
-                {
-                    _unlockProcedure.EventTime = DateTime.UtcNow;
-                    _unlockProcedure.SessionSwitched = true;
-                }
+                if (_unlockProcedure != null)
+                    return;
             }
 
-            if (we != null)
-                await _eventSaver.AddNewAsync(we, true);
+            var we = _eventSaver.GetWorkstationEvent();
+            we.EventId = eventType;
+            we.Note = WorkstationLockingReason.NonHideez.ToString();
+            await _eventSaver.AddNewAsync(we, true);
         }
     }
 }
