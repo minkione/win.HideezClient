@@ -9,6 +9,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
+using HideezMiddleware.Tasks;
 using Microsoft.Win32;
 
 namespace HideezMiddleware
@@ -49,6 +50,7 @@ namespace HideezMiddleware
 
         void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
+            WriteDebugLine("Switch reason : " + e.Reason);
             Cancel();
         }
 
@@ -82,7 +84,8 @@ namespace HideezMiddleware
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
             var existingDevice = _deviceManager.Find(mac, (int)DefaultDeviceChannel.Main);
-            if (existingDevice != null && existingDevice.IsConnected)
+            var isUnlocked = WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Unlocked;
+            if (existingDevice != null && existingDevice.IsConnected && isUnlocked)
                 return;
 
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
@@ -100,13 +103,17 @@ namespace HideezMiddleware
                 await _ui.SendError("", _errNid);
 
                 _screenActivator?.ActivateScreen();
+
+                if (WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Locked)
+                {
+                    WriteDebugLine("Wait til CP connect");
+                    await new WaitWorkstationUnlockerConnectProc(_workstationUnlocker).Run(20000, ct); // 20 seconds timeout 
+                    WriteDebugLine("CP connected");
+                }
+
                 device = await ConnectDevice(mac, ct);
 
-                device.Disconnected += (object sender, EventArgs e) =>
-                {
-                    // cancel the workflow if the device disconnects
-                    Cancel();
-                };
+                device.Disconnected += OnDeviceDisconnectedDuringFlow;
 
                 await WaitDeviceInitialization(mac, device);
 
@@ -153,6 +160,11 @@ namespace HideezMiddleware
                         }
                     }
                 }
+                else if (WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Locked)
+                {
+                    // Session is locked but workstation unlocker is not connected
+                    success = false;
+                }
                 else
                 {
                     success = true;
@@ -165,9 +177,21 @@ namespace HideezMiddleware
             }
             catch (HideezException ex)
             {
-                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
+                if (ex.ErrorCode == HideezErrorCode.ButtonConfirmationTimeout ||
+                    ex.ErrorCode == HideezErrorCode.GetPinTimeout)
+                {
+                    // Silent cancelation handling
+                    WriteLine(ex);
+                }
+                else
+                    errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
             }
             catch (OperationCanceledException ex)
+            {
+                // Silent cancelation handling
+                WriteLine(ex);
+            }
+            catch (TimeoutException ex)
             {
                 // Silent cancelation handling
                 WriteLine(ex);
@@ -175,6 +199,11 @@ namespace HideezMiddleware
             catch (Exception ex)
             {
                 errorMessage = ex.Message;
+            }
+            finally
+            {
+                if (device != null)
+                    device.Disconnected -= OnDeviceDisconnectedDuringFlow;
             }
 
 
@@ -217,6 +246,13 @@ namespace HideezMiddleware
             }
 
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
+        }
+
+        void OnDeviceDisconnectedDuringFlow(object sender, EventArgs e)
+        {
+            WriteDebugLine("Cancelling because disconnect");
+            // cancel the workflow if the device disconnects
+            Cancel();
         }
 
         async Task<WorkstationUnlockResult> TryUnlockWorkstation(IDevice device)
@@ -476,6 +512,5 @@ namespace HideezMiddleware
 
             return credentials;
         }
-
     }
 }
