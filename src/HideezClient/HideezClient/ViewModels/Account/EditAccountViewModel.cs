@@ -43,6 +43,7 @@ namespace HideezClient.ViewModels
 
         public EditAccountViewModel(DeviceViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper)
         {
+            IsNewAccount = true;
             this.windowsManager = windowsManager;
             this.qrScannerHelper = qrScannerHelper;
             AccountRecord = new AccountRecord();
@@ -167,6 +168,7 @@ namespace HideezClient.ViewModels
             }
         }
 
+        [Reactive] public bool IsNewAccount { get; private set; }
         [Reactive] public bool HasChanges { get; set; }
         public string Name
         {

@@ -12,7 +12,7 @@ namespace HideezClient.Converters
 
             if(values[0] is bool isConnected && values[1] is bool isInitialized && values[2] is int battery)
             {
-                if(isConnected && isInitialized && battery != 0 && battery <= 30)
+                if(isConnected && isInitialized && battery != 0 && battery <= 25)
                 {
                     return Visibility.Visible;
                 }

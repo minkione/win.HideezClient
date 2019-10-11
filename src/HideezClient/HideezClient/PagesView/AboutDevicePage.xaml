@@ -20,6 +20,7 @@
 
         <DockPanel HorizontalAlignment="Stretch">
             <TextBlock
+                Margin="15,0,0,0"
                 VerticalAlignment="Center"
                 DockPanel.Dock="Left"
                 FontSize="24"

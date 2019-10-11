@@ -49,7 +49,7 @@ namespace HideezClient.ViewModels
         public string SerialNo => device.SerialNo;
         public string OwnerName => device.OwnerName;
         public string Id => device.Id;
-        public string Mac => Id.Split(':').Skip(1).FirstOrDefault();
+        public string Mac => Id.Split(':').FirstOrDefault();
         public bool IsConnected => device.IsConnected;
         public double Proximity => device.Proximity;
         public int Battery => device.Battery;

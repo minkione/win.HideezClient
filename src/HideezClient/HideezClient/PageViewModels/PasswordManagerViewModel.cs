@@ -26,11 +26,14 @@ using System.Reactive.Linq;
 using System.Windows.Controls;
 using HideezClient.Utilities.QrCode;
 using HideezClient.Modules;
+using NLog;
+using Hideez.SDK.Communication;
 
 namespace HideezClient.PageViewModels
 {
     class PasswordManagerViewModel : ReactiveObject
     {
+        protected readonly ILogger log = LogManager.GetCurrentClassLogger();
         private readonly IQrScannerHelper qrScannerHelper;
         private readonly IWindowsManager windowsManager;
 
@@ -164,7 +167,7 @@ namespace HideezClient.PageViewModels
             catch (Exception ex)
             {
                 IsAvailable = true;
-                windowsManager.ShowError(ex.Message);
+                HandleError(ex, "Error save account.");
             }
         }
 
@@ -193,7 +196,7 @@ namespace HideezClient.PageViewModels
                 catch (Exception ex)
                 {
                     IsAvailable = true;
-                    windowsManager.ShowError(ex.Message);
+                    HandleError(ex, "Error delete account.");
                 }
             }
         }
@@ -238,6 +241,26 @@ namespace HideezClient.PageViewModels
         private bool Contains(string source, string toCheck)
         {
             return source != null && toCheck != null && source.IndexOf(toCheck, StringComparison.InvariantCultureIgnoreCase) >= 0;
+        }
+
+        private void HandleError(Exception ex, string message)
+        {
+            log.Error(ex);
+            try
+            {
+                if (ex is HideezException hex && hex.ErrorCode == HideezErrorCode.ERR_UNAUTHORIZED)
+                {
+                    windowsManager.ShowError("Authorization error.");
+                }
+                else
+                {
+                    windowsManager.ShowError(message);
+                }
+            }
+            catch(Exception ManagerEx)
+            {
+                log.Error(ManagerEx);
+            }
         }
     }
 }
