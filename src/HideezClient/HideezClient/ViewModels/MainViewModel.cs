@@ -100,6 +100,7 @@ namespace HideezClient.ViewModels
             if (device != null)
             {
                 SelectedDevice = new DeviceInfoViewModel(device, menuFactory);
+                viewModelLocator.AboutDevicePageViewModel.Device = SelectedDevice;
                 device.PropertyChanged += Device_PropertyChanged;
             }
 
@@ -249,7 +250,6 @@ namespace HideezClient.ViewModels
                     CommandAction = x =>
                     {
                         OnOpenAboutDevicePage();
-                        viewModelLocator.AboutDevicePageViewModel.Device = SelectedDevice;
                     },
                 };
             }

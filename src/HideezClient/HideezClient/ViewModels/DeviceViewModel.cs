@@ -5,6 +5,7 @@ using HideezClient.Controls;
 using HideezClient.Extension;
 using HideezClient.Models;
 using HideezClient.Mvvm;
+using MvvmExtensions.Attributes;
 using MvvmExtensions.Commands;
 using NLog;
 using System;
@@ -48,7 +49,7 @@ namespace HideezClient.ViewModels
         public string SerialNo => device.SerialNo;
         public string OwnerName => device.OwnerName;
         public string Id => device.Id;
-        public string Mac => Id.Split(':').FirstOrDefault();
+        public string Mac => Id.Split(':').Skip(1).FirstOrDefault();
         public bool IsConnected => device.IsConnected;
         public double Proximity => device.Proximity;
         public int Battery => device.Battery;
@@ -62,6 +63,12 @@ namespace HideezClient.ViewModels
         public Version BootloaderVersion => device.BootloaderVersion;
         public uint StorageTotalSize => device.StorageTotalSize;
         public uint StorageFreeSize => device.StorageFreeSize;
+        [DependsOn(nameof(StorageTotalSize))]
+        public uint StorageTotalSizeKb => StorageTotalSize / 1024;
+
+        [DependsOn(nameof(StorageFreeSize), nameof(StorageTotalSize))]
+        public byte StorageFreePercent => (byte)(((double)StorageFreeSize / StorageTotalSize) * 100);
+
         public IDictionary<ushort, AccountRecord> AccountsRecords { get { return device.PasswordManager.Accounts; } }
         public ObservableCollection<AccountInfoViewModel> Accounts { get; } = new ObservableCollection<AccountInfoViewModel>();
 

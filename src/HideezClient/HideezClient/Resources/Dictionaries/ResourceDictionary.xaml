@@ -9,6 +9,21 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:tb="http://www.hardcodet.net/taskbar">
 
+    <!--  State Control Style  -->
+    <Style x:Key="StateControlStyle" TargetType="{x:Type controls:StateControl}">
+        <Setter Property="Margin" Value="18,22" />
+        <Setter Property="NoConnectionBackground" Value="{DynamicResource DisconnectedBrush}" />
+        <Setter Property="HasConnectionBackground" Value="{DynamicResource ConnectedBrush}" />
+        <Setter Property="EffectConnected" Value="{DynamicResource EffectConnected}" />
+        <Setter Property="EffectDisconnected" Value="{DynamicResource EffectDisconnected}" />
+
+        <Setter Property="HasConnectionText" Value="{Binding HasConnectionText}" />
+        <Setter Property="NoConnectionText" Value="{Binding NoConnectionText}" />
+        <Setter Property="Header" Value="{Binding Name}" />
+        <Setter Property="State" Value="{Binding State}" />
+        <Setter Property="Visibility" Value="{Binding Visible, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+    </Style>
+
     <!--  Adorner text style  -->
     <Style x:Key="AdornerTextStyle" TargetType="{x:Type TextBlock}">
         <Setter Property="FontStyle" Value="Normal" />
