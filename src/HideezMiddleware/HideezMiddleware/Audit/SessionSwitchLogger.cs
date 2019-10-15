@@ -1,7 +1,9 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware.DeviceConnection;
+using HideezMiddleware.Tasks;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -13,46 +15,35 @@ namespace HideezMiddleware.Audit
     // Todo: Code cleanup for SessionSwitchLogger
     public class SessionSwitchLogger : Logger, IDisposable
     {
-        // There is a delay between successful unlock/logon by application and actual session switch
-        const int LOCK_EVENT_LIFETIME = 30;
-        const int UNLOCK_EVENT_LIFETIME = 120;
+        // There is a race condition between programmatic lock/unlock by our app and actual session switch
+        const int LOCK_EVENT_TIMEOUT = 3_000;
+        const int UNLOCK_EVENT_TIMEOUT = 10_000;
 
-        class HideezLockEvent
+        class LockProcedure
         {
-            public DateTime EventTime { get; set; }
-
+            public DateTime Time { get; set; }
             public string Mac { get; set; }
-
             public WorkstationLockingReason Reason { get; set; }
         }
 
-        class HideezUnlockEvent
-        {
-            public DateTime EventTime { get; set; }
-
-            public string Mac { get; set; }
-
-            public string AccountName { get; set; }
-
-            public string AccountLogin { get; set; }
-
-            public SessionSwitchSubject Reason { get; set; }
-        }
-
         readonly EventSaver _eventSaver;
+        readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly TapConnectionProcessor _tapProcessor;
         readonly RfidConnectionProcessor _rfidProcessor;
         readonly ProximityConnectionProcessor _proximityProcessor;
         readonly WorkstationLockProcessor _workstationLockProcessor;
         readonly BleDeviceManager _bleDeviceManager;
 
-        readonly Dictionary<string, HideezLockEvent> lockEventsList = new Dictionary<string, HideezLockEvent>();
-        readonly Dictionary<string, HideezUnlockEvent> unlockEventsList = new Dictionary<string, HideezUnlockEvent>();
+        LockProcedure _lockProcedure = null;
+        object _lpLock = new object();
 
-        readonly object listsLock = new object();
+        UnlockSessionSwitchProc _unlockProcedure = null;
+        object _upLock = new object();
+
 
         public SessionSwitchLogger(EventSaver eventSaver,
-            TapConnectionProcessor tapProcessor, 
+            ConnectionFlowProcessor connectionFlowProcessor,
+            TapConnectionProcessor tapProcessor,
             RfidConnectionProcessor rfidProcessor,
             ProximityConnectionProcessor proximityProcessor,
             WorkstationLockProcessor workstationLockProcessor,
@@ -61,76 +52,70 @@ namespace HideezMiddleware.Audit
             : base(nameof(SessionSwitchLogger), log)
         {
             _eventSaver = eventSaver;
+            _connectionFlowProcessor = connectionFlowProcessor;
             _tapProcessor = tapProcessor;
             _rfidProcessor = rfidProcessor;
             _proximityProcessor = proximityProcessor;
             _workstationLockProcessor = workstationLockProcessor;
             _bleDeviceManager = bleDeviceManager;
 
-            tapProcessor.WorkstationUnlockPerformed += TapProcessor_WorkstationUnlockPerformed;
-            rfidProcessor.WorkstationUnlockPerformed += RfidProcessor_WorkstationUnlockPerformed;
-            proximityProcessor.WorkstationUnlockPerformed += ProximityProcessor_WorkstationUnlockPerformed;
-
-            workstationLockProcessor.WorkstationLocking += WorkstationLockProcessor_WorkstationLocking;
-
+            _connectionFlowProcessor.Started += ConnectionFlowProcessor_Started;
+            _workstationLockProcessor.WorkstationLocking += WorkstationLockProcessor_WorkstationLocking;
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
         }
 
+
+        #region IDisposable
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        bool disposed = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    _connectionFlowProcessor.Started -= ConnectionFlowProcessor_Started;
+                    _workstationLockProcessor.WorkstationLocking -= WorkstationLockProcessor_WorkstationLocking;
+                    SessionSwitchMonitor.SessionSwitch -= SessionSwitchMonitor_SessionSwitch;
+                }
+
+                disposed = true;
+            }
+        }
+
+        ~SessionSwitchLogger()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
+        }
+        #endregion
+
         void WorkstationLockProcessor_WorkstationLocking(object sender, WorkstationLockingEventArgs e)
         {
-            lock (listsLock)
+            lock (_lpLock)
             {
-                lockEventsList[e.Device.Mac] = new HideezLockEvent()
+                _lockProcedure = new LockProcedure()
                 {
-                    EventTime = DateTime.UtcNow,
+                    Time = DateTime.UtcNow,
                     Mac = e.Device.Mac,
                     Reason = e.Reason,
                 };
             }
         }
 
-        void TapProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
+        void ConnectionFlowProcessor_Started(object sender, string e)
         {
-            lock (listsLock)
+            lock (_upLock)
             {
-                unlockEventsList[e.DeviceMac] = new HideezUnlockEvent()
-                {
-                    EventTime = DateTime.UtcNow,
-                    Mac = e.DeviceMac,
-                    AccountName = e.AccountName,
-                    AccountLogin = e.AccountLogin,
-                    Reason = SessionSwitchSubject.Dongle,
-                };
-            }
-        }
+                if (_unlockProcedure != null)
+                    _unlockProcedure.Dispose();
 
-        void RfidProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
-        {
-            lock (listsLock)
-            {
-                unlockEventsList[e.DeviceMac] = new HideezUnlockEvent()
-                {
-                    EventTime = DateTime.UtcNow,
-                    Mac = e.DeviceMac,
-                    AccountName = e.AccountName,
-                    AccountLogin = e.AccountLogin,
-                    Reason = SessionSwitchSubject.RFID,
-                };
-            }
-        }
-
-        void ProximityProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
-        {
-            lock (listsLock)
-            {
-                unlockEventsList[e.DeviceMac] = new HideezUnlockEvent()
-                {
-                    EventTime = DateTime.UtcNow,
-                    Mac = e.DeviceMac,
-                    AccountName = e.AccountName,
-                    AccountLogin = e.AccountLogin,
-                    Reason = SessionSwitchSubject.Proximity,
-                };
+                _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor);
             }
         }
 
@@ -176,9 +161,9 @@ namespace HideezMiddleware.Audit
             try
             {
                 if (isLock)
-                    await RecordWorkstationLock(sessionId, eventType);
+                    await OnWorkstationLock(sessionId, eventType);
                 else if (isUnlock)
-                    await RecordWorkstationUnlock(sessionId, eventType);
+                    await OnWorkstationUnlock(sessionId, eventType);
             }
             catch (Exception ex)
             {
@@ -186,100 +171,57 @@ namespace HideezMiddleware.Audit
             }
         }
 
-        #region IDisposable
-        public void Dispose()
+        async Task OnWorkstationLock(int sessionId, WorkstationEventType eventType)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        bool disposed = false;
-        void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    _tapProcessor.WorkstationUnlockPerformed -= TapProcessor_WorkstationUnlockPerformed;
-                    _rfidProcessor.WorkstationUnlockPerformed -= RfidProcessor_WorkstationUnlockPerformed;
-                    _proximityProcessor.WorkstationUnlockPerformed -= ProximityProcessor_WorkstationUnlockPerformed;
-                    _workstationLockProcessor.WorkstationLocking -= WorkstationLockProcessor_WorkstationLocking;
-                    SessionSwitchMonitor.SessionSwitch -= SessionSwitchMonitor_SessionSwitch;
-                }
-
-                disposed = true;
-            }
-        }
-
-        ~SessionSwitchLogger()
-        {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(false);
-        }
-        #endregion
-
-        async Task RecordWorkstationLock(int sessionId, WorkstationEventType eventType)
-        {
-            if (_eventSaver == null)
+            if (eventType != WorkstationEventType.ComputerLock && 
+                eventType != WorkstationEventType.ComputerLogoff)
                 return;
 
             var we = _eventSaver.GetPrevSessionWorkstationEvent();
             we.EventId = eventType;
 
-            lock (listsLock)
+            lock (_lpLock)
             {
-                var now = DateTime.UtcNow;
-                var latestLockEvent = lockEventsList.Values
-                    .Where(e => (now - e.EventTime).TotalSeconds < LOCK_EVENT_LIFETIME)
-                    .OrderByDescending(e => e.EventTime)
-                    .FirstOrDefault();
-
-                if (latestLockEvent != null)
+                if (_lockProcedure != null && (DateTime.UtcNow - _lockProcedure.Time).TotalSeconds <= LOCK_EVENT_TIMEOUT)
                 {
-                    we.Note = latestLockEvent.Reason.ToString();
-                    we.DeviceId = _bleDeviceManager.Find(latestLockEvent.Mac, 1)?.SerialNo; // Todo: Replace channel magic number with const
+                    we.Note = _lockProcedure.Reason.ToString();
+                    we.DeviceId = _bleDeviceManager.Find(_lockProcedure.Mac, 1)?.SerialNo; // Todo: Replace channel magic number with const
                 }
                 else
                     we.Note = WorkstationLockingReason.NonHideez.ToString();
 
-                lockEventsList.Clear();
+                _lockProcedure = null;
             }
 
             await _eventSaver.AddNewAsync(we, true);
         }
 
-        async Task RecordWorkstationUnlock(int sessionId, WorkstationEventType eventType)
+        async Task OnWorkstationUnlock(int sessionId, WorkstationEventType eventType)
         {
-
-            if (_eventSaver == null)
+            if (eventType != WorkstationEventType.ComputerUnlock &&
+                eventType != WorkstationEventType.ComputerLogon)
                 return;
+
+            var time = DateTime.UtcNow;
+
+            var procedure = _unlockProcedure;
+            await procedure?.Run(UNLOCK_EVENT_TIMEOUT);
 
             var we = _eventSaver.GetWorkstationEvent();
             we.EventId = eventType;
+            we.Note = SessionSwitchSubject.NonHideez.ToString();
+            we.Date = time;
 
-            lock (listsLock)
+            if (procedure.FlowUnlockResult.IsSuccessful)
             {
-                var now = DateTime.UtcNow;
-
-                var latestUnlockEvent = unlockEventsList.Values
-                    .Where(e => (now - e.EventTime).TotalSeconds < UNLOCK_EVENT_LIFETIME)
-                    .OrderByDescending(e => e.EventTime)
-                    .FirstOrDefault();
-
-                if (latestUnlockEvent != null)
-                {
-                    we.Note = latestUnlockEvent.Reason.ToString();
-                    we.DeviceId = _bleDeviceManager.Find(latestUnlockEvent.Mac, 1)?.SerialNo;
-                    we.AccountName = latestUnlockEvent.AccountName;
-                    we.AccountLogin = latestUnlockEvent.AccountLogin;
-                }
-                else
-                    we.Note = WorkstationLockingReason.NonHideez.ToString();
-
-                unlockEventsList.Clear();
+                we.Note = procedure.UnlockMethod.ToString();
+                we.DeviceId = _bleDeviceManager.Find(procedure.FlowUnlockResult.DeviceMac, 1)?.SerialNo;
+                we.AccountLogin = procedure.FlowUnlockResult.AccountLogin;
+                we.AccountName = procedure.FlowUnlockResult.AccountName;
             }
 
             await _eventSaver.AddNewAsync(we, true);
+
         }
     }
 }

@@ -82,7 +82,6 @@
     <Compile Include="Audit\EventFactory.cs" />
     <Compile Include="Audit\SessionInfoProvider.cs" />
     <Compile Include="Audit\SessionSwitchLogger.cs" />
-    <Compile Include="Audit\SessionTimestamp.cs" />
     <Compile Include="Audit\SessionTimestampLogger.cs" />
     <Compile Include="CredentialProviderProxy.cs" />
     <Compile Include="DeviceConnection\AdvertisementIgnoreList.cs" />
@@ -108,6 +107,7 @@
     <Compile Include="Resources\ErrorCode.Designer.cs" />
     <Compile Include="RfidServiceConnection.cs" />
     <Compile Include="StatusManager.cs" />
+    <Compile Include="Tasks\UnlockSessionSwitchProc.cs" />
     <Compile Include="Tasks\WaitWorkstationUnlockerConnectProc.cs" />
     <Compile Include="UiProxyManager.cs" />
     <Compile Include="Utils\LocalToMSAccountConverter.cs" />

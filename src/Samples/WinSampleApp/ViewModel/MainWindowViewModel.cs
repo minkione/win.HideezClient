@@ -776,6 +776,12 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
+                // Required to properly handle session switch event in any environment
+                SystemEvents.SessionSwitch += (sender, args) =>
+                {
+                    SessionSwitchMonitor.SystemSessionSwitch(Process.GetCurrentProcess().SessionId, args.Reason);
+                };
+
                 AccessParams = new AccessParams()
                 {
                     MasterKey_Bond = true,
@@ -1366,6 +1372,8 @@ namespace WinSampleApp.ViewModel
         #region IClientUiProxy
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
+        public event EventHandler<EventArgs> Connected;
+
         public event EventHandler<EventArgs> PinCancelled { add { } remove { } }
 
         public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)

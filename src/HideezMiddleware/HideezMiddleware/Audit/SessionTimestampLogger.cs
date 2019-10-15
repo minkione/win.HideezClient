@@ -14,6 +14,14 @@ namespace HideezMiddleware.Audit
     /// </summary>
     public class SessionTimestampLogger : Logger
     {
+        [Serializable]
+        class SessionTimestamp
+        {
+            public DateTime Time { get; set; }
+            public string SessionId { get; set; }
+            public string SessionName { get; set; }
+        }
+
         const double TIMESTAMP_SAVE_INTERVAL = 300_000; // 5 minutes. At most results in 5 minute difference between service uptime and shutdown without server connection
 
         readonly string _timestampFilePath;
@@ -22,8 +30,6 @@ namespace HideezMiddleware.Audit
         readonly Timer _timestampSaveTimer = new Timer(TIMESTAMP_SAVE_INTERVAL);
 
         readonly object _fileLock = new object();
-        int _initLock = 0;
-        bool isInitialized = false;
 
         public SessionTimestampLogger(string timestampFilePath, SessionInfoProvider sessionInfoProvider, EventSaver eventSaver, ILog log)
             : base(nameof(SessionTimestampLogger), log)
@@ -33,11 +39,27 @@ namespace HideezMiddleware.Audit
             _eventSaver = eventSaver;
 
             _timestampSaveTimer.Elapsed += TimestampSaveTimer_Elapsed;
+
+            var savedTimestamp = GetSavedTimestamp();
+            if (savedTimestamp != null)
+            {
+                GenerateSessionEndEvent(savedTimestamp);
+                ClearSavedTimestamp();
+            }
+
+            SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
+
+            var state = WorkstationHelper.GetSessionLockState(WorkstationHelper.GetSessionId());
+            if (state == WorkstationHelper.LockState.Unlocked)
+            {
+                SaveOrUpdateTimestamp(CreateNewTimestamp());
+                _timestampSaveTimer.Start();
+            }
         }
 
         void TimestampSaveTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            SaveTimestamp(CreateNewTimestamp());
+            SaveOrUpdateTimestamp(CreateNewTimestamp());
         }
 
         void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
@@ -51,46 +73,15 @@ namespace HideezMiddleware.Audit
                     break;
                 case SessionSwitchReason.SessionUnlock:
                 case SessionSwitchReason.SessionLogon:
-                    ClearSavedTimestamp(); // Redundant, there should never be a situation where two session logons happen one after another without logoff
                     _timestampSaveTimer.Stop();
+                    var ts = CreateNewTimestamp();
+                    // A workaround for race condition and incorrect order with unlock events on fast shutdown
+                    ts.Time = ts.Time + TimeSpan.FromSeconds(30);  
+                    SaveOrUpdateTimestamp(ts);
                     _timestampSaveTimer.Start();
                     break;
                 default:
                     return;
-            }
-        }
-
-        public async Task Initialize()
-        {
-            if (System.Threading.Interlocked.CompareExchange(ref _initLock, 1, 0) == 0)
-            {
-                try
-                {
-                    if (isInitialized)
-                        return;
-
-                    var savedTimestamp = GetSavedTimestamp();
-                    if (savedTimestamp != null)
-                    {
-                        await GenerateSessionEndEvent(savedTimestamp);
-                        ClearSavedTimestamp();
-                    }
-
-                    SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
-
-                    var state = WorkstationHelper.GetSessionLockState(WorkstationHelper.GetSessionId());
-                    if (state == WorkstationHelper.LockState.Unlocked)
-                    {
-                        SaveTimestamp(CreateNewTimestamp());
-                        _timestampSaveTimer.Start();
-                    }
-
-                    isInitialized = true;
-                }
-                finally
-                {
-                    System.Threading.Interlocked.Exchange(ref _initLock, 0);
-                }
             }
         }
 
@@ -135,7 +126,7 @@ namespace HideezMiddleware.Audit
         /// <summary>
         /// Save specified timestamp into file
         /// </summary>
-        void SaveTimestamp(SessionTimestamp timestamp)
+        void SaveOrUpdateTimestamp(SessionTimestamp timestamp)
         {
             lock (_fileLock)
             {
@@ -169,16 +160,20 @@ namespace HideezMiddleware.Audit
             }
         }
 
-        async Task GenerateSessionEndEvent(SessionTimestamp timestamp)
+        void GenerateSessionEndEvent(SessionTimestamp timestamp)
         {
             var baseEvent = _eventSaver.GetWorkstationEvent();
 
             baseEvent.WorkstationSessionId = timestamp.SessionId;
             baseEvent.UserSession = timestamp.SessionName;
             baseEvent.Date = timestamp.Time;
-            baseEvent.EventId = WorkstationEventType.ComputerLock;
+            baseEvent.Note = "Unexpected Shutdown";
+            baseEvent.EventId = WorkstationEventType.ComputerLock; // TODO: Maybe, add another event for Unexpected Shutdown
 
-            await _eventSaver.AddNewAsync(baseEvent, true);
+            Task.Run(async () =>
+            {
+                await _eventSaver.AddNewAsync(baseEvent, true);
+            });
         }
     }
 }

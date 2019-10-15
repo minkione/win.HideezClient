@@ -21,6 +21,7 @@ namespace ServiceLibrary.Implementation
         static object _initializationLock = new object();
         static ServiceClientSessionManager sessionManager = new ServiceClientSessionManager();
         static SessionInfoProvider _sessionInfoProvider;
+        static SessionTimestampLogger _sessionTimestampLogger;
 
         ServiceClientSession _client;
 
@@ -57,9 +58,15 @@ namespace ServiceLibrary.Implementation
                 _sessionInfoProvider = new SessionInfoProvider(_sdkLogger);
 
                 _log.WriteLine(">>>>>> Initilize audit");
-                string auditEventsDirectoryPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\Hideez\WorkstationEvents\";
+                var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                string auditEventsDirectoryPath = $@"{commonAppData}\Hideez\WorkstationEvents\";
                 _eventSaver = new EventSaver(_sessionInfoProvider, auditEventsDirectoryPath, _sdkLogger);
-                Task.Run(OnServiceStartedAsync);
+
+                _log.WriteLine(">>>>>> Initialize session timestamp monitor");
+                var sessionTimestampPath = $@"{commonAppData}\Hideez\Service\Timestamp\timestamp.dat";
+                _sessionTimestampLogger = new SessionTimestampLogger(sessionTimestampPath, _sessionInfoProvider, _eventSaver, _sdkLogger);
+
+                OnServiceStarted();
 
                 _log.WriteLine(">>>>>> Initialize SDK");
                 InitializeSDK();
@@ -179,18 +186,20 @@ namespace ServiceLibrary.Implementation
         }
 
         #region Host Only
-        public static async Task OnServiceStartedAsync()
+        public static void OnServiceStarted()
         {
+            // Generate event for audit
             var workstationEvent = _eventSaver.GetWorkstationEvent();
             workstationEvent.EventId = WorkstationEventType.ServiceStarted;
-            await _eventSaver.AddNewAsync(workstationEvent);
+            _eventSaver.AddNew(workstationEvent);
         }
 
-        public static async Task OnServiceStoppedAsync()
+        public static void OnServiceStopped()
         {
+            // Generate event for audit
             var workstationEvent = _eventSaver.GetWorkstationEvent();
             workstationEvent.EventId = WorkstationEventType.ServiceStopped;
-            await _eventSaver.AddNewAsync(workstationEvent, true);
+            _eventSaver.AddNew(workstationEvent, true);
         }
         #endregion
     }

@@ -28,7 +28,7 @@ namespace TestConsole
                     if (line == "q" || line == "exit")
                     {
                         Console.WriteLine("exiting...");
-                        HideezService.OnServiceStoppedAsync().Wait();
+                        HideezService.OnServiceStopped();
                         try
                         {
                             service.ShutdownAsync().Wait();
@@ -117,27 +117,11 @@ namespace TestConsole
             }
         }
 
-        protected static async void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        protected static void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
             // This is a direct copy of HideezServiceHost.HideezService.OnSessionChange
             try
             {
-                switch (e.Reason)
-                {
-                    case SessionSwitchReason.SessionLock:
-                    case SessionSwitchReason.SessionLogoff:
-                        // Session locked
-                        HideezService.OnSessionChange(true);
-                        await Task.Delay(250);
-                        break;
-                    case SessionSwitchReason.SessionUnlock:
-                    case SessionSwitchReason.SessionLogon:
-                        // Session unlocked
-                        HideezService.OnSessionChange(false);
-                        break;
-                    default:
-                        return;
-                }
                 SessionSwitchMonitor.SystemSessionSwitch(System.Diagnostics.Process.GetCurrentProcess().SessionId, e.Reason);
             }
             catch (Exception ex)

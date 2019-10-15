@@ -8,6 +8,7 @@ using HideezMiddleware;
 using System.Management;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Win32;
 
 namespace HideezServiceHost
 {
@@ -52,9 +53,9 @@ namespace HideezServiceHost
             }
         }
 
-        protected override async void OnShutdown()
+        protected override void OnShutdown()
         {
-            await ServiceLibrary.Implementation.HideezService.OnServiceStoppedAsync().ConfigureAwait(false);
+            ServiceLibrary.Implementation.HideezService.OnServiceStopped();
             base.OnShutdown();
         }
 
@@ -62,7 +63,7 @@ namespace HideezServiceHost
         {
             try
             {
-                await ServiceLibrary.Implementation.HideezService.OnServiceStoppedAsync().ConfigureAwait(false);
+                ServiceLibrary.Implementation.HideezService.OnServiceStopped();
 
                 // connect and ask the service to finish all works and close all connections
                 var callback = new HideezServiceCallbacks();
@@ -88,35 +89,11 @@ namespace HideezServiceHost
         }
 
         // https://stackoverflow.com/questions/44980/programmatically-determine-a-duration-of-a-locked-workstation
-        protected override async void OnSessionChange(SessionChangeDescription sessionChangeDescription)
+        protected override void OnSessionChange(SessionChangeDescription sessionChangeDescription)
         {
-            // Session changed event has to go exactly in that order:
-            // - Disconnect all devices
-            // - Wait some time
-            // - Notify all other components about session switch
-            // Mainly it is there to eliminate race condition between our own event of workstation unlock and session switch
-            // The delay ensures that the former occurs before the latter
             try
             {
-                switch (sessionChangeDescription.Reason)
-                {
-                    case SessionChangeReason.SessionLock:
-                    case SessionChangeReason.SessionLogoff:
-                        // Session locked
-                        ServiceLibrary.Implementation.HideezService.OnSessionChange(true);
-                        // A delay allows us to save successful unlock information (device, account, etc) before SessionMonitor is notified about switch
-                        await Task.Delay(250);
-                        break;
-                    case SessionChangeReason.SessionUnlock:
-                    case SessionChangeReason.SessionLogon:
-                        // Session unlocked
-                        ServiceLibrary.Implementation.HideezService.OnSessionChange(false);
-                        break;
-                    default:
-                        return;
-                }
-
-                SessionSwitchMonitor.SystemSessionSwitch(sessionChangeDescription.SessionId, (Microsoft.Win32.SessionSwitchReason)sessionChangeDescription.Reason);
+                SessionSwitchMonitor.SystemSessionSwitch(sessionChangeDescription.SessionId, (SessionSwitchReason)sessionChangeDescription.Reason);
             }
             catch (Exception ex)
             {
