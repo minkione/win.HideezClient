@@ -14,9 +14,8 @@
     <Border
         x:Name="EditControl"
         Width="500"
-        Margin="0,1,0,0"
         Padding="24,45,24,24"
-        DataContext="{Binding EditAccount}">
+        Background="{DynamicResource LightForeground}">
         <Border.Style>
             <Style TargetType="{x:Type Border}">
                 <Style.Triggers>

@@ -245,6 +245,9 @@
     <Compile Include="..\..\Version.cs">
       <Link>Version.cs</Link>
     </Compile>
+    <Compile Include="Controls\AccountInfoControl.xaml.cs">
+      <DependentUpon>AccountInfoControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
@@ -411,6 +414,10 @@
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\AccountInfoControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\EditAccountControl.xaml">
       <SubType>Designer</SubType>

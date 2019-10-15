@@ -1,0 +1,146 @@
+﻿<UserControl
+    x:Class="HideezClient.Controls.AccountInfoControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    xmlns:local="clr-namespace:HideezClient.Controls"
+    xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <Border
+        Width="500"
+        Padding="24"
+        Background="{DynamicResource LightForeground}">
+
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
+                <TextBlock
+                    HorizontalAlignment="Left"
+                    FontSize="24"
+                    FontWeight="Bold"
+                    Foreground="{DynamicResource DarkForeground}"
+                    Text="{Binding Name}" />
+                <TextBlock
+                    HorizontalAlignment="Left"
+                    FontSize="13"
+                    Foreground="{StaticResource Foreground}"
+                    Text="{Binding Login}" />
+            </StackPanel>
+
+            <!--  Separator  -->
+            <Separator
+                Grid.Row="1"
+                Grid.ColumnSpan="3"
+                Style="{DynamicResource SeparatorOfAccountInfo}" />
+
+            <TextBlock
+                Grid.Row="2"
+                Grid.Column="0"
+                Style="{StaticResource LabelStyle}"
+                Text="{l:Localization PM.Label.Login}" />
+            <Rectangle Width="24" />
+            <TextBlock
+                Grid.Row="2"
+                Grid.Column="2"
+                Style="{StaticResource LabelValuesStyle}"
+                Text="{Binding Login}" />
+
+            <!--  Separator  -->
+            <Separator
+                Grid.Row="3"
+                Grid.ColumnSpan="3"
+                Style="{DynamicResource SeparatorOfAccountInfo}" />
+
+            <TextBlock
+                Grid.Row="4"
+                Grid.Column="0"
+                Style="{StaticResource LabelStyle}"
+                Text="{l:Localization PM.Label.AppsAndUrls}" />
+            <Rectangle Width="24" />
+            <StackPanel
+                Grid.Row="4"
+                Grid.Column="2"
+                HorizontalAlignment="Left"
+                TextBlock.FontSize="16"
+                TextBlock.FontWeight="DemiBold"
+                TextBlock.Foreground="{DynamicResource UrlForeground}">
+                <ItemsControl ItemsSource="{Binding AppsUrls}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <!--  Separator  -->
+            <Separator
+                Grid.Row="5"
+                Grid.ColumnSpan="3"
+                Style="{DynamicResource SeparatorOfAccountInfo}" />
+
+            <TextBlock
+                Grid.Row="6"
+                Grid.Column="0"
+                Style="{StaticResource LabelStyle}"
+                Text="{l:Localization PM.Label.Otp}" />
+            <Rectangle Width="24" />
+            <TextBlock Grid.Row="6" Grid.Column="2">
+                <TextBlock.Style>
+                    <Style BasedOn="{StaticResource LabelValuesStyle}" TargetType="{x:Type TextBlock}">
+                        <Setter Property="Text" Value="{l:Localization PM.Otp.Disabled}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasOpt}" Value="True">
+                                <Setter Property="Text" Value="{l:Localization PM.Otp.Enabled}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
+            <StackPanel
+                Grid.Row="8"
+                HorizontalAlignment="Left"
+                Orientation="Horizontal">
+                <Button
+                    ma:VisibilityHelper.IsVisible="{Binding CanEditable}"
+                    Command="{Binding DataContext.EditAccountCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}}"
+                    Content="Edit"
+                    Style="{DynamicResource ChangeButtonStyle}" />
+                <Rectangle Width="14" />
+                <Button
+                    ma:VisibilityHelper.IsVisible="{Binding CanDelete}"
+                    Background="Transparent"
+                    Command="{Binding DataContext.DeleteAccountCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}}"
+                    Foreground="{DynamicResource PinkBrush}"
+                    Style="{DynamicResource IconButtonStyle}">
+                    <iconPacks:PackIconMaterial
+                        Height="26"
+                        Margin="30,9"
+                        Kind="Delete" />
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>
