@@ -51,7 +51,6 @@ namespace ServiceLibrary.Implementation
         static TapConnectionProcessor _tapProcessor;
         static ProximityConnectionProcessor _proximityProcessor;
         static SessionSwitchLogger _sessionSwitchLogger;
-        static SessionTimestampLogger _sessionTimestampLogger;
 
         void InitializeSDK()
         {

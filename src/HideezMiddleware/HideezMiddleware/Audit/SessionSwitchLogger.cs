@@ -15,8 +15,9 @@ namespace HideezMiddleware.Audit
     // Todo: Code cleanup for SessionSwitchLogger
     public class SessionSwitchLogger : Logger, IDisposable
     {
-        // There is a slight delay between programmatic lock/unlock by out app and actual session switch
-        const int LOCK_EVENT_TIMEOUT = 3_000; 
+        // There is a race condition between programmatic lock/unlock by our app and actual session switch
+        const int LOCK_EVENT_TIMEOUT = 3_000;
+        const int UNLOCK_EVENT_TIMEOUT = 10_000;
 
         class LockProcedure
         {
@@ -112,7 +113,7 @@ namespace HideezMiddleware.Audit
             lock (_upLock)
             {
                 if (_unlockProcedure != null)
-                    return;
+                    _unlockProcedure.Dispose();
 
                 _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor);
             }
@@ -201,16 +202,26 @@ namespace HideezMiddleware.Audit
                 eventType != WorkstationEventType.ComputerLogon)
                 return;
 
-            lock (_upLock)
-            { 
-                if (_unlockProcedure != null)
-                    return;
-            }
+            var time = DateTime.UtcNow;
+
+            var procedure = _unlockProcedure;
+            await procedure?.Run(UNLOCK_EVENT_TIMEOUT);
 
             var we = _eventSaver.GetWorkstationEvent();
             we.EventId = eventType;
-            we.Note = WorkstationLockingReason.NonHideez.ToString();
+            we.Note = SessionSwitchSubject.NonHideez.ToString();
+            we.Date = time;
+
+            if (procedure.FlowUnlockResult.IsSuccessful)
+            {
+                we.Note = procedure.UnlockMethod.ToString();
+                we.DeviceId = _bleDeviceManager.Find(procedure.FlowUnlockResult.DeviceMac, 1)?.SerialNo;
+                we.AccountLogin = procedure.FlowUnlockResult.AccountLogin;
+                we.AccountName = procedure.FlowUnlockResult.AccountName;
+            }
+
             await _eventSaver.AddNewAsync(we, true);
+
         }
     }
 }

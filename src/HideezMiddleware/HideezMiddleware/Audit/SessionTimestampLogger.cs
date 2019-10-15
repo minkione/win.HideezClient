@@ -52,14 +52,14 @@ namespace HideezMiddleware.Audit
             var state = WorkstationHelper.GetSessionLockState(WorkstationHelper.GetSessionId());
             if (state == WorkstationHelper.LockState.Unlocked)
             {
-                SaveTimestamp(CreateNewTimestamp());
+                SaveOrUpdateTimestamp(CreateNewTimestamp());
                 _timestampSaveTimer.Start();
             }
         }
 
         void TimestampSaveTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            SaveTimestamp(CreateNewTimestamp());
+            SaveOrUpdateTimestamp(CreateNewTimestamp());
         }
 
         void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
@@ -73,8 +73,11 @@ namespace HideezMiddleware.Audit
                     break;
                 case SessionSwitchReason.SessionUnlock:
                 case SessionSwitchReason.SessionLogon:
-                    ClearSavedTimestamp(); // Redundant, there should never be a situation where two session logons happen one after another without logoff
                     _timestampSaveTimer.Stop();
+                    var ts = CreateNewTimestamp();
+                    // A workaround for race condition and incorrect order with unlock events on fast shutdown
+                    ts.Time = ts.Time + TimeSpan.FromSeconds(30);  
+                    SaveOrUpdateTimestamp(ts);
                     _timestampSaveTimer.Start();
                     break;
                 default:
@@ -123,7 +126,7 @@ namespace HideezMiddleware.Audit
         /// <summary>
         /// Save specified timestamp into file
         /// </summary>
-        void SaveTimestamp(SessionTimestamp timestamp)
+        void SaveOrUpdateTimestamp(SessionTimestamp timestamp)
         {
             lock (_fileLock)
             {
@@ -164,7 +167,8 @@ namespace HideezMiddleware.Audit
             baseEvent.WorkstationSessionId = timestamp.SessionId;
             baseEvent.UserSession = timestamp.SessionName;
             baseEvent.Date = timestamp.Time;
-            baseEvent.EventId = WorkstationEventType.ComputerLock;
+            baseEvent.Note = "Unexpected Shutdown";
+            baseEvent.EventId = WorkstationEventType.ComputerLock; // TODO: Maybe, add another event for Unexpected Shutdown
 
             Task.Run(async () =>
             {

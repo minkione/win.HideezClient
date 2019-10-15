@@ -1,29 +1,28 @@
 ﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.DeviceConnection;
 using System;
+using System.Threading.Tasks;
 
 namespace HideezMiddleware.Tasks
 {
     class UnlockSessionSwitchProc : IDisposable
     {
-        const int UNLOCK_EVENT_TIMEOUT = 10_000;
-
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly TapConnectionProcessor _tapProcessor;
         readonly RfidConnectionProcessor _rfidProcessor;
         readonly ProximityConnectionProcessor _proximityProcessor;
 
+        readonly TaskCompletionSource<object> _tcs = new TaskCompletionSource<object>();
+
         string _flowId;
 
         public WorkstationUnlockResult FlowUnlockResult { get; private set; } = null; // Set on connectionFlow.UnlockAttempt
         public SessionSwitchSubject UnlockMethod { get; private set; } = SessionSwitchSubject.NonHideez; // Changed on connectionFlow.UnlockAttempt
-        bool _flowFinished; // Set on connectionFlow.Finished
+        public bool FlowFinished { get; private set; } // Set on connectionFlow.Finished
 
-        DateTime _sessionSwitchEventTime; // Set on SessionSwitchMonitor.SessionSwitch
-        bool _sessionSwitched; // Set on SessionSwitchMonitor.SessionSwitch
-
-        Action<UnlockSessionSwitchProc> _onProcCancelled = null;
-        Action<UnlockSessionSwitchProc> _onProcFinished = null;
+        public DateTime SessionSwitchEventTime { get; private set; } // Set on SessionSwitchMonitor.SessionSwitch
+        public bool SessionSwitched { get; private set; } // Set on SessionSwitchMonitor.SessionSwitch
 
         public UnlockSessionSwitchProc(
             string flowId,
@@ -38,7 +37,7 @@ namespace HideezMiddleware.Tasks
             _rfidProcessor = rfidProcessor;
             _proximityProcessor = proximityProcessor;
 
-
+            SubscribeToEvents();
         }
 
         #region IDisposable Support
@@ -55,7 +54,7 @@ namespace HideezMiddleware.Tasks
             {
                 if (disposing)
                 {
-                    UnsubscriveFromEvents();
+                    UnsubscribeFromEvents();
                 }
 
                 disposed = true;
@@ -68,13 +67,24 @@ namespace HideezMiddleware.Tasks
         }
         #endregion
 
-        // Todo: add cancellation token and timeout
-        public void Run(Action<UnlockSessionSwitchProc> onProcCancelled, Action<UnlockSessionSwitchProc> onProcFinished)
+        public async Task Run(int timeout)
         {
-            _onProcCancelled = onProcCancelled;
-            _onProcFinished = onProcFinished;
+            try
+            {
+                // Cancel if unlock failed or flow finished
+                if (FlowUnlockResult?.IsSuccessful == false || FlowFinished)
+                    return;
+                else
+                    await _tcs.Task.TimeoutAfter(timeout);
+            }
+            catch (TimeoutException)
+            {
+            }
+            finally
+            {
+                UnsubscribeFromEvents();
+            }
 
-            SubscribeToEvents();
         }
 
         void SubscribeToEvents()
@@ -83,23 +93,24 @@ namespace HideezMiddleware.Tasks
             _tapProcessor.WorkstationUnlockPerformed += TapProcessor_WorkstationUnlockPerformed;
             _rfidProcessor.WorkstationUnlockPerformed += RfidProcessor_WorkstationUnlockPerformed;
             _proximityProcessor.WorkstationUnlockPerformed += ProximityProcessor_WorkstationUnlockPerformed;
-            SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
         }
 
-        void UnsubscriveFromEvents()
+        void UnsubscribeFromEvents()
         {
             _connectionFlowProcessor.Finished -= ConnectionFlowProcessor_Finished;
             _tapProcessor.WorkstationUnlockPerformed -= TapProcessor_WorkstationUnlockPerformed;
             _rfidProcessor.WorkstationUnlockPerformed -= RfidProcessor_WorkstationUnlockPerformed;
             _proximityProcessor.WorkstationUnlockPerformed -= ProximityProcessor_WorkstationUnlockPerformed;
-            SessionSwitchMonitor.SessionSwitch -= SessionSwitchMonitor_SessionSwitch;
         }
 
         void ConnectionFlowProcessor_Finished(object sender, string e)
         {
             if (e == _flowId)
             {
-                _flowFinished = true;
+                FlowFinished = true;
+                UnsubscribeFromEvents();
+
+                _tcs.TrySetResult(new object());
             }
         }
 
@@ -109,6 +120,9 @@ namespace HideezMiddleware.Tasks
             {
                 FlowUnlockResult = e;
                 UnlockMethod = SessionSwitchSubject.Dongle;
+
+                if (!FlowUnlockResult.IsSuccessful)
+                    _tcs.TrySetResult(new object());
             }
         }
 
@@ -130,25 +144,5 @@ namespace HideezMiddleware.Tasks
             }
         }
 
-        void SessionSwitchMonitor_SessionSwitch(int sessionId, Microsoft.Win32.SessionSwitchReason reason)
-        {
-            _sessionSwitchEventTime = DateTime.UtcNow;
-            _sessionSwitched = true;
-        }
-
-        // Todo: Call CancelProc and FinishProc when certain events occur
-        void CancelProc()
-        {
-            UnsubscriveFromEvents();
-
-            _onProcCancelled?.Invoke(this);
-        }
-
-        void FinishProc()
-        {
-            UnsubscriveFromEvents();
-
-            _onProcFinished?.Invoke(this);
-        }
     }
 }
