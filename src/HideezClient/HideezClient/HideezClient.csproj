@@ -251,6 +251,9 @@
     <Compile Include="Controls\DeviceInfo.xaml.cs">
       <DependentUpon>DeviceInfo.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\EditAccountControl.xaml.cs">
+      <DependentUpon>EditAccountControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Notification\AccountSelector\AccountSelector.xaml.cs">
       <DependentUpon>AccountSelector.xaml</DependentUpon>
     </Compile>
@@ -408,6 +411,10 @@
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\EditAccountControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Resources\Dictionaries\ComboBox.xaml">
       <SubType>Designer</SubType>

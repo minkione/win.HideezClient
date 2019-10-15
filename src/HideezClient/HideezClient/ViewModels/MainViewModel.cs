@@ -125,7 +125,7 @@ namespace HideezClient.ViewModels
                     OnOpenDefaultPage();
                 }
             }
-            else
+            else 
             {
                 if (MenuDefaultPage.IsChecked || (MenuPasswordManager.IsChecked && !SelectedDevice.IsAuthorized))
                 {

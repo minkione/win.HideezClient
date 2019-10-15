@@ -30,23 +30,8 @@ namespace HideezClient.PagesView
 
         public PasswordManagerPage()
         {
-            this.DataContextChanged += PasswordManagerPage_DataContextChanged;
             InitializeComponent();
             AccountsList.Loaded += AccountsList_Loaded;
-        }
-
-        private void PasswordManagerPage_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            bindingEditAccount = new BindingRaiseevent(DataContext, "EditAccount");
-            bindingEditAccount.ValueChanged += obj =>
-            {
-                try
-                {
-                    this.PasswordBox.Clear();
-                    App.Current.Dispatcher.Invoke(AccountName.Focus);
-                }
-                catch { }
-            }; 
         }
 
         private void AccountsList_Loaded(object sender, RoutedEventArgs e)
@@ -74,11 +59,6 @@ namespace HideezClient.PagesView
                 AnimationHideAccountInfo?.Stop();
                 AnimationShowAccountInfo?.Begin();
             }
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            PasswordBox.Clear();
         }
     }
 }

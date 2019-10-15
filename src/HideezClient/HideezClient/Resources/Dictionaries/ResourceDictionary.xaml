@@ -9,6 +9,21 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:tb="http://www.hardcodet.net/taskbar">
 
+    <!--  Account label style  -->
+    <Style x:Key="LabelStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Foreground" Value="{StaticResource Foreground}" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!--  Account value label style  -->
+    <Style x:Key="LabelValuesStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="FontWeight" Value="DemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource DarkForeground}" />
+        <Setter Property="FontSize" Value="16" />
+    </Style>
+
     <!--  State Control Style  -->
     <Style x:Key="StateControlStyle" TargetType="{x:Type controls:StateControl}">
         <Setter Property="Margin" Value="18,22" />
@@ -37,6 +52,16 @@
         <Setter Property="Height" Value="1" />
         <Setter Property="Margin" Value="0" />
     </Style>
+
+    <!--  Separator of account info  -->
+    <Style
+        x:Key="SeparatorOfAccountInfo"
+        BasedOn="{StaticResource SeparatorStyle}"
+        TargetType="{x:Type Separator}">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
 
     <!--  Base button style  -->
     <Style x:Key="BaseButtonStyle" TargetType="{x:Type ButtonBase}">
