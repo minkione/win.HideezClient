@@ -4,6 +4,7 @@ using Hideez.SDK.Communication.PasswordManager;
 using HideezClient.Controls;
 using HideezClient.Extension;
 using HideezClient.Models;
+using HideezClient.Modules.Localize;
 using HideezClient.Mvvm;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.Commands;
@@ -45,7 +46,8 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public string Name => device.Name;
+        [Localization]
+        public string Name => L(device.Name);
         public string SerialNo => device.SerialNo;
         public string OwnerName => device.OwnerName;
         public string Id => device.Id;

@@ -32,13 +32,19 @@ namespace HideezClient.Controls
             {
                 elipse.Fill = HasConnectionBackground;
                 elipse.Effect = EffectConnected;
-                ToolTip = HasConnectionText;
+                if (!string.IsNullOrWhiteSpace(HasConnectionText))
+                {
+                    ToolTip = HasConnectionText;
+                }
             }
             else
             {
                 elipse.Fill = NoConnectionBackground;
                 elipse.Effect = EffectDisconnected;
-                ToolTip = NoConnectionText;
+                if (!string.IsNullOrWhiteSpace(NoConnectionText))
+                {
+                    ToolTip = NoConnectionText;
+                }
             }
         }
 

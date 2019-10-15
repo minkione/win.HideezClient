@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="clr-namespace:HideezClient.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     xmlns:local="clr-namespace:HideezClient.PagesView"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="AboutDevicePage"
@@ -25,7 +26,7 @@
                 DockPanel.Dock="Left"
                 FontSize="24"
                 Foreground="{DynamicResource DarkForeground}"
-                Text="Hideez Key 3" />
+                Text="{l:Localization HideezKey3}" />
 
             <ItemsControl
                 HorizontalAlignment="Right"
@@ -75,7 +76,7 @@
                     Grid.Row="0"
                     Grid.Column="0"
                     Orientation="Horizontal">
-                    <TextBlock Text="Device name: " />
+                    <TextBlock Text="{l:Localization DS.Label.DeviceName}" />
                     <TextBlock
                         FontWeight="DemiBold"
                         Foreground="{DynamicResource DarkForeground}"
@@ -86,7 +87,7 @@
                     Grid.Row="2"
                     Grid.Column="0"
                     Orientation="Horizontal">
-                    <TextBlock Text="Serial Number: " />
+                    <TextBlock Text="{l:Localization DS.Label.SN}" />
                     <TextBlock
                         FontWeight="DemiBold"
                         Foreground="{DynamicResource DarkForeground}"
@@ -97,7 +98,7 @@
                     Grid.Row="0"
                     Grid.Column="2"
                     Orientation="Horizontal">
-                    <TextBlock Text="MAC: " />
+                    <TextBlock Text="{l:Localization DS.Label.MAC}" />
                     <TextBlock
                         FontWeight="DemiBold"
                         Foreground="{DynamicResource DarkForeground}"
@@ -119,7 +120,7 @@
                     Grid.Row="0"
                     Grid.Column="4"
                     Orientation="Horizontal">
-                    <TextBlock Text="Firmware Version: " />
+                    <TextBlock Text="{l:Localization DS.Label.FirmwareVersion}" />
                     <TextBlock
                         FontWeight="DemiBold"
                         Foreground="{DynamicResource DarkForeground}"
@@ -130,13 +131,12 @@
                     Grid.Row="2"
                     Grid.Column="4"
                     Orientation="Horizontal">
-                    <TextBlock Text="Bootloader Version: " />
+                    <TextBlock Text="{l:Localization DS.Label.BootloaderVersion}" />
                     <TextBlock
                         FontWeight="DemiBold"
                         Foreground="{DynamicResource DarkForeground}"
                         Text="{Binding Device.BootloaderVersion}" />
                 </StackPanel>
-                <!--<TextBlock Text="{Binding Device.SerialNo, StringFormat='SerialNo: {0}'}" />-->
             </Grid>
         </Border>
     </Grid>

@@ -20,27 +20,27 @@ namespace HideezClient.PageViewModels
         {
             Сonnected = new ConnectionIndicatorViewModel
             {
-                Name = "Сonnected",
-                HasConnectionText = "Status.Tooltip.ConectedService",
-                NoConnectionText = "Status.Tooltip.DisconectedService",
+                Name = "Status.Device.Сonnected",
+                HasConnectionText = "",
+                NoConnectionText = "",
             };
             Initialized = new ConnectionIndicatorViewModel
             {
-                Name = "Initialized",
-                HasConnectionText = "Status.Tooltip.ConectedService",
-                NoConnectionText = "Status.Tooltip.DisconectedService",
+                Name = "Status.Device.Initialized",
+                HasConnectionText = "",
+                NoConnectionText = "",
             };
             Authorized = new ConnectionIndicatorViewModel
             {
-                Name = "Authorized",
-                HasConnectionText = "Status.Tooltip.ConectedService",
-                NoConnectionText = "Status.Tooltip.DisconectedService",
+                Name = "Status.Device.Authorized",
+                HasConnectionText = "",
+                NoConnectionText = "",
             };
             StorageLoaded = new ConnectionIndicatorViewModel
             {
-                Name = "Storage loaded",
-                HasConnectionText = "Status.Tooltip.ConectedService",
-                NoConnectionText = "Status.Tooltip.DisconectedService",
+                Name = "Status.Device.StorageLoaded",
+                HasConnectionText = "",
+                NoConnectionText = "",
             };
 
             Indicators.Add(Сonnected);
