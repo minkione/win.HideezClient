@@ -179,7 +179,12 @@ namespace HideezClient.PageViewModels
 
         private void OnAddAccount()
         {
-            EditAccount = new EditAccountViewModel(Device, windowsManager, qrScannerHelper);
+            EditAccount = new EditAccountViewModel(Device, windowsManager, qrScannerHelper)
+            {
+                DeleteAccountCommand = this.DeleteAccountCommand,
+                CancelCommand = this.CancelCommand,
+                SaveAccountCommand = this.SaveAccountCommand,
+            };
         }
 
         private async Task OnDeleteAccountAsync()
@@ -205,7 +210,12 @@ namespace HideezClient.PageViewModels
         {
             if (Device.AccountsRecords.TryGetValue(SelectedAccount.Key, out AccountRecord record))
             {
-                EditAccount = new EditAccountViewModel(Device, record, windowsManager, qrScannerHelper);
+                EditAccount = new EditAccountViewModel(Device, record, windowsManager, qrScannerHelper)
+                {
+                    DeleteAccountCommand = this.DeleteAccountCommand,
+                    CancelCommand = this.CancelCommand,
+                    SaveAccountCommand = this.SaveAccountCommand,
+                };
             }
         }
 
@@ -257,7 +267,7 @@ namespace HideezClient.PageViewModels
                     windowsManager.ShowError(message);
                 }
             }
-            catch(Exception ManagerEx)
+            catch (Exception ManagerEx)
             {
                 log.Error(ManagerEx);
             }

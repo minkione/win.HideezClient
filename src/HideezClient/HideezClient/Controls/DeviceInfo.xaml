@@ -204,7 +204,7 @@
                 Orientation="Horizontal">
 
                 <Border mah:VisibilityHelper.IsVisible="{Binding IsConnected}">
-                    <Button DataContext="{Binding DisconnectDeviceMenu}" Style="{StaticResource IconButtonStyle}">
+                    <Button DataContext="{Binding DisconnectDeviceMenu}" Style="{StaticResource IconMenuButtonStyle}">
                         <iconPacks:PackIconMaterial
                             Margin="3"
                             Foreground="{DynamicResource WindowBackground}"
@@ -215,7 +215,7 @@
                 <Button
                     Margin="2,0,2,0"
                     DataContext="{Binding RemoveDeviceMenu}"
-                    Style="{StaticResource IconButtonStyle}">
+                    Style="{StaticResource IconMenuButtonStyle}">
                     <iconPacks:PackIconFontAwesome
                         Margin="3"
                         Foreground="{DynamicResource DisconnectedBrush}"
@@ -243,7 +243,7 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-                <Button DataContext="{Binding AuthorizeDeviceAndLoadStorageMenu}" Style="{StaticResource IconButtonStyle}">
+                <Button DataContext="{Binding AuthorizeDeviceAndLoadStorageMenu}" Style="{StaticResource IconMenuButtonStyle}">
                     <iconPacks:PackIconMaterial
                         x:Name="NotAuthorizedIco"
                         Width="16"

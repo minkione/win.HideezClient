@@ -42,42 +42,42 @@ namespace HideezClient.ViewModels
         private bool cacheHasOtp;
 
         public EditAccountViewModel(DeviceViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper)
-        {
-            IsNewAccount = true;
-            this.windowsManager = windowsManager;
-            this.qrScannerHelper = qrScannerHelper;
-            AccountRecord = new AccountRecord();
-            this.device = device;
-            InitDependencies();
-        }
+            :this(device, null, windowsManager, qrScannerHelper)
+        { }
 
         public EditAccountViewModel(DeviceViewModel device, AccountRecord accountRecord, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper)
         {
             this.windowsManager = windowsManager;
             this.qrScannerHelper = qrScannerHelper;
             this.device = device;
-            AccountRecord = new AccountRecord
+
+            if (accountRecord == null)
             {
-                Key = accountRecord.Key,
-                Flags = accountRecord.Flags,
-                Name = accountRecord.Name,
-                Login = accountRecord.Login,
-                Password = accountRecord.Password,
-                OtpSecret = accountRecord.OtpSecret,
-                Apps = accountRecord.Apps,
-                Urls = accountRecord.Urls,
-                IsPrimary = accountRecord.IsPrimary,
-            };
-            InitProp(accountRecord);
+                IsNewAccount = true;
+                AccountRecord = new AccountRecord();
+            }
+            else
+            {
+                AccountRecord = new AccountRecord
+                {
+                    Key = accountRecord.Key,
+                    Flags = accountRecord.Flags,
+                    Name = accountRecord.Name,
+                    Login = accountRecord.Login,
+                    Password = accountRecord.Password,
+                    OtpSecret = accountRecord.OtpSecret,
+                    Apps = accountRecord.Apps,
+                    Urls = accountRecord.Urls,
+                    IsPrimary = accountRecord.IsPrimary,
+                };
+                InitProp(AccountRecord);
+            }
             InitDependencies();
         }
 
         private void InitDependencies()
         {
             Application.Current.MainWindow.Activated += WeakEventHandler.Create(this, (@this, o, args) => Task.Run(@this.UpdateAppsAndUrls));
-
-            this.WhenAnyValue(vm => vm.Name, vm => vm.Login, vm => vm.HasOpt, vm => vm.OtpSecret)
-                .Subscribe(_ => HasChanges = true);
 
             this.WhenAnyValue(vm => vm.SelectedApp).Subscribe(OnAppSelected);
             this.WhenAnyValue(vm => vm.SelectedUrl).Subscribe(OnUrlSelected);
@@ -168,8 +168,9 @@ namespace HideezClient.ViewModels
             }
         }
 
+        #region Propertys
+
         [Reactive] public bool IsNewAccount { get; private set; }
-        [Reactive] public bool HasChanges { get; set; }
         public string Name
         {
             get { return AccountRecord.Name; }
@@ -293,35 +294,9 @@ namespace HideezClient.ViewModels
 
         public AccountRecord AccountRecord { get; }
 
+        #endregion Propertys
+
         #region Command
-
-        public ICommand UpdateAccountCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CommandAction = x =>
-                    {
-                        OnUpdateAccount();
-                    },
-                };
-            }
-        }
-
-        public ICommand CancelCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CommandAction = x =>
-                    {
-                        OnCancel();
-                    },
-                };
-            }
-        }
 
         public ICommand GeneratePasswordCommand
         {
@@ -407,6 +382,10 @@ namespace HideezClient.ViewModels
                 };
             }
         }
+
+        [Reactive] public ICommand DeleteAccountCommand { get; set; }
+        [Reactive] public ICommand CancelCommand { get; set; }
+        [Reactive] public ICommand SaveAccountCommand { get; set; }
 
         #region OTP
 
@@ -537,16 +516,6 @@ namespace HideezClient.ViewModels
             return password;
         }
 
-        private void OnCancel()
-        {
-            HasChanges = false;
-        }
-
-        private void OnUpdateAccount()
-        {
-            HasChanges = false;
-        }
-
         private void RemoveEmpty()
         {
             foreach (var item in AppsAndUrls.Where(x => string.IsNullOrWhiteSpace(x.Title)).ToArray())
@@ -596,7 +565,6 @@ namespace HideezClient.ViewModels
 
         private void AppsOrUrlsCollectonChanges()
         {
-            HasChanges = true;
             AccountRecord.Apps = AccountUtility.JoinAppsOrUrls(Apps);
             AccountRecord.Urls = AccountUtility.JoinAppsOrUrls(Urls);
             this.RaisePropertyChanged(nameof(Urls));

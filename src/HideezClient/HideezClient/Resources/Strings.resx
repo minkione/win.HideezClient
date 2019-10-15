@@ -552,4 +552,19 @@ to access stored credentials</value>
   <data name="Status.Device.Сonnected" xml:space="preserve">
     <value>Сonnected</value>
   </data>
+  <data name="PM.AddApp" xml:space="preserve">
+    <value>Add application</value>
+  </data>
+  <data name="PM.AddWebSite" xml:space="preserve">
+    <value>Add Web-site</value>
+  </data>
+  <data name="PM.EnterOtp" xml:space="preserve">
+    <value>Enter secret key</value>
+  </data>
+  <data name="PM.Label.AccountName" xml:space="preserve">
+    <value>Account Name</value>
+  </data>
+  <data name="PM.Label.Pasword" xml:space="preserve">
+    <value>Pasword</value>
+  </data>
 </root>
