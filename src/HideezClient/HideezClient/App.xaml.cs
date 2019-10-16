@@ -245,8 +245,6 @@ namespace HideezClient
             Container.RegisterType<IWorkstationManager, WorkstationManager>(new ContainerControlledLifetimeManager());
             Container.RegisterInstance<IMessenger>(Messenger.Default, new ContainerControlledLifetimeManager());
 
-            logger.Info("Finish initialize DI container");
-
             Container.RegisterType<ILog, NLogWrapper>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
