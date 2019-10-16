@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
@@ -137,7 +138,7 @@ namespace HideezMiddleware
         void OnLogonResult(int ntstatus, string userName, string error)
         {
             WriteLine($"OnLogonResult: {userName}, {error}");
-            if (_pendingLogonRequests.TryGetValue(userName, out TaskCompletionSource<bool> tcs))
+            if (_pendingLogonRequests.TryGetValue(userName.ToUpperInvariant(), out TaskCompletionSource<bool> tcs))
                 tcs.TrySetResult(ntstatus == 0);
         }
 
@@ -197,7 +198,7 @@ namespace HideezMiddleware
                 login = $"MicrosoftAccount\\{login.Substring(2)}";
             }
 
-            return login;
+            return login.ToUpperInvariant();
         }
 
         public async Task ShowPinUi(string deviceId, bool withConfirm, bool askOldPin)
