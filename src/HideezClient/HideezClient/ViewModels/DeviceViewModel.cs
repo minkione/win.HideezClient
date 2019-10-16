@@ -1,4 +1,5 @@
-﻿using HideezClient.Models;
+﻿using Hideez.SDK.Communication.BLE;
+using HideezClient.Models;
 using HideezClient.Mvvm;
 using MvvmExtensions.Commands;
 using NLog;
@@ -26,7 +27,7 @@ namespace HideezClient.ViewModels
         public string SerialNo => device.SerialNo;
         public string OwnerName => device.OwnerName;
         public string Id => device.Id;
-        public string Mac => Id.Split(':').FirstOrDefault();
+        public string Mac => BleUtils.DeviceIdToMac(Id);
 
         public bool IsConnected => device.IsConnected;
         public double Proximity => device.Proximity;
