@@ -39,10 +39,10 @@ namespace HideezClient.ViewModels
         private readonly AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
         private readonly AppInfo addUrlAppInfo = new AppInfo { Domain = "<Enter Url>" };
         private bool canScanOtpSecretQrCode = true;
-        private bool cacheHasOtp;
+        private readonly AccountRecord cache;
 
         public EditAccountViewModel(DeviceViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper)
-            :this(device, null, windowsManager, qrScannerHelper)
+            : this(device, null, windowsManager, qrScannerHelper)
         { }
 
         public EditAccountViewModel(DeviceViewModel device, AccountRecord accountRecord, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper)
@@ -54,10 +54,12 @@ namespace HideezClient.ViewModels
             if (accountRecord == null)
             {
                 IsNewAccount = true;
+                cache = new AccountRecord();
                 AccountRecord = new AccountRecord();
             }
             else
             {
+                cache = accountRecord;
                 AccountRecord = new AccountRecord
                 {
                     Key = accountRecord.Key,
@@ -72,12 +74,20 @@ namespace HideezClient.ViewModels
                 };
                 InitProp(AccountRecord);
             }
+            HasOpt = cache.HasOtp;
             InitDependencies();
         }
 
         private void InitDependencies()
         {
             Application.Current.MainWindow.Activated += WeakEventHandler.Create(this, (@this, o, args) => Task.Run(@this.UpdateAppsAndUrls));
+
+            this.WhenAnyValue(vm => vm.ErrorAccountName, vm => vm.ErrorOtpSecret).Subscribe(observer => HasError = !(ErrorAccountName == null && ErrorOtpSecret == null));
+            this.WhenAnyValue(vm => vm.Name, vm => vm.Login, vm => vm.IsPasswordChanged, vm => vm.HasOpt)
+                .Subscribe(o =>
+                {
+                    HasChanges = CompareNotEquals(cache.Name, Name) || CompareNotEquals(cache.Login, Login) || IsPasswordChanged || cache.HasOtp != HasOpt || CompareNotEquals(cache.Apps, AccountRecord.Apps) || CompareNotEquals(cache.Urls, AccountRecord.Urls);
+                });
 
             this.WhenAnyValue(vm => vm.SelectedApp).Subscribe(OnAppSelected);
             this.WhenAnyValue(vm => vm.SelectedUrl).Subscribe(OnUrlSelected);
@@ -96,9 +106,17 @@ namespace HideezClient.ViewModels
                     OpenedForegroundUrls.Remove(loadingAppInfo);
                 });
             });
+        }
 
-            cacheHasOtp = HasOpt;
-            AccountRecord.OtpSecret = "";
+        private bool CompareNotEquals(string str1, string str2)
+        {
+            return !(string.IsNullOrWhiteSpace(str1) && string.IsNullOrWhiteSpace(str2)) && str1 != str2;
+        }
+
+        public bool CanSave()
+        {
+            ValidateName();
+            return ErrorAccountName == null && ErrorOtpSecret == null;
         }
 
         private void UpdateAppsAndUrls()
@@ -170,7 +188,10 @@ namespace HideezClient.ViewModels
 
         #region Propertys
 
-        [Reactive] public bool IsNewAccount { get; private set; }
+        [Reactive] public bool HasError { get; set; }
+        [Reactive] public bool HasChanges { get; set; }
+        public bool IsNewAccount { get; }
+        [Reactive] public string ErrorAccountName { get; private set; }
         public string Name
         {
             get { return AccountRecord.Name; }
@@ -179,22 +200,14 @@ namespace HideezClient.ViewModels
                 if (AccountRecord.Name != value)
                 {
                     AccountRecord.Name = value;
+                    ValidateName();
                     this.RaisePropertyChanged(nameof(Name));
                 }
             }
         }
-        public string Password
-        {
-            get { return AccountRecord.Password; }
-            set
-            {
-                if (AccountRecord.Password != value)
-                {
-                    AccountRecord.Password = value;
-                    this.RaisePropertyChanged(nameof(Password));
-                }
-            }
-        }
+        public string Error { get; set; }
+        [Reactive] public bool IsPasswordChanged { get; set; }
+
         public string Login
         {
             get { return AccountRecord.Login; }
@@ -210,29 +223,7 @@ namespace HideezClient.ViewModels
 
         #region OTP
         [Reactive] public bool EditOtp { get; set; }
-        public bool HasOpt
-        {
-            get
-            {
-                return AccountRecord.HasOtp;
-            }
-            set
-            {
-                if (AccountRecord.HasOtp != value)
-                {
-                    if (value)
-                    {
-                        AccountRecord.Flags = (ushort)(AccountRecord.Flags | (ushort)Hideez.SDK.Communication.StorageTableFlags.HAS_OTP);
-                    }
-                    else
-                    {
-                        AccountRecord.Flags = (ushort)(AccountRecord.Flags & ~(ushort)Hideez.SDK.Communication.StorageTableFlags.HAS_OTP);
-                    }
-
-                    this.RaisePropertyChanged(nameof(HasOpt));
-                }
-            }
-        }
+        [Reactive] public bool HasOpt { get; set; }
         public string OtpSecret
         {
             get { return AccountRecord.OtpSecret; }
@@ -258,7 +249,7 @@ namespace HideezClient.ViewModels
                     else
                     {
                         HasOpt = false;
-                        AccountRecord.OtpSecret = "";
+                        AccountRecord.OtpSecret = null;
                         ErrorOtpSecret = null;
                     }
                     this.RaisePropertyChanged(nameof(OtpSecret));
@@ -458,7 +449,7 @@ namespace HideezClient.ViewModels
                     {
                         OtpSecret = "";
                         EditOtp = false;
-                        HasOpt = cacheHasOtp;
+                        HasOpt = AccountRecord.HasOtp;
                     },
                 };
             }
@@ -467,6 +458,18 @@ namespace HideezClient.ViewModels
         #endregion
 
         #endregion
+
+        private void ValidateName()
+        {
+            if (string.IsNullOrWhiteSpace(AccountRecord.Name))
+            {
+                ErrorAccountName = "Account name cannot be empty";
+            }
+            else
+            {
+                ErrorAccountName = null;
+            }
+        }
 
         private bool ValidateBase32String(string base32)
         {

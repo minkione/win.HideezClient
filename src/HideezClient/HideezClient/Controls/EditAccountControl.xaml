@@ -130,7 +130,7 @@
             </Grid.RowDefinitions>
 
             <!--  Account Name  -->
-            <ContentControl Style="{StaticResource UnderLine}">
+            <ContentControl Style="{StaticResource UnderLine}" Tag="{Binding ErrorAccountName}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150" SharedSizeGroup="L" />
@@ -154,7 +154,7 @@
                         Focusable="True"
                         FontSize="16"
                         Foreground="{DynamicResource DarkForeground}"
-                        Text="{Binding Name}" />
+                        Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
                 </Grid>
             </ContentControl>
 
@@ -215,7 +215,8 @@
                         BorderThickness="0"
                         CaretBrush="{DynamicResource DarkForeground}"
                         FontSize="16"
-                        Foreground="{DynamicResource DarkForeground}" />
+                        Foreground="{DynamicResource DarkForeground}"
+                        PasswordChanged="PasswordBox_PasswordChanged" />
 
                     <Button
                         Grid.Column="4"
@@ -632,8 +633,24 @@
                     Command="{Binding SaveAccountCommand}"
                     CommandParameter="{Binding ElementName=PasswordBox}"
                     Content="Save"
-                    IsDefault="True"
-                    Style="{DynamicResource ConfirmButtonStyle}" />
+                    IsDefault="True">
+                    <Button.Style>
+                        <Style BasedOn="{StaticResource ConfirmButtonStyle}" TargetType="Button">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding HasError}" Value="False" />
+                                        <Condition Binding="{Binding HasChanges}" Value="True" />
+                                    </MultiDataTrigger.Conditions>
+                                    <MultiDataTrigger.Setters>
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </MultiDataTrigger.Setters>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
             </StackPanel>
         </Grid>
     </Border>

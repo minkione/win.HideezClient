@@ -131,9 +131,12 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        OnSaveAccountAsdync((x as PasswordBox)?.SecurePassword);
+                        if (EditAccount.CanSave())
+                        {
+                            OnSaveAccountAsdync((x as PasswordBox)?.SecurePassword);
+                        }
                     },
-                    CanExecuteFunc = () => EditAccount != null && EditAccount.ErrorOtpSecret == null,
+                    CanExecuteFunc = () => EditAccount != null && EditAccount.HasChanges && !EditAccount.HasError,
                 };
             }
         }
@@ -161,7 +164,7 @@ namespace HideezClient.PageViewModels
                 var account = EditAccount;
                 EditAccount = null;
                 IsAvailable = false;
-                account.Password = password.GetAsString();
+                account.AccountRecord.Password = password.GetAsString();
                 await Device.SaveOrUpdateAccountAsync(account.AccountRecord);
             }
             catch (Exception ex)
@@ -258,9 +261,16 @@ namespace HideezClient.PageViewModels
             log.Error(ex);
             try
             {
-                if (ex is HideezException hex && hex.ErrorCode == HideezErrorCode.ERR_UNAUTHORIZED)
+                if (ex is HideezException hex)
                 {
-                    windowsManager.ShowError("Authorization error.");
+                    if (hex.ErrorCode == HideezErrorCode.ERR_UNAUTHORIZED)
+                    {
+                        windowsManager.ShowError("Authorization error.");
+                    }
+                    else if (hex.ErrorCode == HideezErrorCode.PmPasswordNameCannotBeEmpty)
+                    {
+                        windowsManager.ShowError("Account name cannot be empty.");
+                    }
                 }
                 else
                 {

@@ -35,5 +35,13 @@ namespace HideezClient.Controls
         {
             PasswordBox.Clear();
         }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext != null)
+            { 
+                ((dynamic)this.DataContext).IsPasswordChanged = true; 
+            }
+        }
     }
 }
