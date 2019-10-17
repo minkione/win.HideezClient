@@ -66,5 +66,8 @@ namespace HideezServiceHost
         {
         }
 
+        public void DeviceOperationCancelled(DeviceDTO device)
+        {
+        }
     }
 }
