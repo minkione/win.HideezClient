@@ -241,11 +241,18 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="DeviceOperationCancelled">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q8:DeviceDTO" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="RemoteConnection_DeviceStateChanged">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
-        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="stateDto" nillable="true" type="q8:DeviceStateDTO" />
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="stateDto" nillable="true" type="q9:DeviceStateDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

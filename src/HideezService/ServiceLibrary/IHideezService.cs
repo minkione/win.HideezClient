@@ -97,6 +97,9 @@ namespace ServiceLibrary
         [OperationContract(IsOneWay = true)]
         void DeviceFinishedMainFlow(DeviceDTO device);
 
+        [OperationContract(IsOneWay = true)]
+        void DeviceOperationCancelled(DeviceDTO device);
+
 
 
         [OperationContract(IsOneWay = true)]

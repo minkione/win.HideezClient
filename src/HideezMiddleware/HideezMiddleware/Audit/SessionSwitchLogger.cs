@@ -203,16 +203,19 @@ namespace HideezMiddleware.Audit
                 return;
 
             var time = DateTime.UtcNow;
-
+            
             var procedure = _unlockProcedure;
-            await procedure?.Run(UNLOCK_EVENT_TIMEOUT);
+            if (procedure != null)
+                await procedure.Run(UNLOCK_EVENT_TIMEOUT);
 
             var we = _eventSaver.GetWorkstationEvent();
             we.EventId = eventType;
             we.Note = SessionSwitchSubject.NonHideez.ToString();
             we.Date = time;
 
-            if (procedure.FlowUnlockResult.IsSuccessful)
+            if (procedure != null && 
+                procedure.FlowUnlockResult != null && 
+                procedure.FlowUnlockResult.IsSuccessful)
             {
                 we.Note = procedure.UnlockMethod.ToString();
                 we.DeviceId = _bleDeviceManager.Find(procedure.FlowUnlockResult.DeviceMac, 1)?.SerialNo;

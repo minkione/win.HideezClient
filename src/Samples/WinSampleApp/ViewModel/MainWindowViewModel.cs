@@ -1372,7 +1372,7 @@ namespace WinSampleApp.ViewModel
         #region IClientUiProxy
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
-        public event EventHandler<EventArgs> Connected;
+        public event EventHandler<EventArgs> Connected { add { } remove { } }
 
         public event EventHandler<EventArgs> PinCancelled { add { } remove { } }
 
