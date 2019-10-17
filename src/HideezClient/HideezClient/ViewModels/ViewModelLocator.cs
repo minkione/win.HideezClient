@@ -118,9 +118,9 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<PasswordManagerViewModel>(); }
         }
 
-        public AboutDevicePageViewModel AboutDevicePageViewModel
+        public DeviceSettingsPageViewModel DeviceSettingsPageViewModel
         {
-            get { return DIContainer.Resolve<AboutDevicePageViewModel>(); }
+            get { return DIContainer.Resolve<DeviceSettingsPageViewModel>(); }
         }
 
         #region WaitingDelete

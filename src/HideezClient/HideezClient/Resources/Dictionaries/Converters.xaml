@@ -18,5 +18,6 @@
     <converters:SerialNoAndFirmwareVerFormater x:Key="SerialNoAndFirmwareVerFormater" />
     <converters:NullToVisibilityCollapsedConverter x:Key="NullToVisibilityCollapsedConverter" />
     <converters:BooleanToVisibilityCollapsedConverter x:Key="BooleanToVisibilityCollapsedConverter" />
+    <converters:SliderWidthToMinRangeWidthConverter x:Key="SliderWidthToMinRangeWidthConverter" />
 
 </ResourceDictionary>

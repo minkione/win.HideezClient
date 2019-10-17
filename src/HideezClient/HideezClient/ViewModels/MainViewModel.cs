@@ -39,17 +39,17 @@ namespace HideezClient.ViewModels
 
         private void InitMenu()
         {
-            MenuAboutDevice = new MenuItemViewModel
+            MenuDeviceSettings = new MenuItemViewModel
             {
-                Header = "Menu.AboutDevice",
-                Command = OpenAboutDevicePageCommand,
+                Header = "Menu.DeviceSettings",
+                Command = OpenDeviceSettingsPageCommand,
             };
             MenuPasswordManager = new MenuItemViewModel
             {
                 Header = "Menu.PasswordManager",
                 Command = OpenPasswordManagerPageCommand,
             };
-            leftDeviceMenuItems.Add(MenuAboutDevice);
+            leftDeviceMenuItems.Add(MenuDeviceSettings);
             leftDeviceMenuItems.Add(MenuPasswordManager);
 
             MenuDefaultPage = new MenuItemViewModel
@@ -126,7 +126,7 @@ namespace HideezClient.ViewModels
 
                 if (MenuDefaultPage.IsChecked)
                 {
-                    MenuAboutDevice.IsChecked = true;
+                    MenuDeviceSettings.IsChecked = true;
                 }
 
                 SelectedDevice.PropertyChanged += Device_PropertyChanged;
@@ -139,7 +139,7 @@ namespace HideezClient.ViewModels
             {
                 if (SelectedDevice != null && (!SelectedDevice.ReadyToUse && leftDeviceMenuItems.Any(m => m.IsChecked)))
                 {
-                    MenuAboutDevice.IsChecked = true;
+                    MenuDeviceSettings.IsChecked = true;
                 }
             }
         }
@@ -171,7 +171,7 @@ namespace HideezClient.ViewModels
                 if (Set(ref selectedDevice, value))
                 {
                     viewModelLocator.PasswordManager.Device = selectedDevice;
-                    viewModelLocator.AboutDevicePageViewModel.Device = selectedDevice;
+                    viewModelLocator.DeviceSettingsPageViewModel.Device = selectedDevice;
                 }
             }
         }
@@ -204,7 +204,7 @@ namespace HideezClient.ViewModels
             set { Set(ref menuSettings, value); }
         }
 
-        public MenuItemViewModel MenuAboutDevice
+        public MenuItemViewModel MenuDeviceSettings
         {
             get { return menuAboutDevice; }
             set { Set(ref menuAboutDevice, value); }
@@ -256,7 +256,7 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public ICommand OpenAboutDevicePageCommand
+        public ICommand OpenDeviceSettingsPageCommand
         {
             get
             {
@@ -264,7 +264,7 @@ namespace HideezClient.ViewModels
                 {
                     CommandAction = x =>
                     {
-                        OnOpenAboutDevicePage();
+                        OnOpenDeviceSettingsPage();
                     },
                 };
             }
@@ -317,9 +317,9 @@ namespace HideezClient.ViewModels
             ProcessNavRequest("DefaultPage");
         }
 
-        private void OnOpenAboutDevicePage()
+        private void OnOpenDeviceSettingsPage()
         {
-            ProcessNavRequest("AboutDevicePage");
+            ProcessNavRequest("DeviceSettingsPage");
         }
 
         #endregion

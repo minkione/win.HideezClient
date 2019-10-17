@@ -276,7 +276,7 @@ namespace HideezClient.Models
             CancelDeviceAuthorization();
         }
 
-        void OnOperationCancelled(object sender, DeviceOperationCancelledMessage e)
+        void OnOperationCancelled(DeviceOperationCancelledMessage e)
         {
             if (e.Device.Id == Id)
             {

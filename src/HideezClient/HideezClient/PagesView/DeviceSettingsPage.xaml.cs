@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace HideezClient.PagesView
 {
     /// <summary>
-    /// Interaction logic for AboutDevicePage.xaml
+    /// Interaction logic for DeviceSettingsPage.xaml
     /// </summary>
-    public partial class AboutDevicePage : Page
+    public partial class DeviceSettingsPage : Page
     {
-        public AboutDevicePage()
+        public DeviceSettingsPage()
         {
             InitializeComponent();
         }

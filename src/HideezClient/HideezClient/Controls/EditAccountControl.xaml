@@ -625,14 +625,14 @@
                 <Button
                     Click="Button_Click"
                     Command="{Binding CancelCommand}"
-                    Content="Cancel"
+                    Content="{l:Localization Button.Cancel}"
                     IsCancel="True"
                     Style="{DynamicResource CancelButtonStyle}" />
                 <Rectangle Width="14" />
                 <Button
                     Command="{Binding SaveAccountCommand}"
                     CommandParameter="{Binding ElementName=PasswordBox}"
-                    Content="Save"
+                    Content="{l:Localization Button.Save}"
                     IsDefault="True">
                     <Button.Style>
                         <Style BasedOn="{StaticResource ConfirmButtonStyle}" TargetType="Button">

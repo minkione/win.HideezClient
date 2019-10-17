@@ -1,5 +1,6 @@
 ﻿using HideezClient.Mvvm;
 using HideezClient.ViewModels;
+using MvvmExtensions.Commands;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -11,12 +12,13 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace HideezClient.PageViewModels
 {
-    class AboutDevicePageViewModel : ReactiveObject, IWeakEventListener
+    class DeviceSettingsPageViewModel : ReactiveObject, IWeakEventListener
     {
-        public AboutDevicePageViewModel()
+        public DeviceSettingsPageViewModel()
         {
             Сonnected = new ConnectionIndicatorViewModel
             {
@@ -60,6 +62,8 @@ namespace HideezClient.PageViewModels
                 Authorized.State = Device.IsAuthorized;
                 StorageLoaded.State = Device.IsStorageLoaded;
             });
+
+            this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Subscribe(o => ProximityHasChanges = true);
         }
 
         [Reactive] public DeviceViewModel Device { get; set; }
@@ -67,9 +71,47 @@ namespace HideezClient.PageViewModels
         [Reactive] public ConnectionIndicatorViewModel Initialized { get; set; }
         [Reactive] public ConnectionIndicatorViewModel Authorized { get; set; }
         [Reactive] public ConnectionIndicatorViewModel StorageLoaded { get; set; }
+        [Reactive] public int LockProximity { get; set; } = 35;
+        [Reactive] public int UnlockProximity { get; set; } = 70;
+        [Reactive] public bool ProximityHasChanges { get; set; }
+        [Reactive] public bool CanChangeProximitySettings { get; set; } = true;
 
 
         public ObservableCollection<ConnectionIndicatorViewModel> Indicators { get; } = new ObservableCollection<ConnectionIndicatorViewModel>();
+
+        #region Command
+
+        public ICommand CancelEditProximityCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        LockProximity = 35;
+                        UnlockProximity = 70;
+                        ProximityHasChanges = false;
+                    }
+                };
+            }
+        }
+
+        public ICommand SaveProximityCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        ProximityHasChanges = false;
+                    }
+                };
+            }
+        }
+
+        #endregion
 
         public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {

@@ -285,6 +285,7 @@
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Converters\ProximityToOpacityConverter.cs" />
     <Compile Include="Converters\SerialNoAndFirmwareVerFormater.cs" />
+    <Compile Include="Converters\SliderWidthToMinRangeWidthConverter.cs" />
     <Compile Include="Converters\StringToResource.cs" />
     <Compile Include="Exception\HideezClientException.cs" />
     <Compile Include="Extension\AccessLevelDTOExtension.cs" />
@@ -353,8 +354,8 @@
     <Compile Include="Mvvm\IRequireViewIdentification.cs" />
     <Compile Include="Mvvm\LocalizedObject.cs" />
     <Compile Include="Mvvm\ObservableObject.cs" />
-    <Compile Include="PagesView\AboutDevicePage.xaml.cs">
-      <DependentUpon>AboutDevicePage.xaml</DependentUpon>
+    <Compile Include="PagesView\DeviceSettingsPage.xaml.cs">
+      <DependentUpon>DeviceSettingsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="PagesView\DefaultPage.xaml.cs">
       <DependentUpon>DefaultPage.xaml</DependentUpon>
@@ -368,7 +369,7 @@
     <Compile Include="PagesView\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PageViewModels\AboutDevicePageViewModel.cs" />
+    <Compile Include="PageViewModels\DeviceSettingsPageViewModel.cs" />
     <Compile Include="PageViewModels\HelpPageViewModel.cs" />
     <Compile Include="PageViewModels\SettingsPageViewModel.cs" />
     <Compile Include="PageViewModels\DefaultPageViewModel.cs" />
@@ -471,7 +472,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PagesView\AboutDevicePage.xaml">
+    <Page Include="PagesView\DeviceSettingsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

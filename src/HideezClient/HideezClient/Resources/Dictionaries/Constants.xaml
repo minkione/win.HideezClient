@@ -98,7 +98,7 @@
     <SolidColorBrush x:Key="BlueBrushIsDisabled" Color="{StaticResource Gray}" />
     <SolidColorBrush x:Key="NavyBlueBrush" Color="#22446D" />
 
-    <SolidColorBrush x:Key="SliderBlueBrush" Color="#251BA2DC" />
+    <SolidColorBrush x:Key="SliderBlueBrush" Color="#641BA2DC" />
 
     <SolidColorBrush x:Key="GrayBrush" Color="{StaticResource Gray}" />
 </ResourceDictionary>
