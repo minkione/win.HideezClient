@@ -990,6 +990,9 @@ namespace HideezServiceHost.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceFinishedMainFlow")]
         void DeviceFinishedMainFlow(HideezServiceHost.HideezServiceReference.DeviceDTO device);
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceOperationCancelled")]
+        void DeviceOperationCancelled(HideezServiceHost.HideezServiceReference.DeviceDTO device);
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_DeviceStateChanged")]
         void RemoteConnection_DeviceStateChanged(string deviceId, HideezServiceHost.HideezServiceReference.DeviceStateDTO stateDto);
         

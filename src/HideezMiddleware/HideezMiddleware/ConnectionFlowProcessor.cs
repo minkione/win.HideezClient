@@ -62,8 +62,15 @@ namespace HideezMiddleware
 
         void OnDeviceDisconnectedDuringFlow(object sender, EventArgs e)
         {
-            WriteDebugLine("Cancelling because disconnect");
+            WriteLine("Canceling because disconnect");
             // cancel the workflow if the device disconnects
+            Cancel();
+        }
+
+        void OnUserCancelledByButton(object sender, EventArgs e)
+        {
+            WriteLine("Canceling because the user pressed the cancel button");
+            // cancel the workflow if the user have pressed the cancel (long button press)
             Cancel();
         }
 
@@ -130,6 +137,7 @@ namespace HideezMiddleware
                 device = await ConnectDevice(mac, ct);
 
                 device.Disconnected += OnDeviceDisconnectedDuringFlow;
+                device.OperationCancelled += OnUserCancelledByButton;
 
                 await WaitDeviceInitialization(mac, device);
 
@@ -219,7 +227,10 @@ namespace HideezMiddleware
             finally
             {
                 if (device != null)
+                {
                     device.Disconnected -= OnDeviceDisconnectedDuringFlow;
+                    device.OperationCancelled -= OnUserCancelledByButton;
+                }
             }
 
             // Cleanup

@@ -59,5 +59,9 @@ namespace TestConsole
         public void ShowButtonConfirmUi(string deviceId)
         {
         }
+
+        public void DeviceOperationCancelled(DeviceDTO device)
+        {
+        }
     }
 }

@@ -96,6 +96,19 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             }
         }
 
+        public void DeviceOperationCancelled(DeviceDTO device)
+        {
+            try
+            {
+                log.Info($"Device ({device.Id}) operation cancelled");
+                _messenger.Send(new DeviceOperationCancelledMessage(device));
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
         public void RemoteConnection_DeviceStateChanged(string deviceId, DeviceStateDTO stateDto)
         {
             try

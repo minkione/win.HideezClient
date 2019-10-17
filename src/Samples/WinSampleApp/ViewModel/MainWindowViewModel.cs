@@ -809,7 +809,9 @@ namespace WinSampleApp.ViewModel
                 _log = new EventLogger("ExampleApp");
 
                 // BleConnectionManager ============================
-                _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
+                var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
+                _connectionManager = new BleConnectionManager(_log, bondsFilePath);
                 _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
                 _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
                 _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
@@ -1372,7 +1374,7 @@ namespace WinSampleApp.ViewModel
         #region IClientUiProxy
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
-        public event EventHandler<EventArgs> Connected;
+        public event EventHandler<EventArgs> Connected { add { } remove { } }
 
         public event EventHandler<EventArgs> PinCancelled { add { } remove { } }
 
