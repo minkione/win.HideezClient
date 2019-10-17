@@ -195,6 +195,9 @@
   <wsdl:message name="IHideezService_DeviceFinishedMainFlow_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:DeviceFinishedMainFlow" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_DeviceOperationCancelled_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:DeviceOperationCancelled" />
+  </wsdl:message>
   <wsdl:message name="IHideezService_RemoteConnection_DeviceStateChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:RemoteConnection_DeviceStateChanged" />
   </wsdl:message>
@@ -304,6 +307,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceFinishedMainFlow">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceFinishedMainFlow" message="tns:IHideezService_DeviceFinishedMainFlow_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceOperationCancelled">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceOperationCancelled" message="tns:IHideezService_DeviceOperationCancelled_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_DeviceStateChanged">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_DeviceStateChanged" message="tns:IHideezService_RemoteConnection_DeviceStateChanged_OutputCallbackMessage" />
@@ -540,6 +546,12 @@
     </wsdl:operation>
     <wsdl:operation name="DeviceFinishedMainFlow">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceFinishedMainFlow" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeviceOperationCancelled">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceOperationCancelled" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

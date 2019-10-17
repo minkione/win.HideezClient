@@ -76,6 +76,7 @@ namespace HideezClient.Models
             _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
             _messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
             _messenger.Register<SendPinMessage>(this, OnPinReceived);
+            _messenger.Register<DeviceOperationCancelledMessage>(this, OnOperationCancelled);
 
             RegisterDependencies();
 
@@ -275,6 +276,13 @@ namespace HideezClient.Models
             CancelDeviceAuthorization();
         }
 
+        void OnOperationCancelled(object sender, DeviceOperationCancelledMessage e)
+        {
+            if (e.Device.Id == Id)
+            {
+                CancelDeviceAuthorization();
+            }
+        }
 
         void LoadFrom(DeviceDTO dto)
         {

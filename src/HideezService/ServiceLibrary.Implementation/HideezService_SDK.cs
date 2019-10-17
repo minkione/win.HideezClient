@@ -248,6 +248,7 @@ namespace ServiceLibrary.Implementation
                 device.ConnectionStateChanged += Device_ConnectionStateChanged;
                 device.Initialized += Device_Initialized;
                 device.Disconnected += Device_Disconnected;
+                device.OperationCancelled += Device_OperationCancelled;
             }
         }
 
@@ -260,6 +261,7 @@ namespace ServiceLibrary.Implementation
                 device.ConnectionStateChanged -= Device_ConnectionStateChanged;
                 device.Initialized -= Device_Initialized;
                 device.Disconnected -= Device_Disconnected;
+                device.OperationCancelled -= Device_OperationCancelled;
 
                 if (device is IWcfDevice wcfDevice)
                     UnsubscribeFromWcfDeviceEvents(wcfDevice);
@@ -429,6 +431,24 @@ namespace ServiceLibrary.Implementation
                             workstationEvent.EventId = WorkstationEventType.DeviceConnect;
                         }
                         await _eventSaver.AddNewAsync(workstationEvent);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        void Device_OperationCancelled(object sender, EventArgs e)
+        {
+            try
+            {
+                if (sender is IDevice device)
+                {
+                    foreach (var client in sessionManager.Sessions)
+                    {
+                        client.Callbacks.DeviceOperationCancelled(new DeviceDTO(device));
                     }
                 }
             }
