@@ -20,6 +20,7 @@
     MinHeight="700"
     MaxWidth="1280"
     MaxHeight="770"
+    Metro:NonActiveWindowTitleBrush="{DynamicResource WindowTitleBrush}"
     Closing="MetroWindow_Closing"
     DataContext="{Binding MainViewModel, Mode=OneWay, Source={StaticResource Locator}}"
     Style="{DynamicResource WindowStyle}"
@@ -102,14 +103,14 @@
 
                 <StackPanel Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
                     <controls:DeviceInfo
+                        x:Name="currentDeviceInfo"
                         Padding="16,16,30,16"
                         VerticalAlignment="Top"
                         DataContext="{Binding SelectedDevice}" />
-                    <RadioButton
+                    <controls:LeftMenuItemControl
                         Metro:VisibilityHelper.IsVisible="{Binding IsConnected}"
                         DataContext="{Binding MenuAboutDevice}"
-                        Style="{DynamicResource LeftColumMenuStyle}"
-                        Tag="InfoCircleSolid" />
+                        Tag="{Binding Path=DataContext.IcoKey, Mode=OneWay, ElementName=currentDeviceInfo, Converter={StaticResource StringToResource}}" />
                     <Border>
                         <Border.Style>
                             <Style TargetType="{x:Type Border}">
@@ -127,32 +128,30 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <RadioButton
-                            DataContext="{Binding MenuPasswordManager}"
-                            Style="{StaticResource LeftColumMenuStyle}"
-                            Tag="LockSolid" />
-
+                        <controls:LeftMenuItemControl DataContext="{Binding MenuPasswordManager}">
+                            <controls:LeftMenuItemControl.Tag>
+                                <iconPacks:PackIconFontAwesome Kind="LockSolid" />
+                            </controls:LeftMenuItemControl.Tag>
+                        </controls:LeftMenuItemControl>
                     </Border>
                 </StackPanel>
             </StackPanel>
 
             <!--  Menu  -->
             <StackPanel Grid.Row="2">
-                <RadioButton
-                    DataContext="{Binding MenuDefaultPage}"
-                    Style="{DynamicResource LeftColumMenuStyle}"
-                    Visibility="Collapsed" />
+                <controls:LeftMenuItemControl DataContext="{Binding MenuDefaultPage}" Visibility="Hidden" />
 
-                <RadioButton
-                    DataContext="{Binding MenuHelp}"
-                    Style="{DynamicResource LeftColumMenuStyle}"
-                    Tag="QuestionCircleSolid" />
+                <controls:LeftMenuItemControl DataContext="{Binding MenuHelp}" IsEnabled="False">
+                    <controls:LeftMenuItemControl.Tag>
+                        <iconPacks:PackIconFontAwesome Kind="QuestionCircleSolid" />
+                    </controls:LeftMenuItemControl.Tag>
+                </controls:LeftMenuItemControl>
 
-                <Rectangle Height="10" />
-                <RadioButton
-                    DataContext="{Binding MenuSettings}"
-                    Style="{DynamicResource LeftColumMenuStyle}"
-                    Tag="CogSolid" />
+                <controls:LeftMenuItemControl DataContext="{Binding MenuSettings}" IsEnabled="False">
+                    <controls:LeftMenuItemControl.Tag>
+                        <iconPacks:PackIconFontAwesome Kind="CogSolid" />
+                    </controls:LeftMenuItemControl.Tag>
+                </controls:LeftMenuItemControl>
             </StackPanel>
 
             <Rectangle

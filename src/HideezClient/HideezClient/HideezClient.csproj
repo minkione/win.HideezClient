@@ -257,6 +257,9 @@
     <Compile Include="Controls\EditAccountControl.xaml.cs">
       <DependentUpon>EditAccountControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\LeftMenuItemControl.xaml.cs">
+      <DependentUpon>LeftMenuItemControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Notification\AccountSelector\AccountSelector.xaml.cs">
       <DependentUpon>AccountSelector.xaml</DependentUpon>
     </Compile>
@@ -420,6 +423,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\EditAccountControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\LeftMenuItemControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

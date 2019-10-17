@@ -54,7 +54,6 @@ namespace HideezClient.ViewModels
         public string OwnerName => device.OwnerName;
         public string Id => device.Id;
         public string Mac => BleUtils.DeviceIdToMac(Id);
-
         public bool IsConnected => device.IsConnected;
         public double Proximity => device.Proximity;
         public int Battery => device.Battery;
@@ -64,6 +63,8 @@ namespace HideezClient.ViewModels
         public bool IsAuthorized => device.IsAuthorized;
         public bool IsLoadingStorage => device.IsLoadingStorage;
         public bool IsStorageLoaded => device.IsStorageLoaded;
+        [DependsOn(nameof(IsConnected), nameof(IsInitialized), nameof(IsAuthorized), nameof(IsStorageLoaded))]
+        public bool ReadyToUse { get { return IsConnected && IsInitialized && IsAuthorized && IsStorageLoaded; } }
         public Version FirmwareVersion => device.FirmwareVersion;
         public Version BootloaderVersion => device.BootloaderVersion;
         public uint StorageTotalSize => device.StorageTotalSize;

@@ -32,6 +32,7 @@ namespace HideezClient.Views
     {
         private BindingRaiseevent bindingRaiseeventSelectedDevice;
         private BindingRaiseevent bindingRaiseeventIsConnected;
+        private BindingRaiseevent bindingRaiseeventIsAuthorized;
 
         public MainWindowView()
         {
@@ -46,6 +47,9 @@ namespace HideezClient.Views
             {
                 bindingRaiseeventIsConnected = new BindingRaiseevent(device, nameof(DeviceViewModel.IsConnected));
                 bindingRaiseeventIsConnected.ValueChanged += value => this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
+
+                bindingRaiseeventIsAuthorized= new BindingRaiseevent(device, nameof(DeviceViewModel.IsAuthorized));
+                bindingRaiseeventIsAuthorized.ValueChanged += value => this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
             };
         }
 

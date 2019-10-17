@@ -18,6 +18,7 @@ namespace HideezClient.ViewModels
 {
     class MainViewModel : ObservableObject
     {
+        private string currentPage = "";
         private readonly IDeviceManager deviceManager;
         private readonly IMenuFactory menuFactory;
         private readonly ViewModelLocator viewModelLocator;
@@ -54,6 +55,8 @@ namespace HideezClient.ViewModels
             MenuDefaultPage = new MenuItemViewModel
             {
                 Header = "Menu.MenuDefaultPage",
+                Command = OpenDefaultPageCommand,
+                IsChecked = true,
             };
             MenuHelp = new MenuItemViewModel
             {
@@ -68,6 +71,22 @@ namespace HideezClient.ViewModels
             leftAppMenuItems.Add(MenuDefaultPage);
             leftAppMenuItems.Add(MenuHelp);
             leftAppMenuItems.Add(MenuSettings);
+
+            foreach (var item in leftDeviceMenuItems.Concat(leftAppMenuItems))
+            {
+                item.PropertyChanged += Item_PropertyChanged;
+            }
+        }
+
+        private void Item_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MenuItemViewModel.IsChecked) && sender is MenuItemViewModel menu && menu.IsChecked)
+            {
+                foreach (var item in leftDeviceMenuItems.Concat(leftAppMenuItems).Where(m => m != menu && m.IsChecked))
+                {
+                    item.IsChecked = false;
+                }
+            }
         }
 
         private void Devices_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -87,11 +106,15 @@ namespace HideezClient.ViewModels
 
         private void RemovedDevice(Device device)
         {
-            SelectedDevice = null;
-            UpdateMenu();
-            if (device != null)
+            if (device != null && SelectedDevice != null)
             {
-                device.PropertyChanged -= Device_PropertyChanged;
+                SelectedDevice.PropertyChanged -= Device_PropertyChanged;
+                SelectedDevice = null;
+
+                if (!leftAppMenuItems.Any(m => m.IsChecked))
+                {
+                    MenuDefaultPage.IsChecked = true;
+                }
             }
         }
 
@@ -100,37 +123,23 @@ namespace HideezClient.ViewModels
             if (device != null)
             {
                 SelectedDevice = new DeviceInfoViewModel(device, menuFactory);
-                viewModelLocator.AboutDevicePageViewModel.Device = SelectedDevice;
-                device.PropertyChanged += Device_PropertyChanged;
-            }
 
-            UpdateMenu();
+                if (MenuDefaultPage.IsChecked)
+                {
+                    MenuAboutDevice.IsChecked = true;
+                }
+
+                SelectedDevice.PropertyChanged += Device_PropertyChanged;
+            }
         }
 
         private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(Device.IsConnected) || e.PropertyName == nameof(Device.IsAuthorized) || e.PropertyName == nameof(Device.IsStorageLoaded))
+            if (e.PropertyName == nameof(DeviceInfoViewModel.ReadyToUse))
             {
-                UpdateMenu();
-            }
-        }
-
-        private void UpdateMenu()
-        {
-            if (SelectedDevice == null)
-            {
-                if (leftDeviceMenuItems.Any(m => m.IsChecked) || !leftAppMenuItems.Any(m => m.IsChecked))
-                {
-                    MenuDefaultPage.IsChecked = true;
-                    OnOpenDefaultPage();
-                }
-            }
-            else 
-            {
-                if (MenuDefaultPage.IsChecked || (MenuPasswordManager.IsChecked && !SelectedDevice.IsAuthorized))
+                if (SelectedDevice != null && (!SelectedDevice.ReadyToUse && leftDeviceMenuItems.Any(m => m.IsChecked)))
                 {
                     MenuAboutDevice.IsChecked = true;
-                    OnOpenAboutDevicePage();
                 }
             }
         }
@@ -157,7 +166,14 @@ namespace HideezClient.ViewModels
         public DeviceInfoViewModel SelectedDevice
         {
             get { return selectedDevice; }
-            set { Set(ref selectedDevice, value); }
+            set
+            {
+                if (Set(ref selectedDevice, value))
+                {
+                    viewModelLocator.PasswordManager.Device = selectedDevice;
+                    viewModelLocator.AboutDevicePageViewModel.Device = selectedDevice;
+                }
+            }
         }
 
         #endregion Properties
@@ -213,7 +229,6 @@ namespace HideezClient.ViewModels
                     CommandAction = x =>
                     {
                         OnOpenPasswordManager();
-                        viewModelLocator.PasswordManager.Device = SelectedDevice;
                     }
                 };
             }
@@ -255,13 +270,31 @@ namespace HideezClient.ViewModels
             }
         }
 
+        public ICommand OpenDefaultPageCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        OnOpenDefaultPage();
+                    },
+                };
+            }
+        }
+
         #endregion Command
 
         #region Navigation
 
         public void ProcessNavRequest(string page)
         {
-            DisplayPage = new Uri($"pack://application:,,,/HideezClient;component/PagesView/{page}.xaml", UriKind.Absolute);
+            if (currentPage != page)
+            {
+                DisplayPage = new Uri($"pack://application:,,,/HideezClient;component/PagesView/{page}.xaml", UriKind.Absolute);
+                currentPage = page;
+            }
         }
 
         private void OnOpenSettings()
