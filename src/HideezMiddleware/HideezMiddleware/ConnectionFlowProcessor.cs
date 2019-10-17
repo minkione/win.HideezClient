@@ -189,6 +189,13 @@ namespace HideezMiddleware
                     // Session is locked but workstation unlocker is not connected
                     success = false;
                 }
+                else if (device.AccessLevel.IsMasterKeyRequired || device.AccessLevel.IsLinkRequired)
+                {
+                    // TODO: Property handle this case. There is a chance it may surface somewhere in the future.
+                    Debug.Fail($"Device ({device.Id}) requires link or master key after successfully finishing MasterKeyWorkflow");
+                    success = false;
+                    throw new Exception($"Device ({device.Id}) requires link or master key after successfully finishing MasterKeyWorkflow");
+                }
                 else
                 {
                     success = true;
