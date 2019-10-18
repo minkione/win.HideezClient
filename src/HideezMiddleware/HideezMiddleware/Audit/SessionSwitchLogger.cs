@@ -222,11 +222,11 @@ namespace HideezMiddleware.Audit
                 procedure.FlowUnlockResult != null && 
                 procedure.FlowUnlockResult.IsSuccessful)
             {
-                WriteLine("Procedure successful, updating unlock event data");
                 we.Note = procedure.UnlockMethod.ToString();
                 we.DeviceId = _bleDeviceManager.Find(procedure.FlowUnlockResult.DeviceMac, 1)?.SerialNo;
                 we.AccountLogin = procedure.FlowUnlockResult.AccountLogin;
                 we.AccountName = procedure.FlowUnlockResult.AccountName;
+                WriteLine($"Procedure successful ({we.DeviceId}, method: {we.Note})");
             }
 
             await _eventSaver.AddNewAsync(we, true);
