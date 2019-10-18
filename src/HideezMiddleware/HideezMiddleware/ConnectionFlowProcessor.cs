@@ -109,6 +109,7 @@ namespace HideezMiddleware
                 return;
 
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
+            WriteLine($"Started main flow ({mac})");
 
             _flowId = Guid.NewGuid().ToString();
             Started?.Invoke(this, _flowId);
@@ -283,6 +284,7 @@ namespace HideezMiddleware
             _flowId = string.Empty;
 
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
+            WriteLine($"Finished main flow {mac}");
         }
 
         async Task<WorkstationUnlockResult> TryUnlockWorkstation(IDevice device)
