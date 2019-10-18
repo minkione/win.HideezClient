@@ -493,19 +493,20 @@ namespace ServiceLibrary.Implementation
                 if (reason == SessionSwitchReason.SessionLogoff || reason == SessionSwitchReason.SessionLock)
                 {
                     // Disconnect all connected devices
-                    // TODO: implement _deviceManager?.DisconnectAll();
-                    _deviceManager?.Devices.ToList().ForEach(d =>
-                    {
-                        try
-                        {
-                            if (d.IsConnected)
-                                d.Disconnect();
-                        }
-                        catch (Exception ex)
-                        {
-                            _log.WriteLine(ex);
-                        }
-                    });
+                    _deviceManager.DisconnectAllDevices();
+                    //// TODO: implement _deviceManager?.DisconnectAll();
+                    //_deviceManager?.Devices.ToList().ForEach(d =>
+                    //{
+                    //    try
+                    //    {
+                    //        if (d.IsConnected)
+                    //            d.Disconnect();
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //        _log.WriteLine(ex);
+                    //    }
+                    //});
                 }
             }
             catch (Exception ex)
@@ -551,7 +552,7 @@ namespace ServiceLibrary.Implementation
                 Error(ex);
                 ThrowException(ex);
 
-                return new DeviceDTO[0]; // We will never reach this line
+                return Array.Empty<DeviceDTO>(); // We will never reach this line
             }
         }
 
@@ -598,7 +599,7 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                _deviceManager.Find(id)?.Disconnect();
+                _deviceManager.DisconnectDevice(id);
             }
             catch (Exception ex)
             {

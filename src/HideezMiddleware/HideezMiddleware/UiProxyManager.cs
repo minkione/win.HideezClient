@@ -49,7 +49,8 @@ namespace HideezMiddleware
         }
 
         bool disposed = false;
-        void Dispose(bool disposing)
+
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
                 return;

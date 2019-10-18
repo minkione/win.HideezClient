@@ -435,4 +435,10 @@
   <data name="GetPinTimeout" xml:space="preserve">
     <value>PIN request from the user has been timed out</value>
   </data>
+  <data name="DeviceAuthorizationFailed" xml:space="preserve">
+    <value>Device authorization failed. Check device access profile settings.</value>
+  </data>
+  <data name="BleDisconnecting" xml:space="preserve">
+    <value>Device disconnecting</value>
+  </data>
 </root>

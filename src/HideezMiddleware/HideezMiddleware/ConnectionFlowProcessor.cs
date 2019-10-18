@@ -253,7 +253,7 @@ namespace HideezMiddleware
                     }
                     else if (!success)
                     {
-                        await device.Disconnect();
+                        _deviceManager.DisconnectDevice(device);
                     }
                     else
                     {
@@ -356,6 +356,10 @@ namespace HideezMiddleware
 
             await _ui.SendNotification("Waiting for HES authorization...", _infNid);
             await _hesConnection.FixDevice(device);
+
+            if (device.AccessLevel.IsMasterKeyRequired)
+                throw new HideezException(HideezErrorCode.DeviceAuthorizationFailed);
+
             await _ui.SendNotification("", _infNid);
         }
 
@@ -450,26 +454,28 @@ namespace HideezMiddleware
             ct.ThrowIfCancellationRequested();
             await _ui.SendNotification("Connecting to the device...", _infNid);
 
-            var device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
+            var device = await _deviceManager.ConnectDevice(mac, BleDefines.ConnectDeviceTimeout);
 
             if (device == null)
             {
                 ct.ThrowIfCancellationRequested();
                 await _ui.SendNotification("Connection failed. Retrying...", _infNid);
-                device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout / 2);
-            }
 
-            if (device == null)
-            {
-                ct.ThrowIfCancellationRequested();
-                // remove the bond and try one more time
-                await _deviceManager.RemoveByMac(mac);
-                await _ui.SendNotification("Connection failed. Trying re-bond the device...", _infNid);
-                device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
-            }
+                device = await _deviceManager.ConnectDevice(mac, BleDefines.ConnectDeviceTimeout / 2);
 
-            if (device == null)
-                throw new Exception($"Failed to connect device '{mac}'.");
+                if (device == null)
+                {
+                    ct.ThrowIfCancellationRequested();
+
+                    // remove the bond and try one more time
+                    await _deviceManager.RemoveByMac(mac);
+                    await _ui.SendNotification("Connection failed. Trying re-bond the device...", _infNid);
+                    device = await _deviceManager.ConnectDevice(mac, BleDefines.ConnectDeviceTimeout);
+
+                    if (device == null)
+                        throw new Exception($"Failed to connect device '{mac}'.");
+                }
+            }
 
             return device;
         }
