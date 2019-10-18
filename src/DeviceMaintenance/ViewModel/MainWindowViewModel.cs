@@ -224,7 +224,10 @@ namespace DeviceMaintenance.ViewModel
 
             InitializeHideezServiceController();
 
-            _connectionManager = new BleConnectionManager(_log, "d:\\temp\\bonds"); //todo
+            var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+            var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
+
+            _connectionManager = new BleConnectionManager(_log, bondsFilePath);
 
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;

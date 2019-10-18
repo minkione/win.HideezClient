@@ -116,6 +116,7 @@ namespace HideezMiddleware.Audit
                     _unlockProcedure.Dispose();
 
                 _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor);
+                WriteLine("Started unlock procedure");
             }
         }
 
@@ -206,8 +207,12 @@ namespace HideezMiddleware.Audit
             
             var procedure = _unlockProcedure;
             if (procedure != null)
+            {
+                WriteLine("Wait for unlock procedure");
                 await procedure.Run(UNLOCK_EVENT_TIMEOUT);
+            }
 
+            WriteLine("Generating unlock event");
             var we = _eventSaver.GetWorkstationEvent();
             we.EventId = eventType;
             we.Note = SessionSwitchSubject.NonHideez.ToString();
@@ -221,6 +226,7 @@ namespace HideezMiddleware.Audit
                 we.DeviceId = _bleDeviceManager.Find(procedure.FlowUnlockResult.DeviceMac, 1)?.SerialNo;
                 we.AccountLogin = procedure.FlowUnlockResult.AccountLogin;
                 we.AccountName = procedure.FlowUnlockResult.AccountName;
+                WriteLine($"Procedure successful ({we.DeviceId}, method: {we.Note})");
             }
 
             await _eventSaver.AddNewAsync(we, true);

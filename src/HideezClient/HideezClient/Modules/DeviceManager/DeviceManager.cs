@@ -147,7 +147,7 @@ namespace HideezClient.Modules.DeviceManager
                 // Create remote devices if they are not already created
                 foreach (var dvm in Devices.ToList().Where(d => d.IsConnected))
                 {
-                    if (serviceDevices.Any(d => d.Id == dvm.Id && d.FinishedMainFlow))
+                    if (serviceDevices.Any(d => d.Id == dvm.Id && d.IsConnected && d.FinishedMainFlow))
                         _ = TryCreateRemoteDeviceAsync(dvm);
                 }
             }
