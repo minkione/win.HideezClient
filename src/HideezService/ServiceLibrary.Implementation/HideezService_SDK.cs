@@ -23,6 +23,7 @@ using HideezMiddleware.DeviceConnection;
 using Hideez.SDK.Communication;
 using System.Text;
 using System.Reflection;
+using System.ServiceModel;
 
 namespace ServiceLibrary.Implementation
 {
@@ -44,6 +45,8 @@ namespace ServiceLibrary.Implementation
         static WorkstationLockProcessor _workstationLockProcessor;
 
         static ISettingsManager<ProximitySettings> _proximitySettingsManager;
+        static ISettingsManager<DevicePermissionsSettings> _devicePermissionsSettingsManager;
+        static DeviceProximitySettingsHelper _deviceProximitySettingsHelper;
 
         static ConnectionFlowProcessor _connectionFlowProcessor;
         static AdvertisementIgnoreList _advIgnoreList;
@@ -100,6 +103,13 @@ namespace ServiceLibrary.Implementation
             IFileSerializer fileSerializer = new XmlFileSerializer(_sdkLogger);
             _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
             _proximitySettingsManager.SettingsChanged += ProximitySettingsManager_SettingsChanged;
+            _proximitySettingsManager.GetSettingsAsync().Wait();
+
+            string devicePermissionsSettingsPath = Path.Combine(settingsDirectory, "DevicePermissions.xml");
+            _devicePermissionsSettingsManager = new SettingsManager<DevicePermissionsSettings>(devicePermissionsSettingsPath, fileSerializer);
+            _devicePermissionsSettingsManager.GetSettingsAsync().Wait();
+
+            _deviceProximitySettingsHelper = new DeviceProximitySettingsHelper(_proximitySettingsManager, _devicePermissionsSettingsManager);
 
             // Get HES address from registry ==================================
             // HKLM\SOFTWARE\Hideez\Client, client_hes_address REG_SZ
@@ -122,15 +132,10 @@ namespace ServiceLibrary.Implementation
             {
                 ReconnectDelayMs = 10_000 // Todo: remove hes recoonect delay overwrite in stable version
             };
-            _hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
-            {
-                ProximitySettings settings = await _proximitySettingsManager.GetSettingsAsync();
-                settings.DevicesProximity = receivedSettings.ToArray();
-                _proximitySettingsManager.SaveSettings(settings);
-            };
+            _hesConnection.HubProximitySettingsArrived += (sender, receivedSettings) => Task.Run(() => _deviceProximitySettingsHelper.SaveOrUpdate(receivedSettings));
             _hesConnection.HubRFIDIndicatorStateArrived += async (sender, isEnabled) =>
             {
-                ProximitySettings settings = await _proximitySettingsManager.GetSettingsAsync();
+                ProximitySettings settings = _proximitySettingsManager.Settings;
                 settings.IsRFIDIndicatorEnabled = isEnabled;
                 _proximitySettingsManager.SaveSettings(settings);
             };
@@ -185,19 +190,19 @@ namespace ServiceLibrary.Implementation
                 _sdkLogger);
 
             // Proximity Monitor ==================================
-            ProximitySettings proximitySettings = _proximitySettingsManager.GetSettingsAsync().Result;
+            ProximitySettings proximitySettings = _proximitySettingsManager.Settings;
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _sdkLogger, proximitySettings.DevicesProximity);
 
             // WorkstationLocker ==================================
             _workstationLocker = new WcfWorkstationLocker(sessionManager, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
-            _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager, 
+            _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager,
                 _deviceManager, _workstationLocker, _sdkLogger);
 
             // SessionSwitchLogger ==================================
             _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver, _connectionFlowProcessor,
-                _tapProcessor, _rfidProcessor, _proximityProcessor, 
+                _tapProcessor, _rfidProcessor, _proximityProcessor,
                 _workstationLockProcessor, _deviceManager, _sdkLogger);
 
             // SDK initialization finished, start essential components
@@ -635,6 +640,24 @@ namespace ServiceLibrary.Implementation
             we.AccountName = workstationEvent.AccountName;
             we.AccountLogin = workstationEvent.AccountLogin;
             await _eventSaver.AddNewAsync(we);
+        }
+
+        public void SetProximitySettings(string mac, int lockProximity, int unlockProximity)
+        {
+            _deviceProximitySettingsHelper?.SetClientProximity(mac, lockProximity, unlockProximity);
+        }
+
+        public ProximitySettingsDTO GetCurrentProximitySettings(string mac)
+        {
+            var s = _proximitySettingsManager.Settings.GetProximitySettings(mac);
+            var dto = new ProximitySettingsDTO
+            {
+                Mac = s.Mac,
+                SerialNo = s.SerialNo,
+                LockProximity = s.LockProximity,
+                UnlockProximity = s.UnlockProximity,
+            };
+            return dto;
         }
 
         #region Remote device management

@@ -63,5 +63,9 @@ namespace TestConsole
         public void DeviceOperationCancelled(DeviceDTO device)
         {
         }
+
+        public void DevicePermissionsChanged(DevicePermissionsDTO devicePermissionsDTO)
+        {
+        }
     }
 }

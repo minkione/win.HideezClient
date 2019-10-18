@@ -200,5 +200,18 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
                 log.Error(ex);
             }
         }
+
+        public void DevicePermissionsChanged(DevicePermissionsDTO devicePermissionsDTO)
+        {
+            try
+            {
+                log.Info($"Device permissions changed");
+                _messenger.Send(new DevicePermissionsChangedMessage(devicePermissionsDTO));
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
     }
 }

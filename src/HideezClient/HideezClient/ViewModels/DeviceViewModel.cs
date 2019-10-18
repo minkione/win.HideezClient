@@ -75,6 +75,8 @@ namespace HideezClient.ViewModels
         [DependsOn(nameof(StorageFreeSize), nameof(StorageTotalSize))]
         public byte StorageFreePercent => (byte)(((double)StorageFreeSize / StorageTotalSize) * 100);
 
+        public bool AllowEditProximitySettings { get { return device.AllowEditProximitySettings; } }
+
         public IDictionary<ushort, AccountRecord> AccountsRecords { get { return device.PasswordManager.Accounts; } }
         public ObservableCollection<AccountInfoViewModel> Accounts { get; } = new ObservableCollection<AccountInfoViewModel>();
 

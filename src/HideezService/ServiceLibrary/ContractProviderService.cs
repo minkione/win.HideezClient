@@ -90,5 +90,15 @@ namespace ServiceLibrary
         {
             throw new NotImplementedException();
         }
+
+        public void SetProximitySettings(string mac, int lockProximity, int unlockProximity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ProximitySettingsDTO GetCurrentProximitySettings(string mac)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

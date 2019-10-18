@@ -12,6 +12,7 @@ namespace HideezMiddleware.Settings
 {
     public class XmlFileSerializer : IFileSerializer
     {
+        private readonly object lockObj = new object();
         private readonly ILog log;
 
         public XmlFileSerializer(ILog log)
@@ -27,24 +28,27 @@ namespace HideezMiddleware.Settings
             {
                 if (File.Exists(filePath))
                 {
-                    // Create a new file stream for reading the XML file
-                    using (FileStream readFileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    lock (lockObj)
                     {
-                        try
+                        // Create a new file stream for reading the XML file
+                        using (FileStream readFileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                         {
-                            // Create a new XmlSerializer instance with the type of the test class
-                            XmlSerializer serializerObj = new XmlSerializer(typeof(T));
+                            try
+                            {
+                                // Create a new XmlSerializer instance with the type of the test class
+                                XmlSerializer serializerObj = new XmlSerializer(typeof(T));
 
-                            // Load the object saved above by using the Deserialize function
-                            model = (T)serializerObj.Deserialize(readFileStream);
-                        }
-                        catch (Exception e)
-                        {
-                            log?.WriteLine(nameof(XmlFileSerializer), e);
-                        }
+                                // Load the object saved above by using the Deserialize function
+                                model = (T)serializerObj.Deserialize(readFileStream);
+                            }
+                            catch (Exception e)
+                            {
+                                log?.WriteLine(nameof(XmlFileSerializer), e);
+                            }
 
-                        // Cleanup
-                        readFileStream.Close();
+                            // Cleanup
+                            readFileStream.Close();
+                        }
                     }
                 }
             }
@@ -66,13 +70,16 @@ namespace HideezMiddleware.Settings
                 Encoding = Encoding.UTF8
             };
 
-            // Create a new file stream to write the serialized object to a file
-            using (XmlWriter xw = XmlWriter.Create(filePath, xws))
+            lock (lockObj)
             {
-                // Create a new XmlSerializer instance with the type of the test class
-                XmlSerializer serializerObj = new XmlSerializer(typeof(T));
+                // Create a new file stream to write the serialized object to a file
+                using (XmlWriter xw = XmlWriter.Create(filePath, xws))
+                {
+                    // Create a new XmlSerializer instance with the type of the test class
+                    XmlSerializer serializerObj = new XmlSerializer(typeof(T));
 
-                serializerObj.Serialize(xw, serializedObject);
+                    serializerObj.Serialize(xw, serializedObject);
+                }
             }
 
             return true;

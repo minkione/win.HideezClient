@@ -1,6 +1,10 @@
-﻿using HideezClient.Mvvm;
+﻿using HideezClient.HideezServiceReference;
+using HideezClient.Modules;
+using HideezClient.Modules.ServiceProxy;
+using HideezClient.Mvvm;
 using HideezClient.ViewModels;
 using MvvmExtensions.Commands;
+using NLog;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -18,8 +22,15 @@ namespace HideezClient.PageViewModels
 {
     class DeviceSettingsPageViewModel : ReactiveObject, IWeakEventListener
     {
-        public DeviceSettingsPageViewModel()
+        private readonly IServiceProxy serviceProxy;
+        private readonly IWindowsManager windowsManager;
+        protected readonly ILogger log = LogManager.GetCurrentClassLogger();
+
+        public DeviceSettingsPageViewModel(IServiceProxy serviceProxy, IWindowsManager windowsManager)
         {
+            this.serviceProxy = serviceProxy;
+            this.windowsManager = windowsManager;
+
             Сonnected = new ConnectionIndicatorViewModel
             {
                 Name = "Status.Device.Сonnected",
@@ -49,7 +60,7 @@ namespace HideezClient.PageViewModels
             Indicators.Add(Initialized);
             Indicators.Add(Authorized);
             Indicators.Add(StorageLoaded);
-                        
+
             this.WhenAnyValue(x => x.Device).Where(d => d != null).Subscribe(d =>
             {
                 PropertyChangedEventManager.AddListener(Device, this, nameof(Device.IsConnected));
@@ -105,7 +116,19 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        ProximityHasChanges = false;
+                        Task.Run(async () =>
+                       {
+                           try
+                           {
+                               await serviceProxy.GetService().SetProximitySettingsAsync(Device.Mac, LockProximity, UnlockProximity);
+                               ProximityHasChanges = false;
+                           }
+                           catch (Exception ex)
+                           {
+                               windowsManager.ShowError("Error seva proximity settings.");
+                               log.Error(ex);
+                           }
+                       });
                     }
                 };
             }

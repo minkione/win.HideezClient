@@ -58,13 +58,14 @@ namespace HideezClient.Models
         bool isLoadingStorage;
         bool isStorageLoaded;
         int pinAttemptsRemain;
+        bool allowEditProximitySettings = true;
 
         CancellationTokenSource authCancellationTokenSource;
 
         public Device(
-            IServiceProxy serviceProxy, 
-            IRemoteDeviceFactory remoteDeviceFactory, 
-            IMessenger messenger, 
+            IServiceProxy serviceProxy,
+            IRemoteDeviceFactory remoteDeviceFactory,
+            IMessenger messenger,
             DeviceDTO dto)
         {
             _serviceProxy = serviceProxy;
@@ -77,6 +78,7 @@ namespace HideezClient.Models
             _messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
             _messenger.Register<SendPinMessage>(this, OnPinReceived);
             _messenger.Register<DeviceOperationCancelledMessage>(this, OnOperationCancelled);
+            _messenger.Register<DevicePermissionsChangedMessage>(this, OnDevicePermissionsChanged);
 
             RegisterDependencies();
 
@@ -224,6 +226,15 @@ namespace HideezClient.Models
             }
         }
 
+        public bool AllowEditProximitySettings
+        {
+            get { return allowEditProximitySettings; }
+            set
+            {
+                Set(ref allowEditProximitySettings, value);
+            }
+        }
+
 
         void RemoteDevice_StorageModified(object sender, EventArgs e)
         {
@@ -233,7 +244,7 @@ namespace HideezClient.Models
 
             Task.Run(() =>
             {
-                dmc.CallMethod(async () => 
+                dmc.CallMethod(async () =>
                 {
                     try
                     {
@@ -282,6 +293,11 @@ namespace HideezClient.Models
             {
                 CancelDeviceAuthorization();
             }
+        }
+
+        private void OnDevicePermissionsChanged(DevicePermissionsChangedMessage obj)
+        {
+            AllowEditProximitySettings = obj.AllowEditProximitySettings;
         }
 
         void LoadFrom(DeviceDTO dto)
@@ -430,7 +446,7 @@ namespace HideezClient.Models
 
             ShowInfo("Please press the Button on your Hideez Key", _infNid);
             _messenger.Send(new ShowButtonConfirmUiMessage(Id));
-            var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT, ct); 
+            var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT, ct);
             return res;
         }
 
@@ -454,7 +470,7 @@ namespace HideezClient.Models
             while (AccessLevel.IsNewPinRequired)
             {
                 ShowInfo("Please create new PIN code for your Hideez Key", _infNid);
-                var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, ct, withConfirm:true);
+                var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, ct, withConfirm: true);
 
                 if (pin == null)
                     return false; // finished by timeout from the _ui.GetPin
