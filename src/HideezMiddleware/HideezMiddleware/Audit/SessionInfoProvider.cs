@@ -39,12 +39,12 @@ namespace HideezMiddleware.Audit
             {
                 case SessionSwitchReason.SessionLock:
                 case SessionSwitchReason.SessionLogoff:
-                    WriteLine($"Session state changed to: unlocked (reason: {reason});");
+                    WriteLine($"Session state changed to: locked (reason: {reason});");
                     ClearSessionId();
                     break;
                 case SessionSwitchReason.SessionLogon:
                 case SessionSwitchReason.SessionUnlock:
-                    WriteLine($"Session state changed to: locked (sessionLocked: {reason});");
+                    WriteLine($"Session state changed to: unlocked (reason: {reason});");
                     GenerateNewSessionId();
                     break;
             }
