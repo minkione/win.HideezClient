@@ -301,7 +301,7 @@
     <Compile Include="Messages\DeviceFinishedMainFlowMessage.cs" />
     <Compile Include="Messages\DeviceInitializedMessage.cs" />
     <Compile Include="Messages\DeviceOperationCancelledMessage.cs" />
-    <Compile Include="Messages\DevicePermissionsChangedMessage.cs" />
+    <Compile Include="Messages\DeviceProximitySettingsChangedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
     <Compile Include="Messages\HidePinUiMessage.cs" />

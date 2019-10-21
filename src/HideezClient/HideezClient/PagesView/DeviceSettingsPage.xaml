@@ -166,9 +166,8 @@
                     <Style.Triggers>
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding CanChangeProximitySettings}" Value="True" />
-                                <Condition Binding="{Binding Device.IsConnected}" Value="True" />
-                                <Condition Binding="{Binding Device.AllowEditProximitySettings}" Value="True" />
+                                <Condition Binding="{Binding Device.IsInitialized}" Value="True" />
+                                <Condition Binding="{Binding AllowEditProximitySettings}" Value="True" />
                             </MultiDataTrigger.Conditions>
                             <MultiDataTrigger.Setters>
                                 <Setter Property="Visibility" Value="Visible" />

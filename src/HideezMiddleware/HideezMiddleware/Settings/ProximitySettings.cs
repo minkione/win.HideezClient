@@ -43,10 +43,6 @@ namespace HideezMiddleware.Settings
                     Mac = settings.Mac,
                     LockProximity = settings.LockProximity,
                     UnlockProximity = settings.UnlockProximity,
-                    ClientLockProximity = settings.ClientLockProximity,
-                    ClientUnlockProximity = settings.ClientUnlockProximity,
-                    ServerLockProximity = settings.ServerLockProximity,
-                    ServerUnlockProximity = settings.ServerUnlockProximity,
                     LockTimeout = settings.LockTimeout,
                 });
             }
@@ -84,7 +80,6 @@ namespace HideezMiddleware.Settings
             {
                 deviceProximity = DeviceProximitySettings.DefaultSettings;
                 deviceProximity.Mac = mac;
-                DevicesProximity = (new List<DeviceProximitySettings>(DevicesProximity) { deviceProximity }).ToArray();
             }
             return deviceProximity;
         }

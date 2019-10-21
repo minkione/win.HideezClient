@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
@@ -58,7 +59,6 @@ namespace HideezClient.Models
         bool isLoadingStorage;
         bool isStorageLoaded;
         int pinAttemptsRemain;
-        bool allowEditProximitySettings = true;
 
         CancellationTokenSource authCancellationTokenSource;
 
@@ -78,7 +78,6 @@ namespace HideezClient.Models
             _messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
             _messenger.Register<SendPinMessage>(this, OnPinReceived);
             _messenger.Register<DeviceOperationCancelledMessage>(this, OnOperationCancelled);
-            _messenger.Register<DevicePermissionsChangedMessage>(this, OnDevicePermissionsChanged);
 
             RegisterDependencies();
 
@@ -226,15 +225,6 @@ namespace HideezClient.Models
             }
         }
 
-        public bool AllowEditProximitySettings
-        {
-            get { return allowEditProximitySettings; }
-            set
-            {
-                Set(ref allowEditProximitySettings, value);
-            }
-        }
-
 
         void RemoteDevice_StorageModified(object sender, EventArgs e)
         {
@@ -293,11 +283,6 @@ namespace HideezClient.Models
             {
                 CancelDeviceAuthorization();
             }
-        }
-
-        private void OnDevicePermissionsChanged(DevicePermissionsChangedMessage obj)
-        {
-            AllowEditProximitySettings = obj.AllowEditProximitySettings;
         }
 
         void LoadFrom(DeviceDTO dto)

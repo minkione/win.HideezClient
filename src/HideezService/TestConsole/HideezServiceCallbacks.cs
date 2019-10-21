@@ -64,7 +64,7 @@ namespace TestConsole
         {
         }
 
-        public void DevicePermissionsChanged(DevicePermissionsDTO[] devicesPermissionsDTO)
+        public void ProximitySettingsChanged()
         {
         }
     }

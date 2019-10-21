@@ -45,7 +45,6 @@ namespace ServiceLibrary.Implementation
         static WorkstationLockProcessor _workstationLockProcessor;
 
         static ISettingsManager<ProximitySettings> _proximitySettingsManager;
-        static ISettingsManager<DevicePermissionsSettings> _devicePermissionsSettingsManager;
         static DeviceProximitySettingsHelper _deviceProximitySettingsHelper;
 
         static ConnectionFlowProcessor _connectionFlowProcessor;
@@ -105,12 +104,7 @@ namespace ServiceLibrary.Implementation
             _proximitySettingsManager.SettingsChanged += ProximitySettingsManager_SettingsChanged;
             _proximitySettingsManager.GetSettingsAsync().Wait();
 
-            string devicePermissionsSettingsPath = Path.Combine(settingsDirectory, "DevicePermissions.xml");
-            _devicePermissionsSettingsManager = new SettingsManager<DevicePermissionsSettings>(devicePermissionsSettingsPath, fileSerializer);
-            _devicePermissionsSettingsManager.SettingsChanged += _devicePermissionsSettingsManager_SettingsChanged;
-            _devicePermissionsSettingsManager.GetSettingsAsync().Wait();
-
-            _deviceProximitySettingsHelper = new DeviceProximitySettingsHelper(_proximitySettingsManager, _devicePermissionsSettingsManager);
+            _deviceProximitySettingsHelper = new DeviceProximitySettingsHelper(_proximitySettingsManager);
 
             // Get HES address from registry ==================================
             // HKLM\SOFTWARE\Hideez\Client, client_hes_address REG_SZ
@@ -133,8 +127,15 @@ namespace ServiceLibrary.Implementation
             {
                 ReconnectDelayMs = 10_000 // Todo: remove hes recoonect delay overwrite in stable version
             };
-            _hesConnection.HubProximitySettingsArrived += (sender, receivedSettings) => Task.Run(() => _deviceProximitySettingsHelper.SaveOrUpdate(receivedSettings));
-            _hesConnection.HubRFIDIndicatorStateArrived += async (sender, isEnabled) =>
+            _hesConnection.HubProximitySettingsArrived += (sender, receivedSettings) => Task.Run(() =>
+            {
+                _deviceProximitySettingsHelper.SaveOrUpdate(receivedSettings);
+                foreach (var client in sessionManager.Sessions)
+                {
+                    client.Callbacks.ProximitySettingsChanged();
+                }
+            });
+            _hesConnection.HubRFIDIndicatorStateArrived += (sender, isEnabled) =>
             {
                 ProximitySettings settings = _proximitySettingsManager.Settings;
                 settings.IsRFIDIndicatorEnabled = isEnabled;
@@ -229,29 +230,6 @@ namespace ServiceLibrary.Implementation
         }
 
         #region Event Handlers
-
-        private void _devicePermissionsSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<DevicePermissionsSettings> e)
-        {
-            try
-            {
-                _deviceProximitySettingsHelper.Update(e.NewSettings.DevicesPermissions);
-                var dto = e.NewSettings.DevicesPermissions.Select(p => new DevicePermissionsDTO
-                {
-                    Mac = p.Mac,
-                    SerialNo = p.SerialNo,
-                    AllowEditProximitySettings = p.AllowEditProximitySettings,
-                }).ToArray();
-
-                foreach (var client in sessionManager.Sessions)
-                {
-                    client.Callbacks.DevicePermissionsChanged(dto);
-                }
-            }
-            catch (Exception ex)
-            {
-                _log.WriteLine(ex);
-            }
-        }
 
         void ProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
         {

@@ -84,7 +84,6 @@
     <Compile Include="DTO\AccessLevelDTO.cs" />
     <Compile Include="ContractProviderService.cs" />
     <Compile Include="DTO\DeviceDTO.cs" />
-    <Compile Include="DTO\DevicePermissionsDTO.cs" />
     <Compile Include="DTO\DeviceStateDTO.cs" />
     <Compile Include="HideezServiceFault.cs" />
     <Compile Include="IHideezService.cs" />

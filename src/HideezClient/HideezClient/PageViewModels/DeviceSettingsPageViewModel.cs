@@ -1,4 +1,6 @@
-﻿using HideezClient.HideezServiceReference;
+﻿using GalaSoft.MvvmLight.Messaging;
+using HideezClient.HideezServiceReference;
+using HideezClient.Messages;
 using HideezClient.Modules;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
@@ -24,12 +26,16 @@ namespace HideezClient.PageViewModels
     {
         private readonly IServiceProxy serviceProxy;
         private readonly IWindowsManager windowsManager;
+        private readonly IMessenger messenger;
         protected readonly ILogger log = LogManager.GetCurrentClassLogger();
 
-        public DeviceSettingsPageViewModel(IServiceProxy serviceProxy, IWindowsManager windowsManager)
+        public DeviceSettingsPageViewModel(IServiceProxy serviceProxy, IWindowsManager windowsManager, IMessenger messenger)
         {
             this.serviceProxy = serviceProxy;
             this.windowsManager = windowsManager;
+            this.messenger = messenger;
+            
+            this.messenger.Register<DeviceProximitySettingsChangedMessage>(this, OnDeviceProximitySettingsChanged);
 
             Сonnected = new ConnectionIndicatorViewModel
             {
@@ -74,7 +80,7 @@ namespace HideezClient.PageViewModels
                 StorageLoaded.State = Device.IsStorageLoaded;
             });
 
-            this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Where(t => t.Item1 != 0 && t.Item2 != 0 ).Subscribe(o => ProximityHasChanges = true);
+            this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Where(t => t.Item1 != 0 && t.Item2 != 0).Subscribe(o => ProximityHasChanges = true);
             this.WhenAnyValue(x => x.Device).Where(d => d != null).Subscribe(o => Task.Run(GetCurrentProximitySettings));
         }
 
@@ -86,7 +92,7 @@ namespace HideezClient.PageViewModels
         [Reactive] public int LockProximity { get; set; }
         [Reactive] public int UnlockProximity { get; set; }
         [Reactive] public bool ProximityHasChanges { get; set; }
-        [Reactive] public bool CanChangeProximitySettings { get; set; } = true;
+        [Reactive] public bool AllowEditProximitySettings { get; set; }
 
 
         public ObservableCollection<ConnectionIndicatorViewModel> Indicators { get; } = new ObservableCollection<ConnectionIndicatorViewModel>();
@@ -135,14 +141,17 @@ namespace HideezClient.PageViewModels
 
         #endregion
 
+        private void OnDeviceProximitySettingsChanged(DeviceProximitySettingsChangedMessage obj)
+        {
+            Task.Run(GetCurrentProximitySettings);
+        }
+
         private async Task GetCurrentProximitySettings()
         {
             var dto = await this.serviceProxy.GetService().GetCurrentProximitySettingsAsync(Device.Mac);
-            if (dto.AllowEditProximitySettings)
-            {
-                LockProximity = dto.LockProximity;
-                UnlockProximity = dto.UnlockProximity;
-            }
+            AllowEditProximitySettings = dto.AllowEditProximitySettings;
+            LockProximity = dto.LockProximity;
+            UnlockProximity = dto.UnlockProximity;
             ProximityHasChanges = false;
         }
 

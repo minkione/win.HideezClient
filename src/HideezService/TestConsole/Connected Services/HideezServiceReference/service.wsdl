@@ -186,8 +186,8 @@
   <wsdl:message name="IHideezService_GetCurrentProximitySettings_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q16="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q16:HideezServiceFault" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_DevicePermissionsChanged_OutputCallbackMessage">
-    <wsdl:part name="parameters" element="tns:DevicePermissionsChanged" />
+  <wsdl:message name="IHideezService_ProximitySettingsChanged_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ProximitySettingsChanged" />
   </wsdl:message>
   <wsdl:message name="IHideezService_LockWorkstationRequest_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:LockWorkstationRequest" />
@@ -312,8 +312,8 @@
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/GetCurrentProximitySettingsResponse" message="tns:IHideezService_GetCurrentProximitySettings_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/GetCurrentProximitySettingsHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_GetCurrentProximitySettings_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DevicePermissionsChanged">
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DevicePermissionsChanged" message="tns:IHideezService_DevicePermissionsChanged_OutputCallbackMessage" />
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ProximitySettingsChanged">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ProximitySettingsChanged" message="tns:IHideezService_ProximitySettingsChanged_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="LockWorkstationRequest">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/LockWorkstationRequest" message="tns:IHideezService_LockWorkstationRequest_OutputCallbackMessage" />
@@ -554,8 +554,8 @@
         <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
-    <wsdl:operation name="DevicePermissionsChanged">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/DevicePermissionsChanged" style="document" />
+    <wsdl:operation name="ProximitySettingsChanged">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/ProximitySettingsChanged" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>
