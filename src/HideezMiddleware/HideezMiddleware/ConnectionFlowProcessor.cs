@@ -256,7 +256,7 @@ namespace HideezMiddleware
                     else if (!success)
                     {
                         WriteLine($"Main flow failed: Disconnect ({device.Id})");
-                        _deviceManager.DisconnectDevice(device);
+                        await _deviceManager.DisconnectDevice(device);
                     }
                     else
                     {
