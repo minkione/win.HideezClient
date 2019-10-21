@@ -126,6 +126,13 @@ namespace HideezMiddleware.Audit
                     {
                         string data = File.ReadAllText(file);
                         dynamic jsonObj = JsonConvert.DeserializeObject(data);
+
+                        if (jsonObj == null)
+                        {
+                            WriteLine($"Could not parse event file. Data: {data}", LogErrorSeverity.Error);
+                            await DeleteEventFile(file);
+                        }
+
                         string eventVersion = jsonObj[nameof(WorkstationEvent.Version)];
 
                         if (eventVersion != WorkstationEvent.ClassVersion)

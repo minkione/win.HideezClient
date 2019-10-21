@@ -132,6 +132,9 @@ namespace HideezMiddleware.Tasks
             {
                 FlowUnlockResult = e;
                 UnlockMethod = SessionSwitchSubject.RFID;
+
+                if (!FlowUnlockResult.IsSuccessful)
+                    _tcs.TrySetResult(new object());
             }
         }
 
@@ -141,6 +144,9 @@ namespace HideezMiddleware.Tasks
             {
                 FlowUnlockResult = e;
                 UnlockMethod = SessionSwitchSubject.Proximity;
+
+                if (!FlowUnlockResult.IsSuccessful)
+                    _tcs.TrySetResult(new object());
             }
         }
 
