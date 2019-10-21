@@ -261,7 +261,7 @@ namespace HideezMiddleware
                     }
                     else if (!success)
                     {
-                        _deviceManager.DisconnectDevice(device);
+                        await _deviceManager.DisconnectDevice(device);
                     }
                     else
                     {
