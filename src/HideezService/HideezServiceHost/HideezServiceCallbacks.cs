@@ -69,5 +69,9 @@ namespace HideezServiceHost
         public void DeviceOperationCancelled(DeviceDTO device)
         {
         }
+
+        public void DevicePermissionsChanged(DevicePermissionsDTO[] devicesPermissionsDTO)
+        {
+        }
     }
 }

@@ -74,7 +74,8 @@ namespace HideezClient.PageViewModels
                 StorageLoaded.State = Device.IsStorageLoaded;
             });
 
-            this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Subscribe(o => ProximityHasChanges = true);
+            this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Where(t => t.Item1 != 0 && t.Item2 != 0 ).Subscribe(o => ProximityHasChanges = true);
+            this.WhenAnyValue(x => x.Device).Where(d => d != null).Subscribe(o => Task.Run(GetCurrentProximitySettings));
         }
 
         [Reactive] public DeviceViewModel Device { get; set; }
@@ -82,8 +83,8 @@ namespace HideezClient.PageViewModels
         [Reactive] public ConnectionIndicatorViewModel Initialized { get; set; }
         [Reactive] public ConnectionIndicatorViewModel Authorized { get; set; }
         [Reactive] public ConnectionIndicatorViewModel StorageLoaded { get; set; }
-        [Reactive] public int LockProximity { get; set; } = 35;
-        [Reactive] public int UnlockProximity { get; set; } = 70;
+        [Reactive] public int LockProximity { get; set; }
+        [Reactive] public int UnlockProximity { get; set; }
         [Reactive] public bool ProximityHasChanges { get; set; }
         [Reactive] public bool CanChangeProximitySettings { get; set; } = true;
 
@@ -100,9 +101,7 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        LockProximity = 35;
-                        UnlockProximity = 70;
-                        ProximityHasChanges = false;
+                        Task.Run(GetCurrentProximitySettings);
                     }
                 };
             }
@@ -135,6 +134,17 @@ namespace HideezClient.PageViewModels
         }
 
         #endregion
+
+        private async Task GetCurrentProximitySettings()
+        {
+            var dto = await this.serviceProxy.GetService().GetCurrentProximitySettingsAsync(Device.Mac);
+            if (dto.AllowEditProximitySettings)
+            {
+                LockProximity = dto.LockProximity;
+                UnlockProximity = dto.UnlockProximity;
+            }
+            ProximityHasChanges = false;
+        }
 
         public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {

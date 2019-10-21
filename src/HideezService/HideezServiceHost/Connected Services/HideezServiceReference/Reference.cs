@@ -572,6 +572,9 @@ namespace HideezServiceHost.HideezServiceReference {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool AllowEditProximitySettingsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int LockProximityField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -590,6 +593,19 @@ namespace HideezServiceHost.HideezServiceReference {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool AllowEditProximitySettings {
+            get {
+                return this.AllowEditProximitySettingsField;
+            }
+            set {
+                if ((this.AllowEditProximitySettingsField.Equals(value) != true)) {
+                    this.AllowEditProximitySettingsField = value;
+                    this.RaisePropertyChanged("AllowEditProximitySettings");
+                }
             }
         }
         
@@ -1149,7 +1165,7 @@ namespace HideezServiceHost.HideezServiceReference {
     public interface IHideezServiceCallback {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DevicePermissionsChanged")]
-        void DevicePermissionsChanged(HideezServiceHost.HideezServiceReference.DevicePermissionsDTO devicePermissionsDTO);
+        void DevicePermissionsChanged(HideezServiceHost.HideezServiceReference.DevicePermissionsDTO[] devicesPermissionsDTO);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/LockWorkstationRequest")]
         void LockWorkstationRequest();

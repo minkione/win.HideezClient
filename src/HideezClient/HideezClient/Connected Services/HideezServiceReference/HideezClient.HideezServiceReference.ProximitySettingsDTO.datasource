@@ -6,5 +6,5 @@
     cause the file to be unrecognizable by the program.
 -->
 <GenericObjectDataSource DisplayName="ProximitySettingsDTO" Version="1.0" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
-   <TypeInfo>HideezClient.HideezServiceReference.ProximitySettingsDTO</TypeInfo>
+   <TypeInfo>HideezClient.HideezServiceReference.ProximitySettingsDTO, HideezClient, Version=3.1.2.0, Culture=neutral, PublicKeyToken=null</TypeInfo>
 </GenericObjectDataSource>

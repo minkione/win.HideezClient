@@ -43,6 +43,10 @@ namespace HideezMiddleware.Settings
                     Mac = settings.Mac,
                     LockProximity = settings.LockProximity,
                     UnlockProximity = settings.UnlockProximity,
+                    ClientLockProximity = settings.ClientLockProximity,
+                    ClientUnlockProximity = settings.ClientUnlockProximity,
+                    ServerLockProximity = settings.ServerLockProximity,
+                    ServerUnlockProximity = settings.ServerUnlockProximity,
                     LockTimeout = settings.LockTimeout,
                 });
             }

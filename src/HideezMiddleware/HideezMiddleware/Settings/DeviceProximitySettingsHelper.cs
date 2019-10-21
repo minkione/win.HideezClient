@@ -22,12 +22,7 @@ namespace HideezMiddleware.Settings
 
         public bool GetAllowEditProximity(string mac)
         {
-            return true;
-        }
-
-        private void UpdateAllowEditProximity(string mac, bool allowEdit)
-        {
-
+            return devicePermissionsSettingsManager.Settings.GetPermissions(mac).AllowEditProximitySettings;
         }
 
         public void SaveOrUpdate(IReadOnlyList<DeviceProximitySettingsDto> dtos)
@@ -52,6 +47,24 @@ namespace HideezMiddleware.Settings
             {
                 deviceProximity.LockProximity = lockProximity;
                 deviceProximity.UnlockProximity = unlockProximity;
+            }
+            proximitySettingsManager.SaveSettings(settings);
+        }
+
+        public void Update(IEnumerable<DevicePermissions> permissions)
+        {
+            var settings = proximitySettingsManager.Settings;
+            foreach (var p in permissions)
+            {
+                if (!p.AllowEditProximitySettings)
+                {
+                    var ps = settings.DevicesProximity.FirstOrDefault(s => s.Mac == p.Mac);
+                    if (ps != null)
+                    {
+                        ps.LockProximity = ps.ServerLockProximity;
+                        ps.UnlockProximity = ps.ServerUnlockProximity;
+                    }
+                }
             }
             proximitySettingsManager.SaveSettings(settings);
         }

@@ -32,6 +32,8 @@ namespace HideezClient.ViewModels
             if (device == null)
                 throw new ArgumentNullException(nameof(device));
 
+
+
             this.device = device;
             device.PropertyChanged += (sender, e) => RaisePropertyChanged(e.PropertyName);
 

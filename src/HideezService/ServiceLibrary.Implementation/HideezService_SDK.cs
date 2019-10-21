@@ -107,6 +107,7 @@ namespace ServiceLibrary.Implementation
 
             string devicePermissionsSettingsPath = Path.Combine(settingsDirectory, "DevicePermissions.xml");
             _devicePermissionsSettingsManager = new SettingsManager<DevicePermissionsSettings>(devicePermissionsSettingsPath, fileSerializer);
+            _devicePermissionsSettingsManager.SettingsChanged += _devicePermissionsSettingsManager_SettingsChanged;
             _devicePermissionsSettingsManager.GetSettingsAsync().Wait();
 
             _deviceProximitySettingsHelper = new DeviceProximitySettingsHelper(_proximitySettingsManager, _devicePermissionsSettingsManager);
@@ -228,6 +229,30 @@ namespace ServiceLibrary.Implementation
         }
 
         #region Event Handlers
+
+        private void _devicePermissionsSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<DevicePermissionsSettings> e)
+        {
+            try
+            {
+                _deviceProximitySettingsHelper.Update(e.NewSettings.DevicesPermissions);
+                var dto = e.NewSettings.DevicesPermissions.Select(p => new DevicePermissionsDTO
+                {
+                    Mac = p.Mac,
+                    SerialNo = p.SerialNo,
+                    AllowEditProximitySettings = p.AllowEditProximitySettings,
+                }).ToArray();
+
+                foreach (var client in sessionManager.Sessions)
+                {
+                    client.Callbacks.DevicePermissionsChanged(dto);
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.WriteLine(ex);
+            }
+        }
+
         void ProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
         {
             try
@@ -656,6 +681,7 @@ namespace ServiceLibrary.Implementation
                 SerialNo = s.SerialNo,
                 LockProximity = s.LockProximity,
                 UnlockProximity = s.UnlockProximity,
+                AllowEditProximitySettings = _deviceProximitySettingsHelper?.GetAllowEditProximity(mac) ?? false,
             };
             return dto;
         }

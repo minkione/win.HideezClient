@@ -65,6 +65,7 @@
   <xs:element name="WorkstationEventDTO" nillable="true" type="tns:WorkstationEventDTO" />
   <xs:complexType name="ProximitySettingsDTO">
     <xs:sequence>
+      <xs:element minOccurs="0" name="AllowEditProximitySettings" type="xs:boolean" />
       <xs:element minOccurs="0" name="LockProximity" type="xs:int" />
       <xs:element minOccurs="0" name="Mac" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="SerialNo" nillable="true" type="xs:string" />
@@ -72,6 +73,12 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ProximitySettingsDTO" nillable="true" type="tns:ProximitySettingsDTO" />
+  <xs:complexType name="ArrayOfDevicePermissionsDTO">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="DevicePermissionsDTO" nillable="true" type="tns:DevicePermissionsDTO" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfDevicePermissionsDTO" nillable="true" type="tns:ArrayOfDevicePermissionsDTO" />
   <xs:complexType name="DevicePermissionsDTO">
     <xs:sequence>
       <xs:element minOccurs="0" name="AllowEditProximitySettings" type="xs:boolean" />

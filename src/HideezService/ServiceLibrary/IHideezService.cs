@@ -76,7 +76,7 @@ namespace ServiceLibrary
     public interface ICallbacks
     {
         [OperationContract(IsOneWay = true)]
-        void DevicePermissionsChanged(DevicePermissionsDTO devicePermissionsDTO);
+        void DevicePermissionsChanged(DevicePermissionsDTO[] devicesPermissionsDTO);
 
         [OperationContract(IsOneWay = true)]
         void LockWorkstationRequest();

@@ -18,5 +18,7 @@ namespace ServiceLibrary
         public int LockProximity { get; set; }
         [DataMember]
         public int UnlockProximity { get; set; }
+        [DataMember]
+        public bool AllowEditProximitySettings { get; set; }
     }
 }

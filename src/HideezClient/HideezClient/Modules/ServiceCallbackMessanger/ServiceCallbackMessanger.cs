@@ -201,12 +201,15 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             }
         }
 
-        public void DevicePermissionsChanged(DevicePermissionsDTO devicePermissionsDTO)
+        public void DevicePermissionsChanged(DevicePermissionsDTO[] devicesPermissionsDTO)
         {
             try
             {
-                log.Info($"Device permissions changed");
-                _messenger.Send(new DevicePermissionsChangedMessage(devicePermissionsDTO));
+                log.Info($"Devices permissions changed");
+                foreach (var p in devicesPermissionsDTO)
+                {
+                    _messenger.Send(new DevicePermissionsChangedMessage(p));
+                }
             }
             catch (Exception ex)
             {
