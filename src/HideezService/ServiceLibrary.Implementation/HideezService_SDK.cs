@@ -486,14 +486,14 @@ namespace ServiceLibrary.Implementation
 
         }
 
-        void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
+        async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
             try
             {
                 if (reason == SessionSwitchReason.SessionLogoff || reason == SessionSwitchReason.SessionLock)
                 {
                     // Disconnect all connected devices
-                    _deviceManager.DisconnectAllDevices();
+                    await _deviceManager.DisconnectAllDevices();
                     //// TODO: implement _deviceManager?.DisconnectAll();
                     //_deviceManager?.Devices.ToList().ForEach(d =>
                     //{
@@ -595,11 +595,11 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public void DisconnectDevice(string id)
+        public async Task DisconnectDevice(string id)
         {
             try
             {
-                _deviceManager.DisconnectDevice(id);
+                await _deviceManager.DisconnectDevice(id);
             }
             catch (Exception ex)
             {
