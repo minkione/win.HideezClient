@@ -398,7 +398,7 @@ namespace HideezClient.Modules
             var vm = new MessageBoxViewModel();
             vm.SetCaptionFormat("MessageBox.DeleteCredentials.Caption");
             vm.SetMessageFormat("MessageBox.DeleteCredentials.Message");
-            return ShowMessageBoxViewAsync(vm, "WarnIco", "Button.YesDelete", "Button.Cancel");
+            return ShowMessageBoxViewAsync(vm, "InfoIco", "Button.YesDelete", "Button.Cancel");
         }
 
         public Task<bool> ShowDisconnectDevicePromptAsync(string deviceName)
@@ -406,7 +406,7 @@ namespace HideezClient.Modules
             var vm = new MessageBoxViewModel();
             vm.SetCaptionFormat("MessageBox.DisconectDevice.Caption", deviceName);
             vm.SetMessageFormat("MessageBox.DisconectDevice.Message", deviceName);
-            return ShowMessageBoxViewAsync(vm, "WarnIco", "Button.Yes", "Button.No");
+            return ShowMessageBoxViewAsync(vm, "InfoIco", "Button.Yes", "Button.No");
         }
 
         public Task<bool> ShowRemoveDevicePromptAsync(string deviceName)
@@ -414,7 +414,7 @@ namespace HideezClient.Modules
             var vm = new MessageBoxViewModel();
             vm.SetCaptionFormat("MessageBox.DeleteDevice.Caption", deviceName);
             vm.SetMessageFormat("MessageBox.DeleteDevice.Message", deviceName);
-            return ShowMessageBoxViewAsync(vm, "WarnIco", "Button.Yes", "Button.No");
+            return ShowMessageBoxViewAsync(vm, "InfoIco", "Button.Yes", "Button.No");
         }
 
         private Task<bool> ShowMessageBoxViewAsync(MessageBoxViewModel viewModel, string icoKey, string confirmButtonTextKey = "Button.Ok", string cancelButtonTextKey = "")
