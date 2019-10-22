@@ -329,17 +329,16 @@ namespace HideezClient.Modules
             }
         }
 
-
         public Task ShowDeviceLockedAsync()
         {
             TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
 
             UIDispatcher.InvokeAsync(() =>
             {
-                DeviceLockedView dlv = new DeviceLockedView();
-                SetStartupLocation(dlv, IsMainWindowVisible);
-                dlv.Closed += (sender, e) => tcs.TrySetResult(true);
-                dlv.Show();
+                var messageBox = new MessageBoxView("DeviceLocked.Caption", "DeviceLocked.Message", "LockIco", "Button.Ok");
+                SetStartupLocation(messageBox, IsMainWindowVisible);
+                var dialogResalt = messageBox.ShowDialog();
+                tcs.TrySetResult(dialogResalt ?? false);
             });
 
             return tcs.Task;
@@ -401,14 +400,18 @@ namespace HideezClient.Modules
             return bitmap;
         }
 
-        public bool ShowDeleteCredentialsPrompt()
+        public Task<bool> ShowDeleteCredentialsPromptAsync()
         {
-            return UIDispatcher.Invoke(() =>
+            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+
+            UIDispatcher.InvokeAsync(() =>
             {
-                var promt = new DeleteCredentialsPrompt();
-                if (MainWindow != null) promt.Owner = MainWindow;
-                return promt.ShowDialog() ?? false;
+                var messageBox = new MessageBoxView("DeleteCredentials.Caption", "DeleteCredentials.Message", "WarnIco", "Button.YesDelete", "Button.Cancel");
+                SetStartupLocation(messageBox, IsMainWindowVisible);
+                tcs.TrySetResult(messageBox.ShowDialog() ?? false);
             });
+
+            return tcs.Task;
         }
     }
 }

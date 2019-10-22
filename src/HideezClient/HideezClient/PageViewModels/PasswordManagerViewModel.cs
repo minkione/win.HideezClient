@@ -191,8 +191,8 @@ namespace HideezClient.PageViewModels
         }
 
         private async Task OnDeleteAccountAsync()
-        {            
-            if (windowsManager.ShowDeleteCredentialsPrompt())
+        {
+            if (await windowsManager.ShowDeleteCredentialsPromptAsync())
             {
                 IsAvailable = false;
                 try
