@@ -329,21 +329,6 @@ namespace HideezClient.Modules
             }
         }
 
-        public Task ShowDeviceLockedAsync()
-        {
-            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
-
-            UIDispatcher.InvokeAsync(() =>
-            {
-                var messageBox = new MessageBoxView("DeviceLocked.Caption", "DeviceLocked.Message", "LockIco", "Button.Ok");
-                SetStartupLocation(messageBox, IsMainWindowVisible);
-                var dialogResalt = messageBox.ShowDialog();
-                tcs.TrySetResult(dialogResalt ?? false);
-            });
-
-            return tcs.Task;
-        }
-
         public void ShowDeviceNotAuthorized(Device device)
         {
             UIDispatcher.Invoke(() => _notifier.ShowDeviceNotAuthorizedNotification(device));
@@ -400,13 +385,46 @@ namespace HideezClient.Modules
             return bitmap;
         }
 
+        public Task ShowDeviceLockedAsync()
+        {
+            var vm = new MessageBoxViewModel();
+            vm.SetCaptionFormat("MessageBox.DeviceLocked.Caption");
+            vm.SetMessageFormat("MessageBox.DeviceLocked.Message");
+            return ShowMessageBoxViewAsync(vm, "LockIco", "Button.Ok");
+        }
+
         public Task<bool> ShowDeleteCredentialsPromptAsync()
+        {
+            var vm = new MessageBoxViewModel();
+            vm.SetCaptionFormat("MessageBox.DeleteCredentials.Caption");
+            vm.SetMessageFormat("MessageBox.DeleteCredentials.Message");
+            return ShowMessageBoxViewAsync(vm, "WarnIco", "Button.YesDelete", "Button.Cancel");
+        }
+
+        public Task<bool> ShowDisconnectDevicePromptAsync(string deviceName)
+        {
+            var vm = new MessageBoxViewModel();
+            vm.SetCaptionFormat("MessageBox.DisconectDevice.Caption", deviceName);
+            vm.SetMessageFormat("MessageBox.DisconectDevice.Message", deviceName);
+            return ShowMessageBoxViewAsync(vm, "WarnIco", "Button.Yes", "Button.No");
+        }
+
+        public Task<bool> ShowRemoveDevicePromptAsync(string deviceName)
+        {
+            var vm = new MessageBoxViewModel();
+            vm.SetCaptionFormat("MessageBox.DeleteDevice.Caption", deviceName);
+            vm.SetMessageFormat("MessageBox.DeleteDevice.Message", deviceName);
+            return ShowMessageBoxViewAsync(vm, "WarnIco", "Button.Yes", "Button.No");
+        }
+
+        private Task<bool> ShowMessageBoxViewAsync(MessageBoxViewModel viewModel, string icoKey, string confirmButtonTextKey = "Button.Ok", string cancelButtonTextKey = "")
         {
             TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
 
             UIDispatcher.InvokeAsync(() =>
             {
-                var messageBox = new MessageBoxView("DeleteCredentials.Caption", "DeleteCredentials.Message", "WarnIco", "Button.YesDelete", "Button.Cancel");
+                var messageBox = new MessageBoxView(icoKey, confirmButtonTextKey, cancelButtonTextKey);
+                messageBox.DataContext = viewModel;
                 SetStartupLocation(messageBox, IsMainWindowVisible);
                 tcs.TrySetResult(messageBox.ShowDialog() ?? false);
             });

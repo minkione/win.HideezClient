@@ -19,6 +19,7 @@ using HideezClient.Modules.ServiceProxy;
 using HideezClient.HideezServiceReference;
 using System.ServiceModel;
 using HideezMiddleware.Settings;
+using HideezClient.Mvvm;
 
 namespace HideezClient.Modules
 {
@@ -188,13 +189,9 @@ namespace HideezClient.Modules
             {
                 try
                 {
-                    var result = MessageBox.Show(
-                        $"Are you sure you want to disconnect {device.Name}?",
-                        $"Disconnect {device.Name}",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Question);
+                    var result = await windowsManager.ShowDisconnectDevicePromptAsync(LocalizedObject.L(device.Name));
 
-                    if (result == MessageBoxResult.Yes)
+                    if (result)
                         await serviceProxy.GetService().DisconnectDeviceAsync(device.Id);
                 }
                 catch (FaultException<HideezServiceFault> ex)
@@ -214,13 +211,9 @@ namespace HideezClient.Modules
             {
                 try
                 {
-                    var result = MessageBox.Show(
-                        $"Are you sure you want to remove {device.Name}?{Environment.NewLine}Note: All manually stored data will be lost!",
-                        $"Remove {device.Name}",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Question);
+                    var result = await windowsManager.ShowRemoveDevicePromptAsync(LocalizedObject.L(device.Name));
 
-                    if (result == MessageBoxResult.Yes)
+                    if (result)
                         await serviceProxy.GetService().RemoveDeviceAsync(device.Id);
                 }
                 catch (FaultException<HideezServiceFault> ex)

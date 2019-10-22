@@ -39,15 +39,17 @@
             Grid.Column="2"
             HorizontalAlignment="Left"
             FontWeight="DemiBold"
-            Foreground="{DynamicResource DarkForeground}" />
+            Foreground="{DynamicResource DarkForeground}"
+            Text="{Binding Caption}" />
 
         <TextBlock
             x:Name="MessageText"
             Grid.Row="2"
             Grid.Column="2"
-            Width="230"
+            Width="270"
             HorizontalAlignment="Left"
             Foreground="{DynamicResource Foreground}"
+            Text="{Binding Message}"
             TextWrapping="WrapWithOverflow" />
 
 

@@ -22,16 +22,13 @@ namespace HideezClient.Views
     /// </summary>
     public partial class MessageBoxView : MetroWindow
     {
-        public MessageBoxView(string captionKey, string messageKey, string icoKey, string confirmButtonTextKey = "Button.Ok", string cancelButtonTextKey = "")
+        public MessageBoxView(string icoKey, string confirmButtonTextKey = "Button.Ok", string cancelButtonTextKey = "")
         {
             InitializeComponent();
 
             this.Title = $"Hideez Client ({Assembly.GetExecutingAssembly().GetName().Version.ToString()})";
 
             this.IcoContainer.Content = this.TryFindResource(icoKey);
-
-            BindingOperations.SetBinding(this.CaptionText, TextBlock.TextProperty, new LocalizationExtension(captionKey));
-            BindingOperations.SetBinding(this.MessageText, TextBlock.TextProperty, new LocalizationExtension(messageKey));
 
             if (!string.IsNullOrWhiteSpace(confirmButtonTextKey))
             {
