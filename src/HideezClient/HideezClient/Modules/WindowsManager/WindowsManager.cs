@@ -400,6 +400,16 @@ namespace HideezClient.Modules
 
             return bitmap;
         }
+
+        public bool ShowDeleteCredentialsPrompt()
+        {
+            return UIDispatcher.Invoke(() =>
+            {
+                var promt = new DeleteCredentialsPrompt();
+                if (MainWindow != null) promt.Owner = MainWindow;
+                return promt.ShowDialog() ?? false;
+            });
+        }
     }
 }
 

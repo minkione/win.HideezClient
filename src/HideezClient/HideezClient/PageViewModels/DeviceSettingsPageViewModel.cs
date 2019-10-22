@@ -13,11 +13,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace HideezClient.PageViewModels
@@ -34,7 +36,7 @@ namespace HideezClient.PageViewModels
             this.serviceProxy = serviceProxy;
             this.windowsManager = windowsManager;
             this.messenger = messenger;
-            
+
             this.messenger.Register<DeviceProximitySettingsChangedMessage>(this, OnDeviceProximitySettingsChanged);
 
             Сonnected = new ConnectionIndicatorViewModel
@@ -98,6 +100,34 @@ namespace HideezClient.PageViewModels
         public ObservableCollection<ConnectionIndicatorViewModel> Indicators { get; } = new ObservableCollection<ConnectionIndicatorViewModel>();
 
         #region Command
+
+        public ICommand SelectCSVFileCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+
+                    }
+                };
+            }
+        }
+
+        public ICommand ExportCredentialsCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+
+                    }
+                };
+            }
+        }
 
         public ICommand CancelEditProximityCommand
         {

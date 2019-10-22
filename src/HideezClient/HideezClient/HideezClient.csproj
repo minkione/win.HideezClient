@@ -392,6 +392,9 @@
     <Compile Include="Utilities\WeakEvents\WeakEvent.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
+    <Compile Include="ViewModels\DeleteCredentialsPrompt.xaml.cs">
+      <DependentUpon>DeleteCredentialsPrompt.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
     <Compile Include="ViewModels\NotificationsContainerViewModel.cs" />
@@ -494,6 +497,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Resources\Dictionaries\Converters.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ViewModels\DeleteCredentialsPrompt.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

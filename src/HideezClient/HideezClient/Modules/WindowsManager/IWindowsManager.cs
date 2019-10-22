@@ -29,5 +29,6 @@ namespace HideezClient.Modules
         void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel);
         Task ShowDeviceLockedAsync();
         void ShowDeviceNotAuthorized(Device device);
+        bool ShowDeleteCredentialsPrompt();
     }
 }

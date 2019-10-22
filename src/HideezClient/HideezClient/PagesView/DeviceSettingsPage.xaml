@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="clr-namespace:HideezClient.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     xmlns:local="clr-namespace:HideezClient.PagesView"
     xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
@@ -278,5 +279,76 @@
             </Border>
         </StackPanel>
 
+        <StackPanel Grid.Row="3" Visibility="Collapsed">
+            <TextBlock Style="{StaticResource SettingsHeaderStyle}" Text="Import / Export credentials" />
+
+            <Border Padding="24" Style="{StaticResource SettingsSectionBorderStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="32" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Text="Import" />
+
+                    <Rectangle
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        SnapsToDevicePixels="True"
+                        Stroke="#1BA2DC"
+                        StrokeDashArray="8 6"
+                        StrokeLineJoin="Round"
+                        StrokeThickness="1" />
+
+                    <Grid
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Margin="32,16"
+                        HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="32" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial
+                                Margin="8"
+                                VerticalAlignment="Center"
+                                Foreground="{StaticResource IcoButtonBrush}"
+                                Kind="File" />
+                            <TextBlock VerticalAlignment="Center" Text="Import CSV-file" />
+                        </StackPanel>
+                        <Button
+                            Grid.Column="2"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Command="{Binding SelectCSVFileCommand}"
+                            Content="Select a file"
+                            Style="{StaticResource ConfirmButtonStyle}" />
+
+                    </Grid>
+
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Text="Export" />
+                    <Button
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        VerticalAlignment="Center"
+                        Command="{Binding ExportCredentialsCommand}"
+                        Content="Export credentials (125)"
+                        Style="{StaticResource ConfirmButtonStyle}" />
+                </Grid>
+            </Border>
+        </StackPanel>
     </Grid>
 </Page>

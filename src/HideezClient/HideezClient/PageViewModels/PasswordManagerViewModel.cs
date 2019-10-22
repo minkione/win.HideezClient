@@ -191,9 +191,8 @@ namespace HideezClient.PageViewModels
         }
 
         private async Task OnDeleteAccountAsync()
-        {
-            var resalt = MessageBox.Show(LocalizedObject.L("DeleteSelectedAccountsMessage"), "Delite", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-            if (resalt == MessageBoxResult.OK)
+        {            
+            if (windowsManager.ShowDeleteCredentialsPrompt())
             {
                 IsAvailable = false;
                 try
