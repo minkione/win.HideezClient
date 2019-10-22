@@ -444,4 +444,16 @@
   <data name="DeviceInitializationTimeout" xml:space="preserve">
     <value>Device initialization timeout</value>
   </data>
+  <data name="DeviceDisconnected" xml:space="preserve">
+    <value>Device disconnected</value>
+  </data>
+  <data name="DeviceRemoved" xml:space="preserve">
+    <value>Device removed</value>
+  </data>
+  <data name="HesAppHubDisconnected" xml:space="preserve">
+    <value>The application SignalR connection has been disconnected</value>
+  </data>
+  <data name="HesDeviceHubDisconnected" xml:space="preserve">
+    <value>The device SignalR connection has been disconnected</value>
+  </data>
 </root>

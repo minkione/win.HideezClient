@@ -155,7 +155,7 @@ namespace HideezMiddleware
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
 
-                if (await IsNeedUpdateDevice(device))
+                if (await IsNeedUpdateDevice(device, ct))
                 {
                     // request HES to update this device
                     await _ui.SendNotification("Uploading new credentials to the device...", _infNid);
@@ -330,13 +330,13 @@ namespace HideezMiddleware
         //    return success;
         //}
 
-        async Task<bool> IsNeedUpdateDevice(IDevice device)
+        async Task<bool> IsNeedUpdateDevice(IDevice device, CancellationToken ct)
         {
             try
             {
                 if (_hesConnection.State == HesConnectionState.Connected)
                 {
-                    var info = await _hesConnection.GetInfoBySerialNo(device.SerialNo);
+                    var info = await _hesConnection.GetInfoBySerialNo(device.SerialNo, ct);
                     return info.NeedUpdate;
                 }
             }
