@@ -41,6 +41,7 @@ using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
 using HideezClient.Messages;
 using HideezClient.Controls;
+using System.Reflection;
 using HideezClient.Utilities.QrCode;
 using ZXing;
 
@@ -70,6 +71,7 @@ namespace HideezClient
             LogManager.EnableLogging();
             logger = LogManager.GetCurrentClassLogger();
 
+            logger.Info("App version: {0}", Assembly.GetEntryAssembly().GetName().Version);
             logger.Info("Version: {0}", Environment.Version);
             logger.Info("OS: {0}", Environment.OSVersion);
             logger.Info("Command: {0}", Environment.CommandLine);
