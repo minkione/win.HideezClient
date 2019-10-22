@@ -441,4 +441,7 @@
   <data name="BleDisconnecting" xml:space="preserve">
     <value>Device disconnecting</value>
   </data>
+  <data name="DeviceInitializationTimeout" xml:space="preserve">
+    <value>Device initialization timeout</value>
+  </data>
 </root>
