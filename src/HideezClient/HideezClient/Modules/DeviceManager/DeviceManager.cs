@@ -14,6 +14,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using HideezClient.Controls;
+using Hideez.SDK.Communication;
 
 namespace HideezClient.Modules.DeviceManager
 {
@@ -65,7 +66,7 @@ namespace HideezClient.Modules.DeviceManager
             try
             {
                 if (!_serviceProxy.IsConnected)
-                    ClearDevicesCollection();
+                    await ClearDevicesCollection();
                 else
                     await EnumerateDevices();
             }
@@ -75,19 +76,16 @@ namespace HideezClient.Modules.DeviceManager
             }
         }
 
-        void OnDevicesCollectionChanged(DevicesCollectionChangedMessage message)
+        async void OnDevicesCollectionChanged(DevicesCollectionChangedMessage message)
         {
-            Task.Run(() =>
+            try
             {
-                try
-                {
-                    EnumerateDevices(message.Devices);
-                }
-                catch (Exception ex)
-                {
-                    _log.Error(ex);
-                }
-            });
+                await EnumerateDevices(message.Devices);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+            }
         }
 
         void OnDeviceFinishedMainFlow(DeviceFinishedMainFlowMessage message)
@@ -109,10 +107,10 @@ namespace HideezClient.Modules.DeviceManager
             });
         }
 
-        void ClearDevicesCollection()
+        async Task ClearDevicesCollection()
         {
             foreach (var dvm in Devices.ToArray())
-                RemoveDevice(dvm);
+                await RemoveDevice(dvm);
         }
         // TODO: Add thread safety
         async Task EnumerateDevices()
@@ -120,7 +118,7 @@ namespace HideezClient.Modules.DeviceManager
             try
             {
                 var serviceDevices = await _serviceProxy.GetService().GetDevicesAsync();
-                EnumerateDevices(serviceDevices);
+                await EnumerateDevices(serviceDevices);
             }
             catch (FaultException<HideezServiceFault> ex)
             {
@@ -132,7 +130,7 @@ namespace HideezClient.Modules.DeviceManager
             }
         }
 
-        void EnumerateDevices(DeviceDTO[] serviceDevices)
+        async Task EnumerateDevices(DeviceDTO[] serviceDevices)
         {
             try
             {
@@ -142,7 +140,7 @@ namespace HideezClient.Modules.DeviceManager
 
                 // delete device from UI if its deleted from service
                 Device[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
-                RemoveDevices(missingDevices);
+                await RemoveDevices(missingDevices);
 
                 // Create remote devices if they are not already created
                 foreach (var dvm in Devices.ToList().Where(d => d.IsConnected))
@@ -181,20 +179,20 @@ namespace HideezClient.Modules.DeviceManager
             }
         }
 
-        void RemoveDevice(Device device)
+        async Task RemoveDevice(Device device)
         {
             if (_devices.TryRemove(device.Id, out Device removedDevice))
             {
                 removedDevice.PropertyChanged -= Device_PropertyChanged;
-                removedDevice.CloseRemoteDeviceConnection();
+                await removedDevice.CloseRemoteDeviceConnection(HideezErrorCode.DeviceRemoved);
                 DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, device));
             }
         }
 
-        void RemoveDevices(Device[] devices)
+        async Task RemoveDevices(Device[] devices)
         {
             foreach (var device in devices)
-                RemoveDevice(device);
+                await RemoveDevice(device);
         }
 
         async Task TryCreateRemoteDeviceAsync(Device device)

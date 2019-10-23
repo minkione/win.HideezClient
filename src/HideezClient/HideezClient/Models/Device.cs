@@ -120,11 +120,7 @@ namespace HideezClient.Models
             private set
             {
                 Set(ref isConnected, value);
-                if (!isConnected)
-                {
-                    CloseRemoteDeviceConnection();
-                    CancelDeviceAuthorization();
-                }
+                OnIsConnectedChanged(value);
             }
         }
 
@@ -280,6 +276,15 @@ namespace HideezClient.Models
         {
             if (obj.Device.Id == Id)
             {
+                CancelDeviceAuthorization();
+            }
+        }
+
+        async void OnIsConnectedChanged(bool newIsConnectedValue)
+        {
+            if (!newIsConnectedValue)
+            {
+                await CloseRemoteDeviceConnection(HideezErrorCode.DeviceDisconnected);
                 CancelDeviceAuthorization();
             }
         }
@@ -550,12 +555,13 @@ namespace HideezClient.Models
             }
         }
 
-        public void CloseRemoteDeviceConnection()
+        public async Task CloseRemoteDeviceConnection(HideezErrorCode code)
         {
             if (_remoteDevice != null)
             {
                 _remoteDevice.StorageModified -= RemoteDevice_StorageModified;
                 _remoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
+                await _remoteDevice.Shutdown(code);
                 _remoteDevice = null;
                 PasswordManager = null;
             }
