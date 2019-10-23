@@ -20,6 +20,7 @@
     Visibility="Hidden"
     WindowStartupLocation="CenterScreen"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
+    WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
     mc:Ignorable="d">
 
     <Grid VerticalAlignment="Stretch">
