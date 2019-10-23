@@ -29,7 +29,7 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void DisconnectDevice(string id);
+        Task DisconnectDevice(string id);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]

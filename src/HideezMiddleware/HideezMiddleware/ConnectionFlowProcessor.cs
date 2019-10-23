@@ -109,7 +109,7 @@ namespace HideezMiddleware
                 return;
 
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
-            WriteLine($"Started main flow ({mac})");
+            WriteLine($"Started main workflow ({mac})");
 
             _flowId = Guid.NewGuid().ToString();
             Started?.Invoke(this, _flowId);
@@ -130,9 +130,8 @@ namespace HideezMiddleware
 
                 if (WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Locked)
                 {
-                    WriteDebugLine("Wait til CP connect");
-                    await new WaitWorkstationUnlockerConnectProc(_workstationUnlocker).Run(20000, ct); // 20 seconds timeout 
-                    WriteDebugLine("CP connected");
+                    await new WaitWorkstationUnlockerConnectProc(_workstationUnlocker)
+                        .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct); 
                 }
 
                 device = await ConnectDevice(mac, ct);
@@ -140,12 +139,12 @@ namespace HideezMiddleware
                 device.Disconnected += OnDeviceDisconnectedDuringFlow;
                 device.OperationCancelled += OnUserCancelledByButton;
 
-                await WaitDeviceInitialization(mac, device);
+                await WaitDeviceInitialization(mac, device, ct);
 
                 if (device.AccessLevel.IsLocked || device.AccessLevel.IsLinkRequired)
                 {
-                    // request hes to update this device
-                    await _hesConnection.FixDevice(device);
+                    // request HES to update this device
+                    await _hesConnection.FixDevice(device, ct);
                     await device.RefreshDeviceInfo();
                 }
 
@@ -156,11 +155,11 @@ namespace HideezMiddleware
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
 
-                if (await IsNeedUpdateDevice(device))
+                if (await IsNeedUpdateDevice(device, ct))
                 {
                     // request HES to update this device
                     await _ui.SendNotification("Uploading new credentials to the device...", _infNid);
-                    await _hesConnection.FixDevice(device);
+                    await _hesConnection.FixDevice(device, ct);
                 }
 
                 int timeout = SdkConfig.MainWorkflowTimeout;
@@ -171,9 +170,6 @@ namespace HideezMiddleware
                 {
                     if (await ButtonWorkflow(device, timeout, ct) && await PinWorkflow(device, timeout, ct))
                     {
-                        // check the button again as it may be outdated while PIN workflow was running
-                        await ButtonWorkflow(device, timeout, ct);//todo - fix FW
-
                         if (!device.AccessLevel.IsLocked &&
                             !device.AccessLevel.IsButtonRequired &&
                             !device.AccessLevel.IsPinRequired &&
@@ -255,12 +251,12 @@ namespace HideezMiddleware
                     }
                     else if (!success)
                     {
-                        WriteLine($"Main flow failed: Disconnect ({device.Id})");
+                        WriteLine($"Main workflow failed: Disconnect ({device.Id})");
                         await _deviceManager.DisconnectDevice(device);
                     }
                     else
                     {
-                        WriteLine($"Main flow finished: ({device.Id})");
+                        WriteLine($"Successfully finished the main workflow: ({device.Id})");
                         device.SetUserProperty(FLOW_FINISHED_PROP, true);
                         DeviceFinishedMainFlow?.Invoke(this, device);
                     }
@@ -280,7 +276,7 @@ namespace HideezMiddleware
             _flowId = string.Empty;
 
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow ------------------------------");
-            WriteLine($"Finished main flow {mac}");
+            WriteLine($"Main workflow end {mac}");
         }
 
         async Task<WorkstationUnlockResult> TryUnlockWorkstation(IDevice device)
@@ -334,13 +330,13 @@ namespace HideezMiddleware
         //    return success;
         //}
 
-        async Task<bool> IsNeedUpdateDevice(IDevice device)
+        async Task<bool> IsNeedUpdateDevice(IDevice device, CancellationToken ct)
         {
             try
             {
                 if (_hesConnection.State == HesConnectionState.Connected)
                 {
-                    var info = await _hesConnection.GetInfoBySerialNo(device.SerialNo);
+                    var info = await _hesConnection.GetInfoBySerialNo(device.SerialNo, ct);
                     return info.NeedUpdate;
                 }
             }
@@ -360,7 +356,7 @@ namespace HideezMiddleware
             ct.ThrowIfCancellationRequested();
 
             await _ui.SendNotification("Waiting for HES authorization...", _infNid);
-            await _hesConnection.FixDevice(device);
+            await _hesConnection.FixDevice(device, ct);
 
             if (device.AccessLevel.IsMasterKeyRequired)
                 throw new HideezException(HideezErrorCode.DeviceAuthorizationFailed);
@@ -485,11 +481,11 @@ namespace HideezMiddleware
             return device;
         }
 
-        async Task WaitDeviceInitialization(string mac, IDevice device)
+        async Task WaitDeviceInitialization(string mac, IDevice device, CancellationToken ct)
         {
             await _ui.SendNotification("Waiting for the device initialization...", _infNid);
 
-            if (!await device.WaitInitialization(BleDefines.DeviceInitializationTimeout))
+            if (!await device.WaitInitialization(BleDefines.DeviceInitializationTimeout, ct))
                 throw new Exception($"Failed to initialize device connection '{mac}'. Please try again.");
 
             if (device.IsErrorState)

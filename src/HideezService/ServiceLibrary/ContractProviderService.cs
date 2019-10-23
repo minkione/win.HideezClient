@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Hideez.SDK.Communication;
 
 namespace ServiceLibrary
 {
@@ -21,7 +19,7 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public void DisconnectDevice(string deviceId)
+        public Task DisconnectDevice(string deviceId)
         {
             throw new NotImplementedException();
         }
