@@ -455,14 +455,14 @@ namespace HideezMiddleware
             ct.ThrowIfCancellationRequested();
             await _ui.SendNotification("Connecting to the device...", _infNid);
 
-            var device = await _deviceManager.ConnectDevice(mac, BleDefines.ConnectDeviceTimeout);
+            var device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
 
             if (device == null)
             {
                 ct.ThrowIfCancellationRequested();
                 await _ui.SendNotification("Connection failed. Retrying...", _infNid);
 
-                device = await _deviceManager.ConnectDevice(mac, BleDefines.ConnectDeviceTimeout / 2);
+                device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
 
                 if (device == null)
                 {
@@ -471,7 +471,7 @@ namespace HideezMiddleware
                     // remove the bond and try one more time
                     await _deviceManager.RemoveByMac(mac);
                     await _ui.SendNotification("Connection failed. Trying re-bond the device...", _infNid);
-                    device = await _deviceManager.ConnectDevice(mac, BleDefines.ConnectDeviceTimeout);
+                    device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
 
                     if (device == null)
                         throw new Exception($"Failed to connect device '{mac}'.");
@@ -485,7 +485,7 @@ namespace HideezMiddleware
         {
             await _ui.SendNotification("Waiting for the device initialization...", _infNid);
 
-            if (!await device.WaitInitialization(BleDefines.DeviceInitializationTimeout, ct))
+            if (!await device.WaitInitialization(SdkConfig.DeviceInitializationTimeout, ct))
                 throw new Exception($"Failed to initialize device connection '{mac}'. Please try again.");
 
             if (device.IsErrorState)

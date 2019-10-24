@@ -190,7 +190,7 @@ namespace HideezClient.Modules
                     CanExecuteFunc = () =>
                     device.IsConnected &&
                     device.IsInitialized &&
-                    !device.IsAuthorizing &&
+                    !device.IsAuthorizingRemoteDevice &&
                     !device.IsAuthorized,
                     CommandAction = (x) =>
                     {
@@ -237,7 +237,7 @@ namespace HideezClient.Modules
                 try
                 {
                     var result = MessageBox.Show(
-                        $"Are you sure you want to remove {device.Name}?{Environment.NewLine}Note: All manually stored data will be lost!",
+                        $"Are you sure you want to remove {device.Name}?",
                         $"Remove {device.Name}",
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Question);
