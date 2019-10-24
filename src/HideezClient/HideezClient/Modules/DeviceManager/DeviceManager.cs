@@ -53,7 +53,6 @@ namespace HideezClient.Modules.DeviceManager
             _remoteDeviceFactory = remoteDeviceFactory;
 
             _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
-            _messenger.Register<DeviceFinishedMainFlowMessage>(this, OnDeviceFinishedMainFlow);
 
             _serviceProxy.Disconnected += OnServiceProxyConnectionStateChanged;
             _serviceProxy.Connected += OnServiceProxyConnectionStateChanged;
@@ -86,25 +85,6 @@ namespace HideezClient.Modules.DeviceManager
             {
                 _log.Error(ex);
             }
-        }
-
-        void OnDeviceFinishedMainFlow(DeviceFinishedMainFlowMessage message)
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    if (_devices.TryGetValue(message.Device.Id, out Device dvm))
-                    {
-                        if (dvm.IsConnected && message.Device.FinishedMainFlow)
-                            _ = TryCreateRemoteDeviceAsync(dvm);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _log.Error(ex);
-                }
-            });
         }
 
         async Task ClearDevicesCollection()
@@ -141,13 +121,6 @@ namespace HideezClient.Modules.DeviceManager
                 // delete device from UI if its deleted from service
                 Device[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
                 await RemoveDevices(missingDevices);
-
-                // Create remote devices if they are not already created
-                foreach (var dvm in Devices.ToList().Where(d => d.IsConnected))
-                {
-                    if (serviceDevices.Any(d => d.Id == dvm.Id && d.IsConnected && d.FinishedMainFlow))
-                        _ = TryCreateRemoteDeviceAsync(dvm);
-                }
             }
             catch (FaultException<HideezServiceFault> ex)
             {
@@ -184,7 +157,7 @@ namespace HideezClient.Modules.DeviceManager
             if (_devices.TryRemove(device.Id, out Device removedDevice))
             {
                 removedDevice.PropertyChanged -= Device_PropertyChanged;
-                await removedDevice.CloseRemoteDeviceConnection(HideezErrorCode.DeviceRemoved);
+                await removedDevice.ShutdownRemoteDevice(HideezErrorCode.DeviceRemoved);
                 DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, device));
             }
         }
@@ -193,30 +166,6 @@ namespace HideezClient.Modules.DeviceManager
         {
             foreach (var device in devices)
                 await RemoveDevice(device);
-        }
-
-        async Task TryCreateRemoteDeviceAsync(Device device)
-        {
-            try
-            {
-                if (device.IsAuthorized && !device.IsStorageLoaded && !device.IsLoadingStorage)
-                {
-                    await device.LoadStorage();
-                }
-                else if (!device.IsInitialized && !device.IsInitializing && !device.IsAuthorized && !device.IsAuthorizing)
-                {
-                    await device.InitializeRemoteDevice();
-
-                    // With certain configuration, the device will be authorized without pin code or button confirmation
-                    // In that case we can immediatelly begin loading storage
-                    if (device.IsAuthorized && !device.IsStorageLoaded && !device.IsLoadingStorage)
-                        await device.LoadStorage();
-                }
-            }
-            catch (Exception ex)
-            {
-                _log.Error(ex);
-            }
         }
     }
 }

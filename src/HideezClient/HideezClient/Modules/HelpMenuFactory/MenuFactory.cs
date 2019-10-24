@@ -190,7 +190,7 @@ namespace HideezClient.Modules
                     CanExecuteFunc = () =>
                     device.IsConnected &&
                     device.IsInitialized &&
-                    !device.IsAuthorizing &&
+                    !device.IsAuthorizingRemoteDevice &&
                     !device.IsAuthorized,
                     CommandAction = (x) =>
                     {

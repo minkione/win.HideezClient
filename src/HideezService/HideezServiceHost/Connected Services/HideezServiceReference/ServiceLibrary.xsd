@@ -44,6 +44,7 @@
       <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Owner" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="PinAttemptsRemain" type="xs:int" />
+      <xs:element minOccurs="0" name="Proximity" type="xs:double" />
       <xs:element minOccurs="0" name="SerialNo" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="StorageFreeSize" type="xs:unsignedInt" />
       <xs:element minOccurs="0" name="StorageTotalSize" type="xs:unsignedInt" />

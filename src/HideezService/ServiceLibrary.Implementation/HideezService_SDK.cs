@@ -255,6 +255,8 @@ namespace ServiceLibrary.Implementation
                 device.Initialized += Device_Initialized;
                 device.Disconnected += Device_Disconnected;
                 device.OperationCancelled += Device_OperationCancelled;
+                device.ProximityChanged += Device_ProximityChanged;
+                device.BatteryChanged += Device_BatteryChanged;
             }
         }
 
@@ -268,6 +270,8 @@ namespace ServiceLibrary.Implementation
                 device.Initialized -= Device_Initialized;
                 device.Disconnected -= Device_Disconnected;
                 device.OperationCancelled -= Device_OperationCancelled;
+                device.ProximityChanged -= Device_ProximityChanged;
+                device.BatteryChanged -= Device_BatteryChanged;
 
                 if (device is IWcfDevice wcfDevice)
                     UnsubscribeFromWcfDeviceEvents(wcfDevice);
@@ -388,11 +392,11 @@ namespace ServiceLibrary.Implementation
             {
                 if (sender is IDevice device)
                 {
+                    if (!device.IsConnected)
+                        device.SetUserProperty(ConnectionFlowProcessor.FLOW_FINISHED_PROP, false);
+
                     foreach (var client in sessionManager.Sessions)
                     {
-                        if (!device.IsConnected)
-                            device.SetUserProperty(ConnectionFlowProcessor.FLOW_FINISHED_PROP, false);
-
                         client.Callbacks.DeviceConnectionStateChanged(new DeviceDTO(device));
                     }
                 }
@@ -462,6 +466,43 @@ namespace ServiceLibrary.Implementation
             {
                 Error(ex);
             }
+        }
+
+        void Device_ProximityChanged(object sender, double e)
+        {
+            if (sender is IDevice device)
+            {
+                foreach (var client in sessionManager.Sessions)
+                {
+                    try
+                    {
+                        client.Callbacks.DeviceProximityChanged(device.Id, e);
+                    }
+                    catch (Exception ex)
+                    {
+                        Error(ex);
+                    }
+                }
+            }
+        }
+
+        void Device_BatteryChanged(object sender, sbyte e)
+        {
+            if (sender is IDevice device)
+            {
+                foreach (var client in sessionManager.Sessions)
+                {
+                    try
+                    {
+                        client.Callbacks.DeviceBatteryChanged(device.Id, e);
+                    }
+                    catch (Exception ex)
+                    {
+                        Error(ex);
+                    }
+                }
+            }
+            
         }
 
         void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)

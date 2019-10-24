@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Remote;
 using HideezClient.Modules.Remote;
@@ -27,7 +28,7 @@ namespace HideezClient.Modules
             var remoteCommands = new RemoteDeviceCommands(_serviceProxy, _messenger, _log);
             var remoteEvents = new RemoteDeviceEvents(_messenger);
 
-            var device = new RemoteDevice(connectionId, channelNo, remoteCommands, remoteEvents, _log);
+            var device = new RemoteDevice(connectionId, channelNo, remoteCommands, remoteEvents, SdkConfig.DefaultRemoteCommandTimeout, _log);
 
             remoteCommands.RemoteDevice = device;
             remoteEvents.RemoteDevice = device;

@@ -167,7 +167,7 @@
                                             ToolTip="Connecting device"
                                             Visibility="{Binding IsInitializing, Converter={StaticResource BooleanToVisibilityConverter}}"
                                             />
-                                        <Grid Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <Grid Visibility="{Binding FinishedMainFlow, Converter={StaticResource BooleanToVisibilityConverter}}">
                                             <iconPacks:PackIconMaterial
                                                 x:Name="NotAuthorizedIco"
                                                 Width="16"
@@ -196,7 +196,7 @@
                                     <StackPanel.Visibility>
                                         <MultiBinding Converter="{StaticResource LowBatteryIndicatorVisibilityConverter}">
                                             <Binding Path="IsConnected" />
-                                            <Binding Path="IsInitialized" />
+                                            <Binding Path="FinishedMainFlow" />
                                             <Binding Path="Battery" />
                                         </MultiBinding>
                                     </StackPanel.Visibility>
