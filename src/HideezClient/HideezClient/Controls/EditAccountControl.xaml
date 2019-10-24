@@ -210,21 +210,6 @@
                                             <Rectangle Width="8" />
 
                                             <Button
-                                                x:Name="PART_DeleteItemButton"
-                                                VerticalAlignment="Center"
-                                                Command="{Binding DataContext.EditAccount.RemoveAppInfoCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}}"
-                                                CommandParameter="{Binding}"
-                                                IsEnabled="{Binding CanDelete}"
-                                                Style="{StaticResource IconButtonStyle}"
-                                                Visibility="Collapsed">
-                                                <iconPacks:PackIconMaterial
-                                                    Height="15"
-                                                    Margin="3,0"
-                                                    Foreground="{StaticResource ErrorBrush}"
-                                                    Kind="Delete" />
-                                            </Button>
-
-                                            <Button
                                                 x:Name="PART_EditItemButton"
                                                 VerticalAlignment="Center"
                                                 Command="{Binding DataContext.EditAccount.EditAppInfoCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}}"
@@ -237,6 +222,21 @@
                                                     Margin="3,0"
                                                     Foreground="{StaticResource IcoButtonBrush}"
                                                     Kind="Edit" />
+                                            </Button>
+
+                                            <Button
+                                                x:Name="PART_DeleteItemButton"
+                                                VerticalAlignment="Center"
+                                                Command="{Binding DataContext.EditAccount.RemoveAppInfoCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}}"
+                                                CommandParameter="{Binding}"
+                                                IsEnabled="{Binding CanDelete}"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                Visibility="Collapsed">
+                                                <iconPacks:PackIconMaterial
+                                                    Height="15"
+                                                    Margin="3,0"
+                                                    Foreground="{StaticResource ErrorBrush}"
+                                                    Kind="Delete" />
                                             </Button>
 
                                         </StackPanel>
@@ -276,11 +276,11 @@
                                                 IsEnabled="{Binding CanCancel}"
                                                 Style="{StaticResource IconButtonStyle}"
                                                 Visibility="Visible">
-                                                <iconPacks:PackIconEntypo
-                                                    Height="13"
+                                                <iconPacks:PackIconModern
+                                                    Height="15"
                                                     Margin="3,0"
                                                     Foreground="{DynamicResource IcoButtonBrush}"
-                                                    Kind="Cross" />
+                                                    Kind="Cancel" />
                                             </Button>
 
                                             <Button
@@ -407,17 +407,6 @@
 
                         <Button
                             VerticalAlignment="Center"
-                            Command="{Binding DeleteOtpCommand}"
-                            Style="{StaticResource IconButtonStyle}">
-                            <iconPacks:PackIconMaterial
-                                Height="15"
-                                Margin="3,0"
-                                Foreground="{DynamicResource ErrorBrush}"
-                                Kind="Delete" />
-                        </Button>
-
-                        <Button
-                            VerticalAlignment="Center"
                             Command="{Binding EditOtpCommand}"
                             Style="{StaticResource IconButtonStyle}">
                             <iconPacks:PackIconModern
@@ -425,6 +414,17 @@
                                 Margin="3,0"
                                 Foreground="{DynamicResource IcoButtonBrush}"
                                 Kind="Edit" />
+                        </Button>
+
+                        <Button
+                            VerticalAlignment="Center"
+                            Command="{Binding DeleteOtpCommand}"
+                            Style="{StaticResource IconButtonStyle}">
+                            <iconPacks:PackIconMaterial
+                                Height="15"
+                                Margin="3,0"
+                                Foreground="{DynamicResource ErrorBrush}"
+                                Kind="Delete" />
                         </Button>
                     </StackPanel>
 
