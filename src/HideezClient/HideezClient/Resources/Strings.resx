@@ -583,7 +583,7 @@ to access stored credentials</value>
     <value>Remove {0}</value>
   </data>
   <data name="MessageBox.DeleteDevice.Message" xml:space="preserve">
-    <value>Are you sure you want to remove {0}? Note: All manually stored data will be lost!</value>
+    <value>Are you sure you want to remove {0}?</value>
   </data>
   <data name="MessageBox.DisconectDevice.Caption" xml:space="preserve">
     <value>Disconnect {0}</value>

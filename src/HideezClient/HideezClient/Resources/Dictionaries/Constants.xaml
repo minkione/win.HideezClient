@@ -42,6 +42,12 @@
     <SolidColorBrush x:Key="LeftColumMenuHoverBrush">#22446D</SolidColorBrush>
     <SolidColorBrush x:Key="LeftColumMenuPressedBrush">#16355B</SolidColorBrush>
 
+    <!--  ProgressRing Brush  -->
+    <LinearGradientBrush x:Key="ProgressRingBrush" MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Offset="1.0" Color="#43C7D9" />
+        <GradientStop Offset="0.1" Color="#0E5F93" />
+    </LinearGradientBrush>
+
     <!--  Drop-down menu  -->
     <SolidColorBrush x:Key="DropDownMenuBrush" Color="#0E5F93" />
 
