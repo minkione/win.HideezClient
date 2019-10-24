@@ -17,9 +17,7 @@
     Width="1075"
     Height="770"
     MinWidth="1020"
-    MinHeight="700"
-    MaxWidth="1280"
-    MaxHeight="770"
+    MinHeight="750"
     Metro:NonActiveWindowTitleBrush="{DynamicResource WindowTitleBrush}"
     Closing="MetroWindow_Closing"
     DataContext="{Binding MainViewModel, Mode=OneWay, Source={StaticResource Locator}}"
@@ -118,8 +116,7 @@
                                 <Style.Triggers>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding SelectedDevice.IsAuthorized}" Value="True" />
-                                            <Condition Binding="{Binding SelectedDevice.IsStorageLoaded}" Value="True" />
+                                            <Condition Binding="{Binding SelectedDevice.CanShowPasswordManager}" Value="True" />
                                         </MultiDataTrigger.Conditions>
                                         <MultiDataTrigger.Setters>
                                             <Setter Property="Visibility" Value="Visible" />

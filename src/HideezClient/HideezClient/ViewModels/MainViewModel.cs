@@ -135,9 +135,9 @@ namespace HideezClient.ViewModels
 
         private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(DeviceInfoViewModel.ReadyToUse))
+            if (e.PropertyName == nameof(DeviceInfoViewModel.CanShowPasswordManager))
             {
-                if (SelectedDevice != null && (!SelectedDevice.ReadyToUse && leftDeviceMenuItems.Any(m => m.IsChecked)))
+                if (SelectedDevice != null && (!SelectedDevice.CanShowPasswordManager && leftDeviceMenuItems.Any(m => m.IsChecked)))
                 {
                     MenuDeviceSettings.IsChecked = true;
                 }

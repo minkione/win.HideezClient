@@ -65,8 +65,8 @@ namespace HideezClient.ViewModels
         public bool IsAuthorized => device.IsAuthorized;
         public bool IsLoadingStorage => device.IsLoadingStorage;
         public bool IsStorageLoaded => device.IsStorageLoaded;
-        [DependsOn(nameof(IsConnected), nameof(IsInitialized), nameof(IsAuthorized), nameof(IsStorageLoaded))]
-        public bool ReadyToUse { get { return IsConnected && IsInitialized && IsAuthorized && IsStorageLoaded; } }
+        [DependsOn(nameof(IsConnected), nameof(IsInitialized), nameof(IsAuthorized))]
+        public bool CanShowPasswordManager { get { return IsConnected && IsInitialized && IsAuthorized && IsAuthorized; } }
         public Version FirmwareVersion => device.FirmwareVersion;
         public Version BootloaderVersion => device.BootloaderVersion;
         public uint StorageTotalSize => device.StorageTotalSize;

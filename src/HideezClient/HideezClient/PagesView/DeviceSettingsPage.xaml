@@ -129,7 +129,7 @@
                     Grid.Row="2"
                     Grid.Column="2"
                     Orientation="Horizontal">
-                    <TextBlock Text="{Binding Device.StorageTotalSizeKb, StringFormat='Storage ({0} kb) '}" />
+                    <TextBlock Text="{Binding Device.StorageTotalSizeKb, StringFormat='Storage ({0} KB): '}" />
                     <TextBlock
                         FontWeight="DemiBold"
                         Foreground="{DynamicResource DarkForeground}"

@@ -624,6 +624,7 @@
 
     <!--  UnderLine Style  -->
     <Style x:Key="UnderLine" TargetType="{x:Type ContentControl}">
+        <Setter Property="IsTabStop" Value="False" />
         <Setter Property="Background" Value="{DynamicResource LeftColumMenuActiveBrush}" />
         <Setter Property="Template">
             <Setter.Value>

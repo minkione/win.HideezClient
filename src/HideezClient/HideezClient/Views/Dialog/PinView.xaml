@@ -61,6 +61,14 @@
             <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
 
+        <!--  Watermark Text Style  -->
+        <Style x:Key="WatermarkTextStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontStyle" Value="Normal" />
+            <Setter Property="Opacity" Value="0.5" />
+            <Setter Property="Foreground" Value="{StaticResource Foreground}" />
+        </Style>
+
     </Metro:MetroWindow.Resources>
 
     <Grid Margin="32">
@@ -149,7 +157,10 @@
                                 <PasswordBox
                                     x:Name="CurrentPinPasswordBox"
                                     Grid.Column="2"
-                                    ma:TextBoxHelper.Watermark="Enter current PIN"
+                                    adorners:Watermark.Text="●●●●●●●●"
+                                    adorners:Watermark.TextStyle="{StaticResource WatermarkTextStyle}"
+                                    adorners:Watermark.VisibleWhen="EmptyAndNotKeyboardFocused"
+                                    IsTabStop="True"
                                     IsVisibleChanged="PasswordBox_IsVisibleChanged"
                                     MaxLength="{Binding MaxLenghtPin}"
                                     PasswordChanged="CurrentPinPasswordBox_PasswordChanged"
@@ -170,7 +181,10 @@
                                 <PasswordBox
                                     x:Name="NewPinPasswordBox"
                                     Grid.Column="2"
-                                    ma:TextBoxHelper.Watermark="Enter new PIN"
+                                    adorners:Watermark.Text="●●●●●●●●"
+                                    adorners:Watermark.TextStyle="{StaticResource WatermarkTextStyle}"
+                                    adorners:Watermark.VisibleWhen="EmptyAndNotKeyboardFocused"
+                                    IsTabStop="True"
                                     IsVisibleChanged="PasswordBox_IsVisibleChanged"
                                     MaxLength="{Binding MaxLenghtPin}"
                                     PasswordChanged="NewPinPasswordBox_PasswordChanged"
@@ -190,7 +204,10 @@
                                 <PasswordBox
                                     x:Name="ConfirmPinPasswordBox"
                                     Grid.Column="2"
-                                    ma:TextBoxHelper.Watermark="Confirm new PIN"
+                                    adorners:Watermark.Text="●●●●●●●●"
+                                    adorners:Watermark.TextStyle="{StaticResource WatermarkTextStyle}"
+                                    adorners:Watermark.VisibleWhen="EmptyAndNotKeyboardFocused"
+                                    IsTabStop="True"
                                     IsVisibleChanged="PasswordBox_IsVisibleChanged"
                                     MaxLength="{Binding MaxLenghtPin}"
                                     PasswordChanged="ConfirmPinPasswordBox_PasswordChanged"
@@ -219,6 +236,7 @@
                         Command="{Binding CancelCommand}"
                         Content="{l:Localization Button.Cancel}"
                         IsCancel="True"
+                        IsTabStop="True"
                         Style="{DynamicResource CancelButtonStyle}" />
 
                     <Button
@@ -227,6 +245,7 @@
                         Command="{Binding ConfirmCommand}"
                         Content="{l:Localization Button.Confirm}"
                         IsDefault="True"
+                        IsTabStop="True"
                         Style="{StaticResource ConfirmButtonStyle}" />
                 </StackPanel>
             </Grid>
