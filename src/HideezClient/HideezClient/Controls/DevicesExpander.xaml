@@ -168,16 +168,20 @@
                                             Visibility="{Binding IsInitializing, Converter={StaticResource BooleanToVisibilityConverter}}"
                                             />
                                         <Grid Visibility="{Binding FinishedMainFlow, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                            <iconPacks:PackIconMaterial
-                                                x:Name="NotAuthorizedIco"
-                                                Width="16"
-                                                Height="18"
-                                                Margin="8,0,0,2"
-                                                Foreground="Yellow"
-                                                Kind="Lock" 
-                                                ToolTip="Not authorized"
-                                                Visibility="{Binding IsAuthorized, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
-                                                />
+                                            <Grid Visibility="{Binding IsCreatingRemoteDevice, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+                                                <Grid Visibility="{Binding IsAuthorizingRemoteDevice, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+                                                    <iconPacks:PackIconMaterial
+                                                        x:Name="NotAuthorizedIco"
+                                                        Width="16"
+                                                        Height="18"
+                                                        Margin="8,0,0,2"
+                                                        Foreground="Yellow"
+                                                        Kind="Lock" 
+                                                        ToolTip="Not authorized"
+                                                        Visibility="{Binding IsAuthorized, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
+                                                        />
+                                                </Grid>
+                                            </Grid>
                                         </Grid>
                                         <iconPacks:PackIconOcticons
                                             x:Name="Sync"

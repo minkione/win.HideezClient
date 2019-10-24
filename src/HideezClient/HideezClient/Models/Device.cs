@@ -366,6 +366,9 @@ namespace HideezClient.Models
                     authCancellationTokenSource = new CancellationTokenSource();
                     var ct = authCancellationTokenSource.Token;
 
+                    _infNid = Guid.NewGuid().ToString();
+                    _errNid = Guid.NewGuid().ToString();
+
                     await CreateRemoteDevice();
                     await AuthorizeRemoteDevice(ct);
                     if (!ct.IsCancellationRequested)
@@ -416,6 +419,7 @@ namespace HideezClient.Models
             try
             {
                 _log.Info($"Device ({SerialNo}), establishing remote device connection");
+                ShowInfo($"Preparing for device ({SerialNo}) authorization", _infNid);
                 IsCreatingRemoteDevice = true;
                 _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, VERIFY_CHANNEL_NO);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
@@ -448,6 +452,9 @@ namespace HideezClient.Models
             }
             finally
             {
+                ShowInfo("", _infNid);
+                _messenger.Send(new HidePinUiMessage());
+
                 if (initErrorCode != HideezErrorCode.Ok)
                     await ShutdownRemoteDevice(initErrorCode);
 
@@ -464,9 +471,6 @@ namespace HideezClient.Models
             try
             {
                 IsAuthorizingRemoteDevice = true;
-
-                _infNid = Guid.NewGuid().ToString();
-                _errNid = Guid.NewGuid().ToString();
 
                 if (_remoteDevice.AccessLevel.IsLocked)
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);

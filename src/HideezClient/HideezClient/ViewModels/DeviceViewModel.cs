@@ -43,5 +43,7 @@ namespace HideezClient.ViewModels
         public uint StorageTotalSize => device.StorageTotalSize;
         public uint StorageFreeSize => device.StorageFreeSize;
         public bool FinishedMainFlow => device.FinishedMainFlow;
+        public bool IsCreatingRemoteDevice => device.IsCreatingRemoteDevice;
+        public bool IsAuthorizingRemoteDevice => device.IsAuthorizingRemoteDevice;
     }
 }
