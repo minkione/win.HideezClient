@@ -1024,11 +1024,11 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        void DisconnectDevice(DeviceViewModel device)
+        async void DisconnectDevice(DeviceViewModel device)
         {
             try
             {
-                _deviceManager.DisconnectDevice(device.Device);
+                await _deviceManager.DisconnectDevice(device.Device);
             }
             catch (Exception ex)
             {
