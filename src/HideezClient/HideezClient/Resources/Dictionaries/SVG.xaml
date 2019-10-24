@@ -7,13 +7,52 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="InfoIco"
+        x:Shared="False"
         Stretch="Uniform">
-        <Canvas Width="64" Height="64">
+        <Canvas Width="90" Height="90">
             <Canvas.RenderTransform>
                 <TranslateTransform X="0" Y="0" />
             </Canvas.RenderTransform>
             <Canvas.Resources>
-                <LinearGradientBrush xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Key="paint0_linear" MappingMode="Absolute" StartPoint="9,58" EndPoint="53,4">
+                <LinearGradientBrush xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Key="paint0_linear" MappingMode="Absolute" StartPoint="84,20" EndPoint="6,37">
+                    <LinearGradientBrush.GradientStops>
+                        <GradientStopCollection>
+                            <GradientStop Color="#43C7D9" />
+                            <GradientStop Offset="1" Color="#0E5F93" />
+                        </GradientStopCollection>
+                    </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+            </Canvas.Resources>
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#1a22446D">
+                <Path.Data>
+                    <PathGeometry Figures="M32.7398 2.46267L5.1889 23.1712C3.03949 24.7841 1.4377 27.0705 0.615832 29.6987C-0.206039 32.327 -0.205258 35.1604 0.618063 37.7882L11.1071 71.127C11.9243 73.7298 13.5076 75.9962 15.631 77.6028C17.7543 79.2095 20.3091 80.0742 22.9308 80.0735H57.1428C59.7644 80.0742 62.3192 79.2095 64.4426 77.6028C66.5659 75.9962 68.1492 73.7298 68.9665 71.127L79.4555 37.7882C80.2788 35.1604 80.2796 32.327 79.4577 29.6987C78.6358 27.0705 77.034 24.7841 74.8846 23.1712L47.296 2.46267C45.1785 0.861815 42.6315 0 40.0179 0C37.4042 0 34.8573 0.861815 32.7398 2.46267V2.46267Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF4FEFF">
+                <Path.Data>
+                    <PathGeometry Figures="M50.5 83C66.7924 83 80 69.7924 80 53.5C80 37.2076 66.7924 24 50.5 24C34.2076 24 21 37.2076 21 53.5C21 69.7924 34.2076 83 50.5 83Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="{StaticResource paint0_linear}">
+                <Path.Data>
+                    <PathGeometry Figures="M50.4986 20C31.9995 20 17 34.9995 17 53.4986C17 71.9977 31.9995 87 50.4986 87C68.9977 87 84 71.9977 84 53.4986C84 34.9995 68.9977 20 50.4986 20ZM57.4723 71.9183C55.748 72.5989 54.3754 73.115 53.3459 73.4724C52.3193 73.8297 51.1253 74.0084 49.7669 74.0084C47.6796 74.0084 46.0546 73.4979 44.8975 72.4798C43.7404 71.4617 43.1647 70.1713 43.1647 68.603C43.1647 67.9933 43.2073 67.3694 43.2924 66.7341C43.3803 66.0988 43.5192 65.3842 43.7092 64.5816L45.8674 56.9585C46.0574 56.2268 46.2219 55.532 46.3524 54.8854C46.4828 54.2331 46.5452 53.6347 46.5452 53.0902C46.5452 52.1203 46.3439 51.4397 45.944 51.0568C45.5385 50.6739 44.7756 50.4868 43.6383 50.4868C43.0825 50.4868 42.5096 50.569 41.9226 50.742C41.3412 50.9207 40.8364 51.0823 40.4223 51.2411L40.9924 48.893C42.4047 48.3172 43.7575 47.8238 45.0478 47.4154C46.3382 47.0014 47.5577 46.7972 48.7062 46.7972C50.7793 46.7972 52.3788 47.302 53.5047 48.3002C54.6249 49.3013 55.1893 50.603 55.1893 52.2025C55.1893 52.5343 55.1496 53.1186 55.073 53.9523C54.9964 54.789 54.8518 55.5518 54.6419 56.2523L52.4951 63.8527C52.3193 64.4625 52.1633 65.1601 52.0215 65.94C51.8825 66.7199 51.8145 67.3155 51.8145 67.7153C51.8145 68.725 52.0385 69.4141 52.4923 69.7799C52.9404 70.1458 53.7259 70.3301 54.8376 70.3301C55.3623 70.3301 55.9493 70.2365 56.613 70.055C57.2709 69.8735 57.7473 69.7119 58.048 69.5729L57.4723 71.9183ZM57.0922 41.0685C56.0911 41.9987 54.8858 42.4638 53.4764 42.4638C52.0697 42.4638 50.8559 41.9987 49.8463 41.0685C48.8424 40.1383 48.3347 39.0067 48.3347 37.6852C48.3347 36.3664 48.8452 35.232 49.8463 34.2933C50.8559 33.3518 52.0697 32.8839 53.4764 32.8839C54.8858 32.8839 56.094 33.3518 57.0922 34.2933C58.0933 35.232 58.5953 36.3664 58.5953 37.6852C58.5953 39.0096 58.0933 40.1383 57.0922 41.0685Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <!--  Warn Ico  -->
+    <Viewbox
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        x:Key="WarnIco"
+        x:Shared="False"
+        Stretch="Uniform">
+        <Canvas Width="90" Height="90">
+            <Canvas.RenderTransform>
+                <TranslateTransform X="0" Y="0" />
+            </Canvas.RenderTransform>
+            <Canvas.Resources>
+                <LinearGradientBrush xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Key="paint0_linear" MappingMode="Absolute" StartPoint="90,18" EndPoint="1,41">
                     <LinearGradientBrush.GradientStops>
                         <GradientStopCollection>
                             <GradientStop Color="#43C7D9" />
@@ -24,25 +63,70 @@
                 <RectangleGeometry
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     x:Key="clip0"
-                    Rect="0, 0, 64, 64" />
+                    Rect="0, 0, 90, 90">
+                    <RectangleGeometry.Transform>
+                        <TranslateTransform X="0.000488281" />
+                    </RectangleGeometry.Transform>
+                </RectangleGeometry>
             </Canvas.Resources>
-            <Canvas Name="g8" Clip="{StaticResource clip0}">
-                <Path
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    Fill="#FF22446D"
-                    Opacity="0.1">
+            <Canvas Clip="{StaticResource clip0}">
+                <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#1a22446D">
                     <Path.Data>
-                        <PathGeometry Figures="M23.2816 1.75123L3.68988 16.4773C2.16142 17.6242 1.02237 19.2501 0.437925 21.1191C-0.146517 22.9881 -0.145961 25.003 0.439512 26.8716L7.89835 50.5792C8.47952 52.4301 9.60543 54.0417 11.1154 55.1842C12.6253 56.3267 14.4421 56.9416 16.3063 56.9412H40.6348C42.4991 56.9416 44.3159 56.3267 45.8258 55.1842C47.3357 54.0417 48.4617 52.4301 49.0428 50.5792L56.5017 26.8716C57.0871 25.003 57.0877 22.9881 56.5033 21.1191C55.9188 19.2501 54.7798 17.6242 53.2513 16.4773L33.6327 1.75123C32.1269 0.612846 30.3157 0 28.4572 0C26.5986 0 24.7874 0.612846 23.2816 1.75123Z" FillRule="NonZero" />
+                        <PathGeometry Figures="M32.7403 2.46267L5.18938 23.1712C3.03998 24.7841 1.43819 27.0705 0.61632 29.6987C-0.205551 32.327 -0.204769 35.1604 0.618551 37.7882L11.1075 71.127C11.9248 73.7298 13.5081 75.9962 15.6315 77.6028C17.7548 79.2095 20.3096 80.0742 22.9313 80.0735H57.1432C59.7649 80.0742 62.3197 79.2095 64.443 77.6028C66.5664 75.9962 68.1497 73.7298 68.967 71.127L79.456 37.7882C80.2793 35.1604 80.2801 32.327 79.4582 29.6987C78.6363 27.0705 77.0345 24.7841 74.8851 23.1712L47.2964 2.46267C45.179 0.861814 42.632 0 40.0184 0C37.4047 0 34.8578 0.861814 32.7403 2.46267Z" FillRule="NonZero" />
                     </Path.Data>
                 </Path>
                 <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="{StaticResource paint0_linear}">
                     <Path.Data>
-                        <PathGeometry Figures="M63.8824 55.6497L37.785 13.5884C37.4811 13.0977 36.9454 12.7998 36.3688 12.7998C35.7916 12.7998 35.256 13.0984 34.952 13.5884L8.78414 55.7649C8.4652 56.279 8.44899 56.9259 8.74385 57.4544C9.03758 57.983 9.59616 58.3109 10.2003 58.3109H62.5383H62.5455C63.4662 58.3109 64.2121 57.5644 64.2121 56.6443C64.2109 56.2711 64.0889 55.9277 63.8824 55.6497Z" FillRule="NonZero" />
+                        <PathGeometry Figures="M89.8351 78.2576L53.1356 19.1089C52.7083 18.4189 51.9549 18 51.1441 18C50.3324 18 49.5792 18.4198 49.1517 19.1089L12.3532 78.4197C11.9047 79.1426 11.8819 80.0523 12.2965 80.7956C12.7096 81.5389 13.4951 82 14.3447 82H87.9449H87.9551C89.2498 82 90.2987 80.9502 90.2987 79.6564C90.2971 79.1316 90.1256 78.6485 89.8351 78.2576Z" FillRule="NonZero" />
                     </Path.Data>
                 </Path>
                 <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF4FEFF">
                     <Path.Data>
-                        <PathGeometry Figures="M34.4375 40.9166L33.8964 32.8207C33.7949 31.2428 33.745 30.1101 33.745 29.4231C33.745 28.488 33.9901 27.7583 34.4795 27.2346C34.9696 26.7091 35.6158 26.4478 36.4153 26.4478C37.3846 26.4478 38.0332 26.7829 38.3594 27.4532C38.6855 28.1241 38.8494 29.091 38.8494 30.3517C38.8494 31.0958 38.8098 31.852 38.7318 32.6165L38.0045 40.9497C37.9258 41.9418 37.757 42.7022 37.497 43.2325C37.2376 43.7615 36.8087 44.0259 36.2122 44.0259C35.6033 44.0259 35.181 43.7707 34.945 43.2572C34.7078 42.7453 34.5384 41.9646 34.4375 40.9166ZM36.3137 52.0384C35.626 52.0384 35.0254 51.8167 34.5137 51.3718C34.0009 50.9273 33.745 50.3046 33.745 49.5046C33.745 48.8056 33.9901 48.2109 34.4795 47.7202C34.9696 47.2302 35.5702 46.9851 36.2801 46.9851C36.9905 46.9851 37.5949 47.2295 38.0969 47.7202C38.5984 48.2102 38.8494 48.8054 38.8494 49.5046C38.8494 50.2932 38.596 50.9124 38.0878 51.3635C37.5809 51.813 36.9899 52.0384 36.3137 52.0384Z" FillRule="NonZero" />
+                        <PathGeometry Figures="M48.4282 57.5393L47.6673 46.1543C47.5247 43.9355 47.4545 42.3426 47.4545 41.3766C47.4545 40.0615 47.7991 39.0354 48.4873 38.2989C49.1765 37.5599 50.0852 37.1924 51.2095 37.1924C52.5726 37.1924 53.4847 37.6637 53.9434 38.6063C54.4021 39.5498 54.6325 40.9096 54.6325 42.6823C54.6325 43.7288 54.5768 44.7921 54.4671 45.8672L53.4443 57.5858C53.3337 58.981 53.0963 60.0502 52.7306 60.796C52.3659 61.5399 51.7627 61.9117 50.924 61.9117C50.0676 61.9117 49.4737 61.5528 49.1419 60.8307C48.8083 60.1109 48.5702 59.013 48.4282 57.5393ZM51.0666 73.1793C50.0997 73.1793 49.255 72.8676 48.5354 72.2419C47.8143 71.6169 47.4545 70.7411 47.4545 69.6161C47.4545 68.6331 47.7991 67.7968 48.4873 67.1068C49.1765 66.4177 50.0211 66.073 51.0195 66.073C52.0185 66.073 52.8683 66.4168 53.5744 67.1068C54.2795 67.7959 54.6325 68.6329 54.6325 69.6161C54.6325 70.7251 54.2761 71.5959 53.5615 72.2302C52.8487 72.8624 52.0176 73.1793 51.0666 73.1793Z" FillRule="NonZero" />
+                    </Path.Data>
+                </Path>
+            </Canvas>
+        </Canvas>
+    </Viewbox>
+
+    <!--  Error Ico  -->
+    <Viewbox
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        x:Key="ErrorIco"
+        x:Shared="False"
+        Stretch="Uniform">
+        <Canvas Width="90" Height="90">
+            <Canvas.RenderTransform>
+                <TranslateTransform X="0" Y="0" />
+            </Canvas.RenderTransform>
+            <Canvas.Resources>
+                <RectangleGeometry
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:Key="clip0"
+                    Rect="0, 0, 90, 90">
+                    <RectangleGeometry.Transform>
+                        <TranslateTransform X="0.000488281" />
+                    </RectangleGeometry.Transform>
+                </RectangleGeometry>
+            </Canvas.Resources>
+            <Canvas Clip="{StaticResource clip0}">
+                <Path
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    Name="path2"
+                    Fill="#FF22446D"
+                    Opacity="0.1">
+                    <Path.Data>
+                        <PathGeometry Figures="M32.7403 2.46267L5.18938 23.1712C3.03998 24.7841 1.43819 27.0705 0.61632 29.6987C-0.205551 32.327 -0.204769 35.1604 0.618551 37.7882L11.1075 71.127C11.9248 73.7298 13.5081 75.9962 15.6315 77.6028C17.7548 79.2095 20.3096 80.0742 22.9313 80.0735H57.1432C59.7649 80.0742 62.3197 79.2095 64.443 77.6028C66.5664 75.9962 68.1497 73.7298 68.967 71.127L79.456 37.7882C80.2793 35.1604 80.2801 32.327 79.4582 29.6987C78.6363 27.0705 77.0345 24.7841 74.8851 23.1712L47.2964 2.46267C45.179 0.861815 42.632 0 40.0184 0C37.4047 0 34.8578 0.861815 32.7403 2.46267V2.46267Z" FillRule="NonZero" />
+                    </Path.Data>
+                </Path>
+                <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF6346B">
+                    <Path.Data>
+                        <PathGeometry Figures="M50.5005 87.0001C69.0021 87.0001 84.0005 72.0016 84.0005 53.5C84.0005 34.9985 69.0021 20 50.5005 20C31.999 20 17.0005 34.9985 17.0005 53.5C17.0005 72.0016 31.999 87.0001 50.5005 87.0001Z" FillRule="NonZero" />
+                    </Path.Data>
+                </Path>
+                <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF4FEFF">
+                    <Path.Data>
+                        <PathGeometry Figures="M62.7008 65.7002C61.6938 66.7072 60.0153 66.7072 59.0083 65.7002L50.4485 57.1404L41.8887 65.7002C40.8817 66.7072 39.2032 66.7072 38.1962 65.7002C37.1892 64.6932 37.1892 63.0147 38.1962 62.0077L46.756 53.4479L38.1962 44.8881C37.1892 43.8811 37.1892 42.2026 38.1962 41.1956C39.2032 40.1886 40.8817 40.1886 41.8887 41.1956L50.4485 49.7554L59.0083 41.1956C60.0153 40.1886 61.6938 40.1886 62.7008 41.1956C63.7078 42.2026 63.7078 43.8811 62.7008 44.8881L54.141 53.4479L62.7008 62.0077C63.7078 63.0147 63.7078 64.6931 62.7008 65.7002Z" FillRule="NonZero" />
                     </Path.Data>
                 </Path>
             </Canvas>
@@ -137,51 +221,11 @@
         </Canvas>
     </Viewbox>
 
-    <!--  Warn Ico  -->
-    <Viewbox
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        x:Key="ErrorIco"
-        Stretch="Uniform">
-        <Canvas Width="64" Height="64">
-            <Canvas.RenderTransform>
-                <TranslateTransform X="0" Y="0" />
-            </Canvas.RenderTransform>
-            <Canvas.Resources>
-                <RectangleGeometry
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    x:Key="clip0"
-                    Rect="0, 0, 64, 64" />
-            </Canvas.Resources>
-            <!--  Unknown tag: metadata  -->
-            <!--  Unknown tag: sodipodi:namedview  -->
-            <Canvas Clip="{StaticResource clip0}">
-                <Path
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    Fill="#FF22446D"
-                    Opacity="0.1">
-                    <Path.Data>
-                        <PathGeometry Figures="M23.2816 1.75123L3.68988 16.4773C2.16142 17.6242 1.02237 19.2501 0.437925 21.1191C-0.146517 22.9881 -0.145961 25.003 0.439512 26.8716L7.89835 50.5792C8.47952 52.4301 9.60543 54.0417 11.1154 55.1842C12.6253 56.3267 14.4421 56.9416 16.3063 56.9412H40.6348C42.4991 56.9416 44.3159 56.3267 45.8258 55.1842C47.3357 54.0417 48.4617 52.4301 49.0428 50.5792L56.5017 26.8716C57.0871 25.003 57.0877 22.9881 56.5033 21.1191C55.9188 19.2501 54.7798 17.6242 53.2513 16.4773L33.6327 1.75123C32.1269 0.612846 30.3157 0 28.4572 0C26.5986 0 24.7874 0.612846 23.2816 1.75123Z" FillRule="NonZero" />
-                    </Path.Data>
-                </Path>
-                <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF6346B">
-                    <Path.Data>
-                        <PathGeometry Figures="M63.8824 55.6497L37.785 13.5884C37.4811 13.0977 36.9454 12.7998 36.3688 12.7998C35.7916 12.7998 35.256 13.0984 34.952 13.5884L8.78414 55.7649C8.4652 56.279 8.44899 56.9259 8.74385 57.4544C9.03758 57.983 9.59616 58.3109 10.2003 58.3109H62.5383H62.5455C63.4662 58.3109 64.2121 57.5644 64.2121 56.6443C64.2109 56.2711 64.0889 55.9277 63.8824 55.6497Z" FillRule="NonZero" />
-                    </Path.Data>
-                </Path>
-                <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF4FEFF">
-                    <Path.Data>
-                        <PathGeometry Figures="M34.4375 40.9166L33.8964 32.8207C33.7949 31.2428 33.745 30.1101 33.745 29.4231C33.745 28.488 33.9901 27.7583 34.4795 27.2346C34.9696 26.7091 35.6158 26.4478 36.4153 26.4478C37.3846 26.4478 38.0332 26.7829 38.3594 27.4532C38.6855 28.1241 38.8494 29.091 38.8494 30.3517C38.8494 31.0958 38.8098 31.852 38.7318 32.6165L38.0045 40.9497C37.9258 41.9418 37.757 42.7022 37.497 43.2325C37.2376 43.7615 36.8087 44.0259 36.2122 44.0259C35.6033 44.0259 35.181 43.7707 34.945 43.2572C34.7078 42.7453 34.5384 41.9646 34.4375 40.9166ZM36.3137 52.0384C35.626 52.0384 35.0254 51.8167 34.5137 51.3718C34.0009 50.9273 33.745 50.3046 33.745 49.5046C33.745 48.8056 33.9901 48.2109 34.4795 47.7202C34.9696 47.2302 35.5702 46.9851 36.2801 46.9851C36.9905 46.9851 37.5949 47.2295 38.0969 47.7202C38.5984 48.2102 38.8494 48.8054 38.8494 49.5046C38.8494 50.2932 38.596 50.9124 38.0878 51.3635C37.5809 51.813 36.9899 52.0384 36.3137 52.0384Z" FillRule="NonZero" />
-                    </Path.Data>
-                </Path>
-            </Canvas>
-        </Canvas>
-    </Viewbox>
-
-
     <!--  Two factor authentication img  -->
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="TwoFactorAuthenticationImg"
+        x:Shared="False"
         Stretch="Uniform">
         <Canvas
             Name="svg3917"
@@ -240,6 +284,7 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="PapcaImg"
+        x:Shared="False"
         Stretch="Uniform">
         <Canvas
             Name="svg3875"
@@ -330,6 +375,7 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="PCandKeyImg"
+        x:Shared="False"
         Stretch="Uniform">
         <Canvas
             Name="svg3805"

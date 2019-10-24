@@ -80,9 +80,9 @@
         <GradientStop Offset="0" Color="#0E5F93" />
     </LinearGradientBrush>-->
 
-    <LinearGradientBrush x:Key="NotificationBackground" MappingMode="RelativeToBoundingBox" StartPoint="0.4,0.4" EndPoint="1.4,1.4">
-        <GradientStop Offset="1" Color="#43C7D9" />
-        <GradientStop Offset="0" Color="#0E5F93" />
+    <LinearGradientBrush x:Key="NotificationBackground" MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Offset="1" Color="#0E3059" />
+        <GradientStop Offset="0" Color="#081C33" />
     </LinearGradientBrush>
 
     <Color x:Key="Gray">#6E89A4</Color>
