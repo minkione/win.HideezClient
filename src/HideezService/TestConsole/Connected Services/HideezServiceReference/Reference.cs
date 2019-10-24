@@ -182,6 +182,9 @@ namespace TestConsole.HideezServiceReference {
         private int PinAttemptsRemainField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private double ProximityField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string SerialNoField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -352,6 +355,19 @@ namespace TestConsole.HideezServiceReference {
                 if ((this.PinAttemptsRemainField.Equals(value) != true)) {
                     this.PinAttemptsRemainField = value;
                     this.RaisePropertyChanged("PinAttemptsRemain");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public double Proximity {
+            get {
+                return this.ProximityField;
+            }
+            set {
+                if ((this.ProximityField.Equals(value) != true)) {
+                    this.ProximityField = value;
+                    this.RaisePropertyChanged("Proximity");
                 }
             }
         }
@@ -1119,6 +1135,12 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceOperationCancelled")]
         void DeviceOperationCancelled(TestConsole.HideezServiceReference.DeviceDTO device);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceProximityChanged")]
+        void DeviceProximityChanged(string deviceId, double proximity);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceBatteryChanged")]
+        void DeviceBatteryChanged(string deviceId, int battery);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_DeviceStateChanged")]
         void RemoteConnection_DeviceStateChanged(string deviceId, TestConsole.HideezServiceReference.DeviceStateDTO stateDto);

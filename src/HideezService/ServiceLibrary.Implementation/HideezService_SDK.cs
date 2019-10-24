@@ -1,17 +1,27 @@
-﻿using Hideez.CsrBLE;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Security;
+using System.Text;
+using System.Threading.Tasks;
+using Hideez.CsrBLE;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Proximity;
 using Hideez.SDK.Communication.WCF;
 using Hideez.SDK.Communication.WorkstationEvents;
-using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
-using HideezMiddleware.Settings;
 using HideezMiddleware.Audit;
+using HideezMiddleware.DeviceConnection;
+using HideezMiddleware.Settings;
 using Microsoft.Win32;
-using ServiceLibrary.Implementation.ScreenActivation;
 using ServiceLibrary.Implementation.ClientManagement;
+using ServiceLibrary.Implementation.ScreenActivation;
 using ServiceLibrary.Implementation.WorkstationLock;
 using System;
 using System.Collections.Generic;
@@ -108,14 +118,20 @@ namespace ServiceLibrary.Implementation
 
             // Get HES address from registry ==================================
             // HKLM\SOFTWARE\Hideez\Client, client_hes_address REG_SZ
-            string hesAddress = string.Empty;
-            try
+            string hesAddress = RegistrySettings.GetHesAddress(_log);
+
+            if (!string.IsNullOrEmpty(hesAddress))
             {
-                hesAddress = GetHesAddress();
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
+                ServicePointManager.ServerCertificateValidationCallback +=
+                (sender, cert, chain, error) =>
+                {
+                    if (sender is HttpWebRequest request)
+                    {
+                        if (request.Address.AbsoluteUri.StartsWith(hesAddress))
+                            return true;
+                    }
+                    return error == SslPolicyErrors.None;
+                };
             }
 
             // WorkstationInfoProvider ==================================
@@ -257,6 +273,8 @@ namespace ServiceLibrary.Implementation
                 device.Initialized += Device_Initialized;
                 device.Disconnected += Device_Disconnected;
                 device.OperationCancelled += Device_OperationCancelled;
+                device.ProximityChanged += Device_ProximityChanged;
+                device.BatteryChanged += Device_BatteryChanged;
             }
         }
 
@@ -270,6 +288,8 @@ namespace ServiceLibrary.Implementation
                 device.Initialized -= Device_Initialized;
                 device.Disconnected -= Device_Disconnected;
                 device.OperationCancelled -= Device_OperationCancelled;
+                device.ProximityChanged -= Device_ProximityChanged;
+                device.BatteryChanged -= Device_BatteryChanged;
 
                 if (device is IWcfDevice wcfDevice)
                     UnsubscribeFromWcfDeviceEvents(wcfDevice);
@@ -390,11 +410,11 @@ namespace ServiceLibrary.Implementation
             {
                 if (sender is IDevice device)
                 {
+                    if (!device.IsConnected)
+                        device.SetUserProperty(ConnectionFlowProcessor.FLOW_FINISHED_PROP, false);
+
                     foreach (var client in sessionManager.Sessions)
                     {
-                        if (!device.IsConnected)
-                            device.SetUserProperty(ConnectionFlowProcessor.FLOW_FINISHED_PROP, false);
-
                         client.Callbacks.DeviceConnectionStateChanged(new DeviceDTO(device));
                     }
                 }
@@ -466,6 +486,43 @@ namespace ServiceLibrary.Implementation
             }
         }
 
+        void Device_ProximityChanged(object sender, double e)
+        {
+            if (sender is IDevice device)
+            {
+                foreach (var client in sessionManager.Sessions)
+                {
+                    try
+                    {
+                        client.Callbacks.DeviceProximityChanged(device.Id, e);
+                    }
+                    catch (Exception ex)
+                    {
+                        Error(ex);
+                    }
+                }
+            }
+        }
+
+        void Device_BatteryChanged(object sender, sbyte e)
+        {
+            if (sender is IDevice device)
+            {
+                foreach (var client in sessionManager.Sessions)
+                {
+                    try
+                    {
+                        client.Callbacks.DeviceBatteryChanged(device.Id, e);
+                    }
+                    catch (Exception ex)
+                    {
+                        Error(ex);
+                    }
+                }
+            }
+            
+        }
+
         void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
         {
             foreach (var session in sessionManager.Sessions)
@@ -494,14 +551,14 @@ namespace ServiceLibrary.Implementation
 
         }
 
-        void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
+        async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
             try
             {
                 if (reason == SessionSwitchReason.SessionLogoff || reason == SessionSwitchReason.SessionLock)
                 {
                     // Disconnect all connected devices
-                    _deviceManager.DisconnectAllDevices();
+                    await _deviceManager.DisconnectAllDevices();
                     //// TODO: implement _deviceManager?.DisconnectAll();
                     //_deviceManager?.Devices.ToList().ForEach(d =>
                     //{
@@ -564,50 +621,11 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        readonly string _hesAddressRegistryValueName = "client_hes_address";
-        RegistryKey GetAppRegistryRootKey()
-        {
-            return RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default)?
-                .OpenSubKey("SOFTWARE")?
-                .OpenSubKey("Hideez")?
-                .OpenSubKey("Client");
-        }
-
-        string GetHesAddress()
-        {
-            var registryKey = GetAppRegistryRootKey();
-            if (registryKey == null)
-                throw new Exception("Couldn't find Hideez Client registry key. (HKLM\\SOFTWARE\\Hideez\\Client)");
-
-            var value = registryKey.GetValue(_hesAddressRegistryValueName);
-            if (value == null)
-                throw new ArgumentNullException($"{_hesAddressRegistryValueName} value is null or empty. Please specify HES address in registry under value {_hesAddressRegistryValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Client");
-
-            if (value is string == false)
-                throw new FormatException($"{_hesAddressRegistryValueName} could not be cast to string. Check that its value has REG_SZ type");
-
-            var address = value as string;
-
-            if (string.IsNullOrWhiteSpace(address))
-                throw new ArgumentNullException($"{_hesAddressRegistryValueName} value is null or empty. Please specify HES address in registry under value {_hesAddressRegistryValueName}. Key: HKLM\\SOFTWARE\\Hideez\\Client");
-
-            if (Uri.TryCreate(address, UriKind.Absolute, out Uri outUri)
-                && (outUri.Scheme == Uri.UriSchemeHttp || outUri.Scheme == Uri.UriSchemeHttps))
-            {
-                return address;
-            }
-            else
-            {
-                throw new ArgumentException($"Specified HES address: ('{address}'), " +
-                    $"is not a correct absolute uri");
-            }
-        }
-
-        public void DisconnectDevice(string id)
+        public async Task DisconnectDevice(string id)
         {
             try
             {
-                _deviceManager.DisconnectDevice(id);
+                await _deviceManager.DisconnectDevice(id);
             }
             catch (Exception ex)
             {

@@ -219,6 +219,12 @@
   <wsdl:message name="IHideezService_DeviceOperationCancelled_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:DeviceOperationCancelled" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_DeviceProximityChanged_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:DeviceProximityChanged" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_DeviceBatteryChanged_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:DeviceBatteryChanged" />
+  </wsdl:message>
   <wsdl:message name="IHideezService_RemoteConnection_DeviceStateChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:RemoteConnection_DeviceStateChanged" />
   </wsdl:message>
@@ -344,6 +350,12 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceOperationCancelled">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceOperationCancelled" message="tns:IHideezService_DeviceOperationCancelled_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceProximityChanged">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceProximityChanged" message="tns:IHideezService_DeviceProximityChanged_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceBatteryChanged">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceBatteryChanged" message="tns:IHideezService_DeviceBatteryChanged_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_DeviceStateChanged">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_DeviceStateChanged" message="tns:IHideezService_RemoteConnection_DeviceStateChanged_OutputCallbackMessage" />
@@ -616,6 +628,18 @@
     </wsdl:operation>
     <wsdl:operation name="DeviceOperationCancelled">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceOperationCancelled" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeviceProximityChanged">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceProximityChanged" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeviceBatteryChanged">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceBatteryChanged" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

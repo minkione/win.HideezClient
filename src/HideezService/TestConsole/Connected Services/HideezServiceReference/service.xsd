@@ -281,6 +281,22 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="DeviceProximityChanged">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="proximity" type="xs:double" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeviceBatteryChanged">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="battery" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="RemoteConnection_DeviceStateChanged">
     <xs:complexType>
       <xs:sequence>

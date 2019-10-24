@@ -70,7 +70,11 @@ namespace HideezServiceHost
         {
         }
 
-        public void DevicePermissionsChanged(DevicePermissionsDTO[] devicesPermissionsDTO)
+        public void DeviceProximityChanged(string deviceId, double proximity)
+        {
+        }
+
+        public void DeviceBatteryChanged(string deviceId, int battery)
         {
         }
     }

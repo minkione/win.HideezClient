@@ -29,7 +29,7 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void DisconnectDevice(string id);
+        Task DisconnectDevice(string id);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
@@ -111,6 +111,11 @@ namespace ServiceLibrary
         [OperationContract(IsOneWay = true)]
         void DeviceOperationCancelled(DeviceDTO device);
 
+        [OperationContract(IsOneWay = true)]
+        void DeviceProximityChanged(string deviceId, double proximity);
+
+        [OperationContract(IsOneWay = true)]
+        void DeviceBatteryChanged(string deviceId, int battery);
 
 
         [OperationContract(IsOneWay = true)]

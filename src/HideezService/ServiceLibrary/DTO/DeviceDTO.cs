@@ -24,6 +24,7 @@ namespace ServiceLibrary
             IsAuthorized = device.IsAuthorized;
             PinAttemptsRemain = device.PinAttemptsRemain;
             FinishedMainFlow = device.GetUserProperty<bool>(ConnectionFlowProcessor.FLOW_FINISHED_PROP);
+            Proximity = device.Proximity;
         }
 
         [DataMember]
@@ -70,5 +71,8 @@ namespace ServiceLibrary
 
         [DataMember]
         public bool FinishedMainFlow { get; private set; }
+
+        [DataMember]
+        public double Proximity { get; private set; }
     }
 }

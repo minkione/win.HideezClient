@@ -297,11 +297,13 @@
     <Compile Include="Messages\ButtonPressedMessage.cs" />
     <Compile Include="Messages\ConnectionChangedMessage.cs" />
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
+    <Compile Include="Messages\DeviceBatteryChangedMessage.cs" />
     <Compile Include="Messages\DeviceConnectionStateChangedMessage.cs" />
     <Compile Include="Messages\DeviceFinishedMainFlowMessage.cs" />
     <Compile Include="Messages\DeviceInitializedMessage.cs" />
     <Compile Include="Messages\DeviceOperationCancelledMessage.cs" />
     <Compile Include="Messages\DeviceProximitySettingsChangedMessage.cs" />
+    <Compile Include="Messages\DeviceProximityChangedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
     <Compile Include="Messages\HidePinUiMessage.cs" />

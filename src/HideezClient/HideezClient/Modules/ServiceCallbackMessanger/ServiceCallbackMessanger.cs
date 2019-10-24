@@ -109,6 +109,32 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             }
         }
 
+        public void DeviceProximityChanged(string deviceId, double proximity)
+        {
+            try
+            {
+                log.Info($"Device ({deviceId}) proximity changed to {proximity}");
+                _messenger.Send(new DeviceProximityChangedMessage(deviceId, proximity));
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
+        public void DeviceBatteryChanged(string deviceId, int battery)
+        {
+            try
+            {
+                log.Info($"Device ({deviceId}) battery changed to {battery}");
+                _messenger.Send(new DeviceBatteryChangedMessage(deviceId, battery));
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
         public void RemoteConnection_DeviceStateChanged(string deviceId, DeviceStateDTO stateDto)
         {
             try

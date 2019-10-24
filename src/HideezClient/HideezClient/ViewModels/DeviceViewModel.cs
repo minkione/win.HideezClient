@@ -61,7 +61,7 @@ namespace HideezClient.ViewModels
         public int Battery => device.Battery;
         public bool IsInitializing => device.IsInitializing;
         public bool IsInitialized => device.IsInitialized;
-        public bool IsAuthorizing => device.IsAuthorizing;
+        public bool IsAuthorizing => device.IsAuthorizingRemoteDevice;
         public bool IsAuthorized => device.IsAuthorized;
         public bool IsLoadingStorage => device.IsLoadingStorage;
         public bool IsStorageLoaded => device.IsStorageLoaded;
@@ -89,5 +89,8 @@ namespace HideezClient.ViewModels
         {
             return device.PasswordManager.DeleteAccount(account.Key, account.IsPrimary);
         }
+        public bool FinishedMainFlow => device.FinishedMainFlow;
+        public bool IsCreatingRemoteDevice => device.IsCreatingRemoteDevice;
+        public bool IsAuthorizingRemoteDevice => device.IsAuthorizingRemoteDevice;
     }
 }
