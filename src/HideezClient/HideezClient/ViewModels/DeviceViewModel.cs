@@ -51,7 +51,7 @@ namespace HideezClient.ViewModels
         }
 
         [Localization]
-        public string Name => L(device.Name);
+        public string Name => L("HideezKey2EEName");
         public string SerialNo => device.SerialNo;
         public string OwnerName => device.OwnerName;
         public string Id => device.Id;

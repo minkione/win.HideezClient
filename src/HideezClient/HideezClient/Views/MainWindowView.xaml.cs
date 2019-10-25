@@ -32,7 +32,10 @@ namespace HideezClient.Views
     {
         private BindingRaiseevent bindingRaiseeventSelectedDevice;
         private BindingRaiseevent bindingRaiseeventIsConnected;
-        private BindingRaiseevent bindingRaiseeventIsInitialized;
+        //private BindingRaiseevent bindingRaiseeventIsInitialized;
+        //private BindingRaiseevent bindingRaiseeventIsAuthorized;
+        //private BindingRaiseevent bindingRaiseeventIsAuthorizingRemoteDevice;
+        //private BindingRaiseevent bindingRaiseeventIsCreatingRemoteDevice;
 
         public MainWindowView()
         {
@@ -48,8 +51,17 @@ namespace HideezClient.Views
                 bindingRaiseeventIsConnected = new BindingRaiseevent(device, nameof(DeviceViewModel.IsConnected));
                 bindingRaiseeventIsConnected.ValueChanged += value => this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
 
-                bindingRaiseeventIsInitialized= new BindingRaiseevent(device, nameof(DeviceViewModel.IsInitialized));
-                bindingRaiseeventIsInitialized.ValueChanged += value => this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
+                //bindingRaiseeventIsInitialized = new BindingRaiseevent(device, nameof(DeviceViewModel.FinishedMainFlow));
+                //bindingRaiseeventIsInitialized.ValueChanged += value => this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
+
+                //bindingRaiseeventIsAuthorized = new BindingRaiseevent(device, nameof(DeviceViewModel.IsAuthorized));
+                //bindingRaiseeventIsAuthorized.ValueChanged += value => this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
+
+                //bindingRaiseeventIsAuthorizingRemoteDevice = new BindingRaiseevent(device, nameof(DeviceViewModel.IsAuthorizingRemoteDevice));
+                //bindingRaiseeventIsAuthorizingRemoteDevice.ValueChanged += value => this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
+
+                //bindingRaiseeventIsCreatingRemoteDevice = new BindingRaiseevent(device, nameof(DeviceViewModel.IsCreatingRemoteDevice));
+                //bindingRaiseeventIsCreatingRemoteDevice.ValueChanged += value => this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
             };
         }
 

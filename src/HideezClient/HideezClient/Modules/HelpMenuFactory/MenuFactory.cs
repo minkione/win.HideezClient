@@ -167,10 +167,11 @@ namespace HideezClient.Modules
                 Command = new DelegateCommand
                 {
                     CanExecuteFunc = () =>
-                    device.IsConnected &&
-                    device.IsInitialized &&
+                    device.FinishedMainFlow &&
+                    !device.IsAuthorized &&
                     !device.IsAuthorizingRemoteDevice &&
-                    !device.IsAuthorized,
+                    !device.IsCreatingRemoteDevice,
+
                     CommandAction = (x) =>
                     {
                         OnAuthorizeAndLoadStorage(x);
