@@ -64,6 +64,7 @@ namespace HideezClient.Models
         bool isStorageLoaded;
 
         CancellationTokenSource authCancellationTokenSource;
+        int _interlockedRemote = 0;
 
         public Device(
             IServiceProxy serviceProxy, 
@@ -249,8 +250,6 @@ namespace HideezClient.Models
         void RemoteDevice_StorageModified(object sender, EventArgs e)
         {
             _log.Info($"Device ({SerialNo}) storage modified");
-            if (!IsAuthorized || IsLoadingStorage)
-                return;
 
             Task.Run(() =>
             {
@@ -359,29 +358,39 @@ namespace HideezClient.Models
 
         public async Task AuthorizeAndLoadStorage()
         {
-            if (!IsCreatingRemoteDevice && !IsAuthorizingRemoteDevice && !IsLoadingStorage)
+            if (Interlocked.CompareExchange(ref _interlockedRemote, 1, 0) == 1)
             {
                 try
                 {
-                    authCancellationTokenSource = new CancellationTokenSource();
-                    var ct = authCancellationTokenSource.Token;
+                    if (!IsCreatingRemoteDevice && !IsAuthorizingRemoteDevice && !IsLoadingStorage)
+                    {
+                        try
+                        {
+                            authCancellationTokenSource = new CancellationTokenSource();
+                            var ct = authCancellationTokenSource.Token;
 
-                    _infNid = Guid.NewGuid().ToString();
-                    _errNid = Guid.NewGuid().ToString();
+                            _infNid = Guid.NewGuid().ToString();
+                            _errNid = Guid.NewGuid().ToString();
 
-                    await CreateRemoteDevice();
-                    await AuthorizeRemoteDevice(ct);
-                    if (!ct.IsCancellationRequested)
-                        await LoadStorage();
-                }
-                catch (Exception ex)
-                {
-                    ShowError(ex.Message, _errNid);
+                            await CreateRemoteDevice();
+                            await AuthorizeRemoteDevice(ct);
+                            if (!ct.IsCancellationRequested)
+                                await LoadStorage();
+                        }
+                        catch (Exception ex)
+                        {
+                            ShowError(ex.Message, _errNid);
+                        }
+                        finally
+                        {
+                            authCancellationTokenSource.Dispose();
+                            authCancellationTokenSource = null;
+                        }
+                    }
                 }
                 finally
                 {
-                    authCancellationTokenSource.Dispose();
-                    authCancellationTokenSource = null;
+                    Interlocked.Exchange(ref _interlockedRemote, 0);
                 }
             }
         }
@@ -406,6 +415,8 @@ namespace HideezClient.Models
             IsAuthorizingRemoteDevice = false;
             IsLoadingStorage = false;
             IsStorageLoaded = false;
+
+            NotifyPropertyChanged(nameof(IsAuthorized));
         }
 
 
@@ -429,6 +440,10 @@ namespace HideezClient.Models
 
                 if (_remoteDevice.SerialNo != SerialNo)
                     throw new Exception("Remote device serial number does not match the enumerated serial");
+
+                _log.Info($"Creating password manager for device ({SerialNo})");
+                PasswordManager = new DevicePasswordManager(_remoteDevice, null);
+                _remoteDevice.StorageModified += RemoteDevice_StorageModified;
 
                 _log.Info($"Remote device ({SerialNo}) connection established");
             }
@@ -484,12 +499,7 @@ namespace HideezClient.Models
                 if (ct.IsCancellationRequested)
                     ShowError($"Authorization cancelled for device ({SerialNo})", _errNid);
                 else if (IsAuthorized)
-                {
                     _log.Info($"Remote device ({_remoteDevice.Id}) is authorized");
-
-                    PasswordManager = new DevicePasswordManager(_remoteDevice, null);
-                    _remoteDevice.StorageModified += RemoteDevice_StorageModified;
-                }
                 else
                     ShowError($"Authorization for device ({SerialNo}) failed", _errNid);
             }
@@ -526,7 +536,7 @@ namespace HideezClient.Models
 
         async Task LoadStorage()
         {
-            if (_remoteDevice == null || !IsAuthorized || IsLoadingStorage)
+            if (_remoteDevice == null || !IsAuthorized || IsLoadingStorage || PasswordManager == null)
                 return;
 
             try
@@ -543,10 +553,16 @@ namespace HideezClient.Models
             catch (FaultException<HideezServiceFault> ex)
             {
                 _log.Error(ex);
+                ShowError(ex.Message, _errNid);
+
+                await ShutdownRemoteDevice(HideezErrorCode.UnknownError);
             }
             catch (Exception ex)
             {
                 _log.Error(ex);
+                ShowError(ex.Message, _errNid);
+
+                await ShutdownRemoteDevice(HideezErrorCode.UnknownError);
             }
             finally
             {
