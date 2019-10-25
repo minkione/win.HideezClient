@@ -8,6 +8,7 @@ using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
+using Hideez.SDK.Communication.Tasks;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.Tasks;
 using Microsoft.Win32;
@@ -356,17 +357,10 @@ namespace HideezMiddleware
             ct.ThrowIfCancellationRequested();
 
             await _ui.SendNotification("Waiting for HES authorization...", _infNid);
+
             await _hesConnection.FixDevice(device, ct);
 
-            // wait for at least one system state event
-            int count = 6;
-            while (device.AccessLevel.IsMasterKeyRequired && --count > 0)
-            {
-                await Task.Delay(300);
-            }
-
-            if (device.AccessLevel.IsMasterKeyRequired)
-                throw new HideezException(HideezErrorCode.DeviceAuthorizationFailed);
+            await new WaitMasterKeyProc(device).Run(SdkConfig.SystemStateEventWaitTimeout, ct);
 
             await _ui.SendNotification("", _infNid);
         }
