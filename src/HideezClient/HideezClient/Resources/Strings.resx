@@ -453,4 +453,7 @@ to access stored credentials</value>
   <data name="Pin.SetInProgres" xml:space="preserve">
     <value>Save PIN in progres</value>
   </data>
+  <data name="CredentialsLoad.Failed" xml:space="preserve">
+    <value>Credentials loading failed {0}</value>
+  </data>
 </root>

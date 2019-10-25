@@ -358,6 +358,13 @@ namespace HideezMiddleware
             await _ui.SendNotification("Waiting for HES authorization...", _infNid);
             await _hesConnection.FixDevice(device, ct);
 
+            // wait for at least one system state event
+            int count = 6;
+            while (device.AccessLevel.IsMasterKeyRequired && --count > 0)
+            {
+                await Task.Delay(300);
+            }
+
             if (device.AccessLevel.IsMasterKeyRequired)
                 throw new HideezException(HideezErrorCode.DeviceAuthorizationFailed);
 
