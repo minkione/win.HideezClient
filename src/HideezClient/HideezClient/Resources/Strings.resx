@@ -591,4 +591,7 @@ to access stored credentials</value>
   <data name="MessageBox.DisconectDevice.Message" xml:space="preserve">
     <value>Are you sure you want to disconnect {0}?</value>
   </data>
+  <data name="CredentialsLoad.Failed" xml:space="preserve">
+    <value>Credentials loading failed {0}</value>
+  </data>
 </root>

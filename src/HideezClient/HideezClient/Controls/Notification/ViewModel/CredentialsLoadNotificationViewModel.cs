@@ -31,9 +31,16 @@ namespace HideezClient.Controls
 
         private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if(sender is Device device && e.PropertyName == nameof(Device.IsStorageLoaded) && device.IsStorageLoaded)
+            if (sender is Device device)
             {
-                State = LoadedCredentialsState.Loaded;
+                if (e.PropertyName == nameof(Device.IsStorageLoaded) && device.IsStorageLoaded)
+                {
+                    State = LoadedCredentialsState.Loaded;
+                }
+                else if (e.PropertyName == nameof(Device.IsLoadingStorage) && !device.IsLoadingStorage && !device.IsStorageLoaded)
+                {
+                    State = LoadedCredentialsState.Fail;
+                }
             }
         }
 
