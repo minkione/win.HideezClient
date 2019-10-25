@@ -19,5 +19,6 @@
     <converters:NullToVisibilityCollapsedConverter x:Key="NullToVisibilityCollapsedConverter" />
     <converters:BooleanToVisibilityCollapsedConverter x:Key="BooleanToVisibilityCollapsedConverter" />
     <converters:SliderWidthToMinRangeWidthConverter x:Key="SliderWidthToMinRangeWidthConverter" />
+    <converters:IsNullOrWhiteSpaceConverter x:Key="IsNullOrWhiteSpaceConverter" />
 
 </ResourceDictionary>

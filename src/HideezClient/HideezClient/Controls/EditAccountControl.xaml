@@ -118,7 +118,10 @@
             </ContentControl>
 
             <!--  Pasword  -->
-            <ContentControl Grid.Row="2" Style="{StaticResource UnderLine}">
+            <ContentControl
+                Grid.Row="2"
+                Style="{StaticResource UnderLine}"
+                Tag="{Binding ErrorPassword}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition SharedSizeGroup="L" />
@@ -440,8 +443,9 @@
                             Content="{l:Localization PM.EnterOtp}"
                             DockPanel.Dock="Right"
                             FontSize="14"
-                            IsChecked="{Binding HasOpt}"
+                            IsChecked="{Binding HasOpt, Mode=OneWay}"
                             Style="{DynamicResource CancelButtonStyle}" />
+
                         <Rectangle Width="14" />
 
                         <Button
@@ -463,6 +467,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
@@ -489,32 +494,57 @@
                         Grid.Column="2"
                         VerticalAlignment="Center"
                         Command="{Binding CancelEditOtpCommand}"
-                        Style="{StaticResource IconButtonStyle}"
-                        Visibility="Visible">
-                        <iconPacks:PackIconEntypo
-                            Height="13"
+                        Style="{StaticResource IconButtonStyle}">
+                        <iconPacks:PackIconModern
+                            Height="15"
                             Margin="3,0"
                             Foreground="{DynamicResource IcoButtonBrush}"
-                            Kind="Cross" />
+                            Kind="Cancel" />
                     </Button>
-
 
                     <Button
                         Grid.Column="3"
                         VerticalAlignment="Center"
-                        Background="Transparent"
+                        Command="{Binding ApplyOTPSecret}"
+                        ToolTip="{x:Null}">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource IconButtonStyle}" TargetType="Button">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding ErrorOtpSecret}" Value="{x:Null}" />
+                                            <Condition Binding="{Binding OtpSecret, Converter={StaticResource IsNullOrWhiteSpaceConverter}}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.Setters>
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </MultiDataTrigger.Setters>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <iconPacks:PackIconModern
+                            Height="15"
+                            Margin="3,0"
+                            Foreground="{StaticResource IcoButtonBrush}"
+                            Kind="Check" />
+                    </Button>
+
+                    <Button
+                        Grid.Column="4"
+                        VerticalAlignment="Center"
                         Command="{Binding ScanOtpSecretFromQRCodeCommand}"
-                        DockPanel.Dock="Right"
                         Style="{DynamicResource IconButtonStyle}">
                         <iconPacks:PackIconFontAwesome
                             Height="24"
+                            Margin="3,0"
                             Foreground="{DynamicResource IcoButtonBrush}"
                             Kind="QrcodeSolid" />
                     </Button>
 
                     <Rectangle
                         Grid.Row="2"
-                        Grid.ColumnSpan="4"
+                        Grid.ColumnSpan="5"
                         Height="2"
                         VerticalAlignment="Bottom">
                         <Rectangle.Style>

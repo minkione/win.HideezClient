@@ -82,12 +82,10 @@ namespace HideezClient.ViewModels
         {
             Application.Current.MainWindow.Activated += WeakEventHandler.Create(this, (@this, o, args) => Task.Run(@this.UpdateAppsAndUrls));
 
+            this.WhenAnyValue(vm => vm.OtpSecret).Where(x => !string.IsNullOrWhiteSpace(x)).Subscribe(o => ErrorOtpSecret = (ValidateBase32String(OtpSecret) ? null : "Not valid OTP secret"));
             this.WhenAnyValue(vm => vm.ErrorAccountName, vm => vm.ErrorOtpSecret).Subscribe(observer => HasError = !(ErrorAccountName == null && ErrorOtpSecret == null));
-            this.WhenAnyValue(vm => vm.Name, vm => vm.Login, vm => vm.IsPasswordChanged, vm => vm.HasOpt)
-                .Subscribe(o =>
-                {
-                    HasChanges = CompareNotEquals(cache.Name, Name) || CompareNotEquals(cache.Login, Login) || IsPasswordChanged || cache.HasOtp != HasOpt || CompareNotEquals(cache.Apps, AccountRecord.Apps) || CompareNotEquals(cache.Urls, AccountRecord.Urls);
-                });
+            this.WhenAnyValue(vm => vm.Name, vm => vm.Login, vm => vm.IsPasswordChanged, vm => vm.OtpSecret, vm => vm.HasOpt, vm => vm.Apps, vm => vm.Urls)
+                .Subscribe(o => VerifyHasChanged());
 
             this.WhenAnyValue(vm => vm.SelectedApp).Subscribe(OnAppSelected);
             this.WhenAnyValue(vm => vm.SelectedUrl).Subscribe(OnUrlSelected);
@@ -107,6 +105,10 @@ namespace HideezClient.ViewModels
                 });
             });
         }
+        private void VerifyHasChanged()
+        {
+            HasChanges = CompareNotEquals(cache.Name, Name) || CompareNotEquals(cache.Login, Login) || IsPasswordChanged || CompareNotEquals(cache.Apps, AccountRecord.Apps) || CompareNotEquals(cache.Urls, AccountRecord.Urls) || (HasOpt != AccountRecord.HasOtp || !string.IsNullOrWhiteSpace(AccountRecord.OtpSecret));
+        }
 
         private bool CompareNotEquals(string str1, string str2)
         {
@@ -116,7 +118,8 @@ namespace HideezClient.ViewModels
         public bool CanSave()
         {
             ValidateName();
-            return ErrorAccountName == null && ErrorOtpSecret == null;
+            ErrorPassword = IsNewAccount && !IsPasswordChanged ? "Password cannot be empty." : null;
+            return ErrorAccountName == null && ErrorOtpSecret == null && ErrorPassword == null;
         }
 
         private void UpdateAppsAndUrls()
@@ -188,6 +191,7 @@ namespace HideezClient.ViewModels
 
         #region Propertys
 
+        [Reactive] public string ErrorPassword { get; set; }
         [Reactive] public bool HasError { get; set; }
         [Reactive] public bool HasChanges { get; set; }
         public bool IsNewAccount { get; }
@@ -224,38 +228,7 @@ namespace HideezClient.ViewModels
         #region OTP
         [Reactive] public bool EditOtp { get; set; }
         [Reactive] public bool HasOpt { get; set; }
-        public string OtpSecret
-        {
-            get { return AccountRecord.OtpSecret; }
-            set
-            {
-                if (AccountRecord.OtpSecret != value)
-                {
-                    var secret = value.Replace(" ", "");
-                    if (!string.IsNullOrEmpty(secret))
-                    {
-                        EditOtp = true;
-                        if (ValidateBase32String(secret))
-                        {
-                            AccountRecord.OtpSecret = secret;
-                            ErrorOtpSecret = null;
-                        }
-                        else
-                        {
-                            ErrorOtpSecret = "Not valid OTP secret";
-                            AccountRecord.OtpSecret = value;
-                        }
-                    }
-                    else
-                    {
-                        HasOpt = false;
-                        AccountRecord.OtpSecret = null;
-                        ErrorOtpSecret = null;
-                    }
-                    this.RaisePropertyChanged(nameof(OtpSecret));
-                }
-            }
-        }
+        [Reactive] public string OtpSecret { get; set; }
         [Reactive] public string ErrorOtpSecret { get; set; }
 
         #endregion OTP
@@ -332,6 +305,7 @@ namespace HideezClient.ViewModels
                         if (x is AppViewModel viewModel)
                         {
                             viewModel.ApplyChanges();
+                            AppsOrUrlsCollectonChanges();
                         }
                     },
                 };
@@ -395,6 +369,29 @@ namespace HideezClient.ViewModels
             }
         }
 
+        public ICommand ApplyOTPSecret
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        if (ErrorOtpSecret == null)
+                        {
+                            var otpSecret = OtpSecret?.Replace(" ", "");
+                            if (!string.IsNullOrWhiteSpace(OtpSecret))
+                            {
+                                AccountRecord.OtpSecret = otpSecret;
+                                EditOtp = false;
+                                HasOpt = true;
+                            }
+                        }
+                    },
+                };
+            }
+        }
+
         public ICommand EnterOtpCommand
         {
             get
@@ -431,8 +428,9 @@ namespace HideezClient.ViewModels
                 {
                     CommandAction = (x) =>
                     {
-                        HasOpt = false;
                         OtpSecret = "";
+                        AccountRecord.OtpSecret = "";
+                        HasOpt = false;
                         EditOtp = false;
                     },
                 };
@@ -447,9 +445,11 @@ namespace HideezClient.ViewModels
                 {
                     CommandAction = (x) =>
                     {
-                        OtpSecret = "";
                         EditOtp = false;
                         HasOpt = AccountRecord.HasOtp;
+                        AccountRecord.OtpSecret = null;
+                        OtpSecret = null;
+                        ErrorOtpSecret = null;
                     },
                 };
             }

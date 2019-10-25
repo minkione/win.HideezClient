@@ -38,9 +38,9 @@ namespace HideezClient.Controls
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            if (this.DataContext != null)
+            if (this.DataContext != null && sender is PasswordBox passwordBox)
             { 
-                ((dynamic)this.DataContext).IsPasswordChanged = true; 
+                ((dynamic)this.DataContext).IsPasswordChanged = passwordBox.SecurePassword.Length != 0; 
             }
         }
     }
