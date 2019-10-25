@@ -26,6 +26,7 @@
     ShowMinButton="False"
     SizeToContent="Height"
     TitleCharacterCasing="Normal"
+    WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
     WindowStartupLocation="CenterScreen"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     mc:Ignorable="d">

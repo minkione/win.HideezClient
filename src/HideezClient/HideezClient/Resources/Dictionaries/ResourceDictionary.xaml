@@ -699,68 +699,55 @@
         </Setter>
     </Style>
 
-    <Style x:Key="CustomLightMetroWindowButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource LightMetroWindowButtonStyle}">
+    <Style
+        x:Key="CustomLightMetroWindowButtonStyle"
+        BasedOn="{StaticResource LightMetroWindowButtonStyle}"
+        TargetType="{x:Type Button}">
         <Setter Property="FontFamily" Value="" />
     </Style>
 
-    <Style x:Key="CustomDarkMetroWindowButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource DarkMetroWindowButtonStyle}">
+    <Style
+        x:Key="CustomDarkMetroWindowButtonStyle"
+        BasedOn="{StaticResource DarkMetroWindowButtonStyle}"
+        TargetType="{x:Type Button}">
         <Setter Property="Foreground" Value="Crimson" />
     </Style>
 
-    <!-- base button style for min, max and close window buttons -->
-    <Style x:Key="CustomMetroBaseWindowButtonStyle"
-        TargetType="{x:Type Button}">
-        <Setter Property="Background"
-            Value="{DynamicResource TransparentWhiteBrush}" />
-        <Setter Property="Foreground"
-            Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
-        <Setter Property="HorizontalContentAlignment"
-            Value="Center" />
-        <Setter Property="VerticalContentAlignment"
-            Value="Center" />
-        <Setter Property="Padding"
-            Value="1" />
+    <!--  base button style for min, max and close window buttons  -->
+    <Style x:Key="CustomMetroBaseWindowButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="{DynamicResource TransparentWhiteBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="1" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
-                    <Grid x:Name="grid"
-                        Background="{TemplateBinding Background}">
-                        <iconPacks:PackIconModern x:Name="contentPresenter"
-                                                  Kind="Close"
-                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                  Margin="{TemplateBinding Padding}"
-                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                                  Opacity="0.75" 
-                                                  Width="11"
-                                                  Height="11"/>
+                    <Grid x:Name="grid" Background="{TemplateBinding Background}">
+                        <iconPacks:PackIconModern
+                            x:Name="contentPresenter"
+                            Width="11"
+                            Height="11"
+                            Margin="{TemplateBinding Padding}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Kind="Close"
+                            Opacity="0.75"
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver"
-                                Value="True">
-                            <Setter TargetName="contentPresenter"
-                                Property="Opacity"
-                                Value="1" />
-                            <Setter TargetName="grid"
-                                Property="Background"
-                                Value="{DynamicResource SemiTransparentWhiteBrush}" />
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="contentPresenter" Property="Opacity" Value="1" />
+                            <Setter TargetName="grid" Property="Background" Value="{DynamicResource SemiTransparentWhiteBrush}" />
                         </Trigger>
-                        <Trigger Property="IsMouseOver"
-                                Value="False">
-                            <Setter TargetName="contentPresenter"
-                                Property="Opacity"
-                                Value=".5" />
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter TargetName="contentPresenter" Property="Opacity" Value=".5" />
                         </Trigger>
-                        <Trigger Property="IsPressed"
-                                Value="True">
-                            <Setter TargetName="grid"
-                                Property="Background"
-                                Value="{DynamicResource HighlightBrush}" />
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="grid" Property="Background" Value="{DynamicResource HighlightBrush}" />
                         </Trigger>
-                        <Trigger Property="IsEnabled"
-                                Value="false">
-                            <Setter Property="Foreground"
-                                Value="#ADADAD" />
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="#ADADAD" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -768,19 +755,15 @@
         </Setter>
     </Style>
 
-    <!-- default button style for min, max and close window buttons -->
-    <Style x:Key="CloseWindowButtonStyle"
-        TargetType="{x:Type Button}"
-        BasedOn="{StaticResource CustomMetroBaseWindowButtonStyle}">
-        <Setter Property="FocusVisualStyle"
-            Value="{x:Null}" />
-        <Setter Property="IsTabStop"
-            Value="False" />
-        <Setter Property="Width"
-            Value="34" />
-        <Setter Property="MaxHeight"
-            Value="34" />
-        <Setter Property="Padding"
-            Value="0" />
+    <!--  default button style for min, max and close window buttons  -->
+    <Style
+        x:Key="CloseWindowButtonStyle"
+        BasedOn="{StaticResource CustomMetroBaseWindowButtonStyle}"
+        TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Width" Value="34" />
+        <Setter Property="MaxHeight" Value="34" />
+        <Setter Property="Padding" Value="0" />
     </Style>
 </ResourceDictionary>

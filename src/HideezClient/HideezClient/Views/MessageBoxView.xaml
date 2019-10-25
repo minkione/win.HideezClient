@@ -14,6 +14,7 @@
     ResizeMode="NoResize"
     SizeToContent="WidthAndHeight"
     TitleCharacterCasing="Normal"
+    WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
     WindowStartupLocation="CenterOwner"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     mc:Ignorable="d">

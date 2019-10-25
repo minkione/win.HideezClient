@@ -24,6 +24,7 @@
     Style="{DynamicResource WindowStyle}"
     TitleCharacterCasing="Normal"
     Visibility="Visible"
+    WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     mc:Ignorable="d">
     <Grid Focusable="False" SnapsToDevicePixels="True">

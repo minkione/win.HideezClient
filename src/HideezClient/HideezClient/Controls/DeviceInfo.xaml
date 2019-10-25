@@ -230,11 +230,10 @@
                         <Style.Triggers>
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding IsConnected}" Value="True" />
-                                    <Condition Binding="{Binding IsInitialized}" Value="True" />
-                                    <Condition Binding="{Binding IsAuthorizing}" Value="False" />
+                                    <Condition Binding="{Binding FinishedMainFlow}" Value="True" />
                                     <Condition Binding="{Binding IsAuthorized}" Value="False" />
-                                    <Condition Binding="{Binding IsLoadingStorage}" Value="False" />
+                                    <Condition Binding="{Binding IsAuthorizingRemoteDevice}" Value="False" />
+                                    <Condition Binding="{Binding IsCreatingRemoteDevice}" Value="False" />
                                 </MultiDataTrigger.Conditions>
                                 <MultiDataTrigger.Setters>
                                     <Setter Property="Visibility" Value="Visible" />
