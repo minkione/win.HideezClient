@@ -33,14 +33,15 @@
             // 
             // serviceProcessInstaller
             // 
-            this.serviceProcessInstaller.Account = System.ServiceProcess.ServiceAccount.LocalService;
+            this.serviceProcessInstaller.Account = System.ServiceProcess.ServiceAccount.LocalSystem;
             this.serviceProcessInstaller.Password = null;
             this.serviceProcessInstaller.Username = null;
             // 
             // serviceInstaller
             // 
-            this.serviceInstaller.DisplayName = "Hideez Client Corp";
-            this.serviceInstaller.ServiceName = "HideezService";
+            this.serviceInstaller.Description = "Provides communication with Hideez devices via BLE";
+            this.serviceInstaller.DisplayName = "Hideez Service";
+            this.serviceInstaller.ServiceName = "Hideez Service";
             // 
             // ProjectInstaller
             // 

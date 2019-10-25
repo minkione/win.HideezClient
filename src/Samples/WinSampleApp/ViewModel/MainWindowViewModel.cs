@@ -2,6 +2,8 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
+using System.Net.Security;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -826,6 +828,20 @@ namespace WinSampleApp.ViewModel
                 var workstationInfoProvider = new WorkstationInfoProvider(HesAddress, _log); //todo - HesAddress?
 
                 // HES Connection ==================================
+
+                // do not use in the production!
+                //string hesAddress = @"https://192.168.10.249/";
+                //ServicePointManager.ServerCertificateValidationCallback +=
+                //(sender, cert, chain, error) =>
+                //{
+                //    if (sender is HttpWebRequest request)
+                //    {
+                //        if (request.Address.AbsoluteUri.StartsWith(hesAddress))
+                //            return true;
+                //    }
+                //    return error == SslPolicyErrors.None;
+                //};
+
                 string workstationId = Guid.NewGuid().ToString();
                 _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _log);
                 _hesConnection.HubConnectionStateChanged += (sender, e) => NotifyPropertyChanged(nameof(HesState));
