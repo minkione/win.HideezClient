@@ -137,9 +137,14 @@ namespace HideezMiddleware
         // error - is a string representation of the ntstatus code
         void OnLogonResult(int ntstatus, string userName, string error)
         {
-            WriteLine($"OnLogonResult: {userName}, {error}");
-            if (_pendingLogonRequests.TryGetValue(userName.ToUpperInvariant(), out TaskCompletionSource<bool> tcs))
+            WriteLine($"OnLogonResult: {userName}, {error}, {ntstatus}");
+
+            //todo 
+            foreach (var tcs in _pendingLogonRequests.Values)
                 tcs.TrySetResult(ntstatus == 0);
+
+            //if (_pendingLogonRequests.TryGetValue(userName.ToUpperInvariant(), out TaskCompletionSource<bool> tcs))
+            //    tcs.TrySetResult(ntstatus == 0);
         }
 
         async void OnLogonRequestByLoginName(string login)
@@ -163,9 +168,9 @@ namespace HideezMiddleware
         #region Commands to CP
         public async Task<bool> SendLogonRequest(string login, string password, string prevPassword)
         {
+            login = NormalizeLogin(login);
             WriteLine($"SendLogonRequest: {login}");
 
-            login = NormalizeLogin(login);
             await SendMessageAsync(CredentialProviderCommandCode.Logon, true, $"{login}\n{password}\n{prevPassword}");
 
             var tcs = _pendingLogonRequests.GetOrAdd(login, (x) =>
