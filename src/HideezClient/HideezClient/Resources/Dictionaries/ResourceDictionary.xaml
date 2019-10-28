@@ -574,18 +574,16 @@
 
     <Style x:Key="RangeSliderStyle" TargetType="{x:Type ma:RangeSlider}">
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="ma:SliderHelper.ThumbFillBrush" Value="{DynamicResource BlueBrush}" />
-        <Setter Property="ma:SliderHelper.ThumbFillDisabledBrush" Value="{DynamicResource SliderBlueBrush}" />
-        <Setter Property="ma:SliderHelper.ThumbFillHoverBrush" Value="{DynamicResource BlueBrushIsMouseOver}" />
-        <Setter Property="ma:SliderHelper.ThumbFillPressedBrush" Value="{DynamicResource BlueBrushIsPressed}" />
-        <Setter Property="ma:SliderHelper.TrackFillBrush" Value="{DynamicResource SliderBlueBrush}" />
-        <Setter Property="ma:SliderHelper.TrackFillDisabledBrush" Value="{DynamicResource SliderBlueBrush}" />
-        <Setter Property="ma:SliderHelper.TrackFillHoverBrush" Value="{DynamicResource SliderBlueBrush}" />
-        <Setter Property="ma:SliderHelper.TrackFillPressedBrush" Value="{DynamicResource SliderBlueBrush}" />
-        <Setter Property="ma:SliderHelper.TrackValueFillBrush" Value="{DynamicResource BlueBrush}" />
-        <Setter Property="ma:SliderHelper.TrackValueFillDisabledBrush" Value="{DynamicResource BlueBrush}" />
-        <Setter Property="ma:SliderHelper.TrackValueFillHoverBrush" Value="{DynamicResource BlueBrushIsMouseOver}" />
-        <Setter Property="ma:SliderHelper.TrackValueFillPressedBrush" Value="{DynamicResource BlueBrushIsPressed}" />
+
+        <Setter Property="ma:SliderHelper.TrackFillBrush" Value="{DynamicResource SliderTrackFillBrush}" />
+        <Setter Property="ma:SliderHelper.TrackFillDisabledBrush" Value="{DynamicResource SliderTrackFillBrush}" />
+        <Setter Property="ma:SliderHelper.TrackFillHoverBrush" Value="{DynamicResource SliderTrackFillBrush}" />
+        <Setter Property="ma:SliderHelper.TrackFillPressedBrush" Value="{DynamicResource SliderTrackFillBrush}" />
+
+        <Setter Property="ma:SliderHelper.TrackValueFillBrush" Value="{DynamicResource SliderTrackValueBrush}" />
+        <Setter Property="ma:SliderHelper.TrackValueFillDisabledBrush" Value="{DynamicResource SliderTrackValueBrush}" />
+        <Setter Property="ma:SliderHelper.TrackValueFillHoverBrush" Value="{DynamicResource SliderTrackValueBrush}" />
+        <Setter Property="ma:SliderHelper.TrackValueFillPressedBrush" Value="{DynamicResource SliderTrackValueBrush}" />
     </Style>
 
     <Style x:Key="CloseButtonStyle" TargetType="{x:Type Button}">

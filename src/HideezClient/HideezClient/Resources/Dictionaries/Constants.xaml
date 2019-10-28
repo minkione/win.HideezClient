@@ -5,6 +5,10 @@
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
+    <SolidColorBrush x:Key="SliderTrackValueBrush" Color="#661BA2DC" />
+    <SolidColorBrush x:Key="SliderTrackFillBrush" Color="#261BA2DC" />
+    <SolidColorBrush x:Key="SliderTrackProximityValueBrush" Color="#CC1BA2DC" />
+    
     <Color x:Key="IcoButtonColor">#1BA2DC</Color>
     <SolidColorBrush x:Key="IcoButtonBrush" Color="{StaticResource IcoButtonColor}" />
 
