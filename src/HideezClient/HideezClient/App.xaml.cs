@@ -228,8 +228,6 @@ namespace HideezClient
             #region ViewModels
 
             Container.RegisterType<MainViewModel>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<LoginSystemPageViewModel>();
-            Container.RegisterType<LockSettingsPageViewModel>();
             Container.RegisterType<IndicatorsViewModel>();
             Container.RegisterType<AddCredentialViewModel>();
             Container.RegisterType<NotificationsContainerViewModel>();

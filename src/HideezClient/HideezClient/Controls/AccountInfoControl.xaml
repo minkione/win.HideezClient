@@ -133,7 +133,6 @@
                     ma:VisibilityHelper.IsVisible="{Binding CanDelete}"
                     Background="Transparent"
                     Command="{Binding DataContext.DeleteAccountCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}}"
-                    Foreground="{DynamicResource PinkBrush}"
                     Style="{DynamicResource IconButtonStyle}">
                     <iconPacks:PackIconMaterial
                         Height="26"

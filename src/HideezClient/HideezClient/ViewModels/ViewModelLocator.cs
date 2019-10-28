@@ -123,21 +123,6 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<DeviceSettingsPageViewModel>(); }
         }
 
-        #region WaitingDelete
-        // TODO: Delete
-
-        public LockSettingsPageViewModel LockSettingsPage
-        {
-            get { return DIContainer.Resolve<LockSettingsPageViewModel>(); }
-        }
-
-        public LoginSystemPageViewModel LoginSystemViewModel
-        {
-            get { return DIContainer.Resolve<LoginSystemPageViewModel>(); }
-        }
-
-        #endregion
-
         #endregion
     }
 }

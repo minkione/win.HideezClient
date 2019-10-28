@@ -511,14 +511,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PagesView\LockSettingsPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="PagesView\LoginSystemPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Resources\Dictionaries\Constants.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -591,14 +583,6 @@
     <Compile Include="Modules\Localize\TranslationSource.cs" />
     <Compile Include="Modules\WindowsManager\IWindowsManager.cs" />
     <Compile Include="Modules\WindowsManager\WindowsManager.cs" />
-    <Compile Include="PagesView\LockSettingsPage.xaml.cs">
-      <DependentUpon>LockSettingsPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PagesView\LoginSystemPage.xaml.cs">
-      <DependentUpon>LoginSystemPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PageViewModels\LockSettingsPageViewModel.cs" />
-    <Compile Include="PageViewModels\LoginSystemPageViewModel.cs" />
     <Compile Include="Utilities\App\AppHelper.cs" />
     <Compile Include="Utilities\App\IAppHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\IStartupHelper.cs" />

@@ -8,7 +8,7 @@
     <SolidColorBrush x:Key="SliderTrackValueBrush" Color="#661BA2DC" />
     <SolidColorBrush x:Key="SliderTrackFillBrush" Color="#261BA2DC" />
     <SolidColorBrush x:Key="SliderTrackProximityValueBrush" Color="#CC1BA2DC" />
-    
+
     <Color x:Key="IcoButtonColor">#1BA2DC</Color>
     <SolidColorBrush x:Key="IcoButtonBrush" Color="{StaticResource IcoButtonColor}" />
 
@@ -78,6 +78,7 @@
 
     <!--  Other  -->
     <SolidColorBrush x:Key="ErrorBrush">#F6346B</SolidColorBrush>
+    <SolidColorBrush x:Key="DeliteIconButtonBrush" Color="#FC3085" />
 
     <DropShadowEffect
         x:Key="ShadowEffect"
@@ -95,20 +96,4 @@
         <GradientStop Offset="0" Color="#081C33" />
     </LinearGradientBrush>
 
-    <Color x:Key="Gray">#6E89A4</Color>
-
-    <SolidColorBrush x:Key="PinkBrush" Color="#FC3085" />
-    <SolidColorBrush x:Key="PinkBrushIsMouseOver" Color="#FB679B" />
-    <SolidColorBrush x:Key="PinkBrushIsPressed" Color="#BB255C" />
-    <SolidColorBrush x:Key="PinkBrushIsDisabled" Color="{StaticResource Gray}" />
-
-    <SolidColorBrush x:Key="BlueBrush" Color="#1BA2DC" />
-    <SolidColorBrush x:Key="BlueBrushIsMouseOver" Color="#54B9E5" />
-    <SolidColorBrush x:Key="BlueBrushIsPressed" Color="#147AA5" />
-    <SolidColorBrush x:Key="BlueBrushIsDisabled" Color="{StaticResource Gray}" />
-    <SolidColorBrush x:Key="NavyBlueBrush" Color="#22446D" />
-
-    <SolidColorBrush x:Key="SliderBlueBrush" Color="#641BA2DC" />
-
-    <SolidColorBrush x:Key="GrayBrush" Color="{StaticResource Gray}" />
 </ResourceDictionary>

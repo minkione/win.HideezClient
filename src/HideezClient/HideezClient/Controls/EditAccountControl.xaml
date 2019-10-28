@@ -238,7 +238,7 @@
                                                 <iconPacks:PackIconMaterial
                                                     Height="15"
                                                     Margin="3,0"
-                                                    Foreground="{StaticResource ErrorBrush}"
+                                                    Foreground="{StaticResource DeliteIconButtonBrush}"
                                                     Kind="Delete" />
                                             </Button>
 
@@ -426,7 +426,7 @@
                             <iconPacks:PackIconMaterial
                                 Height="15"
                                 Margin="3,0"
-                                Foreground="{DynamicResource ErrorBrush}"
+                                Foreground="{DynamicResource DeliteIconButtonBrush}"
                                 Kind="Delete" />
                         </Button>
                     </StackPanel>
@@ -569,7 +569,7 @@
                 Background="Transparent"
                 Click="Button_Click"
                 Command="{Binding DeleteAccountCommand}"
-                Foreground="{DynamicResource PinkBrush}"
+                Foreground="{DynamicResource DeliteIconButtonBrush}"
                 Style="{DynamicResource IconButtonStyle}">
                 <iconPacks:PackIconMaterial
                     Height="26"

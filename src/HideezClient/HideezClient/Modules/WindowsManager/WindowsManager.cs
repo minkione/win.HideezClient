@@ -22,6 +22,7 @@ namespace HideezClient.Modules
 {
     class WindowsManager : IWindowsManager
     {
+        private readonly IDialogManager dialogManager;
         private readonly ViewModelLocator _viewModelLocator;
         private string titleNotification;
         private readonly INotifier _notifier;
@@ -33,8 +34,10 @@ namespace HideezClient.Modules
 
         public event EventHandler<bool> MainWindowVisibleChanged;
 
-        public WindowsManager(INotifier notifier, ViewModelLocator viewModelLocator, IMessenger messenger)
+        public WindowsManager(IDialogManager dialogManager, INotifier notifier, ViewModelLocator viewModelLocator, IMessenger messenger)
         {
+            this.dialogManager = dialogManager;
+            // dialogManager.ShowDialog(DialogType.ChangePassword);
             _notifier = notifier;
             _viewModelLocator = viewModelLocator;
 

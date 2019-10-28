@@ -13,10 +13,12 @@
     StartupUri="Views\MainWindowView.xaml">
     <Application.Resources>
         <ResourceDictionary>
+
             <SolidColorBrush
                 x:Key="BlackColorBrush"
-                Opacity="0.75"
-                Color="#FF195F7C" />
+                Opacity="0.85"
+                Color="Black" />
+
             <sys:Double x:Key="HorizontalThumbWidth">24</sys:Double>
             <sys:Double x:Key="HorizontalThumbHeight">24</sys:Double>
 
