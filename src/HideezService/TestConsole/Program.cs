@@ -106,10 +106,23 @@ namespace TestConsole
                 // NOTE: If an ambiguous reference error occurs, check that TestConsole DOES NOT have 
                 // a reference to 'ServiceLibrary'. There should be only 'ServiceLibrary.Implementation' ref
                 service = new HideezServiceClient(instanceContext);
-                await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.TestConsole });
+                try
+                {
+                    await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.TestConsole });
 
-                // Disconnect from service
-                service.Close();
+                    // Disconnect from service
+                    service.Close();
+                }
+                catch (System.ServiceProcess.TimeoutException)
+                {
+                    // Handle the timeout exception
+                    service.Abort();
+                }
+                catch (CommunicationException)
+                {
+                    // Handle the communication exception
+                    service.Abort();
+                }
             }
             catch (Exception ex)
             {
