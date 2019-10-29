@@ -586,7 +586,7 @@ namespace HideezClient.Models
 
         Task<bool> PinWorkflow(CancellationToken ct)
         {
-            if (_remoteDevice.AccessLevel.IsNewPinRequired)
+            if (_remoteDevice.AccessLevel.IsPinRequired && _remoteDevice.AccessLevel.IsNewPinRequired)
             {
                 return SetPinWorkflow(ct);
             }
