@@ -21,6 +21,7 @@
 
         <ContentPresenter
             x:Name="Icon"
+            Tag="DarkBackground"
             Width="64"
             Height="64"
             VerticalAlignment="Center" />

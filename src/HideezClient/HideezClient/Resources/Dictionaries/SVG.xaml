@@ -4,15 +4,12 @@
     xmlns:local="clr-namespace:HideezClient.Resources">
 
     <!--  Pentagon Style  -->
-    <Style
-        xmlns:Controls="clr-namespace:HideezClient.Controls"
-        x:Key="PentagonStyle"
-        TargetType="Path">
-        <Setter Property="Fill" Value="#F4FEFF" />
+    <Style x:Key="PentagonStyle" TargetType="Path">
+        <Setter Property="Fill" Value="#22446D" />
         <Setter Property="Opacity" Value="0.1" />
         <Style.Triggers>
-            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Controls:NotificationBase}}" Value="{x:Null}">
-                <Setter Property="Fill" Value="#22446D" />
+            <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentPresenter}}" Value="DarkBackground">
+                <Setter Property="Fill" Value="#F4FEFF" />
             </DataTrigger>
         </Style.Triggers>
     </Style>

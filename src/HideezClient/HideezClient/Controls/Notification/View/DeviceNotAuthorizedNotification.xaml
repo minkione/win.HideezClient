@@ -21,6 +21,7 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <ContentPresenter
+            Tag="DarkBackground"
             Grid.RowSpan="3"
             Width="64"
             Height="64"
