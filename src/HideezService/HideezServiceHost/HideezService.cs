@@ -41,10 +41,23 @@ namespace HideezServiceHost
                 var instanceContext = new InstanceContext(callback);
 
                 var service = new HideezServiceClient(instanceContext);
-                await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.ServiceHost });
+                try
+                {
+                    await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.ServiceHost });
 
-                // Disconnect from service
-                service.Close();
+                    // Disconnect from service
+                    service.Close();
+                }
+                catch (System.ServiceProcess.TimeoutException)
+                {
+                    // Handle the timeout exception
+                    service.Abort();
+                }
+                catch (CommunicationException)
+                {
+                    // Handle the communication exception
+                    service.Abort();
+                }
             }
             catch (Exception ex)
             {

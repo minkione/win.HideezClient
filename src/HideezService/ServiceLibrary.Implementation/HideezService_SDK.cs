@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Proximity;
