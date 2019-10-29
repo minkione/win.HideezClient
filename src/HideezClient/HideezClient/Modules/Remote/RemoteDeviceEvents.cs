@@ -1,6 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.Interfaces;
+using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Remote;
 using HideezClient.Messages.Remote;
 using System;

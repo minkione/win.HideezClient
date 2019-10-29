@@ -1,22 +1,19 @@
 ﻿using System.Windows;
-using Hideez.SDK.Communication.Command;
+using Hideez.SDK.Communication.Device;
 
 namespace WinSampleApp
 {
-    /// <summary>
-    /// Interaction logic for AccessParamsWindow.xaml
-    /// </summary>
     public partial class AccessParamsWindow : Window
     {
         public AccessParamsWindow(AccessParams vm)
         {
-            this.DataContext = vm;
+            DataContext = vm;
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        void Button_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = true;
+            DialogResult = true;
         }
     }
 }

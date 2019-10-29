@@ -157,7 +157,7 @@ namespace HideezMiddleware
         {
             WriteLine($"OnCheckPin: {deviceId}");
 
-            PinReceived?.Invoke(this, new PinReceivedEventArgs()
+            SafeInvoke(PinReceived, new PinReceivedEventArgs()
             {
                 DeviceId = deviceId,
                 Pin = pin

@@ -173,8 +173,7 @@ namespace HideezMiddleware
                     {
                         if (!device.AccessLevel.IsLocked &&
                             !device.AccessLevel.IsButtonRequired &&
-                            !device.AccessLevel.IsPinRequired &&
-                            !device.AccessLevel.IsNewPinRequired)
+                            !device.AccessLevel.IsPinRequired)
                         {
                             var unlockResult = await TryUnlockWorkstation(device);
                             success = unlockResult.IsSuccessful;
@@ -401,7 +400,6 @@ namespace HideezMiddleware
                 if (string.IsNullOrWhiteSpace(pin))
                 {
                     // we received an empty PIN from the user. Trying again with the same timeout.
-                    Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY PIN");
                     WriteLine("Received empty PIN");
                     continue;
                 }

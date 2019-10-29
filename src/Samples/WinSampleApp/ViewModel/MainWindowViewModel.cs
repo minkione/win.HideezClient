@@ -2,8 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
-using System.Net.Security;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,7 +9,7 @@ using System.Windows.Input;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.Command;
+using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.FW;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
@@ -19,7 +17,6 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.LongOperations;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezMiddleware;
-using HideezMiddleware.Audit;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.Settings;
 using Microsoft.Win32;
@@ -788,24 +785,24 @@ namespace WinSampleApp.ViewModel
                 {
                     MasterKey_Bond = true,
                     MasterKey_Connect = false,
-                    MasterKey_Link = false,
+                    //MasterKey_Link = false,
                     MasterKey_Channel = false,
 
                     Button_Bond = false,
                     Button_Connect = false,
-                    Button_Link = true,
+                    //Button_Link = true,
                     Button_Channel = true,
 
                     Pin_Bond = false,
                     Pin_Connect = true,
-                    Pin_Link = false,
+                    //Pin_Link = false,
                     Pin_Channel = false,
 
                     PinMinLength = 4,
                     PinMaxTries = 3,
-                    MasterKeyExpirationPeriod = 24 * 60 * 60,
+                    MasterKeyExpirationPeriod = 0,
                     PinExpirationPeriod = 15 * 60,
-                    ButtonExpirationPeriod = 15,
+                    ButtonExpirationPeriod = 0,
                 };
 
                 _log = new EventLogger("ExampleApp");

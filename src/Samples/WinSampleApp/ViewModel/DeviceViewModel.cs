@@ -1,5 +1,5 @@
 ﻿using System;
-using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Interfaces;
 
 namespace WinSampleApp.ViewModel
