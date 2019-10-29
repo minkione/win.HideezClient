@@ -20,7 +20,6 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Row="1" Grid.Column="0" Content="Master Key"/>
@@ -29,41 +28,39 @@
 
             <Label Grid.Row="0" Grid.Column="1" Content="Bond"/>
             <Label Grid.Row="0" Grid.Column="2" Content="Connect"/>
-            <Label Grid.Row="0" Grid.Column="3" Content="Link"/>
-            <Label Grid.Row="0" Grid.Column="4" Content="Channel"/>
+            <!--<Label Grid.Row="0" Grid.Column="3" Content="Link"/>-->
+            <Label Grid.Row="0" Grid.Column="3" Content="Channel"/>
 
             <CheckBox  Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" 
                    IsChecked="{Binding MasterKey_Bond}"/>
             <CheckBox  Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" 
                    IsChecked="{Binding MasterKey_Connect}"/>
+            <!--<CheckBox  Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                   IsChecked="{Binding MasterKey_Link}"/>-->
             <CheckBox  Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center" 
-                   IsChecked="{Binding MasterKey_Link}"/>
-            <CheckBox  Grid.Row="1" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center" 
                    IsChecked="{Binding MasterKey_Channel}"/>
 
             <CheckBox  Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" 
                    IsChecked="{Binding Pin_Bond}"/>
             <CheckBox  Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" 
                    IsChecked="{Binding Pin_Connect}"/>
+            <!--<CheckBox  Grid.Row="2" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                   IsChecked="{Binding Pin_Link}"/>-->
             <CheckBox  Grid.Row="2" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center" 
-                   IsChecked="{Binding Pin_Link}"/>
-            <CheckBox  Grid.Row="2" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center" 
                    IsChecked="{Binding Pin_Channel}"/>
 
             <CheckBox  Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" 
                    IsChecked="{Binding Button_Bond}"/>
             <CheckBox  Grid.Row="3" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" 
                    IsChecked="{Binding Button_Connect}"/>
+            <!--<CheckBox  Grid.Row="3" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                   IsChecked="{Binding Button_Link}"/>-->
             <CheckBox  Grid.Row="3" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center" 
-                   IsChecked="{Binding Button_Link}"/>
-            <CheckBox  Grid.Row="3" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center" 
                    IsChecked="{Binding Button_Channel}"/>
         </Grid>
 
         <Grid Margin="10">
             <Grid.RowDefinitions>
-                <RowDefinition Height="25"/>
-                <RowDefinition Height="25"/>
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="25"/>
@@ -74,15 +71,15 @@
             </Grid.ColumnDefinitions>
             <Label Grid.Row="0" Grid.Column="0" Content="PIN min length"/>
             <Label Grid.Row="1" Grid.Column="0" Content="PIN max tries"/>
-            <Label Grid.Row="2" Grid.Column="0" Content="Master key expiration period"/>
+            <!--<Label Grid.Row="2" Grid.Column="0" Content="Master key expiration period"/>-->
             <Label Grid.Row="3" Grid.Column="0" Content="PIN expiration period"/>
-            <Label Grid.Row="4" Grid.Column="0" Content="Button expiration period"/>
+            <!--<Label Grid.Row="4" Grid.Column="0" Content="Button expiration period"/>-->
 
             <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding PinMinLength}"/>
             <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding PinMaxTries}"/>
-            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding MasterKeyExpirationPeriod}"/>
+            <!--<TextBox Grid.Row="2" Grid.Column="1" Text="{Binding MasterKeyExpirationPeriod}"/>-->
             <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding PinExpirationPeriod}"/>
-            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding ButtonExpirationPeriod}"/>
+            <!--<TextBox Grid.Row="4" Grid.Column="1" Text="{Binding ButtonExpirationPeriod}"/>-->
 
         </Grid>
 
