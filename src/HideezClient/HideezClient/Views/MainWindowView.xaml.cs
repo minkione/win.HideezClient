@@ -30,8 +30,8 @@ namespace HideezClient.Views
     /// </summary>
     public partial class MainWindowView : MetroWindow
     {
-        private BindingRaiseevent bindingRaiseeventSelectedDevice;
-        private BindingRaiseevent bindingToDeviceProperties;
+        private WeakPropertyObserver bindingRaiseeventSelectedDevice;
+        private readonly List<WeakPropertyObserver> bindings = new List<WeakPropertyObserver>();
 
         public MainWindowView()
         {
@@ -41,12 +41,28 @@ namespace HideezClient.Views
 
         private void DeviceInfo_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            bindingRaiseeventSelectedDevice = new BindingRaiseevent(e.NewValue, nameof(MainViewModel.SelectedDevice));
-            bindingRaiseeventSelectedDevice.ValueChanged += device =>
+            bindingRaiseeventSelectedDevice = new WeakPropertyObserver(e.NewValue, nameof(MainViewModel.SelectedDevice));
+            bindingRaiseeventSelectedDevice.ValueChanged += (name, device) =>
             {
-                bindingToDeviceProperties = new BindingRaiseevent(device, "");
-                bindingToDeviceProperties.ValueChanged += value => this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
+                this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
+
+                bindings.Clear();
+
+                // For all property delete commit from next line
+                // bindings.Add(new BindingRaiseevent(device, string.Empty));
+                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsConnected)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.FinishedMainFlow)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorized)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorizingRemoteDevice)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsCreatingRemoteDevice)));
+
+                bindings.ForEach(b => b.ValueChanged += DeviceValueChanged);
             };
+        }
+
+        private void DeviceValueChanged(string propName, object value)
+        {
+            this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
         }
 
         private void MetroWindow_Closing(object sender, CancelEventArgs e)

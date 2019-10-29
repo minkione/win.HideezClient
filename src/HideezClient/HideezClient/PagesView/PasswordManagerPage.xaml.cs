@@ -26,7 +26,7 @@ namespace HideezClient.PagesView
     {
         private Storyboard AnimationHideAccountInfo;
         private Storyboard AnimationShowAccountInfo;
-        private BindingRaiseevent bindingEditAccount;
+        private WeakPropertyObserver bindingEditAccount;
 
         public PasswordManagerPage()
         {

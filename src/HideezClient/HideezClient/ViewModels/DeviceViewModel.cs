@@ -25,7 +25,7 @@ namespace HideezClient.ViewModels
     {
         protected Device device;
         protected readonly ILogger _log = LogManager.GetCurrentClassLogger();
-        private BindingRaiseevent bindingRaiseeventIsStorageLoaded;
+        private WeakPropertyObserver bindingRaiseeventIsStorageLoaded;
 
         public DeviceViewModel(Device device)
         {
@@ -38,8 +38,8 @@ namespace HideezClient.ViewModels
             device.PropertyChanged += (sender, e) => RaisePropertyChanged(e.PropertyName);
 
             StorageLoadedStateChanged();
-            bindingRaiseeventIsStorageLoaded = new BindingRaiseevent(device, nameof(device.IsStorageLoaded));
-            bindingRaiseeventIsStorageLoaded.ValueChanged += obj => StorageLoadedStateChanged();
+            bindingRaiseeventIsStorageLoaded = new WeakPropertyObserver(device, nameof(device.IsStorageLoaded));
+            bindingRaiseeventIsStorageLoaded.ValueChanged += (propName, obj) => StorageLoadedStateChanged();
         }
         private void StorageLoadedStateChanged()
         {

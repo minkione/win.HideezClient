@@ -112,7 +112,6 @@
             <Canvas Clip="{StaticResource clip0}">
                 <Path
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    Name="path2"
                     Fill="#FF22446D"
                     Opacity="0.1">
                     <Path.Data>
@@ -645,11 +644,8 @@
                 </LinearGradientBrush.GradientStops>
             </LinearGradientBrush>
         </Canvas.Resources>
-        <!--  Unknown tag: metadata  -->
-        <!--  Unknown tag: sodipodi:namedview  -->
         <Path
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-            Name="path2"
             Fill="#FF1BA2DC"
             Opacity="0.1">
             <Path.Data>

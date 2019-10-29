@@ -360,7 +360,7 @@
     <Compile Include="Modules\SettingsManager\HSSettingsManager.cs" />
     <Compile Include="Modules\EventPublisher\EventPublisher.cs" />
     <Compile Include="Modules\EventPublisher\IEventPublisher.cs" />
-    <Compile Include="Mvvm\BindingRaiseevent.cs" />
+    <Compile Include="Mvvm\WeakPropertyObserver.cs" />
     <Compile Include="Mvvm\IRequireViewIdentification.cs" />
     <Compile Include="Mvvm\LocalizedObject.cs" />
     <Compile Include="Mvvm\ObservableObject.cs" />
