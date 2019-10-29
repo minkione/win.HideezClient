@@ -377,7 +377,7 @@ namespace HideezMiddleware
 
         Task<bool> PinWorkflow(IDevice device, int timeout, CancellationToken ct)
         {
-            if (device.AccessLevel.IsNewPinRequired)
+            if (device.AccessLevel.IsPinRequired && device.AccessLevel.IsNewPinRequired)
             {
                 return SetPinWorkflow(device, timeout, ct);
             }
