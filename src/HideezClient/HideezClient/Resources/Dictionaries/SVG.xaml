@@ -3,6 +3,20 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:HideezClient.Resources">
 
+    <!--  Pentagon Style  -->
+    <Style
+        xmlns:Controls="clr-namespace:HideezClient.Controls"
+        x:Key="PentagonStyle"
+        TargetType="Path">
+        <Setter Property="Fill" Value="#F4FEFF" />
+        <Setter Property="Opacity" Value="0.1" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Controls:NotificationBase}}" Value="{x:Null}">
+                <Setter Property="Fill" Value="#22446D" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <!--  Info Ico  -->
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -23,7 +37,7 @@
                     </LinearGradientBrush.GradientStops>
                 </LinearGradientBrush>
             </Canvas.Resources>
-            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#1a22446D">
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Style="{StaticResource PentagonStyle}">
                 <Path.Data>
                     <PathGeometry Figures="M32.7398 2.46267L5.1889 23.1712C3.03949 24.7841 1.4377 27.0705 0.615832 29.6987C-0.206039 32.327 -0.205258 35.1604 0.618063 37.7882L11.1071 71.127C11.9243 73.7298 13.5076 75.9962 15.631 77.6028C17.7543 79.2095 20.3091 80.0742 22.9308 80.0735H57.1428C59.7644 80.0742 62.3192 79.2095 64.4426 77.6028C66.5659 75.9962 68.1492 73.7298 68.9665 71.127L79.4555 37.7882C80.2788 35.1604 80.2796 32.327 79.4577 29.6987C78.6358 27.0705 77.034 24.7841 74.8846 23.1712L47.296 2.46267C45.1785 0.861815 42.6315 0 40.0179 0C37.4042 0 34.8573 0.861815 32.7398 2.46267V2.46267Z" FillRule="NonZero" />
                 </Path.Data>
@@ -70,7 +84,7 @@
                 </RectangleGeometry>
             </Canvas.Resources>
             <Canvas Clip="{StaticResource clip0}">
-                <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#1a22446D">
+                <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Style="{StaticResource PentagonStyle}">
                     <Path.Data>
                         <PathGeometry Figures="M32.7403 2.46267L5.18938 23.1712C3.03998 24.7841 1.43819 27.0705 0.61632 29.6987C-0.205551 32.327 -0.204769 35.1604 0.618551 37.7882L11.1075 71.127C11.9248 73.7298 13.5081 75.9962 15.6315 77.6028C17.7548 79.2095 20.3096 80.0742 22.9313 80.0735H57.1432C59.7649 80.0742 62.3197 79.2095 64.443 77.6028C66.5664 75.9962 68.1497 73.7298 68.967 71.127L79.456 37.7882C80.2793 35.1604 80.2801 32.327 79.4582 29.6987C78.6363 27.0705 77.0345 24.7841 74.8851 23.1712L47.2964 2.46267C45.179 0.861814 42.632 0 40.0184 0C37.4047 0 34.8578 0.861814 32.7403 2.46267Z" FillRule="NonZero" />
                     </Path.Data>
@@ -110,10 +124,7 @@
                 </RectangleGeometry>
             </Canvas.Resources>
             <Canvas Clip="{StaticResource clip0}">
-                <Path
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    Fill="#FF22446D"
-                    Opacity="0.1">
+                <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Style="{StaticResource PentagonStyle}">
                     <Path.Data>
                         <PathGeometry Figures="M32.7403 2.46267L5.18938 23.1712C3.03998 24.7841 1.43819 27.0705 0.61632 29.6987C-0.205551 32.327 -0.204769 35.1604 0.618551 37.7882L11.1075 71.127C11.9248 73.7298 13.5081 75.9962 15.6315 77.6028C17.7548 79.2095 20.3096 80.0742 22.9313 80.0735H57.1432C59.7649 80.0742 62.3197 79.2095 64.443 77.6028C66.5664 75.9962 68.1497 73.7298 68.967 71.127L79.456 37.7882C80.2793 35.1604 80.2801 32.327 79.4582 29.6987C78.6363 27.0705 77.0345 24.7841 74.8851 23.1712L47.2964 2.46267C45.179 0.861815 42.632 0 40.0184 0C37.4047 0 34.8578 0.861815 32.7403 2.46267V2.46267Z" FillRule="NonZero" />
                     </Path.Data>
@@ -152,7 +163,7 @@
                     </LinearGradientBrush.GradientStops>
                 </LinearGradientBrush>
             </Canvas.Resources>
-            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#1a22446D">
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Style="{StaticResource PentagonStyle}">
                 <Path.Data>
                     <PathGeometry Figures="M23.2816 1.75123L3.68988 16.4773C2.16142 17.6242 1.02237 19.2501 0.437925 21.1191C-0.146517 22.9881 -0.145961 25.003 0.439512 26.8716L7.89835 50.5792C8.47952 52.4301 9.60543 54.0417 11.1154 55.1842C12.6253 56.3267 14.4421 56.9416 16.3063 56.9412H40.6348C42.4991 56.9416 44.3159 56.3267 45.8258 55.1842C47.3357 54.0417 48.4617 52.4301 49.0428 50.5792L56.5017 26.8716C57.0871 25.003 57.0877 22.9881 56.5033 21.1191C55.9188 19.2501 54.7798 17.6242 53.2513 16.4773L33.6327 1.75123C32.1269 0.612846 30.3157 0 28.4572 0C26.5986 0 24.7874 0.612846 23.2816 1.75123Z" FillRule="NonZero" />
                 </Path.Data>
@@ -207,10 +218,7 @@
                     </LinearGradientBrush.GradientStops>
                 </LinearGradientBrush>
             </Canvas.Resources>
-            <Path
-                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                Fill="#FF22446D"
-                Opacity="0.1">
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Style="{StaticResource PentagonStyle}">
                 <Path.Data>
                     <PathGeometry Figures="M24.6285 1.85254L3.90335 17.4305C2.28646 18.6438 1.08151 20.3637 0.463259 22.3408C-0.154993 24.3179 -0.154405 26.4494 0.464938 28.4261L8.35528 53.5053C8.97007 55.4632 10.1611 57.1681 11.7584 58.3767C13.3557 59.5853 15.2775 60.2358 17.2497 60.2353H42.9856C44.9578 60.2358 46.8796 59.5853 48.4769 58.3767C50.0742 57.1681 51.2652 55.4632 51.88 53.5053L59.7704 28.4261C60.3897 26.4494 60.3903 24.3179 59.772 22.3408C59.1538 20.3637 57.9488 18.6438 56.332 17.4305L35.5784 1.85254C33.9855 0.6483 32.0695 0 30.1034 0C28.1373 0 26.2214 0.6483 24.6285 1.85254Z" FillRule="NonZero" />
                 </Path.Data>
