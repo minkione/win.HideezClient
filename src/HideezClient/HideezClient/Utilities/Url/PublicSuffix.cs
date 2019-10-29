@@ -92,16 +92,33 @@ namespace HideezClient.Utilities
 
         private void LoadSuffixListFromWeb()
         {
-            string strContent;
-            var webRequest = WebRequest.Create(urlSuffixList);
-            using (var response = webRequest.GetResponse())
-            using (var content = response.GetResponseStream())
-            using (var reader = new StreamReader(content))
+            try
             {
-                strContent = reader.ReadToEnd();
-            }
+                string strContent;
+                var webRequest = WebRequest.Create(urlSuffixList);
+                using (var response = webRequest.GetResponse())
+                using (var content = response.GetResponseStream())
+                using (var reader = new StreamReader(content))
+                {
+                    strContent = reader.ReadToEnd();
+                }
 
-            File.WriteAllText(fileFromLocal, strContent, encoding);
+                string directory = Path.GetDirectoryName(fileFromLocal);
+
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                if (Directory.Exists(directory))
+                {
+                    File.WriteAllText(fileFromLocal, strContent, encoding);
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         private string GetDataWithSuffix()
@@ -141,7 +158,7 @@ namespace HideezClient.Utilities
                     ThreadPool.QueueUserWorkItem(obj => LoadSuffixListFromWeb());
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Error(ex);
             }
