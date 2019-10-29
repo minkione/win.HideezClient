@@ -5,13 +5,17 @@
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
+    <!--  Slider  -->
     <SolidColorBrush x:Key="SliderTrackValueBrush" Color="#661BA2DC" />
     <SolidColorBrush x:Key="SliderTrackFillBrush" Color="#261BA2DC" />
     <SolidColorBrush x:Key="SliderTrackProximityValueBrush" Color="#CC1BA2DC" />
 
+    <!--  Icon button  -->
     <Color x:Key="IcoButtonColor">#1BA2DC</Color>
     <SolidColorBrush x:Key="IcoButtonBrush" Color="{StaticResource IcoButtonColor}" />
+    <SolidColorBrush x:Key="DeliteIconButtonBrush" Color="#FC3085" />
 
+    <!--  Foregraund  -->
     <SolidColorBrush x:Key="DarkForeground" Color="#22446D" />
     <SolidColorBrush x:Key="Foreground" Color="#6E89A4" />
     <SolidColorBrush x:Key="LightForeground" Color="#F4FEFF" />
@@ -19,6 +23,7 @@
 
     <SolidColorBrush x:Key="ComboBox.Popup.Background" Color="#E1F3F8" />
 
+    <!--  AccountItem  -->
     <SolidColorBrush x:Key="AccountItem.MouseOver.Background" Color="#E1F3F8" />
     <SolidColorBrush x:Key="AccountItem.Selected.Background" Color="#CCEBF4" />
 
@@ -78,19 +83,15 @@
 
     <!--  Other  -->
     <SolidColorBrush x:Key="ErrorBrush">#F6346B</SolidColorBrush>
-    <SolidColorBrush x:Key="DeliteIconButtonBrush" Color="#FC3085" />
 
+    <!--  ShadowEffect  -->
     <DropShadowEffect
         x:Key="ShadowEffect"
         BlurRadius="10"
         ShadowDepth="0"
         Color="#CEF2E7" />
 
-    <!--<LinearGradientBrush x:Key="WindowLeftColumBrush" MappingMode="RelativeToBoundingBox" StartPoint="1,0.3" EndPoint="0,1">
-        <GradientStop Offset="1" Color="#43C7D9" />
-        <GradientStop Offset="0" Color="#0E5F93" />
-    </LinearGradientBrush>-->
-
+    <!--  NotificationBackground  -->
     <LinearGradientBrush x:Key="NotificationBackground" MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="1,0">
         <GradientStop Offset="1" Color="#0E3059" />
         <GradientStop Offset="0" Color="#081C33" />
