@@ -16,7 +16,7 @@
 
             <SolidColorBrush
                 x:Key="BlackColorBrush"
-                Opacity="0.85"
+                Opacity="0.65"
                 Color="Black" />
 
             <sys:Double x:Key="HorizontalThumbWidth">24</sys:Double>

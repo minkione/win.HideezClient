@@ -1,0 +1,248 @@
+﻿<maDialog:BaseMetroDialog
+    x:Class="HideezClient.Dialogs.PinDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Converters="clr-namespace:MvvmExtensions.Converters;assembly=MvvmExtensions"
+    xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:adorners="http://gu.se/Adorners"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    xmlns:local="clr-namespace:HideezClient.Dialogs"
+    xmlns:ma="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:maDialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="Transparent"
+    FontSize="16"
+    mc:Ignorable="d">
+    <maDialog:BaseMetroDialog.Resources>
+        <Converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Converters:InvertBooleanToVisibilityConverter x:Key="InvertBooleanToVisibilityConverter" />
+        <!--<Behaviors:TabOnEnterBehavior x:Key="TabOnEnterBehavior" />-->
+
+        <Style x:Key="TitleTextBlockStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="{StaticResource DarkForeground}" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="TextAlignment" Value="Left" />
+            <Setter Property="Margin" Value="0,0,0,32" />
+        </Style>
+
+        <Style x:Key="LabelTextBlockStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="{StaticResource Foreground}" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="TextAlignment" Value="Right" />
+        </Style>
+
+        <Style x:Key="PinPasswordBoxStyle" TargetType="{x:Type PasswordBox}">
+            <Setter Property="Foreground" Value="{StaticResource DarkForeground}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="CaretBrush" Value="{StaticResource DarkForeground}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <!--  Watermark Text Style  -->
+        <Style x:Key="WatermarkTextStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontStyle" Value="Normal" />
+            <Setter Property="Opacity" Value="0.5" />
+            <Setter Property="Foreground" Value="{StaticResource Foreground}" />
+        </Style>
+    </maDialog:BaseMetroDialog.Resources>
+    <Border
+        MinWidth="385"
+        HorizontalAlignment="Center"
+        Background="{DynamicResource MainFontForeground}"
+        BorderBrush="#E1F3F8"
+        BorderThickness="1"
+        CornerRadius="10">
+
+        <Grid Margin="32">
+            <!--  Button UI  -->
+            <StackPanel Visibility="{Binding AskButton, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <ContentPresenter
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Width="64"
+                        Height="64"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Content="{StaticResource KeyHandIco}" />
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Style="{StaticResource TitleTextBlockStyle}"
+                        Text="Press the button on your device to confirm authorization" />
+                    <StackPanel
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                        <Metro:ProgressRing
+                            Width="32"
+                            Height="32"
+                            Margin="0,0,24,0"
+                            Foreground="{StaticResource ProgressRingBrush}" />
+                        <Button
+                            Command="{Binding CancelCommand}"
+                            Content="{l:Localization Button.Cancel}"
+                            Style="{StaticResource CancelButtonStyle}" />
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+
+            <!--  PIN UI  -->
+            <StackPanel Visibility="{Binding AskButton, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="25" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!--  PIN request UI  -->
+                    <StackPanel Visibility="{Binding InProgress, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+                        <Grid>
+                            <TextBlock
+                                Style="{StaticResource TitleTextBlockStyle}"
+                                Text="Set up new PIN for device"
+                                Visibility="{Binding IsNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <TextBlock
+                                Style="{StaticResource TitleTextBlockStyle}"
+                                Text="Enter device PIN"
+                                Visibility="{Binding IsEnterPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <TextBlock
+                                Style="{StaticResource TitleTextBlockStyle}"
+                                Text="Change device PIN"
+                                Visibility="{Binding IsChangePin, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        </Grid>
+
+                        <StackPanel>
+                            <ContentControl Style="{StaticResource UnderLine}" Visibility="{Binding AskCurrentPin, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="24" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Style="{StaticResource LabelTextBlockStyle}"
+                                        Text="Current PIN" />
+                                    <PasswordBox
+                                        x:Name="CurrentPinPasswordBox"
+                                        Grid.Column="2"
+                                        adorners:Watermark.Text="●●●●●●●●"
+                                        adorners:Watermark.TextStyle="{StaticResource WatermarkTextStyle}"
+                                        adorners:Watermark.VisibleWhen="EmptyAndNotKeyboardFocused"
+                                        IsTabStop="True"
+                                        IsVisibleChanged="PasswordBox_IsVisibleChanged"
+                                        MaxLength="{Binding MaxLenghtPin}"
+                                        PasswordChanged="CurrentPinPasswordBox_PasswordChanged"
+                                        PreviewTextInput="PasswordBox_PreviewTextInput"
+                                        Style="{StaticResource PinPasswordBoxStyle}" />
+                                </Grid>
+                            </ContentControl>
+
+
+                            <ContentControl Style="{StaticResource UnderLine}" Visibility="{Binding AskNewPin, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="24" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Style="{StaticResource LabelTextBlockStyle}" Text="New PIN" />
+                                    <PasswordBox
+                                        x:Name="NewPinPasswordBox"
+                                        Grid.Column="2"
+                                        adorners:Watermark.Text="●●●●●●●●"
+                                        adorners:Watermark.TextStyle="{StaticResource WatermarkTextStyle}"
+                                        adorners:Watermark.VisibleWhen="EmptyAndNotKeyboardFocused"
+                                        IsTabStop="True"
+                                        IsVisibleChanged="PasswordBox_IsVisibleChanged"
+                                        MaxLength="{Binding MaxLenghtPin}"
+                                        PasswordChanged="NewPinPasswordBox_PasswordChanged"
+                                        PreviewTextInput="PasswordBox_PreviewTextInput"
+                                        Style="{StaticResource PinPasswordBoxStyle}" />
+                                </Grid>
+                            </ContentControl>
+
+                            <ContentControl Style="{StaticResource UnderLine}" Visibility="{Binding AskConfirmPin, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="24" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Style="{StaticResource LabelTextBlockStyle}" Text="Confirm PIN" />
+                                    <PasswordBox
+                                        x:Name="ConfirmPinPasswordBox"
+                                        Grid.Column="2"
+                                        adorners:Watermark.Text="●●●●●●●●"
+                                        adorners:Watermark.TextStyle="{StaticResource WatermarkTextStyle}"
+                                        adorners:Watermark.VisibleWhen="EmptyAndNotKeyboardFocused"
+                                        IsTabStop="True"
+                                        IsVisibleChanged="PasswordBox_IsVisibleChanged"
+                                        MaxLength="{Binding MaxLenghtPin}"
+                                        PasswordChanged="ConfirmPinPasswordBox_PasswordChanged"
+                                        PreviewTextInput="PasswordBox_PreviewTextInput"
+                                        Style="{StaticResource PinPasswordBoxStyle}" />
+                                </Grid>
+                            </ContentControl>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!--  Operation in progress  -->
+                    <StackPanel Visibility="{Binding InProgress, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Processing" />
+                        <Metro:ProgressRing
+                            Width="64"
+                            Height="64"
+                            Margin="0,0,0,24"
+                            Foreground="{StaticResource ProgressRingBrush}" />
+                    </StackPanel>
+
+                    <StackPanel
+                        Grid.Row="2"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                        <Button
+                            Command="{Binding CancelCommand}"
+                            Content="{l:Localization Button.Cancel}"
+                            IsCancel="True"
+                            IsTabStop="True"
+                            Style="{DynamicResource CancelButtonStyle}" />
+
+                        <Button
+                            Margin="16,0,0,0"
+                            ma:VisibilityHelper.IsCollapsed="{Binding InProgress}"
+                            Command="{Binding ConfirmCommand}"
+                            Content="{l:Localization Button.Confirm}"
+                            IsDefault="True"
+                            IsTabStop="True"
+                            Style="{StaticResource ConfirmButtonStyle}" />
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Grid>
+    </Border>
+</maDialog:BaseMetroDialog>

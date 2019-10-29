@@ -1,26 +1,49 @@
 ﻿using HideezClient.ViewModels;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
-namespace HideezClient.Views
+namespace HideezClient.Dialogs
 {
     /// <summary>
-    /// Interaction logic for ConfirmPinView.xaml
+    /// Interaction logic for PinDialog.xaml
     /// </summary>
-    public partial class PinView : MetroWindow
+    public partial class PinDialog : BaseMetroDialog
     {
         readonly Regex onlyDigitsRegex = new Regex("[0-9]+");
 
-        public PinView()
+        public PinDialog()
         {
             InitializeComponent();
 
             if (DataContext != null)
             {
                 ((PinViewModel)DataContext).ViewModelUpdated += PinView_ViewModelUpdated;
+            }
+        }
+
+        public event EventHandler Closed;
+
+        public void Close()
+        {
+            if (Application.Current.MainWindow is MetroWindow metroWindow)
+            {
+                metroWindow.HideMetroDialogAsync(this);
+                Closed?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -51,19 +74,16 @@ namespace HideezClient.Views
         void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
             FocusFirstVisiblePasswordBox();
-            ActivateWindowAndBringToTop();
         }
 
         void PinView_ViewModelUpdated(object sender, System.EventArgs e)
         {
             FocusFirstVisiblePasswordBox();
-            ActivateWindowAndBringToTop();
         }
 
         void PasswordBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             FocusFirstVisiblePasswordBox();
-            ActivateWindowAndBringToTop();
         }
 
         void FocusFirstVisiblePasswordBox()
@@ -83,24 +103,16 @@ namespace HideezClient.Views
             }
         }
 
-        void ActivateWindowAndBringToTop()
-        {
-            if (WindowState == WindowState.Minimized)
-                WindowState = WindowState.Normal;
-
-            Activate();
-
-            Topmost = true;
-            Topmost = false;
-
-            Focus();
-        }
-
         void PasswordBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             // Ignore all entered symbols except digits
             if (!onlyDigitsRegex.IsMatch(e.Text))
                 e.Handled = true;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

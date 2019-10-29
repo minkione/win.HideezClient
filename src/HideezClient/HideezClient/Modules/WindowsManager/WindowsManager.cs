@@ -17,12 +17,14 @@ using System.Diagnostics;
 using System.Drawing;
 using HideezClient.Utilities;
 using System.Windows.Interop;
+using HideezClient.Dialogs;
+using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace HideezClient.Modules
 {
     class WindowsManager : IWindowsManager
     {
-        private readonly IDialogManager dialogManager;
         private readonly ViewModelLocator _viewModelLocator;
         private string titleNotification;
         private readonly INotifier _notifier;
@@ -30,14 +32,12 @@ namespace HideezClient.Modules
         private bool isMainWindowVisible;
 
         object pinWindowLock = new object();
-        PinView pinView = null;
+        PinDialog pinView = null;
 
         public event EventHandler<bool> MainWindowVisibleChanged;
 
-        public WindowsManager(IDialogManager dialogManager, INotifier notifier, ViewModelLocator viewModelLocator, IMessenger messenger)
+        public WindowsManager(INotifier notifier, ViewModelLocator viewModelLocator, IMessenger messenger)
         {
-            this.dialogManager = dialogManager;
-            // dialogManager.ShowDialog(DialogType.ChangePassword);
             _notifier = notifier;
             _viewModelLocator = viewModelLocator;
 
@@ -253,14 +253,17 @@ namespace HideezClient.Modules
                 {
                     UIDispatcher.Invoke(() =>
                     {
-                        var vm = _viewModelLocator.PinViewModel;
-                        vm.Initialize(obj.DeviceId);
-                        pinView = new PinView()
+                        if (MainWindow is MetroWindow metroWindow)
                         {
-                            DataContext = vm,
-                        };
-                        pinView.Closed += PinView_Closed;
-                        pinView.Show();
+                            var vm = _viewModelLocator.PinViewModel;
+                            vm.Initialize(obj.DeviceId);
+                            pinView = new PinDialog()
+                            {
+                                DataContext = vm,
+                            };
+                            pinView.Closed += PinView_Closed;
+                            metroWindow.ShowMetroDialogAsync(pinView);
+                        }
                     });
                 }
 
@@ -282,14 +285,17 @@ namespace HideezClient.Modules
                 {
                     UIDispatcher.Invoke(() =>
                     {
-                        var vm = _viewModelLocator.PinViewModel;
-                        vm.Initialize(obj.DeviceId);
-                        pinView = new PinView()
+                        if (MainWindow is MetroWindow metroWindow)
                         {
-                            DataContext = vm,
-                        };
-                        pinView.Closed += PinView_Closed;
-                        pinView.Show();
+                            var vm = _viewModelLocator.PinViewModel;
+                            vm.Initialize(obj.DeviceId);
+                            pinView = new PinDialog()
+                            {
+                                DataContext = vm,
+                            };
+                            pinView.Closed += PinView_Closed;
+                            metroWindow.ShowMetroDialogAsync(pinView);
+                        }
                     });
                 }
 
@@ -390,49 +396,53 @@ namespace HideezClient.Modules
 
         public Task ShowDeviceLockedAsync()
         {
-            var vm = new MessageBoxViewModel();
+            var vm = new MessageViewModel();
             vm.SetCaptionFormat("MessageBox.DeviceLocked.Caption");
             vm.SetMessageFormat("MessageBox.DeviceLocked.Message");
-            return ShowMessageBoxViewAsync(vm, "LockIco", "Button.Ok");
+            return ShowMessageViewAsync(vm, "LockIco", "Button.Ok");
         }
 
         public Task<bool> ShowDeleteCredentialsPromptAsync()
         {
-            var vm = new MessageBoxViewModel();
+            var vm = new MessageViewModel();
             vm.SetCaptionFormat("MessageBox.DeleteCredentials.Caption");
             vm.SetMessageFormat("MessageBox.DeleteCredentials.Message");
-            return ShowMessageBoxViewAsync(vm, "WarnIco", "Button.YesDelete", "Button.Cancel");
+            return ShowMessageViewAsync(vm, "WarnIco", "Button.YesDelete", "Button.Cancel");
         }
 
         public Task<bool> ShowDisconnectDevicePromptAsync(string deviceName)
         {
-            var vm = new MessageBoxViewModel();
+            var vm = new MessageViewModel();
             vm.SetCaptionFormat("MessageBox.DisconectDevice.Caption", deviceName);
             vm.SetMessageFormat("MessageBox.DisconectDevice.Message", deviceName);
-            return ShowMessageBoxViewAsync(vm, "WarnIco", "Button.Yes", "Button.No");
+            return ShowMessageViewAsync(vm, "WarnIco", "Button.Yes", "Button.No");
         }
 
         public Task<bool> ShowRemoveDevicePromptAsync(string deviceName)
         {
-            var vm = new MessageBoxViewModel();
+            var vm = new MessageViewModel();
             vm.SetCaptionFormat("MessageBox.DeleteDevice.Caption", deviceName);
             vm.SetMessageFormat("MessageBox.DeleteDevice.Message", deviceName);
-            return ShowMessageBoxViewAsync(vm, "WarnIco", "Button.Yes", "Button.No");
+            return ShowMessageViewAsync(vm, "WarnIco", "Button.Yes", "Button.No");
         }
 
-        private Task<bool> ShowMessageBoxViewAsync(MessageBoxViewModel viewModel, string icoKey, string confirmButtonTextKey = "Button.Ok", string cancelButtonTextKey = "")
+        private Task<bool> ShowMessageViewAsync(MessageViewModel viewModel, string icoKey, string confirmButtonTextKey = "Button.Ok", string cancelButtonTextKey = "")
         {
-            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+            viewModel.Tcs = new TaskCompletionSource<bool>();
 
             UIDispatcher.InvokeAsync(() =>
             {
-                var messageBox = new MessageBoxView(icoKey, confirmButtonTextKey, cancelButtonTextKey);
-                messageBox.DataContext = viewModel;
-                SetStartupLocation(messageBox, IsMainWindowVisible);
-                tcs.TrySetResult(messageBox.ShowDialog() ?? false);
+                var messageBox = new Dialogs.MessageDialog(icoKey, confirmButtonTextKey, cancelButtonTextKey)
+                {
+                    DataContext = viewModel
+                };
+                if (MainWindow is MetroWindow metroWindow)
+                {
+                    metroWindow.ShowMetroDialogAsync(messageBox);
+                }
             });
 
-            return tcs.Task;
+            return viewModel.Tcs.Task;
         }
     }
 }

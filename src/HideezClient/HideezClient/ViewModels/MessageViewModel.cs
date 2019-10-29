@@ -1,14 +1,16 @@
 ﻿using HideezClient.Modules.Localize;
 using HideezClient.Mvvm;
+using MvvmExtensions.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace HideezClient.ViewModels
 {
-    class MessageBoxViewModel : LocalizedObject
+    class MessageViewModel : LocalizedObject
     {
         private string caption;
         private object[] captionArgs;
@@ -27,9 +29,42 @@ namespace HideezClient.ViewModels
             messageArgs = args;
         }
 
+        public TaskCompletionSource<bool> Tcs { get; set; }
+
         [Localization]
         public string Caption { get { return string.Format(L(caption), captionArgs); } }
         [Localization]
         public string Message { get { return string.Format(L(message), messageArgs); } }
+        [Localization]
+        public string ConfirmButtonTextKey { get; set; }
+
+
+        public ICommand CancelCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        Tcs?.TrySetResult(false);
+                    }
+                };
+            }
+        }
+
+        public ICommand ConfirmCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        Tcs?.TrySetResult(true);
+                    }
+                };
+            }
+        }
     }
 }

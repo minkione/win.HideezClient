@@ -288,6 +288,12 @@
     <Compile Include="Converters\SerialNoAndFirmwareVerFormater.cs" />
     <Compile Include="Converters\SliderWidthToMinRangeWidthConverter.cs" />
     <Compile Include="Converters\StringToResource.cs" />
+    <Compile Include="Dialogs\MessageDialog.xaml.cs">
+      <DependentUpon>MessageDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\PinDialog.xaml.cs">
+      <DependentUpon>PinDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Exception\HideezClientException.cs" />
     <Compile Include="Extension\AccessLevelDTOExtension.cs" />
     <Compile Include="Extension\DeviceStateDTOExtension.cs" />
@@ -397,14 +403,11 @@
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
-    <Compile Include="ViewModels\MessageBoxViewModel.cs" />
+    <Compile Include="ViewModels\MessageViewModel.cs" />
     <Compile Include="ViewModels\NotificationsContainerViewModel.cs" />
     <Compile Include="PageViewModels\PasswordManagerViewModel.cs" />
     <Compile Include="ViewModels\Dialog\PinViewModel.cs" />
     <Compile Include="ViewModels\Account\AccountInfoViewModel.cs" />
-    <Compile Include="Views\MessageBoxView.xaml.cs">
-      <DependentUpon>MessageBoxView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
       <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>
     </Compile>
@@ -422,7 +425,6 @@
     <Compile Include="Views\Dialog\AddCredentialView.xaml.cs">
       <DependentUpon>AddCredentialView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Dialog\PinView.xaml.cs" />
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -436,6 +438,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\LeftMenuItemControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\MessageDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\PinDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -475,10 +485,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Dialogs\ChangePasswordDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="PagesView\DeviceSettingsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -500,10 +506,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Resources\Dictionaries\Converters.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\MessageBoxView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -543,9 +545,6 @@
     <Compile Include="Controls\StateControl.xaml.cs">
       <DependentUpon>StateControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\ChangePasswordDialog.xaml.cs">
-      <DependentUpon>ChangePasswordDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Models\Settings\HotkeySettings.cs" />
     <Compile Include="Models\UserAction.cs" />
     <Compile Include="Modules\HotkeyManager\BondTech\HotKeyManagement\Enums and Structs.cs" />
@@ -570,8 +569,6 @@
     <Compile Include="Modules\WorkstationManager\WorkstationManager.cs" />
     <Compile Include="Modules\BalloonNotify\BalloonTipNotifyManager.cs" />
     <Compile Include="Modules\BalloonNotify\IBalloonTipNotifyManager.cs" />
-    <Compile Include="Modules\DialogManager\DialogManager.cs" />
-    <Compile Include="Modules\DialogManager\IDialogManager.cs" />
     <Compile Include="Modules\HelpMenuFactory\IMenuFactory.cs" />
     <Compile Include="Modules\HelpMenuFactory\MenuFactory.cs" />
     <Compile Include="Modules\Localize\LocalizationAttribute.cs" />
@@ -599,10 +596,6 @@
       <DependentUpon>MainWindowView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Views\Dialog\PinView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

@@ -1,9 +1,9 @@
 ﻿using HideezClient.Modules.Localize;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,20 +13,16 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace HideezClient.Views
+namespace HideezClient.Dialogs
 {
-    /// <summary>
-    /// Interaction logic for MessageBoxView.xaml
-    /// </summary>
-    public partial class MessageBoxView : MetroWindow
+    public partial class MessageDialog : BaseMetroDialog
     {
-        public MessageBoxView(string icoKey, string confirmButtonTextKey = "Button.Ok", string cancelButtonTextKey = "")
+        public MessageDialog(string icoKey, string confirmButtonTextKey = "Button.Ok", string cancelButtonTextKey = "")
         {
             InitializeComponent();
-
-            this.Title = $"Hideez Client ({Assembly.GetExecutingAssembly().GetName().Version.ToString()})";
 
             this.IcoContainer.Content = this.TryFindResource(icoKey);
 
@@ -42,15 +38,13 @@ namespace HideezClient.Views
                 this.CancelButton.Visibility = Visibility.Visible;
             }
         }
-
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = false;
-        }
-
-        private void ConfirmButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.DialogResult = true;
+            if (Application.Current.MainWindow is MetroWindow metroWindow)
+            {
+                metroWindow.HideMetroDialogAsync(this);
+            }
         }
     }
 }

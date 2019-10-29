@@ -249,7 +249,6 @@ namespace HideezClient
 
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
             Container.RegisterType<IDeviceManager, DeviceManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ISessionStateMonitor, SessionStateMonitor>(new ContainerControlledLifetimeManager());
