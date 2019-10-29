@@ -140,18 +140,15 @@ namespace ServiceLibrary.Implementation
             var workstationInfoProvider = new WorkstationInfoProvider(hesAddress, _sdkLogger);
 
             // HES Connection ==================================
-            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sdkLogger)
-            {
-                ReconnectDelayMs = 10_000 // Todo: remove hes recoonect delay overwrite in stable version
-            };
-            _hesConnection.HubProximitySettingsArrived += (sender, receivedSettings) => Task.Run(() =>
+            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sdkLogger);
+            _hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
             {
                 _deviceProximitySettingsHelper.SaveOrUpdate(receivedSettings);
                 foreach (var client in sessionManager.Sessions)
                 {
                     client.Callbacks.ProximitySettingsChanged();
                 }
-            });
+            };
             _hesConnection.HubRFIDIndicatorStateArrived += (sender, isEnabled) =>
             {
                 ProximitySettings settings = _proximitySettingsManager.Settings;
