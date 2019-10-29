@@ -105,9 +105,6 @@ namespace HideezMiddleware.DeviceConnection
             if (adv == null)
                 return;
 
-            if (!_workstationUnlocker.IsConnected)
-                return;
-
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 1) == 1)
                 return;
 
@@ -127,21 +124,38 @@ namespace HideezMiddleware.DeviceConnection
                 return;
 
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
-            { 
+            {
                 try
                 {
-                    if (!_bleDeviceManager.Devices.Any(d => d.Mac == mac && !d.IsRemote && !d.IsBoot && d.IsConnected))
+                    var device = _bleDeviceManager.Devices.FirstOrDefault(d => d.Mac == mac && !d.IsRemote && !d.IsBoot);
+
+                    // Unlocked Workstation, Device not found OR Device not connected - dont add to ignore
+                    if (!_workstationUnlocker.IsConnected && (device == null || (device != null && !device.IsConnected)))
+                        return;
+
+                    try
                     {
-                        await _connectionFlowProcessor.ConnectAndUnlock(mac, OnUnlockAttempt);
+                        // Unlocked Workstation, Device connected - add to ignore
+                        if (!_workstationUnlocker.IsConnected && device != null && device.IsConnected)
+                            return;
+
+                        // Locked Workstation, Device not found OR not connected - connect add to ignore
+                        if (_workstationUnlocker.IsConnected && (device == null || (device != null && !device.IsConnected)))
+                        {
+                            await _connectionFlowProcessor.ConnectAndUnlock(mac, OnUnlockAttempt);
+                        }
                     }
-                }
-                catch (Exception)
-                {
-                    // Silent handling. Log is already printed inside of _connectionFlowProcessor.ConnectAndUnlock()
+                    catch (Exception)
+                    {
+                        // Silent handling. Log is already printed inside of _connectionFlowProcessor.ConnectAndUnlock()
+                    }
+                    finally
+                    {
+                        _advIgnoreListMonitor.Ignore(mac);
+                    }
                 }
                 finally
                 {
-                    _advIgnoreListMonitor.Ignore(mac);
                     Interlocked.Exchange(ref _isConnecting, 0);
                 }
             }

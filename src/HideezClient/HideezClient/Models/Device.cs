@@ -359,7 +359,7 @@ namespace HideezClient.Models
 
         public async Task AuthorizeAndLoadStorage()
         {
-            if (Interlocked.CompareExchange(ref _interlockedRemote, 1, 0) == 1)
+            if (Interlocked.CompareExchange(ref _interlockedRemote, 1, 0) == 0)
             {
                 try
                 {
