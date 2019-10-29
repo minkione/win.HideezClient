@@ -49,7 +49,7 @@ namespace HideezMiddleware
                     if (!_authorizedDevicesList.Contains(device))
                     {
                         WriteLine($"Device ({device.Id}) added as valid to trigger workstation lock");
-                        device.ConnectionStateChanged += Device_ConnectionStateChanged;
+                        device.Disconnected += Device_Disconnected;
                         _authorizedDevicesList.Add(device);
                     }
                 }
@@ -64,7 +64,7 @@ namespace HideezMiddleware
         }
 
         bool disposed = false;
-        void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
                 return;
@@ -79,7 +79,7 @@ namespace HideezMiddleware
                 _proximityMonitorManager.DeviceProximityTimeout -= ProximityMonitorManager_DeviceProximityTimeout;
 
                 foreach (var device in _authorizedDevicesList)
-                    device.Authorized -= Device_ConnectionStateChanged;
+                    device.Disconnected -= Device_Disconnected;
             }
 
             disposed = true;
@@ -111,11 +111,11 @@ namespace HideezMiddleware
             lock (_deviceListsLock)
             {
                 _authorizedDevicesList.RemoveAll(d => d == e.RemovedDevice);
-                e.RemovedDevice.Authorized -= Device_ConnectionStateChanged;
+                e.RemovedDevice.Disconnected -= Device_Disconnected;
             }
         }
 
-        private void Device_ConnectionStateChanged(object sender, EventArgs e)
+        void Device_Disconnected(object sender, EventArgs e)
         {
             if (sender is IDevice device)
             {
