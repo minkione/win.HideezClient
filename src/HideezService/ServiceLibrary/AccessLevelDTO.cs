@@ -1,4 +1,4 @@
-﻿using Hideez.SDK.Communication.Interfaces;
+﻿using Hideez.SDK.Communication.Device;
 using System.Runtime.Serialization;
 
 namespace ServiceLibrary
