@@ -277,10 +277,7 @@ namespace HideezClient.Modules
                     {
                         var vm = _viewModelLocator.PinViewModel;
                         vm.Initialize(obj.DeviceId);
-                        pinView = new PinView()
-                        {
-                            DataContext = vm,
-                        };
+                        pinView = new PinView(vm);
                         pinView.Closed += PinView_Closed;
                         pinView.Show();
                     }
@@ -291,10 +288,7 @@ namespace HideezClient.Modules
                         {
                             var vm = _viewModelLocator.PinViewModel;
                             vm.Initialize(obj.DeviceId);
-                            pinView = new PinView()
-                            {
-                                DataContext = vm,
-                            };
+                            pinView = new PinView(vm);
                             pinView.Closed += PinView_Closed;
                             pinView.Show();
                         });
@@ -328,10 +322,7 @@ namespace HideezClient.Modules
                     {
                         var vm = _viewModelLocator.PinViewModel;
                         vm.Initialize(obj.DeviceId);
-                        pinView = new PinView()
-                        {
-                            DataContext = vm,
-                        };
+                        pinView = new PinView(vm);
                         pinView.Closed += PinView_Closed;
                         pinView.Show();
                     }
@@ -342,10 +333,7 @@ namespace HideezClient.Modules
                         {
                             var vm = _viewModelLocator.PinViewModel;
                             vm.Initialize(obj.DeviceId);
-                            pinView = new PinView()
-                            {
-                                DataContext = vm,
-                            };
+                            pinView = new PinView(vm);
                             pinView.Closed += PinView_Closed;
                             pinView.Show();
                         });
