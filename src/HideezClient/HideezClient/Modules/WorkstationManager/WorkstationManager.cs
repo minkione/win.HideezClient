@@ -53,9 +53,9 @@ namespace HideezClient.Modules
             if (sessionStateMonitor.CurrentState == SessionState.Locked ||
                 sessionStateMonitor.CurrentState == SessionState.Unknown)
             {
-                // Should trigger activation of the screen in credential provider with 0 impact on user
-                inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.ESCAPE);
-                inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.ESCAPE);
+                // Should trigger activation of the screen in credential provider with zero impact on user
+                //inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F12);
+                inputSimulator.Mouse.RightButtonClick(); // Windows 10 lockui ignores right mouse button for controls interaction
             }
         }
 

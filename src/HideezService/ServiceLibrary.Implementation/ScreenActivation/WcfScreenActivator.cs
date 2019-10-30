@@ -1,9 +1,10 @@
-﻿using HideezMiddleware;
+﻿using HideezMiddleware.ScreenActivation;
 using ServiceLibrary.Implementation.ClientManagement;
+using System;
 
 namespace ServiceLibrary.Implementation.ScreenActivation
 {
-    class WcfScreenActivator : IScreenActivator
+    class WcfScreenActivator : ScreenActivator
     {
         readonly ServiceClientSessionManager _sessionManager;
 
@@ -12,10 +13,16 @@ namespace ServiceLibrary.Implementation.ScreenActivation
             _sessionManager = sessionManager;
         }
 
-        public void ActivateScreen()
+        public override void ActivateScreen()
         {
             foreach (var client in _sessionManager.Sessions)
-                client.Callbacks.ActivateWorkstationScreenRequest();
+            {
+                try
+                {
+                    client.Callbacks.ActivateWorkstationScreenRequest();
+                }
+                catch (Exception ex) { }
+            }
         }
     }
 }

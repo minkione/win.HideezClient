@@ -14,7 +14,7 @@ using System;
 
 namespace HideezClient.ViewModels
 {
-    class PinViewModel : ObservableObject
+    public class PinViewModel : ObservableObject
     {
         readonly IMessenger _messenger;
         readonly IDeviceManager _deviceManager;
@@ -37,6 +37,7 @@ namespace HideezClient.ViewModels
         uint _maxLenghtPin = 8;
 
         public event EventHandler ViewModelUpdated;
+        public event EventHandler PasswordsCleared;
 
         public PinViewModel(IMessenger messenger, IDeviceManager deviceManager)
         {
@@ -315,7 +316,7 @@ namespace HideezClient.ViewModels
 
             _messenger.Send(new SendPinMessage(Device.Id, pinBytes, oldPinBytes));
 
-            ClearPasswordBoxes();
+            ClearPasswords();
         }
 
         void OnCancel()
@@ -324,16 +325,18 @@ namespace HideezClient.ViewModels
             Device.CancelDeviceAuthorization();
         }
 
-        void ClearPasswordBoxes()
+        void ClearPasswords()
         {
             SecureCurrentPin?.Clear();
             SecureNewPin?.Clear();
             SecureConfirmPin?.Clear();
+
+            PasswordsCleared?.Invoke(this, EventArgs.Empty);
         }
 
         void ResetProgress()
         {
-            ClearPasswordBoxes();
+            ClearPasswords();
             InProgress = false;
         }
 
