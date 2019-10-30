@@ -128,11 +128,11 @@ namespace HideezMiddleware
                 await _ui.SendNotification("", _infNid);
                 await _ui.SendError("", _errNid);
 
-                _screenActivator?.ActivateScreen();
-                _screenActivator?.StartPeriodicScreenActivation(0);
-
                 if (WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Locked)
                 {
+                    _screenActivator?.ActivateScreen();
+                    _screenActivator?.StartPeriodicScreenActivation(0);
+
                     await new WaitWorkstationUnlockerConnectProc(_workstationUnlocker)
                         .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct); 
                 }
