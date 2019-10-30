@@ -53,6 +53,7 @@ namespace HideezClient.Controls
                     switch (viewModel.State)
                     {
                         case LoadedCredentialsState.Loading:
+                            this.StartTimer(TimeSpan.FromSeconds(3));
                             this.Icon.Content = this.TryFindResource("IcoKeyProcess");
                             break;
                         case LoadedCredentialsState.Loaded:
@@ -61,7 +62,7 @@ namespace HideezClient.Controls
                             break;
                         case LoadedCredentialsState.Fail:
                             this.StartTimer(TimeSpan.FromSeconds(5));
-
+                            // TODO: Edd icon fail loading
                             break;
                         case LoadedCredentialsState.Cancel:
                             this.Close();
