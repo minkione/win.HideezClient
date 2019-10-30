@@ -52,15 +52,16 @@ namespace HideezClient.Controls
                 {
                     switch (viewModel.State)
                     {
+                        case LoadedCredentialsState.Loading:
+                            this.Icon.Content = this.TryFindResource("IcoKeyProcess");
+                            break;
                         case LoadedCredentialsState.Loaded:
                             this.StartTimer(TimeSpan.FromSeconds(3));
-                            IcoLoadState.Kind = PackIconFontAwesomeKind.CheckCircleSolid;
-                            IcoLoadState.Foreground = Brushes.LightGreen;
+                            this.Icon.Content = this.TryFindResource("IconKeyFinish");
                             break;
                         case LoadedCredentialsState.Fail:
                             this.StartTimer(TimeSpan.FromSeconds(5));
-                            IcoLoadState.Kind = PackIconFontAwesomeKind.TimesSolid;
-                            IcoLoadState.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ff3030"));
+
                             break;
                         case LoadedCredentialsState.Cancel:
                             this.Close();

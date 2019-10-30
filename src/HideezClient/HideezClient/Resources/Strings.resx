@@ -555,8 +555,8 @@ to access stored credentials</value>
   <data name="PM.Label.AccountName" xml:space="preserve">
     <value>Account Name</value>
   </data>
-  <data name="PM.Label.Pasword" xml:space="preserve">
-    <value>Pasword</value>
+  <data name="PM.Label.Password" xml:space="preserve">
+    <value>Password</value>
   </data>
   <data name="Button.Yes" xml:space="preserve">
     <value>Yes</value>

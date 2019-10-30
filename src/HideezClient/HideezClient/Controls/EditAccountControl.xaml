@@ -134,14 +134,14 @@
                     <TextBlock
                         VerticalAlignment="Center"
                         Style="{StaticResource LabelStyle}"
-                        Text="{l:Localization PM.Label.Pasword}" />
+                        Text="{l:Localization PM.Label.Password}" />
 
                     <PasswordBox
                         x:Name="PasswordBox"
                         Grid.Column="2"
                         VerticalAlignment="Center"
                         ma:PasswordBoxHelper.CapsLockWarningToolTip="CapsLock is enabled"
-                        ma:TextBoxHelper.Watermark="{l:Localization PM.Label.Pasword}"
+                        ma:TextBoxHelper.Watermark="{l:Localization PM.Label.Password}"
                         Background="Transparent"
                         BorderThickness="0"
                         CaretBrush="{DynamicResource DarkForeground}"

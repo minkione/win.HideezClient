@@ -14,6 +14,136 @@
         </Style.Triggers>
     </Style>
 
+    <!--  Ico Key Process  -->
+    <Viewbox
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        x:Key="IcoKeyProcess"
+        Stretch="Uniform">
+        <Canvas Width="64" Height="64">
+            <Canvas.RenderTransform>
+                <TranslateTransform X="0" Y="0" />
+            </Canvas.RenderTransform>
+            <Canvas.Resources>
+                <LinearGradientBrush xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Key="paint0_linear" MappingMode="Absolute" StartPoint="13,62" EndPoint="61,13">
+                    <LinearGradientBrush.GradientStops>
+                        <GradientStopCollection>
+                            <GradientStop Color="#43C7D9" />
+                            <GradientStop Offset="1" Color="#0E5F93" />
+                        </GradientStopCollection>
+                    </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+                <LinearGradientBrush xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Key="paint1_linear" MappingMode="Absolute" StartPoint="20,41" EndPoint="20,63">
+                    <LinearGradientBrush.GradientStops>
+                        <GradientStopCollection>
+                            <GradientStop Color="#0E3059" />
+                            <GradientStop Offset="1" Color="#081C33" />
+                        </GradientStopCollection>
+                    </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+            </Canvas.Resources>
+            <Path
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                Fill="#F4FEFF"
+                Opacity="0.1">
+                <Path.Data>
+                    <PathGeometry Figures="M23.2816 1.75123L3.68988 16.4773C2.16142 17.6242 1.02237 19.2501 0.437925 21.1191C-0.146517 22.9881 -0.145961 25.003 0.439512 26.8716L7.89835 50.5792C8.47952 52.4301 9.60543 54.0417 11.1154 55.1842C12.6253 56.3267 14.4421 56.9416 16.3063 56.9412H40.6348C42.4991 56.9416 44.3159 56.3267 45.8258 55.1842C47.3357 54.0417 48.4617 52.4301 49.0428 50.5792L56.5017 26.8716C57.0871 25.003 57.0877 22.9881 56.5033 21.1191C55.9188 19.2501 54.7798 17.6242 53.2513 16.4773L33.6327 1.75123C32.1269 0.612846 30.3157 0 28.4572 0C26.5986 0 24.7874 0.612846 23.2816 1.75123Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="{StaticResource paint0_linear}">
+                <Path.Data>
+                    <PathGeometry Figures="M40.6431 60.018C38.6289 62.0462 35.3536 62.0603 33.3254 60.0462L14.2383 41.1144C12.2101 39.1003 12.1913 35.825 14.2054 33.7921L33.1372 14.705C35.1466 12.6768 38.4266 12.6674 40.4501 14.6768L59.5419 33.6086C61.5701 35.618 61.5842 38.8933 59.5701 40.9262L40.6431 60.018Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF4FEFF">
+                <Path.Data>
+                    <PathGeometry Figures="M39.843 27.5381C38.1018 29.2981 35.2594 29.3075 33.5089 27.5663C31.7489 25.8251 31.7394 22.9828 33.4806 21.2275C35.2218 19.4675 38.0642 19.4581 39.8195 21.1993C41.5747 22.9404 41.5889 25.7781 39.843 27.5381Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF4FEFF">
+                <Path.Data>
+                    <PathGeometry Figures="M39.49 55.5846C39.49 57.0199 38.3276 58.1822 36.8923 58.1822C35.457 58.1822 34.2947 57.0199 34.2947 55.5846L35.1182 37.0293C35.1182 35.594 35.457 34.4316 36.8923 34.4316C38.3276 34.4316 38.6429 35.594 38.6429 37.0293L39.49 55.5846Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+            <Ellipse
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                Canvas.Left="8.5"
+                Canvas.Top="40.5"
+                Width="22.8"
+                Height="22.8"
+                Fill="{StaticResource paint1_linear}" />
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF4FEFF">
+                <Path.Data>
+                    <PathGeometry Figures="M27.4963 51.907C27.4963 55.5941 24.8487 58.6744 21.3538 59.3497V61.3928L15.7968 58.2083L21.3538 55.0237V56.8942C23.5187 56.2676 25.1065 54.2698 25.1065 51.907C25.1065 49.0439 22.7758 46.7145 19.9111 46.7145C17.0464 46.7145 14.7157 49.0439 14.7157 51.907C14.7157 52.6781 14.8805 53.4197 15.2055 54.1113L13.0424 55.1267C12.567 54.1151 12.3259 53.0318 12.3259 51.907C12.326 47.727 15.7287 44.3262 19.9112 44.3262C24.0936 44.3262 27.4963 47.727 27.4963 51.907Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <!--  Icon key finish  -->
+    <Viewbox
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        x:Key="IconKeyFinish"
+        Stretch="Uniform">
+        <Canvas Width="64" Height="64">
+            <Canvas.RenderTransform>
+                <TranslateTransform X="0" Y="0" />
+            </Canvas.RenderTransform>
+            <Canvas.Resources>
+                <LinearGradientBrush xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Key="paint0_linear" MappingMode="Absolute" StartPoint="13,62" EndPoint="61,13">
+                    <LinearGradientBrush.GradientStops>
+                        <GradientStopCollection>
+                            <GradientStop Color="#43C7D9" />
+                            <GradientStop Offset="1" Color="#0E5F93" />
+                        </GradientStopCollection>
+                    </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+                <LinearGradientBrush xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Key="paint1_linear" MappingMode="Absolute" StartPoint="20,41" EndPoint="20,63">
+                    <LinearGradientBrush.GradientStops>
+                        <GradientStopCollection>
+                            <GradientStop Color="#0E3059" />
+                            <GradientStop Offset="1" Color="#081C33" />
+                        </GradientStopCollection>
+                    </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+            </Canvas.Resources>
+            <Path
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                Fill="#F4FEFF"
+                Opacity="0.1">
+                <Path.Data>
+                    <PathGeometry Figures="M23.2816 1.75123L3.68988 16.4773C2.16142 17.6242 1.02237 19.2501 0.437925 21.1191C-0.146517 22.9881 -0.145961 25.003 0.439512 26.8716L7.89835 50.5792C8.47952 52.4301 9.60543 54.0417 11.1154 55.1842C12.6253 56.3267 14.4421 56.9416 16.3063 56.9412H40.6348C42.4991 56.9416 44.3159 56.3267 45.8258 55.1842C47.3357 54.0417 48.4617 52.4301 49.0428 50.5792L56.5017 26.8716C57.0871 25.003 57.0877 22.9881 56.5033 21.1191C55.9188 19.2501 54.7798 17.6242 53.2513 16.4773L33.6327 1.75123C32.1269 0.612846 30.3157 0 28.4572 0C26.5986 0 24.7874 0.612846 23.2816 1.75123Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="{StaticResource paint0_linear}">
+                <Path.Data>
+                    <PathGeometry Figures="M40.6431 60.018C38.6289 62.0462 35.3536 62.0603 33.3254 60.0462L14.2383 41.1144C12.2101 39.1003 12.1913 35.825 14.2054 33.7921L33.1372 14.705C35.1466 12.6768 38.4266 12.6674 40.4501 14.6768L59.5419 33.6086C61.5701 35.618 61.5842 38.8933 59.5701 40.9262L40.6431 60.018Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF4FEFF">
+                <Path.Data>
+                    <PathGeometry Figures="M39.843 27.5381C38.1018 29.2981 35.2594 29.3075 33.5089 27.5663C31.7489 25.8251 31.7394 22.9828 33.4806 21.2275C35.2218 19.4675 38.0642 19.4581 39.8195 21.1993C41.5747 22.9404 41.5889 25.7781 39.843 27.5381Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF4FEFF">
+                <Path.Data>
+                    <PathGeometry Figures="M39.49 55.5846C39.49 57.0199 38.3276 58.1822 36.8923 58.1822C35.457 58.1822 34.2947 57.0199 34.2947 55.5846L35.1182 37.0293C35.1182 35.594 35.457 34.4316 36.8923 34.4316C38.3276 34.4316 38.6429 35.594 38.6429 37.0293L39.49 55.5846Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+            <Ellipse
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                Canvas.Left="8.5"
+                Canvas.Top="40.5"
+                Width="22.8"
+                Height="22.8"
+                Fill="{StaticResource paint1_linear}" />
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF4FEFF">
+                <Path.Data>
+                    <PathGeometry Figures="M26.3111 49.5632L24.4293 47.6445L19.1262 53.0323L16.1039 49.9508L14.2222 51.8695L19.1452 56.889L26.3111 49.5632Z" FillRule="NonZero" />
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
     <!--  Info Ico  -->
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -554,8 +684,6 @@
                 <TranslateTransform X="0" Y="0" />
             </Canvas.RenderTransform>
             <Canvas.Resources />
-            <!--  Unknown tag: metadata  -->
-            <!--  Unknown tag: sodipodi:namedview  -->
             <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF4FEFF">
                 <Path.Data>
                     <PathGeometry Figures="M6.94667 11.6223C6.44412 12.1239 5.63769 12.1239 5.13514 11.634L0.37839 6.93317C-0.124165 6.43159 -0.124165 5.62673 0.366703 5.11349L5.06501 0.377655C5.56757 -0.123924 6.374 -0.123924 6.87655 0.36599L11.6216 5.05517C12.1242 5.55674 12.1242 6.3616 11.6333 6.86318L6.94667 11.6223ZM6.79117 3.3354C6.35873 3.76699 5.65749 3.77866 5.21338 3.34706C4.78094 2.91547 4.76926 2.2156 5.20169 1.77234C5.63412 1.34075 6.33536 1.32909 6.77948 1.76068C7.2236 2.20393 7.23528 2.90381 6.79117 3.3354ZM5.98019 11.0424C6.33081 11.0424 6.62299 10.7625 6.62299 10.4009L6.42431 5.80501C6.42431 5.45508 6.3425 5.16346 5.99188 5.16346C5.62957 5.16346 5.54776 5.45508 5.54776 5.80501L5.33739 10.4009C5.33739 10.7508 5.62957 11.0424 5.98019 11.0424Z" FillRule="EvenOdd" />
