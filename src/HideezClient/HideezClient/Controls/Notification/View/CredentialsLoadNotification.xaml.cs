@@ -62,7 +62,7 @@ namespace HideezClient.Controls
                             break;
                         case LoadedCredentialsState.Fail:
                             this.StartTimer(TimeSpan.FromSeconds(5));
-                            // TODO: Edd icon fail loading
+                            // TODO: Add icon fail loading
                             break;
                         case LoadedCredentialsState.Cancel:
                             this.Close();

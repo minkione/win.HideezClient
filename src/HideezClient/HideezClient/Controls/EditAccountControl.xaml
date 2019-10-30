@@ -446,19 +446,24 @@
                             IsChecked="{Binding HasOpt, Mode=OneWay}"
                             Style="{DynamicResource CancelButtonStyle}" />
 
-                        <Rectangle Width="14" />
+                        <Border
+                            Margin="-8,0,0,0"
+                            Padding="10,0,10,0"
+                            Background="#BBEAF8"
+                            CornerRadius="0 8 8 0">
 
-                        <Button
-                            VerticalAlignment="Center"
-                            Background="Transparent"
-                            Command="{Binding ScanOtpSecretFromQRCodeCommand}"
-                            DockPanel.Dock="Right"
-                            Style="{DynamicResource IconButtonStyle}">
-                            <iconPacks:PackIconFontAwesome
-                                Height="24"
-                                Foreground="{DynamicResource IcoButtonBrush}"
-                                Kind="QrcodeSolid" />
-                        </Button>
+                            <Button
+                                VerticalAlignment="Center"
+                                Background="Transparent"
+                                Command="{Binding ScanOtpSecretFromQRCodeCommand}"
+                                DockPanel.Dock="Right"
+                                Style="{DynamicResource IconButtonStyle}">
+                                <iconPacks:PackIconFontAwesome
+                                    Height="24"
+                                    Foreground="{StaticResource DarkForeground}"
+                                    Kind="QrcodeSolid" />
+                            </Button>
+                        </Border>
                     </StackPanel>
 
                 </DockPanel>
