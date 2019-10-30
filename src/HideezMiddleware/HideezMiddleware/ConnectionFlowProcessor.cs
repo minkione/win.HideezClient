@@ -10,6 +10,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Tasks;
 using Hideez.SDK.Communication.Utils;
+using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Tasks;
 using Microsoft.Win32;
 
@@ -128,6 +129,7 @@ namespace HideezMiddleware
                 await _ui.SendError("", _errNid);
 
                 _screenActivator?.ActivateScreen();
+                _screenActivator?.StartPeriodicScreenActivation(0);
 
                 if (WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Locked)
                 {
@@ -228,6 +230,7 @@ namespace HideezMiddleware
                     device.Disconnected -= OnDeviceDisconnectedDuringFlow;
                     device.OperationCancelled -= OnUserCancelledByButton;
                 }
+                _screenActivator?.StopPeriodicScreenActivation();
             }
 
             // Cleanup
