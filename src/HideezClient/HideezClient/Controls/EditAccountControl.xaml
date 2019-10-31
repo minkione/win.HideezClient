@@ -103,7 +103,6 @@
                         Grid.Column="2"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Center"
-                        ma:TextBoxHelper.ClearTextButton="True"
                         ma:TextBoxHelper.Watermark="{l:Localization PM.Label.Login}"
                         BorderThickness="0"
                         FontSize="16"

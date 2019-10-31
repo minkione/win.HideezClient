@@ -137,6 +137,14 @@
                             Style="{x:Null}"
                             Template="{StaticResource ComboBoxTextBox}"
                             Visibility="Hidden" />
+                        <TextBlock
+                            x:Name="PART_Message"
+                            Margin="3,3,23,3"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Bottom"
+                            mah:VisibilityHelper.IsVisible="{Binding Text, ElementName=PART_EditableTextBox, Converter={StaticResource IsNullOrWhiteSpaceConverter}}"
+                            Style="{StaticResource MahApps.Metro.Styles.MetroWatermarkTextBlock}"
+                            Text="{Binding Path=(mah:TextBoxHelper.Watermark), RelativeSource={RelativeSource TemplatedParent}}" />
                         <Popup
                             x:Name="Popup"
                             AllowsTransparency="True"
