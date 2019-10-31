@@ -26,7 +26,7 @@ namespace HideezClient.Dialogs
     {
         readonly Regex onlyDigitsRegex = new Regex("[0-9]+");
 
-        public PinView(PinViewModel vm)
+        public PinDialog(PinViewModel vm)
         {
             InitializeComponent();
 
