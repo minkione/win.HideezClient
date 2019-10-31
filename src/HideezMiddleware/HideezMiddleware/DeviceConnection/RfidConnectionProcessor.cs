@@ -15,8 +15,10 @@ namespace HideezMiddleware.DeviceConnection
         readonly HesAppConnection _hesConnection;
         readonly RfidServiceConnection _rfidService;
         readonly IScreenActivator _screenActivator;
+        readonly object _lock = new object();
 
         int _isConnecting = 0;
+        bool isRunning = false;
 
         public event EventHandler<WorkstationUnlockResult> WorkstationUnlockPerformed;
 
@@ -34,8 +36,6 @@ namespace HideezMiddleware.DeviceConnection
             _rfidService = rfidService ?? throw new ArgumentNullException(nameof(rfidService));
             _clientUiManager = clientUiManager ?? throw new ArgumentNullException(nameof(clientUiManager));
             _screenActivator = screenActivator;
-
-            _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
         }
 
         #region IDisposable
@@ -65,7 +65,28 @@ namespace HideezMiddleware.DeviceConnection
         }
         #endregion
 
-        // Todo: Maybe add Start/Stop methods to RfidConnectionProcessor
+        public void Start()
+        {
+            lock (_lock)
+            {
+                if (!isRunning)
+                {
+                    _rfidService.RfidReceivedEvent += RfidService_RfidReceivedEvent;
+                    isRunning = true;
+                    WriteLine("Started");
+                }
+            }
+        }
+
+        public void Stop()
+        {
+            lock (_lock)
+            {
+                isRunning = false;
+                _rfidService.RfidReceivedEvent -= RfidService_RfidReceivedEvent;
+                WriteLine("Stopped");
+            }
+        }
 
         async void RfidService_RfidReceivedEvent(object sender, RfidReceivedEventArgs e)
         {
@@ -74,6 +95,9 @@ namespace HideezMiddleware.DeviceConnection
 
         async Task UnlockByRfid(string rfid)
         {
+            if (!isRunning)
+                return;
+
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 1) == 1)
                 return;
 

@@ -28,6 +28,7 @@ namespace HideezMiddleware.DeviceConnection
             _proximitySettingsManager = proximitySettingsManager;
 
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
+            _bleConnectionManager.AdapterStateChanged += BleConnectionManager_AdapterStateChanged;
         }
 
         #region IDisposable
@@ -46,6 +47,8 @@ namespace HideezMiddleware.DeviceConnection
             if (disposing)
             {
                 _bleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
+                _bleConnectionManager.AdapterStateChanged -= BleConnectionManager_AdapterStateChanged;
+                Clear();
             }
 
             disposed = true;
@@ -78,6 +81,15 @@ namespace HideezMiddleware.DeviceConnection
             }
         }
 
+        public void Clear()
+        {
+            lock (_lock)
+            {
+                _ignoreList.Clear();
+                _lastAdvRecTime.Clear();
+            }
+        }
+
         void BleConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
             lock (_lock)
@@ -96,6 +108,11 @@ namespace HideezMiddleware.DeviceConnection
                         _lastAdvRecTime[shortMac] = DateTime.UtcNow;
                 }
             }
+        }
+
+        void BleConnectionManager_AdapterStateChanged(object sender, EventArgs e)
+        {
+            Clear();
         }
 
         void RemoveTimedOutRecords()

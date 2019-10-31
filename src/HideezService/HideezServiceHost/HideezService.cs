@@ -140,6 +140,7 @@ namespace HideezServiceHost
                     OnSystemLeftSuspendedMode();
                     break;
                 case PowerBroadcastStatus.Suspend: // System is about to be suspended, approximately 2 seconds before it happens
+                    OnSystemSuspending();
                     break;
                 default:
                     break;
@@ -151,6 +152,18 @@ namespace HideezServiceHost
             try
             {
                 ServiceLibrary.Implementation.HideezService.OnLaunchFromSleep();
+            }
+            catch (Exception ex)
+            {
+                ServiceLibrary.Implementation.HideezService.Error(ex);
+            }
+        }
+
+        void OnSystemSuspending()
+        {
+            try
+            {
+                ServiceLibrary.Implementation.HideezService.OnGoingToSleep();
             }
             catch (Exception ex)
             {
