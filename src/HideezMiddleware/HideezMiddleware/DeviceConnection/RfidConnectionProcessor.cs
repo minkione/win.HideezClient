@@ -1,6 +1,7 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.ScreenActivation;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,7 +46,7 @@ namespace HideezMiddleware.DeviceConnection
         }
 
         bool disposed = false;
-        void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
                 return;

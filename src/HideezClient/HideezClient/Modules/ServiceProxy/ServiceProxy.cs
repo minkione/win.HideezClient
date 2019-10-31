@@ -56,13 +56,11 @@ namespace HideezClient.Modules.ServiceProxy
         {
             get
             {
-                if (service != null)
-                {
-                    var state = service.State;
-                    return state != CommunicationState.Faulted && state != CommunicationState.Closed;
-                }
-
-                return false;
+                if (service == null)
+                    return false;
+                else // TODO: sometimes service.State causes a NullReferenceException
+                    return service.State != CommunicationState.Faulted &&
+                        service.State != CommunicationState.Closed;
             }
         }
 

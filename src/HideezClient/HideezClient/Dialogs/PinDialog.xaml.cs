@@ -26,13 +26,22 @@ namespace HideezClient.Dialogs
     {
         readonly Regex onlyDigitsRegex = new Regex("[0-9]+");
 
-        public PinDialog()
+        public PinView(PinViewModel vm)
         {
             InitializeComponent();
 
+            vm.ViewModelUpdated += PinView_ViewModelUpdated;
+            vm.PasswordsCleared += PinView_PasswordsCleared;
+            DataContext = vm;
+        }
+
+        private void PinView_PasswordsCleared(object sender, System.EventArgs e)
+        {
             if (DataContext != null)
             {
-                ((PinViewModel)DataContext).ViewModelUpdated += PinView_ViewModelUpdated;
+                CurrentPinPasswordBox.Clear();
+                NewPinPasswordBox.Clear();
+                ConfirmPinPasswordBox.Clear();
             }
         }
 

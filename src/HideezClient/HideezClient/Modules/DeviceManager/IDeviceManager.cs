@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 
 namespace HideezClient.Modules.DeviceManager
 {
-    interface IDeviceManager
+    public interface IDeviceManager
     {
         event NotifyCollectionChangedEventHandler DevicesCollectionChanged;
 

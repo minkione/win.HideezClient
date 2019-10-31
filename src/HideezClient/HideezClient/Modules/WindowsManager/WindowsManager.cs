@@ -257,10 +257,7 @@ namespace HideezClient.Modules
                         {
                             var vm = _viewModelLocator.PinViewModel;
                             vm.Initialize(obj.DeviceId);
-                            pinView = new PinDialog()
-                            {
-                                DataContext = vm,
-                            };
+                            pinView = new PinView(vm);
                             pinView.Closed += PinView_Closed;
                             metroWindow.ShowMetroDialogAsync(pinView);
                         }

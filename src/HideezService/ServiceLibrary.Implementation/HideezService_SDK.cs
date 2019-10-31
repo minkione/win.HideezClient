@@ -19,6 +19,7 @@ using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware;
 using HideezMiddleware.Audit;
 using HideezMiddleware.DeviceConnection;
+using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ClientManagement;

@@ -92,9 +92,10 @@
     <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
     <Compile Include="IClientUiProxy.cs" />
-    <Compile Include="IScreenActivator.cs" />
+    <Compile Include="ScreenActivation\IScreenActivator.cs" />
     <Compile Include="IWorkstationLocker.cs" />
     <Compile Include="NLogWrapper.cs" />
+    <Compile Include="ScreenActivation\ScreenActivator.cs" />
     <Compile Include="SessionSwitchMonitor.cs" />
     <Compile Include="Settings\BaseSettings.cs" />
     <Compile Include="Settings\DeviceProximitySettingsHelper.cs" />

@@ -10,6 +10,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Tasks;
 using Hideez.SDK.Communication.Utils;
+using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Tasks;
 using Microsoft.Win32;
 
@@ -127,10 +128,11 @@ namespace HideezMiddleware
                 await _ui.SendNotification("", _infNid);
                 await _ui.SendError("", _errNid);
 
-                _screenActivator?.ActivateScreen();
-
                 if (WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Locked)
                 {
+                    _screenActivator?.ActivateScreen();
+                    _screenActivator?.StartPeriodicScreenActivation(0);
+
                     await new WaitWorkstationUnlockerConnectProc(_workstationUnlocker)
                         .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct); 
                 }
@@ -228,6 +230,7 @@ namespace HideezMiddleware
                     device.Disconnected -= OnDeviceDisconnectedDuringFlow;
                     device.OperationCancelled -= OnUserCancelledByButton;
                 }
+                _screenActivator?.StopPeriodicScreenActivation();
             }
 
             // Cleanup
@@ -391,6 +394,8 @@ namespace HideezMiddleware
 
         async Task<bool> SetPinWorkflow(IDevice device, int timeout, CancellationToken ct)
         {
+            Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow +++++++++++++++++++++++++++++++++++++++");
+
             bool res = false;
             while (device.AccessLevel.IsNewPinRequired)
             {
@@ -404,8 +409,23 @@ namespace HideezMiddleware
                     continue;
                 }
 
-                res = await device.SetPin(pin); //this using default timeout for BLE commands
+                var pinResult = await device.SetPin(pin); //this using default timeout for BLE commands
+                if (pinResult == HideezErrorCode.Ok)
+                {
+                    Debug.WriteLine($">>>>>>>>>>>>>>> PIN OK");
+                    res = true;
+                    break;
+                }
+                else if (pinResult == HideezErrorCode.ERR_PIN_TOO_SHORT)
+                {
+                    await _ui.SendError($"PIN too short", _errNid);
+                }
+                else if (pinResult == HideezErrorCode.ERR_PIN_WRONG)
+                {
+                    await _ui.SendError($"Invalid PIN", _errNid);
+                }
             }
+            Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow ---------------------------------------");
             return res;
         }
 
@@ -429,14 +449,15 @@ namespace HideezMiddleware
                     continue;
                 }
 
-                res = await device.EnterPin(pin); //this using default timeout for BLE commands
+                var pinResult = await device.EnterPin(pin); //this using default timeout for BLE commands
 
-                if (res)
+                if (pinResult == HideezErrorCode.Ok)
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> PIN OK");
+                    res = true;
                     break;
                 }
-                else
+                else // ERR_PIN_WRONG and ERR_PIN_TOO_SHORT should just be displayed as wrong pin for security reasons
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({device.PinAttemptsRemain} attempts left)");
                     if (device.AccessLevel.IsLocked)

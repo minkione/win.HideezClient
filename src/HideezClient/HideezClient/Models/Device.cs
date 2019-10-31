@@ -600,6 +600,8 @@ namespace HideezClient.Models
 
         async Task<bool> SetPinWorkflow(CancellationToken ct)
         {
+            Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow +++++++++++++++++++++++++++++++++++++++");
+
             bool pinOk = false;
             while (AccessLevel.IsNewPinRequired)
             {
@@ -617,9 +619,23 @@ namespace HideezClient.Models
                     continue;
                 }
 
-                pinOk = await _remoteDevice.SetPin(Encoding.UTF8.GetString(pin)); //this using default timeout for BLE commands
+                var pinResult = await _remoteDevice.SetPin(Encoding.UTF8.GetString(pin)); //this using default timeout for BLE commands
+                if (pinResult == HideezErrorCode.Ok)
+                {
+                    Debug.WriteLine($">>>>>>>>>>>>>>> PIN OK");
+                    pinOk = true;
+                    break;
+                }
+                else if (pinResult == HideezErrorCode.ERR_PIN_TOO_SHORT)
+                {
+                    ShowError("PIN is too short", _errNid);
+                }
+                else if (pinResult == HideezErrorCode.ERR_PIN_WRONG)
+                {
+                    ShowError("Invalid PIN", _errNid);
+                }
             }
-
+            Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow ---------------------------------------");
             return pinOk;
         }
 
@@ -645,14 +661,15 @@ namespace HideezClient.Models
                     continue;
                 }
 
-                pinOk = await _remoteDevice.EnterPin(Encoding.UTF8.GetString(pin)); //this using default timeout for BLE commands
+                var pinResult = await _remoteDevice.EnterPin(Encoding.UTF8.GetString(pin)); //this using default timeout for BLE commands
 
-                if (pinOk)
+                if (pinResult == HideezErrorCode.Ok)
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> PIN OK");
+                    pinOk = true;
                     break;
                 }
-                else
+                else // ERR_PIN_WRONG and ERR_PIN_TOO_SHORT should just be displayed as wrong pin for security reasons
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({PinAttemptsRemain} attempts left)");
                     if (AccessLevel.IsLocked)

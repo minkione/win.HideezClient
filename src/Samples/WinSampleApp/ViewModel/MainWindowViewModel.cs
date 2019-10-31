@@ -1288,7 +1288,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                if (!await device.Device.SetPin(Pin, OldPin ?? ""))
+                if (await device.Device.SetPin(Pin, OldPin ?? "") != HideezErrorCode.Ok)
                     MessageBox.Show("Wrong old PIN");
                 else
                     MessageBox.Show("PIN has been changed");
@@ -1303,7 +1303,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                if (!await device.Device.ForceSetPin(Pin, Encoding.UTF8.GetBytes("passphrase")))
+                if (await device.Device.ForceSetPin(Pin, Encoding.UTF8.GetBytes("passphrase")) != HideezErrorCode.Ok)
                     MessageBox.Show("Wrong MasterKey");
                 else
                     MessageBox.Show("PIN has been changed");
@@ -1318,7 +1318,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                if (!await device.Device.EnterPin(Pin))
+                if (await device.Device.EnterPin(Pin) != HideezErrorCode.Ok)
                 {
                     MessageBox.Show(device.Device.AccessLevel.IsLocked ? "DeviceLocked" : "Wrong PIN");
                 }
