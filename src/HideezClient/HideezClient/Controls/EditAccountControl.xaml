@@ -127,7 +127,7 @@
                         <ColumnDefinition SharedSizeGroup="L" />
                         <ColumnDefinition SharedSizeGroup="C" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="2" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
@@ -148,7 +148,43 @@
                         FontSize="16"
                         Foreground="{DynamicResource DarkForeground}"
                         IsTabStop="True"
-                        PasswordChanged="PasswordBox_PasswordChanged" />
+                        PasswordChanged="PasswordBox_PasswordChanged"
+                        Style="{StaticResource MetroButtonRevealedPasswordBox}">
+                        <PasswordBox.Resources>
+                            <Style x:Key="RevealButtonStyle" TargetType="Button">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Foreground" Value="Red" />
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                <Setter Property="Opacity" Value="1" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type Button}">
+                                            <Border x:Name="border" Background="Transparent">
+                                                <iconPacks:PackIconFontAwesome
+                                                    Name="EyeIcon"
+                                                    Height="24"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Foreground="{StaticResource IcoButtonBrush}"
+                                                    Kind="EyeSolid" />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="border" Property="Background" Value="Transparent" />
+                                                    <Setter Property="Cursor" Value="Hand" />
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter TargetName="EyeIcon" Property="Opacity" Value="0.5" />
+                                                    <!--<Setter TargetName="EyeIcon" Property="Kind" Value="EyeSlashSolid" />-->
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </PasswordBox.Resources>
+                    </PasswordBox>
 
                     <Button
                         Grid.Column="4"
@@ -344,6 +380,7 @@
                         Grid.Row="2"
                         Grid.Column="2"
                         DisplayMemberPath="Title"
+                        IsTabStop="True"
                         ItemsSource="{Binding OpenedForegroundUrls}"
                         SelectedValue="{Binding SelectedUrl}"
                         Style="{DynamicResource DropDownButtonStyle}"
@@ -355,6 +392,7 @@
                         Grid.Row="4"
                         Grid.Column="2"
                         DisplayMemberPath="Title"
+                        IsTabStop="True"
                         ItemsSource="{Binding OpenedApps}"
                         SelectedValue="{Binding SelectedApp}"
                         Style="{DynamicResource DropDownButtonStyle}"

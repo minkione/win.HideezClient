@@ -165,7 +165,7 @@
         </Style.Triggers>
     </Style>
 
-    <ControlTemplate x:Key="IconButtonTemplate" TargetType="{x:Type Button}">
+    <ControlTemplate x:Key="IconButtonTemplate" TargetType="{x:Type ButtonBase}">
         <Grid VerticalAlignment="Center">
             <ContentPresenter />
             <Rectangle Style="{StaticResource ClickableTransparentBackgroundStyle}" />
@@ -173,7 +173,7 @@
     </ControlTemplate>
 
     <!--  Icon button style  -->
-    <Style x:Key="IconButtonStyle" TargetType="{x:Type Button}">
+    <Style x:Key="IconButtonStyle" TargetType="{x:Type ButtonBase}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Template" Value="{StaticResource IconButtonTemplate}" />
         <Style.Triggers>
