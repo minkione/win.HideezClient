@@ -11,8 +11,10 @@ namespace HideezMiddleware.DeviceConnection
     {
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly IBleConnectionManager _bleConnectionManager;
+        readonly object _lock = new object();
 
         int _isConnecting = 0;
+        bool isRunning = false;
 
         public event EventHandler<WorkstationUnlockResult> WorkstationUnlockPerformed;
 
@@ -24,8 +26,6 @@ namespace HideezMiddleware.DeviceConnection
         {
             _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));
             _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
-
-            _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
         }
 
         #region IDisposable
@@ -36,21 +36,47 @@ namespace HideezMiddleware.DeviceConnection
         }
 
         bool disposed = false;
-        void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
                 return;
 
             if (disposing)
             {
-                _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
+                _bleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
             }
 
             disposed = true;
         }
+
+        ~TapConnectionProcessor()
+        {
+            Dispose(false);
+        }
         #endregion
 
-        // Todo: Maybe add Start/Stop methods to TapConnectionProcessor
+        public void Start()
+        {
+            lock (_lock)
+            {
+                if (!isRunning)
+                {
+                    _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
+                    isRunning = true;
+                    WriteLine("Started");
+                }
+            }
+        }
+
+        public void Stop()
+        {
+            lock (_lock)
+            {
+                isRunning = false;
+                _bleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
+                WriteLine("Stopped");
+            }
+        }
 
         async void BleConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
@@ -59,6 +85,9 @@ namespace HideezMiddleware.DeviceConnection
 
         async Task UnlockByTap(AdvertismentReceivedEventArgs adv)
         {
+            if (!isRunning)
+                return;
+
             if (adv == null)
                 return;
 
