@@ -868,8 +868,10 @@ namespace WinSampleApp.ViewModel
                     _log);
 
                 _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, null, uiProxyManager, _log);
+                _rfidProcessor.Start();
 
                 _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _connectionManager, _log);
+                _tapProcessor.Start();
 
                 // StatusManager =============================
                 var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxyManager, proximitySettingsManager, _log);

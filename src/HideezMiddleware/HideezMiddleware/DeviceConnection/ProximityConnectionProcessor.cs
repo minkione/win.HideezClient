@@ -25,10 +25,12 @@ namespace HideezMiddleware.DeviceConnection
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly BleDeviceManager _bleDeviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
+        readonly object _lock = new object();
 
         List<string> MacListToConnect { get; set; }
 
         int _isConnecting = 0;
+        bool isRunning = false;
 
         public event EventHandler<WorkstationUnlockResult> WorkstationUnlockPerformed;
 
@@ -48,11 +50,6 @@ namespace HideezMiddleware.DeviceConnection
             _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
             _bleDeviceManager = bleDeviceManager ?? throw new ArgumentNullException(nameof(bleDeviceManager));
             _workstationUnlocker = workstationUnlocker ?? throw new ArgumentNullException(nameof(workstationUnlocker));
-
-            _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
-            _proximitySettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
-
-            SetAccessListFromSettings(_proximitySettingsManager.Settings);
         }
 
         #region IDisposable
@@ -63,7 +60,7 @@ namespace HideezMiddleware.DeviceConnection
         }
 
         bool disposed = false;
-        void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
                 return;
@@ -83,11 +80,36 @@ namespace HideezMiddleware.DeviceConnection
         }
         #endregion
 
-        // Todo: Maybe add Start/Stop methods to TapConnectionProcessor
+        public void Start()
+        {
+            lock (_lock)
+            {
+                if (!isRunning)
+                {
+                    _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
+                    _proximitySettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
+                    SetAccessListFromSettings(_proximitySettingsManager.Settings);
+                    isRunning = true;
+                    WriteLine("Started");
+                }
+            }
+        }
+
+        public void Stop()
+        {
+            lock (_lock)
+            {
+                isRunning = false;
+                _bleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
+                _proximitySettingsManager.SettingsChanged -= UnlockerSettingsManager_SettingsChanged;
+                WriteLine("Stopped");
+            }
+        }
 
         void SetAccessListFromSettings(ProximitySettings settings)
         {
             MacListToConnect = settings.DevicesProximity.Select(s => s.Mac).ToList();
+            _advIgnoreListMonitor.Clear();
         }
 
         void UnlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
@@ -102,6 +124,9 @@ namespace HideezMiddleware.DeviceConnection
 
         async Task ConnectByProximity(AdvertismentReceivedEventArgs adv)
         {
+            if (!isRunning)
+                return;
+
             if (adv == null)
                 return;
 

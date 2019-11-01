@@ -48,11 +48,11 @@ namespace HideezMiddleware
             GC.SuppressFinalize(this);
         }
 
-        bool disposed = false;
+        bool _disposed = false;
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposed)
+            if (_disposed)
                 return;
 
             if (disposing)
@@ -64,7 +64,7 @@ namespace HideezMiddleware
                 _clientUi.PinReceived -= ClientUi_PinReceived;
             }
 
-            disposed = false;
+            _disposed = true;
         }
 
         ~UiProxyManager()

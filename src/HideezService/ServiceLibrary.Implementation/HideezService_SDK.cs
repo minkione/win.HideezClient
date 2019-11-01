@@ -206,6 +206,10 @@ namespace ServiceLibrary.Implementation
                 _credentialProviderProxy,
                 _sdkLogger);
 
+            _proximityProcessor.Start();
+            _tapProcessor.Start();
+            _rfidProcessor.Start();
+
             // Proximity Monitor ==================================
             ProximitySettings proximitySettings = _proximitySettingsManager.Settings;
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _sdkLogger, proximitySettings.DevicesProximity);
@@ -558,19 +562,6 @@ namespace ServiceLibrary.Implementation
                 {
                     // Disconnect all connected devices
                     await _deviceManager.DisconnectAllDevices();
-                    //// TODO: implement _deviceManager?.DisconnectAll();
-                    //_deviceManager?.Devices.ToList().ForEach(d =>
-                    //{
-                    //    try
-                    //    {
-                    //        if (d.IsConnected)
-                    //            d.Disconnect();
-                    //    }
-                    //    catch (Exception ex)
-                    //    {
-                    //        _log.WriteLine(ex);
-                    //    }
-                    //});
                 }
             }
             catch (Exception ex)
@@ -826,8 +817,34 @@ namespace ServiceLibrary.Implementation
             try
             {
                 _log.WriteLine("System left suspended mode");
-                _log.WriteLine("Restarting connection manager");
-                _connectionManager.Restart();
+
+                //_log.WriteLine("Stopping connection processors");
+                //_proximityProcessor.Stop();
+                //_tapProcessor.Stop();
+                //_rfidProcessor.Stop();
+                //
+                //_log.WriteLine("Restarting connection manager");
+                //_connectionManager.Restart();
+                //
+                //_log.WriteLine("Starting connection processors");
+                //_proximityProcessor.Start();
+                //_tapProcessor.Start();
+                //_rfidProcessor.Start();
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        public static async void OnGoingToSleep()
+        {
+            try
+            {
+                _log.WriteLine("System going into suspended mode");
+
+                // Disconnect all connected devices
+                await _deviceManager.DisconnectAllDevices();
             }
             catch (Exception ex)
             {
