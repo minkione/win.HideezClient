@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace HideezClient.Controls
 {
@@ -24,11 +25,18 @@ namespace HideezClient.Controls
         {
             InitializeComponent();
             this.DataContextChanged += EditAccountControl_DataContextChanged;
+            this.Loaded += EditAccountControl_Loaded;
+        }
+
+        private void EditAccountControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            SetFcocus();
         }
 
         private void EditAccountControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             this.PasswordBox.Clear();
+            SetFcocus();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -39,9 +47,26 @@ namespace HideezClient.Controls
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             if (this.DataContext != null && sender is PasswordBox passwordBox)
-            { 
-                ((dynamic)this.DataContext).IsPasswordChanged = passwordBox.SecurePassword.Length != 0; 
+            {
+                ((dynamic)this.DataContext).IsPasswordChanged = passwordBox.SecurePassword.Length != 0;
             }
+        }
+
+        private void SetFcocus()
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.Input,
+                new Action(delegate ()
+                {
+                    try
+                    {
+                        PasswordBox.Focus();            // Set Logical Focus
+                        Keyboard.Focus(PasswordBox);    // Set Keyboard Focus
+
+                        AccountName.Focus();            // Set Logical Focus
+                        Keyboard.Focus(AccountName);    // Set Keyboard Focus
+                    }
+                    catch (Exception ex) { }
+                }));
         }
     }
 }

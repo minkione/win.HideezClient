@@ -383,23 +383,27 @@
                                 </Style>
                             </Rectangle.Style>
                         </Rectangle>
-                        <Rectangle
-                            x:Name="ErrorLine"
-                            Grid.Row="1"
-                            Height="2"
-                            Fill="{DynamicResource ErrorBrush}"
-                            Tag="{TemplateBinding Tag}">
-                            <Rectangle.Style>
-                                <Style TargetType="Rectangle">
+                        <Grid Grid.Row="1" Tag="{TemplateBinding Tag}">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
                                     <Setter Property="Visibility" Value="Visible" />
                                     <Style.Triggers>
                                         <Trigger Property="Tag" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Setter Property="Visibility" Value="Hidden" />
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
-                            </Rectangle.Style>
-                        </Rectangle>
+                            </Grid.Style>
+                            <Rectangle
+                                x:Name="ErrorLine"
+                                Height="2"
+                                Fill="{DynamicResource ErrorBrush}" />
+                            <TextBlock
+                                Margin="0,25,0,0"
+                                FontSize="10"
+                                Foreground="{StaticResource ErrorBrush}"
+                                Text="{TemplateBinding Tag}" />
+                        </Grid>
                         <Separator Grid.Row="1" Style="{StaticResource SeparatorOfAccountInfo}" />
                     </Grid>
                     <ControlTemplate.Triggers>

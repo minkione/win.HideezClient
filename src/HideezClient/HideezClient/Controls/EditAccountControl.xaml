@@ -174,7 +174,7 @@
                                                     <Setter Property="Cursor" Value="Hand" />
                                                 </Trigger>
                                                 <Trigger Property="IsPressed" Value="True">
-                                                    <Setter TargetName="EyeIcon" Property="Opacity" Value="0.5" />
+                                                    <Setter TargetName="EyeIcon" Property="Opacity" Value="0.65" />
                                                     <!--<Setter TargetName="EyeIcon" Property="Kind" Value="EyeSlashSolid" />-->
                                                 </Trigger>
                                             </ControlTemplate.Triggers>

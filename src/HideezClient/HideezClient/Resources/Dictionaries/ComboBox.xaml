@@ -265,7 +265,7 @@
                             AllowsTransparency="True"
                             Focusable="False"
                             IsOpen="{TemplateBinding IsDropDownOpen}"
-                            Placement="RelativePoint"
+                            Placement="Bottom"
                             PopupAnimation="Slide">
                             <Grid
                                 x:Name="DropDown"
