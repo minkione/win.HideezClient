@@ -23,6 +23,27 @@ namespace HideezClient.ViewModels
             device.PropertyChanged += (sender, e) => RaisePropertyChanged(e.PropertyName);
         }
 
+        public ICommand AuthorizeDeviceAndLoadStorage
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = async (x) =>
+                    {
+                        try
+                        {
+                            await device.AuthorizeAndLoadStorage();
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.Error(ex);
+                        }
+                    }
+                };
+            }
+        }
+
         public string Name => device.Name;
         public string SerialNo => device.SerialNo;
         public string OwnerName => device.OwnerName;
