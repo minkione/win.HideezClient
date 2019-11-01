@@ -170,16 +170,21 @@
                                         <Grid Visibility="{Binding FinishedMainFlow, Converter={StaticResource BooleanToVisibilityConverter}}">
                                             <Grid Visibility="{Binding IsCreatingRemoteDevice, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
                                                 <Grid Visibility="{Binding IsAuthorizingRemoteDevice, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
-                                                    <iconPacks:PackIconMaterial
-                                                        x:Name="NotAuthorizedIco"
-                                                        Width="16"
-                                                        Height="18"
-                                                        Margin="8,0,0,2"
-                                                        Foreground="Yellow"
-                                                        Kind="Lock" 
-                                                        ToolTip="Not authorized"
-                                                        Visibility="{Binding IsAuthorized, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
-                                                        />
+                                                    <!-- IGNORE CONFLICT ON MERGE AND TAKE OTHER -->
+                                                    <Button Command="{Binding AuthorizeDeviceAndLoadStorage}" 
+                                                            Style="{StaticResource IconMenuButtonStyle}"
+                                                            Visibility="{Binding IsAuthorized, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
+                                                            Margin="8,0,0,2">
+                                                        <iconPacks:PackIconMaterial
+                                                            x:Name="NotAuthorizedIco"
+                                                            Width="16"
+                                                            Height="18"
+                                                            Foreground="Yellow"
+                                                            Kind="Lock" 
+                                                            Margin="2"
+                                                            ToolTip="Not authorized"
+                                                            />
+                                                    </Button>
                                                 </Grid>
                                             </Grid>
                                         </Grid>
