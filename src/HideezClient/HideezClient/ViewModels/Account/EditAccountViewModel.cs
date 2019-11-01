@@ -497,6 +497,7 @@ namespace HideezClient.ViewModels
                 if (!string.IsNullOrWhiteSpace(scanResult?.Text))
                 {
                     OtpSecret = qrScannerHelper.GetOtpSecret(scanResult.Text);
+                    EditOtp = true;
                     isScanedQr = true;
                 }
             }
