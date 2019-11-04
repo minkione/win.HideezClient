@@ -2,7 +2,7 @@
 
 namespace HideezClient.Utilities
 {
-    interface IAppHelper
+    public interface IAppHelper
     {
         void ChangeCulture(CultureInfo newCulture);
         void OpenUrl(string url);
