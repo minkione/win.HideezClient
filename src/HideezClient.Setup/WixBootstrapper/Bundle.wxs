@@ -96,7 +96,7 @@
       <MsiPackage DisplayInternalUI="no"                  
                   Name="setup_64"
                   InstallCondition="VersionNT64"
-                  SourceFile="..\WiXSetup\bin\x64\Release\hideezclient.msi">
+                  SourceFile="..\WiXSetup\bin\x64\Release\hideezclientsetup.msi">
         <MsiProperty Name="HESADDRESS"
                      Value="[HESAddress]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
@@ -109,7 +109,7 @@
                   Id="setup_32"
                   Name="setup_32"
                   InstallCondition="NOT VersionNT64"
-                  SourceFile="..\WiXSetup\bin\Release\hideezclient.msi">
+                  SourceFile="..\WiXSetup\bin\Release\hideezclientsetup.msi">
         <MsiProperty Name="HESADDRESS"
                      Value="[HESAddress]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
