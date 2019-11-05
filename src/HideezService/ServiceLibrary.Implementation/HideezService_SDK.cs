@@ -775,28 +775,43 @@ namespace ServiceLibrary.Implementation
         #endregion
 
         #region Host only
+
+        static bool _restoringFromSleep = false;
+        static DateTime _lastRestoreTime = DateTime.MinValue;
+        const int SECONDS_BEFORE_NEXT_RESTORE = 5;
         public static void OnLaunchFromSleep()
         {
-            try
+            _log.WriteLine("System left suspended mode");
+            if (!_restoringFromSleep && (DateTime.UtcNow - _lastRestoreTime).TotalSeconds > SECONDS_BEFORE_NEXT_RESTORE)
             {
-                _log.WriteLine("System left suspended mode");
+                _restoringFromSleep = true;
+                _log.WriteLine("Starting restore from suspended mode");
 
-                //_log.WriteLine("Stopping connection processors");
-                //_proximityProcessor.Stop();
-                //_tapProcessor.Stop();
-                //_rfidProcessor.Stop();
-                //
-                //_log.WriteLine("Restarting connection manager");
-                //_connectionManager.Restart();
-                //
-                //_log.WriteLine("Starting connection processors");
-                //_proximityProcessor.Start();
-                //_tapProcessor.Start();
-                //_rfidProcessor.Start();
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
+                try
+                {
+                    _log.WriteLine("Stopping connection processors");
+                    _proximityProcessor.Stop();
+                    _tapProcessor.Stop();
+                    _rfidProcessor.Stop();
+
+                    _log.WriteLine("Restarting connection manager");
+                    _connectionManager.Restart();
+
+                    _log.WriteLine("Starting connection processors");
+                    _proximityProcessor.Start();
+                    _tapProcessor.Start();
+                    _rfidProcessor.Start();
+                }
+                catch (Exception ex)
+                {
+                    Error(ex);
+                }
+                finally
+                {
+                    _restoringFromSleep = false;
+                    _lastRestoreTime = DateTime.UtcNow;
+                    _log.WriteLine($"Restore from suspended mode finished at {_lastRestoreTime}");
+                }
             }
         }
 
@@ -804,9 +819,15 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
+
                 _log.WriteLine("System going into suspended mode");
 
-                // Disconnect all connected devices
+                _log.WriteLine("Stopping connection processors");
+                _proximityProcessor.Stop();
+                _tapProcessor.Stop();
+                _rfidProcessor.Stop();
+
+                _log.WriteLine("Disconnecting all connected devices");
                 await _deviceManager.DisconnectAllDevices();
             }
             catch (Exception ex)
