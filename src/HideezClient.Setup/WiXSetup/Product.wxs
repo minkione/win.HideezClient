@@ -216,8 +216,14 @@
       </Custom>
       
       <!-- Launch application after upgrade and passive install -->
-      <Custom Action="LaunchInstalledApplication" After="InstallFinalize">WIX_UPGRADE_DETECTED AND UILevel = 3</Custom>
+      <Custom Action="LaunchInstalledApplication" After="InstallFinalize">REINSTALL OR WIX_UPGRADE_DETECTED AND UILevel = 3</Custom>
+
+      <!-- Shutdown Hideez Client on update, reinstall or uninstall -->
+      <Custom Action="WixCloseApplications" Before="InstallValidate" ></Custom>
     </InstallExecuteSequence>
+
+    <!-- Shutdown Hideez Client -->
+    <util:CloseApplication Id="CloseHideezClientApplication" CloseMessage="yes" RebootPrompt="no" Target="HideezClient.exe" />
   </Product>
 
   <!-- Hideez Service -->

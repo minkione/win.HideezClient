@@ -42,6 +42,7 @@ using HideezMiddleware;
 using HideezClient.Messages;
 using HideezClient.Controls;
 using System.Reflection;
+using HideezClient.Views;
 
 namespace HideezClient
 {
@@ -59,6 +60,7 @@ namespace HideezClient
         private IDeviceManager deviceManager;
         private UserActionHandler userActionHandler;
         private IHotkeyManager hotkeyManager;
+        private MessageWindow messageWindow;
 
         public static IUnityContainer Container { get; private set; }
 
@@ -171,6 +173,7 @@ namespace HideezClient
             userActionHandler = Container.Resolve<UserActionHandler>();
             hotkeyManager = Container.Resolve<IHotkeyManager>();
             hotkeyManager.Enabled = true;
+            messageWindow = Container.Resolve<MessageWindow>();
 
             if (settings.IsFirstLaunch)
             {
@@ -288,6 +291,8 @@ namespace HideezClient
             Container.RegisterType<INotifier, Notifier>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<IEventPublisher, EventPublisher>(new ContainerControlledLifetimeManager());
+
+            Container.RegisterType<MessageWindow>(new ContainerControlledLifetimeManager());
 
             logger.Info("Finish initialize DI container");
 

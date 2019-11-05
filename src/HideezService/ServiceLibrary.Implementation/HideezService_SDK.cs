@@ -775,28 +775,49 @@ namespace ServiceLibrary.Implementation
         #endregion
 
         #region Host only
-        public static void OnLaunchFromSleep()
-        {
-            try
-            {
-                _log.WriteLine("System left suspended mode");
 
-                //_log.WriteLine("Stopping connection processors");
-                //_proximityProcessor.Stop();
-                //_tapProcessor.Stop();
-                //_rfidProcessor.Stop();
-                //
-                //_log.WriteLine("Restarting connection manager");
-                //_connectionManager.Restart();
-                //
-                //_log.WriteLine("Starting connection processors");
-                //_proximityProcessor.Start();
-                //_tapProcessor.Start();
-                //_rfidProcessor.Start();
-            }
-            catch (Exception ex)
+        static bool _restoringFromSleep = false;
+        /* Prevents multiple restored from occuring when multiple resumes from suspend happen 
+         * within a short frame of each other due to inconsistent behavior caused by SystemPowerEvent implementation
+         */
+        static bool _alreadyRestored = false; 
+        public static async void OnLaunchFromSleep()
+        {
+            _log.WriteLine("System left suspended mode");
+            if (!_restoringFromSleep && !_alreadyRestored)
             {
-                Error(ex);
+                _restoringFromSleep = true;
+                _log.WriteLine("Starting restore from suspended mode");
+
+                try
+                {
+                    _log.WriteLine("Stopping connection processors");
+                    _proximityProcessor.Stop();
+                    _tapProcessor.Stop();
+                    _rfidProcessor.Stop();
+
+                    await _hesConnection.Stop();
+
+                    _log.WriteLine("Restarting connection manager");
+                    _connectionManager.Restart();
+
+                    _log.WriteLine("Starting connection processors");
+                    _proximityProcessor.Start();
+                    _tapProcessor.Start();
+                    _rfidProcessor.Start();
+
+                    _hesConnection.Start();
+                    _alreadyRestored = true;
+                }
+                catch (Exception ex)
+                {
+                    Error(ex);
+                }
+                finally
+                {
+                    _restoringFromSleep = false;
+                    _log.WriteLine($"Restore from suspended mode finished at {DateTime.UtcNow}");
+                }
             }
         }
 
@@ -805,9 +826,17 @@ namespace ServiceLibrary.Implementation
             try
             {
                 _log.WriteLine("System going into suspended mode");
+                _alreadyRestored = false;
 
-                // Disconnect all connected devices
+                _log.WriteLine("Stopping connection processors");
+                _proximityProcessor.Stop();
+                _tapProcessor.Stop();
+                _rfidProcessor.Stop();
+
+                _log.WriteLine("Disconnecting all connected devices");
                 await _deviceManager.DisconnectAllDevices();
+
+                await _hesConnection.Stop();
             }
             catch (Exception ex)
             {
