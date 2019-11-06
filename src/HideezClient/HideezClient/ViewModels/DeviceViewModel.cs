@@ -33,7 +33,7 @@ namespace HideezClient.ViewModels
                     {
                         try
                         {
-                            await device.AuthorizeAndLoadStorage();
+                            await device.InitRemoteAndLoadStorage();
                         }
                         catch (Exception ex)
                         {

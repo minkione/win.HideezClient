@@ -219,7 +219,7 @@ namespace HideezClient.Modules.ActionHandler
                 var connectedDevices = deviceManager.Devices.Where(d => d.IsConnected && d.IsInitialized && devicesId.Contains(d.Id)).ToArray();
                 foreach (var device in connectedDevices.Where(d => !d.IsAuthorized))
                 {
-                    await device.AuthorizeAndLoadStorage();
+                    await device.InitRemoteAndLoadStorage();
                 }
 
                 return connectedDevices.Where(d => d.IsAuthorized).Any();
