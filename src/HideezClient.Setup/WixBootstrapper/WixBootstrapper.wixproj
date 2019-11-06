@@ -59,6 +59,7 @@
     <Content Include="..\WiXSetup\Include.wxi">
       <Link>Include.wxi</Link>
     </Content>
+    <Content Include="app.manifest" />
     <Content Include="readme.txt" />
     <Content Include="redistr\redistr readme.txt" />
     <Content Include="redistr\vc_redist.x64.exe" />
