@@ -79,6 +79,8 @@ namespace HideezClient.Models
 
             SystemEvents.SessionSwitch += OnSessionSwitch;
 
+            PropertyChanged += Device_OnFinishedMainFlowPropertyChanged;
+
             _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
             _messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
             _messenger.Register<DeviceFinishedMainFlowMessage>(this, OnDeviceFinishedMainFlow);
@@ -338,6 +340,24 @@ namespace HideezClient.Models
 
             Battery = obj.Battery;
         }
+
+        async void Device_OnFinishedMainFlowPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(FinishedMainFlow))
+            {
+                if (FinishedMainFlow)
+                {
+                    try
+                    {
+                        await InitRemoteAndLoadStorage(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.Error(ex);
+                    }
+                }
+            }
+        }
         #endregion
 
         void LoadFrom(DeviceDTO dto)
@@ -357,7 +377,11 @@ namespace HideezClient.Models
             FinishedMainFlow = dto.FinishedMainFlow;
         }
 
-        public async Task AuthorizeAndLoadStorage()
+        /// <summary>
+        /// Create and authorize remote device, then load credentials storage from this device
+        /// </summary>
+        /// <param name="authorizeDevice">If false, skip remote device authorization step. Default is true.</param>
+        public async Task InitRemoteAndLoadStorage(bool authorizeDevice = true)
         {
             if (Interlocked.CompareExchange(ref _interlockedRemote, 1, 0) == 0)
             {
@@ -374,7 +398,8 @@ namespace HideezClient.Models
                             _errNid = Guid.NewGuid().ToString();
 
                             await CreateRemoteDevice();
-                            await AuthorizeRemoteDevice(ct);
+                            if (authorizeDevice)
+                                await AuthorizeRemoteDevice(ct);
                             if (!ct.IsCancellationRequested)
                                 await LoadStorage();
                         }
@@ -405,6 +430,7 @@ namespace HideezClient.Models
         {
             if (_remoteDevice != null)
             {
+                CancelDeviceAuthorization();
                 _remoteDevice.StorageModified -= RemoteDevice_StorageModified;
                 _remoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
                 await _remoteDevice.Shutdown(code);
@@ -731,6 +757,8 @@ namespace HideezClient.Models
             {
                 if (disposing)
                 {
+                    PropertyChanged -= Device_OnFinishedMainFlowPropertyChanged;
+                    _messenger.Unregister(this);
                 }
 
                 SystemEvents.SessionSwitch -= OnSessionSwitch;

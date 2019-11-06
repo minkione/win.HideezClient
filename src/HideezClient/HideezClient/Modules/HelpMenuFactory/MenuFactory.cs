@@ -396,7 +396,7 @@ namespace HideezClient.Modules
         {
             if (param is Device device)
             {
-                await device.AuthorizeAndLoadStorage();
+                await device.InitRemoteAndLoadStorage();
             }
         }
     }
