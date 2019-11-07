@@ -26,8 +26,10 @@ namespace HideezMiddleware.Audit
         {
             var sid = WorkstationHelper.GetSessionId();
             var state = WorkstationHelper.GetSessionLockState(sid);
-            WriteLine($"Startup sid:{sid}, state:{state}");
-            if (state == WorkstationHelper.LockState.Unlocked)
+            var name = WorkstationHelper.GetSessionName(sid);
+            WriteLine($"Startup sid:{sid}, state:{state}, name:{name}");
+
+            if (state == WorkstationHelper.LockState.Unlocked && name != "SYSTEM")
             {
                 GenerateNewSessionId();
             }
