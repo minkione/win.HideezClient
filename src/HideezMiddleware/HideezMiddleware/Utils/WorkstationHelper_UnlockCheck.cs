@@ -16,7 +16,7 @@ namespace HideezMiddleware
             Environment.OSVersion.Version.Major == 6 && 
             Environment.OSVersion.Version.Minor == 1);
 
-        [DllImport("wtsapi32.dll")]
+        [DllImport("wtsapi32.dll", CharSet = CharSet.Auto)]
         static extern Int32 WTSQuerySessionInformation(
             IntPtr hServer,
             [MarshalAs(UnmanagedType.U4)] uint SessionId,
@@ -25,7 +25,7 @@ namespace HideezMiddleware
             [MarshalAs(UnmanagedType.U4)] out uint pBytesReturned
         );
 
-        [DllImport("wtsapi32.dll")]
+        [DllImport("wtsapi32.dll", CharSet = CharSet.Auto)]
         static extern void WTSFreeMemoryEx(
             WTS_TYPE_CLASS WTSTypeClass,
             IntPtr pMemory,
@@ -94,7 +94,7 @@ namespace HideezMiddleware
             Unlocked
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         struct WTSINFOEX
         {
             public uint Level;
@@ -102,13 +102,13 @@ namespace HideezMiddleware
             public WTSINFOEX_LEVEL Data;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         struct WTSINFOEX_LEVEL
         {
             public WTSINFOEX_LEVEL1 WTSInfoExLevel1;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         struct WTSINFOEX_LEVEL1
         {
             public uint SessionId;
@@ -136,10 +136,13 @@ namespace HideezMiddleware
             var session_info_ex = Marshal.PtrToStructure<WTSINFOEX>(ppBuffer);
 
             if (session_info_ex.Level != 1)
+            {
+                WTSFreeMemory(ppBuffer);
                 return LockState.Unknown;
+            }
 
             var lock_state = session_info_ex.Data.WTSInfoExLevel1.SessionFlags;
-            WTSFreeMemoryEx(WTS_TYPE_CLASS.WTSTypeSessionInfoLevel1, ppBuffer, pBytesReturned);
+            WTSFreeMemory(ppBuffer);
 
             if (_is_win7)
             {
