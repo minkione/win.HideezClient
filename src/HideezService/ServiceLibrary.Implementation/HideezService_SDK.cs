@@ -45,6 +45,7 @@ namespace ServiceLibrary.Implementation
         static WcfWorkstationLocker _workstationLocker;
         static WorkstationLockProcessor _workstationLockProcessor;
 
+        static ISettingsManager<RfidSettings> _rfidSettingsManager;
         static ISettingsManager<ProximitySettings> _proximitySettingsManager;
 
         static ConnectionFlowProcessor _connectionFlowProcessor;
@@ -98,8 +99,11 @@ namespace ServiceLibrary.Implementation
             {
                 Directory.CreateDirectory(settingsDirectory);
             }
+            string rfidSettingsPath = Path.Combine(settingsDirectory, "Rfid.xml");
             string proximitySettingsPath = Path.Combine(settingsDirectory, "Proximity.xml");
             IFileSerializer fileSerializer = new XmlFileSerializer(_sdkLogger);
+            _rfidSettingsManager = new SettingsManager<RfidSettings>(rfidSettingsPath, fileSerializer);
+
             _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
             _proximitySettingsManager.SettingsChanged += ProximitySettingsManager_SettingsChanged;
 
@@ -129,15 +133,15 @@ namespace ServiceLibrary.Implementation
             _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sdkLogger);
             _hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
             {
-                ProximitySettings settings = await _proximitySettingsManager.GetSettingsAsync();
+                var settings = await _proximitySettingsManager.GetSettingsAsync();
                 settings.DevicesProximity = receivedSettings.ToArray();
                 _proximitySettingsManager.SaveSettings(settings);
             };
             _hesConnection.HubRFIDIndicatorStateArrived += async (sender, isEnabled) =>
             {
-                ProximitySettings settings = await _proximitySettingsManager.GetSettingsAsync();
-                settings.IsRFIDIndicatorEnabled = isEnabled;
-                _proximitySettingsManager.SaveSettings(settings);
+                var settings = await _rfidSettingsManager.GetSettingsAsync();
+                settings.IsRfidEnabled = isEnabled;
+                _rfidSettingsManager.SaveSettings(settings);
             };
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
 
@@ -154,7 +158,7 @@ namespace ServiceLibrary.Implementation
             _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, _sdkLogger);
 
             // StatusManager =============================
-            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _proximitySettingsManager, _sdkLogger);
+            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _rfidSettingsManager, _sdkLogger);
 
             // ConnectionFlowProcessor
             _connectionFlowProcessor = new ConnectionFlowProcessor(
@@ -173,6 +177,7 @@ namespace ServiceLibrary.Implementation
                 _connectionFlowProcessor,
                 _hesConnection,
                 _rfidService,
+                _rfidSettingsManager,
                 _screenActivator,
                 _uiProxy,
                 _sdkLogger);

@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.ScreenActivation;
+using HideezMiddleware.Settings;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace HideezMiddleware.DeviceConnection
         readonly IClientUiManager _clientUiManager;
         readonly HesAppConnection _hesConnection;
         readonly RfidServiceConnection _rfidService;
+        readonly ISettingsManager<RfidSettings> _rfidSettingsManager;
         readonly IScreenActivator _screenActivator;
         readonly object _lock = new object();
 
@@ -26,6 +28,7 @@ namespace HideezMiddleware.DeviceConnection
             ConnectionFlowProcessor connectionFlowProcessor, 
             HesAppConnection hesConnection,
             RfidServiceConnection rfidService, 
+            ISettingsManager<RfidSettings> rfidSettingsManager,
             IScreenActivator screenActivator,
             IClientUiManager clientUiManager, 
             ILog log) 
@@ -34,6 +37,7 @@ namespace HideezMiddleware.DeviceConnection
             _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));
             _hesConnection = hesConnection ?? throw new ArgumentNullException(nameof(hesConnection));
             _rfidService = rfidService ?? throw new ArgumentNullException(nameof(rfidService));
+            _rfidSettingsManager = rfidSettingsManager ?? throw new ArgumentNullException(nameof(rfidSettingsManager));
             _clientUiManager = clientUiManager ?? throw new ArgumentNullException(nameof(clientUiManager));
             _screenActivator = screenActivator;
         }
@@ -96,6 +100,9 @@ namespace HideezMiddleware.DeviceConnection
         async Task UnlockByRfid(string rfid)
         {
             if (!isRunning)
+                return;
+
+            if (!_rfidSettingsManager.Settings.IsRfidEnabled)
                 return;
 
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 1) == 1)
