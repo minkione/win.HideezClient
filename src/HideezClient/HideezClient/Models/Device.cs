@@ -313,7 +313,10 @@ namespace HideezClient.Models
 
         void OnSessionSwitch(object sender, SessionSwitchEventArgs e)
         {
-            CancelDeviceAuthorization();
+            // Workstation lock should cancel ongoing remote device authorization
+            if (e.Reason == SessionSwitchReason.SessionLogoff || 
+                e.Reason == SessionSwitchReason.SessionLock)
+                CancelDeviceAuthorization();
         }
 
         void OnOperationCancelled(DeviceOperationCancelledMessage obj)
