@@ -431,16 +431,23 @@ namespace HideezClient.Models
 
         public async Task ShutdownRemoteDevice(HideezErrorCode code)
         {
-            if (_remoteDevice != null)
+            try
             {
-                CancelDeviceAuthorization();
-                _remoteDevice.StorageModified -= RemoteDevice_StorageModified;
-                _remoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
-                await _remoteDevice.Shutdown(code);
-                _remoteDevice = null;
-                PasswordManager = null;
+                if (_remoteDevice != null)
+                {
+                    CancelDeviceAuthorization();
+                    _remoteDevice.StorageModified -= RemoteDevice_StorageModified;
+                    _remoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
+                    await _remoteDevice.Shutdown(code);
+                    _remoteDevice = null;
+                    PasswordManager = null;
+                }
             }
-
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+            }
+                
             IsCreatingRemoteDevice = false;
             IsAuthorizingRemoteDevice = false;
             IsLoadingStorage = false;
