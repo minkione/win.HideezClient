@@ -1,0 +1,832 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <?include Include.wxi?>
+
+  <?define Setup_ProjectDir=$(var.ProjectDir)?>
+
+  <?define 32bit_Binaries_Dir=$(var.ProjectDir)..\..\..\Binaries\32rel\?>
+  <?define 64bit_Binaries_Dir=$(var.ProjectDir)..\..\..\Binaries\64rel\?>
+
+  
+  <?define Communication_x86_TargetDir=$(var.Communication.ProjectDir)bin\x86\$(var.Communication.Configuration)\netstandard2.0\?>
+  
+  <?define HideezServiceHost_TargetDir=$(var.HideezServiceHost.TargetDir)?>
+  <?define RfidService_TargetDir=$(var.RfidService.TargetDir)?>
+  
+  <?define HideezClient_TargetDir=$(var.HideezClient.TargetDir)?>
+
+  <?define DPInst_SourceDir=$(var.Setup_ProjectDir)DPInst\?>
+  <?define CsrWin7_x64_SourceDir=$(var.DPInst_SourceDir)win7\win64\ ?>
+  <?define CsrWin7_x86_SourceDir=$(var.DPInst_SourceDir)win7\win32\ ?>
+  <?define CsrWin8_x64_SourceDir=$(var.DPInst_SourceDir)win8\win64\ ?>
+  <?define CsrWin8_x86_SourceDir=$(var.DPInst_SourceDir)win8\win32\ ?>
+  
+  <!-- Architecture specific path detection -->
+  <?if $(var.Platform) = x64 ?>
+    <?define Win64 = "yes" ?>
+    <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+    <?define PlatformCommonFilesFolder = "CommonFiles64Folder" ?>
+    <?define PlatformSystemFolder = "System64Folder" ?>
+    <?define Binaries_Dir=$(var.64bit_Binaries_Dir)?>
+  <?else ?>
+    <?define Win64 = "no" ?>
+    <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+    <?define PlatformCommonFilesFolder = "CommonFilesFolder" ?>
+    <?define PlatformSystemFolder = "SystemFolder" ?>
+    <?define Binaries_Dir=$(var.32bit_Binaries_Dir)?>
+  <?endif ?>
+
+  <Product Id="*"
+           Name="Hideez Client's Update $(var.AppVersion)"
+           Language="$(var.Language)"
+           Version="$(var.AppVersion)"
+           Manufacturer="$(var.Manufacturer)"
+           UpgradeCode="$(var.UpgradeCode)">
+
+
+    <!-- Languages: en(1033), de(1031), ua(1058), ru(1049) -->
+    <Package InstallerVersion="301"
+             Compressed="yes"
+             InstallScope="perMachine"
+             InstallPrivileges="elevated"
+             Languages="1033"/>
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed."/>
+
+    <Media Id="1"
+           Cabinet="hideezsafe.cab"
+           EmbedCab="yes" />
+
+    <Icon Id="app.ico" SourceFile="32x32.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="app.ico" />
+
+    <WixVariable Id="WixUIBannerBmp" Value="Resources\InstallerBanner.jpg"/>
+    <WixVariable Id="WixUIDialogBmp" Value="Resources\InstallerDialog.jpg"/>
+
+    <!-- Desktop Application Feature -->
+    <Feature Id="ProductFeature" Title="Hideez Client" Level="1">
+      <ComponentGroupRef Id="HideezService" />
+
+      <ComponentGroupRef Id="RfidService" />
+
+      <ComponentGroupRef Id="CredentialProvider" />
+      
+      <ComponentGroupRef Id="ProductComponents" />
+
+      <ComponentGroupRef Id="ru_files" />
+      <ComponentGroupRef Id="uk_files" />
+
+      <ComponentGroupRef Id="CsrDriverShared" />
+      <ComponentGroupRef Id="CsrDriverWin7x64" />
+      <ComponentGroupRef Id="CsrDriverWin7x86" />
+      <ComponentGroupRef Id="CsrDriverWin8x64" />
+      <ComponentGroupRef Id="CsrDriverWin8x86" />
+
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="ApplicationStartup" />
+
+    </Feature>
+
+    <!-- Directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.PlatformProgramFilesFolder)">
+        <Directory Id="HideezFolder" Name="Hideez">
+          <Directory Id="INSTALLFOLDER" Name="Client">
+            <Directory Id="ru" Name="ru" />
+            <Directory Id="uk" Name="uk" />
+            <Directory Id="x64_" Name="x64" />
+            <Directory Id="x86_" Name="x86" />
+            <Directory Id="csr" Name="driver" />
+            <Directory Id="rfid" Name="rfid" />
+            <Directory Id="service" Name="service" />
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="StartMenuProgramsFolder" Name="Hideez"/>
+      </Directory>
+
+      <Directory Id="$(var.PlatformSystemFolder)" />
+    
+      <Directory Id="StartupFolder" /> 
+    </Directory>
+
+    <!--Start menu shortcut-->
+    <DirectoryRef Id="StartMenuProgramsFolder">
+      <Component Id="ApplicationShortcut"
+                 Guid="{D9A5AE43-23E1-434A-9150-153672919CD9}">
+        
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="Hideez Client"
+                  Target="[#HideezClient.exe]"
+                  WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+        
+        <RemoveFolder Id="StartMenuProgramsFolder"
+                      On="uninstall"/>
+      
+        <RegistryValue Root="HKCU" Key="Software\Hideez\Client" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+  <DirectoryRef Id="INSTALLFOLDER">
+    <Component Id="ApplicationStartup" Guid="{BD3CB08A-0499-4D58-9C5D-75EC956AF4D0}">
+      <Condition>NOT AUTOSTART OR AUTOSTART = 1</Condition>
+        <RegistryValue
+            Id="ApplicationStartupRegistry" 
+            Root="HKLM" 
+            Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run"                                         
+            Type="string"
+            Name="Hideez Client"
+            Value="[INSTALLFOLDER]HideezClient.exe"/>
+    </Component>
+  </DirectoryRef>
+      
+    <UI>
+      <UIRef Id="WixUI_InstallDir" />
+
+      <!-- Skip license and folder selection dialog -->
+      <Publish Dialog="WelcomeDlg"
+               Control="Next"
+               Event="NewDialog"
+               Value="VerifyReadyDlg"
+               Order="2">1</Publish>
+
+      <Publish Dialog="VerifyReadyDlg"
+               Control="Back"
+               Event="NewDialog"
+               Value="WelcomeDlg"
+               Order="2">1</Publish>
+
+      <!-- Application launch checkbox is checked by default -->
+      <Publish Dialog="ExitDialog"
+               Control="Finish"
+               Event="DoAction"
+               Value="LaunchInstalledApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+    </UI>
+
+
+    <!-- Public Variables -->
+    <Property Id="INSTALLDONGLEDRIVER" Secure="yes" Value="1" />
+    
+    <!-- Preserve saved HES Address on updates -->
+    <Property Id="SAVEDHESADDRESS" Secure="yes">
+      <RegistrySearch Id="FindSavedHESADDRESS"
+                      Root="HKLM"
+                      Key="SOFTWARE\Hideez\Client"
+                      Name="client_hes_address"
+                      Type="raw" />
+    </Property>
+    <!-- ... -->
+    
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <!--<WixVariable Id="WixUILicenseRtf" Value="Copyright.rtf" />-->
+
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Hideez Client" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+
+    <Property Id="WixShellExecTarget" Value="[#HideezClient.exe]" />
+
+    <CustomAction Id="AssignDriverInstallerProperty" Property="CSRDRIVERPATH" Value="[INSTALLFOLDER]driver\DPInst.exe" />
+    <CustomAction Id="LaunchInstalledApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+
+    <InstallExecuteSequence>
+      <!-- Set path to driver installator if option is checked -->
+      <Custom Action="AssignDriverInstallerProperty" After="CostFinalize" >
+        INSTALLDONGLEDRIVER
+      </Custom>
+
+      <Custom Action="DataForSetupCustomComponentsAction" After="AssignDriverInstallerProperty" >
+        NOT Installed
+      </Custom>
+      
+      <!-- Setup CSR driver, HES address and other settings after initial installation -->
+      <Custom Action="SetupCustomComponentsAction" After="InstallFiles">
+        NOT Installed
+      </Custom>
+      
+      <!-- Launch application after upgrade and passive install -->
+      <Custom Action="LaunchInstalledApplication" After="InstallFinalize">REINSTALL OR WIX_UPGRADE_DETECTED AND UILevel = 3</Custom>
+
+      <!-- Shutdown Hideez Client on update, reinstall or uninstall -->
+      <Custom Action="WixCloseApplications" Before="InstallValidate" ></Custom>
+    </InstallExecuteSequence>
+
+    <!-- Shutdown Hideez Client -->
+    <util:CloseApplication Id="CloseHideezClientApplication" CloseMessage="yes" RebootPrompt="no" Target="HideezClient.exe" />
+  </Product>
+
+  <!-- Hideez Service -->
+  <Fragment>
+    <SetProperty Id="HESADDRESS" After="CostFinalize" Value="[SAVEDHESADDRESS]">Not HESADDRESS</SetProperty>
+    <ComponentGroup Id="HideezService" Directory="service">
+      <Component Id="HideezServiceHost.exe" Guid="{FB54A20C-310F-474A-91E2-835AC3A34485}">
+        <File Id="HideezServiceHost.exe" Name="HideezServiceHost.exe" KeyPath="yes" Source="$(var.HideezServiceHost_TargetDir)HideezServiceHost.exe" />
+        <ServiceInstall
+          Id="si_HideezService"
+          Name="Hideez Service"
+          DisplayName ="Hideez Service"
+          Start="auto"
+          ErrorControl="normal"
+          Type="ownProcess"
+          Description="Provides communication with Hideez devices via BLE">
+          <ServiceConfig DelayedAutoStart="no" OnInstall="yes" />
+          <!-- 
+          Todo: Proper restart of the CSR module will allow us to configure
+          service failure actions properly
+          -->
+          <util:ServiceConfig
+            FirstFailureActionType="restart"
+            SecondFailureActionType="restart"
+            ThirdFailureActionType="restart"
+            RestartServiceDelayInSeconds="5"
+            ResetPeriodInDays="3"/>
+        </ServiceInstall>
+        <ServiceControl
+          Id="sc_HideezService"
+          Name="Hideez Service"
+          Start="install"
+          Stop="both"
+          Remove="uninstall"
+          Wait="yes" />
+      </Component>
+
+      <!-- 
+        NOTE: If registry value will be changed from [HESADDRESS], do not forget
+        to add writing of the value to custom action 'CustomActionSetup'
+        -->
+      <Component Id="HesAddressWriteToRegistry" Guid="{84CCAA09-3DA9-4753-982F-F1285F674A1E}">
+        <RegistryKey Root="HKLM" Key="SOFTWARE\Hideez\Client" >
+          <RegistryValue Type="string" Name="client_hes_address" Value="[HESADDRESS]" />
+        </RegistryKey>
+      </Component>
+      <!-- -->
+      
+      <Component Id="HideezService.Crypto.dll" Guid="{93E3D49F-2F34-4D64-B832-AFFDF6C530F4}" Win64="$(var.Win64)">
+        <File Id="HideezService.Crypto.dll" Name="Crypto.dll" Source="$(var.Binaries_Dir)Crypto.dll" />
+      </Component>
+        
+      <!-- Generated -->
+      <Component Id="HideezService.Communication.dll" Guid="{60B8A4DC-BA22-4370-9921-361D7375B0AA}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Communication.dll" Name="Communication.dll" Source="$(var.HideezServiceHost_TargetDir)Communication.dll" />
+      </Component>
+
+      <Component Id="HideezService.CsrBLE.dll" Guid="{1F20EC54-A317-4FCF-84CC-6379B5B83F9C}" Win64="$(var.Win64)">
+	      <File Id="HideezService.CsrBLE.dll" Name="CsrBLE.dll" Source="$(var.HideezServiceHost_TargetDir)CsrBLE.dll" />
+      </Component>
+
+      <Component Id="HideezService.HideezMiddleware.dll" Guid="{91C1E445-F1C6-40C9-862C-49FEAFD0D49D}" Win64="$(var.Win64)">
+	      <File Id="HideezService.HideezMiddleware.dll" Name="HideezMiddleware.dll" Source="$(var.HideezServiceHost_TargetDir)HideezMiddleware.dll" />
+      </Component>
+
+      <Component Id="HideezService.HideezServiceHost.exe.config" Guid="{FF95906D-A7D5-40ED-8E15-5AEDAE6C0129}" Win64="$(var.Win64)">
+	      <File Id="HideezService.HideezServiceHost.exe.config" Name="HideezServiceHost.exe.config" Source="$(var.HideezServiceHost_TargetDir)HideezServiceHost.exe.config" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.AspNetCore.Connections.Abstractions.dll" Guid="{5F2C9F7E-D249-446F-A5CD-68AE6531AF61}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.Connections.Abstractions.dll" Name="Microsoft.AspNetCore.Connections.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.Connections.Abstractions.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.AspNetCore.Http.Connections.Client.dll" Guid="{AFA06BA1-4ECC-4D01-ABF5-3CD778E138F8}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.Http.Connections.Client.dll" Name="Microsoft.AspNetCore.Http.Connections.Client.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.Http.Connections.Client.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.AspNetCore.Http.Connections.Common.dll" Guid="{49D735F8-B91F-4788-91CE-5DAFD3483E18}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.Http.Connections.Common.dll" Name="Microsoft.AspNetCore.Http.Connections.Common.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.Http.Connections.Common.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.AspNetCore.Http.Features.dll" Guid="{E18FCCF6-A0CA-40EA-95A6-84847F0B713E}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.Http.Features.dll" Name="Microsoft.AspNetCore.Http.Features.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.Http.Features.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.AspNetCore.SignalR.Client.Core.dll" Guid="{86F53B63-BC9B-4A5D-9AB3-1B608C9593BC}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.SignalR.Client.Core.dll" Name="Microsoft.AspNetCore.SignalR.Client.Core.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Client.Core.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.AspNetCore.SignalR.Client.dll" Guid="{82F234C0-B014-44F1-9757-C206EDF0DC8D}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.SignalR.Client.dll" Name="Microsoft.AspNetCore.SignalR.Client.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Client.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.AspNetCore.SignalR.Common.dll" Guid="{C5D675F8-E1DE-4080-9904-2F3C05A2EEA0}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.SignalR.Common.dll" Name="Microsoft.AspNetCore.SignalR.Common.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Common.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Guid="{07F56A41-4A52-46B6-AC94-CA546FB7912F}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Name="Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Protocols.Json.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.Extensions.Configuration.Abstractions.dll" Guid="{6BB680C2-8BDA-45BA-B81C-C83C062E9E56}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Configuration.Abstractions.dll" Name="Microsoft.Extensions.Configuration.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Configuration.Abstractions.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.Extensions.Configuration.Binder.dll" Guid="{34D46F5A-B56D-4077-98C8-BC04E6FCBC94}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Configuration.Binder.dll" Name="Microsoft.Extensions.Configuration.Binder.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Configuration.Binder.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.Extensions.Configuration.dll" Guid="{616C38F1-07D3-42C8-B36A-AD2A8D79F0FC}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Configuration.dll" Name="Microsoft.Extensions.Configuration.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Configuration.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.Extensions.DependencyInjection.Abstractions.dll" Guid="{2B4D4A35-8163-4855-836C-CD9E6C1E1A15}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.DependencyInjection.Abstractions.dll" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.Extensions.DependencyInjection.dll" Guid="{807B1D9E-D473-4341-8AF7-067DAC318383}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.DependencyInjection.dll" Name="Microsoft.Extensions.DependencyInjection.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.DependencyInjection.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.Extensions.Logging.Abstractions.dll" Guid="{6791E3E6-E49B-4AC2-AEDC-EBBE8C7AB961}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Logging.Abstractions.dll" Name="Microsoft.Extensions.Logging.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Logging.Abstractions.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.Extensions.Logging.dll" Guid="{5A1AA5F9-394F-4408-9AC7-0010160295C3}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Logging.dll" Name="Microsoft.Extensions.Logging.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Logging.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.Extensions.Options.dll" Guid="{01D22131-2CF1-41AF-830D-BE8A96A106A8}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Options.dll" Name="Microsoft.Extensions.Options.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Options.dll" />
+      </Component>
+
+      <Component Id="HideezService.Microsoft.Extensions.Primitives.dll" Guid="{1C177A1A-ADAE-4795-AFCB-0B5D2D1ED833}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Microsoft.Extensions.Primitives.dll" Name="Microsoft.Extensions.Primitives.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Primitives.dll" />
+      </Component>
+
+      <Component Id="HideezService.Newtonsoft.Json.dll" Guid="{250D350B-3CD8-4F25-B28E-6F31F6C8FC31}" Win64="$(var.Win64)">
+	      <File Id="HideezService.Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.HideezServiceHost_TargetDir)Newtonsoft.Json.dll" />
+      </Component>
+
+      <Component Id="HideezService.NLog.config" Guid="{58CA5238-F54C-4D8E-89C2-6D18B512189B}" Win64="$(var.Win64)">
+	      <File Id="HideezService.NLog.config" Name="NLog.config" Source="$(var.HideezServiceHost_TargetDir)NLog.config" />
+      </Component>
+
+      <Component Id="HideezService.NLog.dll" Guid="{BFB79138-6938-48B4-AE0A-A1E59A9BE402}" Win64="$(var.Win64)">
+	      <File Id="HideezService.NLog.dll" Name="NLog.dll" Source="$(var.HideezServiceHost_TargetDir)NLog.dll" />
+      </Component>
+
+      <Component Id="HideezService.ServiceLibrary.dll" Guid="{8B4691B4-ED4E-4680-9E0C-CB315639EBC9}" Win64="$(var.Win64)">
+	      <File Id="HideezService.ServiceLibrary.dll" Name="ServiceLibrary.dll" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.dll" />
+      </Component>
+
+      <Component Id="HideezService.ServiceLibrary.dll.config" Guid="{5553ADED-5C17-41D4-BD8E-42B042D869A1}" Win64="$(var.Win64)">
+	      <File Id="HideezService.ServiceLibrary.dll.config" Name="ServiceLibrary.dll.config" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.dll.config" />
+      </Component>
+
+      <Component Id="HideezService.ServiceLibrary.Implementation.dll" Guid="{1BFB0C0F-9742-4790-BD3F-507DF4C37870}" Win64="$(var.Win64)">
+	      <File Id="HideezService.ServiceLibrary.Implementation.dll" Name="ServiceLibrary.Implementation.dll" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.Implementation.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Buffers.dll" Guid="{E3E6B1EB-E722-4E19-8B4A-0CD7ADA80EBB}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Buffers.dll" Name="System.Buffers.dll" Source="$(var.HideezServiceHost_TargetDir)System.Buffers.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Collections.Immutable.dll" Guid="{052AFDF4-83DD-4D5F-A171-62FB61FF27F1}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Collections.Immutable.dll" Name="System.Collections.Immutable.dll" Source="$(var.HideezServiceHost_TargetDir)System.Collections.Immutable.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.ComponentModel.Annotations.dll" Guid="{3DC85BC3-A6F7-4D47-BC2B-8EFA1E0C0966}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.ComponentModel.Annotations.dll" Name="System.ComponentModel.Annotations.dll" Source="$(var.HideezServiceHost_TargetDir)System.ComponentModel.Annotations.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.IO.Pipelines.dll" Guid="{75682E59-B79C-478E-B4BC-21FCFE905601}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.IO.Pipelines.dll" Name="System.IO.Pipelines.dll" Source="$(var.HideezServiceHost_TargetDir)System.IO.Pipelines.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Memory.dll" Guid="{FCD82922-DFF5-464D-8DB1-A256D8B3D742}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Memory.dll" Name="System.Memory.dll" Source="$(var.HideezServiceHost_TargetDir)System.Memory.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Numerics.Vectors.dll" Guid="{B360FFBE-A426-4BC7-9F3E-E98027380846}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Numerics.Vectors.dll" Name="System.Numerics.Vectors.dll" Source="$(var.HideezServiceHost_TargetDir)System.Numerics.Vectors.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Runtime.CompilerServices.Unsafe.dll" Guid="{569FB82F-8C31-43AF-8B13-95427130804E}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.HideezServiceHost_TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Threading.Channels.dll" Guid="{11AFEC0F-201B-4690-9DB8-69E3AC0E2361}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Threading.Channels.dll" Name="System.Threading.Channels.dll" Source="$(var.HideezServiceHost_TargetDir)System.Threading.Channels.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Threading.Tasks.Extensions.dll" Guid="{E18EBF8F-D20A-44E4-9AF3-00CF1678852C}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.HideezServiceHost_TargetDir)System.Threading.Tasks.Extensions.dll" />
+      </Component>
+
+      <Component Id="HideezService.AsyncEnumerable.dll" Guid="{439A1245-4CD6-4279-94E6-4A9D9A5822C2}" Win64="$(var.Win64)">
+        <File Id="HideezService.AsyncEnumerable.dll" Name="AsyncEnumerable.dll" Source="$(var.HideezServiceHost_TargetDir)AsyncEnumerable.dll" />
+      </Component>
+      
+    </ComponentGroup>
+  </Fragment>
+  
+  <!-- Rfid Service -->
+  <Fragment>
+    <ComponentGroup Id="RfidService" Directory="rfid">
+      <Component Id="RfidService.exe" Guid="{91C5AEC8-1A43-482F-B18F-AAE44830D8B4}">
+        <File Id="RfidService.exe" Name="RfidService.exe" KeyPath="yes" Source="$(var.RfidService_TargetDir)RfidService.exe" />
+        <ServiceInstall
+          Id="si_RfidService"
+          Name="Hideez RFID Service"
+          DisplayName ="Hideez RFID Service"
+          Start="auto"
+          ErrorControl="normal"
+          Type="ownProcess"
+          Description="Communicates information received from RFID reader">
+          <ServiceConfig DelayedAutoStart="no" OnInstall="yes" />
+          <util:ServiceConfig
+            FirstFailureActionType="restart"
+            SecondFailureActionType="restart"
+            ThirdFailureActionType="none"
+            RestartServiceDelayInSeconds="5"
+            ResetPeriodInDays="1"/>
+        </ServiceInstall>
+        <ServiceControl
+          Id="sc_RfidService"
+          Name="Hideez RFID Service"
+          Start="install"
+          Stop="both"
+          Remove="uninstall"
+          Wait="yes" />
+      </Component>
+  
+      <!-- Rfid Service dependencies -->    
+      <!-- Even though all components may be specified as Win64=true, all of them are actually 32-bit -->
+      <Component Id="RfidService.exe.config" Guid="{C44BC368-C707-4296-AA03-A862688BA53F}">
+        <File Id="RfidService.exe.config" Name="RfidService.exe.config" Source="$(var.RfidService_TargetDir)RfidService.exe.config" />
+      </Component>
+
+      <Component Id="Rfid.Communication.dll" Guid="{DD0C2FAE-5DDB-4B5F-AEFD-6AE74B9E58E4}">
+        <File Id="Rfid.Communication.dll" Name="Communication.dll" Source="$(var.Communication_x86_TargetDir)Communication.dll" />
+      </Component>
+  
+      <Component Id="SRF32.dll" Guid="{34E50D90-5B84-476C-922D-B05C91F55B5D}">
+        <File Id="SRF32.dll" Name="SRF32.dll" Source="$(var.32bit_Binaries_Dir)SRF32.dll" />
+      </Component>
+  
+    </ComponentGroup>
+  </Fragment>
+    
+    <!--Credential Provider-->
+  <Fragment>
+    <ComponentGroup Id="CredentialProvider" Directory="$(var.PlatformSystemFolder)">
+
+      <Component Id="HideezCredentialProvider3.dll" Permanent="no" Guid="{7299ECC5-63F2-4AD8-A532-4E1858A35C4D}">
+        <File Id="HideezCredentialProvider3.dll" Name="HideezCredentialProvider3.dll" Source="$(var.Binaries_Dir)HideezCredentialProvider3.dll" />
+      </Component>
+      
+      <Component Id="RegistryEntries" Guid="{F0D151AC-0C65-4FC8-B023-FC5B70FE9550}">
+        
+        <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{B66379C8-92CD-422B-A3DA-5E733F8D07F5}">
+          <RegistryValue Type="string" Value="HideezCredentialProvider3" KeyPath="yes"/>
+        </RegistryKey>
+
+        <RegistryKey Root="HKCR" Key="CLSID\{B66379C8-92CD-422B-A3DA-5E733F8D07F5}">
+          <RegistryValue Type="string" Value="HideezCredentialProvider3" />
+        </RegistryKey>
+
+        <RegistryKey Root="HKCR" Key="CLSID\{B66379C8-92CD-422B-A3DA-5E733F8D07F5}\InprocServer32">
+          <RegistryValue Type="string" Value="HideezCredentialProvider3.dll" />
+          <RegistryValue Type="string" Name="ThreadingModel" Value="Apartment" />
+        </RegistryKey>
+      
+      </Component>
+    
+    </ComponentGroup>
+  </Fragment>
+      
+  <!--Install Directory / Main application-->
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+
+      <Component Id="Crypto.dll" Guid="{63655150-2668-445A-A18A-A9B042DB8F54}" Win64="$(var.Win64)">
+        <File Id="Crypto.dll" Name="Crypto.dll" Source="$(var.Binaries_Dir)Crypto.dll" />
+      </Component>
+      
+      <!-- Generated -->
+      <Component Id="CommonServiceLocator.dll" Guid="{CD697ED0-D146-4143-B2E6-1E1A096FA7F2}" Win64="$(var.Win64)">
+	      <File Id="CommonServiceLocator.dll" Name="CommonServiceLocator.dll" Source="$(var.HideezClient_TargetDir)CommonServiceLocator.dll" />
+      </Component>
+
+      <Component Id="ControlzEx.dll" Guid="{53130A88-D5A9-4DDE-A254-3985F397A230}" Win64="$(var.Win64)">
+	      <File Id="ControlzEx.dll" Name="ControlzEx.dll" Source="$(var.HideezClient_TargetDir)ControlzEx.dll" />
+      </Component>
+
+      <Component Id="GalaSoft.MvvmLight.dll" Guid="{F13DC48F-85C3-432A-AD74-D409924DE1DB}" Win64="$(var.Win64)">
+	      <File Id="GalaSoft.MvvmLight.dll" Name="GalaSoft.MvvmLight.dll" Source="$(var.HideezClient_TargetDir)GalaSoft.MvvmLight.dll" />
+      </Component>
+
+      <Component Id="GalaSoft.MvvmLight.Extras.dll" Guid="{1FF76CEC-2D89-483F-B88F-570A631924D0}" Win64="$(var.Win64)">
+	      <File Id="GalaSoft.MvvmLight.Extras.dll" Name="GalaSoft.MvvmLight.Extras.dll" Source="$(var.HideezClient_TargetDir)GalaSoft.MvvmLight.Extras.dll" />
+      </Component>
+
+      <Component Id="GalaSoft.MvvmLight.Platform.dll" Guid="{A40280FA-48CD-450E-9461-142B9BA54068}" Win64="$(var.Win64)">
+	      <File Id="GalaSoft.MvvmLight.Platform.dll" Name="GalaSoft.MvvmLight.Platform.dll" Source="$(var.HideezClient_TargetDir)GalaSoft.MvvmLight.Platform.dll" />
+      </Component>
+
+      <Component Id="Gu.Wpf.Adorners.dll" Guid="{D123B299-E2AA-4E6D-8C90-76449D818EEF}" Win64="$(var.Win64)">
+	      <File Id="Gu.Wpf.Adorners.dll" Name="Gu.Wpf.Adorners.dll" Source="$(var.HideezClient_TargetDir)Gu.Wpf.Adorners.dll" />
+      </Component>
+
+      <Component Id="Hardcodet.Wpf.TaskbarNotification.dll" Guid="{3DC454AF-328E-4184-98DA-C0A5F23D29D4}" Win64="$(var.Win64)">
+	      <File Id="Hardcodet.Wpf.TaskbarNotification.dll" Name="Hardcodet.Wpf.TaskbarNotification.dll" Source="$(var.HideezClient_TargetDir)Hardcodet.Wpf.TaskbarNotification.dll" />
+      </Component>
+
+      <Component Id="HideezClient.exe" Guid="{CFEB4558-66CE-4046-9F54-44218E4B8888}" Win64="$(var.Win64)">
+	      <File Id="HideezClient.exe" Name="HideezClient.exe" Source="$(var.HideezClient_TargetDir)HideezClient.exe" />
+      </Component>
+
+      <Component Id="HideezClient.exe.config" Guid="{F69B06AC-86B8-4244-8C00-D22F31035E9F}" Win64="$(var.Win64)">
+	      <File Id="HideezClient.exe.config" Name="HideezClient.exe.config" Source="$(var.HideezClient_TargetDir)HideezClient.exe.config" />
+      </Component>
+
+      <Component Id="MahApps.Metro.dll" Guid="{7AB2D849-38F2-4E21-9AC8-4E2497C60734}" Win64="$(var.Win64)">
+	      <File Id="MahApps.Metro.dll" Name="MahApps.Metro.dll" Source="$(var.HideezClient_TargetDir)MahApps.Metro.dll" />
+      </Component>
+
+      <Component Id="MahApps.Metro.IconPacks.dll" Guid="{13C19D92-5816-4315-8AFE-247969E6E0D3}" Win64="$(var.Win64)">
+	      <File Id="MahApps.Metro.IconPacks.dll" Name="MahApps.Metro.IconPacks.dll" Source="$(var.HideezClient_TargetDir)MahApps.Metro.IconPacks.dll" />
+      </Component>
+
+      <Component Id="MvvmExtensions.dll" Guid="{593AD8DC-9AEB-4EAF-8699-B9550FC1420D}" Win64="$(var.Win64)">
+	      <File Id="MvvmExtensions.dll" Name="MvvmExtensions.dll" Source="$(var.HideezClient_TargetDir)MvvmExtensions.dll" />
+      </Component>
+
+      <Component Id="NLog.config" Guid="{90C30FA3-D866-4829-B380-E82D39F7FBC9}" Win64="$(var.Win64)">
+	      <File Id="NLog.config" Name="NLog.config" Source="$(var.HideezClient_TargetDir)NLog.config" />
+      </Component>
+
+      <Component Id="NLog.dll" Guid="{46769438-F37C-466A-9C83-1F35BEB4C604}" Win64="$(var.Win64)">
+	      <File Id="NLog.dll" Name="NLog.dll" Source="$(var.HideezClient_TargetDir)NLog.dll" />
+      </Component>
+
+      <Component Id="SingleInstanceApp.dll" Guid="{5D8817D7-B2CC-4A3C-866D-9532C3E89BD9}" Win64="$(var.Win64)">
+	      <File Id="SingleInstanceApp.dll" Name="SingleInstanceApp.dll" Source="$(var.HideezClient_TargetDir)SingleInstanceApp.dll" />
+      </Component>
+
+      <Component Id="System.Runtime.CompilerServices.Unsafe.dll" Guid="{EF85B0AB-4DE3-45A8-8AB6-B787D413CFCE}" Win64="$(var.Win64)">
+	      <File Id="System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.HideezClient_TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
+      </Component>
+
+      <Component Id="System.Windows.Interactivity.dll" Guid="{9C1BA4AD-1C48-4DB9-8F99-6CCB89118A98}" Win64="$(var.Win64)">
+	      <File Id="System.Windows.Interactivity.dll" Name="System.Windows.Interactivity.dll" Source="$(var.HideezClient_TargetDir)System.Windows.Interactivity.dll" />
+      </Component>
+
+      <Component Id="Unity.Abstractions.dll" Guid="{E7CED019-EF33-4BDB-8EBD-B997CA320717}" Win64="$(var.Win64)">
+	      <File Id="Unity.Abstractions.dll" Name="Unity.Abstractions.dll" Source="$(var.HideezClient_TargetDir)Unity.Abstractions.dll" />
+      </Component>
+
+      <Component Id="Unity.Container.dll" Guid="{A90BB65A-CB93-41EE-AFB4-F544DD506BAD}" Win64="$(var.Win64)">
+	      <File Id="Unity.Container.dll" Name="Unity.Container.dll" Source="$(var.HideezClient_TargetDir)Unity.Container.dll" />
+      </Component>
+
+      <Component Id="XAMLMarkupExtensions.dll" Guid="{F003800A-C6B8-46B8-A1A1-97F0A09A8331}" Win64="$(var.Win64)">
+	      <File Id="XAMLMarkupExtensions.dll" Name="XAMLMarkupExtensions.dll" Source="$(var.HideezClient_TargetDir)XAMLMarkupExtensions.dll" />
+      </Component>
+      
+      <Component Id="WindowsInput.dll" Guid="{350D1D36-EBAE-4540-97A0-03DF027C0A85}" Win64="$(var.Win64)">
+        <File Id="WindowsInput.dll" Name="WindowsInput.dll" Source="$(var.HideezClient_TargetDir)WindowsInput.dll" />
+      </Component>
+
+      <Component Id="Hideez.ARM.dll" Guid="{9B74E207-6A9F-44ED-89FB-CF2895F44E84}" Win64="$(var.Win64)">
+        <File Id="Hideez.ARM.dll" Name="Hideez.ARM.dll" Source="$(var.HideezClient_TargetDir)Hideez.ARM.dll" />
+      </Component>
+
+      <Component Id="Hideez.ISM.dll" Guid="{AD14C166-1003-4BE9-8480-975288E08CB2}" Win64="$(var.Win64)">
+        <File Id="Hideez.ISM.dll" Name="Hideez.ISM.dll" Source="$(var.HideezClient_TargetDir)Hideez.ISM.dll" />
+      </Component>
+
+      <Component Id="NHotkey.dll" Guid="{8D9BA9A7-380F-4794-9B0A-F4333A4FF5EC}" Win64="$(var.Win64)">
+        <File Id="NHotkey.dll" Name="NHotkey.dll" Source="$(var.HideezClient_TargetDir)NHotkey.dll" />
+      </Component>
+
+      <Component Id="NHotkey.Wpf.dll" Guid="{21056047-2A83-442D-9ECA-59723CF8812D}" Win64="$(var.Win64)">
+        <File Id="NHotkey.Wpf.dll" Name="NHotkey.Wpf.dll" Source="$(var.HideezClient_TargetDir)NHotkey.Wpf.dll" />
+      </Component>
+
+      <Component Id="Communication.dll" Guid="{D12DD99F-572D-4832-A001-3913D81D5956}" Win64="$(var.Win64)">
+        <File Id="Communication.dll" Name="Communication.dll" Source="$(var.HideezClient_TargetDir)Communication.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.Connections.Abstractions.dll" Guid="{4CBEA0B5-D1D1-4913-A900-4C4138254712}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.Connections.Abstractions.dll" Name="Microsoft.AspNetCore.Connections.Abstractions.dll" Source="$(var.HideezClient_TargetDir)Microsoft.AspNetCore.Connections.Abstractions.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.Http.Connections.Client.dll" Guid="{96EB5C4E-E8F4-452C-89EA-1C41193BD936}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.Http.Connections.Client.dll" Name="Microsoft.AspNetCore.Http.Connections.Client.dll" Source="$(var.HideezClient_TargetDir)Microsoft.AspNetCore.Http.Connections.Client.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.Http.Connections.Common.dll" Guid="{42C118EB-FBC2-41E8-A34A-39DD49DDEF6A}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.Http.Connections.Common.dll" Name="Microsoft.AspNetCore.Http.Connections.Common.dll" Source="$(var.HideezClient_TargetDir)Microsoft.AspNetCore.Http.Connections.Common.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.Http.Features.dll" Guid="{D26A6F9B-CFE2-490D-A376-A9E87EE876DE}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.Http.Features.dll" Name="Microsoft.AspNetCore.Http.Features.dll" Source="$(var.HideezClient_TargetDir)Microsoft.AspNetCore.Http.Features.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.SignalR.Client.Core.dll" Guid="{B2F42A56-5436-4527-904A-C23D48128258}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.SignalR.Client.Core.dll" Name="Microsoft.AspNetCore.SignalR.Client.Core.dll" Source="$(var.HideezClient_TargetDir)Microsoft.AspNetCore.SignalR.Client.Core.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.SignalR.Client.dll" Guid="{7B76E20D-BB9B-46A2-9FBC-809F5E4B62CB}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.SignalR.Client.dll" Name="Microsoft.AspNetCore.SignalR.Client.dll" Source="$(var.HideezClient_TargetDir)Microsoft.AspNetCore.SignalR.Client.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.SignalR.Common.dll" Guid="{F48CC5DE-76B2-468E-9452-F94ECB5F367D}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.SignalR.Common.dll" Name="Microsoft.AspNetCore.SignalR.Common.dll" Source="$(var.HideezClient_TargetDir)Microsoft.AspNetCore.SignalR.Common.dll" />
+      </Component>
+
+      <Component Id="Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Guid="{236FF59E-4781-44DD-9BF8-43D64F36165D}" Win64="$(var.Win64)">
+        <File Id="Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Name="Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Source="$(var.HideezClient_TargetDir)Microsoft.AspNetCore.SignalR.Protocols.Json.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Guid="{3ECC34C9-734B-4BDC-99B2-B28FF8C97A6C}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="$(var.HideezClient_TargetDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Extensions.DependencyInjection.dll" Guid="{59702D06-460E-48A8-88A6-43834A60972A}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Extensions.DependencyInjection.dll" Name="Microsoft.Extensions.DependencyInjection.dll" Source="$(var.HideezClient_TargetDir)Microsoft.Extensions.DependencyInjection.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Extensions.Logging.Abstractions.dll" Guid="{AAA768CA-97CB-4046-AFDF-7A2FAD1D0E62}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Extensions.Logging.Abstractions.dll" Name="Microsoft.Extensions.Logging.Abstractions.dll" Source="$(var.HideezClient_TargetDir)Microsoft.Extensions.Logging.Abstractions.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Extensions.Logging.dll" Guid="{60EA861F-D158-4028-A5CD-435CCBDCE948}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Extensions.Logging.dll" Name="Microsoft.Extensions.Logging.dll" Source="$(var.HideezClient_TargetDir)Microsoft.Extensions.Logging.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Extensions.Options.dll" Guid="{58311D7F-7C4C-44A9-B209-EF3EE17203AF}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Extensions.Options.dll" Name="Microsoft.Extensions.Options.dll" Source="$(var.HideezClient_TargetDir)Microsoft.Extensions.Options.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Extensions.Primitives.dll" Guid="{E9339A34-0649-45D2-BBA7-386E6833D2E7}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Extensions.Primitives.dll" Name="Microsoft.Extensions.Primitives.dll" Source="$(var.HideezClient_TargetDir)Microsoft.Extensions.Primitives.dll" />
+      </Component>
+
+      <Component Id="Newtonsoft.Json.dll" Guid="{5A32D163-30C3-4164-BBD7-4E43F62C3E2B}" Win64="$(var.Win64)">
+        <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.HideezClient_TargetDir)Newtonsoft.Json.dll" />
+      </Component>
+
+      <Component Id="System.IO.Pipelines.dll" Guid="{0A6F1CDA-AB0E-4522-8B7D-CC8AA5F7BA76}" Win64="$(var.Win64)">
+        <File Id="System.IO.Pipelines.dll" Name="System.IO.Pipelines.dll" Source="$(var.HideezClient_TargetDir)System.IO.Pipelines.dll" />
+      </Component>
+
+      <Component Id="System.Memory.dll" Guid="{C4CD4412-E6B6-4130-9893-312ADEFBC532}" Win64="$(var.Win64)">
+        <File Id="System.Memory.dll" Name="System.Memory.dll" Source="$(var.HideezClient_TargetDir)System.Memory.dll" />
+      </Component>
+
+      <Component Id="System.Numerics.Vectors.dll" Guid="{8EAF6272-4896-4E71-B00B-EAF1B3E70B1B}" Win64="$(var.Win64)">
+        <File Id="System.Numerics.Vectors.dll" Name="System.Numerics.Vectors.dll" Source="$(var.HideezClient_TargetDir)System.Numerics.Vectors.dll" />
+      </Component>
+
+      <Component Id="System.Threading.Channels.dll" Guid="{73CD6F0B-2B90-415B-B577-55648E92E78D}" Win64="$(var.Win64)">
+        <File Id="System.Threading.Channels.dll" Name="System.Threading.Channels.dll" Source="$(var.HideezClient_TargetDir)System.Threading.Channels.dll" />
+      </Component>
+
+      <Component Id="System.Threading.Tasks.Extensions.dll" Guid="{BC38B6DB-2868-4E2E-A728-9E70B26CDED1}" Win64="$(var.Win64)">
+        <File Id="System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.HideezClient_TargetDir)System.Threading.Tasks.Extensions.dll" />
+      </Component>
+
+      <Component Id="UIAComWrapper.dll" Guid="{915BD4FC-D4C2-4ADD-91C6-8E2DC2D9967E}" Win64="$(var.Win64)">
+        <File Id="UIAComWrapper.dll" Name="UIAComWrapper.dll" Source="$(var.HideezClient_TargetDir)UIAComWrapper.dll" />
+      </Component>
+
+      <Component Id="Interop.UIAutomationClient.dll" Guid="{7C31EDD4-126A-4B7F-9D4D-43E0E0DC603C}" Win64="$(var.Win64)">
+        <File Id="Interop.UIAutomationClient.dll" Name="Interop.UIAutomationClient.dll" Source="$(var.HideezClient_TargetDir)Interop.UIAutomationClient.dll" />
+      </Component>
+      
+      <Component Id="AsyncEnumerable.dll" Guid="{4D4E952C-EE19-46C9-B8A4-2FFB3993D084}" Win64="$(var.Win64)">
+        <File Id="AsyncEnumerable.dll" Name="AsyncEnumerable.dll" Source="$(var.HideezClient_TargetDir)AsyncEnumerable.dll" />
+      </Component>
+      
+      <Component Id="HideezMiddleware.dll" Guid="{FFFE2825-97AE-41B1-98FB-B9F7B03F00B7}" Win64="$(var.Win64)">
+	      <File Id="HideezMiddleware.dll" Name="HideezMiddleware.dll" Source="$(var.HideezServiceHost_TargetDir)HideezMiddleware.dll" />
+      </Component>
+    
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- CSR Driver -->
+  <Fragment>
+    <ComponentGroup Id="CsrDriverShared" Directory="csr">
+      <Component Id="DPInst.xml" Permanent="no" Guid="{E5D9E610-9C05-43E6-9F0F-9ED3F8B6755B}">
+        <File Id="DPInst.xml" Name="DPInst.xml" Source="$(var.DPInst_SourceDir)DPInst.xml" />
+      </Component>
+      <Component Id="DPInst_x64.exe" Permanent="no" Guid="{44EAE128-BB8C-4706-8BC5-19193F7277A9}">
+        <Condition>VersionNT64</Condition>
+        <File Id="DPInst_x64.exe" Name="DPInst.exe" Source="$(var.DPInst_SourceDir)DPInst_x64.exe" />
+      </Component>
+      <Component Id="DPInst_x86.exe" Permanent="no" Guid="{F153641C-0C7A-4D82-A409-500808AE747D}">
+        <Condition>NOT VersionNT64</Condition>
+        <File Id="DPInst_x86.exe" Name="DPInst.exe" Source="$(var.DPInst_SourceDir)DPInst_x86.exe" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- win7 x64 -->
+    <ComponentGroup Id="CsrDriverWin7x64" Directory="csr">
+      <Component Id="csrbc_win7_x64.sys" Permanent="no" Guid="{64BE26F7-2B26-49EC-9CCB-93CBE71457E5}">
+        <Condition>VersionNT = 601 AND VersionNT64</Condition>
+        <File Id="csrbc_win7_x64.sys" Name="csrbc.sys" Source="$(var.CsrWin7_x64_SourceDir)csrbc.sys" />
+      </Component>
+      <Component Id="csrbluecoreusb_win7_x64.cat" Permanent="no" Guid="{1B635AED-BF04-4F71-BB5B-8F33CFA8A7E9}">
+        <Condition>VersionNT = 601 AND VersionNT64</Condition>
+        <File Id="csrbluecoreusb_win7_x64.cat" Name="csrbluecoreusb.cat" Source="$(var.CsrWin7_x64_SourceDir)csrbluecoreusb.cat" />
+      </Component>
+      <Component Id="CSRBlueCoreUSB_win7_x64.inf" Guid="{CB24A014-B374-4429-BE00-261C5F6C14AF}">
+        <Condition>VersionNT = 601 AND VersionNT64</Condition>
+        <File Id="CSRBlueCoreUSB_win7_x64.inf" Name="CSRBlueCoreUSB.inf" Source="$(var.CsrWin7_x64_SourceDir)CSRBlueCoreUSB.inf" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- win7 x86 -->
+    <ComponentGroup Id="CsrDriverWin7x86" Directory="csr">
+      <Component Id="csrbc_win7_x86.sys" Permanent="no" Guid="{86738B3B-E11F-4031-A0AC-9CF347ACE983}">
+        <Condition>VersionNT = 601 AND NOT VersionNT64</Condition>
+        <File Id="csrbc_win7_x86.sys" Name="csrbc.sys" Source="$(var.CsrWin7_x86_SourceDir)csrbc.sys" />
+      </Component>
+      <Component Id="csrbc2k_win7_x86.sys" Permanent="no" Guid="{4AF28ADC-F915-49FD-B534-56719368D48F}">
+        <Condition>VersionNT = 601 AND NOT VersionNT64</Condition>
+        <File Id="csrbc2k_win7_x86.sys" Name="csrbc2k.sys" Source="$(var.CsrWin7_x86_SourceDir)csrbc2k.sys" />
+      </Component>
+      <Component Id="csrbluecoreusb_win7_x86.cat" Permanent="no" Guid="{97B3C874-AB99-4E74-A4A7-54841BCE6532}">
+        <Condition>VersionNT = 601 AND NOT VersionNT64</Condition>
+        <File Id="csrbluecoreusb_win7_x86.sys" Name="csrbluecoreusb.cat" Source="$(var.CsrWin7_x86_SourceDir)csrbluecoreusb.cat" />
+      </Component>
+      <Component Id="CSRBLueCoreUSB_win7_x86.inf" Permanent="no" Guid="{1F51E63D-ABD1-4F2D-A751-FA9D63A4D1C8}">
+        <Condition>VersionNT = 601 AND NOT VersionNT64</Condition>
+        <File Id="CSRBlueCoreUSB_win7_x86.inf" Name="CSRBlueCoreUSB.inf" Source="$(var.CsrWin7_x86_SourceDir)CSRBlueCoreUSB.inf" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- win8 x64 -->
+    <ComponentGroup Id="CsrDriverWin8x64" Directory="csr">
+      <Component Id="csrbc_win8_x64.cat" Permanent="no" Guid="{524ADAD7-76AA-4A77-BBE0-777D2E4F49B4}">
+        <Condition>VersionNT >= 602 AND VersionNT64</Condition>
+        <File Id="csrbc_win8_x64.cat" Name="csrbc.cat" Source="$(var.CsrWin8_x64_SourceDir)csrbc.cat" />
+      </Component>
+      <Component Id="csrbc_win8_x64.inf" Permanent="no" Guid="{100FEA88-E370-45A5-8636-BDB64AA310DF}">
+        <Condition>VersionNT >= 602 AND VersionNT64</Condition>
+        <File Id="csrbc_win8_x64.inf" Name="csrbc.inf" Source="$(var.CsrWin8_x64_SourceDir)csrbc.inf" />
+      </Component>
+      <Component Id="csrbc_win8_x64.sys" Permanent="no" Guid="{579066A2-D22D-4E62-B6EA-4852660BF4DD}">
+        <Condition>VersionNT >= 602 AND VersionNT64</Condition>
+        <File Id="csrbc_win8_x64.sys" Name="csrbc.sys" Source="$(var.CsrWin8_x64_SourceDir)csrbc.sys" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- win8 x86 -->
+    <ComponentGroup Id="CsrDriverWin8x86" Directory="csr">
+      <Component Id="csrbc_win8_x86.cat" Permanent="no" Guid="{FB8C2F77-3C2E-4249-BD31-22FF2336DEE7}">
+        <Condition>VersionNT >= 602 AND NOT VersionNT64</Condition>
+        <File Id="csrbc_win8_x86.cat" Name="csrbc.cat" Source="$(var.CsrWin8_x86_SourceDir)csrbc.cat" />
+      </Component>
+      <Component Id="csrbc_win8_x86.inf" Permanent="no" Guid="{582BD3E2-39C6-4C7B-A970-69CE28584B62}">
+        <Condition>VersionNT >= 602 AND NOT VersionNT64</Condition>
+        <File Id="csrbc_win8_x86.inf" Name="csrbc.inf" Source="$(var.CsrWin8_x86_SourceDir)csrbc.inf" />
+      </Component>
+      <Component Id="csrbc_win8_x86.sys" Permanent="no" Guid="{43076818-25CF-4028-9807-67475A876FDF}">
+        <Condition>VersionNT >= 602 AND NOT VersionNT64</Condition>
+        <File Id="csrbc_win8_x86.sys" Name="csrbc.sys" Source="$(var.CsrWin8_x86_SourceDir)csrbc.sys" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+  <!-- End of CSR Driver -->
+
+  <!--ru-->
+  <Fragment>
+    <ComponentGroup Id="ru_files" Directory="ru">
+      <Component Id="ru_HideezClient.resources.dll" Guid="{5F0066D8-DFA9-4196-A047-8C66A5357586}">
+        <File Id="ru_HideezClient.resources.dll"
+              Name="HideezClient.resources.dll"
+              Source="$(var.HideezClient_TargetDir)ru\HideezClient.resources.dll" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <!--uk-->
+  <Fragment>
+    <ComponentGroup Id="uk_files" Directory="uk">
+      <Component Id="uk_HideezClient.resources.dll" Guid="{6C626C6F-D6A6-4106-B700-620EA4954D25}">
+        <File Id="uk_HideezClient.resources.dll"
+              Name="HideezClient.resources.dll"
+              Source="$(var.HideezClient_TargetDir)uk\HideezClient.resources.dll" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Custom Action - CSR Driver installation -->
+  <Fragment>
+    <CustomAction Id="DataForSetupCustomComponentsAction"
+                  Property="SetupCustomComponentsAction"
+                  Value="HesAddress=[HESADDRESS];InstallDongleDriver=[INSTALLDONGLEDRIVER];CsrDriverPath=[CSRDRIVERPATH];IgnoreWorkstationOwnershipSecurity=[IGNOREWORKSTATIONOWNERSHIPSECURITY]" />
+    <Binary Id="CustomActionSetup" SourceFile="$(var.CustomAction.TargetDir)CustomAction.CA.dll"/>
+    <CustomAction Id="SetupCustomComponentsAction" 
+                  BinaryKey="CustomActionSetup" 
+                  DllEntry="SetupCustomComponentsAction" 
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="check"/>
+  </Fragment>
+  
+</Wix>

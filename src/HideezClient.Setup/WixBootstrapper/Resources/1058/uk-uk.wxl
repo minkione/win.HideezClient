@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="uk-uk" Language="1058" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+  <String Id="Caption">Інсталяція [WixBundleName]</String>
+  <String Id="Title">[WixBundleName]</String>
+  <String Id="ConfirmCancelMessage">Ви впевнені, що бажаєте скасувати?</String>
+  <String Id="ExecuteUpgradeRelatedBundleMessage">Попередня версія</String>
+
+  <!-- Help Page -->
+  <String Id="HelpHeader">Інструкції з встановлення</String>
+  <String Id="HelpText">
+/install | /repair | /uninstall | /layout [directory] - installs, repairs, uninstalls or
+creates a complete local copy of the bundle in directory. Install is the default.
+
+/passive | /quiet -  displays minimal UI with no prompts or displays no UI and
+no prompts. By default UI and all prompts are displayed.
+
+/norestart   - suppress any attempts to restart. By default UI will prompt before restart.
+/log log.txt - logs to a specific file. By default a log file is created in %TEMP%.
+  </String>
+  <String Id="HelpCloseButton">&amp;Закрити</String>
+
+  <!-- Custom Strings -->
+  <String Id="UnsupportedOS">Ваша операційна система не підтримується [WixBundleName]. Необхідно використовувати Windows 7 або більш нову для роботи програми.</String>
+
+  <!-- Install Page -->
+  <String Id="InstallHeader">Ласкаво просимо</String>
+  <String Id="InstallMessage">Інсталяційна програма встановить [WixBundleName] на вашому комп'ютері. Будь ласка, перегляньте та погодьтеся з Правилами Експлуатації на натисніть Встановити для продовження або Закрити для виходу.</String>
+  <String Id="InstallLicenseLinkText">&lt;a href="#"&gt;Ліцензійна угода&lt;/a&gt; [WixBundleName]. </String>
+  <String Id="InstallVersion">Версія [WixBundleVersion]</String>
+  <String Id="InstallAcceptCheckbox">Я &amp;згоден з умовами Ліцензійної угоди</String>
+  <String Id="InstallOptionsButton">&amp;Параметри</String>
+  <String Id="InstallInstallButton">&amp;Встановити</String>
+  <String Id="InstallCloseButton">&amp;Закрити</String>
+  <String Id="InstallEnableGA">&amp;Відправляти анонімну статистику використання до Hideez</String>
+
+  <!-- Options Page -->
+  <String Id="OptionsHeader">Параметри встановлення</String>
+  <String Id="OptionsLocationLabel">Каталог встановлення:</String>
+  <String Id="OptionsBrowseButton">О&amp;гляд</String>
+  <String Id="OptionsOkButton">&amp;ОK</String>
+  <String Id="OptionsCancelButton">&amp;Відміна</String>
+
+  <!-- FilesInUse Page -->
+  <String Id="FilesInUseHeader">Файли зайняті</String>
+  <String Id="FilesInUseLabel">Наступні додатоки використовують файли, які потрібно замінити</String>
+  <String Id="FilesInUseCloseRadioButton">Закрити &amp;додатки та спробувати їх перезапустити.</String>
+  <String Id="FilesInUseDontCloseRadioButton">&amp;Не закривати додатки. Знадобиться перезавантаженя комп'ютера.</String>
+  <String Id="FilesInUseOkButton">&amp;ОK</String>
+  <String Id="FilesInUseCancelButton">&amp;Відміна</String>
+
+  <!-- Progress Page -->
+  <String Id="ProgressHeader">Процес встановлення</String>
+  <String Id="ProgressLabel">Обробка:</String>
+  <String Id="OverallProgressPackageText">Ініціалізація…</String>
+  <String Id="ProgressCancelButton">&amp;Відміна</String>
+
+  <!-- Modify Page -->
+  <String Id="ModifyHeader">Зміни встановлення</String>
+  <String Id="ModifyRepairButton">&amp;Відновити</String>
+  <String Id="ModifyUninstallButton">Ви&amp;далити</String>
+  <String Id="ModifyCloseButton">&amp;Закрити</String>
+
+  <!-- Success Page -->
+  <String Id="SuccessHeader">Встановлення успішне</String>
+  <String Id="SuccessInstallHeader">Встановлення успішно закінчено</String>
+  <String Id="SuccessRepairHeader">Відновлення успішно закінчено</String>
+  <String Id="SuccessUninstallHeader">Видалення успішно закінчено</String>
+  <String Id="SuccessLaunchButton">&amp;Запустити</String>
+  <String Id="SuccessRestartText">Потрібно перезавантажити комп'ютер перед тим як використовувати програму.</String>
+  <String Id="SuccessRestartButton">Пе&amp;резавантажити</String>
+  <String Id="SuccessCloseButton">&amp;Закрити</String>
+
+  <!-- Failure Page -->
+  <String Id="FailureHeader">Помилка установки</String>
+  <String Id="FailureInstallHeader">Помилка установки</String>
+  <String Id="FailureUninstallHeader">Помилка видалення</String>
+  <String Id="FailureRepairHeader">Помилка перевстановлення</String>
+  <String Id="FailureHyperlinkLogText">Виникли проблеми, що призвели до збою установки. Будь ласка, усуньте їх та спробуйте повторити установку. Деталі дивіться в &lt;a href="#"&gt;журналі&lt;/a&gt;.</String>
+  <String Id="FailureRestartText">Потрібно перезавантажити комп'ютер для повного видалення програми.</String>
+  <String Id="FailureRestartButton">Пе&amp;резавантажити</String>
+  <String Id="FailureCloseButton">&amp;Закрити</String>
+</WixLocalization>

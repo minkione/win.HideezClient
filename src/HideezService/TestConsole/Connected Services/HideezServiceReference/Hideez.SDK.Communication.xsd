@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/Hideez.SDK.Communication" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Hideez.SDK.Communication" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="ButtonPressCode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Single" />
+      <xs:enumeration value="Double" />
+      <xs:enumeration value="Triple" />
+      <xs:enumeration value="Quad" />
+      <xs:enumeration value="Penta" />
+      <xs:enumeration value="Hexa" />
+      <xs:enumeration value="Hepta" />
+      <xs:enumeration value="Octa" />
+      <xs:enumeration value="Multi" />
+      <xs:enumeration value="Long" />
+      <xs:enumeration value="SuperLong" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="ButtonPressCode" nillable="true" type="tns:ButtonPressCode" />
+</xs:schema>

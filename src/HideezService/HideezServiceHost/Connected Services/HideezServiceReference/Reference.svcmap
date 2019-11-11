@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="31cc1b44-2358-4435-8126-3a7b717b01c2" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="net.pipe://localhost/HideezService/mex" Protocol="mex" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="6bcf7243-e541-42fa-9a39-f65a5f60502b" SourceId="1" SourceUrl="net.pipe://localhost/HideezService/mex" />
+    <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="281c347d-3e99-4bef-b8c3-4821d992a463" SourceId="1" SourceUrl="net.pipe://localhost/HideezService/mex" />
+    <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="fac93d3e-2f81-4b49-b44a-bd20ede28d22" SourceId="1" SourceUrl="net.pipe://localhost/HideezService/mex" />
+    <MetadataFile FileName="ServiceLibrary.xsd" MetadataType="Schema" ID="28ec2d8d-9c0d-43fb-8958-55f1f25b6590" SourceId="1" SourceUrl="net.pipe://localhost/HideezService/mex" />
+    <MetadataFile FileName="System.xsd" MetadataType="Schema" ID="45a8bb40-4ea6-4f63-b426-10a092b693cc" SourceId="1" SourceUrl="net.pipe://localhost/HideezService/mex" />
+    <MetadataFile FileName="Hideez.SDK.Communication.xsd" MetadataType="Schema" ID="c0ef1aa4-1b2f-40b1-a58b-c8182cf9d298" SourceId="1" SourceUrl="net.pipe://localhost/HideezService/mex" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

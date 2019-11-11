@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ServiceLibrary" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ServiceLibrary" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://schemas.datacontract.org/2004/07/System" />
+  <xs:import namespace="http://schemas.datacontract.org/2004/07/Hideez.SDK.Communication" />
+  <xs:complexType name="ServiceClientParameters">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ClientType" type="tns:ClientType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ServiceClientParameters" nillable="true" type="tns:ServiceClientParameters" />
+  <xs:simpleType name="ClientType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ServiceHost" />
+      <xs:enumeration value="DesktopClient" />
+      <xs:enumeration value="TestConsole" />
+      <xs:enumeration value="RemoteDeviceConnection" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="ClientType" nillable="true" type="tns:ClientType" />
+  <xs:complexType name="HideezServiceFault">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorCode" type="xs:int" />
+      <xs:element minOccurs="0" name="FaultMessage" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="HideezServiceFault" nillable="true" type="tns:HideezServiceFault" />
+  <xs:complexType name="ArrayOfDeviceDTO">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="DeviceDTO" nillable="true" type="tns:DeviceDTO" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfDeviceDTO" nillable="true" type="tns:ArrayOfDeviceDTO" />
+  <xs:complexType name="DeviceDTO">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Battery" type="xs:byte" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/System" minOccurs="0" name="BootloaderVersion" nillable="true" type="q1:Version" />
+      <xs:element minOccurs="0" name="FinishedMainFlow" type="xs:boolean" />
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/System" minOccurs="0" name="FirmwareVersion" nillable="true" type="q2:Version" />
+      <xs:element minOccurs="0" name="Id" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsAuthorized" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsBoot" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsConnected" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsInitialized" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Owner" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PinAttemptsRemain" type="xs:int" />
+      <xs:element minOccurs="0" name="Proximity" type="xs:double" />
+      <xs:element minOccurs="0" name="SerialNo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="StorageFreeSize" type="xs:unsignedInt" />
+      <xs:element minOccurs="0" name="StorageTotalSize" type="xs:unsignedInt" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DeviceDTO" nillable="true" type="tns:DeviceDTO" />
+  <xs:complexType name="WorkstationEventDTO">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AccountLogin" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="AccountName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Date" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="DeviceId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="EventId" type="xs:int" />
+      <xs:element minOccurs="0" name="Id" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Note" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Severity" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="WorkstationEventDTO" nillable="true" type="tns:WorkstationEventDTO" />
+  <xs:complexType name="DeviceStateDTO">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AccessLevel" nillable="true" type="tns:AccessLevelDTO" />
+      <xs:element minOccurs="0" name="Battery" type="xs:byte" />
+      <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/Hideez.SDK.Communication" minOccurs="0" name="Button" type="q3:ButtonPressCode" />
+      <xs:element minOccurs="0" name="PinAttemptsRemain" type="xs:unsignedByte" />
+      <xs:element minOccurs="0" name="Rssi" type="xs:byte" />
+      <xs:element minOccurs="0" name="StorageUpdateCounter" type="xs:unsignedByte" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DeviceStateDTO" nillable="true" type="tns:DeviceStateDTO" />
+  <xs:complexType name="AccessLevelDTO">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="IsButtonRequired" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsLinkRequired" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsLocked" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsMasterKeyRequired" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsNewPinRequired" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsPinRequired" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AccessLevelDTO" nillable="true" type="tns:AccessLevelDTO" />
+</xs:schema>
