@@ -88,5 +88,10 @@ namespace ServiceLibrary
         {
             throw new NotImplementedException();
         }
+
+        public byte[] GetAvailableChannels(string serialNo)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -8,21 +8,21 @@ using System.Threading.Tasks;
 
 namespace HideezClient.Modules
 {
-    class RemoteDeviceFactory : IRemoteDeviceFactory
+    class RemoteDeviceFactory : Logger, IRemoteDeviceFactory
     {
         readonly IServiceProxy _serviceProxy;
         readonly IMessenger _messenger;
-        readonly ILog _log;
 
         public RemoteDeviceFactory(IServiceProxy serviceProxy, IMessenger messenger, ILog log)
+            : base(nameof(RemoteDeviceFactory), log)
         {
             _serviceProxy = serviceProxy;
             _messenger = messenger;
-            _log = log;
         }
 
         public async Task<RemoteDevice> CreateRemoteDeviceAsync(string serialNo, byte channelNo)
         {
+            WriteLine($"Creating remote device ({serialNo}) on channel:{channelNo}");
             var connectionId = await _serviceProxy.GetService().EstablishRemoteDeviceConnectionAsync(serialNo, channelNo);
 
             var remoteCommands = new RemoteDeviceCommands(_serviceProxy, _messenger, _log);

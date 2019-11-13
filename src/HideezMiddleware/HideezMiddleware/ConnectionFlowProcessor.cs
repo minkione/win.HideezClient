@@ -106,7 +106,7 @@ namespace HideezMiddleware
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
             var existingDevice = _deviceManager.Find(mac, (int)DefaultDeviceChannel.Main);
-            var isUnlocked = WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Unlocked;
+            var isUnlocked = WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked;
             if (existingDevice != null && existingDevice.IsConnected && isUnlocked)
                 return;
 
@@ -128,7 +128,7 @@ namespace HideezMiddleware
                 await _ui.SendNotification("", _infNid);
                 await _ui.SendError("", _errNid);
 
-                if (WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Locked)
+                if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Locked)
                 {
                     _screenActivator?.ActivateScreen();
                     _screenActivator?.StartPeriodicScreenActivation(0);
@@ -183,7 +183,7 @@ namespace HideezMiddleware
                         }
                     }
                 }
-                else if (WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Locked)
+                else if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Locked)
                 {
                     // Session is locked but workstation unlocker is not connected
                     success = false;

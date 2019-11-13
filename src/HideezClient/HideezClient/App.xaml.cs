@@ -3,16 +3,11 @@ using HideezClient.Utilities;
 using Unity;
 using Unity.Lifetime;
 using System;
-using System.Data;
-using System.Linq;
 using System.Windows;
-using System.Diagnostics;
 using System.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HideezClient.Properties;
 using SingleInstanceApp;
-using System.Runtime.InteropServices;
 using HideezClient.Modules;
 using GalaSoft.MvvmLight.Messaging;
 using NLog;
@@ -21,14 +16,12 @@ using Hardcodet.Wpf.TaskbarNotification;
 using System.Globalization;
 using System.Threading;
 using System.IO;
-using HideezClient.Mvvm;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Modules.Localize;
 using HideezClient.HideezServiceReference;
 using HideezClient.Modules.ServiceCallbackMessanger;
 using HideezClient.Modules.ServiceWatchdog;
 using HideezClient.Modules.DeviceManager;
-using HideezClient.Modules.SessionStateMonitor;
 using HideezClient.Modules.ActionHandler;
 using Hideez.ISM;
 using WindowsInput;
@@ -39,10 +32,12 @@ using HideezMiddleware.Settings;
 using Unity.Injection;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
-using HideezClient.Messages;
 using HideezClient.Controls;
 using System.Reflection;
 using HideezClient.Views;
+using Microsoft.Win32;
+using HideezClient.Messages;
+using System.Diagnostics;
 
 namespace HideezClient
 {
@@ -96,7 +91,7 @@ namespace HideezClient
                 LogManager.EnableLogging();
 
                 var fatalLogger = logger ?? LogManager.GetCurrentClassLogger();
-                var assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName();
+                var assemblyName = Assembly.GetExecutingAssembly().GetName();
 
                 fatalLogger.Fatal($"Unhandled exception in {assemblyName.Name} v{assemblyName.Version}");
                 fatalLogger.Fatal(e);
@@ -113,15 +108,15 @@ namespace HideezClient
                     Environment.FailFast("An error occured while handling an error during fatal error handling", exc);
                 }
             }
+
+            Cleanup();
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
-            // Unity-Container call Dispose on all instances implementing the IDisposable interface registered by ContainerControlledLifetimeManager or HierarchicalLifetimeManager.
-            Container.Dispose();
-            LogManager.Flush();
-            LogManager.Shutdown();
+
+            Cleanup();
         }
 
         protected override async void OnStartup(StartupEventArgs e)
@@ -175,6 +170,8 @@ namespace HideezClient
             hotkeyManager.Enabled = true;
             messageWindow = Container.Resolve<MessageWindow>();
 
+            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
+
             if (settings.IsFirstLaunch)
             {
                 OnFirstLaunch();
@@ -182,6 +179,11 @@ namespace HideezClient
                 settings.IsFirstLaunch = false;
                 appSettingsManager.SaveSettings(settings);
             }
+        }
+
+        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            messenger.Send(new SessionSwitchMessage(Process.GetCurrentProcess().SessionId, e.Reason));
         }
 
         /// <summary>
@@ -251,7 +253,6 @@ namespace HideezClient
             Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
             Container.RegisterType<IDeviceManager, DeviceManager>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<ISessionStateMonitor, SessionStateMonitor>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ISupportMailContentGenerator, SupportMailContentGenerator>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
 
@@ -314,6 +315,16 @@ namespace HideezClient
                 if (File.Exists(filename))
                     File.Delete(filename);
             }
+        }
+
+        void Cleanup()
+        {
+            SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
+
+            // Unity-Container call Dispose on all instances implementing the IDisposable interface registered by ContainerControlledLifetimeManager or HierarchicalLifetimeManager.
+            Container.Dispose();
+            LogManager.Flush();
+            LogManager.Shutdown();
         }
     }
 }

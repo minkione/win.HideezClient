@@ -594,7 +594,7 @@ namespace HideezServiceHost.HideezServiceReference {
         private sbyte BatteryField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private HideezServiceHost.HideezServiceReference.ButtonPressCode ButtonField;
+        private Hideez.SDK.Communication.ButtonPressCode ButtonField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private byte PinAttemptsRemainField;
@@ -642,7 +642,7 @@ namespace HideezServiceHost.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public HideezServiceHost.HideezServiceReference.ButtonPressCode Button {
+        public Hideez.SDK.Communication.ButtonPressCode Button {
             get {
                 return this.ButtonField;
             }
@@ -828,47 +828,6 @@ namespace HideezServiceHost.HideezServiceReference {
         }
     }
     
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ButtonPressCode", Namespace="http://schemas.datacontract.org/2004/07/Hideez.SDK.Communication")]
-    public enum ButtonPressCode : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        None = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Single = 1,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Double = 2,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Triple = 3,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Quad = 4,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Penta = 5,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Hexa = 6,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Hepta = 7,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Octa = 8,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Multi = 9,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Long = 10,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        SuperLong = 11,
-    }
-    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="HideezServiceReference.IHideezService", CallbackContract=typeof(HideezServiceHost.HideezServiceReference.IHideezServiceCallback), SessionMode=System.ServiceModel.SessionMode.Required)]
     public interface IHideezService {
@@ -907,6 +866,13 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetDevices", ReplyAction="http://tempuri.org/IHideezService/GetDevicesResponse")]
         System.Threading.Tasks.Task<HideezServiceHost.HideezServiceReference.DeviceDTO[]> GetDevicesAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAvailableChannels", ReplyAction="http://tempuri.org/IHideezService/GetAvailableChannelsResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetAvailableChannelsHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        byte[] GetAvailableChannels(string serialNo);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAvailableChannels", ReplyAction="http://tempuri.org/IHideezService/GetAvailableChannelsResponse")]
+        System.Threading.Tasks.Task<byte[]> GetAvailableChannelsAsync(string serialNo);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisconnectDevice", ReplyAction="http://tempuri.org/IHideezService/DisconnectDeviceResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/DisconnectDeviceHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
@@ -1094,6 +1060,14 @@ namespace HideezServiceHost.HideezServiceReference {
         
         public System.Threading.Tasks.Task<HideezServiceHost.HideezServiceReference.DeviceDTO[]> GetDevicesAsync() {
             return base.Channel.GetDevicesAsync();
+        }
+        
+        public byte[] GetAvailableChannels(string serialNo) {
+            return base.Channel.GetAvailableChannels(serialNo);
+        }
+        
+        public System.Threading.Tasks.Task<byte[]> GetAvailableChannelsAsync(string serialNo) {
+            return base.Channel.GetAvailableChannelsAsync(serialNo);
         }
         
         public void DisconnectDevice(string id) {

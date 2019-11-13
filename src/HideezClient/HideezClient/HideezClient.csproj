@@ -260,6 +260,7 @@
     <Compile Include="Messages\ServiceComponentsStateChangedMessage.cs" />
     <Compile Include="Messages\ServiceErrorReceivedMessage.cs" />
     <Compile Include="Messages\ServiceNotificationReceivedMessage.cs" />
+    <Compile Include="Messages\SessionSwitchMessage.cs" />
     <Compile Include="Messages\SettingsChangedMessage.cs" />
     <Compile Include="Messages\ShowButtonConfirmUiMessage.cs" />
     <Compile Include="Messages\ShowErrorNotificationMessage.cs" />
@@ -315,8 +316,6 @@
     <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
       <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Modules\SessionStateMonitor\ISessionStateMonitor.cs" />
-    <Compile Include="Modules\SessionStateMonitor\SessionStateMonitor.cs" />
     <Compile Include="Modules\SupportMailContentGenerator\ISupportMailContentGenerator.cs" />
     <Compile Include="Modules\SupportMailContentGenerator\SupportMailContentGenerator.cs" />
     <Compile Include="Utilities\FaultExceptionExtension.cs" />

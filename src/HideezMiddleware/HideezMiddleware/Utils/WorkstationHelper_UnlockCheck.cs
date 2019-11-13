@@ -179,9 +179,15 @@ namespace HideezMiddleware
             }
         }
 
-        public static LockState GetCurrentSessionLockState()
+        public static LockState GetActiveSessionLockState()
         {
             var sid = GetSessionId();
+            return GetSessionLockState(sid);
+        }
+
+        public static LockState GetCurrentSessionLockState()
+        {
+            var sid = (uint)System.Diagnostics.Process.GetCurrentProcess().SessionId;
             return GetSessionLockState(sid);
         }
     }

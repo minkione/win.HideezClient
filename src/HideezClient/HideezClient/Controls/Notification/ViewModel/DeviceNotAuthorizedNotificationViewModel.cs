@@ -48,7 +48,7 @@ namespace HideezClient.Controls
                 {
                     CommandAction = x =>
                     {
-                        Task.Run(async () => { await device.InitRemoteAndLoadStorage(); });
+                        Task.Run(async () => { await device.InitRemoteAndLoadStorageAsync(); });
                         _windowsManager.CloseWindow(ObservableId); // Todo: Is this the correct way to close notification?
                     }
                 };

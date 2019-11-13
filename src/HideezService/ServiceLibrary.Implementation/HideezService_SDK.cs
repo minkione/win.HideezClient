@@ -598,6 +598,35 @@ namespace ServiceLibrary.Implementation
             }
         }
 
+        public byte[] GetAvailableChannels(string serialNo)
+        {
+            try
+            {
+                var devices = _deviceManager.Devices.Where(d => d.SerialNo == serialNo).ToList();
+                if (devices.Count == 0)
+                    throw new HideezException(HideezErrorCode.DeviceNotFound, serialNo);
+
+                // Channels range from 1 to 6 
+                List<byte> freeChannels = new List<byte>() { 1, 2, 3, 4, 5, 6 };
+
+                // These channels are reserved by system, the rest is available to clients
+                freeChannels.Remove((byte)DefaultDeviceChannel.Main);
+                freeChannels.Remove((byte)DefaultDeviceChannel.HES);
+
+                // Filter out taken channels
+                var channelsInUse = devices.Select(d => d.ChannelNo).ToList();
+                freeChannels.RemoveAll(c => channelsInUse.Contains(c));
+
+                return freeChannels.ToArray();
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+                ThrowException(ex);
+                return null; // this line is unreachable
+            }
+        }
+
         public async Task DisconnectDevice(string id)
         {
             try
@@ -643,7 +672,7 @@ namespace ServiceLibrary.Implementation
 
         #region Remote device management
         // This collection is unique for each client
-        List<IWcfDevice> RemoteWcfDevices = new List<IWcfDevice>();
+        readonly List<IWcfDevice> RemoteWcfDevices = new List<IWcfDevice>();
 
         public async Task<string> EstablishRemoteDeviceConnection(string serialNo, byte channelNo)
         {
@@ -653,6 +682,10 @@ namespace ServiceLibrary.Implementation
                 if (wcfDevice == null)
                 {
                     var device = _deviceManager.FindBySerialNo(serialNo, 1);
+
+                    if (device == null)
+                        throw new HideezException(HideezErrorCode.DeviceNotFound, serialNo);
+
                     wcfDevice = await _wcfDeviceFactory.EstablishRemoteDeviceConnection(device.Mac, channelNo);
 
                     SubscribeToWcfDeviceEvents(wcfDevice);
@@ -702,7 +735,10 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                var wcfDevice = (IWcfDevice)_deviceManager.Find(connectionId);
+                var wcfDevice = _deviceManager.Find(connectionId) as IWcfDevice;
+
+                if (wcfDevice == null)
+                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, connectionId);
 
                 var response = await wcfDevice.OnVerifyCommandAsync(data);
 
@@ -720,7 +756,10 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                var wcfDevice = (IWcfDevice)_deviceManager.Find(connectionId);
+                var wcfDevice = _deviceManager.Find(connectionId) as IWcfDevice;
+
+                if (wcfDevice == null)
+                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, connectionId);
 
                 var response = await wcfDevice.OnRemoteCommandAsync(data);
 
@@ -738,7 +777,10 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                var wcfDevice = (IWcfDevice)_deviceManager.Find(connectionId);
+                var wcfDevice = _deviceManager.Find(connectionId) as IWcfDevice;
+
+                if (wcfDevice == null)
+                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, connectionId);
 
                 await wcfDevice.OnResetChannelAsync();
             }

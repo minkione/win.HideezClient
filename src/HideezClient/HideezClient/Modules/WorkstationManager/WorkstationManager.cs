@@ -1,8 +1,8 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Messages;
-using HideezClient.Modules.SessionStateMonitor;
 using HideezClient.Utilities;
+using HideezMiddleware;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -14,13 +14,10 @@ namespace HideezClient.Modules
     class WorkstationManager : Logger, IWorkstationManager
     {
         readonly IInputSimulator inputSimulator = new InputSimulator();
-        readonly ISessionStateMonitor sessionStateMonitor;
 
-        public WorkstationManager(IMessenger messanger, ISessionStateMonitor sessionStateMonitor, ILog log)
+        public WorkstationManager(IMessenger messanger, ILog log)
             : base(nameof(WorkstationManager), log)
         {
-            this.sessionStateMonitor = sessionStateMonitor;
-
             // Start listening command messages
             messanger.Register<LockWorkstationMessage>(this, LockPC);
             messanger.Register<ForceShutdownMessage>(this, ForceShutdown);
@@ -50,8 +47,9 @@ namespace HideezClient.Modules
 
         public void ActivateScreen()
         {
-            if (sessionStateMonitor.CurrentState == SessionState.Locked ||
-                sessionStateMonitor.CurrentState == SessionState.Unknown)
+            var lockState = WorkstationHelper.GetCurrentSessionLockState();
+            if (lockState == WorkstationHelper.LockState.Locked ||
+                lockState == WorkstationHelper.LockState.Unknown)
             {
                 // Should trigger activation of the screen in credential provider with zero impact on user
                 //inputSimulator.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.F12);
