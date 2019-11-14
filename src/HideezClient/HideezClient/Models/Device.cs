@@ -454,12 +454,15 @@ namespace HideezClient.Models
                 if (_remoteDevice != null)
                 {
                     CancelDeviceAuthorization();
-                    _remoteDevice.StorageModified -= RemoteDevice_StorageModified;
-                    _remoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
-                    await _remoteDevice.Shutdown(code);
-                    await _serviceProxy.GetService().RemoveDeviceAsync(_remoteDevice.Id);
+
+                    var tempRemoteDevice = _remoteDevice;
                     _remoteDevice = null;
                     PasswordManager = null;
+                    
+                    tempRemoteDevice.StorageModified -= RemoteDevice_StorageModified;
+                    tempRemoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
+                    await tempRemoteDevice.Shutdown(code);
+                    await _serviceProxy.GetService().RemoveDeviceAsync(tempRemoteDevice.Id);
                 }
             }
             catch (Exception ex)

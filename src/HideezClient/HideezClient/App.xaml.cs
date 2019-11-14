@@ -109,7 +109,7 @@ namespace HideezClient
                 }
             }
 
-            Cleanup();
+            SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
         }
 
         protected override void OnExit(ExitEventArgs e)
