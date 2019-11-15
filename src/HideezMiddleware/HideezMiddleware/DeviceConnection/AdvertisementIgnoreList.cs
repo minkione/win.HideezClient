@@ -101,9 +101,7 @@ namespace HideezMiddleware.DeviceConnection
                     var proximity = BleUtils.RssiToProximity(e.Rssi);
 
                     var settings = _proximitySettingsManager.Settings.GetProximitySettings(shortMac);
-                    if (proximity <= settings.LockProximity)
-                        _ignoreList.Remove(shortMac);
-                    else
+                    if (proximity > settings.LockProximity)
                         _lastAdvRecTime[shortMac] = DateTime.UtcNow;
                 }
             }
