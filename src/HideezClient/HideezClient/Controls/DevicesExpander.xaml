@@ -55,7 +55,7 @@
                 ItemsSource="{Binding Devices}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid Margin="0,5" Focusable="False">
+                        <Grid Margin="0,2,0,5" Focusable="False">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
