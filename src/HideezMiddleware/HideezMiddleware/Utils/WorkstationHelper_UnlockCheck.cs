@@ -135,7 +135,7 @@ namespace HideezMiddleware
         public static LockState GetSessionLockState(uint session_id)
         {
 
-            Int32 result = WTSQuerySessionInformation(
+            Int32 queryResult = WTSQuerySessionInformation(
                 WTS_CURRENT_SERVER,
                 session_id,
                 WTS_INFO_CLASS.WTSSessionInfoEx,
@@ -143,7 +143,7 @@ namespace HideezMiddleware
                 out uint pBytesReturned
             );
 
-            if (result == FALSE)
+            if (queryResult == FALSE)
                 return LockState.Unknown;
 
             var session_info_ex = Marshal.PtrToStructure<WTSINFOEX>(ppBuffer);
@@ -157,7 +157,7 @@ namespace HideezMiddleware
             var lock_state = session_info_ex.Data.WTSInfoExLevel1.SessionFlags;
             WTSFreeMemory(ppBuffer);
 
-            var parsedLockState = LockState.Unknown;
+            LockState parsedLockState = LockState.Unknown;
             if (_is_win7)
             {
                 /* Ref: https://msdn.microsoft.com/en-us/library/windows/desktop/ee621019(v=vs.85).aspx
@@ -196,8 +196,10 @@ namespace HideezMiddleware
 
             var sessionState = session_info_ex.Data.WTSInfoExLevel1.SessionState;
 
-            // parsedLockState is returned as Unlocked for all local sessions, regardless of which session exactly is unlocked
-            // Experienced behavior is as such that only one session at a time has a state of WTSActive
+            
+            // known issue: parsedLockState is returned as Unlocked for all local sessions, regardless of which session exactly is unlocked
+            // Yet only one session at a time has a state of WTSActive
+            // WTSINFOEX_LEVEL1 reference: https://msdn.microsoft.com/zh-cn/vstudio/ee621019(v=vs.90)
             if (sessionState == WTS_CONNECTSTATE_CLASS.WTSActive && parsedLockState == LockState.Unlocked)
                 return LockState.Unlocked;
             else if (parsedLockState == LockState.Unknown)
