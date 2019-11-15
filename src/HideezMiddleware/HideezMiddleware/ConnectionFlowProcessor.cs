@@ -18,8 +18,9 @@ namespace HideezMiddleware
 {
     public class ConnectionFlowProcessor : Logger
     {
-        public const string FLOW_FINISHED_PROP = "MainFlowFinished"; 
+        public const string FLOW_FINISHED_PROP = "MainFlowFinished";
 
+        readonly IBleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
         readonly IScreenActivator _screenActivator;
@@ -39,7 +40,9 @@ namespace HideezMiddleware
 
         public event EventHandler<string> Finished;
 
-        public ConnectionFlowProcessor(BleDeviceManager deviceManager,
+        public ConnectionFlowProcessor(
+            IBleConnectionManager connectionManager,
+            BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
             IWorkstationUnlocker workstationUnlocker,
             IScreenActivator screenActivator,
@@ -47,6 +50,7 @@ namespace HideezMiddleware
             ILog log)
             : base(nameof(ConnectionFlowProcessor), log)
         {
+            _connectionManager = connectionManager;
             _deviceManager = deviceManager;
             _workstationUnlocker = workstationUnlocker;
             _screenActivator = screenActivator;
@@ -481,6 +485,11 @@ namespace HideezMiddleware
             {
                 ct.ThrowIfCancellationRequested();
                 await _ui.SendNotification("Connection failed. Retrying...", _infNid);
+
+                // TODO: Remove this when internal adapter hang is fixed
+                if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Locked)
+                    _connectionManager.Restart();
+                // ...
 
                 device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
 

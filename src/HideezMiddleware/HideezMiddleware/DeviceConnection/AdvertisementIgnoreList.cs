@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
@@ -9,8 +10,6 @@ namespace HideezMiddleware.DeviceConnection
 {
     public class AdvertisementIgnoreList : Logger, IDisposable
     {
-        const int MAC_IGNORELIST_TIMEOUT_SECONDS = 3;
-
         readonly IBleConnectionManager _bleConnectionManager;
         readonly ISettingsManager<ProximitySettings> _proximitySettingsManager;
 
@@ -112,7 +111,9 @@ namespace HideezMiddleware.DeviceConnection
 
         void BleConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
-            Clear();
+            // TODO: When "Resetting" state is implemented, instead clear list on all changes except "PoweredOn" and "Resetting"
+            if (_bleConnectionManager.State == BluetoothAdapterState.PoweredOff || _bleConnectionManager.State == BluetoothAdapterState.Unknown)
+                Clear();
         }
 
         void RemoveTimedOutRecords()
@@ -121,7 +122,7 @@ namespace HideezMiddleware.DeviceConnection
             {
                 // Remove MAC's from ignore list if we did not receive an advertisement from them in MAC_IGNORELIST_TIMEOUT_SECONDS seconds
                 if (_ignoreList.Count > 0)
-                    _ignoreList.RemoveAll(m => (DateTime.UtcNow - _lastAdvRecTime[m]).Seconds >= MAC_IGNORELIST_TIMEOUT_SECONDS);
+                    _ignoreList.RemoveAll(m => (DateTime.UtcNow - _lastAdvRecTime[m]).TotalSeconds >= SdkConfig.DefaultLockTimeout);
             }
         }
 

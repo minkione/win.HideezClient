@@ -162,6 +162,7 @@ namespace ServiceLibrary.Implementation
 
             // ConnectionFlowProcessor
             _connectionFlowProcessor = new ConnectionFlowProcessor(
+                _connectionManager,
                 _deviceManager,
                 _hesConnection,
                 _credentialProviderProxy,
@@ -565,7 +566,7 @@ namespace ServiceLibrary.Implementation
                 switch (adapter)
                 {
                     case Adapter.Dongle:
-                        return _connectionManager?.State == BluetoothAdapterState.PoweredOn;
+                        return _connectionManager?.State == BluetoothAdapterState.PoweredOn || _connectionManager?.State == BluetoothAdapterState.Resetting;
                     case Adapter.HES:
                         return _hesConnection?.State == HesConnectionState.Connected;
                     case Adapter.RFID:
