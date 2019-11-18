@@ -18,8 +18,9 @@ namespace HideezMiddleware
 {
     public class ConnectionFlowProcessor : Logger
     {
-        public const string FLOW_FINISHED_PROP = "MainFlowFinished"; 
+        public const string FLOW_FINISHED_PROP = "MainFlowFinished";
 
+        readonly IBleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
         readonly IScreenActivator _screenActivator;
@@ -39,7 +40,9 @@ namespace HideezMiddleware
 
         public event EventHandler<string> Finished;
 
-        public ConnectionFlowProcessor(BleDeviceManager deviceManager,
+        public ConnectionFlowProcessor(
+            IBleConnectionManager connectionManager,
+            BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
             IWorkstationUnlocker workstationUnlocker,
             IScreenActivator screenActivator,
@@ -47,6 +50,7 @@ namespace HideezMiddleware
             ILog log)
             : base(nameof(ConnectionFlowProcessor), log)
         {
+            _connectionManager = connectionManager;
             _deviceManager = deviceManager;
             _workstationUnlocker = workstationUnlocker;
             _screenActivator = screenActivator;
@@ -106,7 +110,7 @@ namespace HideezMiddleware
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
             var existingDevice = _deviceManager.Find(mac, (int)DefaultDeviceChannel.Main);
-            var isUnlocked = WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Unlocked;
+            var isUnlocked = WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked;
             if (existingDevice != null && existingDevice.IsConnected && isUnlocked)
                 return;
 
@@ -128,7 +132,7 @@ namespace HideezMiddleware
                 await _ui.SendNotification("", _infNid);
                 await _ui.SendError("", _errNid);
 
-                if (WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Locked)
+                if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Locked)
                 {
                     _screenActivator?.ActivateScreen();
                     _screenActivator?.StartPeriodicScreenActivation(0);
@@ -183,7 +187,7 @@ namespace HideezMiddleware
                         }
                     }
                 }
-                else if (WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Locked)
+                else if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Locked)
                 {
                     // Session is locked but workstation unlocker is not connected
                     success = false;
@@ -481,6 +485,11 @@ namespace HideezMiddleware
             {
                 ct.ThrowIfCancellationRequested();
                 await _ui.SendNotification("Connection failed. Retrying...", _infNid);
+
+                // TODO: Remove this when internal adapter hang is fixed
+                if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Locked)
+                    _connectionManager.Restart();
+                // ...
 
                 device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
 

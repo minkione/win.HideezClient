@@ -63,13 +63,13 @@ namespace HideezClient.Modules.ActionHandler
         /// If enable "Limit password entry to protected fields" and current field is protected password return true
         /// If disabled "Limit password entry to protected fields" return true
         /// </summary>
-        protected override bool BeforeCondition(string[] devicesId)
+        protected async override Task<bool> BeforeCondition(string[] devicesId)
         {
             var isProtected = ((!settingsManager.Settings.LimitPasswordEntry || settingsManager.Settings.LimitPasswordEntry && inputCache.IsProtectedPasswordField));
             if (!isProtected)
                 throw new FieldNotSecureException();
             // Debug.WriteLine($"### InputPassword.InputHandler.IsProtectedPasswordField: {inputHandler.IsProtectedPasswordField}");
-            return base.BeforeCondition(devicesId) && isProtected;
+            return await base.BeforeCondition(devicesId) && isProtected;
         }
 
         /// <summary>

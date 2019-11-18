@@ -29,6 +29,10 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
+        byte[] GetAvailableChannels(string serialNo);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
         Task DisconnectDevice(string id);
 
         [OperationContract]

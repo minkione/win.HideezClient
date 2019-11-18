@@ -3,16 +3,11 @@ using HideezClient.Utilities;
 using Unity;
 using Unity.Lifetime;
 using System;
-using System.Data;
-using System.Linq;
 using System.Windows;
-using System.Diagnostics;
 using System.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HideezClient.Properties;
 using SingleInstanceApp;
-using System.Runtime.InteropServices;
 using HideezClient.Modules;
 using GalaSoft.MvvmLight.Messaging;
 using NLog;
@@ -21,7 +16,6 @@ using Hardcodet.Wpf.TaskbarNotification;
 using System.Globalization;
 using System.Threading;
 using System.IO;
-using HideezClient.Mvvm;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Modules.Localize;
 using HideezClient.HideezServiceReference;
@@ -38,15 +32,17 @@ using HideezMiddleware.Settings;
 using Unity.Injection;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
-using HideezClient.Messages;
 using HideezClient.Controls;
 using System.Reflection;
+<<<<<<< HEAD
+using HideezClient.Utilities.QrCode;
+using ZXing;
+=======
 using HideezClient.Views;
 using Microsoft.Win32;
 using HideezClient.Messages;
 using System.Diagnostics;
-using HideezClient.Utilities.QrCode;
-using ZXing;
+>>>>>>> develop
 
 namespace HideezClient
 {
@@ -233,7 +229,7 @@ namespace HideezClient
         {
             Container = new UnityContainer();
 #if DEBUG
-            //Container.AddExtension(new Diagnostic());
+            // Container.AddExtension(new Diagnostic());
 #endif
             logger.Info("Start initialize DI container");
 
@@ -241,7 +237,6 @@ namespace HideezClient
 
             Container.RegisterType<MainViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IndicatorsViewModel>();
-            Container.RegisterType<DeviceForExpanderViewModel>();
             Container.RegisterType<AddCredentialViewModel>();
             Container.RegisterType<NotificationsContainerViewModel>();
             Container.RegisterType<DeviceNotAuthorizedNotificationViewModel>();
@@ -251,9 +246,7 @@ namespace HideezClient
             Container.RegisterType<PasswordManagerViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<DefaultPageViewModel>();
             Container.RegisterType<DeviceSettingsPageViewModel>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<DevicesExpanderViewModel>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<DeviceForExpanderViewModel>(new ContainerControlledLifetimeManager());
-            
+
             #endregion ViewModels
 
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());

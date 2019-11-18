@@ -98,14 +98,14 @@ namespace HideezClient.Modules
 
             switch (type)
             {
-                case MenuItemType.AddCredential:
-                    return GetMenuAddCredential(device);
                 case MenuItemType.DisconnectDevice:
                     return GetMenuDisconnectDevice(device);
                 case MenuItemType.RemoveDevice:
                     return GetMenuRemoveDevice(device);
                 case MenuItemType.AuthorizeDeviceAndLoadStorage:
                     return GetMenuAuthorizeAndLoadStorage(device);
+                case MenuItemType.AboutDevice:
+                    return null; // TODO: About device menu
                 default:
                     Debug.Assert(false, $"The type: {type} of menu is not supported.");
                     return null;
@@ -368,7 +368,7 @@ namespace HideezClient.Modules
         {
             if (param is Device device)
             {
-                await device.AuthorizeAndLoadStorage();
+                await device.InitRemoteAndLoadStorageAsync();
             }
         }
     }

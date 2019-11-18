@@ -21,7 +21,7 @@ namespace ServiceLibrary.Implementation.ScreenActivation
                 {
                     client.Callbacks.ActivateWorkstationScreenRequest();
                 }
-                catch (Exception ex) { }
+                catch (Exception) { }
             }
         }
     }

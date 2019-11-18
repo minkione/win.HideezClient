@@ -1,0 +1,49 @@
+﻿<Metro:MetroWindow
+    x:Class="HideezClient.Views.SimpleMainView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:controls="clr-namespace:HideezClient.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    xmlns:local="clr-namespace:HideezClient.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="{Binding Version, StringFormat=Hideez Client ({0})}"
+    Width="325"
+    MinWidth="325"
+    SizeToContent="WidthAndHeight"
+    Background="{DynamicResource WindowLeftColumBrush}"
+    Closing="MetroWindow_Closing"
+    DataContext="{Binding SimpleMainViewModel, Mode=OneWay, Source={StaticResource Locator}}"
+    TitleCharacterCasing="Normal"
+    Visibility="Hidden"
+    WindowStartupLocation="CenterScreen"
+    WindowTitleBrush="{DynamicResource WindowTitleBrush}"
+    WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
+    mc:Ignorable="d">
+    <!--ResizeMode="CanMinimize"-->
+
+    <Grid VerticalAlignment="Top">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <controls:DevicesExpander VerticalAlignment="Top">
+            <!--<controls:DevicesExpander.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Offset="0" Color="#0022446D" />
+                    <GradientStop Offset="1" Color="#5C22446D" />
+                </LinearGradientBrush>
+            </controls:DevicesExpander.Background>-->
+        </controls:DevicesExpander>
+
+        <controls:ConnectivityIndicators
+            Grid.Row="1"
+            Margin="24"
+            Padding="0"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Bottom"
+            Focusable="False" />
+    </Grid>
+</Metro:MetroWindow>

@@ -120,6 +120,32 @@ namespace HideezServiceHost
             return base.OnPowerEvent(powerStatus);
         }
 
+
+        /*
+         * https://stackoverflow.com/questions/30433432/difference-between-resumeautomatic-resumesuspend-modes-of-windows-service
+         * 
+         * How it's supposed to work
+         * (This is not how it all works in practice - see below.)
+         * 
+         * ResumeAutomatic
+         * This message is always sent when the computer has resumed after sleep.
+         * 
+         * ResumeSuspend
+         * The computer has resumed after sleep, and Windows believes a user is present - i.e. that there is a human sitting in front of the machine. This message is sent when either 
+         * a) the wake was caused by human interaction (someone pressing the power button,pressingakey,movingthemouse,etc); or b)thefirsttime thereishuman interaction after the machine wakes automatically due to a wake timer.
+         * 
+         * To summarise:
+         * ResumeAutomatic is always sent when the computer resumes from sleep.
+         * ResumeSuspend is sent as well as ResumeAutomatic when the computer resumes from sleep and Windows believes a user is present.
+         * 
+         * How it actually works
+         * ResumeAutomatic occasionally isn't sent at all. This is a long-standing bug, presumably in Windows itself. Fortunately I've never seen the computer wake with both ResumeAutomatic and ResumeSuspend unsent. If you need to know that the system has resumed, but don't care whether a user's there or not, you need to listen for both ResumeAutomatic and ResumeSuspend and treat them as the same thing. 
+         * 
+         * ResumeSuspend is extremely unreliable. I've never seen it not sent when it's supposed to be, but it's often sent when it isn't supposed to be - when actually there's no user there at all. Whether this is due to one or more bugs in Windows, third party drivers, firmware or hardware, I have no idea. 
+         * 
+         * When ResumeAutomatic is sent with no corresponding ResumeSuspend the system idle timeout is brief (2 minutes by default in Windows 10) and attached displays are kept in power saving mode. When a corresponding ResumeSuspend is sent the system idle timeout is normal (30 minutes by default in Windows 10) and attached displays are woken up. This is so that the computer goes back to sleep as soon as possible if it wakes automatically to perform maintenance, etc. It would be fantastic if Microsoft could make it work reliably.
+         * 
+         */
         void HandlePowerEvent(PowerBroadcastStatus powerStatus)
         {
             switch (powerStatus)

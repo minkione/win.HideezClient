@@ -49,6 +49,7 @@
     <Package InstallerVersion="301"
              Compressed="yes"
              InstallScope="perMachine"
+             InstallPrivileges="elevated"
              Languages="1033"/>
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed."/>
@@ -179,15 +180,6 @@
     </Property>
     <!-- ... -->
     
-<!-- Preserve saved IgnoreWorkstationOwnershipSecurity on updates -->
-    <Property Id="SAVEDIGNOREWORKSTATIONOWNERSHIPSECURITY" Secure="yes" Value="0">
-      <RegistrySearch Id="FindSavedIGNOREWORKSTATIONOWNERSHIPSECURITY"
-                      Root="HKLM"
-                      Key="SOFTWARE\Hideez\Client"
-                      Name="ignore_workstation_ownership_security"
-                      Type="raw" />
-    </Property>
-    <!-- ... -->
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
 
     <!--<WixVariable Id="WixUILicenseRtf" Value="Copyright.rtf" />-->
@@ -216,14 +208,19 @@
       </Custom>
       
       <!-- Launch application after upgrade and passive install -->
-      <Custom Action="LaunchInstalledApplication" After="InstallFinalize">WIX_UPGRADE_DETECTED AND UILevel = 3</Custom>
+      <Custom Action="LaunchInstalledApplication" After="InstallFinalize">REINSTALL OR WIX_UPGRADE_DETECTED AND UILevel = 3</Custom>
+
+      <!-- Shutdown Hideez Client on update, reinstall or uninstall -->
+      <Custom Action="WixCloseApplications" Before="InstallValidate" ></Custom>
     </InstallExecuteSequence>
+
+    <!-- Shutdown Hideez Client -->
+    <util:CloseApplication Id="CloseHideezClientApplication" CloseMessage="yes" RebootPrompt="no" Target="HideezClient.exe" />
   </Product>
 
   <!-- Hideez Service -->
   <Fragment>
     <SetProperty Id="HESADDRESS" After="CostFinalize" Value="[SAVEDHESADDRESS]">Not HESADDRESS</SetProperty>
-    <SetProperty Id="IGNOREWORKSTATIONOWNERSHIPSECURITY" After="CostFinalize" Value="[SAVEDIGNOREWORKSTATIONOWNERSHIPSECURITY]">Not IGNOREWORKSTATIONOWNERSHIPSECURITY</SetProperty>
     <ComponentGroup Id="HideezService" Directory="service">
       <Component Id="HideezServiceHost.exe" Guid="{FB54A20C-310F-474A-91E2-835AC3A34485}">
         <File Id="HideezServiceHost.exe" Name="HideezServiceHost.exe" KeyPath="yes" Source="$(var.HideezServiceHost_TargetDir)HideezServiceHost.exe" />
@@ -266,12 +263,6 @@
         </RegistryKey>
       </Component>
       <!-- -->
-
-      <Component Id="BypassWorkstationOwnershipSecurityWriteToRegistry" Guid="{58752957-297D-45BF-9909-387EC9D6C90C}">
-        <RegistryKey Root="HKLM" Key="SOFTWARE\Hideez\Client" >
-          <RegistryValue Type="string" Name="ignore_workstation_ownership_security" Value="[IGNOREWORKSTATIONOWNERSHIPSECURITY]" />
-        </RegistryKey>
-      </Component>
       
       <Component Id="HideezService.Crypto.dll" Guid="{93E3D49F-2F34-4D64-B832-AFFDF6C530F4}" Win64="$(var.Win64)">
         <File Id="HideezService.Crypto.dll" Name="Crypto.dll" Source="$(var.Binaries_Dir)Crypto.dll" />

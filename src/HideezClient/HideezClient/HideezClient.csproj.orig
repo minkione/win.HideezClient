@@ -254,9 +254,6 @@
     <Compile Include="Controls\DeviceInfo.xaml.cs">
       <DependentUpon>DeviceInfo.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\DevicesExpander.xaml.cs">
-      <DependentUpon>DevicesExpander.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Controls\EditAccountControl.xaml.cs">
       <DependentUpon>EditAccountControl.xaml</DependentUpon>
     </Compile>
@@ -405,8 +402,6 @@
     <Compile Include="Utilities\WeakEvents\WeakEvent.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
-    <Compile Include="ViewModels\Controls\DeviceForExpanderViewModel.cs" />
-    <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
     <Compile Include="ViewModels\MessageViewModel.cs" />
@@ -414,7 +409,6 @@
     <Compile Include="PageViewModels\PasswordManagerViewModel.cs" />
     <Compile Include="ViewModels\Dialog\PinViewModel.cs" />
     <Compile Include="ViewModels\Account\AccountInfoViewModel.cs" />
-    <Compile Include="ViewModels\SimpleMainViewModel.cs" />
     <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
       <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>
     </Compile>
@@ -430,6 +424,8 @@
     <Compile Include="Views\Dialog\AddCredentialView.xaml.cs">
       <DependentUpon>AddCredentialView.xaml</DependentUpon>
     </Compile>
+<<<<<<< HEAD
+=======
     <Compile Include="Views\PinView.xaml.cs" />
     <Compile Include="Views\SimpleMainView.xaml.cs">
       <DependentUpon>SimpleMainView.xaml</DependentUpon>
@@ -437,6 +433,7 @@
     <Compile Include="Views\MessageWindow.xaml.cs">
       <DependentUpon>MessageWindow.xaml</DependentUpon>
     </Compile>
+>>>>>>> develop
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -444,10 +441,6 @@
     <Page Include="Controls\AccountInfoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\DevicesExpander.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\EditAccountControl.xaml">
       <SubType>Designer</SubType>
@@ -612,6 +605,8 @@
       <DependentUpon>MainWindowView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+<<<<<<< HEAD
+=======
     <Page Include="Views\PinView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -624,6 +619,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+>>>>>>> develop
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

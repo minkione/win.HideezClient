@@ -87,7 +87,7 @@ namespace HideezClient.Modules.ActionHandler
 
                 inputCache.CacheInputField();
 
-                if (BeforeCondition(devicesId))
+                if (await BeforeCondition(devicesId))
                 {
                     Account[] accounts = await GetAccountsByAppInfoAsync(currentAppInfo, devicesId);
                     accounts = FilterAccounts(accounts, devicesId);
@@ -212,14 +212,14 @@ namespace HideezClient.Modules.ActionHandler
         /// Condition after get AppInfo, cache input fild and before try to input data
         /// </summary>
         /// <returns>Can be input data for this field or application</returns>
-        protected virtual bool BeforeCondition(string[] devicesId)
+        protected async virtual Task<bool> BeforeCondition(string[] devicesId)
         {
             if (currentAppInfo != null)
             {
                 var connectedDevices = deviceManager.Devices.Where(d => d.IsConnected && d.IsInitialized && devicesId.Contains(d.Id)).ToArray();
                 foreach (var device in connectedDevices.Where(d => !d.IsAuthorized))
                 {
-                    Task.Run(device.AuthorizeAndLoadStorage);
+                    await device.InitRemoteAndLoadStorageAsync();
                 }
 
                 return connectedDevices.Where(d => d.IsAuthorized).Any();

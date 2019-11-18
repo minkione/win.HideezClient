@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 
 namespace HideezClient.ViewModels
 {
-    class AccountInfoViewModel
+    public class AccountInfoViewModel
     {
         private readonly AccountRecord accountRecord;
 

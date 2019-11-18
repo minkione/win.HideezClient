@@ -26,6 +26,7 @@ namespace HideezClient.Modules.DeviceManager
         private readonly IWindowsManager _windowsManager;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         ConcurrentDictionary<string, Device> _devices { get; } = new ConcurrentDictionary<string, Device>();
+        object _addDeviceLock = new object();
 
         // Custom dispatcher is required for unit tests because during test 
         // runs the Application.Current property is null
@@ -134,12 +135,18 @@ namespace HideezClient.Modules.DeviceManager
 
         void AddDevice(DeviceDTO dto)
         {
-            var device = new Device(_serviceProxy, _remoteDeviceFactory, _messenger, dto);
-            device.PropertyChanged += Device_PropertyChanged;
-
-            if (_devices.TryAdd(device.Id, device))
+            lock (_addDeviceLock)
             {
-                DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, device));
+                if (!_devices.ContainsKey(dto.Id))
+                {
+                    var device = new Device(_serviceProxy, _remoteDeviceFactory, _messenger, dto);
+                    device.PropertyChanged += Device_PropertyChanged;
+
+                    if (_devices.TryAdd(device.Id, device))
+                    {
+                        DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, device));
+                    }
+                }
             }
         }
 
@@ -157,7 +164,8 @@ namespace HideezClient.Modules.DeviceManager
             if (_devices.TryRemove(device.Id, out Device removedDevice))
             {
                 removedDevice.PropertyChanged -= Device_PropertyChanged;
-                await removedDevice.ShutdownRemoteDevice(HideezErrorCode.DeviceRemoved);
+                await removedDevice.ShutdownRemoteDeviceAsync(HideezErrorCode.DeviceRemoved);
+                removedDevice.Dispose();
                 DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, device));
             }
         }

@@ -89,17 +89,16 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public byte[] GetAvailableChannels(string serialNo)
-        {
-            throw new NotImplementedException();
-        }
-
+<<<<<<< HEAD
         public void SetProximitySettings(string mac, int lockProximity, int unlockProximity)
         {
             throw new NotImplementedException();
         }
 
         public ProximitySettingsDTO GetCurrentProximitySettings(string mac)
+=======
+        public byte[] GetAvailableChannels(string serialNo)
+>>>>>>> develop
         {
             throw new NotImplementedException();
         }

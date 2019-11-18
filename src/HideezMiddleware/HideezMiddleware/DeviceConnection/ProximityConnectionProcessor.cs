@@ -27,7 +27,8 @@ namespace HideezMiddleware.DeviceConnection
         readonly IWorkstationUnlocker _workstationUnlocker;
         readonly object _lock = new object();
 
-        List<string> MacListToConnect { get; set; }
+        List<string> _macListToConnect;
+        ProximitySettings _proximitySettings;
 
         int _isConnecting = 0;
         bool isRunning = false;
@@ -102,13 +103,15 @@ namespace HideezMiddleware.DeviceConnection
                 isRunning = false;
                 _bleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
                 _proximitySettingsManager.SettingsChanged -= UnlockerSettingsManager_SettingsChanged;
+                _connectionFlowProcessor.Cancel();
                 WriteLine("Stopped");
             }
         }
 
         void SetAccessListFromSettings(ProximitySettings settings)
         {
-            MacListToConnect = settings.DevicesProximity.Select(s => s.Mac).ToList();
+            _proximitySettings = settings;
+            _macListToConnect = _proximitySettings.DevicesProximity.Select(s => s.Mac).ToList();
             _advIgnoreListMonitor.Clear();
         }
 
@@ -130,18 +133,18 @@ namespace HideezMiddleware.DeviceConnection
             if (adv == null)
                 return;
 
-            if (Interlocked.CompareExchange(ref _isConnecting, 1, 1) == 1)
+            if (_isConnecting == 1)
                 return;
 
-            if (MacListToConnect.Count == 0)
+            if (_macListToConnect.Count == 0)
                 return;
 
             var mac = BleUtils.ConnectionIdToMac(adv.Id);
-            if (!MacListToConnect.Any(m => m == mac))
+            if (!_macListToConnect.Any(m => m == mac))
                 return;
 
             var proximity = BleUtils.RssiToProximity(adv.Rssi);
-            var settings = _proximitySettingsManager.Settings.GetProximitySettings(mac);
+            var settings = _proximitySettings.GetProximitySettings(mac);
             if (proximity < settings.UnlockProximity)
                 return;
 

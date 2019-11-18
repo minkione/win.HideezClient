@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Deployment.WindowsInstaller;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
-using Microsoft.Win32;
 
 namespace CustomAction
 {
@@ -16,7 +13,6 @@ namespace CustomAction
             string HostServerAddress { get; }
             bool InstallDongleDriver { get; }
             string CsrDriverInstallerPath { get; }
-            bool IgnoreWorkstationOwnershipSecurity { get; }
         }
 
         private class Parameters : IParameters
@@ -26,13 +22,11 @@ namespace CustomAction
                 HostServerAddress = "";
                 InstallDongleDriver = false;
                 CsrDriverInstallerPath = "";
-                IgnoreWorkstationOwnershipSecurity = false;
             }
 
             public string HostServerAddress { get; set; }
             public bool InstallDongleDriver { get; set; }
             public string CsrDriverInstallerPath { get; set; }
-            public bool IgnoreWorkstationOwnershipSecurity { get; set; }
         }
 
         [CustomAction]
@@ -105,15 +99,13 @@ namespace CustomAction
         private static bool AreParametersSet(Session session)
         {
             var containsKeys = session.CustomActionData.ContainsKey("HesAddress") 
-                && session.CustomActionData.ContainsKey("InstallDongleDriver")
-                && session.CustomActionData.ContainsKey("IgnoreWorkstationOwnershipSecurity");
+                && session.CustomActionData.ContainsKey("InstallDongleDriver");
 
             if (containsKeys)
             {
                 session.Log("(CustomActions.AreParametersSet) Keys detected");
                 var containsValues = !string.IsNullOrEmpty(session.CustomActionData["HesAddress"]) 
-                    || !string.IsNullOrEmpty(session.CustomActionData["InstallDongleDriver"])
-                    || !string.IsNullOrEmpty(session.CustomActionData["IgnoreWorkstationOwnershipSecurity"]);
+                    || !string.IsNullOrEmpty(session.CustomActionData["InstallDongleDriver"]);
                 if (containsValues)
                 {
                     session.Log("(CustomActions.AreParametersSet) At least one key contains value");
@@ -165,21 +157,6 @@ namespace CustomAction
                 {
                     success = false;
                     session.Log("(CustomActions.TryParseParameters) Couldn't parse CSR driver option");
-                }
-
-                string ignoreWorkstationOwnershipSecurityValue = session.CustomActionData["IgnoreWorkstationOwnershipSecurity"];
-                if (!string.IsNullOrEmpty(ignoreWorkstationOwnershipSecurityValue))
-                {
-                    if (byte.TryParse(ignoreWorkstationOwnershipSecurityValue, out byte ignoreWorkstationOwnershipSecurity))
-                    {
-                        parameters.IgnoreWorkstationOwnershipSecurity = ignoreWorkstationOwnershipSecurity != 0;
-                        session.Log("(CustomActions.TryParseParameters) IgnoreWorkstationOwnershipSecurity option parsed");
-                    }
-                    else
-                    {
-                        success = false;
-                        session.Log("(CustomActions.TryParseParameters) Couldn't parse IgnoreWorkstationOwnershipSecurity option");
-                    }
                 }
 
                 try

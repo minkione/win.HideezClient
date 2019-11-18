@@ -25,6 +25,17 @@ using Microsoft.Win32;
 using ServiceLibrary.Implementation.ClientManagement;
 using ServiceLibrary.Implementation.ScreenActivation;
 using ServiceLibrary.Implementation.WorkstationLock;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using HideezMiddleware.DeviceConnection;
+using Hideez.SDK.Communication;
+using System.Text;
+using System.Reflection;
+using System.ServiceModel;
 
 namespace ServiceLibrary.Implementation
 {
@@ -137,15 +148,29 @@ namespace ServiceLibrary.Implementation
             _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sdkLogger);
             _hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
             {
+<<<<<<< HEAD
+                _deviceProximitySettingsHelper.SaveOrUpdate(receivedSettings);
+                foreach (var client in sessionManager.Sessions)
+                {
+                    client.Callbacks.ProximitySettingsChanged();
+                }
+=======
                 var settings = await _proximitySettingsManager.GetSettingsAsync();
                 settings.DevicesProximity = receivedSettings.ToArray();
                 _proximitySettingsManager.SaveSettings(settings);
+>>>>>>> develop
             };
-            _hesConnection.HubRFIDIndicatorStateArrived += async (sender, isEnabled) =>
+            _hesConnection.HubRFIDIndicatorStateArrived += (sender, isEnabled) =>
             {
+<<<<<<< HEAD
+                ProximitySettings settings = _proximitySettingsManager.Settings;
+                settings.IsRFIDIndicatorEnabled = isEnabled;
+                _proximitySettingsManager.SaveSettings(settings);
+=======
                 var settings = await _rfidSettingsManager.GetSettingsAsync();
                 settings.IsRfidEnabled = isEnabled;
                 _rfidSettingsManager.SaveSettings(settings);
+>>>>>>> develop
             };
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
 

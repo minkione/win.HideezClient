@@ -27,6 +27,7 @@ namespace HideezClient.Utilities
 
         public void Shutdown()
         {
+            // TODO: Fix repeated calls to AppHelper.Shutdown()
             Application.Current.Shutdown();
         }
 

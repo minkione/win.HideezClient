@@ -21,7 +21,7 @@ using System.Windows.Input;
 
 namespace HideezClient.ViewModels
 {
-    public class DeviceViewModel : LocalizedObject
+    class DeviceViewModel : LocalizedObject
     {
         protected Device device;
         protected readonly ILogger _log = LogManager.GetCurrentClassLogger();
@@ -50,6 +50,10 @@ namespace HideezClient.ViewModels
             }
         }
 
+<<<<<<< HEAD
+        [Localization]
+        public string Name => L("HideezKey2EEName");
+=======
         public ICommand AuthorizeDeviceAndLoadStorage
         {
             get
@@ -72,6 +76,7 @@ namespace HideezClient.ViewModels
         }
 
         public string Name => device.Name;
+>>>>>>> develop
         public string SerialNo => device.SerialNo;
         public string OwnerName => device.OwnerName;
         public string Id => device.Id;

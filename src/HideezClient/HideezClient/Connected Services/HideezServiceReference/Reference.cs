@@ -976,6 +976,13 @@ namespace HideezClient.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetDevices", ReplyAction="http://tempuri.org/IHideezService/GetDevicesResponse")]
         System.Threading.Tasks.Task<HideezClient.HideezServiceReference.DeviceDTO[]> GetDevicesAsync();
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAvailableChannels", ReplyAction="http://tempuri.org/IHideezService/GetAvailableChannelsResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezClient.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetAvailableChannelsHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        byte[] GetAvailableChannels(string serialNo);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetAvailableChannels", ReplyAction="http://tempuri.org/IHideezService/GetAvailableChannelsResponse")]
+        System.Threading.Tasks.Task<byte[]> GetAvailableChannelsAsync(string serialNo);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/DisconnectDevice", ReplyAction="http://tempuri.org/IHideezService/DisconnectDeviceResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezClient.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/DisconnectDeviceHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
         void DisconnectDevice(string id);
@@ -1180,6 +1187,14 @@ namespace HideezClient.HideezServiceReference {
         
         public System.Threading.Tasks.Task<HideezClient.HideezServiceReference.DeviceDTO[]> GetDevicesAsync() {
             return base.Channel.GetDevicesAsync();
+        }
+        
+        public byte[] GetAvailableChannels(string serialNo) {
+            return base.Channel.GetAvailableChannels(serialNo);
+        }
+        
+        public System.Threading.Tasks.Task<byte[]> GetAvailableChannelsAsync(string serialNo) {
+            return base.Channel.GetAvailableChannelsAsync(serialNo);
         }
         
         public void DisconnectDevice(string id) {

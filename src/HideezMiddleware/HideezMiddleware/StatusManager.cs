@@ -13,13 +13,13 @@ namespace HideezMiddleware
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
         readonly IClientUiManager _uiClientManager;
-        readonly ISettingsManager<ProximitySettings> _proximitySettingsManager;
+        readonly ISettingsManager<RfidSettings> _rfidSettingsManager;
 
         public StatusManager(HesAppConnection hesConnection,
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
             IClientUiManager clientUiManager,
-            ISettingsManager<ProximitySettings> proximitySettingsManager,
+            ISettingsManager<RfidSettings> rfidSettingsManager,
             ILog log)
             : base(nameof(StatusManager), log)
         {
@@ -27,19 +27,19 @@ namespace HideezMiddleware
             _rfidService = rfidService;
             _connectionManager = connectionManager;
             _uiClientManager = clientUiManager;
-            _proximitySettingsManager = proximitySettingsManager;
+            _rfidSettingsManager = rfidSettingsManager;
 
             _uiClientManager.ClientConnected += Ui_ClientUiConnected;
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            _proximitySettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
+            _rfidSettingsManager.SettingsChanged += RfidSettingsManager_SettingsChanged;
 
             if (_hesConnection != null)
                 _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
         }
 
-        private void UnlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
+        private void RfidSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<RfidSettings> e)
         {
             SendStatusToUI();
         }
@@ -145,7 +145,7 @@ namespace HideezMiddleware
 
         RfidStatus GetRfidStatus()
         {
-            if (_proximitySettingsManager.Settings != null && !_proximitySettingsManager.Settings.IsRFIDIndicatorEnabled)
+            if (!_rfidSettingsManager.Settings.IsRfidEnabled)
                 return RfidStatus.Disabled;
             else if (!_rfidService.ServiceConnected)
                 return RfidStatus.RfidServiceNotConnected;

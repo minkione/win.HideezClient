@@ -18,7 +18,7 @@ namespace HideezMiddleware.Settings
         /// </summary>
         public ProximitySettings()
         {
-            SettingsVersion = new Version(1, 0, 0);
+            SettingsVersion = new Version(2, 0);
             DevicesProximity = Array.Empty<DeviceProximitySettings>();
         }
 
@@ -48,12 +48,7 @@ namespace HideezMiddleware.Settings
             }
 
             DevicesProximity = deviceUnlockerSettings.ToArray();
-
-            IsRFIDIndicatorEnabled = copy.IsRFIDIndicatorEnabled;
         }
-
-        [Setting]
-        public bool IsRFIDIndicatorEnabled { get; set; }
 
         [Setting]
         public Version SettingsVersion { get; }

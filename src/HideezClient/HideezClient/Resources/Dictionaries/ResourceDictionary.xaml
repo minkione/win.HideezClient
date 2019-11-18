@@ -502,4 +502,5 @@
         <Setter Property="MaxHeight" Value="34" />
         <Setter Property="Padding" Value="0" />
     </Style>
+
 </ResourceDictionary>
