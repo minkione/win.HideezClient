@@ -271,7 +271,11 @@
                                 ItemContainerStyle="{StaticResource MenuItemStyle}"
                                 ItemsSource="{Binding MenuItems}"
                                 Orientation="Vertical"
-                                Style="{DynamicResource LightDropDownButtonStyle}">
+                                Style="{DynamicResource LightDropDownButtonStyle}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Height="26"
+                                Width="26">
                                 <mah:DropDownButton.Icon>
                                     <iconPacks:PackIconOcticons Foreground="White" Kind="KebabVertical" />
                                 </mah:DropDownButton.Icon>

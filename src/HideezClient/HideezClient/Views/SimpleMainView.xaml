@@ -20,6 +20,7 @@
     WindowStartupLocation="CenterScreen"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
+    ResizeMode="CanMinimize"
     mc:Ignorable="d">
     <!--ResizeMode="CanMinimize"-->
 
@@ -30,17 +31,17 @@
         </Grid.RowDefinitions>
 
         <controls:DevicesExpander VerticalAlignment="Top">
-            <!--<controls:DevicesExpander.Background>
+            <controls:DevicesExpander.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Offset="0" Color="#0022446D" />
                     <GradientStop Offset="1" Color="#5C22446D" />
                 </LinearGradientBrush>
-            </controls:DevicesExpander.Background>-->
+            </controls:DevicesExpander.Background>
         </controls:DevicesExpander>
 
         <controls:ConnectivityIndicators
             Grid.Row="1"
-            Margin="24"
+            Margin="24, 14"
             Padding="0"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Bottom"

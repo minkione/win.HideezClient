@@ -287,8 +287,8 @@
         x:Key="TaskbarIcon"
         DoubleClickCommand="{Binding ShowWindowCommand}"
         IconSource="{Binding IconSource}"
-        ToolTipText="{Binding ToolTip}">
-        <!--  LeftClickCommand="{Binding ShowWindowCommand}"  -->
+        ToolTipText="{Binding ToolTip}"
+        LeftClickCommand="{Binding ShowWindowCommand}">
 
         <tb:TaskbarIcon.ContextMenu>
             <ContextMenu Background="{DynamicResource DropDownMenuBrush}" ItemsSource="{Binding MenuItems}">

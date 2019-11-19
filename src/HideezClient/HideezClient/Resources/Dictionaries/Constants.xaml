@@ -58,8 +58,11 @@
     </LinearGradientBrush>
 
     <!--  Drop-down menu  -->
-    <SolidColorBrush x:Key="DropDownMenuBrush" Color="#0E5F93" />
-
+    <LinearGradientBrush x:Key="DropDownMenuBrush" MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Offset="0" Color="#22446D" />
+        <GradientStop Offset="1" Color="#081C33" />
+    </LinearGradientBrush>
+    
     <!--  Connection indicators  -->
     <SolidColorBrush x:Key="ConnectedBrush" Color="#0EFFB7" />
     <DropShadowEffect
