@@ -32,11 +32,14 @@ namespace HideezMiddleware.Audit
 
         readonly System.Timers.Timer automaticEventSendingTimer = new System.Timers.Timer(AUTO_SEND_INTERVAL);
 
-        // Used for interlocking event sending methods
+        // Ensures that only one sending is being performed at a time
         int _sendingThreadSafetyInt = 0;
 
-        // Used for locking operations with events
-        readonly object _fileSystemLock = new object();
+        // Used to synchronize sending with task completion source creation and change
+        readonly object _sendingTcsLock = new object();
+
+        TaskCompletionSource<int> _sendingTcs = null;
+        bool _skipSendingInterval = false;
 
         public EventSender(HesAppConnection hesAppConnection, EventSaver eventSaver, ILog log)
             : base(nameof(EventSender), log)
@@ -206,7 +209,7 @@ namespace HideezMiddleware.Audit
             }
         }
 
-        async Task SendEventsAsync(bool skipSetInterval = false)
+        public async Task SendEventsAsync(bool skipSendingInterval = false)
         {
             if (_hesAppConnection != null
                 && _hesAppConnection.State == HesConnectionState.Connected
@@ -217,12 +220,18 @@ namespace HideezMiddleware.Audit
                     if (GetEventsCount() == 0)
                         return;
 
+                    lock (_sendingTcsLock)
+                    {
+                        _sendingTcs = new TaskCompletionSource<int>();
+                    }
+
                     automaticEventSendingTimer.Stop();
 
                     var eventsQueue = await DeserializeEvents();
                     WriteLine($"Sending {eventsQueue.Count} " + (eventsQueue.Count == 1 ? "event" : "events") + " to HES");
 
-                    await BreakIntoSetsAndSendToServer(eventsQueue, skipSetInterval);
+                    _skipSendingInterval = skipSendingInterval;
+                    await BreakIntoSetsAndSendToServer(eventsQueue);
                 }
                 catch (Exception ex)
                 {
@@ -232,11 +241,25 @@ namespace HideezMiddleware.Audit
                 {
                     Interlocked.Exchange(ref _sendingThreadSafetyInt, 0);
                     automaticEventSendingTimer.Start();
+                    lock (_sendingTcsLock)
+                    {
+                        _sendingTcs.SetResult(0);
+                        _sendingTcs = null;
+                    }
+                }
+            }
+            else
+            {
+                var tcs = _sendingTcs;
+                if (tcs != null)
+                {
+                    _skipSendingInterval = skipSendingInterval;
+                    await tcs.Task;
                 }
             }
         }
 
-        async Task BreakIntoSetsAndSendToServer(IEnumerable<WorkstationEvent> events, bool skipSendDelay = false)
+        async Task BreakIntoSetsAndSendToServer(IEnumerable<WorkstationEvent> events)
         {
             var sets = events.ToSets(EVENTS_PER_SET).ToList();
 
@@ -256,8 +279,10 @@ namespace HideezMiddleware.Audit
                     }
 
                     // Add delay between multiple sendings of sets
-                    // Skip delay if sent last set
-                    if ((i < sets.Count - 1) && !skipSendDelay)
+                    // Skip delay if already sent last set
+                    if (_skipSendingInterval)
+                        continue;
+                    else if (i < sets.Count - 1)
                         await Task.Delay(SET_INTERVAL);
                 }
             }

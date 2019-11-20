@@ -829,7 +829,7 @@ namespace ServiceLibrary.Implementation
          * within a short frame of each other due to inconsistent behavior caused by SystemPowerEvent implementation
          */
         static bool _alreadyRestored = false; 
-        public static async void OnLaunchFromSleep()
+        public static async Task OnLaunchFromSuspend()
         {
             _log.WriteLine("System left suspended mode");
             if (!_restoringFromSleep && !_alreadyRestored)
@@ -869,7 +869,22 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public static async void OnGoingToSleep()
+        // It looks like windows never sends this particular event
+        public static async Task OnPreparingToSuspend()
+        {
+            try
+            {
+                _log.WriteLine("System query suspend");
+                await _eventSender.SendEventsAsync(true);
+            }
+            catch (Exception ex)
+            {
+                _log.WriteLine($"An error occured suspend query");
+                _log.WriteLine(ex);
+            }
+        }
+
+        public static async Task OnSuspending()
         {
             try
             {
@@ -883,6 +898,9 @@ namespace ServiceLibrary.Implementation
 
                 _log.WriteLine("Disconnecting all connected devices");
                 await _deviceManager.DisconnectAllDevices();
+
+                _log.WriteLine("Sending all events");
+                await _eventSender.SendEventsAsync(true);
 
                 await _hesConnection.Stop();
             }
