@@ -2,11 +2,8 @@
 using System.Diagnostics;
 using System.ServiceProcess;
 using System.ServiceModel;
-using ServiceLibrary.Implementation;
 using HideezServiceHost.HideezServiceReference;
 using HideezMiddleware;
-using System.Management;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 
@@ -66,9 +63,9 @@ namespace HideezServiceHost
             }
         }
 
-        protected override void OnShutdown()
+        protected override async void OnShutdown()
         {
-            ServiceLibrary.Implementation.HideezService.OnServiceStopped();
+            await ServiceLibrary.Implementation.HideezService.OnServiceStopped();
             base.OnShutdown();
         }
 
@@ -76,7 +73,7 @@ namespace HideezServiceHost
         {
             try
             {
-                ServiceLibrary.Implementation.HideezService.OnServiceStopped();
+                await ServiceLibrary.Implementation.HideezService.OnServiceStopped();
 
                 // connect and ask the service to finish all works and close all connections
                 var callback = new HideezServiceCallbacks();
@@ -146,7 +143,7 @@ namespace HideezServiceHost
          * When ResumeAutomatic is sent with no corresponding ResumeSuspend the system idle timeout is brief (2 minutes by default in Windows 10) and attached displays are kept in power saving mode. When a corresponding ResumeSuspend is sent the system idle timeout is normal (30 minutes by default in Windows 10) and attached displays are woken up. This is so that the computer goes back to sleep as soon as possible if it wakes automatically to perform maintenance, etc. It would be fantastic if Microsoft could make it work reliably.
          * 
          */
-        void HandlePowerEvent(PowerBroadcastStatus powerStatus)
+        async void HandlePowerEvent(PowerBroadcastStatus powerStatus)
         {
             switch (powerStatus)
             {
@@ -157,27 +154,28 @@ namespace HideezServiceHost
                 case PowerBroadcastStatus.PowerStatusChange:
                     break;
                 case PowerBroadcastStatus.QuerySuspend: // System is trying to schedule suspend
+                    await OnSystemQuerySuspend();
                     break;
                 case PowerBroadcastStatus.QuerySuspendFailed: // Some application canceled suspend
                     break;
                 case PowerBroadcastStatus.ResumeAutomatic: // Sleep or hibernation ended, brief system timeout (2m)
                 case PowerBroadcastStatus.ResumeCritical: // Suspension because of low battery charge ended
                 case PowerBroadcastStatus.ResumeSuspend: // Sleep or hibernation ended, normal system timeout (30m)
-                    OnSystemLeftSuspendedMode();
+                    await OnSystemLeftSuspendedMode();
                     break;
                 case PowerBroadcastStatus.Suspend: // System is about to be suspended, approximately 2 seconds before it happens
-                    OnSystemSuspending();
+                    await OnSystemSuspending();
                     break;
                 default:
                     break;
             }
         }
 
-        void OnSystemLeftSuspendedMode()
+        async Task OnSystemQuerySuspend()
         {
             try
             {
-                ServiceLibrary.Implementation.HideezService.OnLaunchFromSleep();
+                await ServiceLibrary.Implementation.HideezService.OnPreparingToSuspend();
             }
             catch (Exception ex)
             {
@@ -185,11 +183,23 @@ namespace HideezServiceHost
             }
         }
 
-        void OnSystemSuspending()
+        async Task OnSystemLeftSuspendedMode()
         {
             try
             {
-                ServiceLibrary.Implementation.HideezService.OnGoingToSleep();
+                await ServiceLibrary.Implementation.HideezService.OnLaunchFromSuspend();
+            }
+            catch (Exception ex)
+            {
+                ServiceLibrary.Implementation.HideezService.Error(ex);
+            }
+        }
+
+        async Task OnSystemSuspending()
+        {
+            try
+            {
+                await ServiceLibrary.Implementation.HideezService.OnSuspending();
             }
             catch (Exception ex)
             {
