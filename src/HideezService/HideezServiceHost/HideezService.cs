@@ -2,11 +2,8 @@
 using System.Diagnostics;
 using System.ServiceProcess;
 using System.ServiceModel;
-using ServiceLibrary.Implementation;
 using HideezServiceHost.HideezServiceReference;
 using HideezMiddleware;
-using System.Management;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 
@@ -66,9 +63,9 @@ namespace HideezServiceHost
             }
         }
 
-        protected override void OnShutdown()
+        protected override async void OnShutdown()
         {
-            ServiceLibrary.Implementation.HideezService.OnServiceStopped();
+            await ServiceLibrary.Implementation.HideezService.OnServiceStopped();
             base.OnShutdown();
         }
 
@@ -76,7 +73,7 @@ namespace HideezServiceHost
         {
             try
             {
-                ServiceLibrary.Implementation.HideezService.OnServiceStopped();
+                await ServiceLibrary.Implementation.HideezService.OnServiceStopped();
 
                 // connect and ask the service to finish all works and close all connections
                 var callback = new HideezServiceCallbacks();
