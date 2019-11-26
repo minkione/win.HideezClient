@@ -855,11 +855,15 @@ namespace WinSampleApp.ViewModel
                 // Unlocker Settings Manager ==================================
                 var proximitySettingsManager = new SettingsManager<ProximitySettings>(string.Empty, new XmlFileSerializer(_log));
 
+                // Rfid Settings Manager =========================
+                var rfidSettingsManager = new SettingsManager<RfidSettings>(string.Empty, new XmlFileSerializer(_log));
+
                 // UI proxy ==================================
                 var uiProxyManager = new UiProxyManager(_credentialProviderProxy, this, _log);
 
                 // ConnectionFlowProcessor ==================================
                 _connectionFlowProcessor = new ConnectionFlowProcessor(
+                    _connectionManager,
                     _deviceManager,
                     _hesConnection,
                     _credentialProviderProxy, // use _credentialProviderProxy as IWorkstationUnlocker in real app
@@ -867,14 +871,14 @@ namespace WinSampleApp.ViewModel
                     uiProxyManager,
                     _log);
 
-                _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, null, uiProxyManager, _log);
+                _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, rfidSettingsManager, null, uiProxyManager, _log);
                 _rfidProcessor.Start();
 
                 _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _connectionManager, _log);
                 _tapProcessor.Start();
 
                 // StatusManager =============================
-                var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxyManager, proximitySettingsManager, _log);
+                var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxyManager, rfidSettingsManager, _log);
 
                 _connectionManager.StartDiscovery();
 

@@ -832,6 +832,9 @@ namespace ServiceLibrary.Implementation
         public static async Task OnLaunchFromSuspend()
         {
             _log.WriteLine("System left suspended mode");
+            Environment.Exit(1); // Planned service shutdown
+            return;
+
             if (!_restoringFromSleep && !_alreadyRestored)
             {
                 _restoringFromSleep = true;
