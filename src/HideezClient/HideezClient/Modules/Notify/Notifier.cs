@@ -223,8 +223,9 @@ namespace HideezClient.Modules
                     windowsForNotifications[screen.DeviceName] = window;
                 }
             }
-
-           (window.DataContext as NotificationsContainerViewModel)?.AddNotification(notification, addForce);
+            
+            (window.DataContext as NotificationsContainerViewModel)?.AddNotification(notification, addForce);
+            window.Show();
         }
 
         Screen GetCurrentScreen()
