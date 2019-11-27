@@ -63,12 +63,6 @@ namespace HideezServiceHost
             }
         }
 
-        protected override async void OnShutdown()
-        {
-            await ServiceLibrary.Implementation.HideezService.OnServiceStopped();
-            base.OnShutdown();
-        }
-
         protected override async void OnStop()
         {
             try
