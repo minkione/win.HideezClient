@@ -134,6 +134,7 @@ namespace HideezMiddleware.Audit
                         {
                             WriteLine($"Could not parse event file. Data: {data}", LogErrorSeverity.Error);
                             await DeleteEventFile(file);
+                            continue;
                         }
 
                         string eventVersion = jsonObj[nameof(WorkstationEvent.Version)];
