@@ -83,7 +83,7 @@ namespace HideezClient.PageViewModels
             });
 
             this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Where(t => t.Item1 != 0 && t.Item2 != 0).Subscribe(o => ProximityHasChanges = true);
-            this.WhenAnyValue(x => x.Device).Where(d => d != null).Subscribe(o => Task.Run(GetCurrentProximitySettings));
+            this.WhenAnyValue(x => x.Device).Where(d => d != null).Subscribe(o => Task.Run(LoadCurrentProximitySettings));
         }
 
         [Reactive] public DeviceViewModel Device { get; set; }
@@ -137,7 +137,7 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        Task.Run(GetCurrentProximitySettings);
+                        Task.Run(LoadCurrentProximitySettings);
                     }
                 };
             }
@@ -173,24 +173,33 @@ namespace HideezClient.PageViewModels
 
         private void OnDeviceProximitySettingsChanged(DeviceProximitySettingsChangedMessage obj)
         {
-            Task.Run(GetCurrentProximitySettings);
+            Task.Run(LoadCurrentProximitySettings);
         }
 
-        private async Task GetCurrentProximitySettings()
+        private async Task LoadCurrentProximitySettings()
         {
-            var dto = await this.serviceProxy.GetService().GetCurrentProximitySettingsAsync(Device.Mac);
-            AllowEditProximitySettings = dto.AllowEditProximitySettings;
-            LockProximity = dto.LockProximity;
-            UnlockProximity = dto.UnlockProximity;
-            ProximityHasChanges = false;
+            // TODO: Race condition and potential NullReferenceException at Device.Mac
+            if (Device != null)
+            {
+                var dto = await this.serviceProxy.GetService().GetCurrentProximitySettingsAsync(Device.Mac);
+                AllowEditProximitySettings = dto.AllowEditProximitySettings;
+                LockProximity = dto.LockProximity;
+                UnlockProximity = dto.UnlockProximity;
+                ProximityHasChanges = false;
+            }
         }
 
         public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {
-            Сonnected.State = Device.IsConnected;
-            Initialized.State = Device.IsInitialized;
-            Authorized.State = Device.IsAuthorized;
-            StorageLoaded.State = Device.IsStorageLoaded;
+            // We still receive events from previous device, so this check is important
+            // to filter events from device relevant/selected device only
+            if (Device != null && Device == sender as DeviceViewModel)
+            {
+                Сonnected.State = Device.IsConnected;
+                Initialized.State = Device.IsInitialized;
+                Authorized.State = Device.IsAuthorized;
+                StorageLoaded.State = Device.IsStorageLoaded;
+            }
             return true;
         }
     }
