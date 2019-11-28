@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.Tasks
 {
+    //todo - doesn't need to be IDisposable if move SubscribeToEvents into Run() method
     class UnlockSessionSwitchProc : IDisposable
     {
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
@@ -14,8 +15,7 @@ namespace HideezMiddleware.Tasks
         readonly ProximityConnectionProcessor _proximityProcessor;
 
         readonly TaskCompletionSource<object> _tcs = new TaskCompletionSource<object>();
-
-        string _flowId;
+        readonly string _flowId;
 
         public WorkstationUnlockResult FlowUnlockResult { get; private set; } = null; // Set on connectionFlow.UnlockAttempt
         public SessionSwitchSubject UnlockMethod { get; private set; } = SessionSwitchSubject.NonHideez; // Changed on connectionFlow.UnlockAttempt

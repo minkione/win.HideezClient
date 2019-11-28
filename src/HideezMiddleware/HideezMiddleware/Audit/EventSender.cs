@@ -223,6 +223,7 @@ namespace HideezMiddleware.Audit
 
                     lock (_sendingTcsLock)
                     {
+                        //todo - if (_sendingTcs == null) ?
                         _sendingTcs = new TaskCompletionSource<int>();
                     }
 
