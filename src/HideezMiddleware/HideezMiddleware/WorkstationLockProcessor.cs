@@ -46,7 +46,8 @@ namespace HideezMiddleware
             {
                 if (!device.IsRemote && !device.IsBoot)
                 {
-                    if (!_authorizedDevicesList.Contains(device))
+                    // Limit of one device that may be authorized for workstation lock
+                    if (!_authorizedDevicesList.Contains(device) && _authorizedDevicesList.Count == 0)
                     {
                         WriteLine($"Device ({device.Id}) added as valid to trigger workstation lock");
                         device.Disconnected += Device_Disconnected;
