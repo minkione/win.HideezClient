@@ -249,9 +249,19 @@ namespace HideezClient.Models
         #endregion
 
         #region Messege & Event handlers
+        void RemoteDevice_ButtonPressed(object sender, Hideez.SDK.Communication.ButtonPressCode e)
+        {
+            _log.Info($"Device ({Id}) button pressed, code: {e}");
+
+            Task.Run(() =>
+            {
+                _messenger.Send(new DeviceButtonPressedMessage(Id, e));
+            });
+        }
+
         void RemoteDevice_StorageModified(object sender, EventArgs e)
         {
-            _log.Info($"Device ({SerialNo}) storage modified");
+            _log.Info($"Device ({Id}) storage modified");
 
             Task.Run(() =>
             {
@@ -361,6 +371,7 @@ namespace HideezClient.Models
                 TryInitRemoteAsync();
             }
         }
+
         #endregion
 
         void LoadFrom(DeviceDTO dto)
@@ -458,7 +469,8 @@ namespace HideezClient.Models
                     var tempRemoteDevice = _remoteDevice;
                     _remoteDevice = null;
                     PasswordManager = null;
-                    
+
+                    tempRemoteDevice.ButtonPressed -= RemoteDevice_ButtonPressed;
                     tempRemoteDevice.StorageModified -= RemoteDevice_StorageModified;
                     tempRemoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
                     await tempRemoteDevice.Shutdown(code);
@@ -510,6 +522,7 @@ namespace HideezClient.Models
                 _log.Info($"Creating password manager for device ({SerialNo})");
                 PasswordManager = new DevicePasswordManager(_remoteDevice, null);
                 _remoteDevice.StorageModified += RemoteDevice_StorageModified;
+                _remoteDevice.ButtonPressed += RemoteDevice_ButtonPressed;
 
                 _log.Info($"Remote device ({SerialNo}) connection established");
             }
@@ -610,9 +623,9 @@ namespace HideezClient.Models
                 IsStorageLoaded = false;
                 IsLoadingStorage = true;
 
-                _log.Info($"Device ({SerialNo}) loading storage");
+                _log.Info($"Device ({Id}) loading storage");
                 await PasswordManager.Load();
-                _log.Info($"Device ({SerialNo}) loaded {PasswordManager.Accounts.Count} entries from storage");
+                _log.Info($"Device ({Id}) loaded {PasswordManager.Accounts.Count} entries from storage");
                 
                 IsStorageLoaded = true;
             }
