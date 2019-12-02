@@ -170,7 +170,6 @@
                                         <Grid Visibility="{Binding FinishedMainFlow, Converter={StaticResource BooleanToVisibilityConverter}}">
                                             <Grid Visibility="{Binding IsCreatingRemoteDevice, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
                                                 <Grid Visibility="{Binding IsAuthorizingRemoteDevice, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
-                                                    <!-- IGNORE CONFLICT ON MERGE AND TAKE OTHER -->
                                                     <Button Command="{Binding AuthorizeDeviceAndLoadStorage}" 
                                                             Style="{StaticResource IconMenuButtonStyle}"
                                                             Visibility="{Binding IsAuthorized, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
