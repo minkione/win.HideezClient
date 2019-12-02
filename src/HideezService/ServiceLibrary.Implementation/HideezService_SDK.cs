@@ -647,7 +647,8 @@ namespace ServiceLibrary.Implementation
             {
                 var device = _deviceManager.Find(id);
                 if (device != null)
-                    await _deviceManager.RemoveAll(device.Mac);
+                    await _deviceManager.Remove(device);
+                    //await _deviceManager.RemoveAll(device.Mac);
             }
             catch (Exception ex)
             {

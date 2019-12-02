@@ -5,6 +5,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
@@ -149,7 +150,10 @@ namespace HideezMiddleware
             lock (_deviceListsLock)
             {
                 if (!CanLock(device))
+                { 
+                    Task.Run(async () => { await _deviceManager.DisconnectDevice(device); });
                     return;
+                }
 
                 WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Device ID: {device.Id}");
                 WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceBelowThreshold));
@@ -162,7 +166,10 @@ namespace HideezMiddleware
             lock (_deviceListsLock)
             {
                 if (!CanLock(device))
+                {
+                    Task.Run(async () => { await _deviceManager.DisconnectDevice(device); });
                     return;
+                }
 
                 WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Device ID: {device.Id}");
                 WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.ProximityTimeout));
