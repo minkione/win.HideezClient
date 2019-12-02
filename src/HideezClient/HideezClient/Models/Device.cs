@@ -296,10 +296,12 @@ namespace HideezClient.Models
         async void OnDeviceConnectionStateChanged(DeviceConnectionStateChangedMessage obj)
         {
             if (obj.Device.Id == Id)
+            {
                 LoadFrom(obj.Device);
 
-            if (!obj.Device.IsConnected)
-                await ShutdownRemoteDeviceAsync(HideezErrorCode.DeviceDisconnected);
+                if (!obj.Device.IsConnected)
+                    await ShutdownRemoteDeviceAsync(HideezErrorCode.DeviceDisconnected);
+            }
         }
 
         void OnDeviceInitialized(DeviceInitializedMessage obj)
