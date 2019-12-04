@@ -123,7 +123,7 @@ namespace HideezMiddleware
             {
                 lock (_deviceListsLock)
                 {
-                    if (device.IsConnected && _authorizedDevicesList.Contains(device))
+                    if (_authorizedDevicesList.Contains(device))
                     {
                         WriteLine($"Device ({device.Id}) is no longer a valid trigger for workstation lock");
                         _authorizedDevicesList.Remove(device);
