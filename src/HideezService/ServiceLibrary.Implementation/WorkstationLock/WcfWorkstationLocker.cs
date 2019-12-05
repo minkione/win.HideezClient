@@ -26,15 +26,19 @@ namespace ServiceLibrary.Implementation.WorkstationLock
         {
             Task.Run(() =>
             {
-                foreach (var client in _sessionManager.Sessions)
+                var lockState = WorkstationHelper.GetCurrentSessionLockState();
+                if (lockState == WorkstationHelper.LockState.Unlocked)
                 {
-                    try
+                    foreach (var client in _sessionManager.Sessions)
                     {
-                        client.Callbacks.LockWorkstationRequest();
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteLine(ex);
+                        try
+                        {
+                            client.Callbacks.LockWorkstationRequest();
+                        }
+                        catch (Exception ex)
+                        {
+                            WriteLine(ex);
+                        }
                     }
                 }
             });

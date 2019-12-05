@@ -54,6 +54,7 @@ namespace ServiceLibrary.Implementation
         static TapConnectionProcessor _tapProcessor;
         static ProximityConnectionProcessor _proximityProcessor;
         static SessionSwitchLogger _sessionSwitchLogger;
+        static ConnectionManagerRestarter _connectionManagerRestarter;
 
         void InitializeSDK()
         {
@@ -75,6 +76,7 @@ namespace ServiceLibrary.Implementation
             _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
             _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
             _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+            _connectionManagerRestarter = new ConnectionManagerRestarter(_connectionManager, _sdkLogger);
 
             // BLE ============================
             _deviceManager = new BleDeviceManager(_sdkLogger, _connectionManager);
@@ -101,7 +103,14 @@ namespace ServiceLibrary.Implementation
             }
             string rfidSettingsPath = Path.Combine(settingsDirectory, "Rfid.xml");
             string proximitySettingsPath = Path.Combine(settingsDirectory, "Proximity.xml");
+            string sdkSettingsPath = Path.Combine(settingsDirectory, "Sdk.xml");
             IFileSerializer fileSerializer = new XmlFileSerializer(_sdkLogger);
+            var sdkSettingsManager = new SettingsManager<SdkSettings>(sdkSettingsPath, fileSerializer);
+            Task.Run(async () =>
+            {
+                await SdkConfigLoader.LoadSdkConfigFromFileAsync(sdkSettingsManager);
+            });
+
             _rfidSettingsManager = new SettingsManager<RfidSettings>(rfidSettingsPath, fileSerializer);
 
             _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
@@ -224,6 +233,7 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager.Start();
 
             _connectionManager.StartDiscovery();
+            _connectionManagerRestarter.Start();
 
             if (_hesConnection.State == HesConnectionState.Error)
             {
@@ -833,9 +843,6 @@ namespace ServiceLibrary.Implementation
         public static async Task OnLaunchFromSuspend()
         {
             _log.WriteLine("System left suspended mode");
-            Environment.Exit(1); // Planned service shutdown
-            return;
-
             if (!_restoringFromSleep && !_alreadyRestored)
             {
                 _restoringFromSleep = true;
@@ -850,13 +857,21 @@ namespace ServiceLibrary.Implementation
 
                     await _hesConnection.Stop();
 
-                    _log.WriteLine("Restarting connection manager");
-                    _connectionManager.Restart();
 
-                    _log.WriteLine("Starting connection processors");
-                    _proximityProcessor.Start();
-                    _tapProcessor.Start();
-                    _rfidProcessor.Start();
+
+                    _connectionManagerRestarter.Stop();
+                    _ = Task.Run(async () =>
+                    {
+                        await Task.Delay(1000);
+                        _log.WriteLine("Restarting connection manager");
+                        _connectionManager.Restart();
+                        _connectionManagerRestarter.Start();
+
+                        _log.WriteLine("Starting connection processors");
+                        _proximityProcessor.Start();
+                        _tapProcessor.Start();
+                        _rfidProcessor.Start();
+                    });
 
                     _hesConnection.Start();
                     _alreadyRestored = true;
