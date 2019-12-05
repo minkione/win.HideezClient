@@ -100,11 +100,13 @@
     <Compile Include="IWorkstationLocker.cs" />
     <Compile Include="NLogWrapper.cs" />
     <Compile Include="ScreenActivation\ScreenActivator.cs" />
+    <Compile Include="SdkConfigLoader.cs" />
     <Compile Include="SessionSwitchMonitor.cs" />
     <Compile Include="Settings\BaseSettings.cs" />
     <Compile Include="Settings\FileSerializer\IFileSerializer.cs" />
     <Compile Include="Settings\Manager\ISettingsManager.cs" />
     <Compile Include="Settings\RfidSettings.cs" />
+    <Compile Include="Settings\SdkSettings.cs" />
     <Compile Include="Settings\SettingAttribute.cs" />
     <Compile Include="Settings\Manager\SettingsManager.cs" />
     <Compile Include="Settings\FileSerializer\XmlFileSerializer.cs" />
@@ -134,15 +136,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\win.sdk\Communication\Communication.csproj">
       <Project>{6F4C0DC3-4AA3-4517-9311-EDEC593BAF12}</Project>
       <Name>Communication</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

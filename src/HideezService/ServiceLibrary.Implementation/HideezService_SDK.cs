@@ -103,7 +103,14 @@ namespace ServiceLibrary.Implementation
             }
             string rfidSettingsPath = Path.Combine(settingsDirectory, "Rfid.xml");
             string proximitySettingsPath = Path.Combine(settingsDirectory, "Proximity.xml");
+            string sdkSettingsPath = Path.Combine(settingsDirectory, "Sdk.xml");
             IFileSerializer fileSerializer = new XmlFileSerializer(_sdkLogger);
+            var sdkSettingsManager = new SettingsManager<SdkSettings>(sdkSettingsPath, fileSerializer);
+            Task.Run(async () =>
+            {
+                await SdkConfigLoader.LoadSdkConfigFromFileAsync(sdkSettingsManager);
+            });
+
             _rfidSettingsManager = new SettingsManager<RfidSettings>(rfidSettingsPath, fileSerializer);
 
             _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
