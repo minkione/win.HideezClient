@@ -1,5 +1,4 @@
-﻿using Hideez.CsrBLE;
-using Hideez.SDK.Communication.BLE;
+﻿using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
 using System;
 using System.Threading;
@@ -12,11 +11,11 @@ namespace HideezMiddleware
     /// </summary>
     public class ConnectionManagerRestarter : Logger
     {
-        BleConnectionManager _bleConnectionManager;
+        IBleConnectionManager _bleConnectionManager;
         CancellationTokenSource _tcs = null;
         object _tcsLock = new object();
 
-        public ConnectionManagerRestarter(BleConnectionManager bleConnectionManager, ILog log)
+        public ConnectionManagerRestarter(IBleConnectionManager bleConnectionManager, ILog log)
             : base(nameof(ConnectionManagerRestarter), log)
         {
             _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
