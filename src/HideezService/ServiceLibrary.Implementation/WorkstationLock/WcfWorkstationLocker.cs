@@ -26,7 +26,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
         {
             Task.Run(() =>
             {
-                var lockState = WorkstationHelper.GetCurrentSessionLockState();
+                var lockState = WorkstationHelper.GetActiveSessionLockState();
                 if (lockState == WorkstationHelper.LockState.Unlocked)
                 {
                     foreach (var client in _sessionManager.Sessions)
