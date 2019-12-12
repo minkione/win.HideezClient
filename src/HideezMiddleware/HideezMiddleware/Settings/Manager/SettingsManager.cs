@@ -31,10 +31,15 @@ namespace HideezMiddleware.Settings
             CreateDefaultSettingsFile(SettingsFilePath);
         }
 
-        void CreateDefaultSettingsFile(string path)
+        void CreateDefaultSettingsFile(string fullPath)
         {
+            // Create directory in case it does not exist
+            var directory = Path.GetDirectoryName(fullPath);
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+
             // Skip if settings file already exists
-            if (!File.Exists(path))
+            if (!File.Exists(fullPath))
                 SaveSettings(Settings);
         }
 

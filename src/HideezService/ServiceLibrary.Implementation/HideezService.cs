@@ -59,7 +59,7 @@ namespace ServiceLibrary.Implementation
 
                 _log.WriteLine(">>>>>> Initilize audit");
                 var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-                string auditEventsDirectoryPath = $@"{commonAppData}\Hideez\WorkstationEvents\";
+                string auditEventsDirectoryPath = $@"{commonAppData}\Hideez\Service\WorkstationEvents\";
                 _eventSaver = new EventSaver(_sessionInfoProvider, auditEventsDirectoryPath, _sdkLogger);
 
                 _log.WriteLine(">>>>>> Initialize session timestamp monitor");
