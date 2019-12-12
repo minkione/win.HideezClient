@@ -97,10 +97,6 @@ namespace ServiceLibrary.Implementation
             _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
 
             // Settings
-            if (!Directory.Exists(settingsDirectory))
-            {
-                Directory.CreateDirectory(settingsDirectory);
-            }
             string rfidSettingsPath = Path.Combine(settingsDirectory, "Rfid.xml");
             string proximitySettingsPath = Path.Combine(settingsDirectory, "Proximity.xml");
             string sdkSettingsPath = Path.Combine(settingsDirectory, "Sdk.xml");
