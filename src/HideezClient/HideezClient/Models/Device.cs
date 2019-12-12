@@ -437,6 +437,10 @@ namespace HideezClient.Models
                             if (!ct.IsCancellationRequested)
                                 await LoadStorage();
                         }
+                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceDisconnected)
+                        {
+                            _log.Warn("Remote device creation aborted, device disconnected");
+                        }
                         catch (Exception ex)
                         {
                             ShowError(ex.Message, _errNid);
