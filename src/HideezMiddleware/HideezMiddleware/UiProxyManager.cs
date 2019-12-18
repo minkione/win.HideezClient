@@ -156,7 +156,10 @@ namespace HideezMiddleware
 
         public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
         {
+            WriteLine($"SendStatus: hes:{hesStatus}; rfid:{rfidStatus}; ble:{bluetoothStatus};");
+
             var uiList = GetClientUiList();
+
             foreach (var ui in uiList)
             {
                 if (ui != null)
@@ -166,6 +169,8 @@ namespace HideezMiddleware
 
         public async Task SendNotification(string notification, string notificationId = null)
         {
+            WriteLine($"SendNotification: {notification}");
+
             var ui = GetCurrentClientUi();
 
             if (string.IsNullOrWhiteSpace(notificationId))
@@ -177,6 +182,8 @@ namespace HideezMiddleware
 
         public async Task SendError(string error, string notificationId = null)
         {
+            WriteLine($"SendError: {error}");
+
             var ui = GetCurrentClientUi();
 
             if (string.IsNullOrWhiteSpace(notificationId))
