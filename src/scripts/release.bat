@@ -9,6 +9,6 @@ devenv ..\HideezClient.Setup.sln /Build "Release|x64" /Project WixBootstrapper
 if not exist "..\Release\" mkdir "..\Release\"
 if not exist "..\Release\x64" mkdir "..\Release\x64"
 if not exist "..\Release\x86" mkdir "..\Release\x86"
-xcopy /s/y "..\HideezClient.Setup\WiXSetup\bin\x64\Release\hideezclientsetup.msi" "..\Release\x64"
 xcopy /s/y "..\HideezClient.Setup\WiXSetup\bin\Release\hideezclientsetup.msi" "..\Release\x86"
+xcopy /s/y "..\HideezClient.Setup\WiXSetup\bin\x64\Release\hideezclientsetup.msi" "..\Release\x64"
 xcopy /s/y "..\HideezClient.Setup\WixBootstrapper\bin\x64\Release\hideezclientsetup.exe" "..\Release\"

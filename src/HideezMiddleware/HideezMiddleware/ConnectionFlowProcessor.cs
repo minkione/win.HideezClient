@@ -437,11 +437,6 @@ namespace HideezMiddleware
                 ct.ThrowIfCancellationRequested();
                 await _ui.SendNotification("Connection failed. Retrying...", _infNid);
 
-                // TODO: Remove this when internal adapter hang is fixed
-                if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Locked)
-                    _connectionManager.Restart();
-                // ...
-
                 device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
 
                 if (device == null)

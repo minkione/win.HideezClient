@@ -41,7 +41,7 @@
             // 
             this.serviceInstaller1.Description = "Provides connection to an RFID reader";
             this.serviceInstaller1.DisplayName = "Hideez RFID Service";
-            this.serviceInstaller1.ServiceName = "HideezRfidService";
+            this.serviceInstaller1.ServiceName = "Hideez RFID Service";
             this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller
