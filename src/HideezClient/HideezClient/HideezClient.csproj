@@ -639,7 +639,7 @@
     <Resource Include="Images\BackgroundForPage.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\win.sdk\Communication\Communication.csproj">
+    <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
       <Project>{20B97AF9-6422-4678-900B-0610ED1D2517}</Project>
       <Name>Communication</Name>
     </ProjectReference>
