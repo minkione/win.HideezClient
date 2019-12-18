@@ -5,7 +5,7 @@ using Hideez.SDK.Communication.Log;
 
 namespace Hideez.RFID
 {
-    class RfidReceivedEventArgs : EventArgs
+    public class RfidReceivedEventArgs : EventArgs
     {
         public RfidReceivedEventArgs(string rfid)
             : base()
@@ -16,7 +16,7 @@ namespace Hideez.RFID
         public string Rfid { get; set; }
     }
 
-    class ReaderStateChangedEventArgs : EventArgs
+    public class ReaderStateChangedEventArgs : EventArgs
     {
         public ReaderStateChangedEventArgs(bool isConnected)
             : base()

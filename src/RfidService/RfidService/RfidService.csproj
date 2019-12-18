@@ -67,6 +67,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="COM\ComConnection.cs" />
+    <Compile Include="COM\ComPortManager.cs" />
     <Compile Include="PipeConnectionsManager.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>

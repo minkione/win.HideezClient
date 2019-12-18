@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ServiceProcess;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.COM;
 
 namespace Hideez.RFID
 {
@@ -9,6 +10,7 @@ namespace Hideez.RFID
         RfidConnection _connection;
         PipeConnectionsManager _pipeServer;
         EventLogger _log;
+        ComPortManager _comPortManager;
 
         public RfidService()
         {
@@ -21,17 +23,21 @@ namespace Hideez.RFID
             _log.WriteDebugLine("Service", "Started");
 
             _connection = new RfidConnection(_log);
-            _connection.RfidReceived += _connection_RfidReceived;
-            _connection.ReaderStateChanged += _connection_ReaderStateChanged;
+            _connection.RfidReceived += Connection_RfidReceived;
+            _connection.ReaderStateChanged += Connection_ReaderStateChanged;
             _connection.Start();
 
             _pipeServer = new PipeConnectionsManager(_log);
-            _pipeServer.OnReaderUpdateRequest += _pipeServer_OnReaderUpdateRequest;
+            _pipeServer.OnReaderUpdateRequest += PipeServer_OnReaderUpdateRequest;
             _pipeServer.Start();
 
+            _comPortManager = new ComPortManager(_log);
+            _comPortManager.RfidReceived += Connection_RfidReceived;
+            _comPortManager.ReaderStateChanged += Connection_ReaderStateChanged;
+            _comPortManager.Start();
         }
 
-        private void _connection_ReaderStateChanged(object sender, ReaderStateChangedEventArgs e)
+        private void Connection_ReaderStateChanged(object sender, ReaderStateChangedEventArgs e)
         {
             try
             {
@@ -43,7 +49,7 @@ namespace Hideez.RFID
             }
         }
 
-        private void _connection_RfidReceived(object sender, RfidReceivedEventArgs e)
+        private void Connection_RfidReceived(object sender, RfidReceivedEventArgs e)
         {
             try
             {
@@ -55,11 +61,11 @@ namespace Hideez.RFID
             }
         }
 
-        private void _pipeServer_OnReaderUpdateRequest(object sender, System.EventArgs e)
+        private void PipeServer_OnReaderUpdateRequest(object sender, EventArgs e)
         {
             try
             {
-                _pipeServer.WriteReaderState(_connection.IsConnected);
+                _pipeServer.WriteReaderState(_connection.IsConnected || _comPortManager.IsConnected);
             }
             catch (Exception ex)
             {
@@ -69,16 +75,22 @@ namespace Hideez.RFID
 
         protected override void OnStop()
         {
+            if (_comPortManager != null)
+            {
+                _comPortManager.Stop();
+                _comPortManager.RfidReceived -= Connection_RfidReceived;
+                _comPortManager.ReaderStateChanged -= Connection_ReaderStateChanged;
+            }
             if (_connection != null)
             {
                 _connection.Stop();
-                _connection.RfidReceived -= _connection_RfidReceived;
-                _connection.ReaderStateChanged -= _connection_ReaderStateChanged;
+                _connection.RfidReceived -= Connection_RfidReceived;
+                _connection.ReaderStateChanged -= Connection_ReaderStateChanged;
             }
             if (_pipeServer != null)
             {
                 _pipeServer.Stop();
-                _pipeServer.OnReaderUpdateRequest -= _pipeServer_OnReaderUpdateRequest;
+                _pipeServer.OnReaderUpdateRequest -= PipeServer_OnReaderUpdateRequest;
             }
             _log?.Shutdown();
         }
