@@ -43,7 +43,7 @@ namespace HideezClient.Modules.ActionHandler
 
         private IInputAlgorithm GetInputAlgorithm(UserAction userAction)
         {
-            IInputAlgorithm input = null;
+            IInputAlgorithm input;
             switch (userAction)
             {
                 case UserAction.InputLogin:

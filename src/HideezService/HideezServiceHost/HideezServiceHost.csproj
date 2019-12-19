@@ -220,11 +220,11 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\win.sdk\Communication\Communication.csproj">
+    <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
       <Project>{bf57e350-d719-47a1-950a-7b6a08e58bd7}</Project>
       <Name>Communication</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\win.sdk\CsrBLE\CsrBLE.vcxproj">
+    <ProjectReference Include="..\..\..\win.sdk\CsrBLE\CsrBLE.vcxproj">
       <Project>{d274aa09-5b34-4450-a6fb-5a5a351c7b45}</Project>
       <Name>CsrBLE</Name>
     </ProjectReference>

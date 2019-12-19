@@ -31,14 +31,17 @@ namespace HideezClient.ViewModels
                 {
                     foreach (Device device in e.NewItems)
                     {
-                        Devices.Add(new DeviceForExpanderViewModel(device, windowsManager, menuFactory));
+                        SubscribeToDevice(device);
+                        if (device.IsConnected)
+                            CreateViewModel(device);
                     }
                 }
                 else if (e.Action == NotifyCollectionChangedAction.Remove)
                 {
                     foreach (Device device in e.OldItems)
                     {
-                        Devices.Remove(Devices.FirstOrDefault((System.Func<DeviceForExpanderViewModel, bool>)(d => d.Id == device.Id)));
+                        UnsubscribeFromDevice(device);
+                        RemoveViewModel(device);
                     }
                 }
             }));
@@ -49,5 +52,43 @@ namespace HideezClient.ViewModels
         public ObservableCollection<DeviceForExpanderViewModel> Devices { get; }
 
         #endregion Properties
+
+        void SubscribeToDevice(Device device)
+        {
+            device.PropertyChanged += Device_PropertyChanged;
+        }
+
+        void UnsubscribeFromDevice(Device device)
+        {
+            device.PropertyChanged -= Device_PropertyChanged;
+        }
+
+        private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (sender is Device device && e.PropertyName == nameof(Device.IsConnected))
+            {
+                if (device.IsConnected)
+                    CreateViewModel(device);
+                else
+                    RemoveViewModel(device);
+            }
+        }
+
+        void CreateViewModel(Device device)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                if (!Devices.Any(d => d.Id == device.Id))
+                    Devices.Add(new DeviceForExpanderViewModel(device, windowsManager, menuFactory));
+            });
+        }
+
+        void RemoveViewModel(Device device)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                Devices.Remove(Devices.FirstOrDefault((System.Func<DeviceForExpanderViewModel, bool>)(d => d.Id == device.Id)));
+            });
+        }
     }
 }

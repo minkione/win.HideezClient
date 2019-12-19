@@ -221,10 +221,7 @@ namespace HideezMiddleware.Audit
                     if (GetEventsCount() == 0)
                         return;
 
-                    lock (_sendingTcsLock)
-                    {
-                        _sendingTcs = new TaskCompletionSource<int>();
-                    }
+                    _sendingTcs = new TaskCompletionSource<int>();
 
                     automaticEventSendingTimer.Stop();
 
@@ -240,13 +237,13 @@ namespace HideezMiddleware.Audit
                 }
                 finally
                 {
-                    Interlocked.Exchange(ref _sendingThreadSafetyInt, 0);
-                    automaticEventSendingTimer.Start();
-                    lock (_sendingTcsLock)
+                    if (_sendingTcs != null)
                     {
                         _sendingTcs.SetResult(0);
                         _sendingTcs = null;
                     }
+                    automaticEventSendingTimer.Start();
+                    Interlocked.Exchange(ref _sendingThreadSafetyInt, 0);
                 }
             }
             else

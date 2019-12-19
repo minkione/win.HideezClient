@@ -5,11 +5,11 @@ VisualStudioVersion = 16.0.29111.141
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceMaintenance", "DeviceMaintenance\DeviceMaintenance.csproj", "{E52EE391-1CD1-4203-A840-EF405AE81C44}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Communication", "..\..\win.SDK\Communication\Communication.csproj", "{753B30CB-1DF5-485D-9B26-98EF17CE388A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Communication", "..\win.SDK\Communication\Communication.csproj", "{753B30CB-1DF5-485D-9B26-98EF17CE388A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CsrBLE", "..\..\win.SDK\CsrBLE\CsrBLE.vcxproj", "{D274AA09-5B34-4450-A6FB-5A5A351C7B45}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CsrBLE", "..\win.SDK\CsrBLE\CsrBLE.vcxproj", "{D274AA09-5B34-4450-A6FB-5A5A351C7B45}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CsrBLE.Details", "..\..\win.SDK\CsrBLE.Details\CsrBLE.Details.vcxproj", "{828942FC-3B97-4C3F-B7BF-87B63BF6BD1E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CsrBLE.Details", "..\win.SDK\CsrBLE.Details\CsrBLE.Details.vcxproj", "{828942FC-3B97-4C3F-B7BF-87B63BF6BD1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

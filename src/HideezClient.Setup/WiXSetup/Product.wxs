@@ -843,7 +843,7 @@
   <Fragment>
     <CustomAction Id="DataForSetupCustomComponentsAction"
                   Property="SetupCustomComponentsAction"
-                  Value="HesAddress=[HESADDRESS];InstallDongleDriver=[INSTALLDONGLEDRIVER];CsrDriverPath=[CSRDRIVERPATH];IgnoreWorkstationOwnershipSecurity=[IGNOREWORKSTATIONOWNERSHIPSECURITY]" />
+                  Value="HesAddress=[HESADDRESS];InstallDongleDriver=[INSTALLDONGLEDRIVER];CsrDriverPath=[CSRDRIVERPATH]" />
     <Binary Id="CustomActionSetup" SourceFile="$(var.CustomAction.TargetDir)CustomAction.CA.dll"/>
     <CustomAction Id="SetupCustomComponentsAction" 
                   BinaryKey="CustomActionSetup" 

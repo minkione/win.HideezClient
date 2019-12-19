@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace HideezClient.Modules.HotkeyManager
 {
-    public interface IHotkeyManager
+    interface IHotkeyManager
 	{
         bool Enabled { get; set; }
 

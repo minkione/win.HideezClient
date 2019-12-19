@@ -83,6 +83,7 @@
     <Compile Include="Audit\SessionInfoProvider.cs" />
     <Compile Include="Audit\SessionSwitchLogger.cs" />
     <Compile Include="Audit\SessionTimestampLogger.cs" />
+    <Compile Include="ConnectionManagerRestarter.cs" />
     <Compile Include="CredentialProviderProxy.cs" />
     <Compile Include="DeviceConnection\AdvertisementIgnoreList.cs" />
     <Compile Include="DeviceConnection\BaseConnectionProcessor.cs" />
@@ -96,12 +97,14 @@
     <Compile Include="IWorkstationLocker.cs" />
     <Compile Include="NLogWrapper.cs" />
     <Compile Include="ScreenActivation\ScreenActivator.cs" />
+    <Compile Include="SdkConfigLoader.cs" />
     <Compile Include="SessionSwitchMonitor.cs" />
     <Compile Include="Settings\BaseSettings.cs" />
     <Compile Include="Settings\DeviceProximitySettingsHelper.cs" />
     <Compile Include="Settings\FileSerializer\IFileSerializer.cs" />
     <Compile Include="Settings\Manager\ISettingsManager.cs" />
     <Compile Include="Settings\RfidSettings.cs" />
+    <Compile Include="Settings\SdkSettings.cs" />
     <Compile Include="Settings\SettingAttribute.cs" />
     <Compile Include="Settings\Manager\SettingsManager.cs" />
     <Compile Include="Settings\FileSerializer\XmlFileSerializer.cs" />
@@ -110,6 +113,7 @@
     <Compile Include="Resources\ErrorCode.Designer.cs" />
     <Compile Include="RfidServiceConnection.cs" />
     <Compile Include="StatusManager.cs" />
+    <Compile Include="Tasks\GetDeviceInfoFromHesProc.cs" />
     <Compile Include="Tasks\UnlockSessionSwitchProc.cs" />
     <Compile Include="Tasks\WaitWorkstationUnlockerConnectProc.cs" />
     <Compile Include="UiProxyManager.cs" />
@@ -130,15 +134,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\win.sdk\Communication\Communication.csproj">
-      <Project>{6F4C0DC3-4AA3-4517-9311-EDEC593BAF12}</Project>
+    <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
+      <Project>{bf57e350-d719-47a1-950a-7b6a08e58bd7}</Project>
       <Name>Communication</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

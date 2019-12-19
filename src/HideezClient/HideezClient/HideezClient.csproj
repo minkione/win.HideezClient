@@ -308,6 +308,7 @@
     <Compile Include="Messages\ConnectionChangedMessage.cs" />
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
     <Compile Include="Messages\DeviceBatteryChangedMessage.cs" />
+    <Compile Include="Messages\DeviceButtonPressedMessage.cs" />
     <Compile Include="Messages\DeviceConnectionStateChangedMessage.cs" />
     <Compile Include="Messages\DeviceFinishedMainFlowMessage.cs" />
     <Compile Include="Messages\DeviceInitializedMessage.cs" />
@@ -350,6 +351,8 @@
     <Compile Include="Modules\ActionHandler\ITemporaryCacheAccount.cs" />
     <Compile Include="Modules\ActionHandler\TemporaryCacheAccount.cs" />
     <Compile Include="Modules\ActionHandler\UserActionHandler.cs" />
+    <Compile Include="Modules\ButtonManager\ButtonManager.cs" />
+    <Compile Include="Modules\ButtonManager\IButtonManager.cs" />
     <Compile Include="Modules\DeviceManager\DeviceManager.cs" />
     <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
     <Compile Include="Controls\Notification\NotificationBase.cs" />
@@ -758,7 +761,7 @@
     <Resource Include="Images\BackgroundForPage.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\win.sdk\Communication\Communication.csproj">
+    <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
       <Project>{20B97AF9-6422-4678-900B-0610ED1D2517}</Project>
       <Name>Communication</Name>
     </ProjectReference>

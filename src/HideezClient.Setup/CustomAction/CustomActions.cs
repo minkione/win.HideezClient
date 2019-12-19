@@ -52,27 +52,30 @@ namespace CustomAction
                 return ActionResult.Failure;
             }
 
-            try
+            if (parameters.InstallDongleDriver)
             {
-                session.Log("(CustomActions.InstallAction) starting DPinst process");
-                session.Log("(CustomActions.InstallAction) path to process {0}", parameters.CsrDriverInstallerPath);
-                var installationProcess = Process.Start(parameters.CsrDriverInstallerPath, "/q /sw");
-                var installTimeoutSeconds = 20;
-                // True is returned if the process closed by itself before specified timeout
-                var timedOut = !installationProcess.WaitForExit(installTimeoutSeconds * 1000); 
-
-                if (timedOut)
+                try
                 {
-                    session.Log("(CustomActions.InstallAction) driver installation timed out after 20 seconds");
-                    installationProcess.Kill();
-                    session.Log("(CustomActions.InstallAction) terminated DPInst process");
+                    session.Log("(CustomActions.InstallAction) starting DPinst process");
+                    session.Log("(CustomActions.InstallAction) path to process {0}", parameters.CsrDriverInstallerPath);
+                    var installationProcess = Process.Start(parameters.CsrDriverInstallerPath, "/q /sw");
+                    var installTimeoutSeconds = 20;
+                    // True is returned if the process closed by itself before specified timeout
+                    var timedOut = !installationProcess.WaitForExit(installTimeoutSeconds * 1000);
+
+                    if (timedOut)
+                    {
+                        session.Log("(CustomActions.InstallAction) driver installation timed out after 20 seconds");
+                        installationProcess.Kill();
+                        session.Log("(CustomActions.InstallAction) terminated DPInst process");
+                        return ActionResult.Failure;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    session.Log("(CustomActions.InstallAction). " + ex.ToString());
                     return ActionResult.Failure;
                 }
-            }
-            catch (Exception ex)
-            {
-                session.Log("(CustomActions.InstallAction). " + ex.ToString());
-                return ActionResult.Failure;
             }
 
             session.Log("(CustomActions.InstallAction) was finished successfully.");
