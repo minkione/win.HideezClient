@@ -100,7 +100,6 @@
     <Compile Include="SdkConfigLoader.cs" />
     <Compile Include="SessionSwitchMonitor.cs" />
     <Compile Include="Settings\BaseSettings.cs" />
-    <Compile Include="Settings\DeviceProximitySettingsHelper.cs" />
     <Compile Include="Settings\FileSerializer\IFileSerializer.cs" />
     <Compile Include="Settings\Manager\ISettingsManager.cs" />
     <Compile Include="Settings\RfidSettings.cs" />

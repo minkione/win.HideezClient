@@ -6,7 +6,7 @@
     xmlns:local="clr-namespace:HideezClient.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     MinHeight="60"
-    Background="{DynamicResource NotificationBackground}"
+    Background="{DynamicResource NotificationLeftColumnBrush}"
     FontSize="14"
     mc:Ignorable="d">
     <StackPanel Orientation="Vertical">

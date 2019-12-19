@@ -23,10 +23,11 @@ namespace HideezClient.Modules
         GetLogsSubmenu,
 
         // For device
+        AddCredential,
         DisconnectDevice,
         RemoveDevice,
-        AuthorizeDeviceAndLoadStorage,
-        AboutDevice
+        AboutDevice,
+        AuthorizeDeviceAndLoadStorage
     }
 
     public interface IMenuFactory

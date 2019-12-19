@@ -14,7 +14,7 @@
     SizeToContent="WidthAndHeight"
     Background="{DynamicResource WindowLeftColumBrush}"
     Closing="MetroWindow_Closing"
-    DataContext="{Binding SimpleMainViewModel, Mode=OneWay, Source={StaticResource Locator}}"
+    DataContext="{Binding Main, Mode=OneWay, Source={StaticResource Locator}}"
     TitleCharacterCasing="Normal"
     Visibility="Hidden"
     WindowStartupLocation="CenterScreen"
@@ -22,7 +22,6 @@
     WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
     ResizeMode="CanMinimize"
     mc:Ignorable="d">
-    <!--ResizeMode="CanMinimize"-->
 
     <Grid VerticalAlignment="Top">
         <Grid.RowDefinitions>
@@ -41,7 +40,7 @@
 
         <controls:ConnectivityIndicators
             Grid.Row="1"
-            Margin="24, 14"
+            Margin="24"
             Padding="0"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Bottom"

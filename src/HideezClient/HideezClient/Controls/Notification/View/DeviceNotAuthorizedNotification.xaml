@@ -7,79 +7,38 @@
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     xmlns:local="clr-namespace:HideezClient.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    MinWidth="545"
-    MinHeight="110"
-    Background="{DynamicResource NotificationBackground}"
-    DataContext="{Binding PinNotVerifiedNotificationViewModel, Source={StaticResource Locator}}"
-    FontSize="16"
-    Foreground="{DynamicResource LightForeground}"
+    MinWidth="350"
+    MinHeight="60"
+    Background="{DynamicResource NotificationLeftColumnBrush}"
+    DataContext="{Binding PinNotVerifiedNotification, Source={StaticResource Locator}}"
+    FontSize="14"
+    Foreground="Black"
     mc:Ignorable="d">
-    <Grid Margin="24">
+    <Grid Margin="20,10,15,15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="25" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <ContentPresenter
-            Tag="DarkBackground"
-            Grid.RowSpan="3"
-            Width="64"
-            Height="64"
-            VerticalAlignment="Top"
-            Content="{StaticResource LockIco}" />
 
-        <StackPanel Grid.Column="2">
-
-            <TextBlock
-                Grid.Column="2"
-                Margin="0,5,0,0"
-                FontWeight="SemiBold"
-                Text="{l:Localization AppName}" />
-
-            <TextBlock
-                Margin="0,8,0,0"
-                VerticalAlignment="Center"
-                Opacity="0.5"
-                TextWrapping="Wrap">
-                <TextBlock.Text>
-                    <MultiBinding Converter="{StaticResource FormatStringConverter}">
-                        <Binding Path="[PinNotVerified.Description]" Source="{x:Static l:TranslationSource.Instance}" />
-                        <Binding Path="DeviceSN" />
-                    </MultiBinding>
-                </TextBlock.Text>
-            </TextBlock>
-
-            <Button
-                Margin="0,20,17,10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Click="Close_Click"
-                Command="{Binding OpenLinkCommand}"
-                Content="{l:Localization PinNotVerified.LinkText}"
-                IsDefault="True">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <TextBlock
-                                        Cursor="Hand"
-                                        Foreground="#1BA2DC"
-                                        Text="{TemplateBinding Content}" />
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </Button.Style>
-            </Button>
-        </StackPanel>
+        <TextBlock
+            Grid.Column="2"
+            FontSize="16"
+            FontWeight="SemiBold"
+            Foreground="White"
+            Text="{l:Localization AppName}" />
 
         <Button
             Grid.Row="0"
             Grid.Column="3"
             Width="30"
             Height="30"
-            Margin="0,-14,-10,0"
+            Margin="-5"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Background="Transparent"
@@ -92,8 +51,68 @@
                 Margin="0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Opacity="0.5"
+                Foreground="White"
+                FontWeight="SemiBold"
                 Text="X" />
+        </Button>
+
+        <ContentPresenter
+            Grid.RowSpan="3"
+            Width="40"
+            Height="40"
+            Content="{StaticResource HideezKeySimpleIMG}" />
+
+        <iconPacks:PackIconMaterial
+            x:Name="IcoLoadState"
+            Grid.RowSpan="3"
+            Width="25"
+            Height="25"
+            Margin="0,15,-13,0"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Foreground="Red"
+            Kind="Lock" />
+
+        <TextBlock
+            Grid.Row="1"
+            Grid.Column="2"
+            Margin="0,5,0,0"
+            VerticalAlignment="Center"
+            FontSize="14"
+            Foreground="White"
+            TextWrapping="Wrap">
+            <TextBlock.Text>
+                <MultiBinding Converter="{StaticResource FormatStringConverter}">
+                    <Binding Path="[PinNotVerified.Description]" Source="{x:Static l:TranslationSource.Instance}" />
+                    <Binding Path="DeviceSN" />
+                </MultiBinding>
+            </TextBlock.Text>
+        </TextBlock>
+
+        <Button
+            Grid.Row="2"
+            Grid.Column="2"
+            HorizontalAlignment="Center"
+            Click="Close_Click"
+            IsDefault="True"
+            Command="{Binding OpenLinkCommand}"
+            Content="{l:Localization PinNotVerified.LinkText}">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <TextBlock
+                                    Cursor="Hand"
+                                    FontStyle="Italic"
+                                    Foreground="White"
+                                    Text="{TemplateBinding Content}"
+                                    TextDecorations="Underline" />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Button.Style>
         </Button>
     </Grid>
 </local:NotificationBase>

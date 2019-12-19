@@ -20,8 +20,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using HideezClient.Mvvm;
-using System.ComponentModel;
 
 namespace HideezClient.Views
 {
@@ -30,45 +28,17 @@ namespace HideezClient.Views
     /// </summary>
     public partial class MainWindowView : MetroWindow
     {
-        private WeakPropertyObserver bindingRaiseeventSelectedDevice;
-        private readonly List<WeakPropertyObserver> bindings = new List<WeakPropertyObserver>();
-
         public MainWindowView()
         {
-            DataContextChanged += DeviceInfo_DataContextChanged;
             InitializeComponent();
         }
 
-        private void DeviceInfo_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            bindingRaiseeventSelectedDevice = new WeakPropertyObserver(e.NewValue, nameof(MainViewModel.SelectedDevice));
-            bindingRaiseeventSelectedDevice.ValueChanged += (name, device) =>
+            if (sender is ToggleButton toggleButton && toggleButton.IsChecked != true)
             {
-                this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
-
-                bindings.Clear();
-
-                // For all property delete commit from next line
-                // bindings.Add(new BindingRaiseevent(device, string.Empty));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsConnected)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.FinishedMainFlow)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorized)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorizingRemoteDevice)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsCreatingRemoteDevice)));
-
-                bindings.ForEach(b => b.ValueChanged += DeviceValueChanged);
-            };
-        }
-
-        private void DeviceValueChanged(string propName, object value)
-        {
-            this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
-        }
-
-        private void MetroWindow_Closing(object sender, CancelEventArgs e)
-        {
-            this.Visibility = Visibility.Collapsed;
-            e.Cancel = true;
+                toggleButton.IsChecked = true;
+            }
         }
     }
 }

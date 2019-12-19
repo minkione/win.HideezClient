@@ -198,9 +198,6 @@
     <None Include="Connected Services\HideezServiceReference\HideezServiceHost.HideezServiceReference.DeviceDTO.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Connected Services\HideezServiceReference\HideezServiceHost.HideezServiceReference.ProximitySettingsDTO.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
     <None Include="Connected Services\HideezServiceReference\service.wsdl" />
     <None Include="Connected Services\HideezServiceReference\service.xsd">
       <SubType>Designer</SubType>

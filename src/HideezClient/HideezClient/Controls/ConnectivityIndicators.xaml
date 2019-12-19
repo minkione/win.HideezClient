@@ -5,18 +5,30 @@
     xmlns:Converters="clr-namespace:HideezClient.Converters"
     xmlns:controls="clr-namespace:HideezClient.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     xmlns:local="clr-namespace:HideezClient.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="250"
     d:DesignWidth="300"
-    DataContext="{Binding Source={StaticResource Locator}, Path=IndicatorsViewModel, Mode=OneWay}"
+    DataContext="{Binding Source={StaticResource Locator}, Path=Indicators, Mode=OneWay}"
     mc:Ignorable="d">
+    <UserControl.Resources>
+        <Converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Converters:BooleanToVisibilityCollapsedConverter x:Key="BooleanToVisibilityCollapsedConverter" />
+            <Style TargetType="local:StateControl">
+                <Setter Property="NoConnectionBackground" Value="{DynamicResource DisconnectedBrush}" />
+                <Setter Property="HasConnectionBackground" Value="{DynamicResource ConnectedBrush}" />
+            </Style>
+    </UserControl.Resources>
+
     <Grid>
         <local:StateControl
+            Margin="5,0,0,0"
             HorizontalAlignment="Stretch"
             DataContext="{Binding Service}"
-            Style="{DynamicResource StateControlStyle}"
+            HasConnectionText="{Binding HasConnectionText}"
+            Header="{Binding Name}"
+            NoConnectionText="{Binding NoConnectionText}"
+            State="{Binding State}"
             Visibility="{Binding State, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
 
         <ItemsControl
@@ -31,9 +43,16 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <local:StateControl Style="{DynamicResource StateControlStyle}" />
+                    <local:StateControl
+                        Width="80"
+                        Margin="5,0,0,0"
+                        HasConnectionText="{Binding HasConnectionText}"
+                        Header="{Binding Name}"
+                        NoConnectionText="{Binding NoConnectionText}"
+                        State="{Binding State}" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+
     </Grid>
 </UserControl>

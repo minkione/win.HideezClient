@@ -47,7 +47,6 @@ namespace ServiceLibrary.Implementation
 
         static ISettingsManager<RfidSettings> _rfidSettingsManager;
         static ISettingsManager<ProximitySettings> _proximitySettingsManager;
-        static DeviceProximitySettingsHelper _deviceProximitySettingsHelper;
 
         static ConnectionFlowProcessor _connectionFlowProcessor;
         static AdvertisementIgnoreList _advIgnoreList;
@@ -112,9 +111,6 @@ namespace ServiceLibrary.Implementation
 
             _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
             _proximitySettingsManager.SettingsChanged += ProximitySettingsManager_SettingsChanged;
-            _proximitySettingsManager.GetSettingsAsync().Wait();
-
-            _deviceProximitySettingsHelper = new DeviceProximitySettingsHelper(_proximitySettingsManager);
 
             // Get HES address from registry ==================================
             // HKLM\SOFTWARE\Hideez\Client, client_hes_address REG_SZ
@@ -209,19 +205,19 @@ namespace ServiceLibrary.Implementation
             _rfidProcessor.Start();
 
             // Proximity Monitor ==================================
-            ProximitySettings proximitySettings = _proximitySettingsManager.Settings;
+            ProximitySettings proximitySettings = _proximitySettingsManager.GetSettingsAsync().Result;
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _sdkLogger, proximitySettings.DevicesProximity);
 
             // WorkstationLocker ==================================
             _workstationLocker = new WcfWorkstationLocker(sessionManager, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
-            _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager,
+            _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager, 
                 _deviceManager, _workstationLocker, _sdkLogger);
 
             // SessionSwitchLogger ==================================
             _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver, _connectionFlowProcessor,
-                _tapProcessor, _rfidProcessor, _proximityProcessor,
+                _tapProcessor, _rfidProcessor, _proximityProcessor, 
                 _workstationLockProcessor, _deviceManager, _sdkLogger);
 
             // SDK initialization finished, start essential components
@@ -248,7 +244,6 @@ namespace ServiceLibrary.Implementation
         }
 
         #region Event Handlers
-
         void ProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
         {
             try
@@ -681,25 +676,6 @@ namespace ServiceLibrary.Implementation
             we.AccountName = workstationEvent.AccountName;
             we.AccountLogin = workstationEvent.AccountLogin;
             await _eventSaver.AddNewAsync(we);
-        }
-
-        public void SetProximitySettings(string mac, int lockProximity, int unlockProximity)
-        {
-            _deviceProximitySettingsHelper?.SetClientProximity(mac, lockProximity, unlockProximity);
-        }
-
-        public ProximitySettingsDTO GetCurrentProximitySettings(string mac)
-        {
-            var s = _proximitySettingsManager.Settings.GetProximitySettings(mac);
-            var dto = new ProximitySettingsDTO
-            {
-                Mac = s.Mac,
-                SerialNo = s.SerialNo,
-                LockProximity = s.LockProximity,
-                UnlockProximity = s.UnlockProximity,
-                AllowEditProximitySettings = _deviceProximitySettingsHelper?.GetAllowEditProximity(mac) ?? false,
-            };
-            return dto;
         }
 
         #region Remote device management

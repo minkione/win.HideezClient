@@ -77,9 +77,5 @@ namespace HideezServiceHost
         public void DeviceBatteryChanged(string deviceId, int battery)
         {
         }
-
-        public void ProximitySettingsChanged()
-        {
-        }
     }
 }

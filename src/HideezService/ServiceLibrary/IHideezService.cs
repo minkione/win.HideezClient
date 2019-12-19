@@ -67,21 +67,10 @@ namespace ServiceLibrary
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         void CancelPin();
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        void SetProximitySettings(string mac, int lockProximity, int unlockProximity);
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        ProximitySettingsDTO GetCurrentProximitySettings(string mac);
     }
 
     public interface ICallbacks
     {
-        [OperationContract(IsOneWay = true)]
-        void ProximitySettingsChanged();
-
         [OperationContract(IsOneWay = true)]
         void LockWorkstationRequest();
 

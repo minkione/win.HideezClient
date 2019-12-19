@@ -7,26 +7,43 @@
     xmlns:local="clr-namespace:HideezClient.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Name="userControl"
+    Height="35"
     Visibility="{Binding Visible, Converter={StaticResource BooleanToVisibilityConverter}}"
     mc:Ignorable="d">
-    <Grid HorizontalAlignment="Center">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="6" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-        <Ellipse
-            x:Name="elipse"
-            Grid.Column="0"
-            Width="12"
-            Height="12"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Center"
-            Fill="DarkRed" />
-        <TextBlock
-            x:Name="header"
-            Grid.Column="2"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center" />
+    <Grid>
+        <Border
+            Grid.ColumnSpan="2"
+            Background="White"
+            CornerRadius="5"
+            Opacity="0.15" />
+        <Grid HorizontalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                x:Name="header"
+                Margin="10,10,-5,10"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center" />
+            <Ellipse
+                x:Name="elipse"
+                Grid.Column="1"
+                Width="16"
+                Height="16"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                Fill="DarkRed" />
+            <iconPacks:PackIconOcticons
+                x:Name="icon"
+                Grid.Column="1"
+                Width="16"
+                Height="16"
+                Margin="10"
+                Padding="4"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Kind="X" />
+        </Grid>
     </Grid>
 </UserControl>

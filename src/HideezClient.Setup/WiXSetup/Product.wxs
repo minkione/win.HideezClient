@@ -498,30 +498,6 @@
   <!--Install Directory / Main application-->
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      
-      <Component Id="System.Reactive.dll" Guid="{3085AB49-5C5F-4EF4-A0C6-E3C2ADB87DEC}" Win64="$(var.Win64)">
-        <File Id="System.Reactive.dll" Name="System.Reactive.dll" Source="$(var.HideezClient_TargetDir)System.Reactive.dll" />
-      </Component>
-
-      <Component Id="ReactiveUI.Fody.Helpers.dll" Guid="{EDBADA6D-D028-4CA3-8A98-C0E955A548B5}" Win64="$(var.Win64)">
-        <File Id="ReactiveUI.Fody.Helpers.dll" Name="ReactiveUI.Fody.Helpers.dll" Source="$(var.HideezClient_TargetDir)ReactiveUI.Fody.Helpers.dll" />
-      </Component>
-
-      <Component Id="DynamicData.dll" Guid="{B8149E5D-2957-4722-8BB4-17A57BA70A98}" Win64="$(var.Win64)">
-        <File Id="DynamicData.dll" Name="DynamicData.dll" Source="$(var.HideezClient_TargetDir)DynamicData.dll" />
-      </Component>
-
-      <Component Id="ReactiveUI.dll" Guid="{DEDD9553-FD1C-440B-ABC8-A0D45E71413E}" Win64="$(var.Win64)">
-        <File Id="ReactiveUI.dll" Name="ReactiveUI.dll" Source="$(var.HideezClient_TargetDir)ReactiveUI.dll" />
-      </Component>
-
-      <Component Id="zxing.dll" Guid="{EA0B5819-7BD7-4504-843C-B5DFD8B8D15D}" Win64="$(var.Win64)">
-        <File Id="zxing.dll" Name="zxing.dll" Source="$(var.HideezClient_TargetDir)zxing.dll" />
-      </Component>
-
-      <Component Id="Splat.dll" Guid="{5DE552CB-BB0D-43B8-8F49-694FEF9813EA}" Win64="$(var.Win64)">
-        <File Id="Splat.dll" Name="Splat.dll" Source="$(var.HideezClient_TargetDir)Splat.dll" />
-      </Component>
 
       <Component Id="Crypto.dll" Guid="{63655150-2668-445A-A18A-A9B042DB8F54}" Win64="$(var.Win64)">
         <File Id="Crypto.dll" Name="Crypto.dll" Source="$(var.Binaries_Dir)Crypto.dll" />
@@ -723,9 +699,9 @@
       <Component Id="AsyncEnumerable.dll" Guid="{4D4E952C-EE19-46C9-B8A4-2FFB3993D084}" Win64="$(var.Win64)">
         <File Id="AsyncEnumerable.dll" Name="AsyncEnumerable.dll" Source="$(var.HideezClient_TargetDir)AsyncEnumerable.dll" />
       </Component>
-
+      
       <Component Id="HideezMiddleware.dll" Guid="{FFFE2825-97AE-41B1-98FB-B9F7B03F00B7}" Win64="$(var.Win64)">
-        <File Id="HideezMiddleware.dll" Name="HideezMiddleware.dll" Source="$(var.HideezServiceHost_TargetDir)HideezMiddleware.dll" />
+	      <File Id="HideezMiddleware.dll" Name="HideezMiddleware.dll" Source="$(var.HideezServiceHost_TargetDir)HideezMiddleware.dll" />
       </Component>
     
     </ComponentGroup>

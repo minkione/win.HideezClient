@@ -26,21 +26,23 @@ namespace HideezClient.Controls
             : base(options)
         {
             InitializeComponent();
-            string icoKey = "";
+
             switch (type)
             {
                 case SimpleNotificationType.Info:
-                    icoKey = "InfoIco";
+                    Icon.Kind = PackIconMaterialKind.InformationOutline;
+                    Icon.Foreground = Brushes.White;
                     break;
                 case SimpleNotificationType.Warn:
-                    icoKey = "WarnIco";
+                    Icon.Kind = PackIconMaterialKind.AlertOutline;
+                    Icon.Foreground = Brushes.Yellow;
                     break;
                 case SimpleNotificationType.Error:
-                    icoKey = "ErrorIco";
+                    Icon.Kind = PackIconMaterialKind.CloseCircleOutline;
+                    Icon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ff3030"));
                     break;
             }
 
-            Icon.Content = this.TryFindResource(icoKey);
             this.PreviewKeyDown += HandleEsc;
         }
 

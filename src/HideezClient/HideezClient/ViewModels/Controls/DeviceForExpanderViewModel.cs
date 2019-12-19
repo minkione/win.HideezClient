@@ -21,6 +21,7 @@ namespace HideezClient.ViewModels
 
             MenuItems = new ObservableCollection<MenuItemViewModel>
             {
+                menuFactory.GetMenuItem(device, MenuItemType.AuthorizeDeviceAndLoadStorage),
                 menuFactory.GetMenuItem(device, MenuItemType.DisconnectDevice),
                 menuFactory.GetMenuItem(device, MenuItemType.RemoveDevice),
                 menuFactory.GetMenuItem(device, MenuItemType.AboutDevice),
@@ -29,7 +30,7 @@ namespace HideezClient.ViewModels
 
         #region Properties
 
-        public string IcoKey { get; } = "HedeezKeySimpleIMG";
+        public string IcoKey { get; } = "HideezKeySimpleIMG";
 
         [Localization]
         public string TypeName { get { return device.TypeName; } }

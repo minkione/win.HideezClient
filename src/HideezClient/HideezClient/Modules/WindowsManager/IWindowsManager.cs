@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using HideezClient.Models;
 using HideezClient.Controls;
-using System.Drawing;
 
 namespace HideezClient.Modules
 {
@@ -15,11 +14,10 @@ namespace HideezClient.Modules
     {
         void ActivateMainWindow();
         Task ActivateMainWindowAsync();
-        Task HideMainWindowAsync();
-        Task<Bitmap> GetCurrentScreenImageAsync();
         event EventHandler<bool> MainWindowVisibleChanged;
         bool IsMainWindowVisible { get; }
         void ShowDialogAddCredential(Device device);
+        void ShowInfoAboutDevice(Device device);
         void CloseWindow(string id);
 
         void ShowInfo(string message, string title = null, string notificationId = null);
@@ -27,12 +25,7 @@ namespace HideezClient.Modules
         void ShowError(string message, string title = null, string notificationId = null);
         Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd);
         void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel);
-        void ShowDeviceNotAuthorized(Device device);
-
         Task ShowDeviceLockedAsync();
-        Task<bool> ShowDeleteCredentialsPromptAsync();
-        Task<bool> ShowDisconnectDevicePromptAsync(string deviceName);
-        Task<bool> ShowRemoveDevicePromptAsync(string deviceName);
-
+        void ShowDeviceNotAuthorized(Device device);
     }
 }

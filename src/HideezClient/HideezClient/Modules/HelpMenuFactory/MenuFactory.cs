@@ -19,7 +19,6 @@ using HideezClient.Modules.ServiceProxy;
 using HideezClient.HideezServiceReference;
 using System.ServiceModel;
 using HideezMiddleware.Settings;
-using HideezClient.Mvvm;
 
 namespace HideezClient.Modules
 {
@@ -98,18 +97,40 @@ namespace HideezClient.Modules
 
             switch (type)
             {
+                case MenuItemType.AddCredential:
+                    return GetMenuAddCredential(device);
                 case MenuItemType.DisconnectDevice:
                     return GetMenuDisconnectDevice(device);
                 case MenuItemType.RemoveDevice:
                     return GetMenuRemoveDevice(device);
+                case MenuItemType.AboutDevice:
+                    return GetMenuAboutDevice(device);
                 case MenuItemType.AuthorizeDeviceAndLoadStorage:
                     return GetMenuAuthorizeAndLoadStorage(device);
-                case MenuItemType.AboutDevice:
-                    return null; // TODO: About device menu
                 default:
                     Debug.Assert(false, $"The type: {type} of menu is not supported.");
                     return null;
             }
+        }
+
+        private MenuItemViewModel GetMenuAboutDevice(Device device)
+        {
+            return new MenuItemViewModel
+            {
+                Header = "Menu.AboutDevice",
+                Command = new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        if (x is Device d)
+                        {
+                            windowsManager.ShowInfoAboutDevice(d);
+                        }
+                    },
+                    CanExecuteFunc = () => device.IsConnected
+                },
+                CommandParameter = device,
+            };
         }
 
         private MenuItemViewModel GetMenuAddCredential(Device device)
@@ -167,11 +188,10 @@ namespace HideezClient.Modules
                 Command = new DelegateCommand
                 {
                     CanExecuteFunc = () =>
-                    device.FinishedMainFlow &&
-                    !device.IsAuthorized &&
+                    device.IsConnected &&
+                    device.IsInitialized &&
                     !device.IsAuthorizingRemoteDevice &&
-                    !device.IsCreatingRemoteDevice,
-
+                    !device.IsAuthorized,
                     CommandAction = (x) =>
                     {
                         OnAuthorizeAndLoadStorage(x);
@@ -190,9 +210,13 @@ namespace HideezClient.Modules
             {
                 try
                 {
-                    var result = await windowsManager.ShowDisconnectDevicePromptAsync(LocalizedObject.L("HideezKey2EEName"));
+                    var result = MessageBox.Show(
+                        $"Are you sure you want to disconnect {device.Name}?",
+                        $"Disconnect {device.Name}",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
 
-                    if (result)
+                    if (result == MessageBoxResult.Yes)
                         await serviceProxy.GetService().DisconnectDeviceAsync(device.Id);
                 }
                 catch (FaultException<HideezServiceFault> ex)
@@ -212,9 +236,13 @@ namespace HideezClient.Modules
             {
                 try
                 {
-                    var result = await windowsManager.ShowRemoveDevicePromptAsync(LocalizedObject.L("HideezKey2EEName"));
+                    var result = MessageBox.Show(
+                        $"Are you sure you want to remove {device.Name}?",
+                        $"Remove {device.Name}",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
 
-                    if (result)
+                    if (result == MessageBoxResult.Yes)
                         await serviceProxy.GetService().RemoveDeviceAsync(device.Id);
                 }
                 catch (FaultException<HideezServiceFault> ex)

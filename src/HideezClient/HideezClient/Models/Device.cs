@@ -1,7 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Device;
-using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
@@ -69,9 +68,9 @@ namespace HideezClient.Models
         int _interlockedRemote = 0;
 
         public Device(
-            IServiceProxy serviceProxy,
-            IRemoteDeviceFactory remoteDeviceFactory,
-            IMessenger messenger,
+            IServiceProxy serviceProxy, 
+            IRemoteDeviceFactory remoteDeviceFactory, 
+            IMessenger messenger, 
             DeviceDTO dto)
         {
             _serviceProxy = serviceProxy;
@@ -266,7 +265,7 @@ namespace HideezClient.Models
 
             Task.Run(() =>
             {
-                dmc.CallMethod(async () =>
+                dmc.CallMethod(async () => 
                 {
                     try
                     {
@@ -664,7 +663,7 @@ namespace HideezClient.Models
 
             ShowInfo("Please press the Button on your Hideez Key", _infNid);
             _messenger.Send(new ShowButtonConfirmUiMessage(Id));
-            var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT, ct);
+            var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT, ct); 
             return res;
         }
 

@@ -188,9 +188,6 @@
     <None Include="Connected Services\HideezServiceReference\TestConsole.HideezServiceReference.DeviceDTO.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Connected Services\HideezServiceReference\TestConsole.HideezServiceReference.ProximitySettingsDTO.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
