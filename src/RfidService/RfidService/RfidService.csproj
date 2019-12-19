@@ -97,7 +97,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\win.sdk\Communication\Communication.csproj">
+    <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
       <Project>{282a0ce3-0c55-4558-8c98-72f3411fb636}</Project>
       <Name>Communication</Name>
     </ProjectReference>
