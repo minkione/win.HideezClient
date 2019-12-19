@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -30,14 +31,20 @@ namespace HideezClient.Controls
             if (State)
             {
                 elipse.Fill = HasConnectionBackground;
-                icon.Kind = MahApps.Metro.IconPacks.PackIconOcticonsKind.Check;
-                ToolTip = HasConnectionText;
+                elipse.Effect = EffectConnected;
+                if (!string.IsNullOrWhiteSpace(HasConnectionText))
+                {
+                    ToolTip = HasConnectionText;
+                }
             }
             else
             {
                 elipse.Fill = NoConnectionBackground;
-                icon.Kind = MahApps.Metro.IconPacks.PackIconOcticonsKind.X;
-                ToolTip = NoConnectionText;
+                elipse.Effect = EffectDisconnected;
+                if (!string.IsNullOrWhiteSpace(NoConnectionText))
+                {
+                    ToolTip = NoConnectionText;
+                }
             }
         }
 
@@ -116,5 +123,24 @@ namespace HideezClient.Controls
         public static readonly DependencyProperty NoConnectionTextProperty =
             DependencyProperty.Register(nameof(NoConnectionText), typeof(string), typeof(StateControl)
                 , new PropertyMetadata("", PropertyChangedCallback));
+
+        public Effect EffectConnected
+        {
+            get { return (Effect)GetValue(EffectConnectedProperty); }
+            set { SetValue(EffectConnectedProperty, value); }
+        }
+
+        public static readonly DependencyProperty EffectConnectedProperty =
+            DependencyProperty.Register(nameof(EffectConnected), typeof(Effect), typeof(StateControl), new PropertyMetadata(null, PropertyChangedCallback));
+
+        public Effect EffectDisconnected
+        {
+            get { return (Effect)GetValue(EffectDisconnectedProperty); }
+            set { SetValue(EffectDisconnectedProperty, value); }
+        }
+
+        public static readonly DependencyProperty EffectDisconnectedProperty =
+            DependencyProperty.Register(nameof(EffectDisconnected), typeof(Effect), typeof(StateControl), new PropertyMetadata(null, PropertyChangedCallback));
+
     }
 }

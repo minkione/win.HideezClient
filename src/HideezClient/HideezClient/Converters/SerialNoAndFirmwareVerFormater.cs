@@ -39,6 +39,11 @@ namespace HideezClient.Converters
             }
             catch { }
 
+            if(sb.Length == 0)
+            {
+                sb.Append("unknown");
+            }
+
             return sb.ToString();
         }
 

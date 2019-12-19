@@ -38,7 +38,7 @@ namespace HideezClient.ViewModels
         public ViewModelLocator()
         {
             // Check for design mode. 
-            if ((bool)(DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(System.Windows.DependencyObject)).DefaultValue))
+            if (IsInDesignMode)
             {
                 // in Design mode
                 DIContainer = new UnityContainer();
@@ -49,49 +49,89 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public MainViewModel Main
+        public static bool IsInDesignMode
+        {
+            get { return (bool)(DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(System.Windows.DependencyObject)).DefaultValue); }
+        }
+
+        #region Windows
+
+        public MainViewModel MainViewModel
         {
             get { return DIContainer.Resolve<MainViewModel>(); }
         }
 
-        public LoginSystemPageViewModel LoginSystemViewModel
-        {
-            get { return DIContainer.Resolve<LoginSystemPageViewModel>(); }
-        }
-
-        public LockSettingsPageViewModel LockSettingsPage
-        {
-            get { return DIContainer.Resolve<LockSettingsPageViewModel>(); }
-        }
-
-        public IndicatorsViewModel Indicators
-        {
-            get { return DIContainer.Resolve<IndicatorsViewModel>(); }
-        }
-
-        public DevicesExpanderViewModel DevicesExpander
-        {
-            get { return DIContainer.Resolve<DevicesExpanderViewModel>(); }
-        }
-
-        public AddCredentialViewModel AddCredential
-        {
-            get { return DIContainer.Resolve<AddCredentialViewModel>(); }
-        }
-
-        public NotificationsContainerViewModel NotificationsContainer
+        public NotificationsContainerViewModel NotificationsContainerViewModel
         {
             get { return DIContainer.Resolve<NotificationsContainerViewModel>(); }
         }
 
-        public DeviceNotAuthorizedNotificationViewModel PinNotVerifiedNotification
+        public SimpleMainViewModel SimpleMainViewModel
         {
-            get { return DIContainer.Resolve<DeviceNotAuthorizedNotificationViewModel>(); }
+            get { return DIContainer.Resolve<SimpleMainViewModel>(); }
+        }
+        #endregion
+
+        #region Controls
+
+        public IndicatorsViewModel IndicatorsViewModel
+        {
+            get { return DIContainer.Resolve<IndicatorsViewModel>(); }
+        }
+
+        public DevicesExpanderViewModel DevicesExpanderViewModel
+        {
+            get { return DIContainer.Resolve<DevicesExpanderViewModel>(); }
+        }
+
+        #endregion
+
+        #region Dialog
+
+        public AddCredentialViewModel AddCredentialViewModel
+        {
+            get { return DIContainer.Resolve<AddCredentialViewModel>(); }
         }
 
         public PinViewModel PinViewModel
         {
             get { return DIContainer.Resolve<PinViewModel>(); }
         }
+
+        public DeviceNotAuthorizedNotificationViewModel PinNotVerifiedNotificationViewModel
+        {
+            get { return DIContainer.Resolve<DeviceNotAuthorizedNotificationViewModel>(); }
+        }
+
+        #endregion
+
+        #region Page
+
+        public DefaultPageViewModel DefaultPageViewModel
+        {
+            get { return DIContainer.Resolve<DefaultPageViewModel>(); }
+        }
+
+        public HelpPageViewModel HelpPage
+        {
+            get { return DIContainer.Resolve<HelpPageViewModel>(); }
+        }
+
+        public SettingsPageViewModel SettingsPage
+        {
+            get { return DIContainer.Resolve<SettingsPageViewModel>(); }
+        }
+
+        public PasswordManagerViewModel PasswordManager
+        {
+            get { return DIContainer.Resolve<PasswordManagerViewModel>(); }
+        }
+
+        public DeviceSettingsPageViewModel DeviceSettingsPageViewModel
+        {
+            get { return DIContainer.Resolve<DeviceSettingsPageViewModel>(); }
+        }
+
+        #endregion
     }
 }

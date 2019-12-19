@@ -13,13 +13,8 @@
     VerticalContentAlignment="Center"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    DataContext="{Binding Source={StaticResource Locator}, Path=DevicesExpanderViewModel, Mode=OneWay}"
     mc:Ignorable="d">
-    <UserControl.DataContext>
-        <Binding
-            Mode="OneWay"
-            Path="DevicesExpander"
-            Source="{StaticResource Locator}" />
-    </UserControl.DataContext>
     <UserControl.Resources>
         <ResourceDictionary>
             <ext:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -36,7 +31,7 @@
 
     <Grid Margin="16">
         <Grid.RowDefinitions>
-            <RowDefinition />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -275,7 +270,11 @@
                                 ItemContainerStyle="{StaticResource MenuItemStyle}"
                                 ItemsSource="{Binding MenuItems}"
                                 Orientation="Vertical"
-                                Style="{DynamicResource LightDropDownButtonStyle}">
+                                Style="{DynamicResource LightDropDownButtonStyle}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Height="26"
+                                Width="26">
                                 <mah:DropDownButton.Icon>
                                     <iconPacks:PackIconOcticons Foreground="White" Kind="KebabVertical" />
                                 </mah:DropDownButton.Icon>

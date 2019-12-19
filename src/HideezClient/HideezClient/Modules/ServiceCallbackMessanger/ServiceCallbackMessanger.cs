@@ -134,5 +134,18 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
                 }
             });
         }
+
+        public void ProximitySettingsChanged()
+        {
+            try
+            {
+                log.Info($"Device proximity settings changed");
+                    _messenger.Send(new DeviceProximitySettingsChangedMessage());
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
     }
 }

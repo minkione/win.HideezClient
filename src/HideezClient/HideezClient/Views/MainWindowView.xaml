@@ -5,149 +5,180 @@
     xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:controls="clr-namespace:HideezClient.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     xmlns:local="clr-namespace:HideezClient.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:modules="clr-namespace:HideezClient.Modules"
     xmlns:pagesview="clr-namespace:HideezClient.PagesView"
-    Title="Hideez Client"
+    xmlns:pagesviewmodel="clr-namespace:HideezClient.PageViewModels"
+    Title="{Binding Version, StringFormat=Hideez Client ({0})}"
     Width="1075"
     Height="770"
     MinWidth="1020"
-    MinHeight="700"
-    MaxWidth="1280"
-    MaxHeight="770"
-    Background="#F4FEFF"
-    DataContext="{Binding Main, Mode=OneWay, Source={StaticResource Locator}}"
-    FontFamily="{DynamicResource FontFamily}"
+    MinHeight="750"
+    Metro:NonActiveWindowTitleBrush="{DynamicResource WindowTitleBrush}"
+    Closing="MetroWindow_Closing"
+    DataContext="{Binding MainViewModel, Mode=OneWay, Source={StaticResource Locator}}"
+    Style="{DynamicResource WindowStyle}"
     TitleCharacterCasing="Normal"
     Visibility="Visible"
+    WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     mc:Ignorable="d">
-
     <Grid Focusable="False" SnapsToDevicePixels="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition
-                x:Name="DeviceTreeColumn"
                 Width="300"
                 MinWidth="280"
                 MaxWidth="400" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Grid Background="{DynamicResource WindowLeftColumBrush}">
+        <Grid VerticalAlignment="Stretch" Background="{DynamicResource WindowLeftColumBrush}">
 
             <Grid.RowDefinitions>
-                <RowDefinition />
+                <!--  1 DevicesExpander  -->
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <!--  3  Menu  -->
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="18" />
+                <!--  5 Separator  -->
+                <RowDefinition Height="1" />
+                <RowDefinition Height="Auto" />
+                <!--  6 ConnectivityIndicators  -->
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <controls:DevicesExpander VerticalAlignment="Top">
-                <controls:DevicesExpander.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Offset="0" Color="#0022446D" />
-                        <GradientStop Offset="1" Color="#5C22446D" />
-                    </LinearGradientBrush>
-                </controls:DevicesExpander.Background>
-            </controls:DevicesExpander>
+            <StackPanel Grid.Row="1">
 
-            <ItemsControl
-                Grid.Row="1"
-                Margin="-5,24,0,0"
+                <StackPanel
+                    Margin="24,34"
+                    Orientation="Vertical"
+                    Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityCollapsedConverter}}">
+                    <TextBlock
+                        FontSize="18"
+                        FontWeight="DemiBold"
+                        Text="{l:Localization EnableDevice.Header}" />
+                    <Rectangle Height="24" />
+                    <Grid TextBlock.FontSize="16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="16" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="16" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Text="1." />
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            Opacity="0.5"
+                            Text="{l:Localization EnableDevice.Step1}"
+                            TextWrapping="Wrap" />
+                        <TextBlock Grid.Row="2" Text="2." />
+                        <TextBlock
+                            Grid.Row="2"
+                            Grid.Column="2"
+                            Opacity="0.5"
+                            Text="{l:Localization EnableDevice.Step2}"
+                            TextWrapping="Wrap" />
+                        <TextBlock Grid.Row="4" Text="2." />
+                        <TextBlock
+                            Grid.Row="4"
+                            Grid.Column="2"
+                            Opacity="0.5"
+                            Text="{l:Localization EnableDevice.Step3}"
+                            TextWrapping="Wrap" />
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
+                    <controls:DeviceInfo
+                        x:Name="currentDeviceInfo"
+                        Padding="16,16,30,16"
+                        VerticalAlignment="Top"
+                        DataContext="{Binding SelectedDevice}" />
+                    <controls:LeftMenuItemControl
+                        Metro:VisibilityHelper.IsVisible="{Binding IsConnected}"
+                        DataContext="{Binding MenuDeviceSettings}"
+                        Tag="{Binding Path=DataContext.IcoKey, Mode=OneWay, ElementName=currentDeviceInfo, Converter={StaticResource StringToResource}}" />
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding SelectedDevice.CanShowPasswordManager}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.Setters>
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </MultiDataTrigger.Setters>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <controls:LeftMenuItemControl DataContext="{Binding MenuPasswordManager}">
+                            <controls:LeftMenuItemControl.Tag>
+                                <iconPacks:PackIconFontAwesome Kind="LockSolid" />
+                            </controls:LeftMenuItemControl.Tag>
+                        </controls:LeftMenuItemControl>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+
+            <!--  Menu  -->
+            <StackPanel Grid.Row="2">
+                <controls:LeftMenuItemControl DataContext="{Binding MenuDefaultPage}" Visibility="Hidden" />
+
+                <controls:LeftMenuItemControl DataContext="{Binding MenuHelp}" IsEnabled="False">
+                    <controls:LeftMenuItemControl.Tag>
+                        <iconPacks:PackIconFontAwesome Kind="QuestionCircleSolid" />
+                    </controls:LeftMenuItemControl.Tag>
+                </controls:LeftMenuItemControl>
+
+                <controls:LeftMenuItemControl DataContext="{Binding MenuSettings}" IsEnabled="False">
+                    <controls:LeftMenuItemControl.Tag>
+                        <iconPacks:PackIconFontAwesome Kind="CogSolid" />
+                    </controls:LeftMenuItemControl.Tag>
+                </controls:LeftMenuItemControl>
+            </StackPanel>
+
+            <Rectangle
+                Grid.Row="4"
+                Width="265"
+                Fill="{DynamicResource WindowBackground}"
+                Opacity="0.05" />
+
+            <controls:ConnectivityIndicators
+                Grid.Row="6"
                 Padding="0"
-                HorizontalAlignment="Center"
-                Focusable="False"
-                ItemsSource="{Binding StateControls}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <controls:StateControl
-                            Margin="5,0,0,0"
-                            HasConnectionText="{Binding TrueToolTip}"
-                            Header="{Binding Header}"
-                            NoConnectionText="{Binding FalseToolTip}"
-                            State="{Binding Status}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
-            <ToggleButton
-                Grid.Row="2"
-                Width="250"
-                Margin="0,24,0,24"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Background="Transparent"
-                Click="ToggleButton_Click"
-                ClipToBounds="True"
-                Command="{Binding ShowLockerCommand}"
-                CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
-                Content="{l:Localization Button.ComputerLocker}"
-                FocusVisualStyle="{x:Null}"
-                FontSize="14"
-                FontWeight="Light">
-                <ToggleButton.Template>
-                    <ControlTemplate TargetType="{x:Type ToggleButton}">
-                        <Grid Background="Transparent">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <Border
-                                Background="{DynamicResource NavyBlueBrush}"
-                                ClipToBounds="True"
-                                CornerRadius="4,0,0,4">
-                                <Border
-                                    x:Name="iconRect"
-                                    Background="{DynamicResource PinkBrush}"
-                                    ClipToBounds="True"
-                                    CornerRadius="4,0,0,4"
-                                    Opacity="0.5" />
-                            </Border>
-                            <iconPacks:PackIconFontAwesome
-                                Width="23"
-                                Height="18"
-                                Margin="15"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                Kind="LaptopSolid" />
-                            <Border
-                                x:Name="textRect"
-                                Grid.Column="1"
-                                Background="{DynamicResource PinkBrush}"
-                                CornerRadius="0,4,4,0" />
-                            <ContentControl
-                                Grid.Column="1"
-                                Margin="20,5"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Content="{TemplateBinding Content}" />
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="textRect" Property="Background" Value="{DynamicResource NavyBlueBrush}" />
-                                <Setter TargetName="iconRect" Property="Background" Value="#0E3059" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </ToggleButton.Template>
-            </ToggleButton>
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Bottom"
+                Focusable="False" />
         </Grid>
 
         <!--  page content  -->
-        <Frame
-            Name="MainAPpFrame"
+        <Border
             Grid.Column="1"
-            BorderThickness="0"
-            Focusable="False"
-            NavigationUIVisibility="Hidden"
-            Source="{Binding Path=DisplayPage, Mode=TwoWay}" />
-
+            Background="{DynamicResource WindowBackground}"
+            BorderBrush="Transparent"
+            ClipToBounds="True"
+            CornerRadius="8,0,0,0">
+            <Frame
+                Name="MainAPpFrame"
+                BorderThickness="0"
+                Focusable="False"
+                NavigationUIVisibility="Hidden"
+                Source="{Binding Path=DisplayPage, Mode=TwoWay}" />
+        </Border>
     </Grid>
 </Metro:MetroWindow>

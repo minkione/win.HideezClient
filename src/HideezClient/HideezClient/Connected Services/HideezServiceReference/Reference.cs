@@ -580,6 +580,115 @@ namespace HideezClient.HideezServiceReference {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ProximitySettingsDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+    [System.SerializableAttribute()]
+    public partial class ProximitySettingsDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool AllowEditProximitySettingsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int LockProximityField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string MacField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string SerialNoField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int UnlockProximityField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool AllowEditProximitySettings {
+            get {
+                return this.AllowEditProximitySettingsField;
+            }
+            set {
+                if ((this.AllowEditProximitySettingsField.Equals(value) != true)) {
+                    this.AllowEditProximitySettingsField = value;
+                    this.RaisePropertyChanged("AllowEditProximitySettings");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int LockProximity {
+            get {
+                return this.LockProximityField;
+            }
+            set {
+                if ((this.LockProximityField.Equals(value) != true)) {
+                    this.LockProximityField = value;
+                    this.RaisePropertyChanged("LockProximity");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Mac {
+            get {
+                return this.MacField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.MacField, value) != true)) {
+                    this.MacField = value;
+                    this.RaisePropertyChanged("Mac");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SerialNo {
+            get {
+                return this.SerialNoField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.SerialNoField, value) != true)) {
+                    this.SerialNoField = value;
+                    this.RaisePropertyChanged("SerialNo");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int UnlockProximity {
+            get {
+                return this.UnlockProximityField;
+            }
+            set {
+                if ((this.UnlockProximityField.Equals(value) != true)) {
+                    this.UnlockProximityField = value;
+                    this.RaisePropertyChanged("UnlockProximity");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="DeviceStateDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
     [System.SerializableAttribute()]
     public partial class DeviceStateDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
@@ -594,7 +703,7 @@ namespace HideezClient.HideezServiceReference {
         private sbyte BatteryField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private HideezClient.HideezServiceReference.ButtonPressCode ButtonField;
+        private Hideez.SDK.Communication.ButtonPressCode ButtonField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private byte PinAttemptsRemainField;
@@ -642,7 +751,7 @@ namespace HideezClient.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public HideezClient.HideezServiceReference.ButtonPressCode Button {
+        public Hideez.SDK.Communication.ButtonPressCode Button {
             get {
                 return this.ButtonField;
             }
@@ -828,47 +937,6 @@ namespace HideezClient.HideezServiceReference {
         }
     }
     
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ButtonPressCode", Namespace="http://schemas.datacontract.org/2004/07/Hideez.SDK.Communication")]
-    public enum ButtonPressCode : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        None = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Single = 1,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Double = 2,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Triple = 3,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Quad = 4,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Penta = 5,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Hexa = 6,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Hepta = 7,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Octa = 8,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Multi = 9,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Long = 10,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        SuperLong = 11,
-    }
-    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="HideezServiceReference.IHideezService", CallbackContract=typeof(HideezClient.HideezServiceReference.IHideezServiceCallback), SessionMode=System.ServiceModel.SessionMode.Required)]
     public interface IHideezService {
@@ -981,10 +1049,28 @@ namespace HideezClient.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/CancelPin", ReplyAction="http://tempuri.org/IHideezService/CancelPinResponse")]
         System.Threading.Tasks.Task CancelPinAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetProximitySettings", ReplyAction="http://tempuri.org/IHideezService/SetProximitySettingsResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezClient.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/SetProximitySettingsHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void SetProximitySettings(string mac, int lockProximity, int unlockProximity);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetProximitySettings", ReplyAction="http://tempuri.org/IHideezService/SetProximitySettingsResponse")]
+        System.Threading.Tasks.Task SetProximitySettingsAsync(string mac, int lockProximity, int unlockProximity);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetCurrentProximitySettings", ReplyAction="http://tempuri.org/IHideezService/GetCurrentProximitySettingsResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezClient.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetCurrentProximitySettingsHideezServiceFaultFa" +
+            "ult", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        HideezClient.HideezServiceReference.ProximitySettingsDTO GetCurrentProximitySettings(string mac);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetCurrentProximitySettings", ReplyAction="http://tempuri.org/IHideezService/GetCurrentProximitySettingsResponse")]
+        System.Threading.Tasks.Task<HideezClient.HideezServiceReference.ProximitySettingsDTO> GetCurrentProximitySettingsAsync(string mac);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface IHideezServiceCallback {
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ProximitySettingsChanged")]
+        void ProximitySettingsChanged();
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/LockWorkstationRequest")]
         void LockWorkstationRequest();
@@ -1181,6 +1267,22 @@ namespace HideezClient.HideezServiceReference {
         
         public System.Threading.Tasks.Task CancelPinAsync() {
             return base.Channel.CancelPinAsync();
+        }
+        
+        public void SetProximitySettings(string mac, int lockProximity, int unlockProximity) {
+            base.Channel.SetProximitySettings(mac, lockProximity, unlockProximity);
+        }
+        
+        public System.Threading.Tasks.Task SetProximitySettingsAsync(string mac, int lockProximity, int unlockProximity) {
+            return base.Channel.SetProximitySettingsAsync(mac, lockProximity, unlockProximity);
+        }
+        
+        public HideezClient.HideezServiceReference.ProximitySettingsDTO GetCurrentProximitySettings(string mac) {
+            return base.Channel.GetCurrentProximitySettings(mac);
+        }
+        
+        public System.Threading.Tasks.Task<HideezClient.HideezServiceReference.ProximitySettingsDTO> GetCurrentProximitySettingsAsync(string mac) {
+            return base.Channel.GetCurrentProximitySettingsAsync(mac);
         }
     }
 }
