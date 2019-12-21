@@ -76,6 +76,8 @@ namespace WinSampleApp.ViewModel
 
         public HesConnectionState HesState => _hesConnection.State;
 
+        public string LicenseText { get; set; }
+
 
         #region Properties
 
@@ -751,6 +753,7 @@ namespace WinSampleApp.ViewModel
                 };
             }
         }
+
         public ICommand StorageCommand
         {
             get
@@ -764,6 +767,42 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         OpenStorageVindow(CurrentDevice);
+                    }
+                };
+            }
+        }
+
+        public ICommand LoadLicenseCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null && !string.IsNullOrWhiteSpace(LicenseText);
+                    },
+                    CommandAction = (x) =>
+                    {
+                        LoadLicense(CurrentDevice, 0, LicenseText);
+                    }
+                };
+            }
+        }
+
+        public ICommand QueryLicenseCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        QueryLicense(CurrentDevice, 0);
                     }
                 };
             }
@@ -1378,11 +1417,11 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        void OpenStorageVindow(DeviceViewModel currentDevice)
+        void OpenStorageVindow(DeviceViewModel device)
         {
             try
             {
-                var wnd = new StorageWindow(CurrentDevice, _log);
+                var wnd = new StorageWindow(device, _log);
                 var res = wnd.ShowDialog();
             }
             catch (Exception ex)
@@ -1391,6 +1430,35 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        async void LoadLicense(DeviceViewModel device, int slot, string license)
+        {
+            try
+            {
+                var bLicense = new byte[128];
+                await device.Device.LoadLicense((byte)slot, bLicense);
+                MessageBox.Show($"License set to slot: {slot}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void QueryLicense(DeviceViewModel device, int slot)
+        {
+            try
+            {
+                var license = await device.Device.QueryLicense((byte)slot);
+
+                var sb = new StringBuilder();
+                sb.AppendLine($"License in slot: {slot}");
+                sb.AppendLine($"");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
         void CancelConnectionFlow(DeviceViewModel currentDevice)
         {
