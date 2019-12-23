@@ -16,6 +16,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.LongOperations;
 using Hideez.SDK.Communication.PasswordManager;
+using Hideez.SDK.Communication.Utils;
 using HideezMiddleware;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.Settings;
@@ -780,7 +781,7 @@ namespace WinSampleApp.ViewModel
                 {
                     CanExecuteFunc = () =>
                     {
-                        return CurrentDevice != null && !string.IsNullOrWhiteSpace(LicenseText);
+                        return CurrentDevice != null;
                     },
                     CommandAction = (x) =>
                     {
@@ -892,10 +893,10 @@ namespace WinSampleApp.ViewModel
                 _rfidService.Start();
 
                 // Unlocker Settings Manager ==================================
-                var proximitySettingsManager = new SettingsManager<ProximitySettings>(string.Empty, new XmlFileSerializer(_log));
+                var proximitySettingsManager = new SettingsManager<ProximitySettings>("c:\\tmp\\prox.xml", new XmlFileSerializer(_log));
 
                 // Rfid Settings Manager =========================
-                var rfidSettingsManager = new SettingsManager<RfidSettings>(string.Empty, new XmlFileSerializer(_log));
+                var rfidSettingsManager = new SettingsManager<RfidSettings>("c:\\tmp\\rfid.xml", new XmlFileSerializer(_log));
 
                 // UI proxy ==================================
                 var uiProxyManager = new UiProxyManager(_credentialProviderProxy, this, _log);
@@ -1434,8 +1435,8 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                var bLicense = new byte[128];
-                await device.Device.LoadLicense((byte)slot, bLicense);
+                var byteLicense = Convert.FromBase64String(license);
+                await device.Device.LoadLicense((byte)slot, byteLicense);
                 MessageBox.Show($"License set to slot: {slot}");
             }
             catch (Exception ex)
@@ -1452,7 +1453,15 @@ namespace WinSampleApp.ViewModel
 
                 var sb = new StringBuilder();
                 sb.AppendLine($"License in slot: {slot}");
-                sb.AppendLine($"");
+                sb.AppendLine($"Magic: {license.Magic}");
+                sb.AppendLine($"Issuer: {license.Issuer}");
+                sb.AppendLine($"Features: {ConvertUtils.ByteArrayToString(license.Features)}");
+                sb.AppendLine($"Expires: {license.Expires}");
+                sb.AppendLine($"Text: {license.Text}");
+                sb.AppendLine($"SerialNum: {license.SerialNum}");
+                sb.AppendLine($"Signature: {ConvertUtils.ByteArrayToString(license.Signature)}");
+
+                MessageBox.Show(sb.ToString());
             }
             catch (Exception ex)
             {

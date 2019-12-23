@@ -212,6 +212,15 @@
                     <Button Content="Enter PIN" Margin="0,10,0,0" Command="{Binding EnterPinCommand}"/>
                     <Button Content="Set PIN" Margin="0,10,0,0" Command="{Binding SetPinCommand}"/>
                     <Button Content="Force Set PIN" Margin="0,10,0,0" Command="{Binding ForceSetPinCommand}"/>
+                    <Label></Label>
+                    <Label></Label>
+                    <Label></Label>
+                    <Label>License</Label>
+                    <Label></Label>
+                    <Label>License string</Label>
+                    <TextBox Width="120" Margin="0" Text="{Binding LicenseText}" />
+                    <Button Content="Load License" Margin="0,10,0,0" Command="{Binding LoadLicenseCommand}" />
+                    <Button Content="Query License" Margin="0,10,0,0" Command="{Binding QueryLicenseCommand}" />
                 </StackPanel>
                 <!--client UI-->
                 <StackPanel>
@@ -221,14 +230,6 @@
                     <TextBlock Text="{Binding ClientUiError}" Foreground="Red" Margin="0,0,0,10"/>
                     <Button Content="Cancel connection flow" Margin="0,10,0,0" Command="{Binding CancelConnectionFlowCommand}"/>
 
-                </StackPanel>
-                <StackPanel>
-                    <Label>License</Label>
-                    <Label></Label>
-                    <Label>License string</Label>
-                    <TextBox Width="120" Margin="0" Text="{Binding LicenseText}" />
-                    <Button Content="Load License" Margin="0,10,0,0" Command="{Binding LoadLicenseCommand}" />
-                    <Button Content="Query License" Margin="0,10,0,0" Command="{Binding QueryLicenseCommand}" />
                 </StackPanel>
             </StackPanel>
         </StackPanel>
