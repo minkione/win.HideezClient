@@ -102,14 +102,17 @@ namespace ServiceLibrary.Implementation
             string sdkSettingsPath = Path.Combine(settingsDirectory, "Sdk.xml");
             IFileSerializer fileSerializer = new XmlFileSerializer(_sdkLogger);
             var sdkSettingsManager = new SettingsManager<SdkSettings>(sdkSettingsPath, fileSerializer);
+            sdkSettingsManager.InitializeFileStruct();
             Task.Run(async () =>
             {
                 await SdkConfigLoader.LoadSdkConfigFromFileAsync(sdkSettingsManager);
             });
 
             _rfidSettingsManager = new SettingsManager<RfidSettings>(rfidSettingsPath, fileSerializer);
+            _rfidSettingsManager.InitializeFileStruct();
 
             _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
+            _proximitySettingsManager.InitializeFileStruct();
             _proximitySettingsManager.SettingsChanged += ProximitySettingsManager_SettingsChanged;
 
             // Get HES address from registry ==================================

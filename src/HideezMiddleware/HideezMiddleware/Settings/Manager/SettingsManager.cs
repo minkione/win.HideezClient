@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.Settings
@@ -27,19 +23,20 @@ namespace HideezMiddleware.Settings
         {
             SettingsFilePath = settingsFilePath;
             this.fileSerializer = fileSerializer;
-
-            CreateDefaultSettingsFile(SettingsFilePath);
         }
 
-        void CreateDefaultSettingsFile(string fullPath)
+        /// <summary>
+        /// Create entire directory path and default settings file if they do not exist
+        /// </summary>
+        public void InitializeFileStruct()
         {
             // Create directory in case it does not exist
-            var directory = Path.GetDirectoryName(fullPath);
+            var directory = Path.GetDirectoryName(SettingsFilePath);
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-
+        
             // Skip if settings file already exists
-            if (!File.Exists(fullPath))
+            if (!File.Exists(SettingsFilePath))
                 SaveSettings(Settings);
         }
 
@@ -134,8 +131,6 @@ namespace HideezMiddleware.Settings
         /// <returns>Returns saved settings. Throws exception if save failed</returns>
         public T SaveSettings(T settings)
         {
-            var directory = Path.GetDirectoryName(SettingsFilePath);
-
             fileSerializer.Serialize(SettingsFilePath, settings);
 
             // Settings reload will automatically update cache and notify observers

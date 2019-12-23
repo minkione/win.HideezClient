@@ -2,10 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.Tests
@@ -454,6 +451,38 @@ namespace HideezMiddleware.Tests
 
             // Assert
             Assert.IsTrue(isSettingsChanged);
+        }
+
+        [TestMethod]
+        public void InitializeFileStruct_CorrectPath_DirectoryCreated()
+        {
+            // Arrange
+            var serializer = SetupFileSerializerMock();
+            var settingsManager = SetupSettingsManager(serializer.Object);
+
+            var directory = "c:\\SettingsManagerTest";
+            var file = "Setting.dat";
+            var path = Path.Combine(directory, file);
+
+            settingsManager.SettingsFilePath = path;
+
+            try
+            {
+                if (Directory.Exists(directory))
+                    Directory.Delete(directory);
+
+                // Act
+                settingsManager.InitializeFileStruct();
+
+                // Assert
+                Assert.IsTrue(Directory.Exists(directory));
+            }
+            finally
+            {
+                // Cleanup
+                if (Directory.Exists(directory))
+                    Directory.Delete(directory);
+            }
         }
     }
 }
