@@ -893,10 +893,10 @@ namespace WinSampleApp.ViewModel
                 _rfidService.Start();
 
                 // Unlocker Settings Manager ==================================
-                var proximitySettingsManager = new SettingsManager<ProximitySettings>("c:\\tmp\\prox.xml", new XmlFileSerializer(_log));
+                var proximitySettingsManager = new SettingsManager<ProximitySettings>(string.Empty, new XmlFileSerializer(_log));
 
                 // Rfid Settings Manager =========================
-                var rfidSettingsManager = new SettingsManager<RfidSettings>("c:\\tmp\\rfid.xml", new XmlFileSerializer(_log));
+                var rfidSettingsManager = new SettingsManager<RfidSettings>(string.Empty, new XmlFileSerializer(_log));
 
                 // UI proxy ==================================
                 var uiProxyManager = new UiProxyManager(_credentialProviderProxy, this, _log);
