@@ -808,7 +808,6 @@ namespace WinSampleApp.ViewModel
                 };
             }
         }
-
         #endregion
 
         public MainWindowViewModel()
@@ -1436,8 +1435,8 @@ namespace WinSampleApp.ViewModel
             try
             {
                 var byteLicense = Convert.FromBase64String(license);
-                await device.Device.LoadLicense((byte)slot, byteLicense);
-                MessageBox.Show($"License set to slot: {slot}");
+                await device.Device.LoadLicense(slot, byteLicense);
+                MessageBox.Show($"Load license into slot {slot} finished");
             }
             catch (Exception ex)
             {
@@ -1449,19 +1448,26 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                var license = await device.Device.QueryLicense((byte)slot);
+                var license = await device.Device.QueryLicense(slot);
 
-                var sb = new StringBuilder();
-                sb.AppendLine($"License in slot: {slot}");
-                sb.AppendLine($"Magic: {license.Magic}");
-                sb.AppendLine($"Issuer: {license.Issuer}");
-                sb.AppendLine($"Features: {ConvertUtils.ByteArrayToString(license.Features)}");
-                sb.AppendLine($"Expires: {license.Expires}");
-                sb.AppendLine($"Text: {license.Text}");
-                sb.AppendLine($"SerialNum: {license.SerialNum}");
-                sb.AppendLine($"Signature: {ConvertUtils.ByteArrayToString(license.Signature)}");
+                if (license.IsEmpty)
+                {
+                    MessageBox.Show($"License in slot {slot} is empty");
+                }
+                else
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"License in slot: {slot}");
+                    sb.AppendLine($"Magic: {license.Magic}");
+                    sb.AppendLine($"Issuer: {license.Issuer}");
+                    sb.AppendLine($"Features: {ConvertUtils.ByteArrayToString(license.Features)}");
+                    sb.AppendLine($"Expires: {license.Expires}");
+                    sb.AppendLine($"Text: {license.Text}");
+                    sb.AppendLine($"SerialNum: {license.SerialNum}");
+                    sb.AppendLine($"Signature: {ConvertUtils.ByteArrayToString(license.Signature)}");
 
-                MessageBox.Show(sb.ToString());
+                    MessageBox.Show(sb.ToString());
+                }
             }
             catch (Exception ex)
             {

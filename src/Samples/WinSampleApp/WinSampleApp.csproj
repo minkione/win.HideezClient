@@ -237,13 +237,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\win.sdk\Communication\Communication.csproj">
-      <Project>{6F4C0DC3-4AA3-4517-9311-EDEC593BAF12}</Project>
-      <Name>Communication</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\..\win.sdk\CsrBLE\CsrBLE.vcxproj">
       <Project>{d274aa09-5b34-4450-a6fb-5a5a351c7b45}</Project>
       <Name>CsrBLE</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\win.SDK\Communication\Communication.csproj">
+      <Project>{6f4c0dc3-4aa3-4517-9311-edec593baf12}</Project>
+      <Name>Communication</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\HideezMiddleware\HideezMiddleware\HideezMiddleware.csproj">
       <Project>{2a5abf59-55ee-461b-8c6f-2a294481129b}</Project>
