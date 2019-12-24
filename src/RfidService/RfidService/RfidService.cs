@@ -41,7 +41,7 @@ namespace Hideez.RFID
         {
             try
             {
-                _pipeServer.WriteReaderState(e.IsConnected);
+                _pipeServer.WriteReaderState(_connection.IsConnected || _comPortManager.IsConnected);
             }
             catch (Exception ex)
             {
