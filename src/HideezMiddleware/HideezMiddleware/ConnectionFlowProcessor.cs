@@ -162,14 +162,22 @@ namespace HideezMiddleware
                 if (device.AccessLevel.IsLinkRequired)
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
-                if ((await deviceInfoProc).NeedUpdate)
+                int timeout = SdkConfig.MainWorkflowTimeout;
+
+                var deviceInfo = await deviceInfoProc;
+                if (deviceInfo.HasNewLicense)
+                {
+                    await _ui.SendNotification("Updating device licenses...", _infNid);
+                    await LicenseWorkflow(device, timeout, ct);
+                }
+
+                if (deviceInfo.NeedUpdate)
                 {
                     // request HES to update this device
                     await _ui.SendNotification("Uploading new credentials to the device...", _infNid);
                     await _hesConnection.FixDevice(device, ct);
                 }
 
-                int timeout = SdkConfig.MainWorkflowTimeout;
 
                 await MasterKeyWorkflow(device, ct);
 
@@ -517,6 +525,23 @@ namespace HideezMiddleware
             }
 
             return credentials;
+        }
+
+        async Task LicenseWorkflow(IDevice device, int timeout, CancellationToken ct)
+        {
+            var licenses = await _hesConnection.GetNewDeviceLicenses(device.Id);
+
+            if (ct.IsCancellationRequested)
+                return;
+
+            foreach (var license in licenses)
+            {
+                if (ct.IsCancellationRequested)
+                    return;
+
+                await device.LoadLicense(license.Data, timeout);
+                await _hesConnection.OnDeviceLicenseApplied(device.Id, license.Id);
+            }
         }
     }
 }
