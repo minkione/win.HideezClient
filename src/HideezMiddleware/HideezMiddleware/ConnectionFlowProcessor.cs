@@ -233,7 +233,7 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
-                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex.Message);
+                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
             }
             finally
             {
