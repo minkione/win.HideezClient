@@ -146,7 +146,7 @@ namespace HideezMiddleware.DeviceConnection
             {
                 WriteLine(ex);
                 await _clientUiManager.SendNotification("");
-                await _clientUiManager.SendError(ex.Message);
+                await _clientUiManager.SendError(HideezExceptionLocalization.GetErrorAsString(ex));
             }
         }
 
