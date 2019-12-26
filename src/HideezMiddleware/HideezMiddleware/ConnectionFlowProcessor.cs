@@ -149,6 +149,14 @@ namespace HideezMiddleware
 
                 await WaitDeviceInitialization(mac, device, ct);
 
+                var deviceInfo = await deviceInfoProc;
+                if (deviceInfo.HasNewLicense)
+                {
+                    // License upload has the highest priority in connection flow. Without license other actions are impossible
+                    await _ui.SendNotification("Updating device licenses...", _infNid);
+                    await LicenseWorkflow(device, ct);
+                }
+
                 if (device.AccessLevel.IsLocked || device.AccessLevel.IsLinkRequired)
                 {
                     // request HES to update this device
@@ -162,15 +170,6 @@ namespace HideezMiddleware
                 if (device.AccessLevel.IsLinkRequired)
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
-                int timeout = SdkConfig.MainWorkflowTimeout;
-
-                var deviceInfo = await deviceInfoProc;
-                if (deviceInfo.HasNewLicense)
-                {
-                    await _ui.SendNotification("Updating device licenses...", _infNid);
-                    await LicenseWorkflow(device, timeout, ct);
-                }
-
                 if (deviceInfo.NeedUpdate)
                 {
                     // request HES to update this device
@@ -178,6 +177,7 @@ namespace HideezMiddleware
                     await _hesConnection.FixDevice(device, ct);
                 }
 
+                int timeout = SdkConfig.MainWorkflowTimeout;
 
                 await MasterKeyWorkflow(device, ct);
 
@@ -527,7 +527,7 @@ namespace HideezMiddleware
             return credentials;
         }
 
-        async Task LicenseWorkflow(IDevice device, int timeout, CancellationToken ct)
+        async Task LicenseWorkflow(IDevice device, CancellationToken ct)
         {
             var licenses = await _hesConnection.GetNewDeviceLicenses(device.Id);
 
@@ -539,7 +539,7 @@ namespace HideezMiddleware
                 if (ct.IsCancellationRequested)
                     return;
 
-                await device.LoadLicense(license.Data, timeout);
+                await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
                 await _hesConnection.OnDeviceLicenseApplied(device.Id, license.Id);
             }
         }

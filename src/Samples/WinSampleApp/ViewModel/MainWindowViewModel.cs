@@ -791,6 +791,23 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand LoadLicenseIntoEmptyCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        LoadLicense(CurrentDevice, LicenseText);
+                    }
+                };
+            }
+        }
         public ICommand QueryLicenseCommand
         {
             get
@@ -804,6 +821,24 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         QueryLicense(CurrentDevice, 0);
+                    }
+                };
+            }
+        }
+
+        public ICommand QueryAllLicensesCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        QueryAllLicenses(CurrentDevice);
                     }
                 };
             }
@@ -1430,6 +1465,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        // Load license into specified slot
         async void LoadLicense(DeviceViewModel device, int slot, string license)
         {
             try
@@ -1437,6 +1473,21 @@ namespace WinSampleApp.ViewModel
                 var byteLicense = Convert.FromBase64String(license);
                 await device.Device.LoadLicense(slot, byteLicense);
                 MessageBox.Show($"Load license into slot {slot} finished");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        // Load license into first free slot
+        async void LoadLicense(DeviceViewModel device, string license)
+        {
+            try
+            {
+                var byteLicense = Convert.FromBase64String(license);
+                await device.Device.LoadLicense(byteLicense);
+                MessageBox.Show($"Load license into free slot finished");
             }
             catch (Exception ex)
             {
@@ -1458,7 +1509,7 @@ namespace WinSampleApp.ViewModel
                 {
                     var sb = new StringBuilder();
                     sb.AppendLine($"License in slot: {slot}");
-                    sb.AppendLine($"Magic: {license.Magic}");
+                    //sb.AppendLine($"Magic: {license.Magic}");
                     sb.AppendLine($"Issuer: {license.Issuer}");
                     sb.AppendLine($"Features: {ConvertUtils.ByteArrayToString(license.Features)}");
                     sb.AppendLine($"Expires: {license.Expires}");
@@ -1468,6 +1519,42 @@ namespace WinSampleApp.ViewModel
 
                     MessageBox.Show(sb.ToString());
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void QueryAllLicenses(DeviceViewModel device)
+        {
+            try
+            {
+                var sb = new StringBuilder();
+                for (int i = 0; i < 8; i++)
+                {
+                    var license = await device.Device.QueryLicense(i);
+
+                    if (license.IsEmpty)
+                    {
+                        sb.AppendLine($"License in slot {i} is empty");
+                        sb.AppendLine();
+                    }
+                    else
+                    {
+                        sb.AppendLine($"License in slot: {i}");
+                        //sb.AppendLine($"Magic: {license.Magic}");
+                        sb.AppendLine($"Issuer: {license.Issuer}");
+                        sb.AppendLine($"Features: {ConvertUtils.ByteArrayToString(license.Features)}");
+                        sb.AppendLine($"Expires: {license.Expires}");
+                        sb.AppendLine($"Text: {license.Text}");
+                        sb.AppendLine($"SerialNum: {license.SerialNum}");
+                        sb.AppendLine($"Signature: {ConvertUtils.ByteArrayToString(license.Signature)}");
+                        sb.AppendLine();
+                    }
+                }
+
+                MessageBox.Show(sb.ToString());
             }
             catch (Exception ex)
             {

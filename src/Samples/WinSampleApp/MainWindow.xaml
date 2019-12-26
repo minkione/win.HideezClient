@@ -219,8 +219,10 @@
                     <Label></Label>
                     <Label>License string</Label>
                     <TextBox Width="120" Margin="0" Text="{Binding LicenseText}" />
-                    <Button Content="Load License" Margin="0,10,0,0" Command="{Binding LoadLicenseCommand}" />
-                    <Button Content="Query License" Margin="0,10,0,0" Command="{Binding QueryLicenseCommand}" />
+                    <Button Content="Load license (0 slot)" Margin="0,10,0,0" Command="{Binding LoadLicenseCommand}" />
+                    <Button Content="Load license into empty" Margin="0,10,0,0" Command="{Binding LoadLicenseIntoEmptyCommand}" />
+                    <Button Content="Query license (0 slot)" Margin="0,10,0,0" Command="{Binding QueryLicenseCommand}" />
+                    <Button Content="Query all licenses" Margin="0,10,0,0" Command="{Binding QueryAllLicensesCommand}" />
                 </StackPanel>
                 <!--client UI-->
                 <StackPanel>
