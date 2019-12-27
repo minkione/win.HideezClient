@@ -28,5 +28,7 @@ namespace HideezMiddleware.Settings
         Task<T> LoadSettingsAsync();
 
         T SaveSettings(T settings);
+
+        void InitializeFileStruct();
     }
 }

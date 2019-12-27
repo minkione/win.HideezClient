@@ -16,6 +16,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.LongOperations;
 using Hideez.SDK.Communication.PasswordManager;
+using Hideez.SDK.Communication.Utils;
 using HideezMiddleware;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.Settings;
@@ -75,6 +76,8 @@ namespace WinSampleApp.ViewModel
         }
 
         public HesConnectionState HesState => _hesConnection.State;
+
+        public string LicenseText { get; set; }
 
 
         #region Properties
@@ -751,6 +754,7 @@ namespace WinSampleApp.ViewModel
                 };
             }
         }
+
         public ICommand StorageCommand
         {
             get
@@ -769,6 +773,76 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand LoadLicenseCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        LoadLicense(CurrentDevice, 0, LicenseText);
+                    }
+                };
+            }
+        }
+
+        public ICommand LoadLicenseIntoEmptyCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        LoadLicense(CurrentDevice, LicenseText);
+                    }
+                };
+            }
+        }
+        public ICommand QueryLicenseCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        QueryLicense(CurrentDevice, 0);
+                    }
+                };
+            }
+        }
+
+        public ICommand QueryAllLicensesCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        QueryAllLicenses(CurrentDevice);
+                    }
+                };
+            }
+        }
         #endregion
 
         public MainWindowViewModel()
@@ -1378,11 +1452,11 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        void OpenStorageVindow(DeviceViewModel currentDevice)
+        void OpenStorageVindow(DeviceViewModel device)
         {
             try
             {
-                var wnd = new StorageWindow(CurrentDevice, _log);
+                var wnd = new StorageWindow(device, _log);
                 var res = wnd.ShowDialog();
             }
             catch (Exception ex)
@@ -1391,6 +1465,102 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        // Load license into specified slot
+        async void LoadLicense(DeviceViewModel device, int slot, string license)
+        {
+            try
+            {
+                var byteLicense = Convert.FromBase64String(license);
+                await device.Device.LoadLicense(slot, byteLicense);
+                MessageBox.Show($"Load license into slot {slot} finished");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        // Load license into first free slot
+        async void LoadLicense(DeviceViewModel device, string license)
+        {
+            try
+            {
+                var byteLicense = Convert.FromBase64String(license);
+                await device.Device.LoadLicense(byteLicense);
+                MessageBox.Show($"Load license into free slot finished");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void QueryLicense(DeviceViewModel device, int slot)
+        {
+            try
+            {
+                var license = await device.Device.QueryLicense(slot);
+
+                if (license.IsEmpty)
+                {
+                    MessageBox.Show($"License in slot {slot} is empty");
+                }
+                else
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"License in slot: {slot}");
+                    //sb.AppendLine($"Magic: {license.Magic}");
+                    sb.AppendLine($"Issuer: {license.Issuer}");
+                    sb.AppendLine($"Features: {ConvertUtils.ByteArrayToString(license.Features)}");
+                    sb.AppendLine($"Expires: {license.Expires}");
+                    sb.AppendLine($"Text: {license.Text}");
+                    sb.AppendLine($"SerialNum: {license.SerialNum}");
+                    sb.AppendLine($"Signature: {ConvertUtils.ByteArrayToString(license.Signature)}");
+
+                    MessageBox.Show(sb.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async void QueryAllLicenses(DeviceViewModel device)
+        {
+            try
+            {
+                var sb = new StringBuilder();
+                for (int i = 0; i < 8; i++)
+                {
+                    var license = await device.Device.QueryLicense(i);
+
+                    if (license.IsEmpty)
+                    {
+                        sb.AppendLine($"License in slot {i} is empty");
+                        sb.AppendLine();
+                    }
+                    else
+                    {
+                        sb.AppendLine($"License in slot: {i}");
+                        //sb.AppendLine($"Magic: {license.Magic}");
+                        sb.AppendLine($"Issuer: {license.Issuer}");
+                        sb.AppendLine($"Features: {ConvertUtils.ByteArrayToString(license.Features)}");
+                        sb.AppendLine($"Expires: {license.Expires}");
+                        sb.AppendLine($"Text: {license.Text}");
+                        sb.AppendLine($"SerialNum: {license.SerialNum}");
+                        sb.AppendLine($"Signature: {ConvertUtils.ByteArrayToString(license.Signature)}");
+                        sb.AppendLine();
+                    }
+                }
+
+                MessageBox.Show(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
         void CancelConnectionFlow(DeviceViewModel currentDevice)
         {
