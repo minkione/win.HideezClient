@@ -39,6 +39,8 @@ using Microsoft.Win32;
 using HideezClient.Messages;
 using System.Diagnostics;
 using HideezClient.Modules.ButtonManager;
+using HideezClient.Utilities.QrCode;
+using ZXing;
 
 namespace HideezClient
 {
@@ -238,11 +240,18 @@ namespace HideezClient
             //Container.RegisterType<LoginSystemPageViewModel>();
             //Container.RegisterType<LockSettingsPageViewModel>();
             Container.RegisterType<IndicatorsViewModel>();
-            Container.RegisterType<DevicesExpanderViewModel>();
+            //Container.RegisterType<DevicesExpanderViewModel>();
             Container.RegisterType<AddCredentialViewModel>();
             Container.RegisterType<NotificationsContainerViewModel>();
             Container.RegisterType<DeviceNotAuthorizedNotificationViewModel>();
             Container.RegisterType<PinViewModel>();
+            Container.RegisterType<HelpPageViewModel>();
+            Container.RegisterType<SettingsPageViewModel>();
+            Container.RegisterType<PasswordManagerViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<DefaultPageViewModel>();
+            Container.RegisterType<DeviceSettingsPageViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<DevicesExpanderViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<DeviceForExpanderViewModel>(new ContainerControlledLifetimeManager());
 
             #endregion ViewModels
 
@@ -293,6 +302,12 @@ namespace HideezClient
             Container.RegisterType<InputOtp>();
             Container.RegisterType<InputPassword>();
             Container.RegisterType<InputLogin>();
+
+            // QrScanner
+            // Note: Previous BarcodeReader was renamed into BarcodeReaderGeneric when 
+            // ZXing library got updated; Its AutoRotate property was set to True in constructor
+            Container.RegisterType<IBarcodeReader, BarcodeReader>(new ContainerControlledLifetimeManager()); 
+            Container.RegisterType<IQrScannerHelper, QrScannerHelper>();
 
             Container.RegisterType<INotifier, Notifier>(new ContainerControlledLifetimeManager());
 

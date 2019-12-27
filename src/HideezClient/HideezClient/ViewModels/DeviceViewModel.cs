@@ -97,7 +97,16 @@ namespace HideezClient.ViewModels
         [DependsOn(nameof(StorageFreeSize), nameof(StorageTotalSize))]
         public byte StorageFreePercent => (byte)(((double)StorageFreeSize / StorageTotalSize) * 100);
 
-        public IDictionary<ushort, AccountRecord> AccountsRecords { get { return device.PasswordManager.Accounts; } }
+        public IDictionary<ushort, AccountRecord> AccountsRecords 
+        { 
+            get 
+            {
+                if (device?.PasswordManager != null)
+                    return device.PasswordManager.Accounts;
+                else
+                    return new Dictionary<ushort, AccountRecord>();
+            } 
+        }
         public ObservableCollection<AccountInfoViewModel> Accounts { get; } = new ObservableCollection<AccountInfoViewModel>();
 
         public Task<ushort> SaveOrUpdateAccountAsync(AccountRecord account)
