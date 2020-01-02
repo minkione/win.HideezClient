@@ -63,18 +63,18 @@ namespace HideezServiceHost
             }
         }
 
-        protected override async void OnStop()
+        protected override void OnStop()
         {
             try
             {
-                await ServiceLibrary.Implementation.HideezService.OnServiceStopped();
+                ServiceLibrary.Implementation.HideezService.OnServiceStopped().Wait();
 
                 // connect and ask the service to finish all works and close all connections
                 var callback = new HideezServiceCallbacks();
                 var instanceContext = new InstanceContext(callback);
 
                 service = new HideezServiceClient(instanceContext);
-                await service.ShutdownAsync();
+                service.ShutdownAsync().Wait();
 
                 // close the host
                 if (serviceHost.State == CommunicationState.Faulted)
