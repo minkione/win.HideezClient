@@ -237,7 +237,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\win.sdk\CsrBLE\CsrBLE.vcxproj">
+    <ProjectReference Include="..\..\..\win.SDK\CsrBLE\CsrBLE.vcxproj">
       <Project>{d274aa09-5b34-4450-a6fb-5a5a351c7b45}</Project>
       <Name>CsrBLE</Name>
     </ProjectReference>
