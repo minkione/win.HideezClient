@@ -122,8 +122,11 @@ namespace HideezMiddleware
             bool fatalError = false;
             string errorMessage = null;
             IDevice device = null;
-            _infNid = Guid.NewGuid().ToString();
-            _errNid = Guid.NewGuid().ToString();
+            // Appending 'i' and 'e' allows us to differentiate between different notification kinds
+            // while still allowing to replace outdated notifications for target device with ones created by subsequent calls
+            // TODO: check if we need different ID's since we dont show more than one notification at a time anyway
+            _infNid = mac + "_i";
+            _errNid = mac + "_e";
 
             try
             {
