@@ -108,8 +108,7 @@ namespace HideezMiddleware
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
             var existingDevice = _deviceManager.Find(mac, (int)DefaultDeviceChannel.Main);
-            var isUnlocked = WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked;
-            if (existingDevice != null && existingDevice.IsConnected && isUnlocked)
+            if (existingDevice != null && existingDevice.IsConnected && !WorkstationHelper.IsActiveSessionLocked())
                 return;
 
             Debug.WriteLine(">>>>>>>>>>>>>>> MainWorkflow +++++++++++++++++++++++++");
@@ -133,7 +132,7 @@ namespace HideezMiddleware
                 // start fetching the device info in the background
                 var deviceInfoProc = new GetDeviceInfoFromHesProc(_hesConnection, mac, ct).Run();
 
-                if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Locked)
+                if (WorkstationHelper.IsActiveSessionLocked())
                 {
                     _screenActivator?.ActivateScreen();
                     _screenActivator?.StartPeriodicScreenActivation(0);
@@ -173,7 +172,7 @@ namespace HideezMiddleware
 
                 await MasterKeyWorkflow(device, ct);
 
-                if (_workstationUnlocker.IsConnected)
+                if (_workstationUnlocker.IsConnected && WorkstationHelper.IsActiveSessionLocked())
                 {
                     if (await ButtonWorkflow(device, timeout, ct) && await PinWorkflow(device, timeout, ct))
                     {
@@ -187,7 +186,7 @@ namespace HideezMiddleware
                         }
                     }
                 }
-                else if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Locked)
+                else if (WorkstationHelper.IsActiveSessionLocked())
                 {
                     // Session is locked but workstation unlocker is not connected
                     success = false;
