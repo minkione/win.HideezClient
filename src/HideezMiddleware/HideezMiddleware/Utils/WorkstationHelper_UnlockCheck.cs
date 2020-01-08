@@ -208,16 +208,31 @@ namespace HideezMiddleware
                 return LockState.Locked;
         }
 
+        public static bool IsSessionLocked(uint session_id)
+        {
+            return GetSessionLockState(session_id) == LockState.Locked;
+        }
+
         public static LockState GetActiveSessionLockState()
         {
             var sid = GetSessionId();
             return GetSessionLockState(sid);
         }
 
+        public static bool IsActiveSessionLocked()
+        {
+            return GetActiveSessionLockState() == LockState.Locked;
+        }
+
         public static LockState GetCurrentSessionLockState()
         {
             var sid = (uint)System.Diagnostics.Process.GetCurrentProcess().SessionId;
             return GetSessionLockState(sid);
+        }
+
+        public static bool IsCurrentSessionLocked()
+        {
+            return GetCurrentSessionLockState() == LockState.Locked;
         }
     }
 }
