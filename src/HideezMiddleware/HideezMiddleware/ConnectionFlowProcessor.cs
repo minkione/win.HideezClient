@@ -205,6 +205,11 @@ namespace HideezMiddleware
                 fatalError = true;
                 errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
             }
+            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.HesDeviceNotFound)
+            {
+                fatalError = true;
+                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
+            }
             catch (HideezException ex)
             {
                 if (ex.ErrorCode == HideezErrorCode.ButtonConfirmationTimeout ||
