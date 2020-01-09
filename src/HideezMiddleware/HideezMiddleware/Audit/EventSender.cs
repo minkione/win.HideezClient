@@ -190,6 +190,12 @@ namespace HideezMiddleware.Audit
             {
                 File.Delete(filePath);
             }
+#if DEBUG
+            catch (UnauthorizedAccessException)
+            {
+                // Generated when trying to access %programdata% without elevation
+            }
+#endif
             catch (IOException)
             {
                 // Todo: file-in-use handling is hard to understand, requires refactoring
