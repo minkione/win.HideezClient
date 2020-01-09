@@ -68,7 +68,7 @@ namespace HideezMiddleware.DeviceConnection
 
             if (disposing)
             {
-                _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
+                _bleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
                 _proximitySettingsManager.SettingsChanged -= UnlockerSettingsManager_SettingsChanged;
             }
 
