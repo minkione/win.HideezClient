@@ -237,7 +237,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\win.sdk\CsrBLE\CsrBLE.vcxproj">
+    <ProjectReference Include="..\..\..\win.SDK\CsrBLE\CsrBLE.vcxproj">
       <Project>{d274aa09-5b34-4450-a6fb-5a5a351c7b45}</Project>
       <Name>CsrBLE</Name>
     </ProjectReference>
@@ -249,6 +249,12 @@
       <Project>{2a5abf59-55ee-461b-8c6f-2a294481129b}</Project>
       <Name>HideezMiddleware</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\..\Binaries\64rel\Crypto.dll">
+      <Link>Crypto.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
