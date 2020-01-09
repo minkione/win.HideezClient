@@ -59,7 +59,7 @@
     <Folder Include="Resources" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\win.sdk\Communication\Communication.csproj">
+    <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
       <Name>Communication</Name>
       <Project>{1b723099-c753-40d0-b7b2-add49d9e6f8f}</Project>
       <Private>True</Private>
