@@ -19,11 +19,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceLibrary.Implementati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HideezMiddleware", "HideezMiddleware\HideezMiddleware\HideezMiddleware.csproj", "{2A5ABF59-55EE-461B-8C6F-2A294481129B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CsrBLE", "..\..\win.sdk\CsrBLE\CsrBLE.vcxproj", "{D274AA09-5B34-4450-A6FB-5A5A351C7B45}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CsrBLE", "..\win.sdk\CsrBLE\CsrBLE.vcxproj", "{D274AA09-5B34-4450-A6FB-5A5A351C7B45}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CsrBLE.Details", "..\..\win.sdk\CsrBLE.Details\CsrBLE.Details.vcxproj", "{828942FC-3B97-4C3F-B7BF-87B63BF6BD1E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CsrBLE.Details", "..\win.sdk\CsrBLE.Details\CsrBLE.Details.vcxproj", "{828942FC-3B97-4C3F-B7BF-87B63BF6BD1E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Communication", "..\..\win.sdk\Communication\Communication.csproj", "{BF57E350-D719-47A1-950A-7B6A08E58BD7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Communication", "..\win.sdk\Communication\Communication.csproj", "{BF57E350-D719-47A1-950A-7B6A08E58BD7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HideezMiddleware.Tests", "HideezMiddleware\HideezMiddlewareTests\HideezMiddleware.Tests.csproj", "{E3DF8F3B-2879-44A8-A534-1BF8909F20E1}"
 EndProject

@@ -1,4 +1,5 @@
-﻿using Hideez.SDK.Communication.Interfaces;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Utils;
 using System;
 using System.Threading;
@@ -34,13 +35,12 @@ namespace HideezMiddleware.Tasks
             }
             catch (TimeoutException)
             {
+                throw new HideezException(HideezErrorCode.WorkstationUnlockerConnectTimeout);
             }
             finally
             {
                 _unlocker.Connected -= Unlocker_Connected;
             }
-
-            return false;
         }
     }
 }

@@ -9,10 +9,9 @@
     xmlns:local="clr-namespace:HideezClient.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="{Binding Version, StringFormat=Hideez Client ({0})}"
-    Width="340"
-    Height="330"
-    MinWidth="340"
-    MinHeight="330"
+    Width="325"
+    MinWidth="325"
+    SizeToContent="WidthAndHeight"
     Background="{DynamicResource WindowLeftColumBrush}"
     Closing="MetroWindow_Closing"
     DataContext="{Binding Main, Mode=OneWay, Source={StaticResource Locator}}"
@@ -21,11 +20,11 @@
     WindowStartupLocation="CenterScreen"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
+    ResizeMode="CanMinimize"
     mc:Ignorable="d">
 
-    <Grid VerticalAlignment="Stretch">
+    <Grid VerticalAlignment="Top">
         <Grid.RowDefinitions>
-            <RowDefinition />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>

@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HideezClient", "HideezClien
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HideezClient.Tests", "HideezClient\HideezClient.Tests\HideezClient.Tests.csproj", "{C6DFD95B-0E54-45F3-B611-54B7AC44304B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Communication", "..\..\win.sdk\Communication\Communication.csproj", "{20B97AF9-6422-4678-900B-0610ED1D2517}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Communication", "..\win.sdk\Communication\Communication.csproj", "{20B97AF9-6422-4678-900B-0610ED1D2517}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HideezMiddleware", "HideezMiddleware\HideezMiddleware\HideezMiddleware.csproj", "{2A5ABF59-55EE-461B-8C6F-2A294481129B}"
 EndProject

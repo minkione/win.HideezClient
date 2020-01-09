@@ -167,16 +167,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\win.SDK\Communication\Communication.csproj">
-      <Project>{753b30cb-1df5-485d-9b26-98ef17ce388a}</Project>
-      <Name>Communication</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\win.SDK\CsrBLE\CsrBLE.vcxproj">
-      <Project>{d274aa09-5b34-4450-a6fb-5a5a351c7b45}</Project>
-      <Name>CsrBLE</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -184,6 +174,16 @@
       <Link>Crypto.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\win.SDK\Communication\Communication.csproj">
+      <Project>{5e081b1a-3a77-45cd-a35e-f9647448a2cf}</Project>
+      <Name>Communication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\win.SDK\CsrBLE\CsrBLE.vcxproj">
+      <Project>{d274aa09-5b34-4450-a6fb-5a5a351c7b45}</Project>
+      <Name>CsrBLE</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\Fody.5.0.0\build\Fody.targets" Condition="Exists('packages\Fody.5.0.0\build\Fody.targets')" />

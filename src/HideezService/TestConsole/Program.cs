@@ -28,29 +28,28 @@ namespace TestConsole
                     if (line == "q" || line == "exit")
                     {
                         Console.WriteLine("exiting...");
-                        HideezService.OnServiceStopped();
-                        try
-                        {
-                            service.ShutdownAsync().Wait();
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.Message);
-                        }
+                        HideezService.OnServiceStopped().Wait();
+
+                        // connect and ask the service to finish all works and close all connections
+                        var callback = new HideezServiceCallbacks();
+                        var instanceContext = new InstanceContext(callback);
+
+                        service = new HideezServiceClient(instanceContext);
+                        service.ShutdownAsync().Wait();
 
                         if (serviceHost.State == CommunicationState.Faulted)
                         {
+                            Console.WriteLine("Aborting service...");
                             serviceHost.Abort();
                         }
                         else
                         {
+                            Console.WriteLine("Closing service...");
                             serviceHost.Close();
                         }
                         break;
                     }
                 }
-
-                Console.ReadLine();
             }
             catch (Exception ex)
             {

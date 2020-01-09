@@ -18,8 +18,9 @@ namespace HideezMiddleware
 {
     public class ConnectionFlowProcessor : Logger
     {
-        public const string FLOW_FINISHED_PROP = "MainFlowFinished"; 
+        public const string FLOW_FINISHED_PROP = "MainFlowFinished";
 
+        readonly IBleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
         readonly IScreenActivator _screenActivator;
@@ -34,12 +35,12 @@ namespace HideezMiddleware
         string _flowId = string.Empty;
 
         public event EventHandler<string> Started;
-
         public event EventHandler<IDevice> DeviceFinishedMainFlow;
-
         public event EventHandler<string> Finished;
 
-        public ConnectionFlowProcessor(BleDeviceManager deviceManager,
+        public ConnectionFlowProcessor(
+            IBleConnectionManager connectionManager,
+            BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
             IWorkstationUnlocker workstationUnlocker,
             IScreenActivator screenActivator,
@@ -47,6 +48,7 @@ namespace HideezMiddleware
             ILog log)
             : base(nameof(ConnectionFlowProcessor), log)
         {
+            _connectionManager = connectionManager;
             _deviceManager = deviceManager;
             _workstationUnlocker = workstationUnlocker;
             _screenActivator = screenActivator;
@@ -89,7 +91,7 @@ namespace HideezMiddleware
                 try
                 {
                     _cts = new CancellationTokenSource();
-                    await MainWorkflow(mac, _cts.Token, onSuccessfulUnlock);
+                    await MainWorkflow(mac, onSuccessfulUnlock, _cts.Token);
                 }
                 finally
                 {
@@ -101,12 +103,12 @@ namespace HideezMiddleware
             }
         }
 
-        async Task MainWorkflow(string mac, CancellationToken ct, Action<WorkstationUnlockResult> onUnlockAttempt)
+        async Task MainWorkflow(string mac, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
         {
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
             var existingDevice = _deviceManager.Find(mac, (int)DefaultDeviceChannel.Main);
-            var isUnlocked = WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Unlocked;
+            var isUnlocked = WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked;
             if (existingDevice != null && existingDevice.IsConnected && isUnlocked)
                 return;
 
@@ -128,7 +130,10 @@ namespace HideezMiddleware
                 await _ui.SendNotification("", _infNid);
                 await _ui.SendError("", _errNid);
 
-                if (WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Locked)
+                // start fetching the device info in the background
+                var deviceInfoProc = new GetDeviceInfoFromHesProc(_hesConnection, mac, ct).Run();
+
+                if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Locked)
                 {
                     _screenActivator?.ActivateScreen();
                     _screenActivator?.StartPeriodicScreenActivation(0);
@@ -157,8 +162,7 @@ namespace HideezMiddleware
                 if (device.AccessLevel.IsLinkRequired)
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
-
-                if (await IsNeedUpdateDevice(device, ct))
+                if ((await deviceInfoProc).NeedUpdate)
                 {
                     // request HES to update this device
                     await _ui.SendNotification("Uploading new credentials to the device...", _infNid);
@@ -183,7 +187,7 @@ namespace HideezMiddleware
                         }
                     }
                 }
-                else if (WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Locked)
+                else if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Locked)
                 {
                     // Session is locked but workstation unlocker is not connected
                     success = false;
@@ -300,55 +304,6 @@ namespace HideezMiddleware
             result.FlowId = _flowId;
 
             return result;
-        }
-
-        //async Task<bool> TryUnlockWorkstation(IDevice device)
-        //{
-        //    await _ui.SendNotification("Reading credentials from the device...", _infNid);
-
-        //    // read in parallel info from the HES and credentials from the device
-        //    var infoTask = IsNeedUpdateDevice(device);
-        //    var credentialsTask = GetCredentials(device);
-
-        //    await Task.WhenAll(infoTask, credentialsTask);
-
-        //    var credentials = credentialsTask.Result;
-
-        //    // if the device needs to be updated, update and read credentials again
-        //    if (infoTask.Result)
-        //    {
-        //        // request hes to update this device
-        //        await _hesConnection.FixDevice(device);
-
-        //        await WaitForRemoteDeviceUpdate(device.SerialNo);
-
-        //        credentials = await GetCredentials(device);
-        //    }
-
-        //    // send credentials to the Credential Provider to unlock the PC
-        //    await _ui.SendNotification("Unlocking the PC...", _infNid);
-        //    var success = await _workstationUnlocker
-        //        .SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
-
-        //    return success;
-        //}
-
-        async Task<bool> IsNeedUpdateDevice(IDevice device, CancellationToken ct)
-        {
-            try
-            {
-                if (_hesConnection.State == HesConnectionState.Connected)
-                {
-                    var info = await _hesConnection.GetInfoBySerialNo(device.SerialNo, ct);
-                    return info.NeedUpdate;
-                }
-            }
-            catch (Exception ex)
-            {
-                WriteLine(ex);
-            }
-
-            return false;
         }
 
         async Task MasterKeyWorkflow(IDevice device, CancellationToken ct)

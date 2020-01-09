@@ -53,11 +53,25 @@ namespace HideezClient.Controls
                     Options.TaskCompletionSource?.TrySetResult(false);
 
                     closing = true;
-                    BeginAnimation("HideNotificationAnimation");
 
+                    var errorOccuredInStoryboard = false;
+                    try
+                    {
+                        // TODO: Find out, why 'Cannot resolve all property references' occurs for RenderTransform.ScaleX
+                        // Maybe, its somehow related to lock screen or resolution change when leaving suspended mode
+                        // Maybe there was an attempt to close/animate it before its style was set.
+                        BeginAnimation("HideNotificationAnimation");
+                    }
+                    catch (Exception) 
+                    {
+                        errorOccuredInStoryboard = true;
+                    }
+                    
                     Task.Run(async () =>
                     {
-                        await Task.Delay(((Duration)FindResource("AnimationHideTime")).TimeSpan);
+                        if (!errorOccuredInStoryboard) // Skip 300ms delay if failed to start animation
+                            await Task.Delay(((Duration)FindResource("AnimationHideTime")).TimeSpan);
+
                         await App.Current.Dispatcher.InvokeAsync(() => Closed?.Invoke(this, EventArgs.Empty));
                     });
                 }

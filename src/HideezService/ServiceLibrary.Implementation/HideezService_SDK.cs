@@ -54,6 +54,7 @@ namespace ServiceLibrary.Implementation
         static TapConnectionProcessor _tapProcessor;
         static ProximityConnectionProcessor _proximityProcessor;
         static SessionSwitchLogger _sessionSwitchLogger;
+        static ConnectionManagerRestarter _connectionManagerRestarter;
 
         void InitializeSDK()
         {
@@ -75,6 +76,7 @@ namespace ServiceLibrary.Implementation
             _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
             _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
             _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+            _connectionManagerRestarter = new ConnectionManagerRestarter(_connectionManager, _sdkLogger);
 
             // BLE ============================
             _deviceManager = new BleDeviceManager(_sdkLogger, _connectionManager);
@@ -95,13 +97,16 @@ namespace ServiceLibrary.Implementation
             _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
 
             // Settings
-            if (!Directory.Exists(settingsDirectory))
-            {
-                Directory.CreateDirectory(settingsDirectory);
-            }
             string rfidSettingsPath = Path.Combine(settingsDirectory, "Rfid.xml");
             string proximitySettingsPath = Path.Combine(settingsDirectory, "Proximity.xml");
+            string sdkSettingsPath = Path.Combine(settingsDirectory, "Sdk.xml");
             IFileSerializer fileSerializer = new XmlFileSerializer(_sdkLogger);
+            var sdkSettingsManager = new SettingsManager<SdkSettings>(sdkSettingsPath, fileSerializer);
+            Task.Run(async () =>
+            {
+                await SdkConfigLoader.LoadSdkConfigFromFileAsync(sdkSettingsManager);
+            });
+
             _rfidSettingsManager = new SettingsManager<RfidSettings>(rfidSettingsPath, fileSerializer);
 
             _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
@@ -162,6 +167,7 @@ namespace ServiceLibrary.Implementation
 
             // ConnectionFlowProcessor
             _connectionFlowProcessor = new ConnectionFlowProcessor(
+                _connectionManager,
                 _deviceManager,
                 _hesConnection,
                 _credentialProviderProxy,
@@ -223,6 +229,7 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager.Start();
 
             _connectionManager.StartDiscovery();
+            _connectionManagerRestarter.Start();
 
             if (_hesConnection.State == HesConnectionState.Error)
             {
@@ -565,7 +572,7 @@ namespace ServiceLibrary.Implementation
                 switch (adapter)
                 {
                     case Adapter.Dongle:
-                        return _connectionManager?.State == BluetoothAdapterState.PoweredOn;
+                        return _connectionManager?.State == BluetoothAdapterState.PoweredOn || _connectionManager?.State == BluetoothAdapterState.Resetting;
                     case Adapter.HES:
                         return _hesConnection?.State == HesConnectionState.Connected;
                     case Adapter.RFID:
@@ -598,6 +605,35 @@ namespace ServiceLibrary.Implementation
             }
         }
 
+        public byte[] GetAvailableChannels(string serialNo)
+        {
+            try
+            {
+                var devices = _deviceManager.Devices.Where(d => d.SerialNo == serialNo).ToList();
+                if (devices.Count == 0)
+                    throw new HideezException(HideezErrorCode.DeviceNotFound, serialNo);
+
+                // Channels range from 1 to 6 
+                List<byte> freeChannels = new List<byte>() { 1, 2, 3, 4, 5, 6 };
+
+                // These channels are reserved by system, the rest is available to clients
+                freeChannels.Remove((byte)DefaultDeviceChannel.Main);
+                freeChannels.Remove((byte)DefaultDeviceChannel.HES);
+
+                // Filter out taken channels
+                var channelsInUse = devices.Select(d => d.ChannelNo).ToList();
+                freeChannels.RemoveAll(c => channelsInUse.Contains(c));
+
+                return freeChannels.ToArray();
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+                ThrowException(ex);
+                return null; // this line is unreachable
+            }
+        }
+
         public async Task DisconnectDevice(string id)
         {
             try
@@ -617,7 +653,8 @@ namespace ServiceLibrary.Implementation
             {
                 var device = _deviceManager.Find(id);
                 if (device != null)
-                    await _deviceManager.RemoveAll(device.Mac);
+                    await _deviceManager.Remove(device);
+                    //await _deviceManager.RemoveAll(device.Mac);
             }
             catch (Exception ex)
             {
@@ -643,7 +680,7 @@ namespace ServiceLibrary.Implementation
 
         #region Remote device management
         // This collection is unique for each client
-        List<IWcfDevice> RemoteWcfDevices = new List<IWcfDevice>();
+        readonly List<IWcfDevice> RemoteWcfDevices = new List<IWcfDevice>();
 
         public async Task<string> EstablishRemoteDeviceConnection(string serialNo, byte channelNo)
         {
@@ -653,6 +690,10 @@ namespace ServiceLibrary.Implementation
                 if (wcfDevice == null)
                 {
                     var device = _deviceManager.FindBySerialNo(serialNo, 1);
+
+                    if (device == null)
+                        throw new HideezException(HideezErrorCode.DeviceNotFound, serialNo);
+
                     wcfDevice = await _wcfDeviceFactory.EstablishRemoteDeviceConnection(device.Mac, channelNo);
 
                     SubscribeToWcfDeviceEvents(wcfDevice);
@@ -702,7 +743,10 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                var wcfDevice = (IWcfDevice)_deviceManager.Find(connectionId);
+                var wcfDevice = _deviceManager.Find(connectionId) as IWcfDevice;
+
+                if (wcfDevice == null)
+                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, connectionId);
 
                 var response = await wcfDevice.OnVerifyCommandAsync(data);
 
@@ -720,7 +764,10 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                var wcfDevice = (IWcfDevice)_deviceManager.Find(connectionId);
+                var wcfDevice = _deviceManager.Find(connectionId) as IWcfDevice;
+
+                if (wcfDevice == null)
+                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, connectionId);
 
                 var response = await wcfDevice.OnRemoteCommandAsync(data);
 
@@ -738,7 +785,10 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                var wcfDevice = (IWcfDevice)_deviceManager.Find(connectionId);
+                var wcfDevice = _deviceManager.Find(connectionId) as IWcfDevice;
+
+                if (wcfDevice == null)
+                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, connectionId);
 
                 await wcfDevice.OnResetChannelAsync();
             }
@@ -786,7 +836,7 @@ namespace ServiceLibrary.Implementation
          * within a short frame of each other due to inconsistent behavior caused by SystemPowerEvent implementation
          */
         static bool _alreadyRestored = false; 
-        public static async void OnLaunchFromSleep()
+        public static async Task OnLaunchFromSuspend()
         {
             _log.WriteLine("System left suspended mode");
             if (!_restoringFromSleep && !_alreadyRestored)
@@ -803,13 +853,21 @@ namespace ServiceLibrary.Implementation
 
                     await _hesConnection.Stop();
 
-                    _log.WriteLine("Restarting connection manager");
-                    _connectionManager.Restart();
 
-                    _log.WriteLine("Starting connection processors");
-                    _proximityProcessor.Start();
-                    _tapProcessor.Start();
-                    _rfidProcessor.Start();
+
+                    _connectionManagerRestarter.Stop();
+                    _ = Task.Run(async () =>
+                    {
+                        await Task.Delay(1000);
+                        _log.WriteLine("Restarting connection manager");
+                        _connectionManager.Restart();
+                        _connectionManagerRestarter.Start();
+
+                        _log.WriteLine("Starting connection processors");
+                        _proximityProcessor.Start();
+                        _tapProcessor.Start();
+                        _rfidProcessor.Start();
+                    });
 
                     _hesConnection.Start();
                     _alreadyRestored = true;
@@ -826,7 +884,22 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public static async void OnGoingToSleep()
+        // It looks like windows never sends this particular event
+        public static async Task OnPreparingToSuspend()
+        {
+            try
+            {
+                _log.WriteLine("System query suspend");
+                await _eventSender.SendEventsAsync(true);
+            }
+            catch (Exception ex)
+            {
+                _log.WriteLine($"An error occured suspend query");
+                _log.WriteLine(ex);
+            }
+        }
+
+        public static async Task OnSuspending()
         {
             try
             {
@@ -840,6 +913,9 @@ namespace ServiceLibrary.Implementation
 
                 _log.WriteLine("Disconnecting all connected devices");
                 await _deviceManager.DisconnectAllDevices();
+
+                _log.WriteLine("Sending all events");
+                await _eventSender.SendEventsAsync(true);
 
                 await _hesConnection.Stop();
             }

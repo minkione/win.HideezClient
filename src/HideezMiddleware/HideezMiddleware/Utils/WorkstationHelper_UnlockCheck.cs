@@ -98,7 +98,6 @@ namespace HideezMiddleware
         struct WTSINFOEX
         {
             public uint Level;
-            public uint Reserved; /* I have observed the Data field is pushed down by 4 bytes so i have added this field as padding. */
             public WTSINFOEX_LEVEL Data;
         }
 
@@ -114,15 +113,29 @@ namespace HideezMiddleware
             public uint SessionId;
             public WTS_CONNECTSTATE_CLASS SessionState;
             public Int32 SessionFlags;
-
-            /* I can't figure out what the rest of the struct should look like but as i don't need anything past the SessionFlags i'm not going to. */
-
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 33)]
+            public string WinStationName;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 21)]
+            public string UserName;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 18)]
+            public string DomainName;
+            public UInt64 LogonTime;
+            public UInt64 ConnectTime;
+            public UInt64 DisconnectTime;
+            public UInt64 LastInputTime;
+            public UInt64 CurrentTime;
+            public Int32 IncomingBytes;
+            public Int32 OutgoingBytes;
+            public Int32 IncomingFrames;
+            public Int32 OutgoingFrames;
+            public Int32 IncomingCompressedBytes;
+            public Int32 OutgoingCompressedBytes;
         }
 
         public static LockState GetSessionLockState(uint session_id)
         {
 
-            Int32 result = WTSQuerySessionInformation(
+            Int32 queryResult = WTSQuerySessionInformation(
                 WTS_CURRENT_SERVER,
                 session_id,
                 WTS_INFO_CLASS.WTSSessionInfoEx,
@@ -130,7 +143,7 @@ namespace HideezMiddleware
                 out uint pBytesReturned
             );
 
-            if (result == FALSE)
+            if (queryResult == FALSE)
                 return LockState.Unknown;
 
             var session_info_ex = Marshal.PtrToStructure<WTSINFOEX>(ppBuffer);
@@ -144,6 +157,7 @@ namespace HideezMiddleware
             var lock_state = session_info_ex.Data.WTSInfoExLevel1.SessionFlags;
             WTSFreeMemory(ppBuffer);
 
+            LockState parsedLockState = LockState.Unknown;
             if (_is_win7)
             {
                 /* Ref: https://msdn.microsoft.com/en-us/library/windows/desktop/ee621019(v=vs.85).aspx
@@ -154,13 +168,14 @@ namespace HideezMiddleware
                 switch (lock_state)
                 {
                     case WTS_SESSIONSTATE_LOCK:
-                        return LockState.Unlocked;
-
+                        parsedLockState = LockState.Unlocked;
+                        break;
                     case WTS_SESSIONSTATE_UNLOCK:
-                        return LockState.Locked;
-
+                        parsedLockState = LockState.Locked;
+                        break;
                     default:
-                        return LockState.Unknown;
+                        parsedLockState = LockState.Unknown;
+                        break;
                 }
             }
             else
@@ -168,20 +183,40 @@ namespace HideezMiddleware
                 switch (lock_state)
                 {
                     case WTS_SESSIONSTATE_LOCK:
-                        return LockState.Locked;
-
+                        parsedLockState = LockState.Locked;
+                        break;
                     case WTS_SESSIONSTATE_UNLOCK:
-                        return LockState.Unlocked;
-
+                        parsedLockState = LockState.Unlocked;
+                        break;
                     default:
-                        return LockState.Unknown;
+                        parsedLockState = LockState.Unknown;
+                        break;
                 }
             }
+
+            var sessionState = session_info_ex.Data.WTSInfoExLevel1.SessionState;
+
+            
+            // known issue: parsedLockState is returned as Unlocked for all local sessions, regardless of which session exactly is unlocked
+            // Yet only one session at a time has a state of WTSActive
+            // WTSINFOEX_LEVEL1 reference: https://msdn.microsoft.com/zh-cn/vstudio/ee621019(v=vs.90)
+            if (sessionState == WTS_CONNECTSTATE_CLASS.WTSActive && parsedLockState == LockState.Unlocked)
+                return LockState.Unlocked;
+            else if (parsedLockState == LockState.Unknown)
+                return LockState.Unknown;
+            else
+                return LockState.Locked;
+        }
+
+        public static LockState GetActiveSessionLockState()
+        {
+            var sid = GetSessionId();
+            return GetSessionLockState(sid);
         }
 
         public static LockState GetCurrentSessionLockState()
         {
-            var sid = GetSessionId();
+            var sid = (uint)System.Diagnostics.Process.GetCurrentProcess().SessionId;
             return GetSessionLockState(sid);
         }
     }

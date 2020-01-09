@@ -5,6 +5,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
@@ -46,7 +47,8 @@ namespace HideezMiddleware
             {
                 if (!device.IsRemote && !device.IsBoot)
                 {
-                    if (!_authorizedDevicesList.Contains(device))
+                    // Limit of one device that may be authorized for workstation lock
+                    if (!_authorizedDevicesList.Contains(device) && _authorizedDevicesList.Count == 0)
                     {
                         WriteLine($"Device ({device.Id}) added as valid to trigger workstation lock");
                         device.Disconnected += Device_Disconnected;
@@ -121,7 +123,7 @@ namespace HideezMiddleware
             {
                 lock (_deviceListsLock)
                 {
-                    if (device.IsConnected && _authorizedDevicesList.Contains(device))
+                    if (_authorizedDevicesList.Contains(device))
                     {
                         WriteLine($"Device ({device.Id}) is no longer a valid trigger for workstation lock");
                         _authorizedDevicesList.Remove(device);
@@ -148,7 +150,10 @@ namespace HideezMiddleware
             lock (_deviceListsLock)
             {
                 if (!CanLock(device))
+                { 
+                    Task.Run(async () => { await _deviceManager.DisconnectDevice(device); });
                     return;
+                }
 
                 WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Device ID: {device.Id}");
                 WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceBelowThreshold));
@@ -161,7 +166,10 @@ namespace HideezMiddleware
             lock (_deviceListsLock)
             {
                 if (!CanLock(device))
+                {
+                    Task.Run(async () => { await _deviceManager.DisconnectDevice(device); });
                     return;
+                }
 
                 WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Device ID: {device.Id}");
                 WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.ProximityTimeout));

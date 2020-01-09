@@ -27,6 +27,20 @@ namespace HideezMiddleware.Settings
         {
             SettingsFilePath = settingsFilePath;
             this.fileSerializer = fileSerializer;
+
+            CreateDefaultSettingsFile(SettingsFilePath);
+        }
+
+        void CreateDefaultSettingsFile(string fullPath)
+        {
+            // Create directory in case it does not exist
+            var directory = Path.GetDirectoryName(fullPath);
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+
+            // Skip if settings file already exists
+            if (!File.Exists(fullPath))
+                SaveSettings(Settings);
         }
 
         public event EventHandler<SettingsChangedEventArgs<T>> SettingsChanged;

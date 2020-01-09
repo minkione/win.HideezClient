@@ -1,0 +1,3 @@
+[submodule "win.SDK"]
+	path = win.SDK
+url=https://bitbucket.org/HideezDev/win.sdk.git

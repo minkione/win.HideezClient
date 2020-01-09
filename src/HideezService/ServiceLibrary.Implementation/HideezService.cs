@@ -59,7 +59,7 @@ namespace ServiceLibrary.Implementation
 
                 _log.WriteLine(">>>>>> Initilize audit");
                 var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-                string auditEventsDirectoryPath = $@"{commonAppData}\Hideez\WorkstationEvents\";
+                string auditEventsDirectoryPath = $@"{commonAppData}\Hideez\Service\WorkstationEvents\";
                 _eventSaver = new EventSaver(_sessionInfoProvider, auditEventsDirectoryPath, _sdkLogger);
 
                 _log.WriteLine(">>>>>> Initialize session timestamp monitor");
@@ -194,12 +194,13 @@ namespace ServiceLibrary.Implementation
             _eventSaver.AddNew(workstationEvent);
         }
 
-        public static void OnServiceStopped()
+        public static async Task OnServiceStopped()
         {
             // Generate event for audit
             var workstationEvent = _eventSaver.GetWorkstationEvent();
             workstationEvent.EventId = WorkstationEventType.ServiceStopped;
-            _eventSaver.AddNew(workstationEvent, true);
+            _eventSaver.AddNew(workstationEvent);
+            await _eventSender.SendEventsAsync(true);
         }
         #endregion
     }

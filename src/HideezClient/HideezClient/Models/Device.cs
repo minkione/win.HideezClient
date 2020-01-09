@@ -11,6 +11,7 @@ using HideezClient.Modules;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using HideezClient.Utilities;
+using HideezMiddleware;
 using Microsoft.Win32;
 using MvvmExtensions.Attributes;
 using NLog;
@@ -28,7 +29,6 @@ namespace HideezClient.Models
     // Todo: Implement thread-safety lock for password manager and remote device
     public class Device : ObservableObject, IDisposable
     {
-        const int VERIFY_CHANNEL_NO = 2;
         const int INIT_TIMEOUT = 5_000;
         readonly int CREDENTIAL_TIMEOUT = SdkConfig.MainWorkflowTimeout;
 
@@ -77,9 +77,7 @@ namespace HideezClient.Models
             _remoteDeviceFactory = remoteDeviceFactory;
             _messenger = messenger;
 
-            SystemEvents.SessionSwitch += OnSessionSwitch;
-
-            PropertyChanged += Device_OnFinishedMainFlowPropertyChanged;
+            PropertyChanged += Device_PropertyChanged;
 
             _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
             _messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
@@ -88,6 +86,7 @@ namespace HideezClient.Models
             _messenger.Register<DeviceOperationCancelledMessage>(this, OnOperationCancelled);
             _messenger.Register<DeviceProximityChangedMessage>(this, OnDeviceProximityChanged);
             _messenger.Register<DeviceBatteryChangedMessage>(this, OnDeviceBatteryChanged);
+            _messenger.Register<SessionSwitchMessage>(this, OnSessionSwitch);
 
             RegisterDependencies();
 
@@ -250,9 +249,19 @@ namespace HideezClient.Models
         #endregion
 
         #region Messege & Event handlers
+        void RemoteDevice_ButtonPressed(object sender, Hideez.SDK.Communication.ButtonPressCode e)
+        {
+            _log.Info($"Device ({Id}) button pressed, code: {e}");
+
+            Task.Run(() =>
+            {
+                _messenger.Send(new DeviceButtonPressedMessage(Id, e));
+            });
+        }
+
         void RemoteDevice_StorageModified(object sender, EventArgs e)
         {
-            _log.Info($"Device ({SerialNo}) storage modified");
+            _log.Info($"Device ({Id}) storage modified");
 
             Task.Run(() =>
             {
@@ -287,10 +296,12 @@ namespace HideezClient.Models
         async void OnDeviceConnectionStateChanged(DeviceConnectionStateChangedMessage obj)
         {
             if (obj.Device.Id == Id)
+            {
                 LoadFrom(obj.Device);
 
-            if (!obj.Device.IsConnected)
-                await ShutdownRemoteDevice(HideezErrorCode.DeviceDisconnected);
+                if (!obj.Device.IsConnected)
+                    await ShutdownRemoteDeviceAsync(HideezErrorCode.DeviceDisconnected);
+            }
         }
 
         void OnDeviceInitialized(DeviceInitializedMessage obj)
@@ -311,12 +322,23 @@ namespace HideezClient.Models
                 tcs.TrySetResult(obj.Pin);
         }
 
-        void OnSessionSwitch(object sender, SessionSwitchEventArgs e)
+        void OnSessionSwitch(SessionSwitchMessage obj)
         {
-            // Workstation lock should cancel ongoing remote device authorization
-            if (e.Reason == SessionSwitchReason.SessionLogoff || 
-                e.Reason == SessionSwitchReason.SessionLock)
-                CancelDeviceAuthorization();
+            switch (obj.Reason)
+            {
+                case SessionSwitchReason.SessionLogoff:
+                case SessionSwitchReason.SessionLock:
+                    // Workstation lock should cancel ongoing remote device authorization
+                    CancelDeviceAuthorization();
+                    break;
+                case SessionSwitchReason.SessionLogon:
+                case SessionSwitchReason.SessionUnlock:
+                    // Workstation unlock is one of reasons to try create remote device
+                    TryInitRemoteAsync();
+                    break;
+                default:
+                    return;
+            }
         }
 
         void OnOperationCancelled(DeviceOperationCancelledMessage obj)
@@ -344,23 +366,14 @@ namespace HideezClient.Models
             Battery = obj.Battery;
         }
 
-        async void Device_OnFinishedMainFlowPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(FinishedMainFlow))
             {
-                if (FinishedMainFlow)
-                {
-                    try
-                    {
-                        await InitRemoteAndLoadStorage(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.Error(ex);
-                    }
-                }
+                TryInitRemoteAsync();
             }
         }
+
         #endregion
 
         void LoadFrom(DeviceDTO dto)
@@ -380,17 +393,35 @@ namespace HideezClient.Models
             FinishedMainFlow = dto.FinishedMainFlow;
         }
 
+        async void TryInitRemoteAsync()
+        {
+            if (FinishedMainFlow)
+            {
+                try
+                {
+                    await InitRemoteAndLoadStorageAsync(false);
+                }
+                catch (Exception ex)
+                {
+                    _log.Error(ex);
+                }
+            }
+        }
+
         /// <summary>
         /// Create and authorize remote device, then load credentials storage from this device
         /// </summary>
         /// <param name="authorizeDevice">If false, skip remote device authorization step. Default is true.</param>
-        public async Task InitRemoteAndLoadStorage(bool authorizeDevice = true)
+        public async Task InitRemoteAndLoadStorageAsync(bool authorizeDevice = true)
         {
             if (Interlocked.CompareExchange(ref _interlockedRemote, 1, 0) == 0)
             {
                 try
                 {
-                    if (!IsCreatingRemoteDevice && !IsAuthorizingRemoteDevice && !IsLoadingStorage)
+                    if (!IsCreatingRemoteDevice && 
+                        !IsAuthorizingRemoteDevice && 
+                        !IsLoadingStorage && 
+                        WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Unlocked)
                     {
                         try
                         {
@@ -400,11 +431,15 @@ namespace HideezClient.Models
                             _infNid = Guid.NewGuid().ToString();
                             _errNid = Guid.NewGuid().ToString();
 
-                            await CreateRemoteDevice();
+                            await CreateRemoteDeviceAsync();
                             if (authorizeDevice)
                                 await AuthorizeRemoteDevice(ct);
                             if (!ct.IsCancellationRequested)
                                 await LoadStorage();
+                        }
+                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceDisconnected)
+                        {
+                            _log.Warn("Remote device creation aborted, device disconnected");
                         }
                         catch (Exception ex)
                         {
@@ -429,18 +464,23 @@ namespace HideezClient.Models
             authCancellationTokenSource?.Cancel();
         }
 
-        public async Task ShutdownRemoteDevice(HideezErrorCode code)
+        public async Task ShutdownRemoteDeviceAsync(HideezErrorCode code)
         {
             try
             {
                 if (_remoteDevice != null)
                 {
                     CancelDeviceAuthorization();
-                    _remoteDevice.StorageModified -= RemoteDevice_StorageModified;
-                    _remoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
-                    await _remoteDevice.Shutdown(code);
+
+                    var tempRemoteDevice = _remoteDevice;
                     _remoteDevice = null;
                     PasswordManager = null;
+
+                    tempRemoteDevice.ButtonPressed -= RemoteDevice_ButtonPressed;
+                    tempRemoteDevice.StorageModified -= RemoteDevice_StorageModified;
+                    tempRemoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
+                    await tempRemoteDevice.Shutdown(code);
+                    await _serviceProxy.GetService().RemoveDeviceAsync(tempRemoteDevice.Id);
                 }
             }
             catch (Exception ex)
@@ -456,8 +496,7 @@ namespace HideezClient.Models
             NotifyPropertyChanged(nameof(IsAuthorized));
         }
 
-
-        async Task CreateRemoteDevice()
+        async Task CreateRemoteDeviceAsync()
         {
             if (_remoteDevice != null || IsCreatingRemoteDevice)
                 return;
@@ -467,12 +506,20 @@ namespace HideezClient.Models
             try
             {
                 _log.Info($"Device ({SerialNo}), establishing remote device connection");
+
+                _log.Info("Checking for available channels");
+                var channels = await _serviceProxy.GetService().GetAvailableChannelsAsync(SerialNo);
+                if (channels.Length == 0)
+                    throw new Exception($"No available channels on device ({SerialNo})"); // Todo: separate exception type
+                var channelNo = channels.FirstOrDefault();
+                _log.Info($"{channels.Length} channels available");
+
                 ShowInfo($"Preparing for device ({SerialNo}) authorization", _infNid);
                 IsCreatingRemoteDevice = true;
-                _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, VERIFY_CHANNEL_NO);
+                _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
 
-                await _remoteDevice.Verify(VERIFY_CHANNEL_NO);
+                await _remoteDevice.Verify(channelNo);
                 await _remoteDevice.Initialize(INIT_TIMEOUT);
 
                 if (_remoteDevice.SerialNo != SerialNo)
@@ -481,6 +528,7 @@ namespace HideezClient.Models
                 _log.Info($"Creating password manager for device ({SerialNo})");
                 PasswordManager = new DevicePasswordManager(_remoteDevice, null);
                 _remoteDevice.StorageModified += RemoteDevice_StorageModified;
+                _remoteDevice.ButtonPressed += RemoteDevice_ButtonPressed;
 
                 _log.Info($"Remote device ({SerialNo}) connection established");
             }
@@ -508,7 +556,7 @@ namespace HideezClient.Models
                 _messenger.Send(new HidePinUiMessage());
 
                 if (initErrorCode != HideezErrorCode.Ok)
-                    await ShutdownRemoteDevice(initErrorCode);
+                    await ShutdownRemoteDeviceAsync(initErrorCode);
 
                 IsCreatingRemoteDevice = false;
             }
@@ -581,9 +629,9 @@ namespace HideezClient.Models
                 IsStorageLoaded = false;
                 IsLoadingStorage = true;
 
-                _log.Info($"Device ({SerialNo}) loading storage");
+                _log.Info($"Device ({Id}) loading storage");
                 await PasswordManager.Load();
-                _log.Info($"Device ({SerialNo}) loaded {PasswordManager.Accounts.Count} entries from storage");
+                _log.Info($"Device ({Id}) loaded {PasswordManager.Accounts.Count} entries from storage");
                 
                 IsStorageLoaded = true;
             }
@@ -592,14 +640,14 @@ namespace HideezClient.Models
                 _log.Error(ex);
                 ShowError(ex.Message, _errNid);
 
-                await ShutdownRemoteDevice(HideezErrorCode.UnknownError);
+                await ShutdownRemoteDeviceAsync(HideezErrorCode.UnknownError);
             }
             catch (Exception ex)
             {
                 _log.Error(ex);
                 ShowError(ex.Message, _errNid);
 
-                await ShutdownRemoteDevice(HideezErrorCode.UnknownError);
+                await ShutdownRemoteDeviceAsync(HideezErrorCode.UnknownError);
             }
             finally
             {
@@ -767,11 +815,9 @@ namespace HideezClient.Models
             {
                 if (disposing)
                 {
-                    PropertyChanged -= Device_OnFinishedMainFlowPropertyChanged;
+                    PropertyChanged -= Device_PropertyChanged;
                     _messenger.Unregister(this);
                 }
-
-                SystemEvents.SessionSwitch -= OnSessionSwitch;
 
                 disposed = true;
             }
