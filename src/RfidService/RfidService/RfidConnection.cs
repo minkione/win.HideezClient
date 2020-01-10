@@ -190,7 +190,8 @@ namespace Hideez.RFID
 
         void OnRfidReceived(string rfid)
         {
-            RfidReceived?.Invoke(this, new RfidReceivedEventArgs(rfid));
+            var decRfid = ConvertRfidToDecimal(rfid);
+            RfidReceived?.Invoke(this, new RfidReceivedEventArgs(decRfid));
         }
 
         void OnReaderStateChanged()
@@ -220,6 +221,16 @@ namespace Hideez.RFID
         void Bell(int u_hUsb, ushort belltime)
         {
             s_bell(u_hUsb, belltime);
+        }
+
+        string ConvertRfidToDecimal(string hexRfid)
+        {
+            hexRfid = hexRfid.Replace("\n", "");
+            hexRfid = hexRfid.Substring(2);
+            var raw = int.Parse(hexRfid, System.Globalization.NumberStyles.HexNumber);
+            var rfid = Convert.ToString(raw);
+            rfid = rfid.PadLeft(10, '0');
+            return rfid;
         }
     }
 }

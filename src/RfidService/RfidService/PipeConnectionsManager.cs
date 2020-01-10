@@ -45,6 +45,9 @@ namespace Hideez.RFID
 
         public void WriteRfid(string rfid)
         {
+            if (!rfid.EndsWith("" + '\n'))
+                rfid += '\n';
+            
             _pipeServer.WriteToAll(Encoding.ASCII.GetBytes(rfid));
         }
 
