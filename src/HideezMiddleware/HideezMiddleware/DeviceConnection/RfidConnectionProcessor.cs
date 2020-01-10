@@ -111,16 +111,14 @@ namespace HideezMiddleware.DeviceConnection
             try
             {
                 _screenActivator?.ActivateScreen();
-                await _clientUiManager.SendNotification("Connecting to the HES server...");
 
                 if (_hesConnection == null)
                     throw new Exception("Cannot connect device. Not connected to the HES.");
 
+                await _clientUiManager.SendNotification("Connecting to the HES server...");
+
                 // get MAC address from the HES
                 var info = await _hesConnection.GetInfoByRfid(rfid);
-
-                if (info == null)
-                    throw new Exception($"Device not found");
 
                 if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
                 {

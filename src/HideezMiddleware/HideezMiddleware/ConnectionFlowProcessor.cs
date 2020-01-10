@@ -536,7 +536,7 @@ namespace HideezMiddleware
 
         async Task LicenseWorkflow(IDevice device, CancellationToken ct)
         {
-            var licenses = await _hesConnection.GetNewDeviceLicenses(device.Id);
+            var licenses = await _hesConnection.GetNewDeviceLicenses(device.SerialNo);
 
             if (ct.IsCancellationRequested)
                 return;
@@ -547,7 +547,7 @@ namespace HideezMiddleware
                     return;
 
                 await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
-                await _hesConnection.OnDeviceLicenseApplied(device.Id, license.Id);
+                await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
             }
         }
     }
