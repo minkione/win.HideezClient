@@ -152,6 +152,7 @@ namespace HideezMiddleware
                 await WaitDeviceInitialization(mac, device, ct);
 
                 var deviceInfo = await deviceInfoProc;
+                WriteLine($"Device info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}");
                 if (deviceInfo.HasNewLicense)
                 {
                     // License upload has the highest priority in connection flow. Without license other actions are impossible
@@ -159,6 +160,7 @@ namespace HideezMiddleware
                     await LicenseWorkflow(device, ct);
                 }
 
+                WriteLine($"IsLocked: {device.AccessLevel.IsLocked},  IsLinkRequired: {device.AccessLevel.IsLinkRequired}");
                 if (device.AccessLevel.IsLocked || device.AccessLevel.IsLinkRequired)
                 {
                     // request HES to update this device
