@@ -673,7 +673,7 @@
         </Canvas>
     </Viewbox>
 
-    <!--  Hedeez Key Simple IMG  -->
+    <!--  Hideez Key Simple IMG  -->
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="HideezKeySimpleIMG"
@@ -687,38 +687,6 @@
             <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FFF4FEFF">
                 <Path.Data>
                     <PathGeometry Figures="M6.94667 11.6223C6.44412 12.1239 5.63769 12.1239 5.13514 11.634L0.37839 6.93317C-0.124165 6.43159 -0.124165 5.62673 0.366703 5.11349L5.06501 0.377655C5.56757 -0.123924 6.374 -0.123924 6.87655 0.36599L11.6216 5.05517C12.1242 5.55674 12.1242 6.3616 11.6333 6.86318L6.94667 11.6223ZM6.79117 3.3354C6.35873 3.76699 5.65749 3.77866 5.21338 3.34706C4.78094 2.91547 4.76926 2.2156 5.20169 1.77234C5.63412 1.34075 6.33536 1.32909 6.77948 1.76068C7.2236 2.20393 7.23528 2.90381 6.79117 3.3354ZM5.98019 11.0424C6.33081 11.0424 6.62299 10.7625 6.62299 10.4009L6.42431 5.80501C6.42431 5.45508 6.3425 5.16346 5.99188 5.16346C5.62957 5.16346 5.54776 5.45508 5.54776 5.80501L5.33739 10.4009C5.33739 10.7508 5.62957 11.0424 5.98019 11.0424Z" FillRule="EvenOdd" />
-                </Path.Data>
-            </Path>
-        </Canvas>
-    </Viewbox>
-
-    <!--  Hedeez Key IMG  -->
-    <Viewbox
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        x:Key="HedeezKeyIMG"
-        Stretch="Uniform">
-        <Canvas Width="24" Height="24">
-            <Canvas.RenderTransform>
-                <TranslateTransform X="0" Y="0" />
-            </Canvas.RenderTransform>
-            <Canvas.Resources>
-                <LinearGradientBrush xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Key="paint0_linear" MappingMode="Absolute" StartPoint="24,0" EndPoint="-4,6">
-                    <LinearGradientBrush.GradientStops>
-                        <GradientStopCollection>
-                            <GradientStop Color="#43C7D9" />
-                            <GradientStop Offset="1" Color="#0E5F93" />
-                        </GradientStopCollection>
-                    </LinearGradientBrush.GradientStops>
-                </LinearGradientBrush>
-            </Canvas.Resources>
-            <!--  Unknown tag: metadata  -->
-            <!--  Unknown tag: sodipodi:namedview  -->
-            <Path
-                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                Name="path3728"
-                Fill="{StaticResource paint0_linear}">
-                <Path.Data>
-                    <PathGeometry Figures="M13.8933 23.2447C12.8882 24.2478 11.2754 24.2478 10.2703 23.268L0.756781 13.8663C-0.24833 12.8632 -0.24833 11.2535 0.733406 10.227L10.13 0.75531C11.1351 -0.247847 12.748 -0.247847 13.7531 0.73198L23.2432 10.1103C24.2483 11.1135 24.2483 12.7232 23.2666 13.7264L13.8933 23.2447ZM13.5823 6.67078C12.7175 7.53397 11.315 7.55729 10.4268 6.69411C9.5619 5.83093 9.53852 4.43118 10.4034 3.54467C11.2682 2.68149 12.6707 2.65816 13.559 3.52134C14.4472 4.40785 14.4706 5.8076 13.5823 6.67078ZM11.9604 22.0848C12.6616 22.0848 13.246 21.5249 13.246 20.8017L12.8486 11.61C12.8486 10.9101 12.685 10.3269 11.9838 10.3269C11.2592 10.3269 11.0955 10.9101 11.0955 11.61L10.6748 20.8017C10.6748 21.5016 11.2592 22.0848 11.9604 22.0848Z" FillRule="EvenOdd" />
                 </Path.Data>
             </Path>
         </Canvas>

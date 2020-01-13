@@ -254,8 +254,8 @@
     <Compile Include="Controls\DeviceInfo.xaml.cs">
       <DependentUpon>DeviceInfo.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\DevicesExpander.xaml.cs">
-      <DependentUpon>DevicesExpander.xaml</DependentUpon>
+    <Compile Include="Controls\SelectableDevicesList.xaml.cs">
+      <DependentUpon>SelectableDevicesList.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\EditAccountControl.xaml.cs">
       <DependentUpon>EditAccountControl.xaml</DependentUpon>
@@ -408,8 +408,6 @@
     <Compile Include="Utilities\WeakEvents\WeakEvent.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
-    <Compile Include="ViewModels\Controls\DeviceForExpanderViewModel.cs" />
-    <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
     <Compile Include="ViewModels\MessageViewModel.cs" />
@@ -417,7 +415,6 @@
     <Compile Include="PageViewModels\PasswordManagerViewModel.cs" />
     <Compile Include="ViewModels\Dialog\PinViewModel.cs" />
     <Compile Include="ViewModels\Account\AccountInfoViewModel.cs" />
-    <Compile Include="ViewModels\SimpleMainViewModel.cs" />
     <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
       <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>
     </Compile>
@@ -448,7 +445,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\DevicesExpander.xaml">
+    <Page Include="Controls\SelectableDevicesList.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

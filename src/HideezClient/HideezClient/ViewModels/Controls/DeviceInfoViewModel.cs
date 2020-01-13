@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
-using HideezClient.HideezServiceReference;
+﻿using System.Windows;
 using HideezClient.Models;
 using HideezClient.Modules;
 using HideezClient.Modules.Localize;
-using HideezClient.Modules.ServiceProxy;
-using MvvmExtensions.Commands;
 
 namespace HideezClient.ViewModels
 {
-    class DeviceInfoViewModel : DeviceViewModel
+    public class DeviceInfoViewModel : DeviceViewModel
     {
         private MenuItemViewModel disconnectDeviceMenu;
         private MenuItemViewModel removeDeviceMenu;

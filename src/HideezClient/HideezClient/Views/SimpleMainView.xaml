@@ -31,14 +31,14 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <controls:DevicesExpander VerticalAlignment="Top">
-            <controls:DevicesExpander.Background>
+        <controls:SelectableDevicesList VerticalAlignment="Top" Devices="{Binding Devices}">
+            <controls:SelectableDevicesList.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Offset="0" Color="#0022446D" />
                     <GradientStop Offset="1" Color="#5C22446D" />
                 </LinearGradientBrush>
-            </controls:DevicesExpander.Background>
-        </controls:DevicesExpander>
+            </controls:SelectableDevicesList.Background>
+        </controls:SelectableDevicesList>
 
         <controls:ConnectivityIndicators
             Grid.Row="1"

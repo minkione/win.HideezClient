@@ -13,6 +13,7 @@ using HideezClient.Modules;
 using HideezClient.Modules.ServiceProxy;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace HideezClient.ViewModels
 {
@@ -109,6 +110,7 @@ namespace HideezClient.ViewModels
             if (device != null && SelectedDevice != null)
             {
                 SelectedDevice.PropertyChanged -= Device_PropertyChanged;
+                Devices.Remove(SelectedDevice);
                 SelectedDevice = null;
 
                 if (!leftAppMenuItems.Any(m => m.IsChecked))
@@ -123,7 +125,7 @@ namespace HideezClient.ViewModels
             if (device != null)
             {
                 SelectedDevice = new DeviceInfoViewModel(device, menuFactory);
-
+                Devices.Add(SelectedDevice);
                 if (MenuDefaultPage.IsChecked)
                 {
                     MenuDeviceSettings.IsChecked = true;
@@ -175,6 +177,8 @@ namespace HideezClient.ViewModels
                 }
             }
         }
+
+        public ObservableCollection<DeviceInfoViewModel> Devices { get; } = new ObservableCollection<DeviceInfoViewModel>();
 
         #endregion Properties
 

@@ -250,8 +250,6 @@ namespace HideezClient
             Container.RegisterType<PasswordManagerViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<DefaultPageViewModel>();
             Container.RegisterType<DeviceSettingsPageViewModel>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<DevicesExpanderViewModel>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<DeviceForExpanderViewModel>(new ContainerControlledLifetimeManager());
 
             #endregion ViewModels
 

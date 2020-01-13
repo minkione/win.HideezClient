@@ -66,9 +66,9 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<NotificationsContainerViewModel>(); }
         }
 
-        public SimpleMainViewModel SimpleMainViewModel
+        public MainViewModel SimpleMainViewModel
         {
-            get { return DIContainer.Resolve<SimpleMainViewModel>(); }
+            get { return DIContainer.Resolve<MainViewModel>(); }
         }
         #endregion
 
@@ -77,11 +77,6 @@ namespace HideezClient.ViewModels
         public IndicatorsViewModel IndicatorsViewModel
         {
             get { return DIContainer.Resolve<IndicatorsViewModel>(); }
-        }
-
-        public DevicesExpanderViewModel DevicesExpanderViewModel
-        {
-            get { return DIContainer.Resolve<DevicesExpanderViewModel>(); }
         }
 
         #endregion

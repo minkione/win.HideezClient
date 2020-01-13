@@ -35,6 +35,8 @@ namespace HideezClient.Views
 
         public MainWindowView()
         {
+            // This is required to avoid issue where certain buttons are shown as inactive until user performs some input action
+            // Calling InvalidateRequerySuggested performs recalculation of all dependencies immediatelly instead of waiting for input
             DataContextChanged += DeviceInfo_DataContextChanged;
             InitializeComponent();
         }
