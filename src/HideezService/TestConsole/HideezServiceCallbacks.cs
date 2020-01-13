@@ -64,6 +64,10 @@ namespace TestConsole
         {
         }
 
+        public void ProximitySettingsChanged()
+        {
+        }
+
         public void DeviceProximityChanged(string deviceId, double proximity)
         {
         }

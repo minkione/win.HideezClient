@@ -235,8 +235,8 @@ namespace HideezClient
             #region ViewModels
 
             Container.RegisterType<MainViewModel>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<LoginSystemPageViewModel>();
-            Container.RegisterType<LockSettingsPageViewModel>();
+            //Container.RegisterType<LoginSystemPageViewModel>();
+            //Container.RegisterType<LockSettingsPageViewModel>();
             Container.RegisterType<IndicatorsViewModel>();
             Container.RegisterType<DevicesExpanderViewModel>();
             Container.RegisterType<AddCredentialViewModel>();
@@ -254,7 +254,7 @@ namespace HideezClient
 
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
+            //Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
             Container.RegisterType<IDeviceManager, DeviceManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ISupportMailContentGenerator, SupportMailContentGenerator>(new ContainerControlledLifetimeManager());

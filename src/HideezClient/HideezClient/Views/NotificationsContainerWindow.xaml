@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     AllowsTransparency="True"
     Background="Transparent"
-    DataContext="{Binding NotificationsContainer, Mode=OneWay, Source={StaticResource Locator}}"
+    DataContext="{Binding NotificationsContainerViewModel, Mode=OneWay, Source={StaticResource Locator}}"
     Focusable="False"
     Loaded="Window_Loaded"
     ShowActivated="False"

@@ -190,6 +190,39 @@
       <xs:sequence />
     </xs:complexType>
   </xs:element>
+  <xs:element name="SetProximitySettings">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="mac" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="lockProximity" type="xs:int" />
+        <xs:element minOccurs="0" name="unlockProximity" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetProximitySettingsResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCurrentProximitySettings">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="mac" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCurrentProximitySettingsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="GetCurrentProximitySettingsResult" nillable="true" type="q4:ProximitySettingsDTO" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProximitySettingsChanged">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
   <xs:element name="LockWorkstationRequest">
     <xs:complexType>
       <xs:sequence />
@@ -230,35 +263,35 @@
   <xs:element name="DevicesCollectionChanged">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="devices" nillable="true" type="q4:ArrayOfDeviceDTO" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="devices" nillable="true" type="q5:ArrayOfDeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="DeviceConnectionStateChanged">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q5:DeviceDTO" />
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q6:DeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="DeviceInitialized">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q6:DeviceDTO" />
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q7:DeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="DeviceFinishedMainFlow">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q7:DeviceDTO" />
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q8:DeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="DeviceOperationCancelled">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q8:DeviceDTO" />
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="device" nillable="true" type="q9:DeviceDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -282,7 +315,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
-        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="stateDto" nillable="true" type="q9:DeviceStateDTO" />
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/ServiceLibrary" minOccurs="0" name="stateDto" nillable="true" type="q10:DeviceStateDTO" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

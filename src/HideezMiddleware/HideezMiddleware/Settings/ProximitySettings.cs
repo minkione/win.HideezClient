@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using HideezMiddleware.Settings;
 using System;
@@ -55,6 +56,7 @@ namespace HideezMiddleware.Settings
         [Setting]
         public DeviceProximitySettings[] DevicesProximity { get; set; }
 
+
         /// <summary>
         /// Return proximity settings for device, if not found settings return default settings
         /// </summary>
@@ -62,13 +64,19 @@ namespace HideezMiddleware.Settings
         {
             return GetProximitySettings(device.Mac);
         }
-        
+
         /// <summary>
-         /// Return proximity settings for device, if not found settings return default settings
-         /// </summary>
+        /// Return proximity settings for device, if not found settings return default settings
+        /// </summary>
         public DeviceProximitySettings GetProximitySettings(string mac)
         {
-            return DevicesProximity.FirstOrDefault(s => s.Mac == mac) ?? DeviceProximitySettings.DefaultSettings;
+            var deviceProximity = DevicesProximity.FirstOrDefault(s => s.Mac == mac);
+            if (deviceProximity == null)
+            {
+                deviceProximity = DeviceProximitySettings.DefaultSettings;
+                deviceProximity.Mac = mac;
+            }
+            return deviceProximity;
         }
 
         public override object Clone()

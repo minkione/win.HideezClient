@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\ReactiveUI.Fody.10.3.1\build\ReactiveUI.Fody.props" Condition="Exists('..\..\packages\ReactiveUI.Fody.10.3.1\build\ReactiveUI.Fody.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -30,6 +31,8 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -55,7 +58,7 @@
     <StartupObject>HideezClient.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resources\Icon\Idle\64x64.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\Icon\Idle\32x32.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -107,6 +110,9 @@
     <Reference Include="ControlzEx, Version=3.0.2.4, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\ControlzEx.3.0.2.4\lib\net462\ControlzEx.dll</HintPath>
     </Reference>
+    <Reference Include="DynamicData, Version=6.13.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DynamicData.6.13.5\lib\net461\DynamicData.dll</HintPath>
+    </Reference>
     <Reference Include="GalaSoft.MvvmLight, Version=5.4.1.0, Culture=neutral, PublicKeyToken=e7570ab207bcb616, processorArchitecture=MSIL">
       <HintPath>..\..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.dll</HintPath>
     </Reference>
@@ -151,22 +157,52 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="ReactiveUI, Version=10.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ReactiveUI.10.3.1\lib\net461\ReactiveUI.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Fody.Helpers, Version=10.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ReactiveUI.Fody.10.3.1\lib\net461\ReactiveUI.Fody.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.WPF, Version=10.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ReactiveUI.WPF.10.3.1\lib\net461\ReactiveUI.WPF.dll</HintPath>
+    </Reference>
     <Reference Include="SingleInstanceApp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\SingleInstanceApp.0.1.0\lib\net45\SingleInstanceApp.dll</HintPath>
+    </Reference>
+    <Reference Include="Splat, Version=9.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Splat.9.0.5\lib\net461\Splat.dll</HintPath>
+    </Reference>
+    <Reference Include="Splat.Drawing, Version=9.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Splat.Drawing.9.0.5\lib\net461\Splat.Drawing.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Drawing.Primitives.4.3.0\lib\net45\System.Drawing.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Reactive, Version=4.1.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Reactive.4.1.6\lib\net46\System.Reactive.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Threading.Tasks.Extensions.4.5.2\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System.Transactions" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\MvvmLightLibs.5.4.1.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
@@ -198,13 +234,34 @@
     <Reference Include="XAMLMarkupExtensions, Version=1.5.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\XAMLMarkupExtensions.1.5.1\lib\net452\XAMLMarkupExtensions.dll</HintPath>
     </Reference>
+    <Reference Include="zxing, Version=0.16.4.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ZXing.Net.0.16.4\lib\net47\zxing.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing.presentation, Version=0.16.4.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ZXing.Net.0.16.4\lib\net47\zxing.presentation.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Version.cs">
       <Link>Version.cs</Link>
     </Compile>
+    <Compile Include="Controls\AccountInfoControl.xaml.cs">
+      <DependentUpon>AccountInfoControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\DeviceInfo.xaml.cs">
+      <DependentUpon>DeviceInfo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\DevicesExpander.xaml.cs">
+      <DependentUpon>DevicesExpander.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EditAccountControl.xaml.cs">
+      <DependentUpon>EditAccountControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\LeftMenuItemControl.xaml.cs">
+      <DependentUpon>LeftMenuItemControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\Notification\AccountSelector\AccountSelector.xaml.cs">
       <DependentUpon>AccountSelector.xaml</DependentUpon>
@@ -226,12 +283,20 @@
     </Compile>
     <Compile Include="Converters\BooleanToVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\FormatStringConverter.cs" />
+    <Compile Include="Converters\IsNullOrWhiteSpaceConverter.cs" />
     <Compile Include="Converters\LowBatteryIndicatorVisibilityConverter.cs" />
     <Compile Include="Converters\NullToVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Converters\ProximityToOpacityConverter.cs" />
     <Compile Include="Converters\SerialNoAndFirmwareVerFormater.cs" />
+    <Compile Include="Converters\SliderWidthToMinRangeWidthConverter.cs" />
     <Compile Include="Converters\StringToResource.cs" />
+    <Compile Include="Dialogs\MessageDialog.xaml.cs">
+      <DependentUpon>MessageDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\PinDialog.xaml.cs">
+      <DependentUpon>PinDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Exception\HideezClientException.cs" />
     <Compile Include="Extension\AccessLevelDTOExtension.cs" />
     <Compile Include="Extension\DeviceStateDTOExtension.cs" />
@@ -248,6 +313,7 @@
     <Compile Include="Messages\DeviceFinishedMainFlowMessage.cs" />
     <Compile Include="Messages\DeviceInitializedMessage.cs" />
     <Compile Include="Messages\DeviceOperationCancelledMessage.cs" />
+    <Compile Include="Messages\DeviceProximitySettingsChangedMessage.cs" />
     <Compile Include="Messages\DeviceProximityChangedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
@@ -301,21 +367,57 @@
     <Compile Include="Modules\SettingsManager\HSSettingsManager.cs" />
     <Compile Include="Modules\EventPublisher\EventPublisher.cs" />
     <Compile Include="Modules\EventPublisher\IEventPublisher.cs" />
-    <Compile Include="Mvvm\BindingRaiseevent.cs" />
+    <Compile Include="Mvvm\WeakPropertyObserver.cs" />
     <Compile Include="Mvvm\IRequireViewIdentification.cs" />
     <Compile Include="Mvvm\LocalizedObject.cs" />
     <Compile Include="Mvvm\ObservableObject.cs" />
+    <Compile Include="PagesView\DeviceSettingsPage.xaml.cs">
+      <DependentUpon>DeviceSettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PagesView\DefaultPage.xaml.cs">
+      <DependentUpon>DefaultPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PagesView\HelpPage.xaml.cs">
+      <DependentUpon>HelpPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PagesView\PasswordManagerPage.xaml.cs">
+      <DependentUpon>PasswordManagerPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PagesView\SettingsPage.xaml.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PageViewModels\DeviceSettingsPageViewModel.cs" />
+    <Compile Include="PageViewModels\HelpPageViewModel.cs" />
+    <Compile Include="PageViewModels\SettingsPageViewModel.cs" />
+    <Compile Include="PageViewModels\DefaultPageViewModel.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
+    <Compile Include="Utilities\Base32Encoding.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
-    <Compile Include="Utilities\PasswordHelper.cs" />
+    <Compile Include="Utilities\Password\PasswordGenerator.cs" />
+    <Compile Include="Utilities\QrCode\IQrScannerHelper.cs" />
+    <Compile Include="Utilities\QrCode\QrScannerHelper.cs" />
+    <Compile Include="Utilities\Trie\ITrie.cs" />
+    <Compile Include="Utilities\Trie\Trie.cs" />
+    <Compile Include="Utilities\Trie\TrieNode.cs" />
+    <Compile Include="Utilities\Trie\TrieNodeBase.cs" />
+    <Compile Include="Utilities\Trie\Wrapped.cs" />
+    <Compile Include="Utilities\Url\PublicSuffix.cs" />
+    <Compile Include="Utilities\Url\IPublicSuffix.cs" />
+    <Compile Include="Utilities\Password\PasswordValidator.cs" />
+    <Compile Include="Utilities\Url\URLHelper.cs" />
+    <Compile Include="Utilities\WeakEvents\WeakEvent.cs" />
+    <Compile Include="ViewModels\AppViewModel.cs" />
+    <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
+    <Compile Include="ViewModels\Controls\DeviceForExpanderViewModel.cs" />
     <Compile Include="ViewModels\Controls\DevicesExpanderViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
-    <Compile Include="ViewModels\Notification\NotificationsContainerViewModel.cs" />
-    <Compile Include="ViewModels\PinViewModel.cs" />
-    <Compile Include="Views\AboutDeviceView.xaml.cs">
-      <DependentUpon>AboutDeviceView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\DeviceLockedView.xaml.cs" />
+    <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
+    <Compile Include="ViewModels\MessageViewModel.cs" />
+    <Compile Include="ViewModels\NotificationsContainerViewModel.cs" />
+    <Compile Include="PageViewModels\PasswordManagerViewModel.cs" />
+    <Compile Include="ViewModels\Dialog\PinViewModel.cs" />
+    <Compile Include="ViewModels\Account\AccountInfoViewModel.cs" />
+    <Compile Include="ViewModels\SimpleMainViewModel.cs" />
     <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
       <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>
     </Compile>
@@ -325,10 +427,10 @@
     <Compile Include="Utilities\LocalToMSAccountConverter.cs" />
     <Compile Include="Utilities\LogManagement.cs" />
     <Compile Include="Utilities\TemporaryCache.cs" />
-    <Compile Include="ViewModels\AddCredentialViewModel.cs" />
+    <Compile Include="ViewModels\Dialog\AddCredentialViewModel.cs" />
     <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
     <Compile Include="ViewModels\Controls\IndicatorsViewModel.cs" />
-    <Compile Include="Views\AddCredentialView.xaml.cs">
+    <Compile Include="Views\Dialog\AddCredentialView.xaml.cs">
       <DependentUpon>AddCredentialView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PinView.xaml.cs" />
@@ -342,11 +444,39 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\ConnectivityIndicators.xaml">
+    <Page Include="Controls\AccountInfoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\DevicesExpander.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\EditAccountControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\LeftMenuItemControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\MessageDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\PinDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Dictionaries\ComboBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ConnectivityIndicators.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\DeviceInfo.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -374,27 +504,31 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Dialogs\ChangePasswordDialog.xaml">
+    <Page Include="PagesView\DeviceSettingsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\AboutDeviceView.xaml">
+    <Page Include="PagesView\DefaultPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\DeviceLockedView.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="PagesView\HelpPage.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PagesView\PasswordManagerPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PagesView\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Dictionaries\Converters.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\NotificationsContainerWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="PagesView\LockSettingsPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="PagesView\LoginSystemPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -410,7 +544,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\AddCredentialView.xaml">
+    <Page Include="Views\Dialog\AddCredentialView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -427,15 +561,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="Controls\DevicesExpander.xaml.cs">
-      <DependentUpon>DevicesExpander.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Controls\StateControl.xaml.cs">
       <DependentUpon>StateControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
-    <Compile Include="Dialogs\ChangePasswordDialog.xaml.cs">
-      <DependentUpon>ChangePasswordDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\Settings\HotkeySettings.cs" />
     <Compile Include="Models\UserAction.cs" />
@@ -461,8 +588,6 @@
     <Compile Include="Modules\WorkstationManager\WorkstationManager.cs" />
     <Compile Include="Modules\BalloonNotify\BalloonTipNotifyManager.cs" />
     <Compile Include="Modules\BalloonNotify\IBalloonTipNotifyManager.cs" />
-    <Compile Include="Modules\DialogManager\DialogManager.cs" />
-    <Compile Include="Modules\DialogManager\IDialogManager.cs" />
     <Compile Include="Modules\HelpMenuFactory\IMenuFactory.cs" />
     <Compile Include="Modules\HelpMenuFactory\MenuFactory.cs" />
     <Compile Include="Modules\Localize\LocalizationAttribute.cs" />
@@ -474,14 +599,6 @@
     <Compile Include="Modules\Localize\TranslationSource.cs" />
     <Compile Include="Modules\WindowsManager\IWindowsManager.cs" />
     <Compile Include="Modules\WindowsManager\WindowsManager.cs" />
-    <Compile Include="PagesView\LockSettingsPage.xaml.cs">
-      <DependentUpon>LockSettingsPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PagesView\LoginSystemPage.xaml.cs">
-      <DependentUpon>LoginSystemPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PageViewModels\LockSettingsPageViewModel.cs" />
-    <Compile Include="PageViewModels\LoginSystemPageViewModel.cs" />
     <Compile Include="Utilities\App\AppHelper.cs" />
     <Compile Include="Utilities\App\IAppHelper.cs" />
     <Compile Include="Utilities\AutoRunApp\IStartupHelper.cs" />
@@ -489,7 +606,6 @@
     <Compile Include="Models\Settings\ApplicationSettings.cs" />
     <Compile Include="Utilities\Constants.cs" />
     <Compile Include="Utilities\Win32Helper.cs" />
-    <Compile Include="ViewModels\Controls\DeviceForExpanderViewModel.cs" />
     <Compile Include="ViewModels\Taskbar\LanguageMenuItemViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\Taskbar\MenuItemViewModel.cs" />
@@ -526,17 +642,25 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Connected Services\HideezServiceReference\HideezClient.HideezServiceReference.ProximitySettingsDTO.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Resources\Data\public_suffix_list.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Resource Include="Resources\Icon\Idle\Idle1.ico" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Strings.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\Strings.ru.resx" />
-    <EmbeddedResource Include="Resources\Strings.uk.resx">
+    <EmbeddedResource Include="Resources\Strings.ru.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Strings.uk.resx" />
     <None Include="app.manifest" />
     <None Include="Connected Services\HideezServiceReference\configuration91.svcinfo" />
     <None Include="Connected Services\HideezServiceReference\configuration.svcinfo" />
@@ -587,7 +711,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataTypes\" />
-    <Folder Include="Utilities\WeakEvents\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">
@@ -613,7 +736,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Icon\Alert\Alert1.ico" />
-    <Resource Include="Resources\Icon\Idle\Idle1.ico" />
     <Resource Include="Resources\Icon\NoCon\NoCon1.ico" />
     <Resource Include="Resources\Icon\NoKeyAlert\NoKeyAlert1.ico" />
     <Resource Include="Resources\Icon\NoKey\NoKey1.ico" />
@@ -649,4 +771,12 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\packages\Fody.6.0.0\build\Fody.targets" Condition="Exists('..\..\packages\Fody.6.0.0\build\Fody.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\Fody.6.0.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.6.0.0\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\..\packages\ReactiveUI.Fody.10.3.1\build\ReactiveUI.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\ReactiveUI.Fody.10.3.1\build\ReactiveUI.Fody.props'))" />
+  </Target>
 </Project>
