@@ -8,6 +8,25 @@ namespace ServiceLibrary
     [DataContract]
     public class DeviceDTO
     {
+        public DeviceDTO(string id, string name)
+        {
+            Id = id;
+            Name = name;
+            IsConnected = true;
+            IsBoot = false;
+            Battery = 100;
+            SerialNo = "ST103111320343";
+            FirmwareVersion = new Version(3, 0, 0);
+            BootloaderVersion = new Version(2, 0, 0);
+            IsInitialized = true;
+            StorageTotalSize = 70;
+            StorageFreeSize = 70;
+            IsAuthorized = true;
+            PinAttemptsRemain = 2;
+            FinishedMainFlow = true;
+            Proximity = 80;
+        }
+
         public DeviceDTO(IDevice device)
         {
             Id = device.Id;
