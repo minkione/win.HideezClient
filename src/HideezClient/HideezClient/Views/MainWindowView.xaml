@@ -101,7 +101,7 @@
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
-                    <controls:DeviceInfo
+                    <controls:DeviceInfoControl
                         x:Name="currentDeviceInfo"
                         Padding="16,16,30,16"
                         VerticalAlignment="Top"

@@ -8,6 +8,7 @@
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     xmlns:local="clr-namespace:HideezClient.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="clr-namespace:MvvmExtensions.Converters;assembly=MvvmExtensions"
     Title="{Binding Version, StringFormat=Hideez Client ({0})}"
     Width="0"
     Height="0"
@@ -23,15 +24,27 @@
     WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
     ResizeMode="CanMinimize"
     mc:Ignorable="d">
-    <!--ResizeMode="CanMinimize"-->
+    <Metro:MetroWindow.Resources>
+        <mvvm:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+    </Metro:MetroWindow.Resources>
 
     <Grid VerticalAlignment="Top">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <controls:SelectableDevicesList VerticalAlignment="Top" Devices="{Binding Devices}">
+        <controls:DeviceInfoControl
+            VerticalAlignment="Top" 
+            Margin="16"
+            Device="{Binding SelectedDevice}"
+            Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityConverter}}"/>
+        
+
+        <controls:SelectableDevicesList
+            Grid.Row="1"
+            Devices="{Binding Devices}" >
             <controls:SelectableDevicesList.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Offset="0" Color="#0022446D" />
@@ -41,7 +54,7 @@
         </controls:SelectableDevicesList>
 
         <controls:ConnectivityIndicators
-            Grid.Row="1"
+            Grid.Row="2"
             Margin="24, 14"
             Padding="0"
             HorizontalAlignment="Stretch"

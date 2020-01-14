@@ -65,7 +65,9 @@
                                 HorizontalAlignment="Stretch"
                                 Fill="#22446D" />
 
-                            <controls:DeviceInfo Grid.Row="1" />
+                            <controls:SmallDeviceInfoControl 
+                                Grid.Row="1" 
+                                Device="{Binding }"/>
                         </Grid>
                         <DataTemplate.Triggers>
                             <Trigger Property="ItemsControl.AlternationIndex" Value="0">

@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="HideezClient.Controls.DeviceInfo"
+    x:Class="HideezClient.Controls.DeviceInfoControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="clr-namespace:HideezClient.Converters"
@@ -18,7 +18,8 @@
     <Grid
         x:Name="MainGrid"
         Background="#00000001"
-        Focusable="False">
+        Focusable="False"
+        DataContext="{Binding Device, RelativeSource={RelativeSource AncestorType=UserControl}}">
         <Grid.Triggers>
             <EventTrigger RoutedEvent="Control.MouseEnter" SourceName="MainGrid">
                 <BeginStoryboard>

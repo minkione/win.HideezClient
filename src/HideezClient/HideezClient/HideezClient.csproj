@@ -251,8 +251,11 @@
     <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\DeviceInfo.xaml.cs">
-      <DependentUpon>DeviceInfo.xaml</DependentUpon>
+    <Compile Include="Controls\SmallDeviceInfoControl.xaml.cs">
+      <DependentUpon>SmallDeviceInfoControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\DeviceInfoControl.xaml.cs">
+      <DependentUpon>DeviceInfoControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\SelectableDevicesList.xaml.cs">
       <DependentUpon>SelectableDevicesList.xaml</DependentUpon>
@@ -445,6 +448,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\SmallDeviceInfoControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\SelectableDevicesList.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -473,7 +480,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\DeviceInfo.xaml">
+    <Page Include="Controls\DeviceInfoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
