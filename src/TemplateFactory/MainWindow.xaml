@@ -1,0 +1,83 @@
+﻿<ma:MetroWindow
+    x:Class="TemplateFactory.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:TemplateFactory"
+    xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:iconPacks="clr-namespace:MahApps.Metro.IconPacks.Converter;assembly=MahApps.Metro.IconPacks"
+    xmlns:converters="clr-namespace:MvvmExtentions.Converters;assembly=MvvmExtentions"
+    mc:Ignorable="d"
+    Title="Hideez Template Maker" Height="550" Width="450">
+    <ma:MetroWindow.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:BooleanToVisibilityHiddenConverter x:Key="BooleanToVisibilityHiddenConverter" />
+        <converters:InvertBooleanToVisibilityConverter x:Key="InvertBooleanToVisibilityConverter" />
+        <converters:InvertBooleanConverter x:Key="InvertBooleanConverter" />
+
+        <Style x:Key="HeaderTextBlock" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+    </ma:MetroWindow.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel 
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Visibility="{Binding Refreshing, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <ma:ProgressRing 
+                Width="70"
+                Height="70"/>
+            <TextBlock 
+                Style="{StaticResource HeaderTextBlock}"
+                Margin="0,20,0,0"
+                Text="Loading applications list"/>
+        </StackPanel>
+
+        <Grid 
+            Margin="8"
+            Visibility="{Binding Refreshing, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
+            >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <TextBlock 
+                Style="{StaticResource HeaderTextBlock}"
+                Text="{Binding Path=Apps.Count, StringFormat=Found {0} running apps:}" 
+                />
+
+            <ScrollViewer
+                Grid.Row="1"
+                Margin="0,8,0,0"
+                HorizontalAlignment="Stretch"
+                VerticalScrollBarVisibility="Auto">
+                <ItemsControl
+                    ItemsSource="{Binding Apps}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:CopyableAppInfo AppInfo="{Binding AppInfo}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <Button 
+            Grid.Row="1" 
+            Margin="8,0,8,16"
+            Command="{Binding RefreshAppListCommand}"
+            Content="Refresh"
+            IsEnabled="{Binding Refreshing, Converter={StaticResource InvertBooleanConverter}}"
+            />
+
+    </Grid>
+</ma:MetroWindow>
