@@ -29,16 +29,38 @@
             <Button.Template>
                 <ControlTemplate>
                     <Grid Margin="8">
-                        <StackPanel DataContext="{Binding AppInfo, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Image 
+                            Source="{Binding IconImage}" 
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Top"
+                            Stretch="Fill"
+                            Width="36"
+                            Height="36"
+                            Margin="4,8,16,0"
+                            />
+                        <StackPanel 
+                            Grid.Column="1"
+                            DataContext="{Binding AppInfo, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            >
                             <TextBlock 
                                 Style="{StaticResource PrimaryTextBlockStyle}"
-                                Text="{Binding Description}" />
+                                Text="{Binding Title}" />
+                            <TextBlock
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                Text="{Binding Description, StringFormat=desc: {0}}" />
+                            <TextBlock
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                Text="{Binding Header, StringFormat=title: {0}}" />
                             <TextBlock 
                                 Style="{StaticResource SecondaryTextBlockStyle}"
                                 Text="{Binding ProcessName, StringFormat=app: {0}}" />
-                            <TextBlock
+                            <TextBlock 
                                 Style="{StaticResource SecondaryTextBlockStyle}"
-                                Text="{Binding Title, StringFormat=title: {0}}" />
+                                Text="{Binding ProcessId, StringFormat=pid: {0}}" />
                         </StackPanel>
                     </Grid>
                 </ControlTemplate>
@@ -55,12 +77,12 @@
             x:Name="CopiedToClipBlock"
             Opacity="0" 
             HorizontalAlignment="Right" 
-            VerticalAlignment="Center"
+            VerticalAlignment="Top"
             Background="DarkGreen"
             Padding="12,6"
             BorderThickness="0"
             CornerRadius="16"
-            Margin="10,0"
+            Margin="10,8"
             >
             <StackPanel Orientation="Horizontal">
                 <iconPacks:PackIconMaterial Kind="CheckboxMarkedCircleOutline" 

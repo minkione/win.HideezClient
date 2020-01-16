@@ -3,6 +3,10 @@ using MvvmExtentions;
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace TemplateFactory
 {
@@ -37,9 +41,17 @@ namespace TemplateFactory
             {
                 if (icon != value)
                 {
-                    Icon = value;
+                    icon = value;
                     NotifyPropertyChanged();
                 }
+            }
+        }
+
+        public ImageSource IconImage
+        {
+            get
+            {
+                return Icon.ToImageSource();
             }
         }
 
