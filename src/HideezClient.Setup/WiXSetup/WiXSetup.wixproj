@@ -59,7 +59,7 @@
     <Folder Include="Resources" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\win.sdk\Communication\Communication.csproj">
+    <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
       <Name>Communication</Name>
       <Project>{1b723099-c753-40d0-b7b2-add49d9e6f8f}</Project>
       <Private>True</Private>
@@ -91,6 +91,14 @@
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
+    <ProjectReference Include="..\..\TemplateFactory\TemplateFactory\TemplateFactory.csproj">
+      <Name>TemplateFactory</Name>
+      <Project>{14aac171-432a-4ac2-b0b8-9c1ccc50ccca}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
     <ProjectReference Include="..\CustomAction\CustomAction.csproj">
       <Name>CustomAction</Name>
       <Project>{68b9e669-f144-40e7-8e57-8540c62d6ca6}</Project>
@@ -110,7 +118,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" "$(SolutionDir)HideezClient\HideezClient\bin\$(PlatformName)\$(ConfigurationName)\HideezClient.exe" "Hideez Client"%3b
-if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" "$(SolutionDir)HideezService\HideezServiceHost\bin\$(PlatformName)\$(ConfigurationName)\HideezServiceHost.exe" "Hideez Client"</PreBuildEvent>
+if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" "$(SolutionDir)HideezService\HideezServiceHost\bin\$(PlatformName)\$(ConfigurationName)\HideezServiceHost.exe" "Hideez Client"
+if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" "$(SolutionDir)TemplateFactory\TemplateFactory\bin\$(PlatformName)\$(ConfigurationName)\TemplateFactory.exe" "Hideez Template Factory"</PreBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
