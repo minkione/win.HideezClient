@@ -1,0 +1,103 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:HideezClient.Resources"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!--  Slider  -->
+    <SolidColorBrush x:Key="SliderTrackValueBrush" Color="#661BA2DC" />
+    <SolidColorBrush x:Key="SliderTrackFillBrush" Color="#261BA2DC" />
+    <SolidColorBrush x:Key="SliderTrackProximityValueBrush" Color="#CC1BA2DC" />
+
+    <!--  Icon button  -->
+    <Color x:Key="IcoButtonColor">#1BA2DC</Color>
+    <SolidColorBrush x:Key="IcoButtonBrush" Color="{StaticResource IcoButtonColor}" />
+    <SolidColorBrush x:Key="DeliteIconButtonBrush" Color="#FC3085" />
+
+    <!--  Foregraund  -->
+    <SolidColorBrush x:Key="DarkForeground" Color="#22446D" />
+    <SolidColorBrush x:Key="Foreground" Color="#6E89A4" />
+    <SolidColorBrush x:Key="LightForeground" Color="#F4FEFF" />
+    <SolidColorBrush x:Key="UrlForeground" Color="#0074FF" />
+
+    <SolidColorBrush x:Key="ComboBox.Popup.Background" Color="#E1F3F8" />
+
+    <!--  AccountItem  -->
+    <SolidColorBrush x:Key="AccountItem.MouseOver.Background" Color="#E1F3F8" />
+    <SolidColorBrush x:Key="AccountItem.Selected.Background" Color="#CCEBF4" />
+
+    <!--  Main Window  -->
+    <SolidColorBrush x:Key="WindowTitleBrush" Color="#22446D" />
+    <SolidColorBrush x:Key="WindowBackground">#F4FEFF</SolidColorBrush>
+
+    <LinearGradientBrush x:Key="WindowLeftColumBrush" MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="0,1">
+        <!--<GradientStop Offset="1" Color="#081C33" />
+        <GradientStop Offset="0" Color="#0E3059" />-->
+        <GradientStop Offset="0" Color="#22446D" />
+        <GradientStop Offset="1" Color="#081C33" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="DevicesStackBrush" MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Offset="0" Color="#22446D" />
+        <GradientStop Offset="1" Color="#0E3059" />
+    </LinearGradientBrush>
+
+    <!--  Left colum menu  -->
+    <LinearGradientBrush x:Key="LeftColumMenuActiveBrush" MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Offset="1.0" Color="#43C7D9" />
+        <GradientStop Offset="0.1" Color="#0E5F93" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="LeftColumMenuHoverBrush">#22446D</SolidColorBrush>
+    <SolidColorBrush x:Key="LeftColumMenuPressedBrush">#16355B</SolidColorBrush>
+
+    <!--  ProgressRing Brush  -->
+    <LinearGradientBrush x:Key="ProgressRingBrush" MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Offset="1.0" Color="#43C7D9" />
+        <GradientStop Offset="0.1" Color="#0E5F93" />
+    </LinearGradientBrush>
+
+    <!--  Drop-down menu  -->
+    <LinearGradientBrush x:Key="DropDownMenuBrush" MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Offset="0" Color="#22446D" />
+        <GradientStop Offset="1" Color="#081C33" />
+    </LinearGradientBrush>
+    
+    <!--  Connection indicators  -->
+    <SolidColorBrush x:Key="ConnectedBrush" Color="#0EFFB7" />
+    <DropShadowEffect
+        x:Key="EffectConnected"
+        BlurRadius="10"
+        ShadowDepth="0"
+        Color="#CEF2E7" />
+    <SolidColorBrush x:Key="DisconnectedBrush" Color="#F6346B" />
+    <x:Null x:Key="EffectDisconnected" />
+
+    <!--  Main font  -->
+    <FontFamily x:Key="MainFontFamily">Segoe UI</FontFamily>
+    <SolidColorBrush x:Key="MainFontForeground">#F4FEFF</SolidColorBrush>
+    <FontWeight x:Key="FontWeightMedium">Medium</FontWeight>
+    <sys:Double x:Key="MainFontSize">14</sys:Double>
+
+    <!--  Indicators  -->
+    <SolidColorBrush x:Key="InitializingBrush" Color="#ffffff" />
+    <SolidColorBrush x:Key="LowBatteryIndicatorBrush" Color="#F6346B" />
+    <SolidColorBrush x:Key="SyncErrorIndicatorBrush" Color="#ff631a" />
+
+    <!--  Other  -->
+    <SolidColorBrush x:Key="ErrorBrush">#F6346B</SolidColorBrush>
+
+    <!--  ShadowEffect  -->
+    <DropShadowEffect
+        x:Key="ShadowEffect"
+        BlurRadius="10"
+        ShadowDepth="0"
+        Color="#CEF2E7" />
+
+    <!--  NotificationBackground  -->
+    <LinearGradientBrush x:Key="NotificationBackground" MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Offset="1" Color="#0E3059" />
+        <GradientStop Offset="0" Color="#081C33" />
+    </LinearGradientBrush>
+
+</ResourceDictionary>
