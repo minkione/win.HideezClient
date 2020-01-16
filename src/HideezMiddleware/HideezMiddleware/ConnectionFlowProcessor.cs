@@ -548,6 +548,12 @@ namespace HideezMiddleware
                 if (ct.IsCancellationRequested)
                     return;
 
+                if (license.Data == null)
+                    throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_DATA). Please, contact your administrator.");
+
+                if (license.Id == null)
+                    throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_ID). Please, contact your administrator.");
+
                 await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
                 await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
             }
