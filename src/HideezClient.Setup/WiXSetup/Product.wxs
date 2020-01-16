@@ -22,6 +22,8 @@
   <?define CsrWin8_x64_SourceDir=$(var.DPInst_SourceDir)win8\win64\ ?>
   <?define CsrWin8_x86_SourceDir=$(var.DPInst_SourceDir)win8\win32\ ?>
   
+  <?define TemplateFactory_TargetDir=$(var.TemplateFactory.TargetDir)?>
+  
   <!-- Architecture specific path detection -->
   <?if $(var.Platform) = x64 ?>
     <?define Win64 = "yes" ?>
@@ -704,6 +706,9 @@
 	      <File Id="HideezMiddleware.dll" Name="HideezMiddleware.dll" Source="$(var.HideezServiceHost_TargetDir)HideezMiddleware.dll" />
       </Component>
     
+      <Component Id="TemplateFactory.exe" Guid="{B6F59702-3133-428F-A3EF-2C03A4C3FE02}" Win64="$(var.Win64)">
+        <File Id="TemplateFactory.exe" Name="TemplateFactory.exe" Source="$(var.TemplateFactory_TargetDir)TemplateFactory.exe" />
+      </Component>
     </ComponentGroup>
   </Fragment>
 
