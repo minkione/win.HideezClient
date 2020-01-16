@@ -9,6 +9,9 @@
     xmlns:iconPacks="clr-namespace:MahApps.Metro.IconPacks.Converter;assembly=MahApps.Metro.IconPacks"
     xmlns:converters="clr-namespace:MvvmExtentions.Converters;assembly=MvvmExtentions"
     mc:Ignorable="d"
+    WindowTitleBrush="{DynamicResource WindowTitleBrush}"
+    TitleCharacterCasing="Normal"
+    Background="{DynamicResource WindowLeftColumBrush}"
     Title="Hideez Template Maker" Height="550" Width="450">
     <ma:MetroWindow.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -73,10 +76,12 @@
 
         <Button 
             Grid.Row="1" 
+            Style="{StaticResource ConfirmButtonStyle}"
             Margin="8,0,8,16"
             Command="{Binding RefreshAppListCommand}"
             Content="Refresh"
-            IsEnabled="{Binding Refreshing, Converter={StaticResource InvertBooleanConverter}}"
+            HorizontalAlignment="Center"
+            Visibility="{Binding Refreshing, Converter={StaticResource InvertBooleanToVisibilityConverter}, ConverterParameter=Visiblity.Hidden}" 
             />
 
     </Grid>
