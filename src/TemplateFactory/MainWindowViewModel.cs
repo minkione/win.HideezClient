@@ -1,6 +1,7 @@
 ﻿using Hideez.ARM;
 using MvvmExtentions;
 using MvvmExtentions.Commands;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
@@ -58,11 +59,22 @@ namespace TemplateFactory
 
                 await Task.Run(() =>
                 {
-                    // TODO: AppInfo is returned with empty ProcessId
                     var apps = AppInfoFactory.GetVisibleAppsInfo();
                     var uniqueApps = apps.GroupBy(x => x.Description).Select(a => a.First());
 
                     var expandedApps = uniqueApps.Select(a => new ExpandedAppInfo(a)).ToList();
+
+                    var urls = new List<ExpandedAppInfo>();
+                    foreach (var app in expandedApps)
+                    {
+                        if (!string.IsNullOrWhiteSpace(app.AppInfo.Domain))
+                        {
+                            urls.Add(new ExpandedAppInfo(app.AppInfo.Copy()));
+                            app.AppInfo.Domain = string.Empty;
+                        }
+                    }
+
+                    expandedApps.AddRange(urls);
 
                     App.Current.Dispatcher.Invoke(() =>
                     {
