@@ -7,7 +7,7 @@
     xmlns:local="clr-namespace:TemplateFactory"
     xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:iconPacks="clr-namespace:MahApps.Metro.IconPacks.Converter;assembly=MahApps.Metro.IconPacks"
-    xmlns:converters="clr-namespace:MvvmExtentions.Converters;assembly=MvvmExtentions"
+    xmlns:converters="clr-namespace:MvvmExtensions.Converters;assembly=MvvmExtensions"
     mc:Ignorable="d"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     TitleCharacterCasing="Normal"
