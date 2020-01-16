@@ -1,6 +1,6 @@
 ﻿using Hideez.ARM;
-using MvvmExtentions;
-using MvvmExtentions.Commands;
+using MvvmExtensions.Commands;
+using MvvmExtensions.PropertyChangedMonitoring;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;

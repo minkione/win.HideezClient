@@ -1,5 +1,5 @@
 ﻿using Hideez.ARM;
-using MvvmExtentions;
+using MvvmExtensions.PropertyChangedMonitoring;
 using System;
 using System.Diagnostics;
 using System.Drawing;
