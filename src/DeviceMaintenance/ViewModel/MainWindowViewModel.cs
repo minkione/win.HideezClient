@@ -1,6 +1,10 @@
 ﻿using Hideez.CsrBLE;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.FW;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.LongOperations;
 using Microsoft.Win32;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.PropertyChangedMonitoring;
@@ -240,8 +244,20 @@ namespace DeviceMaintenance.ViewModel
             _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
 
             _connectionManager.StartDiscovery();
+
+            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
         }
 
+        void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            if (e.Reason == SessionSwitchReason.SessionLock ||
+                e.Reason == SessionSwitchReason.SessionLogoff ||
+                e.Reason == SessionSwitchReason.SessionUnlock ||
+                e.Reason == SessionSwitchReason.SessionLogon)
+            {
+                AutomaticallyUpdateFirmware = false;
+            }
+        }
 
         void InitializeHideezServiceController()
         {
@@ -312,48 +328,55 @@ namespace DeviceMaintenance.ViewModel
                 if (e.RemovedDevice != null)
                 {
                     var item = Devices.FirstOrDefault(x => x.Id == e.RemovedDevice.Id && x.ChannelNo == e.RemovedDevice.ChannelNo);
-            
+
                     if (item != null)
+                    {
                         Devices.Remove(item);
+                        item.FirmwareUpdateRequest -= Device_FirmwareUpdateRequest;
+                    }
                 }
             });
         }
 
-        async void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
+        void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
-            try
+            Task.Run(async () =>
             {
-                if (AutomaticallyUpdateFirmware && e.Rssi > -27)
+                try
                 {
-                    var newGuid = Guid.NewGuid();
-                    var guid = _pendingConnections.GetOrAdd(e.Id, newGuid);
-
-                    if (guid == newGuid)
+                    if (e.Rssi > -27)
                     {
-                        var deviceVM = await ConnectDeviceByMac(e.Id);
-                        try
-                        {
-                            if (deviceVM?.Device != null)
-                            {
-                                await deviceVM.Device.WaitInitialization(timeout: 10_000);
-                                await deviceVM.StartFirmwareUpdate(FileName);
-                            }
+                        var newGuid = Guid.NewGuid();
+                        var guid = _pendingConnections.GetOrAdd(e.Id, newGuid);
 
-                            _pendingConnections.TryRemove(e.Id, out Guid removed);
-                        }
-                        catch (Exception ex)
+                        if (guid == newGuid)
                         {
-                            deviceVM.CustomError = ex.Message;
-                            throw;
+                            var deviceVM = await ConnectDeviceByMac(e.Id);
+                            try
+                            {
+                                if (deviceVM?.Device != null)
+                                {
+                                    await deviceVM.Device.WaitInitialization(timeout: 10_000, System.Threading.CancellationToken.None);
+                                    if (AutomaticallyUpdateFirmware)
+                                        deviceVM.StartFirmwareUpdate();
+                                }
+
+                                _pendingConnections.TryRemove(e.Id, out Guid removed);
+                            }
+                            catch (Exception ex)
+                            {
+                                deviceVM.CustomError = ex.Message;
+                                throw;
+                            }
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-                _pendingConnections.TryRemove(e.Id, out Guid removed);
-            }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    _pendingConnections.TryRemove(e.Id, out Guid removed);
+                }
+            });
         }
 
         void ConnectionManager_DiscoveredDeviceAdded(object sender, DiscoveredDeviceAddedEventArgs e)
@@ -387,28 +410,32 @@ namespace DeviceMaintenance.ViewModel
         async Task<DeviceViewModel> ConnectDeviceByMac(string mac)
         {
             _log.WriteLine("MainVM", $"Waiting Device connectin {mac} ..........................");
-            var dvm = new DeviceViewModel(mac, _log);
+            var dvm = new DeviceViewModel(mac);
 
             var prevDvm = Devices.FirstOrDefault(d => d.Device != null && d.Device.Mac.Replace(":","") == mac);
             if (prevDvm != null)
+            {
+                prevDvm.FirmwareUpdateRequest -= Device_FirmwareUpdateRequest;
                 await _deviceManager.Remove(prevDvm.Device);
+            }
 
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Devices.Add(dvm);
+                dvm.FirmwareUpdateRequest += Device_FirmwareUpdateRequest;
             });
 
-            var device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
+            var device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
 
             if (device == null)
             {
-                device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout / 2);
+                device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
             }
-
+            
             if (device == null)
             {
                 await _deviceManager.RemoveByMac(mac);
-                device = await _deviceManager.ConnectByMac(mac, BleDefines.ConnectDeviceTimeout);
+                device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
             }
 
             if (device != null)
@@ -417,11 +444,19 @@ namespace DeviceMaintenance.ViewModel
                 _log.WriteLine("MainVM", $"Device connected {device.Name} ++++++++++++++++++++++++");
             }
             else
+            {
                 _log.WriteLine("MainVM", $"Device NOT connected --------------------------");
+                dvm.CustomError = "Connection failed";
+            }
 
             return dvm;
         }
 
+        async void Device_FirmwareUpdateRequest(IDevice device, LongOperation longOperation)
+        {
+            var imageUploader = new FirmwareImageUploader(FileName, _log);
+            await imageUploader.RunAsync(false, _deviceManager, device, longOperation);
+        }
 
         void StopService()
         {
@@ -472,9 +507,11 @@ namespace DeviceMaintenance.ViewModel
 
         internal void OnClosing()
         {
+            SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
+
+
             if (RestartServiceOnExit && !HideezServiceOnline)
                 StartService();
         }
-
     }
 }
