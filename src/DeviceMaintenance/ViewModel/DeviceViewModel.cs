@@ -21,7 +21,7 @@ namespace DeviceMaintenance.ViewModel
         string customError = string.Empty;
         IDevice device = null;
 
-        public delegate void FirmwareUpdateRequestEventHandler(IDevice device, LongOperation longOperation);
+        public delegate void FirmwareUpdateRequestEventHandler(DeviceViewModel sender, IDevice device, LongOperation longOperation);
         public event FirmwareUpdateRequestEventHandler FirmwareUpdateRequest;
 
         public IDevice Device
@@ -193,7 +193,7 @@ namespace DeviceMaintenance.ViewModel
         public void StartFirmwareUpdate()
         {
             StartedUpdate = true;
-            FirmwareUpdateRequest?.Invoke(Device, _longOperation);
+            FirmwareUpdateRequest?.Invoke(this, Device, _longOperation);
         }
     }
 }

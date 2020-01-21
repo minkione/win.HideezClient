@@ -368,7 +368,7 @@ namespace DeviceMaintenance.ViewModel
                             if (deviceVM?.Device != null)
                             {
                                 await deviceVM.Device.WaitInitialization(timeout: 10_000, System.Threading.CancellationToken.None);
-                                if (AutomaticallyUpdateFirmware)
+                                if (AutomaticallyUpdateFirmware || deviceVM.Device.IsBoot)
                                     deviceVM.StartFirmwareUpdate();
                             }
 
@@ -467,16 +467,16 @@ namespace DeviceMaintenance.ViewModel
             return dvm;
         }
 
-        async void Device_FirmwareUpdateRequest(IDevice device, LongOperation longOperation)
+        async void Device_FirmwareUpdateRequest(DeviceViewModel sender, IDevice device, LongOperation longOperation)
         {
             try
             {
                 var imageUploader = new FirmwareImageUploader(FileName, _log);
                 await imageUploader.RunAsync(false, _deviceManager, device, longOperation);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                
+                sender.CustomError = ex.Message;
             }
         }
 
