@@ -10,6 +10,7 @@ using MvvmExtensions.Attributes;
 using MvvmExtensions.PropertyChangedMonitoring;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -24,14 +25,14 @@ namespace DeviceMaintenance.ViewModel
 {
     public class MainWindowViewModel : PropertyChangedImplementation
     {
+        readonly object pendingConnectionsLock = new object();
         const string SERVICE_NAME = "Hideez Service";
 
         readonly EventLogger _log;
         readonly BleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
 
-        readonly ConcurrentDictionary<string, Guid> _pendingConnections =
-            new ConcurrentDictionary<string, Guid>();
+        readonly Dictionary<string, Guid> _pendingConnections = new Dictionary<string, Guid>();
 
         ServiceController _hideezServiceController;
         Timer _serviceStateRefreshTimer;
@@ -344,37 +345,51 @@ namespace DeviceMaintenance.ViewModel
             {
                 try
                 {
-                    if (e.Rssi > -27)
+                    if (e.Rssi > -25)
                     {
-                        var newGuid = Guid.NewGuid();
-                        var guid = _pendingConnections.GetOrAdd(e.Id, newGuid);
-
-                        if (guid == newGuid)
+                        lock (pendingConnectionsLock)
                         {
-                            var deviceVM = await ConnectDeviceByMac(e.Id);
-                            try
-                            {
-                                if (deviceVM?.Device != null)
-                                {
-                                    await deviceVM.Device.WaitInitialization(timeout: 10_000, System.Threading.CancellationToken.None);
-                                    if (AutomaticallyUpdateFirmware)
-                                        deviceVM.StartFirmwareUpdate();
-                                }
+                            // Prevent reconnect of devices that neither finished nor failed firmware update
+                            if (Devices.ToList().FirstOrDefault(d =>
+                            !d.ErrorState &&
+                            !d.SuccessState &&
+                            BleUtils.MacToConnectionId(d.Device?.Mac).Equals(e.Id)) != null)
+                                return;
 
-                                _pendingConnections.TryRemove(e.Id, out Guid removed);
-                            }
-                            catch (Exception ex)
+                            if (_pendingConnections.ContainsKey(e.Id))
+                                return;
+                            else
+                                _pendingConnections.Add(e.Id, Guid.NewGuid());
+                        }
+
+                        var deviceVM = await ConnectDeviceByMac(e.Id);
+                        try
+                        {
+                            if (deviceVM?.Device != null)
                             {
-                                deviceVM.CustomError = ex.Message;
-                                throw;
+                                await deviceVM.Device.WaitInitialization(timeout: 10_000, System.Threading.CancellationToken.None);
+                                if (AutomaticallyUpdateFirmware)
+                                    deviceVM.StartFirmwareUpdate();
                             }
+
+                            lock (pendingConnectionsLock)
+                            {
+                                _pendingConnections.Remove(e.Id);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            deviceVM.CustomError = ex.Message;
+                            throw;
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    MessageBox.Show(ex.Message);
-                    _pendingConnections.TryRemove(e.Id, out Guid removed);
+                    lock (pendingConnectionsLock)
+                    {
+                        _pendingConnections.Remove(e.Id);
+                    }
                 }
             });
         }
@@ -454,8 +469,15 @@ namespace DeviceMaintenance.ViewModel
 
         async void Device_FirmwareUpdateRequest(IDevice device, LongOperation longOperation)
         {
-            var imageUploader = new FirmwareImageUploader(FileName, _log);
-            await imageUploader.RunAsync(false, _deviceManager, device, longOperation);
+            try
+            {
+                var imageUploader = new FirmwareImageUploader(FileName, _log);
+                await imageUploader.RunAsync(false, _deviceManager, device, longOperation);
+            }
+            catch (Exception)
+            {
+                
+            }
         }
 
         void StopService()

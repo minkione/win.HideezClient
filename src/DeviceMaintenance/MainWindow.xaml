@@ -193,11 +193,13 @@
                                     Foreground="#32d400"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center"
-                                    Height="18"
-                                    Width="18"
+                                    Height="22"
+                                    Width="22"
                                     Margin="10,0"
                                     Visibility="{Binding SuccessState, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     ToolTip="Update finished"
+                                    Background="Transparent"
+                                    Padding="2"
                                     />
 
                                 <iconPacks:PackIconMaterial
@@ -205,11 +207,13 @@
                                     Foreground="Red"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center"
-                                    Height="20"
-                                    Width="20"
+                                    Height="24"
+                                    Width="24"
                                     Margin="10,0"
                                     Visibility="{Binding ErrorState, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     ToolTip="{Binding CustomError}"
+                                    Background="Transparent"
+                                    Padding="2"
                                     />
                             </Grid>
                         </Border>
