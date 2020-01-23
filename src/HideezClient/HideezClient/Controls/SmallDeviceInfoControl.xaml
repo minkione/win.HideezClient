@@ -191,29 +191,29 @@
 
                 <Border mah:VisibilityHelper.IsVisible="{Binding IsConnected}">
                     <Button 
-                        Width="18"
-                        Height="18"
+                        Width="22"
+                        Height="22"
                         DataContext="{Binding DisconnectDeviceMenu}" 
                         Style="{StaticResource IconMenuButtonStyle}">
                         <iconPacks:PackIconMaterial
                             Margin="3"
-                            Width="12"
-                            Height="12"
+                            Width="16"
+                            Height="16"
                             Foreground="{DynamicResource WindowBackground}"
-                            Kind="LinkVariantOff" />
+                            Kind="BluetoothOff" />
                     </Button>
                 </Border>
 
                 <Button
                     Margin="2,0,2,0"
-                    Width="18"
-                    Height="18"
+                    Width="22"
+                    Height="22"
                     DataContext="{Binding RemoveDeviceMenu}"
                     Style="{StaticResource IconMenuButtonStyle}">
                     <iconPacks:PackIconFontAwesome
                         Margin="3"
-                        Width="12"
-                        Height="12"
+                        Width="14"
+                        Height="14"
                         Foreground="{DynamicResource DisconnectedBrush}"
                         Kind="TrashSolid" 
                         />

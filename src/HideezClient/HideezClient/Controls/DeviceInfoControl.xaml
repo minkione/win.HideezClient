@@ -97,62 +97,67 @@
                 FontSize="18"
                 Text="{Binding Name}" />
 
+            <iconPacks:PackIconModern
+                x:Name="noConnectionIco"
+                Width="16"
+                Height="22"
+                Margin="8,0,0,0"
+                Foreground="{DynamicResource DisconnectedBrush}"
+                Kind="Connect"
+                VerticalAlignment="Center"
+                Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
+            
             <StackPanel
                 x:Name="IconsContainer"
                 VerticalAlignment="Center"
                 Orientation="Horizontal"
                 Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                <!--  Icons  -->
-                <iconPacks:PackIconModern
-                    x:Name="noConnectionIco"
-                    Width="16"
-                    Height="22"
-                    Margin="8,0,0,2"
-                    Foreground="{DynamicResource DisconnectedBrush}"
-                    Kind="Connect"
-                    Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
+                <StackPanel
+                    Orientation="Horizontal"
+                    Visibility="{Binding CanLockByProximity, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    >
+                    <Grid
+                        x:Name="connectionQuality"
+                        Grid.Row="1"
+                        Grid.Column="4"
+                        Width="24"
+                        Margin="6,0,0,0"
+                        Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Viewbox
+                            Width="Auto"
+                            Height="Auto"
+                            SnapsToDevicePixels="True">
+                            <Canvas Width="24.000" Height="24.000">
+                                <Path
+                                    Data="F1 M 5.000,16.000 L 7.000,16.000 L 7.000,20.000 L 5.000,20.000 L 5.000,16.000 Z"
+                                    Fill="#ffffffff"
+                                    Opacity="{Binding Proximity, ConverterParameter=20, Converter={StaticResource ProximityToOpacityConverter}}" />
+                                <Path
+                                    Data="F1 M 9.000,12.000 L 11.000,12.000 L 11.000,20.000 L 9.000,20.000 L 9.000,12.000 Z"
+                                    Fill="#ffffffff"
+                                    Opacity="{Binding Proximity, ConverterParameter=40, Converter={StaticResource ProximityToOpacityConverter}}" />
+                                <Path
+                                    Data="F1 M 13.000,8.000 L 15.000,8.000 L 15.000,20.000 L 13.000,20.000 L 13.000,8.000 Z"
+                                    Fill="#ffffffff"
+                                    Opacity="{Binding Proximity, ConverterParameter=60, Converter={StaticResource ProximityToOpacityConverter}}" />
+                                <Path
+                                    Data="F1 M 17.000,4.000 L 19.000,4.000 L 19.000,20.000 L 17.000,20.000 L 17.000,4.000 Z"
+                                    Fill="#ffffffff"
+                                    Opacity="{Binding Proximity, ConverterParameter=80, Converter={StaticResource ProximityToOpacityConverter}}" />
+                            </Canvas>
+                        </Viewbox>
+                    </Grid>
 
-                <Grid
-                    x:Name="connectionQuality"
-                    Grid.Row="1"
-                    Grid.Column="4"
-                    Width="24"
-                    Margin="6,0,0,0"
-                    Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <Viewbox
-                        Width="Auto"
-                        Height="Auto"
-                        SnapsToDevicePixels="True">
-                        <Canvas Width="24.000" Height="24.000">
-                            <Path
-                                Data="F1 M 5.000,16.000 L 7.000,16.000 L 7.000,20.000 L 5.000,20.000 L 5.000,16.000 Z"
-                                Fill="#ffffffff"
-                                Opacity="{Binding Proximity, ConverterParameter=20, Converter={StaticResource ProximityToOpacityConverter}}" />
-                            <Path
-                                Data="F1 M 9.000,12.000 L 11.000,12.000 L 11.000,20.000 L 9.000,20.000 L 9.000,12.000 Z"
-                                Fill="#ffffffff"
-                                Opacity="{Binding Proximity, ConverterParameter=40, Converter={StaticResource ProximityToOpacityConverter}}" />
-                            <Path
-                                Data="F1 M 13.000,8.000 L 15.000,8.000 L 15.000,20.000 L 13.000,20.000 L 13.000,8.000 Z"
-                                Fill="#ffffffff"
-                                Opacity="{Binding Proximity, ConverterParameter=60, Converter={StaticResource ProximityToOpacityConverter}}" />
-                            <Path
-                                Data="F1 M 17.000,4.000 L 19.000,4.000 L 19.000,20.000 L 17.000,20.000 L 17.000,4.000 Z"
-                                Fill="#ffffffff"
-                                Opacity="{Binding Proximity, ConverterParameter=80, Converter={StaticResource ProximityToOpacityConverter}}" />
-                        </Canvas>
-                    </Viewbox>
-                </Grid>
-
-                <TextBlock
-                    Width="43"
-                    VerticalAlignment="Stretch"
-                    FontSize="18"
-                    Text="{Binding Proximity, StringFormat='{}{0,3}%'}"
-                    TextAlignment="Right"
-                    ToolTip="Device proximity level"
-                    Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <TextBlock
+                        Width="43"
+                        VerticalAlignment="Stretch"
+                        FontSize="18"
+                        Text="{Binding Proximity, StringFormat='{}{0,3}%'}"
+                        TextAlignment="Right"
+                        ToolTip="Device proximity level"
+                        Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </StackPanel>
 
                 <iconPacks:PackIconModern
                     x:Name="ConnectingIco"
@@ -209,7 +214,7 @@
                         <iconPacks:PackIconMaterial
                             Margin="3"
                             Foreground="{DynamicResource WindowBackground}"
-                            Kind="LinkVariantOff" />
+                            Kind="BluetoothOff" />
                     </Button>
                 </Border>
 
@@ -224,7 +229,7 @@
                 </Button>
             </StackPanel>
 
-            <Border Margin="2,0,2,0">
+            <Border Margin="4,0,2,0">
                 <Border.Style>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="Visibility" Value="Collapsed" />
