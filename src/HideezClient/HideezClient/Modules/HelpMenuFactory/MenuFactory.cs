@@ -106,6 +106,8 @@ namespace HideezClient.Modules
                     return GetMenuAuthorizeAndLoadStorage(device);
                 case MenuItemType.AboutDevice:
                     return null; // TODO: About device menu
+                case MenuItemType.SetAsActiveDevice:
+                    return GetMenuSetAsActiveDevice(device);
                 default:
                     Debug.Assert(false, $"The type: {type} of menu is not supported.");
                     return null;
@@ -181,6 +183,21 @@ namespace HideezClient.Modules
                 // Todo: Add support for Menu item hiding
                 // This will allow us to hide Authoriz menu item, if its no longe relevant (i.e. device alrady authorized)
                 //IsVisible = !device.IsAuthorized,
+            };
+        }
+
+        private MenuItemViewModel GetMenuSetAsActiveDevice(Device device)
+        {
+            return new MenuItemViewModel
+            {
+                Header = "Set device as active",
+                Command = new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        // Todo: set device as active
+                    }
+                },
             };
         }
 

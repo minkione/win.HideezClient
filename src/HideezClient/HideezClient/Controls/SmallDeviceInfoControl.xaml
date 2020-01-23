@@ -20,6 +20,40 @@
         Background="#00000001"
         Focusable="False"
         DataContext="{Binding Device, RelativeSource={RelativeSource AncestorType=UserControl}}">
+        <Grid.Triggers>
+            <EventTrigger RoutedEvent="Control.MouseEnter" SourceName="MainGrid">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation
+                            Storyboard.TargetName="ConnectionsMenu"
+                            Storyboard.TargetProperty="Opacity"
+                            To="1"
+                            Duration="0:0:0.3" />
+                        <DoubleAnimation
+                            Storyboard.TargetName="IconsContainer"
+                            Storyboard.TargetProperty="Opacity"
+                            To="0"
+                            Duration="0:0:0.3" />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="Control.MouseLeave" SourceName="MainGrid">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation
+                            Storyboard.TargetName="ConnectionsMenu"
+                            Storyboard.TargetProperty="Opacity"
+                            To="0.0"
+                            Duration="0:0:0.3" />
+                        <DoubleAnimation
+                            Storyboard.TargetName="IconsContainer"
+                            Storyboard.TargetProperty="Opacity"
+                            To="1"
+                            Duration="0:0:0.3" />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Grid.Triggers>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -171,23 +205,8 @@
             <!--  Connect and Disconnect button  -->
             <StackPanel
                 x:Name="ConnectionsMenu"
+                Opacity="0.0"
                 Orientation="Horizontal">
-
-                <Border mah:VisibilityHelper.IsVisible="{Binding IsConnected}"
-                        Margin="0,0,12,0">
-                    <Button 
-                        Width="22"
-                        Height="22"
-                        DataContext="{Binding SetAsActiveDeviceMenu}" 
-                        Style="{StaticResource IconMenuButtonStyle}">
-                        <iconPacks:PackIconMaterial
-                            Margin="3"
-                            Width="14"
-                            Height="14"
-                            Foreground="LightGreen"
-                            Kind="Power" />
-                    </Button>
-                </Border>
 
                 <Border mah:VisibilityHelper.IsVisible="{Binding IsConnected}">
                     <Button 
@@ -219,6 +238,21 @@
                         />
                 </Button>
             </StackPanel>
+
+            <Border mah:VisibilityHelper.IsVisible="{Binding IsConnected}">
+                <Button 
+                        Width="22"
+                        Height="22"
+                        DataContext="{Binding SetAsActiveDeviceMenu}" 
+                        Style="{StaticResource IconMenuButtonStyle}">
+                    <iconPacks:PackIconMaterial
+                            Margin="3"
+                            Width="14"
+                            Height="14"
+                            Foreground="LightGreen"
+                            Kind="Power" />
+                </Button>
+            </Border>
         </StackPanel>
 
         <TextBlock

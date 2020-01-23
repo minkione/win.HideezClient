@@ -26,7 +26,8 @@ namespace HideezClient.Modules
         DisconnectDevice,
         RemoveDevice,
         AuthorizeDeviceAndLoadStorage,
-        AboutDevice
+        AboutDevice,
+        SetAsActiveDevice,
     }
 
     public interface IMenuFactory
