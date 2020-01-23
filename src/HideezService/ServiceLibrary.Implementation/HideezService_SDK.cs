@@ -221,6 +221,7 @@ namespace ServiceLibrary.Implementation
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager,
                 _deviceManager, _workstationLocker, _sdkLogger);
+            _workstationLockProcessor.DeviceProxLockEnabled += WorkstationLockProcessor_DeviceProxLockEnabled;
 
             // SessionSwitchLogger ==================================
             _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver, _connectionFlowProcessor,
@@ -535,6 +536,21 @@ namespace ServiceLibrary.Implementation
                 try
                 {
                     session.Callbacks.DeviceFinishedMainFlow(new DeviceDTO(device));
+                }
+                catch (Exception ex)
+                {
+                    Error(ex);
+                }
+            }
+        }
+
+        void WorkstationLockProcessor_DeviceProxLockEnabled(object sender, IDevice device)
+        {
+            foreach (var session in sessionManager.Sessions)
+            {
+                try
+                {
+                    session.Callbacks.DeviceProximityLockEnabled(new DeviceDTO(device));
                 }
                 catch (Exception ex)
                 {

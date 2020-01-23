@@ -64,6 +64,7 @@ namespace HideezClient.Models
         bool isAuthorizingRemoteDevice;
         bool isLoadingStorage;
         bool isStorageLoaded;
+        bool isProximityLockEnabled;
 
         CancellationTokenSource authCancellationTokenSource;
         int _interlockedRemote = 0;
@@ -88,6 +89,7 @@ namespace HideezClient.Models
             _messenger.Register<DeviceProximityChangedMessage>(this, OnDeviceProximityChanged);
             _messenger.Register<DeviceBatteryChangedMessage>(this, OnDeviceBatteryChanged);
             _messenger.Register<SessionSwitchMessage>(this, OnSessionSwitch);
+            _messenger.Register<DeviceProximityLockEnabledMessage>(this, OnDeviceProximityLockEnabled);
 
             RegisterDependencies();
 
@@ -247,6 +249,12 @@ namespace HideezClient.Models
                 return _remoteDevice.AccessLevel.IsAllOk;
             }
         }
+
+        public bool CanLockByProximity
+        {
+            get { return isProximityLockEnabled; }
+            private set { Set(ref isProximityLockEnabled, value); }
+        }
         #endregion
 
         #region Messege & Event handlers
@@ -367,6 +375,12 @@ namespace HideezClient.Models
             Battery = obj.Battery;
         }
 
+        void OnDeviceProximityLockEnabled(DeviceProximityLockEnabledMessage obj)
+        {
+            if (obj.Device.Id == Id)
+                LoadFrom(obj.Device);
+        }
+
         void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(FinishedMainFlow))
@@ -392,6 +406,7 @@ namespace HideezClient.Models
             Proximity = dto.Proximity;
             Battery = dto.Battery;
             FinishedMainFlow = dto.FinishedMainFlow;
+            CanLockByProximity = dto.CanLockPyProximity;
         }
 
         async void TryInitRemoteAsync()

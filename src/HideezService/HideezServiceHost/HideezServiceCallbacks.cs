@@ -81,5 +81,9 @@ namespace HideezServiceHost
         public void ProximitySettingsChanged()
         {
         }
+
+        public void DeviceProximityLockEnabled(DeviceDTO device)
+        {
+        }
     }
 }

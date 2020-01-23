@@ -1,25 +1,25 @@
-﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
+﻿using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
     public class WorkstationLockProcessor : Logger, IDisposable
     {
+        public const string PROX_LOCK_ENABLED_PROP = "ProximityLockEnabled";
+
         readonly ConnectionFlowProcessor _flowProcessor;
         readonly ProximityMonitorManager _proximityMonitorManager;
         readonly IWorkstationLocker _workstationLocker;
         readonly BleDeviceManager _deviceManager;
 
-        List<IDevice> _authorizedDevicesList = new List<IDevice>();
-
         readonly object _deviceListsLock = new object();
 
+        public event EventHandler<IDevice> DeviceProxLockEnabled;
         public event EventHandler<WorkstationLockingEventArgs> WorkstationLocking;
 
         public WorkstationLockProcessor(ConnectionFlowProcessor flowProcessor, ProximityMonitorManager proximityMonitorManager, BleDeviceManager deviceManager, IWorkstationLocker workstationLocker, ILog log)
@@ -48,11 +48,12 @@ namespace HideezMiddleware
                 if (!device.IsRemote && !device.IsBoot)
                 {
                     // Limit of one device that may be authorized for workstation lock
-                    if (!_authorizedDevicesList.Contains(device) && _authorizedDevicesList.Count == 0)
+                    if (!_deviceManager.Devices.Any(d => d.GetUserProperty<bool>(PROX_LOCK_ENABLED_PROP)))
                     {
                         WriteLine($"Device ({device.Id}) added as valid to trigger workstation lock");
                         device.Disconnected += Device_Disconnected;
-                        _authorizedDevicesList.Add(device);
+                        device.SetUserProperty(PROX_LOCK_ENABLED_PROP, true);
+                        SafeInvoke(DeviceProxLockEnabled, device);
                     }
                 }
             }
@@ -80,7 +81,7 @@ namespace HideezMiddleware
                 _proximityMonitorManager.DeviceBelowLockForToLong -= ProximityMonitorManager_DeviceBelowLockForToLong;
                 _proximityMonitorManager.DeviceProximityTimeout -= ProximityMonitorManager_DeviceProximityTimeout;
 
-                foreach (var device in _authorizedDevicesList)
+                foreach (var device in _deviceManager.Devices.ToList())
                     device.Disconnected -= Device_Disconnected;
             }
 
@@ -112,7 +113,6 @@ namespace HideezMiddleware
 
             lock (_deviceListsLock)
             {
-                _authorizedDevicesList.RemoveAll(d => d == e.RemovedDevice);
                 e.RemovedDevice.Disconnected -= Device_Disconnected;
             }
         }
@@ -123,10 +123,10 @@ namespace HideezMiddleware
             {
                 lock (_deviceListsLock)
                 {
-                    if (_authorizedDevicesList.Contains(device))
+                    if (device.GetUserProperty<bool>(PROX_LOCK_ENABLED_PROP))
                     {
                         WriteLine($"Device ({device.Id}) is no longer a valid trigger for workstation lock");
-                        _authorizedDevicesList.Remove(device);
+                        device.SetUserProperty(PROX_LOCK_ENABLED_PROP, false);
                     }
                 }
             }
@@ -179,7 +179,7 @@ namespace HideezMiddleware
 
         bool CanLock(IDevice device)
         {
-            return IsEnabled && _authorizedDevicesList.Contains(device);
+            return IsEnabled && device.GetUserProperty<bool>(PROX_LOCK_ENABLED_PROP);
         }
     }
 }

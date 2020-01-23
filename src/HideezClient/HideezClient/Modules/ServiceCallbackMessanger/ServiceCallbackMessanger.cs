@@ -116,6 +116,12 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             SendMessage(new HidePinUiMessage());
         }
 
+        public void DeviceProximityLockEnabled(DeviceDTO device)
+        {
+            log.Info($"Device ({device.Id}) marked as valid for workstation lock");
+            SendMessage(new DeviceProximityLockEnabledMessage(device));
+        }
+
         /// <summary>
         /// Send message without blocking current thread using IMessenger
         /// </summary>

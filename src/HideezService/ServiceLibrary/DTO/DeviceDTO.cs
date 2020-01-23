@@ -25,6 +25,7 @@ namespace ServiceLibrary
             PinAttemptsRemain = 2;
             FinishedMainFlow = true;
             Proximity = 80;
+            CanLockPyProximity = false;
         }
 
         public DeviceDTO(IDevice device)
@@ -44,6 +45,7 @@ namespace ServiceLibrary
             PinAttemptsRemain = device.PinAttemptsRemain;
             FinishedMainFlow = device.GetUserProperty<bool>(ConnectionFlowProcessor.FLOW_FINISHED_PROP);
             Proximity = device.Proximity;
+            CanLockPyProximity = device.GetUserProperty<bool>(WorkstationLockProcessor.PROX_LOCK_ENABLED_PROP);
         }
 
         [DataMember]
@@ -93,5 +95,8 @@ namespace ServiceLibrary
 
         [DataMember]
         public double Proximity { get; private set; }
+        
+        [DataMember]
+        public bool CanLockPyProximity { get; private set; }
     }
 }

@@ -152,6 +152,9 @@ namespace HideezServiceHost.HideezServiceReference {
         private System.Version BootloaderVersionField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool CanLockPyProximityField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool FinishedMainFlowField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -225,6 +228,19 @@ namespace HideezServiceHost.HideezServiceReference {
                 if ((object.ReferenceEquals(this.BootloaderVersionField, value) != true)) {
                     this.BootloaderVersionField = value;
                     this.RaisePropertyChanged("BootloaderVersion");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool CanLockPyProximity {
+            get {
+                return this.CanLockPyProximityField;
+            }
+            set {
+                if ((this.CanLockPyProximityField.Equals(value) != true)) {
+                    this.CanLockPyProximityField = value;
+                    this.RaisePropertyChanged("CanLockPyProximity");
                 }
             }
         }
@@ -703,7 +719,7 @@ namespace HideezServiceHost.HideezServiceReference {
         private sbyte BatteryField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private Hideez.SDK.Communication.ButtonPressCode ButtonField;
+        private HideezServiceHost.HideezServiceReference.ButtonPressCode ButtonField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private byte PinAttemptsRemainField;
@@ -751,7 +767,7 @@ namespace HideezServiceHost.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public Hideez.SDK.Communication.ButtonPressCode Button {
+        public HideezServiceHost.HideezServiceReference.ButtonPressCode Button {
             get {
                 return this.ButtonField;
             }
@@ -937,6 +953,47 @@ namespace HideezServiceHost.HideezServiceReference {
         }
     }
     
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ButtonPressCode", Namespace="http://schemas.datacontract.org/2004/07/Hideez.SDK.Communication")]
+    public enum ButtonPressCode : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        None = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Single = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Double = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Triple = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Quad = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Penta = 5,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Hexa = 6,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Hepta = 7,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Octa = 8,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Multi = 9,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Long = 16,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SuperLong = 17,
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="HideezServiceReference.IHideezService", CallbackContract=typeof(HideezServiceHost.HideezServiceReference.IHideezServiceCallback), SessionMode=System.ServiceModel.SessionMode.Required)]
     public interface IHideezService {
@@ -1107,6 +1164,9 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceBatteryChanged")]
         void DeviceBatteryChanged(string deviceId, int battery);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceProximityLockEnabled")]
+        void DeviceProximityLockEnabled(HideezServiceHost.HideezServiceReference.DeviceDTO device);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_DeviceStateChanged")]
         void RemoteConnection_DeviceStateChanged(string deviceId, HideezServiceHost.HideezServiceReference.DeviceStateDTO stateDto);

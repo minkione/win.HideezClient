@@ -109,6 +109,8 @@ namespace HideezClient.ViewModels
         }
         public ObservableCollection<AccountInfoViewModel> Accounts { get; } = new ObservableCollection<AccountInfoViewModel>();
 
+        public bool CanLockByProximity => device.CanLockByProximity;
+
         public Task<ushort> SaveOrUpdateAccountAsync(AccountRecord account)
         {
             return device.PasswordManager.SaveOrUpdateAccount(account.Key, account.Name, account.Password, account.Login, account.OtpSecret, account.Apps, account.Urls, account.IsPrimary);

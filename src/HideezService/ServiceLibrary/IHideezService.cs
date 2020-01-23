@@ -121,6 +121,8 @@ namespace ServiceLibrary
         [OperationContract(IsOneWay = true)]
         void DeviceBatteryChanged(string deviceId, int battery);
 
+        [OperationContract(IsOneWay = true)]
+        void DeviceProximityLockEnabled(DeviceDTO device);
 
         [OperationContract(IsOneWay = true)]
         void RemoteConnection_DeviceStateChanged(string deviceId, DeviceStateDTO stateDto);

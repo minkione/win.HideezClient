@@ -184,7 +184,7 @@
     <wsdl:part name="parameters" element="tns:SetProximitySettingsResponse" />
   </wsdl:message>
   <wsdl:message name="IHideezService_SetProximitySettings_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q15="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q15:HideezServiceFault" />
+    <wsdl:part xmlns:q16="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q16:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_GetCurrentProximitySettings_InputMessage">
     <wsdl:part name="parameters" element="tns:GetCurrentProximitySettings" />
@@ -193,7 +193,7 @@
     <wsdl:part name="parameters" element="tns:GetCurrentProximitySettingsResponse" />
   </wsdl:message>
   <wsdl:message name="IHideezService_GetCurrentProximitySettings_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q16="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q16:HideezServiceFault" />
+    <wsdl:part xmlns:q17="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q17:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_ProximitySettingsChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:ProximitySettingsChanged" />
@@ -233,6 +233,9 @@
   </wsdl:message>
   <wsdl:message name="IHideezService_DeviceBatteryChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:DeviceBatteryChanged" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_DeviceProximityLockEnabled_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:DeviceProximityLockEnabled" />
   </wsdl:message>
   <wsdl:message name="IHideezService_RemoteConnection_DeviceStateChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:RemoteConnection_DeviceStateChanged" />
@@ -370,6 +373,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceBatteryChanged">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceBatteryChanged" message="tns:IHideezService_DeviceBatteryChanged_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="DeviceProximityLockEnabled">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/DeviceProximityLockEnabled" message="tns:IHideezService_DeviceProximityLockEnabled_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RemoteConnection_DeviceStateChanged">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/RemoteConnection_DeviceStateChanged" message="tns:IHideezService_RemoteConnection_DeviceStateChanged_OutputCallbackMessage" />
@@ -666,6 +672,12 @@
     </wsdl:operation>
     <wsdl:operation name="DeviceBatteryChanged">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceBatteryChanged" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeviceProximityLockEnabled">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/DeviceProximityLockEnabled" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

@@ -6,5 +6,5 @@
     cause the file to be unrecognizable by the program.
 -->
 <GenericObjectDataSource DisplayName="DeviceDTO" Version="1.0" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
-   <TypeInfo>HideezServiceHost.HideezServiceReference.DeviceDTO, HideezServiceHost, Version=3.1.20.1, Culture=neutral, PublicKeyToken=null</TypeInfo>
+   <TypeInfo>HideezServiceHost.HideezServiceReference.DeviceDTO, Connected Services.HideezServiceReference.Reference.cs.dll, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null</TypeInfo>
 </GenericObjectDataSource>

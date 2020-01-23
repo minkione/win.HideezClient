@@ -75,5 +75,9 @@ namespace TestConsole
         public void DeviceBatteryChanged(string deviceId, int battery)
         {
         }
+
+        public void DeviceProximityLockEnabled(DeviceDTO device)
+        {
+        }
     }
 }
