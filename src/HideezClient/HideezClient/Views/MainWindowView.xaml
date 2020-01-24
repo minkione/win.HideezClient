@@ -13,6 +13,7 @@
     xmlns:modules="clr-namespace:HideezClient.Modules"
     xmlns:pagesview="clr-namespace:HideezClient.PagesView"
     xmlns:pagesviewmodel="clr-namespace:HideezClient.PageViewModels"
+    xmlns:converters="clr-namespace:HideezClient.Converters"
     Title="{Binding Version, StringFormat=Hideez Client ({0})}"
     Width="1075"
     Height="770"
@@ -27,6 +28,9 @@
     WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     mc:Ignorable="d">
+    <Metro:MetroWindow.Resources>
+        <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter" />
+    </Metro:MetroWindow.Resources>
     <Grid Focusable="False" SnapsToDevicePixels="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition
@@ -37,27 +41,27 @@
         </Grid.ColumnDefinitions>
 
         <Grid VerticalAlignment="Stretch" Background="{DynamicResource WindowLeftColumBrush}">
-
             <Grid.RowDefinitions>
-                <!--  1 DevicesExpander  -->
+                <!--  0 Active Device  -->
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
+                <!-- 1 Devices -->
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
                 <!--  3  Menu  -->
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="18" />
                 <!--  5 Separator  -->
                 <RowDefinition Height="1" />
                 <RowDefinition Height="Auto" />
-                <!--  6 ConnectivityIndicators  -->
+                <!--  7 ConnectivityIndicators  -->
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="1">
-
+            <StackPanel>
                 <StackPanel
                     Margin="24,34"
                     Orientation="Vertical"
-                    Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityCollapsedConverter}}">
+                    Visibility="{Binding ActiveDevice, Converter={StaticResource NullToVisibilityCollapsedConverter}}">
                     <TextBlock
                         FontSize="18"
                         FontWeight="DemiBold"
@@ -100,14 +104,14 @@
                     </Grid>
                 </StackPanel>
 
-                <StackPanel Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
+                <StackPanel Visibility="{Binding ActiveDevice, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
                     <controls:DeviceInfoControl
                         x:Name="currentDeviceInfo"
                         Padding="16,16,30,16"
                         VerticalAlignment="Top"
-                        DataContext="{Binding SelectedDevice}" />
+                        Device="{Binding ActiveDevice}" />
                     <controls:LeftMenuItemControl
-                        Metro:VisibilityHelper.IsVisible="{Binding IsConnected}"
+                        Metro:VisibilityHelper.IsVisible="{Binding Path=ActiveDevice.IsConnected}"
                         DataContext="{Binding MenuDeviceSettings}"
                         Tag="{Binding Path=DataContext.IcoKey, Mode=OneWay, ElementName=currentDeviceInfo, Converter={StaticResource StringToResource}}" />
                     <Border>
@@ -117,7 +121,7 @@
                                 <Style.Triggers>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding SelectedDevice.CanShowPasswordManager}" Value="True" />
+                                            <Condition Binding="{Binding ActiveDevice.CanShowPasswordManager}" Value="True" />
                                         </MultiDataTrigger.Conditions>
                                         <MultiDataTrigger.Setters>
                                             <Setter Property="Visibility" Value="Visible" />
@@ -135,8 +139,34 @@
                 </StackPanel>
             </StackPanel>
 
+            <!-- Devices -->
+            <Rectangle
+                Grid.Row="1"
+                Margin="16,0"
+                Height="1"
+                Fill="#22446D"
+                VerticalAlignment="Bottom"
+                Visibility="{Binding Path=Devices.Count, Converter={StaticResource IntToVisibilityConverter}}" />
+            
+            <ScrollViewer
+                Grid.Row="2"
+                MaxHeight="220"
+                VerticalAlignment="Bottom"
+                VerticalScrollBarVisibility="Auto"
+                Visibility="{Binding Path=Devices.Count, Converter={StaticResource IntToVisibilityConverter}}">
+                <controls:SelectableDevicesList
+                    Devices="{Binding Devices}" >
+                    <controls:SelectableDevicesList.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Offset="0" Color="#0022446D" />
+                            <GradientStop Offset="1" Color="#5C22446D" />
+                        </LinearGradientBrush>
+                    </controls:SelectableDevicesList.Background>
+                </controls:SelectableDevicesList>
+            </ScrollViewer>
+            
             <!--  Menu  -->
-            <StackPanel Grid.Row="2">
+            <StackPanel Grid.Row="3">
                 <controls:LeftMenuItemControl DataContext="{Binding MenuDefaultPage}" Visibility="Hidden" />
 
                 <controls:LeftMenuItemControl DataContext="{Binding MenuHelp}" IsEnabled="False">
@@ -153,13 +183,14 @@
             </StackPanel>
 
             <Rectangle
-                Grid.Row="4"
-                Width="265"
+                Grid.Row="5"
+                Height="1"
+                Margin="16,0"
                 Fill="{DynamicResource WindowBackground}"
                 Opacity="0.05" />
 
             <controls:ConnectivityIndicators
-                Grid.Row="6"
+                Grid.Row="7"
                 Padding="0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"

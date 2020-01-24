@@ -29,12 +29,12 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="16">
+    <Grid>
         <ItemsControl
             x:Name="devicesList"
+            ItemsSource="{Binding Devices}"
             AlternationCount="{Binding RelativeSource={RelativeSource Self}, Path=Items.Count}"
-            Focusable="False"
-            ItemsSource="{Binding Devices}">
+            Focusable="False">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="0,2,0,5" Focusable="False">
@@ -48,13 +48,14 @@
                             Grid.Row="0"
                             Grid.ColumnSpan="3"
                             Height="1"
-                            Margin="0,7"
+                            Margin="16,0"
                             HorizontalAlignment="Stretch"
-                            Fill="#22446D" />
+                            Fill="#22446D" 
+                            />
 
                         <controls:SmallDeviceInfoControl 
                             Grid.Row="1" 
-                            Device="{Binding }"/>
+                            Device="{Binding }" />
                     </Grid>
                     <DataTemplate.Triggers>
                         <Trigger Property="ItemsControl.AlternationIndex" Value="0">

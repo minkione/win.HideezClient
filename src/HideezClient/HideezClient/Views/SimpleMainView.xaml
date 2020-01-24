@@ -34,7 +34,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition />
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -46,18 +46,17 @@
 
         <Rectangle
             Grid.Row="1"
-            Margin="16,0,16,-8"
+            Margin="16,16,16,0"
             Height="1"
             Fill="#22446D"
             Visibility="{Binding Path=Devices.Count, Converter={StaticResource IntToVisibilityConverter}}" />
 
         <ScrollViewer
             Grid.Row="2"
+            MaxHeight="220"
             VerticalScrollBarVisibility="Auto"
-            MaxHeight="250"
             Visibility="{Binding Path=Devices.Count, Converter={StaticResource IntToVisibilityConverter}}">
-            <controls:SelectableDevicesList
-                Devices="{Binding Devices}" >
+            <controls:SelectableDevicesList Devices="{Binding Devices}">
                 <controls:SelectableDevicesList.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                         <GradientStop Offset="0" Color="#0022446D" />
