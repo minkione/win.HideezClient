@@ -95,6 +95,7 @@
                 FontSize="12"
                 Text="{Binding Name}" />
 
+            <!--
             <iconPacks:PackIconModern
                 x:Name="noConnectionIco"
                 Width="12"
@@ -105,7 +106,8 @@
                 VerticalAlignment="Center"
                 Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
                 />
-
+            -->
+            
             <StackPanel
                 x:Name="IconsContainer"
                 VerticalAlignment="Center"
@@ -249,7 +251,7 @@
                             Margin="3"
                             Width="14"
                             Height="14"
-                            Foreground="LightGreen"
+                            Foreground="{StaticResource HighlighBrush}"
                             Kind="Power" />
                 </Button>
             </Border>

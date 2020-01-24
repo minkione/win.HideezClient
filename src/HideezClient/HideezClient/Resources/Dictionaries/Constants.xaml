@@ -86,6 +86,7 @@
 
     <!--  Other  -->
     <SolidColorBrush x:Key="ErrorBrush">#F6346B</SolidColorBrush>
+    <SolidColorBrush x:Key="HighlighBrush">#0EFFB7</SolidColorBrush>
 
     <!--  ShadowEffect  -->
     <DropShadowEffect
