@@ -49,28 +49,6 @@ namespace HideezClient.ViewModels
                 Accounts.AddRange(device.PasswordManager.Accounts.Values.Select(acc => new AccountInfoViewModel(acc)));
             }
         }
-
-        public ICommand AuthorizeDeviceAndLoadStorage
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CommandAction = async (x) =>
-                    {
-                        try
-                        {
-                            await device.InitRemoteAndLoadStorageAsync();
-                        }
-                        catch (Exception ex)
-                        {
-                            _log.Error(ex);
-                        }
-                    }
-                };
-            }
-        }
-
         public string Name => device.Name;
         public string SerialNo => device.SerialNo;
         public string OwnerName => device.OwnerName;

@@ -267,6 +267,7 @@ namespace HideezClient
             Container.RegisterType<ISupportMailContentGenerator, SupportMailContentGenerator>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IButtonManager, ButtonManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IActiveDevice, ActiveDevice>(new ContainerControlledLifetimeManager());
 
             // Settings
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()

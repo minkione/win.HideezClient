@@ -9,6 +9,7 @@
     xmlns:local="clr-namespace:HideezClient.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mvvm="clr-namespace:MvvmExtensions.Converters;assembly=MvvmExtensions"
+    xmlns:converters="clr-namespace:HideezClient.Converters"
     Title="{Binding Version, StringFormat=Hideez Client ({0})}"
     Width="0"
     Height="0"
@@ -26,35 +27,48 @@
     mc:Ignorable="d">
     <Metro:MetroWindow.Resources>
         <mvvm:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter" />
     </Metro:MetroWindow.Resources>
 
     <Grid VerticalAlignment="Top">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <controls:DeviceInfoControl
             VerticalAlignment="Top" 
             Margin="16"
-            Device="{Binding SelectedDevice}"
-            Visibility="{Binding SelectedDevice, Converter={StaticResource NullToVisibilityConverter}}"/>
-        
+            Device="{Binding ActiveDevice}"
+            Visibility="{Binding ActiveDevice, Converter={StaticResource NullToVisibilityConverter}}"/>
 
-        <controls:SelectableDevicesList
+        <Rectangle
             Grid.Row="1"
-            Devices="{Binding Devices}" >
-            <controls:SelectableDevicesList.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Offset="0" Color="#0022446D" />
-                    <GradientStop Offset="1" Color="#5C22446D" />
-                </LinearGradientBrush>
-            </controls:SelectableDevicesList.Background>
-        </controls:SelectableDevicesList>
+            Margin="16,0,16,-8"
+            Height="1"
+            Fill="#22446D"
+            Visibility="{Binding Path=Devices.Count, Converter={StaticResource IntToVisibilityConverter}}" />
+
+        <ScrollViewer
+            Grid.Row="2"
+            VerticalScrollBarVisibility="Auto"
+            MaxHeight="250"
+            Visibility="{Binding Path=Devices.Count, Converter={StaticResource IntToVisibilityConverter}}">
+            <controls:SelectableDevicesList
+                Devices="{Binding Devices}" >
+                <controls:SelectableDevicesList.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Offset="0" Color="#0022446D" />
+                        <GradientStop Offset="1" Color="#5C22446D" />
+                    </LinearGradientBrush>
+                </controls:SelectableDevicesList.Background>
+            </controls:SelectableDevicesList>
+        </ScrollViewer>
 
         <controls:ConnectivityIndicators
-            Grid.Row="2"
+            Grid.Row="3"
             Margin="24, 14"
             Padding="0"
             HorizontalAlignment="Stretch"

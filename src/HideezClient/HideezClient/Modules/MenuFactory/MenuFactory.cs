@@ -25,26 +25,28 @@ namespace HideezClient.Modules
 {
     class MenuFactory : IMenuFactory
     {
-        private readonly IMessenger messenger;
-        private readonly IStartupHelper startupHelper;
-        private readonly IWindowsManager windowsManager;
-        private readonly IAppHelper appHelper;
-        private readonly ISettingsManager<ApplicationSettings> settingsManager;
-        private readonly ISupportMailContentGenerator supportMailContentGenerator;
-        private readonly IServiceProxy serviceProxy;
+        readonly IMessenger _messenger;
+        readonly IStartupHelper _startupHelper;
+        readonly IWindowsManager _windowsManager;
+        readonly IAppHelper _appHelper;
+        readonly ISettingsManager<ApplicationSettings> _settingsManager;
+        readonly ISupportMailContentGenerator _supportMailContentGenerator;
+        readonly IServiceProxy _serviceProxy;
+        readonly IActiveDevice _activeDevice;
 
         public MenuFactory(IMessenger messenger, IStartupHelper startupHelper
             , IWindowsManager windowsManager, IAppHelper appHelper,
             ISettingsManager<ApplicationSettings> settingsManager, ISupportMailContentGenerator supportMailContentGenerator,
-            IServiceProxy serviceProxy)
+            IServiceProxy serviceProxy, IActiveDevice activeDevice)
         {
-            this.messenger = messenger;
-            this.startupHelper = startupHelper;
-            this.windowsManager = windowsManager;
-            this.appHelper = appHelper;
-            this.settingsManager = settingsManager;
-            this.supportMailContentGenerator = supportMailContentGenerator;
-            this.serviceProxy = serviceProxy;
+            _messenger = messenger;
+            _startupHelper = startupHelper;
+            _windowsManager = windowsManager;
+            _appHelper = appHelper;
+            _settingsManager = settingsManager;
+            _supportMailContentGenerator = supportMailContentGenerator;
+            _serviceProxy = serviceProxy;
+            _activeDevice = activeDevice;
         }
 
         public MenuItemViewModel GetMenuItem(MenuItemType type)
@@ -52,7 +54,7 @@ namespace HideezClient.Modules
             switch (type)
             {
                 case MenuItemType.ShowWindow:
-                    return GetViewModel("Menu.ShowWindow", x => windowsManager.ActivateMainWindow());
+                    return GetViewModel("Menu.ShowWindow", x => _windowsManager.ActivateMainWindow());
                 case MenuItemType.AddDevice:
                     return GetViewModel("Menu.AddDevice", x => throw new NotImplementedException());
                 case MenuItemType.CheckForUpdates:
@@ -74,7 +76,7 @@ namespace HideezClient.Modules
                 case MenuItemType.LogOff:
                     return GetViewModel("Menu.LogOff", x => throw new NotImplementedException());
                 case MenuItemType.Exit:
-                    return GetViewModel("Menu.Exit", x => appHelper.Shutdown());
+                    return GetViewModel("Menu.Exit", x => _appHelper.Shutdown());
                 case MenuItemType.Lenguage:
                     return GetLanguages();
                 case MenuItemType.LaunchOnStartup:
@@ -125,7 +127,7 @@ namespace HideezClient.Modules
                     {
                         if (x is Device d)
                         {
-                            windowsManager.ShowDialogAddCredential(d);
+                            _windowsManager.ShowDialogAddCredential(d);
                         }
                     },
                     CanExecuteFunc = () => device.IsConnected
@@ -195,7 +197,7 @@ namespace HideezClient.Modules
                 {
                     CommandAction = (x) =>
                     {
-                        // Todo: set device as active
+                        _activeDevice.Device = device;
                     }
                 },
             };
@@ -207,18 +209,18 @@ namespace HideezClient.Modules
             {
                 try
                 {
-                    var result = await windowsManager.ShowDisconnectDevicePromptAsync(LocalizedObject.L("HideezKey2EEName"));
+                    var result = await _windowsManager.ShowDisconnectDevicePromptAsync(LocalizedObject.L("HideezKey2EEName"));
 
                     if (result)
-                        await serviceProxy.GetService().DisconnectDeviceAsync(device.Id);
+                        await _serviceProxy.GetService().DisconnectDeviceAsync(device.Id);
                 }
                 catch (FaultException<HideezServiceFault> ex)
                 {
-                    windowsManager.ShowError(ex.Message);
+                    _windowsManager.ShowError(ex.Message);
                 }
                 catch (Exception ex)
                 {
-                    windowsManager.ShowError(ex.Message);
+                    _windowsManager.ShowError(ex.Message);
                 }
             }
         }
@@ -229,18 +231,18 @@ namespace HideezClient.Modules
             {
                 try
                 {
-                    var result = await windowsManager.ShowRemoveDevicePromptAsync(LocalizedObject.L("HideezKey2EEName"));
+                    var result = await _windowsManager.ShowRemoveDevicePromptAsync(LocalizedObject.L("HideezKey2EEName"));
 
                     if (result)
-                        await serviceProxy.GetService().RemoveDeviceAsync(device.Id);
+                        await _serviceProxy.GetService().RemoveDeviceAsync(device.Id);
                 }
                 catch (FaultException<HideezServiceFault> ex)
                 {
-                    windowsManager.ShowError(ex.Message);
+                    _windowsManager.ShowError(ex.Message);
                 }
                 catch (Exception ex)
                 {
-                    windowsManager.ShowError(ex.Message);
+                    _windowsManager.ShowError(ex.Message);
                 }
             }
         }
@@ -248,24 +250,24 @@ namespace HideezClient.Modules
         private async Task OnTechSupportAsync(string techSupportUriKey)
         {
             string techSupportUri = TranslationSource.Instance[techSupportUriKey];
-            var mail = await supportMailContentGenerator.GenerateSupportMail(techSupportUri);
-            appHelper.OpenUrl(mail);
+            var mail = await _supportMailContentGenerator.GenerateSupportMail(techSupportUri);
+            _appHelper.OpenUrl(mail);
         }
 
         private void OnOpenUrl(string urlKey)
         {
             string url = TranslationSource.Instance[urlKey];
-            appHelper.OpenUrl(url);
+            _appHelper.OpenUrl(url);
         }
 
         private MenuItemViewModel GetLaunchOnStartup()
         {
-            MenuItemViewModel vm = GetViewModel("Menu.LaunchOnStartup", x => startupHelper.ReverseState());
+            MenuItemViewModel vm = GetViewModel("Menu.LaunchOnStartup", x => _startupHelper.ReverseState());
             vm.IsCheckable = true;
             vm.CommandParameter = vm;
-            vm.IsChecked = startupHelper.IsInStartup();
+            vm.IsChecked = _startupHelper.IsInStartup();
             // TODO add weak event handler
-            startupHelper.StateChanged += (appName, state) => vm.IsChecked = (state == AutoStartupState.On);
+            _startupHelper.StateChanged += (appName, state) => vm.IsChecked = (state == AutoStartupState.On);
             return vm;
         }
 
@@ -275,7 +277,7 @@ namespace HideezClient.Modules
             menuLenguage.MenuItems = new ObservableCollection<MenuItemViewModel>();
 
             // supported cultures
-            CultureInfo defaultCulture = new CultureInfo(settingsManager.Settings.SelectedUiLanguage);
+            CultureInfo defaultCulture = new CultureInfo(_settingsManager.Settings.SelectedUiLanguage);
             foreach (CultureInfo culture in TranslationSource.Instance.SupportedCultures)
             {
                 try
@@ -312,7 +314,7 @@ namespace HideezClient.Modules
 
         private void OnApplyLanguage(CultureInfo cultureInfo)
         {
-            appHelper.ChangeCulture(cultureInfo);
+            _appHelper.ChangeCulture(cultureInfo);
         }
 
         private MenuItemViewModel GetViewModel(string header, Action<object> action)

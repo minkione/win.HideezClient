@@ -14,31 +14,35 @@ using HideezClient.Modules.ServiceProxy;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using MvvmExtensions.Attributes;
 
 namespace HideezClient.ViewModels
 {
     class MainViewModel : ObservableObject
     {
-        private string currentPage = "";
-        private readonly IDeviceManager deviceManager;
-        private readonly IMenuFactory menuFactory;
-        private readonly ViewModelLocator viewModelLocator;
-        private readonly ISet<MenuItemViewModel> leftAppMenuItems = new HashSet<MenuItemViewModel>();
-        private readonly ISet<MenuItemViewModel> leftDeviceMenuItems = new HashSet<MenuItemViewModel>();
+        string currentPage = "";
+        readonly IDeviceManager _deviceManager;
+        readonly IMenuFactory _menuFactory;
+        readonly IActiveDevice _activeDevice;
+        readonly ViewModelLocator _viewModelLocator;
+        readonly ISet<MenuItemViewModel> _leftAppMenuItems = new HashSet<MenuItemViewModel>();
+        readonly ISet<MenuItemViewModel> _leftDeviceMenuItems = new HashSet<MenuItemViewModel>();
+        Uri _displayPage;
 
-        public MainViewModel(IDeviceManager deviceManager, IMenuFactory menuFactory, ViewModelLocator viewModelLocator)
+        public MainViewModel(IDeviceManager deviceManager, IMenuFactory menuFactory, IActiveDevice activeDevice, ViewModelLocator viewModelLocator)
         {
-            this.deviceManager = deviceManager;
-            this.menuFactory = menuFactory;
-            this.viewModelLocator = viewModelLocator;
+            _deviceManager = deviceManager;
+            _menuFactory = menuFactory;
+            _activeDevice = activeDevice;
+            _viewModelLocator = viewModelLocator;
 
             InitMenu();
-
-            AddedDevice(deviceManager.Devices.FirstOrDefault());
-            deviceManager.DevicesCollectionChanged += Devices_CollectionChanged;
+            
+            _deviceManager.DevicesCollectionChanged += Devices_CollectionChanged;
+            _activeDevice.ActiveDeviceChanged += ActiveDevice_ActiveDeviceChanged;
         }
 
-        private void InitMenu()
+        void InitMenu()
         {
             MenuDeviceSettings = new MenuItemViewModel
             {
@@ -50,8 +54,8 @@ namespace HideezClient.ViewModels
                 Header = "Menu.PasswordManager",
                 Command = OpenPasswordManagerPageCommand,
             };
-            leftDeviceMenuItems.Add(MenuDeviceSettings);
-            leftDeviceMenuItems.Add(MenuPasswordManager);
+            _leftDeviceMenuItems.Add(MenuDeviceSettings);
+            _leftDeviceMenuItems.Add(MenuPasswordManager);
 
             MenuDefaultPage = new MenuItemViewModel
             {
@@ -69,77 +73,57 @@ namespace HideezClient.ViewModels
                 Header = "Menu.Settings",
                 Command = OpenSettingsPageCommand,
             };
-            leftAppMenuItems.Add(MenuDefaultPage);
-            leftAppMenuItems.Add(MenuHelp);
-            leftAppMenuItems.Add(MenuSettings);
+            _leftAppMenuItems.Add(MenuDefaultPage);
+            _leftAppMenuItems.Add(MenuHelp);
+            _leftAppMenuItems.Add(MenuSettings);
 
-            foreach (var item in leftDeviceMenuItems.Concat(leftAppMenuItems))
+            foreach (var item in _leftDeviceMenuItems.Concat(_leftAppMenuItems))
             {
                 item.PropertyChanged += Item_PropertyChanged;
             }
         }
 
-        private void Item_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        void Item_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(MenuItemViewModel.IsChecked) && sender is MenuItemViewModel menu && menu.IsChecked)
             {
-                foreach (var item in leftDeviceMenuItems.Concat(leftAppMenuItems).Where(m => m != menu && m.IsChecked))
+                foreach (var item in _leftDeviceMenuItems.Concat(_leftAppMenuItems).Where(m => m != menu && m.IsChecked))
                 {
                     item.IsChecked = false;
                 }
             }
         }
 
-        private void Devices_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void Devices_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            App.Current.Dispatcher.Invoke((System.Action)(() =>
+            if (_deviceManager.Devices.Count() > 0 && MenuDefaultPage.IsChecked)
             {
-                if (e.Action == NotifyCollectionChangedAction.Add)
-                {
-                    AddedDevice(deviceManager.Devices.FirstOrDefault());
-                }
-                else if (e.Action == NotifyCollectionChangedAction.Remove)
-                {
-                    RemovedDevice(e.OldItems[0] as Device);
-                }
-            }));
-        }
-
-        private void RemovedDevice(Device device)
-        {
-            if (device != null && SelectedDevice != null)
-            {
-                SelectedDevice.PropertyChanged -= Device_PropertyChanged;
-                Devices.Remove(SelectedDevice);
-                SelectedDevice = null;
-
-                if (!leftAppMenuItems.Any(m => m.IsChecked))
-                {
-                    MenuDefaultPage.IsChecked = true;
-                }
+                MenuDeviceSettings.IsChecked = true;
             }
-        }
-
-        private void AddedDevice(Device device)
-        {
-            if (device != null)
+            else if (!_leftAppMenuItems.Any(m => m.IsChecked))
             {
-                SelectedDevice = new DeviceInfoViewModel(device, menuFactory);
-                Devices.Add(SelectedDevice);
-                if (MenuDefaultPage.IsChecked)
-                {
-                    MenuDeviceSettings.IsChecked = true;
-                }
-
-                SelectedDevice.PropertyChanged += Device_PropertyChanged;
+                MenuDefaultPage.IsChecked = true;
             }
+
+            NotifyPropertyChanged(nameof(Devices));
         }
 
-        private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        void ActiveDevice_ActiveDeviceChanged(object sender, ActiveDeviceChangedEventArgs args)
+        {
+            if (args.PreviousDevice != null)
+                args.PreviousDevice.PropertyChanged -= ActiveDevice_PropertyChanged;
+
+            if (args.NewDevice != null)
+                args.NewDevice.PropertyChanged += ActiveDevice_PropertyChanged;
+
+            NotifyPropertyChanged(nameof(ActiveDevice));
+        }
+
+        void ActiveDevice_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(DeviceInfoViewModel.CanShowPasswordManager))
             {
-                if (SelectedDevice != null && (!SelectedDevice.CanShowPasswordManager && leftDeviceMenuItems.Any(m => m.IsChecked)))
+                if (ActiveDevice != null && (!ActiveDevice.CanShowPasswordManager && _leftDeviceMenuItems.Any(m => m.IsChecked)))
                 {
                     MenuDeviceSettings.IsChecked = true;
                 }
@@ -147,9 +131,6 @@ namespace HideezClient.ViewModels
         }
 
         #region Properties
-
-        private Uri displayPage;
-        private DeviceInfoViewModel selectedDevice;
 
         public string Version
         {
@@ -161,25 +142,34 @@ namespace HideezClient.ViewModels
 
         public Uri DisplayPage
         {
-            get { return displayPage; }
-            set { Set(ref displayPage, value); }
+            get { return _displayPage; }
+            set { Set(ref _displayPage, value); }
         }
 
-        public DeviceInfoViewModel SelectedDevice
+        public DeviceInfoViewModel ActiveDevice
         {
-            get { return selectedDevice; }
-            set
+            get 
             {
-                if (Set(ref selectedDevice, value))
-                {
-                    viewModelLocator.PasswordManager.Device = selectedDevice;
-                    viewModelLocator.DeviceSettingsPageViewModel.Device = selectedDevice;
-                }
+                if (_activeDevice.Device == null)
+                    return null;
+
+                return new DeviceInfoViewModel(_activeDevice.Device, _menuFactory); 
             }
         }
 
-        public ObservableCollection<DeviceInfoViewModel> Devices { get; } = new ObservableCollection<DeviceInfoViewModel>();
-
+        [DependsOn(nameof(ActiveDevice))]
+        public  List<DeviceInfoViewModel> Devices
+        {
+            get
+            {
+                // Todo: cache ViewModels instead of recreating them each time the device collection changes.
+                return _deviceManager.Devices
+                    .Where(d => d.Id != _activeDevice.Device.Id)
+                    .Select(v => new DeviceInfoViewModel(v, _menuFactory))
+                    .Reverse()
+                    .ToList();
+            }
+        }
         #endregion Properties
 
         #region MenuItems

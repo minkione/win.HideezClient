@@ -30,53 +30,39 @@
     </UserControl.Resources>
 
     <Grid Margin="16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-
-        <TextBlock
-            FontSize="18"
-            Text="{l:Localization Expander.NoDevice}"
-            Visibility="{Binding ElementName=devicesList, Path=HasItems, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
-        <ScrollViewer
-            HorizontalAlignment="Stretch"
+        <ItemsControl
+            x:Name="devicesList"
+            AlternationCount="{Binding RelativeSource={RelativeSource Self}, Path=Items.Count}"
             Focusable="False"
-            VerticalScrollBarVisibility="Auto">
-            <ItemsControl
-                x:Name="devicesList"
-                AlternationCount="{Binding RelativeSource={RelativeSource Self}, Path=Items.Count}"
-                Focusable="False"
-                ItemsSource="{Binding Devices}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="0,2,0,5" Focusable="False">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
+            ItemsSource="{Binding Devices}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,2,0,5" Focusable="False">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                            <Rectangle
-                                x:Name="separator"
-                                Grid.Row="0"
-                                Grid.ColumnSpan="3"
-                                Height="1"
-                                Margin="0,7"
-                                HorizontalAlignment="Stretch"
-                                Fill="#22446D" />
+                        <Rectangle
+                            x:Name="separator"
+                            Grid.Row="0"
+                            Grid.ColumnSpan="3"
+                            Height="1"
+                            Margin="0,7"
+                            HorizontalAlignment="Stretch"
+                            Fill="#22446D" />
 
-                            <controls:SmallDeviceInfoControl 
-                                Grid.Row="1" 
-                                Device="{Binding }"/>
-                        </Grid>
-                        <DataTemplate.Triggers>
-                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                <Setter TargetName="separator" Property="Visibility" Value="Collapsed" />
-                            </Trigger>
-                        </DataTemplate.Triggers>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+                        <controls:SmallDeviceInfoControl 
+                            Grid.Row="1" 
+                            Device="{Binding }"/>
+                    </Grid>
+                    <DataTemplate.Triggers>
+                        <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                            <Setter TargetName="separator" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </UserControl>

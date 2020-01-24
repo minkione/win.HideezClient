@@ -286,6 +286,7 @@
     </Compile>
     <Compile Include="Converters\BooleanToVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\FormatStringConverter.cs" />
+    <Compile Include="Converters\IntToVisibilityConverter.cs" />
     <Compile Include="Converters\IsNullOrWhiteSpaceConverter.cs" />
     <Compile Include="Converters\LowBatteryIndicatorVisibilityConverter.cs" />
     <Compile Include="Converters\NullToVisibilityCollapsedConverter.cs" />
@@ -355,6 +356,8 @@
     <Compile Include="Modules\ActionHandler\ITemporaryCacheAccount.cs" />
     <Compile Include="Modules\ActionHandler\TemporaryCacheAccount.cs" />
     <Compile Include="Modules\ActionHandler\UserActionHandler.cs" />
+    <Compile Include="Modules\ActiveDevice\ActiveDevice.cs" />
+    <Compile Include="Modules\ActiveDevice\IActiveDevice.cs" />
     <Compile Include="Modules\ButtonManager\ButtonManager.cs" />
     <Compile Include="Modules\ButtonManager\IButtonManager.cs" />
     <Compile Include="Modules\DeviceManager\DeviceManager.cs" />
@@ -593,8 +596,8 @@
     <Compile Include="Modules\WorkstationManager\WorkstationManager.cs" />
     <Compile Include="Modules\BalloonNotify\BalloonTipNotifyManager.cs" />
     <Compile Include="Modules\BalloonNotify\IBalloonTipNotifyManager.cs" />
-    <Compile Include="Modules\HelpMenuFactory\IMenuFactory.cs" />
-    <Compile Include="Modules\HelpMenuFactory\MenuFactory.cs" />
+    <Compile Include="Modules\MenuFactory\IMenuFactory.cs" />
+    <Compile Include="Modules\MenuFactory\MenuFactory.cs" />
     <Compile Include="Modules\Localize\LocalizationAttribute.cs" />
     <Compile Include="Modules\Localize\LocalizationExtension.cs" />
     <Compile Include="Modules\TaskbarIconManager\IconState.cs" />
