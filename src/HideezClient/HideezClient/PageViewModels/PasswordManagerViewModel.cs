@@ -28,6 +28,8 @@ using HideezClient.Utilities.QrCode;
 using HideezClient.Modules;
 using NLog;
 using Hideez.SDK.Communication;
+using GalaSoft.MvvmLight.Messaging;
+using HideezClient.Messages;
 
 namespace HideezClient.PageViewModels
 {
@@ -36,11 +38,15 @@ namespace HideezClient.PageViewModels
         protected readonly ILogger log = LogManager.GetCurrentClassLogger();
         private readonly IQrScannerHelper qrScannerHelper;
         private readonly IWindowsManager windowsManager;
+        private readonly IMessenger _messenger;
 
-        public PasswordManagerViewModel(IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper)
+        public PasswordManagerViewModel(IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger, IActiveDevice activeDevice)
         {
             this.windowsManager = windowsManager;
             this.qrScannerHelper = qrScannerHelper;
+            _messenger = messenger;
+
+            _messenger.Register<ActiveDeviceChangedMessage>(this, OnActiveDeviceChanged);
 
             this.WhenAnyValue(x => x.SearchQuery)
                  .Throttle(TimeSpan.FromMilliseconds(100))
@@ -57,6 +63,8 @@ namespace HideezClient.PageViewModels
 
             Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Accounts, nameof(ObservableCollection<string>.CollectionChanged))
                       .Subscribe(change => SelectedAccount = Accounts.FirstOrDefault());
+
+            Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
         }
 
         [Reactive] public bool IsAvailable { get; set; }
@@ -156,6 +164,12 @@ namespace HideezClient.PageViewModels
         }
 
         #endregion
+
+        private void OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
+        {
+            // Todo: ViewModel should be reused instead of being recreated each time active device is changed
+            Device = obj.NewDevice != null ? new DeviceViewModel(obj.NewDevice) : null;
+        }
 
         private async Task OnSaveAccountAsdync(SecureString password)
         {

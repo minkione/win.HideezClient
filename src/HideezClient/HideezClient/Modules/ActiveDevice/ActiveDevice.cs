@@ -1,5 +1,8 @@
-﻿using HideezClient.Models;
+﻿using GalaSoft.MvvmLight.Messaging;
+using HideezClient.Messages;
+using HideezClient.Models;
 using HideezClient.Modules.DeviceManager;
+using HideezClient.ViewModels;
 using System;
 using System.Collections.Specialized;
 using System.Linq;
@@ -9,15 +12,17 @@ namespace HideezClient.Modules
     class ActiveDevice : IActiveDevice, IDisposable
     {
         readonly IDeviceManager _deviceManager;
+        readonly IMessenger _messenger;
         Device _device;
 
         readonly object _deviceLock = new object();
 
         public event ActiveDeviceChangedEventHandler ActiveDeviceChanged;
 
-        public ActiveDevice(IDeviceManager deviceManager)
+        public ActiveDevice(IDeviceManager deviceManager, IMessenger messenger)
         {
             _deviceManager = deviceManager;
+            _messenger = messenger;
             _deviceManager.DevicesCollectionChanged += DeviceManager_DevicesCollectionChanged;
         }
 
@@ -33,6 +38,7 @@ namespace HideezClient.Modules
                         var prevDevice = _device;
                         _device = value;
                         ActiveDeviceChanged?.Invoke(this, new ActiveDeviceChangedEventArgs(prevDevice, _device));
+                        _messenger.Send(new ActiveDeviceChangedMessage(prevDevice, _device));
                     }
                 }
             } 

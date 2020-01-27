@@ -308,6 +308,7 @@
     <Compile Include="Extension\TaskExtension.cs" />
     <Compile Include="Extension\VisualEx.cs" />
     <Compile Include="Messages\ActivateScreenMessage.cs" />
+    <Compile Include="Messages\ActiveDeviceChangedMessage.cs" />
     <Compile Include="Messages\ButtonPressedMessage.cs" />
     <Compile Include="Messages\ConnectionChangedMessage.cs" />
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />

@@ -197,7 +197,7 @@ namespace HideezClient.Modules
                 {
                     CommandAction = (x) =>
                     {
-                        _activeDevice.Device = device;
+                        OnChangeActiveDevice(device);
                     }
                 },
             };
@@ -389,6 +389,12 @@ namespace HideezClient.Modules
             {
                 await device.InitRemoteAndLoadStorageAsync();
             }
+        }
+
+        private async void OnChangeActiveDevice(Device device)
+        {
+            _activeDevice.Device = device;
+            await device.InitRemoteAndLoadStorageAsync(true);
         }
     }
 }
