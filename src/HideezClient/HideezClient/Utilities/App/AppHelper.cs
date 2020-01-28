@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using SingleInstanceApp;
 
 namespace HideezClient.Utilities
 {
@@ -28,7 +29,7 @@ namespace HideezClient.Utilities
         public void Shutdown()
         {
             // TODO: Fix repeated calls to AppHelper.Shutdown()
-            Application.Current.Shutdown();
+            Application.Current.Shutdown(0);
         }
 
         public void OpenUrl(string url)
@@ -56,6 +57,13 @@ namespace HideezClient.Utilities
             TranslationSource.Instance.CurrentCulture = newCulture;
             Thread.CurrentThread.CurrentCulture = newCulture;
             Thread.CurrentThread.CurrentUICulture = newCulture;
+        }
+
+        public void Restart()
+        {
+            SingleInstance<App>.Cleanup();
+            System.Windows.Forms.Application.Restart();
+            Shutdown();
         }
     }
 }

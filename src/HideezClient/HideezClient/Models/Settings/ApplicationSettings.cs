@@ -11,12 +11,13 @@ namespace HideezClient.Models.Settings
         /// </summary>
         public ApplicationSettings()
         {
-            SettingsVersion = new Version(1, 0, 0);
+            SettingsVersion = new Version(1, 1, 0);
             IsFirstLaunch = true;
             LaunchApplicationOnStartup = false;
             SelectedUiLanguage = "en-us";
             AddEnterAfterInput = false;
             LimitPasswordEntry = false;
+            UseSimplifiedUI = false;
         }
 
         /// <summary>
@@ -35,6 +36,7 @@ namespace HideezClient.Models.Settings
             SelectedUiLanguage = copy.SelectedUiLanguage;
             AddEnterAfterInput = copy.AddEnterAfterInput;
             LimitPasswordEntry = copy.LimitPasswordEntry;
+            UseSimplifiedUI = copy.UseSimplifiedUI;
         }
 
         [Setting]
@@ -54,6 +56,9 @@ namespace HideezClient.Models.Settings
 
         [Setting]
         public bool LimitPasswordEntry { get; set; }
+
+        [Setting]
+        public bool UseSimplifiedUI { get; set; }
 
         public override object Clone()
         {

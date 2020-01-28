@@ -14,8 +14,12 @@ namespace HideezClient.Modules
     public interface IWindowsManager
     {
         void ActivateMainWindow();
+        void InitializeMainWindow();
+        void HideMainWindow();
         Task ActivateMainWindowAsync();
         Task HideMainWindowAsync();
+        Task InitializeMainWindowAsync();
+        
         Task<Bitmap> GetCurrentScreenImageAsync();
         event EventHandler<bool> MainWindowVisibleChanged;
         bool IsMainWindowVisible { get; }

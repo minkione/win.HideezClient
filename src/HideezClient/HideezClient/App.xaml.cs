@@ -65,6 +65,8 @@ namespace HideezClient
 
         public App()
         {
+            App.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
             SetupExceptionHandling();
 
             LogManager.EnableLogging();
@@ -74,6 +76,11 @@ namespace HideezClient
             _logger.Info("Version: {0}", Environment.Version);
             _logger.Info("OS: {0}", Environment.OSVersion);
             _logger.Info("Command: {0}", Environment.CommandLine);
+        }
+
+        private void Application_Startup(object sender, StartupEventArgs e)
+        {
+
         }
 
         void SetupExceptionHandling()
@@ -185,6 +192,8 @@ namespace HideezClient
                 settings.IsFirstLaunch = false;
                 appSettingsManager.SaveSettings(settings);
             }
+
+            await _windowsManager.InitializeMainWindowAsync();
         }
 
         private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)

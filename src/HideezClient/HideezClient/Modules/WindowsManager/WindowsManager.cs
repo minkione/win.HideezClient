@@ -20,6 +20,8 @@ using System.Windows.Interop;
 using HideezClient.Dialogs;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using HideezMiddleware.Settings;
+using HideezClient.Models.Settings;
 
 namespace HideezClient.Modules
 {
@@ -30,16 +32,19 @@ namespace HideezClient.Modules
         private readonly INotifier _notifier;
         private readonly Logger log = LogManager.GetCurrentClassLogger();
         private bool isMainWindowVisible;
+        private readonly ISettingsManager<ApplicationSettings> _settingsManager;
 
         object pinWindowLock = new object();
         PinDialog pinView = null;
 
         public event EventHandler<bool> MainWindowVisibleChanged;
 
-        public WindowsManager(INotifier notifier, ViewModelLocator viewModelLocator, IMessenger messenger)
+        public WindowsManager(INotifier notifier, ViewModelLocator viewModelLocator, 
+            IMessenger messenger, ISettingsManager<ApplicationSettings> settingsManager)
         {
             _notifier = notifier;
             _viewModelLocator = viewModelLocator;
+            _settingsManager = settingsManager;
 
             messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message, notificationId: p.Id));
             messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message, notificationId: p.Id));
@@ -58,6 +63,16 @@ namespace HideezClient.Modules
             UIDispatcher.Invoke(OnActivateMainWindow);
         }
 
+        public void HideMainWindow()
+        {
+            UIDispatcher.Invoke(OnHideMainWindow);
+        }
+
+        public void InitializeMainWindow()
+        {
+            UIDispatcher.Invoke(OnInitializeMainWindow);
+        }
+
         public async Task ActivateMainWindowAsync()
         {
             await UIDispatcher.InvokeAsync(OnActivateMainWindow);
@@ -66,6 +81,11 @@ namespace HideezClient.Modules
         public async Task HideMainWindowAsync()
         {
             await UIDispatcher.InvokeAsync(OnHideMainWindow);
+        }
+
+        public async Task InitializeMainWindowAsync()
+        {
+            await UIDispatcher.InvokeAsync(OnInitializeMainWindow);
         }
 
         public bool IsMainWindowVisible
@@ -123,6 +143,27 @@ namespace HideezClient.Modules
             }
 
             MainWindow.Hide();
+        }
+
+        private void DisposeMainWindow()
+        {
+            if (MainWindow == null) return;
+
+            UnsubscribeToMainWindowEvent();
+
+            MainWindow.Hide();
+            MainWindow.Close();
+            Application.Current.MainWindow = null;
+        }
+
+        private void OnInitializeMainWindow()
+        {
+            DisposeMainWindow();
+
+            if (_settingsManager.Settings.UseSimplifiedUI)
+                Application.Current.MainWindow = new SimpleMainView();
+            else
+                Application.Current.MainWindow = new MainWindowView();
         }
 
         private void SubscribeToMainWindowEvent()

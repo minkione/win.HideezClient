@@ -24,7 +24,7 @@
     DataContext="{Binding MainViewModel, Mode=OneWay, Source={StaticResource Locator}}"
     Style="{DynamicResource WindowStyle}"
     TitleCharacterCasing="Normal"
-    Visibility="Visible"
+    Visibility="Hidden"
     WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     mc:Ignorable="d">
