@@ -183,8 +183,8 @@
                     Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                 <iconPacks:PackIconModern
-                    Width="24"
-                    Height="24"
+                    Width="22"
+                    Height="22"
                     Margin="8,2,0,0"
                     VerticalAlignment="Center"
                     Foreground="{DynamicResource LowBatteryIndicatorBrush}"
@@ -192,6 +192,7 @@
                     <iconPacks:PackIconModern.Visibility>
                         <MultiBinding Converter="{StaticResource LowBatteryIndicatorVisibilityConverter}">
                             <Binding Path="IsConnected" />
+                            <Binding Path="FinishedMainFlow" />
                             <Binding Path="Battery" />
                         </MultiBinding>
                     </iconPacks:PackIconModern.Visibility>
