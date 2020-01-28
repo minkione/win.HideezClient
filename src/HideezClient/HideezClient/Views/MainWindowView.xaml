@@ -113,7 +113,7 @@
                     <controls:LeftMenuItemControl
                         Metro:VisibilityHelper.IsVisible="{Binding Path=ActiveDevice.IsConnected}"
                         DataContext="{Binding MenuDeviceSettings}"
-                        Tag="{Binding Path=DataContext.IcoKey, Mode=OneWay, ElementName=currentDeviceInfo, Converter={StaticResource StringToResource}}" />
+                        Tag="{Binding Path=DataContext.ActiveDevice.IcoKey, Mode=OneWay, ElementName=currentDeviceInfo, Converter={StaticResource StringToResource}}" />
                     <Border>
                         <Border.Style>
                             <Style TargetType="{x:Type Border}">
