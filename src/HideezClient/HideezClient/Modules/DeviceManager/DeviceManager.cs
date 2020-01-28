@@ -54,6 +54,7 @@ namespace HideezClient.Modules.DeviceManager
             _remoteDeviceFactory = remoteDeviceFactory;
 
             _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
+            _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
 
             _serviceProxy.Disconnected += OnServiceProxyConnectionStateChanged;
             _serviceProxy.Connected += OnServiceProxyConnectionStateChanged;
@@ -88,6 +89,18 @@ namespace HideezClient.Modules.DeviceManager
             }
         }
 
+        async void OnDeviceConnectionStateChanged(DeviceConnectionStateChangedMessage message)
+        {
+            try
+            {
+                await EnumerateDevices();
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+            }
+        }
+
         async Task ClearDevicesCollection()
         {
             foreach (var dvm in Devices.ToArray())
@@ -115,6 +128,9 @@ namespace HideezClient.Modules.DeviceManager
         {
             try
             {
+                // Ignore devices that are not connected
+                serviceDevices = serviceDevices.Where(d => d.IsConnected).ToArray();
+
                 // Create device if it does not exist in UI
                 foreach (var deviceDto in serviceDevices)
                     AddDevice(deviceDto);

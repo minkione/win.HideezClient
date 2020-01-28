@@ -28,6 +28,7 @@ namespace HideezClient.ViewModels
         readonly ISet<MenuItemViewModel> _leftAppMenuItems = new HashSet<MenuItemViewModel>();
         readonly ISet<MenuItemViewModel> _leftDeviceMenuItems = new HashSet<MenuItemViewModel>();
         Uri _displayPage;
+        DeviceInfoViewModel _activeDeviceVM = null;
 
         public MainViewModel(IDeviceManager deviceManager, IMenuFactory menuFactory, IActiveDevice activeDevice, ViewModelLocator viewModelLocator)
         {
@@ -110,13 +111,17 @@ namespace HideezClient.ViewModels
 
         void ActiveDevice_ActiveDeviceChanged(object sender, ActiveDeviceChangedEventArgs args)
         {
-            if (args.PreviousDevice != null)
-                args.PreviousDevice.PropertyChanged -= ActiveDevice_PropertyChanged;
+            if (ActiveDevice != null)
+            {
+                ActiveDevice.PropertyChanged -= ActiveDevice_PropertyChanged;
+                ActiveDevice = null;
+            }
 
             if (args.NewDevice != null)
-                args.NewDevice.PropertyChanged += ActiveDevice_PropertyChanged;
-
-            NotifyPropertyChanged(nameof(ActiveDevice));
+            {
+                ActiveDevice = new DeviceInfoViewModel(args.NewDevice, _menuFactory);
+                ActiveDevice.PropertyChanged += ActiveDevice_PropertyChanged;
+            }
         }
 
         void ActiveDevice_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -148,13 +153,8 @@ namespace HideezClient.ViewModels
 
         public DeviceInfoViewModel ActiveDevice
         {
-            get 
-            {
-                if (_activeDevice.Device == null)
-                    return null;
-
-                return new DeviceInfoViewModel(_activeDevice.Device, _menuFactory); 
-            }
+            get { return _activeDeviceVM; }
+            set { Set(ref _activeDeviceVM, value); }
         }
 
         [DependsOn(nameof(ActiveDevice))]
