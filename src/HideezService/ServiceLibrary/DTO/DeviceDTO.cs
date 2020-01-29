@@ -46,6 +46,8 @@ namespace ServiceLibrary
             FinishedMainFlow = device.GetUserProperty<bool>(ConnectionFlowProcessor.FLOW_FINISHED_PROP);
             Proximity = device.Proximity;
             CanLockPyProximity = device.GetUserProperty<bool>(WorkstationLockProcessor.PROX_LOCK_ENABLED_PROP);
+            OwnerName = device.GetUserProperty<string>(ConnectionFlowProcessor.OWNER_NAME_PROP) ?? string.Empty;
+            OwnerEmail = device.GetUserProperty<string>(ConnectionFlowProcessor.OWNER_EMAIL_PROP)?? string.Empty;
         }
 
         [DataMember]
@@ -58,7 +60,10 @@ namespace ServiceLibrary
         public string SerialNo { get; set; }
 
         [DataMember]
-        public string Owner { get; set; }
+        public string OwnerName { get; set; }
+
+        [DataMember]
+        public string OwnerEmail { get; set; }
 
         [DataMember]
         public bool IsConnected { get; set; }

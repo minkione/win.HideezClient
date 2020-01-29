@@ -14,6 +14,11 @@ namespace HideezMiddleware.Tasks
         readonly CancellationToken _ct;
         readonly TaskCompletionSource<DeviceInfoDto> _tcs = new TaskCompletionSource<DeviceInfoDto>();
 
+        /// <summary>
+        /// Set to True if info was retrieved from HES
+        /// </summary>
+        public bool IsSuccessful { get; private set; }
+
         public GetDeviceInfoFromHesProc(HesAppConnection hesConnection, string mac, CancellationToken ct)
         {
             _hesConnection = hesConnection;
@@ -32,6 +37,7 @@ namespace HideezMiddleware.Tasks
                     if (_hesConnection.State == HesConnectionState.Connected)
                     {
                         info = await _hesConnection.GetInfoByMac(_mac, _ct);
+                        IsSuccessful = true;
                     }
                     else
                     {
@@ -40,6 +46,8 @@ namespace HideezMiddleware.Tasks
                         {
                             NeedUpdate = false
                         };
+                        IsSuccessful = false;
+
                     }
 
                     _tcs.TrySetResult(info);

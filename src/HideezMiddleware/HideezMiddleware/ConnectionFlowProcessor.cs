@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Tasks;
 using Hideez.SDK.Communication.Utils;
+using HideezMiddleware.Local;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Tasks;
 using Microsoft.Win32;
@@ -19,6 +21,8 @@ namespace HideezMiddleware
     public class ConnectionFlowProcessor : Logger
     {
         public const string FLOW_FINISHED_PROP = "MainFlowFinished";
+        public const string OWNER_NAME_PROP = "OwnerName";
+        public const string OWNER_EMAIL_PROP = "OwnerEmail";
 
         readonly IBleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
@@ -26,6 +30,7 @@ namespace HideezMiddleware
         readonly IScreenActivator _screenActivator;
         readonly UiProxyManager _ui;
         readonly HesAppConnection _hesConnection;
+        readonly ILocalDeviceInfoCache _localDeviceInfoCache;
 
         int _isConnecting = 0;
         string _infNid = string.Empty; // Notification Id, which must be the same for the entire duration of MainWorkflow
@@ -45,6 +50,7 @@ namespace HideezMiddleware
             IWorkstationUnlocker workstationUnlocker,
             IScreenActivator screenActivator,
             UiProxyManager ui,
+            ILocalDeviceInfoCache localDeviceInfoCache,
             ILog log)
             : base(nameof(ConnectionFlowProcessor), log)
         {
@@ -54,6 +60,7 @@ namespace HideezMiddleware
             _screenActivator = screenActivator;
             _ui = ui;
             _hesConnection = hesConnection;
+            _localDeviceInfoCache = localDeviceInfoCache;
 
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
         }
@@ -133,7 +140,8 @@ namespace HideezMiddleware
                 await _ui.SendError("", _errNid);
 
                 // start fetching the device info in the background
-                var deviceInfoProc = new GetDeviceInfoFromHesProc(_hesConnection, mac, ct).Run();
+                var deviceInfoProc = new GetDeviceInfoFromHesProc(_hesConnection, mac, ct);
+                var deviceInfoProcTask = deviceInfoProc.Run();
 
                 if (WorkstationHelper.IsActiveSessionLocked())
                 {
@@ -151,13 +159,26 @@ namespace HideezMiddleware
 
                 await WaitDeviceInitialization(mac, device, ct);
 
-                var deviceInfo = await deviceInfoProc;
-                WriteLine($"Device info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}");
-                if (deviceInfo.HasNewLicense)
+                var deviceInfo = await deviceInfoProcTask;
+                if (deviceInfoProc.IsSuccessful)
                 {
-                    // License upload has the highest priority in connection flow. Without license other actions are impossible
-                    await _ui.SendNotification("Updating device licenses...", _infNid);
-                    await LicenseWorkflow(device, ct);
+                    UpdateDeviceOwner(device, deviceInfo);
+                    CacheDeviceInfoAsync(deviceInfo);
+
+                    WriteLine($"Device info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}");
+                    if (deviceInfo.HasNewLicense)
+                    {
+                        // License upload has the highest priority in connection flow. Without license other actions are impossible
+                        await _ui.SendNotification("Updating device licenses...", _infNid);
+                        await LicenseWorkflow(device, ct);
+                    }
+                }
+                else
+                {
+                    WriteLine("Couldn't retrieve device info from HES. Using local device info.");
+                    var localDeviceInfo = _localDeviceInfoCache.GetLocalInfo(device.Mac);
+                    if (localDeviceInfo != null)
+                        UpdateDeviceOwner(device, localDeviceInfo);
                 }
 
                 WriteLine($"IsLocked: {device.AccessLevel.IsLocked},  IsLinkRequired: {device.AccessLevel.IsLinkRequired}");
@@ -551,6 +572,34 @@ namespace HideezMiddleware
                 await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
                 await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
             }
+        }
+
+        void CacheDeviceInfoAsync(DeviceInfoDto dto)
+        {
+            Task.Run(() =>
+            {
+                var info = new LocalDeviceInfo
+                {
+                    Mac = dto.DeviceMac,
+                    SerialNo = dto.DeviceSerialNo,
+                    OwnerName = dto.OwnerName,
+                    OwnerEmail = dto.OwnerEmail,
+                };
+
+                _localDeviceInfoCache.SaveLocalInfo(info);
+            }).ConfigureAwait(false);
+        }
+
+        void UpdateDeviceOwner(IDevice device, DeviceInfoDto dto)
+        {
+            device.SetUserProperty(OWNER_NAME_PROP, dto.OwnerName);
+            device.SetUserProperty(OWNER_EMAIL_PROP, dto.OwnerEmail);
+        }
+
+        void UpdateDeviceOwner(IDevice device, LocalDeviceInfo info)
+        {
+            device.SetUserProperty(OWNER_NAME_PROP, info.OwnerName);
+            device.SetUserProperty(OWNER_EMAIL_PROP, info.OwnerEmail);
         }
     }
 }

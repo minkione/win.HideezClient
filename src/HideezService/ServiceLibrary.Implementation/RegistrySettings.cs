@@ -1,6 +1,6 @@
 ﻿using System;
 using Hideez.SDK.Communication.Log;
-using Microsoft.Win32;
+using HideezMiddleware;
 
 namespace ServiceLibrary.Implementation
 {
@@ -12,11 +12,7 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                var registryKey = RegistryKey
-                    .OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default)?
-                    .OpenSubKey("SOFTWARE")?
-                    .OpenSubKey("Hideez")?
-                    .OpenSubKey("Client");
+                var registryKey = HideezClientRegistryRoot.GetRootRegistryKey();
 
                 if (registryKey == null)
                     throw new Exception("Couldn't find Hideez Client registry key. (HKLM\\SOFTWARE\\Hideez\\Client)");

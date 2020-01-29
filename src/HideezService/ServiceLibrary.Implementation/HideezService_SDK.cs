@@ -19,6 +19,7 @@ using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware;
 using HideezMiddleware.Audit;
 using HideezMiddleware.DeviceConnection;
+using HideezMiddleware.Local;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using Microsoft.Win32;
@@ -56,6 +57,7 @@ namespace ServiceLibrary.Implementation
         static ProximityConnectionProcessor _proximityProcessor;
         static SessionSwitchLogger _sessionSwitchLogger;
         static ConnectionManagerRestarter _connectionManagerRestarter;
+        static ILocalDeviceInfoCache _localDeviceInfoCache;
 
         void InitializeSDK()
         {
@@ -172,6 +174,9 @@ namespace ServiceLibrary.Implementation
             // StatusManager =============================
             _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _rfidSettingsManager, _sdkLogger);
 
+            // Local device info cache
+            _localDeviceInfoCache = new LocalDeviceInfoCache(_sdkLogger);
+
             // ConnectionFlowProcessor
             _connectionFlowProcessor = new ConnectionFlowProcessor(
                 _connectionManager,
@@ -180,6 +185,7 @@ namespace ServiceLibrary.Implementation
                 _credentialProviderProxy,
                 _screenActivator,
                 _uiProxy,
+                _localDeviceInfoCache,
                 _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreList = new AdvertisementIgnoreList(

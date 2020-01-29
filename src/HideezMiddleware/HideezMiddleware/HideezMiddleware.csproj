@@ -83,6 +83,7 @@
     <Compile Include="Audit\SessionInfoProvider.cs" />
     <Compile Include="Audit\SessionSwitchLogger.cs" />
     <Compile Include="Audit\SessionTimestampLogger.cs" />
+    <Compile Include="HideezClientRegistryRoot.cs" />
     <Compile Include="ConnectionManagerRestarter.cs" />
     <Compile Include="CredentialProviderProxy.cs" />
     <Compile Include="DeviceConnection\AdvertisementIgnoreList.cs" />
@@ -90,6 +91,9 @@
     <Compile Include="DeviceConnection\ProximityConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\RfidConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\TapConnectionProcessor.cs" />
+    <Compile Include="Local\LocalDeviceInfo.cs" />
+    <Compile Include="Local\LocalDeviceInfoCache.cs" />
+    <Compile Include="Local\ILocalDeviceInfoCache.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
     <Compile Include="IClientUiProxy.cs" />
