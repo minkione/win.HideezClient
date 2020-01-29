@@ -52,6 +52,7 @@ namespace HideezClient.ViewModels
         public string Name => device.Name;
         public string SerialNo => device.SerialNo;
         public string OwnerName => device.OwnerName;
+        public string OwnerEmail => device.OwnerEmail;
         public string Id => device.Id;
         public string Mac => BleUtils.DeviceIdToMac(Id);
         public bool IsConnected => device.IsConnected;

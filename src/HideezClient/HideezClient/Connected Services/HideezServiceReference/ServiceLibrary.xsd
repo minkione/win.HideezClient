@@ -43,7 +43,8 @@
       <xs:element minOccurs="0" name="IsConnected" type="xs:boolean" />
       <xs:element minOccurs="0" name="IsInitialized" type="xs:boolean" />
       <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Owner" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="OwnerEmail" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="OwnerName" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="PinAttemptsRemain" type="xs:int" />
       <xs:element minOccurs="0" name="Proximity" type="xs:double" />
       <xs:element minOccurs="0" name="SerialNo" nillable="true" type="xs:string" />

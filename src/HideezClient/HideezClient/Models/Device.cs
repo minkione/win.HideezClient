@@ -48,6 +48,7 @@ namespace HideezClient.Models
         string id;
         string name;
         string ownerName;
+        string ownerEmail;
         bool isConnected;
         bool isInitialized;
         string serialNo;
@@ -126,6 +127,12 @@ namespace HideezClient.Models
         {
             get { return ownerName; }
             private set { Set(ref ownerName, value); }
+        }
+
+        public string OwnerEmail
+        {
+            get { return ownerEmail; }
+            private set { Set(ref ownerEmail, value); }
         }
 
         public bool IsConnected
@@ -395,7 +402,8 @@ namespace HideezClient.Models
         {
             Id = dto.Id;
             Name = dto.Name;
-            OwnerName = dto.Owner ?? "...unspecified...";
+            OwnerName = dto.OwnerName ?? "unknown";
+            OwnerEmail = dto.OwnerEmail ?? "unknown";
             IsConnected = dto.IsConnected;
             IsInitialized = dto.IsInitialized;
             SerialNo = dto.SerialNo;

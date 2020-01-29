@@ -4,12 +4,12 @@ namespace HideezMiddleware
 {
     public static class HideezClientRegistryRoot
     {
-        public static RegistryKey GetRootRegistryKey()
+        public static RegistryKey GetRootRegistryKey(bool writable = false)
         {
             return RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default)?
                 .OpenSubKey("SOFTWARE")?
                 .OpenSubKey("Hideez")?
-                .OpenSubKey("Client");
+                .OpenSubKey("Client", writable);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace HideezMiddleware.Local
 {
     public class LocalDeviceInfoCache : Logger, ILocalDeviceInfoCache
     {
-        readonly RegistryKey _registryRootKey = HideezClientRegistryRoot.GetRootRegistryKey();
+        readonly RegistryKey _registryRootKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
         readonly RegistryKey _cacheRootKey; 
 
         public LocalDeviceInfoCache(ILog log) : base(nameof(LocalDeviceInfoCache), log)

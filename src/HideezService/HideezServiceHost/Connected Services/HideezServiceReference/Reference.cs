@@ -179,7 +179,10 @@ namespace HideezServiceHost.HideezServiceReference {
         private string NameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string OwnerField;
+        private string OwnerEmailField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string OwnerNameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PinAttemptsRemainField;
@@ -350,14 +353,27 @@ namespace HideezServiceHost.HideezServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Owner {
+        public string OwnerEmail {
             get {
-                return this.OwnerField;
+                return this.OwnerEmailField;
             }
             set {
-                if ((object.ReferenceEquals(this.OwnerField, value) != true)) {
-                    this.OwnerField = value;
-                    this.RaisePropertyChanged("Owner");
+                if ((object.ReferenceEquals(this.OwnerEmailField, value) != true)) {
+                    this.OwnerEmailField = value;
+                    this.RaisePropertyChanged("OwnerEmail");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string OwnerName {
+            get {
+                return this.OwnerNameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.OwnerNameField, value) != true)) {
+                    this.OwnerNameField = value;
+                    this.RaisePropertyChanged("OwnerName");
                 }
             }
         }
