@@ -44,7 +44,7 @@ namespace ServiceLibrary.Implementation
         static ServiceClientUiManager _clientProxy;
         static UiProxyManager _uiProxy;
         static StatusManager _statusManager;
-        static WcfWorkstationLocker _workstationLocker;
+        static IWorkstationLocker _workstationLocker;
         static WorkstationLockProcessor _workstationLockProcessor;
 
         static ISettingsManager<RfidSettings> _rfidSettingsManager;
@@ -236,7 +236,8 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _sdkLogger, proximitySettings.DevicesProximity);
 
             // WorkstationLocker ==================================
-            _workstationLocker = new WcfWorkstationLocker(sessionManager, _sdkLogger);
+            // TODO: Use value from SdkConfig for timeout
+            _workstationLocker = new UniversalWorkstationLocker(5_000, sessionManager, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager,
