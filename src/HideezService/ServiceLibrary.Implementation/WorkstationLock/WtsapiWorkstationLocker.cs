@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 
 namespace ServiceLibrary.Implementation.WorkstationLock
 {
-    [Obsolete]
     class WtsapiWorkstationLocker : Logger
     {
         [DllImport("wtsapi32.dll", SetLastError = true)]
@@ -100,7 +99,6 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                 var domain = Marshal.PtrToStringAnsi(domainPtr);
                 var userName = Marshal.PtrToStringAnsi(userPtr);
                 var sessionFullName = domain + "\\" + userName;
-                WriteLine("Session: " + sessionFullName);
 
                 WTSFreeMemory(userPtr);
                 WTSFreeMemory(domainPtr);
@@ -109,13 +107,20 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                 //if (sessionFullName == sessionTolock) 
                 if (!string.IsNullOrWhiteSpace(domain) && !string.IsNullOrWhiteSpace(userName))
                 {
-                    WriteLine($"Session '{sessionFullName}' matches session to lock ' '");
                     if (si.State == WTS_CONNECTSTATE_CLASS.WTSActive)
                     {
-                        WriteLine($"Session '{sessionFullName}' is active, disconnect initiated");
-                        bool disconnected = WTSDisconnectSession(IntPtr.Zero, si.SessionID, false);
+                        WriteLine($"Disconnecting session: {sessionFullName}");
+                        bool disconnected = WTSDisconnectSession(IntPtr.Zero, si.SessionID, true);
                         WriteLine($"Session disconnected: {disconnected}");
                     }
+                    else
+                    {
+                        WriteLine($"Session inactive: {sessionFullName}");
+                    }
+                }
+                else
+                {
+                    WriteLine($"Session skipped: {sessionFullName}");
                 }
             }
             WTSFreeMemory(ppSessionInfo);

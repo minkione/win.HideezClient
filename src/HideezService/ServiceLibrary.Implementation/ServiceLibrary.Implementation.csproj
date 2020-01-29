@@ -83,6 +83,7 @@
     <Compile Include="ClientManagement\ServiceClientSessionManager.cs" />
     <Compile Include="RegistrySettings.cs" />
     <Compile Include="ScreenActivation\WcfScreenActivator.cs" />
+    <Compile Include="WorkstationLock\UniversalWorkstationLocker.cs" />
     <Compile Include="WorkstationLock\WcfWorkstationLocker.cs" />
     <Compile Include="WorkstationLock\WtsapiWorkstationLocker.cs" />
   </ItemGroup>
