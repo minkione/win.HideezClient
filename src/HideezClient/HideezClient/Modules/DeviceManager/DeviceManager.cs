@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using HideezClient.Controls;
 using Hideez.SDK.Communication;
+using HideezMiddleware.Threading;
 
 namespace HideezClient.Modules.DeviceManager
 {
@@ -25,8 +26,8 @@ namespace HideezClient.Modules.DeviceManager
         private readonly IServiceProxy _serviceProxy;
         private readonly IWindowsManager _windowsManager;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
+        readonly SemaphoreQueue _semaphoreQueue = new SemaphoreQueue(1, 1);
         ConcurrentDictionary<string, Device> _devices { get; } = new ConcurrentDictionary<string, Device>();
-        object _addDeviceLock = new object();
 
         // Custom dispatcher is required for unit tests because during test 
         // runs the Application.Current property is null
@@ -64,6 +65,7 @@ namespace HideezClient.Modules.DeviceManager
 
         async void OnServiceProxyConnectionStateChanged(object sender, EventArgs e)
         {
+            await _semaphoreQueue.WaitAsync();
             try
             {
                 if (!_serviceProxy.IsConnected)
@@ -75,10 +77,15 @@ namespace HideezClient.Modules.DeviceManager
             {
                 _log.Error(ex);
             }
+            finally
+            {
+                _semaphoreQueue.Release();
+            }
         }
 
         async void OnDevicesCollectionChanged(DevicesCollectionChangedMessage message)
         {
+            await _semaphoreQueue.WaitAsync();
             try
             {
                 await EnumerateDevices(message.Devices);
@@ -87,10 +94,15 @@ namespace HideezClient.Modules.DeviceManager
             {
                 _log.Error(ex);
             }
+            finally
+            {
+                _semaphoreQueue.Release();
+            }
         }
 
         async void OnDeviceConnectionStateChanged(DeviceConnectionStateChangedMessage message)
         {
+            await _semaphoreQueue.WaitAsync();
             try
             {
                 await EnumerateDevices();
@@ -99,6 +111,10 @@ namespace HideezClient.Modules.DeviceManager
             {
                 _log.Error(ex);
             }
+            finally
+            {
+                _semaphoreQueue.Release();
+            }
         }
 
         async Task ClearDevicesCollection()
@@ -106,7 +122,7 @@ namespace HideezClient.Modules.DeviceManager
             foreach (var dvm in Devices.ToArray())
                 await RemoveDevice(dvm);
         }
-        // TODO: Add thread safety
+
         async Task EnumerateDevices()
         {
             try
@@ -151,17 +167,14 @@ namespace HideezClient.Modules.DeviceManager
 
         void AddDevice(DeviceDTO dto)
         {
-            lock (_addDeviceLock)
+            if (!_devices.ContainsKey(dto.Id))
             {
-                if (!_devices.ContainsKey(dto.Id))
-                {
-                    var device = new Device(_serviceProxy, _remoteDeviceFactory, _messenger, dto);
-                    device.PropertyChanged += Device_PropertyChanged;
+                var device = new Device(_serviceProxy, _remoteDeviceFactory, _messenger, dto);
+                device.PropertyChanged += Device_PropertyChanged;
 
-                    if (_devices.TryAdd(device.Id, device))
-                    {
-                        DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, device));
-                    }
+                if (_devices.TryAdd(device.Id, device))
+                {
+                    DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, device));
                 }
             }
         }

@@ -120,6 +120,7 @@
     <Compile Include="Tasks\GetDeviceInfoFromHesProc.cs" />
     <Compile Include="Tasks\UnlockSessionSwitchProc.cs" />
     <Compile Include="Tasks\WaitWorkstationUnlockerConnectProc.cs" />
+    <Compile Include="Threading\SemaphoreQueue.cs" />
     <Compile Include="UiProxyManager.cs" />
     <Compile Include="Utils\LocalToMSAccountConverter.cs" />
     <Compile Include="Utils\WorkstationHelper.cs" />

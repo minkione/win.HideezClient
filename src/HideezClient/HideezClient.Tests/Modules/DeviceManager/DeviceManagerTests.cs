@@ -25,38 +25,22 @@ namespace HideezClient.Modules.DeviceManager.Tests
             IMessenger messenger = GetMessenger();
             IDeviceManager deviceManager = GetDeviceManager(messenger, serviceProxy);
 
-            devices.Add(new DeviceDTO
-            {
-                Id = "CD4D46777E19",
-                Name = "0001",
-                IsConnected = true,
-            });
-            devices.Add(new DeviceDTO
-            {
-                Id = "CD4D46777E29",
-                Name = "0002",
-                IsConnected = true,
-            });
-            devices.Add(new DeviceDTO
-            {
-                Id = "CD4D46777E39",
-                Name = "0003",
-                IsConnected = true,
-            });
+            int devicesCount = 100;
 
-            await serviceProxy.ConnectAsync();
-            await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count() == 3);
-            await serviceProxy.DisconnectAsync();
-            await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count() == 0);
+            for (int i = 0; i < devicesCount; i++)
+                devices.Add(GetRandomDeviceDTO());
 
-            await serviceProxy.ConnectAsync();
-            await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count() == 3);
-            await serviceProxy.DisconnectAsync();
-            await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count() == 0);
+            int serviceReconnectsCount = 10;
+            for (int i = 0; i < serviceReconnectsCount; i++)
+            {
+                await serviceProxy.ConnectAsync();
+                await Task.Delay(200);
+                Assert.AreEqual(devicesCount, deviceManager.Devices.Count());
+
+                await serviceProxy.DisconnectAsync();
+                await Task.Delay(200);
+                Assert.AreEqual(0, deviceManager.Devices.Count());
+            }
         }
 
         [Test]
@@ -71,57 +55,39 @@ namespace HideezClient.Modules.DeviceManager.Tests
             IDeviceManager deviceManager = GetDeviceManager(messenger, serviceProxy);
 
             await serviceProxy.ConnectAsync();
-            Assert.IsTrue(deviceManager.Devices.Count() == 0);
+            await Task.Delay(200);
+            Assert.AreEqual(0, deviceManager.Devices.Count());
 
             await Task.Run(() =>
             {
-                devices.Add(new DeviceDTO
-                {
-                    Id = "DCD777B8882D",
-                    Name = "0000",
-                    SerialNo = "0",
-                    IsConnected = true,
-                });
-                devices.Add(new DeviceDTO
-                {
-                    Id = "000777B8882D",
-                    Name = "0001",
-                    SerialNo = "1",
-                    IsConnected = true,
-                });
-                devices.Add(new DeviceDTO
-                {
-                    Id = "0007HJK8882D",
-                    Name = "0002",
-                    SerialNo = "2",
-                    IsConnected = true,
-                });
+                devices.Add(GetRandomDeviceDTO());
+                devices.Add(GetRandomDeviceDTO());
+                devices.Add(GetRandomDeviceDTO());
                 messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
             });
 
-            await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count() == 3);
+            await Task.Delay(200);
+            Assert.AreEqual(3, deviceManager.Devices.Count());
 
             await Task.Run(() =>
             {
                 devices.RemoveAt(0);
             });
             messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
-
-            await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count() == 2);
+            await Task.Delay(200);
+            Assert.AreEqual(2, deviceManager.Devices.Count());
 
             await Task.Run(() =>
             {
                 devices.Clear();
             });
             messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
-
-            await Task.Delay(500);
-            Assert.IsTrue(deviceManager.Devices.Count() == 0);
+            await Task.Delay(200);
+            Assert.AreEqual(0, deviceManager.Devices.Count());
 
             await serviceProxy.DisconnectAsync();
-            Assert.IsTrue(deviceManager.Devices.Count() == 0);
+            await Task.Delay(200);
+            Assert.AreEqual(0, deviceManager.Devices.Count());
         }
 
         [Test]
@@ -135,53 +101,28 @@ namespace HideezClient.Modules.DeviceManager.Tests
             IMessenger messenger = GetMessenger();
             IDeviceManager deviceManager = GetDeviceManager(messenger, serviceProxy);
 
-            devices.Add(new DeviceDTO
-            {
-                Id = "CD4D46777E1A",
-                Name = "0000",
-                SerialNo = "0",
-                IsConnected = true,
-            });
+            devices.Add(GetRandomDeviceDTO());
 
-            bool res = await serviceProxy.ConnectAsync();
-
-            await Task.Delay(500);
+            await serviceProxy.ConnectAsync();
+            await Task.Delay(200);
             Assert.AreEqual(1, deviceManager.Devices.Count());
 
-            devices.Add(new DeviceDTO
-            {
-                Id = "DCD777B8D52A",
-                Name = "0001",
-                SerialNo = "1",
-                IsConnected = true,
-            });
+            devices.Add(GetRandomDeviceDTO());
             messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
 
             await Task.Run(() =>
             {
-                devices.Add(new DeviceDTO
-                {
-                    Id = "DCD777B8883A",
-                    Name = "0002",
-                    SerialNo = "2",
-                    IsConnected = true,
-                });
-                devices.Add(new DeviceDTO
-                {
-                    Id = "000777B8884A",
-                    Name = "0003",
-                    SerialNo = "3",
-                    IsConnected = true,
-                });
+                devices.Add(GetRandomDeviceDTO());
+                devices.Add(GetRandomDeviceDTO());
                 messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
             });
 
-            await Task.Delay(500);
+            await Task.Delay(200);
             Assert.AreEqual(4, deviceManager.Devices.Count());
 
             devices.RemoveAt(0);
             messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
-            await Task.Delay(500);
+            await Task.Delay(200);
             Assert.AreEqual(3, deviceManager.Devices.Count());
 
             await Task.Run(() =>
@@ -189,12 +130,12 @@ namespace HideezClient.Modules.DeviceManager.Tests
                 devices.RemoveAt(0);
             });
             messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
-            await Task.Delay(500);
+            await Task.Delay(200);
             Assert.AreEqual(2, deviceManager.Devices.Count());
 
 
             await serviceProxy.DisconnectAsync();
-            await Task.Delay(500);
+            await Task.Delay(200);
             Assert.AreEqual(0, deviceManager.Devices.Count());
         }
 
@@ -202,7 +143,7 @@ namespace HideezClient.Modules.DeviceManager.Tests
         public async Task DeviceCollectionChanged_AsyncLoadTest()
         {
             int taskCount = 20;
-            int devicesPerTask = 30;
+            int devicesPerTask = 50;
 
             var devices = new List<DeviceDTO>();
             var hideezServiceMock = new Mock<IHideezService>();
@@ -219,13 +160,7 @@ namespace HideezClient.Modules.DeviceManager.Tests
             {
                 lock (addLock)
                 {
-                    var guid = Guid.NewGuid().ToString();
-                    devices.Add(new DeviceDTO
-                    {
-                        Id = guid,
-                        Name = guid,
-                        IsConnected = true,
-                    });
+                    devices.Add(GetRandomDeviceDTO());
                     messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
                 }
             };
@@ -242,10 +177,55 @@ namespace HideezClient.Modules.DeviceManager.Tests
             }
 
             Task.WaitAll(creationTasks);
+            await Task.Delay(400 * taskCount);
+            Assert.AreEqual(devicesPerTask * taskCount, deviceManager.Devices.Count());
+        }
 
-            await Task.Delay(500); // There is a slight delay between adding device and when its available in collection
+        [Test]
+        public async Task EnumerateDevices_ClearDevices_DevicesCollectionCleared()
+        {
+            var devices = new List<DeviceDTO>();
+            var hideezServiceMock = new Mock<IHideezService>();
+            hideezServiceMock.Setup(s => s.GetDevicesAsync()).ReturnsAsync(() => devices.ToArray());
+            IHideezService hideezService = hideezServiceMock.Object;
+            IServiceProxy serviceProxy = GetServiceProxy(hideezService);
+            IMessenger messenger = GetMessenger();
+            IDeviceManager deviceManager = GetDeviceManager(messenger, serviceProxy);
 
-            Assert.IsTrue(deviceManager.Devices.Count() == devicesPerTask * taskCount);
+            await serviceProxy.ConnectAsync();
+
+            int devicesCount = 1000;
+            for (int i = 0; i < devicesCount; i++)
+                devices.Add(GetRandomDeviceDTO());
+
+            messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
+            await serviceProxy.DisconnectAsync();
+            await Task.Delay(2000);
+            Assert.AreEqual(0, deviceManager.Devices.Count());
+        }
+
+        [Test]
+        public async Task EnumerateDevices_QuickReconnect_DevicesCollectionEnumerated()
+        {
+            var devices = new List<DeviceDTO>();
+            var hideezServiceMock = new Mock<IHideezService>();
+            hideezServiceMock.Setup(s => s.GetDevicesAsync()).ReturnsAsync(() => devices.ToArray());
+            IHideezService hideezService = hideezServiceMock.Object;
+            IServiceProxy serviceProxy = GetServiceProxy(hideezService);
+            IMessenger messenger = GetMessenger();
+            IDeviceManager deviceManager = GetDeviceManager(messenger, serviceProxy);
+
+            int devicesCount = 1000;
+            for (int i = 0; i < devicesCount; i++)
+                devices.Add(GetRandomDeviceDTO());
+
+            var connectionTask = Task.Factory.StartNew(serviceProxy.ConnectAsync);
+            var disconnectionTask = Task.Factory.StartNew(serviceProxy.DisconnectAsync);
+            var reconnectionTask = Task.Factory.StartNew(serviceProxy.ConnectAsync);
+
+            await Task.WhenAll(connectionTask, disconnectionTask, reconnectionTask);
+            await Task.Delay(2000);
+            Assert.AreEqual(devicesCount, deviceManager.Devices.Count());
         }
 
         private IServiceProxy GetServiceProxy(IHideezService hideezService)
@@ -274,5 +254,17 @@ namespace HideezClient.Modules.DeviceManager.Tests
         {
             return new Messenger();
         }
+
+        private DeviceDTO GetRandomDeviceDTO()
+        {
+            return new DeviceDTO
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = Guid.NewGuid().ToString(),
+                SerialNo = Guid.NewGuid().ToString(),
+                IsConnected = true,
+            };
+        }
+
     }
 }
