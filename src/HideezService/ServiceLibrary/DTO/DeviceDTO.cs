@@ -27,7 +27,7 @@ namespace ServiceLibrary
             Proximity = device.Proximity;
             CanLockPyProximity = device.GetUserProperty<bool>(WorkstationLockProcessor.PROX_LOCK_ENABLED_PROP);
             OwnerName = device.GetUserProperty<string>(ConnectionFlowProcessor.OWNER_NAME_PROP) ?? string.Empty;
-            OwnerEmail = device.GetUserProperty<string>(ConnectionFlowProcessor.OWNER_EMAIL_PROP)?? string.Empty;
+            OwnerEmail = device.GetUserProperty<string>(ConnectionFlowProcessor.OWNER_EMAIL_PROP) ?? string.Empty;
         }
 
         [DataMember]

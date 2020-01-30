@@ -402,8 +402,8 @@ namespace HideezClient.Models
         {
             Id = dto.Id;
             Name = dto.Name;
-            OwnerName = dto.OwnerName ?? "unknown";
-            OwnerEmail = dto.OwnerEmail ?? "unknown";
+            OwnerName = dto.OwnerName;
+            OwnerEmail = dto.OwnerEmail;
             IsConnected = dto.IsConnected;
             IsInitialized = dto.IsInitialized;
             SerialNo = dto.SerialNo;

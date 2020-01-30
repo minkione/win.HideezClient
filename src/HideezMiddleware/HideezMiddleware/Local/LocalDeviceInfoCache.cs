@@ -6,11 +6,12 @@ namespace HideezMiddleware.Local
 {
     public class LocalDeviceInfoCache : Logger, ILocalDeviceInfoCache
     {
-        readonly RegistryKey _registryRootKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
+        readonly RegistryKey _registryRootKey;
         readonly RegistryKey _cacheRootKey; 
 
-        public LocalDeviceInfoCache(ILog log) : base(nameof(LocalDeviceInfoCache), log)
+        public LocalDeviceInfoCache(RegistryKey rootKey, ILog log) : base(nameof(LocalDeviceInfoCache), log)
         {
+            _registryRootKey = rootKey;
             if (_registryRootKey != null)
                 _cacheRootKey = _registryRootKey.CreateSubKey("DeviceCache");
         }

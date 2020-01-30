@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Hideez.CsrBLE;
@@ -175,7 +176,20 @@ namespace ServiceLibrary.Implementation
             _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _rfidSettingsManager, _sdkLogger);
 
             // Local device info cache
-            _localDeviceInfoCache = new LocalDeviceInfoCache(_sdkLogger);
+            RegistryKey deviceInfoCacheRegistryKey = null;
+            try
+            {
+                deviceInfoCacheRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Error($"Failed to get write access for Client registry key: {ex.Message}");
+            }
+            catch (SecurityException ex)
+            {
+                Error($"Failed to get write access for Client registry key: {ex.Message}");
+            }
+            _localDeviceInfoCache = new LocalDeviceInfoCache(deviceInfoCacheRegistryKey, _sdkLogger);
 
             // ConnectionFlowProcessor
             _connectionFlowProcessor = new ConnectionFlowProcessor(

@@ -162,8 +162,7 @@ namespace HideezMiddleware
                 var deviceInfo = await deviceInfoProcTask;
                 if (deviceInfoProc.IsSuccessful)
                 {
-                    UpdateDeviceOwner(device, deviceInfo);
-                    CacheDeviceInfoAsync(deviceInfo);
+                    CacheAndUpdateDeviceOwner(device, deviceInfo);
 
                     WriteLine($"Device info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}");
                     if (deviceInfo.HasNewLicense)
@@ -176,9 +175,7 @@ namespace HideezMiddleware
                 else
                 {
                     WriteLine("Couldn't retrieve device info from HES. Using local device info.");
-                    var localDeviceInfo = _localDeviceInfoCache.GetLocalInfo(device.Mac);
-                    if (localDeviceInfo != null)
-                        UpdateDeviceOwner(device, localDeviceInfo);
+                    LoadLocalDeviceOwner(device);
                 }
 
                 WriteLine($"IsLocked: {device.AccessLevel.IsLocked},  IsLinkRequired: {device.AccessLevel.IsLinkRequired}");
@@ -574,32 +571,54 @@ namespace HideezMiddleware
             }
         }
 
+        #region Device owner mame and owner email handling
         void CacheDeviceInfoAsync(DeviceInfoDto dto)
         {
-            Task.Run(() =>
+            if (_localDeviceInfoCache != null)
             {
-                var info = new LocalDeviceInfo
+                Task.Run(() =>
                 {
-                    Mac = dto.DeviceMac,
-                    SerialNo = dto.DeviceSerialNo,
-                    OwnerName = dto.OwnerName,
-                    OwnerEmail = dto.OwnerEmail,
-                };
+                    var info = new LocalDeviceInfo
+                    {
+                        Mac = dto.DeviceMac,
+                        SerialNo = dto.DeviceSerialNo,
+                        OwnerName = dto.OwnerName,
+                        OwnerEmail = dto.OwnerEmail,
+                    };
 
-                _localDeviceInfoCache.SaveLocalInfo(info);
-            }).ConfigureAwait(false);
+                    _localDeviceInfoCache.SaveLocalInfo(info);
+                }).ConfigureAwait(false);
+            }
+            else
+                WriteLine("Failed to cache info: Local info cache not available");
         }
 
-        void UpdateDeviceOwner(IDevice device, DeviceInfoDto dto)
+        void CacheAndUpdateDeviceOwner(IDevice device, DeviceInfoDto dto)
         {
-            device.SetUserProperty(OWNER_NAME_PROP, dto.OwnerName);
-            device.SetUserProperty(OWNER_EMAIL_PROP, dto.OwnerEmail);
+            UpdateDeviceOwner(device, dto.OwnerName, dto.OwnerEmail);
+            CacheDeviceInfoAsync(dto);
         }
 
-        void UpdateDeviceOwner(IDevice device, LocalDeviceInfo info)
+        void LoadLocalDeviceOwner(IDevice device)
         {
-            device.SetUserProperty(OWNER_NAME_PROP, info.OwnerName);
-            device.SetUserProperty(OWNER_EMAIL_PROP, info.OwnerEmail);
+            if (_localDeviceInfoCache != null)
+            {
+                var localDeviceInfo = _localDeviceInfoCache.GetLocalInfo(device.Mac);
+                if (localDeviceInfo != null)
+                    UpdateDeviceOwner(device, localDeviceInfo.OwnerName, localDeviceInfo.OwnerEmail);
+            }
+            else
+                WriteLine("Failed to load info: Local info cache not available");
         }
+
+        void UpdateDeviceOwner(IDevice device, string ownerName, string ownerEmail)
+        {
+            if (!string.IsNullOrWhiteSpace(ownerName))
+                device.SetUserProperty(OWNER_NAME_PROP, ownerName);
+
+            if (!string.IsNullOrWhiteSpace(ownerEmail))
+                device.SetUserProperty(OWNER_EMAIL_PROP, ownerEmail);
+        }
+        #endregion
     }
 }
