@@ -243,7 +243,7 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager.Start();
 
             _connectionManager.StartDiscovery();
-            //_connectionManagerRestarter.Start();
+            _connectionManagerRestarter.Start();
 
             if (_hesConnection.State == HesConnectionState.Error)
             {
@@ -624,14 +624,7 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                //return _deviceManager.Devices.Where(d => !d.IsRemote).Select(d => new DeviceDTO(d)).ToArray();
-
-                return new DeviceDTO[]
-                {
-                    new DeviceDTO("1", "Hideez Device 1"),
-                    new DeviceDTO("2", "Hideez Device 2"),
-                    new DeviceDTO("3", "Hideez Device 3"),
-                };
+                return _deviceManager.Devices.Where(d => !d.IsRemote).Select(d => new DeviceDTO(d)).ToArray();
             }
             catch (Exception ex)
             {
