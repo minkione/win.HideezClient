@@ -29,16 +29,19 @@ namespace HideezClient.Modules.DeviceManager.Tests
             {
                 Id = "CD4D46777E19",
                 Name = "0001",
+                IsConnected = true,
             });
             devices.Add(new DeviceDTO
             {
                 Id = "CD4D46777E29",
                 Name = "0002",
+                IsConnected = true,
             });
             devices.Add(new DeviceDTO
             {
                 Id = "CD4D46777E39",
                 Name = "0003",
+                IsConnected = true,
             });
 
             await serviceProxy.ConnectAsync();
@@ -76,19 +79,22 @@ namespace HideezClient.Modules.DeviceManager.Tests
                 {
                     Id = "DCD777B8882D",
                     Name = "0000",
-                    SerialNo = "0"
+                    SerialNo = "0",
+                    IsConnected = true,
                 });
                 devices.Add(new DeviceDTO
                 {
                     Id = "000777B8882D",
                     Name = "0001",
-                    SerialNo = "1"
+                    SerialNo = "1",
+                    IsConnected = true,
                 });
                 devices.Add(new DeviceDTO
                 {
                     Id = "0007HJK8882D",
                     Name = "0002",
-                    SerialNo = "2"
+                    SerialNo = "2",
+                    IsConnected = true,
                 });
                 messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
             });
@@ -133,7 +139,8 @@ namespace HideezClient.Modules.DeviceManager.Tests
             {
                 Id = "CD4D46777E1A",
                 Name = "0000",
-                SerialNo = "0"
+                SerialNo = "0",
+                IsConnected = true,
             });
 
             bool res = await serviceProxy.ConnectAsync();
@@ -145,7 +152,8 @@ namespace HideezClient.Modules.DeviceManager.Tests
             {
                 Id = "DCD777B8D52A",
                 Name = "0001",
-                SerialNo = "1"
+                SerialNo = "1",
+                IsConnected = true,
             });
             messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
 
@@ -155,13 +163,15 @@ namespace HideezClient.Modules.DeviceManager.Tests
                 {
                     Id = "DCD777B8883A",
                     Name = "0002",
-                    SerialNo = "2"
+                    SerialNo = "2",
+                    IsConnected = true,
                 });
                 devices.Add(new DeviceDTO
                 {
                     Id = "000777B8884A",
                     Name = "0003",
-                    SerialNo = "3"
+                    SerialNo = "3",
+                    IsConnected = true,
                 });
                 messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
             });
@@ -214,6 +224,7 @@ namespace HideezClient.Modules.DeviceManager.Tests
                     {
                         Id = guid,
                         Name = guid,
+                        IsConnected = true,
                     });
                     messenger.Send(new DevicesCollectionChangedMessage(devices.ToArray()));
                 }
