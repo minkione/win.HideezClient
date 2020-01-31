@@ -6,39 +6,39 @@ using HideezClient.Modules.Localize;
 using HideezClient.Modules.DeviceManager;
 using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Models;
-using NLog;
 using System.Diagnostics;
+using Hideez.SDK.Communication.Log;
 
 namespace HideezClient.Modules.ActionHandler
 {
     /// <summary>
     /// Responsible for receiving user action requests and routing them for execution
     /// </summary>
-    class UserActionHandler
+    class UserActionHandler : Logger
     {
-        readonly ILogger log = LogManager.GetCurrentClassLogger();
-        private readonly IWindowsManager windowsManager;
-        private readonly IDeviceManager deviceManager;
+        private readonly IMessenger _messenger;
+        private readonly IActiveDevice _activeDevice;
         private readonly InputLogin inputLogin;
         private readonly InputPassword inputPassword;
         private readonly InputOtp inputOtp;
 
         public UserActionHandler(
-            IWindowsManager windowsManager,
             IMessenger messenger,
-            IDeviceManager deviceManager,
+            IActiveDevice activeDevice,
             InputLogin inputLogin,
             InputPassword inputPassword,
-            InputOtp inputOtp)
+            InputOtp inputOtp,
+            ILog log)
+            : base(nameof(UserActionHandler), log)
         {
-            this.windowsManager = windowsManager;
-            this.deviceManager = deviceManager;
+            _messenger = messenger;
+            _activeDevice = activeDevice;
             this.inputLogin = inputLogin;
             this.inputPassword = inputPassword;
             this.inputOtp = inputOtp;
 
-            messenger.Register<HotkeyPressedMessage>(this, HotkeyPressedMessageHandler);
-            messenger.Register<ButtonPressedMessage>(this, ButtonPressedMessageHandler);
+            _messenger.Register<HotkeyPressedMessage>(this, HotkeyPressedMessageHandler);
+            _messenger.Register<ButtonPressedMessage>(this, ButtonPressedMessageHandler);
         }
 
         private IInputAlgorithm GetInputAlgorithm(UserAction userAction)
@@ -64,24 +64,31 @@ namespace HideezClient.Modules.ActionHandler
 
         private void ButtonPressedMessageHandler(ButtonPressedMessage message)
         {
-            log.Info("Handling button pressed message.");
-            Task.Run(async () => await InputAccountAsync(new[] { message.DeviceId }, GetInputAlgorithm(message.Action)));
+            WriteLine("Handling button pressed message.");
+
+            if (_activeDevice.Device?.Id == message.DeviceId)
+                Task.Run(async () => await InputAccountAsync(new[] { message.DeviceId }, GetInputAlgorithm(message.Action)));
+            else
+            {
+                string warn = string.Format(TranslationSource.Instance["DeviceIsNotActive"], message.DeviceId);
+                _messenger.Send(new ShowWarningNotificationMessage(warn));
+                WriteLine(warn, LogErrorSeverity.Warning);
+            }
         }
 
         private void HotkeyPressedMessageHandler(HotkeyPressedMessage hotkeyMessage)
         {
-            log.Info("Handling hotkey pressed message.");
-            string[] devicesId = deviceManager.Devices.Where(d => d.IsConnected).Select(d => d.Id).ToArray();
+            WriteLine("Handling hotkey pressed message.");
 
-            if (!devicesId.Any())
+            if (_activeDevice.Device == null)
             {
                 string message = TranslationSource.Instance["NoAnyConnectedDevice"];
-                windowsManager.ShowWarn(message);
-                log.Warn(message);
+                _messenger.Send(new ShowWarningNotificationMessage(message));
+                WriteLine(message, LogErrorSeverity.Warning);
                 return;
             }
-
-            Task.Run(async () => await InputAccountAsync(devicesId, GetInputAlgorithm(hotkeyMessage.Action)));
+            else
+                Task.Run(async () => await InputAccountAsync(new[] { _activeDevice.Device.Id }, GetInputAlgorithm(hotkeyMessage.Action)));
 
         }
 
@@ -90,8 +97,8 @@ namespace HideezClient.Modules.ActionHandler
             if (inputAlgorithm == null)
             {
                 string message = $" ArgumentNull: {nameof(inputAlgorithm)}.";
-                log.Error(message);
-                Debug.Assert(false, message);
+                _messenger.Send(new ShowErrorNotificationMessage(message));
+                WriteLine(message, LogErrorSeverity.Error);
                 return;
             }
 
@@ -101,25 +108,25 @@ namespace HideezClient.Modules.ActionHandler
             }
             catch (OtpNotFoundException ex)
             {
-                windowsManager.ShowWarn(ex.Message);
-                log.Warn(ex.Message);
+                _messenger.Send(new ShowWarningNotificationMessage(ex.Message));
+                WriteLine(ex.Message, LogErrorSeverity.Warning);
             }
             catch (AccountException ex) when (ex is LoginNotFoundException || ex is PasswordNotFoundException)
             {
                 string message = string.Format(TranslationSource.Instance["Exception.AccountNotFound"], ex.AppInfo.Title);
-                windowsManager.ShowWarn(message);
-                log.Warn(message);
+                _messenger.Send(new ShowWarningNotificationMessage(message));
+                WriteLine(message, LogErrorSeverity.Warning);
             }
             catch (FieldNotSecureException) // Assume that precondition failed because field is not secure
             {
                 string message = TranslationSource.Instance["Exception.FieldNotSecure"];
-                windowsManager.ShowWarn(message);
-                log.Warn(message);
+                _messenger.Send(new ShowWarningNotificationMessage(message));
+                WriteLine(message, LogErrorSeverity.Warning);
             }
             catch (Exception ex)
             {
-                windowsManager.ShowError(ex.Message);
-                log.Error(ex);
+                _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                WriteLine(ex, LogErrorSeverity.Error);
             }
         }
     }

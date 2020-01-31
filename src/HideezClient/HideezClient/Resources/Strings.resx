@@ -594,4 +594,7 @@ to access stored credentials</value>
   <data name="CredentialsLoad.Failed" xml:space="preserve">
     <value>Credentials loading failed {0}</value>
   </data>
+  <data name="ActionCancelled.DeviceIsNotActive" xml:space="preserve">
+    <value>Action cancelled. Device ({0}) is not selected as active.</value>
+  </data>
 </root>
