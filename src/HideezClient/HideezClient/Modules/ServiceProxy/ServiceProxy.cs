@@ -98,6 +98,12 @@ namespace HideezClient.Modules.ServiceProxy
 
                     return attached;
                 }
+                catch (EndpointNotFoundException)
+                {
+                    await DisconnectAsync();
+
+                    return false;
+                }
                 catch (Exception ex)
                 {
                     log.Error(ex.Message);
