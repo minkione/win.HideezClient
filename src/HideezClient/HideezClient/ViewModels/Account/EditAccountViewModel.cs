@@ -15,13 +15,14 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using DynamicData;
 using Hideez.ARM;
+using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezClient.Modules;
+using HideezClient.Modules.Log;
 using HideezClient.Mvvm;
 using HideezClient.Utilities;
 using HideezClient.Utilities.QrCode;
 using MvvmExtensions.Commands;
-using NLog;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Unity;
@@ -30,16 +31,16 @@ namespace HideezClient.ViewModels
 {
     class EditAccountViewModel : ReactiveObject
     {
-        protected readonly ILogger log = LogManager.GetCurrentClassLogger();
-        private readonly IQrScannerHelper qrScannerHelper;
-        private readonly IWindowsManager windowsManager;
-        private bool isUpdateAppsUrls;
-        private DeviceViewModel device;
-        private int generatePasswordLength = 16;
-        private readonly AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
-        private readonly AppInfo addUrlAppInfo = new AppInfo { Domain = "<Enter Url>" };
-        private bool canScanOtpSecretQrCode = true;
-        private readonly AccountRecord cache;
+        readonly Logger log = LogManager.GetCurrentClassLogger(nameof(EditAccountViewModel));
+        readonly IQrScannerHelper qrScannerHelper;
+        readonly IWindowsManager windowsManager;
+        bool isUpdateAppsUrls;
+        DeviceViewModel device;
+        int generatePasswordLength = 16;
+        readonly AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
+        readonly AppInfo addUrlAppInfo = new AppInfo { Domain = "<Enter Url>" };
+        bool canScanOtpSecretQrCode = true;
+        readonly AccountRecord cache;
 
         public EditAccountViewModel(DeviceViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper)
             : this(device, null, windowsManager, qrScannerHelper)
@@ -503,7 +504,7 @@ namespace HideezClient.ViewModels
             }
             catch (Exception ex)
             {
-                log.Error(ex);
+                log.WriteLine(ex);
             }
 
             if (!isScanedQr)

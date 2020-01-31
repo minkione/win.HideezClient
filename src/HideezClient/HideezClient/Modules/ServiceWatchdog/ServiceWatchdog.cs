@@ -1,6 +1,7 @@
-﻿using HideezClient.HideezServiceReference;
+﻿using Hideez.SDK.Communication.Log;
+using HideezClient.HideezServiceReference;
+using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
-using NLog;
 using System;
 using System.ServiceModel;
 using System.Threading;
@@ -17,7 +18,7 @@ namespace HideezClient.Modules.ServiceWatchdog
         private const int DELAY_BEFORE_START = 5000;
         private const int DELAY_AFTER_JOB = 3000;
 
-        private readonly Logger log = LogManager.GetCurrentClassLogger();
+        private readonly Logger log = LogManager.GetCurrentClassLogger(nameof(ServiceWatchdog));
         private readonly IServiceProxy serviceProxy;
 
         private CancellationTokenSource cancel;
@@ -36,7 +37,7 @@ namespace HideezClient.Modules.ServiceWatchdog
                 // a little delay before the watchdog starts to do his work
                 await Task.Delay(DELAY_BEFORE_START, cancel.Token);
 
-                log.Info("Watchdog started");
+                log.WriteLine("Watchdog started");
 
                 WorkFunc();
             });
@@ -63,7 +64,7 @@ namespace HideezClient.Modules.ServiceWatchdog
             }
             catch (Exception ex)
             {
-                log.Error(ex);
+                log.WriteLine(ex);
                 await Task.Delay(DELAY_AFTER_JOB, cancel.Token);
             }
             finally
@@ -85,12 +86,12 @@ namespace HideezClient.Modules.ServiceWatchdog
                 }
                 catch (FaultException<HideezServiceFault> ex)
                 {
-                    log.Error(ex.FormattedMessage());
+                    log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
                     await serviceProxy.DisconnectAsync();
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex);
+                    log.WriteLine(ex);
                     await serviceProxy.DisconnectAsync();
                 }
             }
@@ -102,12 +103,12 @@ namespace HideezClient.Modules.ServiceWatchdog
                 }
                 catch (FaultException<HideezServiceFault> ex)
                 {
-                    log.Error(ex.FormattedMessage());
+                    log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
                     await serviceProxy.DisconnectAsync();
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex);
+                    log.WriteLine(ex);
                     await serviceProxy.DisconnectAsync();
                 }
             }

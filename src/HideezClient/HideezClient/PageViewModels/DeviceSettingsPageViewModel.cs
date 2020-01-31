@@ -1,13 +1,14 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
+using Hideez.SDK.Communication.Log;
 using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
 using HideezClient.Models;
 using HideezClient.Modules;
+using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using HideezClient.ViewModels;
 using MvvmExtensions.Commands;
-using NLog;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -27,10 +28,10 @@ namespace HideezClient.PageViewModels
 {
     class DeviceSettingsPageViewModel : ReactiveObject, IWeakEventListener
     {
-        private readonly IServiceProxy serviceProxy;
-        private readonly IWindowsManager windowsManager;
-        private readonly IMessenger _messenger;
-        protected readonly ILogger log = LogManager.GetCurrentClassLogger();
+        readonly IServiceProxy serviceProxy;
+        readonly IWindowsManager windowsManager;
+        readonly IMessenger _messenger;
+        readonly Logger log = LogManager.GetCurrentClassLogger(nameof(DeviceSettingsPageViewModel));
 
         public DeviceSettingsPageViewModel(IServiceProxy serviceProxy, IWindowsManager windowsManager, IMessenger messenger, IActiveDevice activeDevice)
         {
@@ -165,7 +166,7 @@ namespace HideezClient.PageViewModels
                            catch (Exception ex)
                            {
                                windowsManager.ShowError("Error seva proximity settings.");
-                               log.Error(ex);
+                               log.WriteLine(ex);
                            }
                        });
                     }

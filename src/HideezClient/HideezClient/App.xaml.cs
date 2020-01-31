@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using SingleInstanceApp;
 using HideezClient.Modules;
 using GalaSoft.MvvmLight.Messaging;
-using NLog;
 using HideezClient.ViewModels;
 using Hardcodet.Wpf.TaskbarNotification;
 using System.Globalization;
@@ -41,6 +40,7 @@ using System.Diagnostics;
 using HideezClient.Modules.ButtonManager;
 using HideezClient.Utilities.QrCode;
 using ZXing;
+using HideezClient.Modules.Log;
 
 namespace HideezClient
 {
@@ -49,7 +49,7 @@ namespace HideezClient
     /// </summary>
     public partial class App : Application, ISingleInstance
     {
-        public static ILogger _logger;
+        public static Logger _log = LogManager.GetCurrentClassLogger(nameof(App));
         private IStartupHelper _startupHelper;
         private IWorkstationManager _workstationManager;
         private IMessenger _messenger;
@@ -70,12 +70,11 @@ namespace HideezClient
             SetupExceptionHandling();
 
             LogManager.EnableLogging();
-            _logger = LogManager.GetCurrentClassLogger();
 
-            _logger.Info("App version: {0}", Assembly.GetEntryAssembly().GetName().Version);
-            _logger.Info("Version: {0}", Environment.Version);
-            _logger.Info("OS: {0}", Environment.OSVersion);
-            _logger.Info("Command: {0}", Environment.CommandLine);
+            _log.WriteLine($"App version: {Assembly.GetEntryAssembly().GetName().Version}");
+            _log.WriteLine($"Version: {Environment.Version}");
+            _log.WriteLine($"OS: {Environment.OSVersion}");
+            _log.WriteLine($"Command: {Environment.CommandLine}");
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)
@@ -101,11 +100,11 @@ namespace HideezClient
             {
                 LogManager.EnableLogging();
 
-                var fatalLogger = _logger ?? LogManager.GetCurrentClassLogger();
+                var fatalLogger = _log ?? LogManager.GetCurrentClassLogger(nameof(App));
                 var assemblyName = Assembly.GetExecutingAssembly().GetName();
 
-                fatalLogger.Fatal($"Unhandled exception in {assemblyName.Name} v{assemblyName.Version}");
-                fatalLogger.Fatal(e);
+                fatalLogger.WriteLine($"Unhandled exception in {assemblyName.Name} v{assemblyName.Version}", LogErrorSeverity.Fatal);
+                fatalLogger.WriteLine(e, LogErrorSeverity.Fatal);
                 LogManager.Flush();
             }
             catch (Exception)
@@ -162,13 +161,13 @@ namespace HideezClient
                 sb.AppendLine($"   Message:{exp.Message}");
                 sb.AppendLine($"StackTrace:{exp.StackTrace}");
                 sb.AppendLine();
-                _logger.Error(sb.ToString());
+                _log.WriteLine(sb.ToString(), LogErrorSeverity.Error);
             }
 
             _messenger = Container.Resolve<IMessenger>();
             Container.Resolve<ITaskbarIconManager>();
 
-            _logger.Info("Resolve DI container");
+            _log.WriteLine("Resolve DI container");
             _startupHelper = Container.Resolve<IStartupHelper>();
             _workstationManager = Container.Resolve<IWorkstationManager>();
             _windowsManager = Container.Resolve<IWindowsManager>();
@@ -223,7 +222,7 @@ namespace HideezClient
             // handle command line arguments of second instance
             // ...
 
-            _logger.Info("Handle start of second instance");
+            _log.WriteLine("Handle start of second instance");
             _windowsManager.ActivateMainWindow();
 
             
@@ -232,7 +231,7 @@ namespace HideezClient
 
         private void OnFirstLaunch()
         {
-            _logger.Info("First Hideez Client launch");
+            _log.WriteLine("First Hideez Client launch");
         }
 
         private void InitializeDIContainer()
@@ -241,7 +240,7 @@ namespace HideezClient
 #if DEBUG
             Container.AddExtension(new Diagnostic());
 #endif
-            _logger.Info("Start initialize DI container");
+            _log.WriteLine("Start initialize DI container");
 
             #region ViewModels
 
@@ -323,7 +322,7 @@ namespace HideezClient
 
             Container.RegisterType<MessageWindow>(new ContainerControlledLifetimeManager());
 
-            _logger.Info("Finish initialize DI container");
+            _log.WriteLine("Finish initialize DI container");
 
         }
 

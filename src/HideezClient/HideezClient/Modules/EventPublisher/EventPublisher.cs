@@ -2,16 +2,17 @@
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Log;
 using HideezClient.HideezServiceReference;
+using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 
 namespace HideezClient.Modules
 {
-    class EventPublisher : Logger, IEventPublisher
+    class EventPublisher : IEventPublisher
     {
-        private readonly IServiceProxy serviceProxy;
+        readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(EventPublisher));
+        readonly IServiceProxy serviceProxy;
 
-        public EventPublisher(IServiceProxy serviceProxy, ILog log)
-            : base(nameof(EventPublisher), log)
+        public EventPublisher(IServiceProxy serviceProxy)
         {
             this.serviceProxy = serviceProxy;
         }
@@ -24,7 +25,7 @@ namespace HideezClient.Modules
             }
             catch (Exception ex)
             {
-                WriteLine(ex);
+                _log.WriteLine(ex);
             }
         }
     }

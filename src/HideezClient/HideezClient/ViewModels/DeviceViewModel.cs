@@ -10,7 +10,6 @@ using HideezClient.Modules.Localize;
 using HideezClient.Mvvm;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.Commands;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,7 +23,6 @@ namespace HideezClient.ViewModels
     public class DeviceViewModel : LocalizedObject
     {
         protected Device device;
-        protected readonly ILogger _log = LogManager.GetCurrentClassLogger();
         private WeakPropertyObserver bindingRaiseeventIsStorageLoaded;
 
         public DeviceViewModel(Device device)

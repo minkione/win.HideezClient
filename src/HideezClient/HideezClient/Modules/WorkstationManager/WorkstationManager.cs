@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Messages;
+using HideezClient.Modules.Log;
 using HideezClient.Utilities;
 using HideezMiddleware;
 using System;
@@ -11,12 +12,12 @@ using WindowsInput;
 
 namespace HideezClient.Modules
 {
-    class WorkstationManager : Logger, IWorkstationManager
+    class WorkstationManager : IWorkstationManager
     {
+        readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(WorkstationManager));
         readonly IInputSimulator inputSimulator = new InputSimulator();
 
-        public WorkstationManager(IMessenger messanger, ILog log)
-            : base(nameof(WorkstationManager), log)
+        public WorkstationManager(IMessenger messanger)
         {
             // Start listening command messages
             messanger.Register<LockWorkstationMessage>(this, LockPC);
@@ -26,9 +27,9 @@ namespace HideezClient.Modules
 
         public void LockPC()
         {
-            WriteLine($"Calling Win32.LockWorkstation");
+            _log.WriteLine($"Calling Win32.LockWorkstation");
             var result = Win32Helper.LockWorkStation();
-            WriteLine($"Win32.LockWorkstation result: {result}");
+            _log.WriteLine($"Win32.LockWorkstation result: {result}");
             if (result == false)
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -64,7 +65,7 @@ namespace HideezClient.Modules
                     {
                         // This exception is thrown when the library could not successfully send simulated input
                         // To the target window, usually due to User Interface Privacy Isolation (UIPI)
-                        WriteLine("UIPI prevented simulated input", LogErrorSeverity.Warning);
+                        _log.WriteLine("UIPI prevented simulated input", LogErrorSeverity.Warning);
                     }
                     else
                         throw;
@@ -82,7 +83,7 @@ namespace HideezClient.Modules
             }
             catch (Exception ex)
             {
-                WriteLine(ex);
+                _log.WriteLine(ex);
             }
         }
 
@@ -94,7 +95,7 @@ namespace HideezClient.Modules
             }
             catch (Exception ex)
             {
-                WriteLine(ex);
+                _log.WriteLine(ex);
             }
         }
 
@@ -106,7 +107,7 @@ namespace HideezClient.Modules
             }
             catch (Exception ex)
             {
-                WriteLine(ex);
+                _log.WriteLine(ex);
             }
         }
         #endregion Messages handlers

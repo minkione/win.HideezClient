@@ -2,17 +2,18 @@
 using System.ServiceModel;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight.Messaging;
+using Hideez.SDK.Communication.Log;
 using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
+using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceCallbackMessanger;
-using NLog;
 
 namespace HideezClient.Modules.ServiceProxy
 {
     // Todo: Add lock for "service" to improve thread safety
     class ServiceProxy : IServiceProxy, IDisposable
     {
-        private readonly Logger log = LogManager.GetCurrentClassLogger();
+        private readonly Logger log = LogManager.GetCurrentClassLogger(nameof(ServiceProxy));
         private readonly IHideezServiceCallback callback;
         private readonly IMessenger messenger;
 
@@ -48,7 +49,7 @@ namespace HideezClient.Modules.ServiceProxy
             }
             catch (Exception ex)
             {
-                log.Error(ex);
+                log.WriteLine(ex);
             }
         }
 
@@ -106,7 +107,7 @@ namespace HideezClient.Modules.ServiceProxy
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex.Message);
+                    log.WriteLine(ex.Message);
 
                     await DisconnectAsync();
 
@@ -131,7 +132,7 @@ namespace HideezClient.Modules.ServiceProxy
             }
             catch (System.Exception ex)
             {
-                log.Error(ex);
+                log.WriteLine(ex);
             }
         }
 

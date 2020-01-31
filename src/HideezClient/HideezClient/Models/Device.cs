@@ -15,7 +15,6 @@ using HideezClient.Utilities;
 using HideezMiddleware;
 using Microsoft.Win32;
 using MvvmExtensions.Attributes;
-using NLog;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -24,6 +23,8 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Hideez.SDK.Communication.Log;
+using HideezClient.Modules.Log;
 
 namespace HideezClient.Models
 {
@@ -33,7 +34,7 @@ namespace HideezClient.Models
         const int INIT_TIMEOUT = 5_000;
         readonly int CREDENTIAL_TIMEOUT = SdkConfig.MainWorkflowTimeout;
 
-        readonly ILogger _log = LogManager.GetCurrentClassLogger();
+        readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(Device));
         readonly IServiceProxy _serviceProxy;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         readonly IMessenger _messenger;
@@ -267,7 +268,7 @@ namespace HideezClient.Models
         #region Messege & Event handlers
         void RemoteDevice_ButtonPressed(object sender, Hideez.SDK.Communication.ButtonPressCode e)
         {
-            _log.Info($"Device ({Id}) button pressed, code: {e}");
+            _log.WriteLine($"Device ({Id}) button pressed, code: {e}");
 
             Task.Run(() =>
             {
@@ -277,7 +278,7 @@ namespace HideezClient.Models
 
         void RemoteDevice_StorageModified(object sender, EventArgs e)
         {
-            _log.Info($"Device ({Id}) storage modified");
+            _log.WriteLine($"Device ({Id}) storage modified");
 
             Task.Run(() =>
             {
@@ -289,7 +290,7 @@ namespace HideezClient.Models
                     }
                     catch (Exception ex)
                     {
-                        _log.Error(ex);
+                        _log.WriteLine(ex);
                     }
                 });
             });
@@ -427,7 +428,7 @@ namespace HideezClient.Models
                 }
                 catch (Exception ex)
                 {
-                    _log.Error(ex);
+                    _log.WriteLine(ex);
                 }
             }
         }
@@ -463,7 +464,7 @@ namespace HideezClient.Models
                         }
                         catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceDisconnected)
                         {
-                            _log.Warn("Remote device creation aborted, device disconnected");
+                            _log.WriteLine("Remote device creation aborted, device disconnected", LogErrorSeverity.Warning);
                         }
                         catch (Exception ex)
                         {
@@ -509,7 +510,7 @@ namespace HideezClient.Models
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
             }
                 
             IsCreatingRemoteDevice = false;
@@ -529,14 +530,14 @@ namespace HideezClient.Models
 
             try
             {
-                _log.Info($"Device ({SerialNo}), establishing remote device connection");
+                _log.WriteLine($"Device ({SerialNo}), establishing remote device connection");
 
-                _log.Info("Checking for available channels");
+                _log.WriteLine("Checking for available channels");
                 var channels = await _serviceProxy.GetService().GetAvailableChannelsAsync(SerialNo);
                 if (channels.Length == 0)
                     throw new Exception($"No available channels on device ({SerialNo})"); // Todo: separate exception type
                 var channelNo = channels.FirstOrDefault();
-                _log.Info($"{channels.Length} channels available");
+                _log.WriteLine($"{channels.Length} channels available");
 
                 ShowInfo($"Preparing for device ({SerialNo}) authorization", _infNid);
                 IsCreatingRemoteDevice = true;
@@ -549,28 +550,28 @@ namespace HideezClient.Models
                 if (_remoteDevice.SerialNo != SerialNo)
                     throw new Exception("Remote device serial number does not match the enumerated serial");
 
-                _log.Info($"Creating password manager for device ({SerialNo})");
+                _log.WriteLine($"Creating password manager for device ({SerialNo})");
                 PasswordManager = new DevicePasswordManager(_remoteDevice, null);
                 _remoteDevice.StorageModified += RemoteDevice_StorageModified;
                 _remoteDevice.ButtonPressed += RemoteDevice_ButtonPressed;
 
-                _log.Info($"Remote device ({SerialNo}) connection established");
+                _log.WriteLine($"Remote device ({SerialNo}) connection established");
             }
             catch (FaultException<HideezServiceFault> ex)
             {
-                _log.Error(ex.FormattedMessage());
+                _log.WriteLine(ex.FormattedMessage());
                 ShowError(ex.FormattedMessage(), _errNid);
                 initErrorCode = (HideezErrorCode)ex.Detail.ErrorCode;
             }
             catch (HideezException ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
                 ShowError(ex.Message, _errNid);
                 initErrorCode = ex.ErrorCode;
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
                 ShowError(ex.Message, _errNid);
                 initErrorCode = HideezErrorCode.UnknownError;
             }
@@ -608,27 +609,27 @@ namespace HideezClient.Models
                 if (ct.IsCancellationRequested)
                     ShowError($"Authorization cancelled for device ({SerialNo})", _errNid);
                 else if (IsAuthorized)
-                    _log.Info($"Remote device ({_remoteDevice.Id}) is authorized");
+                    _log.WriteLine($"Remote device ({_remoteDevice.Id}) is authorized");
                 else
                     ShowError($"Authorization for device ({SerialNo}) failed", _errNid);
             }
             catch (FaultException<HideezServiceFault> ex)
             {
-                _log.Error(ex.FormattedMessage());
+                _log.WriteLine(ex.FormattedMessage());
                 ShowError(ex.FormattedMessage(), _errNid);
             }
             catch (HideezException ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
                 ShowError(ex.Message, _errNid);
             }
             catch (OperationCanceledException ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
                 ShowError(ex.Message, _errNid);
             }
             finally
@@ -653,22 +654,22 @@ namespace HideezClient.Models
                 IsStorageLoaded = false;
                 IsLoadingStorage = true;
 
-                _log.Info($"Device ({Id}) loading storage");
+                _log.WriteLine($"Device ({Id}) loading storage");
                 await PasswordManager.Load();
-                _log.Info($"Device ({Id}) loaded {PasswordManager.Accounts.Count} entries from storage");
+                _log.WriteLine($"Device ({Id}) loaded {PasswordManager.Accounts.Count} entries from storage");
                 
                 IsStorageLoaded = true;
             }
             catch (FaultException<HideezServiceFault> ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
                 ShowError(ex.Message, _errNid);
 
                 await ShutdownRemoteDeviceAsync(HideezErrorCode.UnknownError);
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
                 ShowError(ex.Message, _errNid);
 
                 await ShutdownRemoteDeviceAsync(HideezErrorCode.UnknownError);
@@ -722,7 +723,7 @@ namespace HideezClient.Models
                 {
                     // we received an empty PIN from the user. Trying again with the same timeout.
                     Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY PIN");
-                    _log.Info("Received empty PIN");
+                    _log.WriteLine("Received empty PIN");
                     continue;
                 }
 
@@ -763,7 +764,7 @@ namespace HideezClient.Models
                 {
                     // we received an empty PIN from the user. Trying again with the same timeout.
                     Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY PIN");
-                    _log.Info("Received empty PIN");
+                    _log.WriteLine("Received empty PIN");
 
                     continue;
                 }

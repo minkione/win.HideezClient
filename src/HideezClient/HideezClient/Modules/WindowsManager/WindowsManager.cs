@@ -2,7 +2,6 @@
 using HideezClient.Mvvm;
 using HideezClient.ViewModels;
 using HideezClient.Views;
-using NLog;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,6 +21,8 @@ using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using HideezMiddleware.Settings;
 using HideezClient.Models.Settings;
+using Hideez.SDK.Communication.Log;
+using HideezClient.Modules.Log;
 
 namespace HideezClient.Modules
 {
@@ -30,7 +31,7 @@ namespace HideezClient.Modules
         private readonly ViewModelLocator _viewModelLocator;
         private string titleNotification;
         private readonly INotifier _notifier;
-        private readonly Logger log = LogManager.GetCurrentClassLogger();
+        private readonly Logger log = LogManager.GetCurrentClassLogger(nameof(WindowsManager));
         private bool isMainWindowVisible;
         private readonly ISettingsManager<ApplicationSettings> _settingsManager;
 
@@ -196,11 +197,11 @@ namespace HideezClient.Modules
             try
             {
                 MainWindowVisibleChanged?.Invoke(this, isVisivle);
-                log.Info($"Main window is visible changed: {isVisivle}");
+                log.WriteLine($"Main window is visible changed: {isVisivle}");
             }
             catch (Exception ex)
             {
-                log.Error(ex.Message);
+                log.WriteLine(ex);
             }
         }
 
@@ -410,7 +411,7 @@ namespace HideezClient.Modules
             }
             catch (Exception ex)
             {
-                log.Error(ex);
+                log.WriteLine(ex);
             }
 
             return screenShot;

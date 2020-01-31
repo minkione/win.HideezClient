@@ -4,13 +4,14 @@ using HideezClient.Models;
 using NHotkey;
 using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
-using NLog;
 using System.Windows;
 using System.Threading.Tasks;
 using HideezClient.Utilities;
 using System.IO;
 using System.Windows.Input;
 using HideezMiddleware.Settings;
+using Hideez.SDK.Communication.Log;
+using HideezClient.Modules.Log;
 
 namespace HideezClient.Modules.HotkeyManager
 {
@@ -19,7 +20,7 @@ namespace HideezClient.Modules.HotkeyManager
     /// </summary>
     internal sealed class HotkeyManager : IHotkeyManager
 	{
-        readonly Logger log = LogManager.GetCurrentClassLogger();
+        readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(HotkeyManager));
 		readonly KeyGestureConverter keyGestureConverter = new KeyGestureConverter();
 		readonly ISettingsManager<HotkeySettings> hotkeySettingsManager;
         readonly IMessenger messenger;
@@ -181,7 +182,7 @@ namespace HideezClient.Modules.HotkeyManager
             }
 			catch (Exception ex)
 			{
-                log.Error(ex.Message);
+                _log.WriteLine(ex);
 
                 messenger?.Send(new HotkeyStateChangedMessage(action, hotkey, HotkeyState.Unavailable));
 			}
@@ -198,13 +199,13 @@ namespace HideezClient.Modules.HotkeyManager
 			{
                 try
                 {
-                    log.Error(ex.Message);
+                    _log.WriteLine(ex);
 
                     messenger?.Send(new HotkeyStateChangedMessage(action, await GetHotkeyForAction(action), HotkeyState.Unavailable));
                 }
                 catch (Exception exc)
                 {
-                    log.Error(exc);
+                    _log.WriteLine(exc);
                 }
             }
         }

@@ -1,8 +1,9 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
+using Hideez.SDK.Communication.Log;
 using HideezClient.Messages;
+using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
-using NLog;
 using System;
 using System.Collections.ObjectModel;
 
@@ -10,7 +11,7 @@ namespace HideezClient.ViewModels
 {
     class IndicatorsViewModel : ObservableObject
     {
-        private readonly Logger log = LogManager.GetCurrentClassLogger();
+        private readonly Logger log = LogManager.GetCurrentClassLogger(nameof(IndicatorsViewModel));
         private readonly IMessenger messenger;
         private readonly IServiceProxy serviceProxy;
 
@@ -116,7 +117,7 @@ namespace HideezClient.ViewModels
             }
             catch (Exception ex)
             {
-                log.Error(ex.Message);
+                log.WriteLine(ex.Message);
             }
         }
     }

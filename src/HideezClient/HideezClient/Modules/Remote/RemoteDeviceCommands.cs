@@ -4,6 +4,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Remote;
 using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
+using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using System;
 using System.ServiceModel;
@@ -11,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace HideezClient.Modules.Remote
 {
-    class RemoteDeviceCommands : Logger, IRemoteCommands
+    class RemoteDeviceCommands : IRemoteCommands
     {
+        readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(RemoteDeviceCommands));
         readonly IServiceProxy _serviceProxy;
         readonly IMessenger _messenger;
 
-        public RemoteDeviceCommands(IServiceProxy serviceProxy, IMessenger messenger, ILog log)
-            : base(nameof(RemoteDeviceCommands), log)
+        public RemoteDeviceCommands(IServiceProxy serviceProxy, IMessenger messenger)
         {
             _serviceProxy = serviceProxy;
             _messenger = messenger;
@@ -50,13 +51,13 @@ namespace HideezClient.Modules.Remote
             catch (FaultException<HideezServiceFault> ex)
             {
                 error = ex.Message;
-                WriteLine(ex);
+                _log.WriteLine(ex);
                 _messenger.Send(new ShowErrorNotificationMessage(error));
             }
             catch (Exception ex)
             {
                 error = ex.Message;
-                WriteLine(ex);
+                _log.WriteLine(ex);
             }
 
             if (!string.IsNullOrWhiteSpace(error))
@@ -67,7 +68,7 @@ namespace HideezClient.Modules.Remote
                 }
                 catch (Exception ex)
                 {
-                    WriteLine(ex);
+                    _log.WriteLine(ex);
                     _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
                 }
             }
@@ -86,13 +87,13 @@ namespace HideezClient.Modules.Remote
             catch (FaultException<HideezServiceFault> ex)
             {
                 error = ex.Message;
-                WriteLine(ex);
+                _log.WriteLine(ex);
                 _messenger.Send(new ShowErrorNotificationMessage(error));
             }
             catch (Exception ex)
             {
                 error = ex.Message;
-                WriteLine(ex);
+                _log.WriteLine(ex);
             }
 
             if (!string.IsNullOrWhiteSpace(error))
@@ -103,7 +104,7 @@ namespace HideezClient.Modules.Remote
                 }
                 catch (Exception ex)
                 {
-                    WriteLine(ex);
+                    _log.WriteLine(ex);
                     _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
                 }
             }

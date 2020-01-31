@@ -1,11 +1,12 @@
-﻿using NLog;
+﻿using Hideez.SDK.Communication.Log;
+using HideezClient.Modules.Log;
 using System.Threading.Tasks;
 
 namespace HideezClient.Extension
 {
     public static class TaskExtension
     {
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+        static readonly Logger log = LogManager.GetCurrentClassLogger(nameof(TaskExtension));
 
         public static void ForgetSafely(this Task task)
         {
@@ -16,7 +17,7 @@ namespace HideezClient.Extension
         {
             if (task.IsFaulted)
             {
-                log.Error(task.Exception);
+                log.WriteLine(task.Exception);
             }
         }
     }

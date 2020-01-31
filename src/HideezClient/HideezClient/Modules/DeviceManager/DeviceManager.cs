@@ -6,7 +6,6 @@ using GalaSoft.MvvmLight.Messaging;
 using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
 using HideezClient.Modules.ServiceProxy;
-using NLog;
 using System.Linq;
 using HideezClient.Models;
 using System.ServiceModel;
@@ -16,12 +15,14 @@ using System.Collections.Specialized;
 using HideezClient.Controls;
 using Hideez.SDK.Communication;
 using HideezMiddleware.Threading;
+using Hideez.SDK.Communication.Log;
+using HideezClient.Modules.Log;
 
 namespace HideezClient.Modules.DeviceManager
 {
     class DeviceManager : IDeviceManager
     {
-        private readonly Logger _log = LogManager.GetCurrentClassLogger();
+        private readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(DeviceManager));
         private readonly IMessenger _messenger;
         private readonly IServiceProxy _serviceProxy;
         private readonly IWindowsManager _windowsManager;
@@ -75,7 +76,7 @@ namespace HideezClient.Modules.DeviceManager
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
             }
             finally
             {
@@ -92,7 +93,7 @@ namespace HideezClient.Modules.DeviceManager
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
             }
             finally
             {
@@ -109,7 +110,7 @@ namespace HideezClient.Modules.DeviceManager
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
             }
             finally
             {
@@ -132,11 +133,11 @@ namespace HideezClient.Modules.DeviceManager
             }
             catch (FaultException<HideezServiceFault> ex)
             {
-                _log.Error(ex.FormattedMessage());
+                _log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
             }
         }
 
@@ -157,11 +158,11 @@ namespace HideezClient.Modules.DeviceManager
             }
             catch (FaultException<HideezServiceFault> ex)
             {
-                _log.Error(ex.FormattedMessage());
+                _log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                _log.WriteLine(ex);
             }
         }
 

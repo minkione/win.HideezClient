@@ -6,7 +6,6 @@ using HideezMiddleware.Settings;
 using HideezClient.Models;
 using HideezClient.Models.Settings;
 using HideezClient.Modules.DeviceManager;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,6 +15,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.ServiceModel;
 using HideezClient.HideezServiceReference;
+using Hideez.SDK.Communication.Log;
+using HideezClient.Modules.Log;
 
 namespace HideezClient.Modules.ActionHandler
 {
@@ -24,7 +25,7 @@ namespace HideezClient.Modules.ActionHandler
     /// </summary>
     abstract class InputBase : IInputAlgorithm
     {
-        private readonly ILogger log = LogManager.GetCurrentClassLogger();
+        private readonly Logger log = LogManager.GetCurrentClassLogger(nameof(InputBase));
         private AppInfo currentAppInfo;
 
         protected readonly IInputHandler inputHandler;
@@ -62,7 +63,7 @@ namespace HideezClient.Modules.ActionHandler
             if (devicesId == null)
             {
                 string message = $"ArgumentNull: {nameof(devicesId)}";
-                log.Error(message);
+                log.WriteLine(message, LogErrorSeverity.Error);
                 Debug.Assert(false, message);
                 return;
             }
@@ -70,7 +71,7 @@ namespace HideezClient.Modules.ActionHandler
             if (!devicesId.Any())
             {
                 string message = "Devices id can not be empty.";
-                log.Error(message);
+                log.WriteLine(message, LogErrorSeverity.Error);
                 Debug.Assert(false, message);
                 return;
             }
@@ -113,7 +114,7 @@ namespace HideezClient.Modules.ActionHandler
                             }
                             else
                             {
-                                log.Info("Account was not selected.");
+                                log.WriteLine("Account was not selected.");
                             }
                         }
                         catch (SystemException ex) when (ex is OperationCanceledException || ex is TimeoutException)
@@ -122,12 +123,12 @@ namespace HideezClient.Modules.ActionHandler
                             {
                                 await inputCache.SetFocusAsync();
                             }
-                            log.Info(ex);
+                            log.WriteLine(ex, LogErrorSeverity.Information);
                         }
                         catch (Exception ex)
                         {
                             Debug.Assert(false, ex.ToString());
-                            log.Error(ex);
+                            log.WriteLine(ex);
                         }
                     }
                 }

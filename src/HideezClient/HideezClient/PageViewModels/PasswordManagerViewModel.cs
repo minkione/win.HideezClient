@@ -26,19 +26,20 @@ using System.Reactive.Linq;
 using System.Windows.Controls;
 using HideezClient.Utilities.QrCode;
 using HideezClient.Modules;
-using NLog;
 using Hideez.SDK.Communication;
 using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
+using HideezClient.Modules.Log;
+using Hideez.SDK.Communication.Log;
 
 namespace HideezClient.PageViewModels
 {
     class PasswordManagerViewModel : ReactiveObject
     {
-        protected readonly ILogger log = LogManager.GetCurrentClassLogger();
-        private readonly IQrScannerHelper qrScannerHelper;
-        private readonly IWindowsManager windowsManager;
-        private readonly IMessenger _messenger;
+        readonly Logger log = LogManager.GetCurrentClassLogger(nameof(PasswordManagerViewModel));
+        readonly IQrScannerHelper qrScannerHelper;
+        readonly IWindowsManager windowsManager;
+        readonly IMessenger _messenger;
 
         public PasswordManagerViewModel(IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger, IActiveDevice activeDevice)
         {
@@ -271,7 +272,7 @@ namespace HideezClient.PageViewModels
 
         private void HandleError(Exception ex, string message)
         {
-            log.Error(ex);
+            log.WriteLine(ex);
             try
             {
                 if (ex is HideezException hex)
@@ -292,7 +293,7 @@ namespace HideezClient.PageViewModels
             }
             catch (Exception ManagerEx)
             {
-                log.Error(ManagerEx);
+                log.WriteLine(ManagerEx);
             }
         }
     }

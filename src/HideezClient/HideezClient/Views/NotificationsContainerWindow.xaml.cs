@@ -1,8 +1,9 @@
-﻿using HideezClient.Controls;
+﻿using Hideez.SDK.Communication.Log;
+using HideezClient.Controls;
 using HideezClient.Extension;
+using HideezClient.Modules.Log;
 using HideezClient.Utilities;
 using Microsoft.Win32;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -29,8 +30,8 @@ namespace HideezClient.Views
     /// </summary>
     public partial class NotificationsContainerWindow : Window
     {
-        protected readonly ILogger log = LogManager.GetCurrentClassLogger();
-        private readonly string screenName;
+        readonly Logger log = LogManager.GetCurrentClassLogger(nameof(NotificationsContainerWindow));
+        readonly string screenName;
 
         public NotificationsContainerWindow(Screen screen)
         {
@@ -101,7 +102,7 @@ namespace HideezClient.Views
             }
             catch (Exception ex)
             {
-                log.Error(ex);
+                log.WriteLine(ex);
             }
         }
 

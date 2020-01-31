@@ -364,6 +364,7 @@
     <Compile Include="Modules\DeviceManager\DeviceManager.cs" />
     <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
     <Compile Include="Controls\Notification\NotificationBase.cs" />
+    <Compile Include="Modules\Log\LogManager.cs" />
     <Compile Include="Modules\Notify\INotifier.cs" />
     <Compile Include="Modules\Notify\NotificationOptions.cs" />
     <Compile Include="Modules\Notify\NotificationPosition.cs" />
