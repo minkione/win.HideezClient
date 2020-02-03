@@ -39,7 +39,8 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                     SessionSwitchMonitor.SessionSwitch -= SessionSwitchMonitor_SessionSwitch;
                 }
 
-                if (!_tcs.Task.IsCompleted)
+                if (!_tcs.Task.IsCompleted && 
+                    WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked)
                     _wtsapiLocker.LockWorkstation();
             }
 
