@@ -26,28 +26,33 @@ namespace ServiceLibrary.Implementation.WorkstationLock
 
             public async Task Run()
             {
-                try
+                if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked)
                 {
-                    SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
-
-                    _wcfLocker.LockWorkstation();
-
-                    await Task.WhenAny(_tcs.Task, Task.Delay(_lockTimeout));
+                    try
+                    {
+                        SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
+                
+                        _wcfLocker.LockWorkstation();
+                
+                        await Task.WhenAny(_tcs.Task, Task.Delay(_lockTimeout));
+                    }
+                    finally
+                    {
+                        SessionSwitchMonitor.SessionSwitch -= SessionSwitchMonitor_SessionSwitch;
+                    }
+                
+                    if (!_tcs.Task.IsCompleted &&
+                        WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked)
+                        _wtsapiLocker.LockWorkstation();
                 }
-                finally
-                {
-                    SessionSwitchMonitor.SessionSwitch -= SessionSwitchMonitor_SessionSwitch;
-                }
-
-                if (!_tcs.Task.IsCompleted && 
-                    WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked)
-                    _wtsapiLocker.LockWorkstation();
             }
 
             void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
             {
                 if (reason == SessionSwitchReason.SessionLock ||
-                    reason == SessionSwitchReason.SessionLogoff)
+                    reason == SessionSwitchReason.SessionLogoff ||
+                    reason == SessionSwitchReason.SessionLogon ||
+                    reason == SessionSwitchReason.SessionUnlock)
                 {
                     _tcs.SetResult(new object());
                 }
