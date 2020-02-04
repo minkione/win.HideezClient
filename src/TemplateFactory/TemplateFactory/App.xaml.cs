@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Hideez.ARM;
 using System.Windows;
 
 namespace TemplateFactory
@@ -15,6 +10,7 @@ namespace TemplateFactory
     {
         public App()
         {
+            AutomationRegistrator.Instance.RegisterHook();
         }
 
         protected override void OnStartup(StartupEventArgs e)
