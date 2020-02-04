@@ -60,11 +60,11 @@ namespace TemplateFactory
                 await Task.Run(() =>
                 {
                     var apps = AppInfoFactory.GetVisibleAppsInfo();
-                    var uniqueApps = apps.GroupBy(x => x.Description).Select(a => a.First());
 
-                    var expandedApps = uniqueApps.Select(a => new ExpandedAppInfo(a)).ToList();
+                    var expandedApps = apps.Select(a => new ExpandedAppInfo(a)).ToList();
 
                     var urls = new List<ExpandedAppInfo>();
+
                     foreach (var app in expandedApps)
                     {
                         if (!string.IsNullOrWhiteSpace(app.AppInfo.Domain))
@@ -74,12 +74,14 @@ namespace TemplateFactory
                         }
                     }
 
-                    expandedApps.AddRange(urls);
+                    var uniqueApps = expandedApps.GroupBy(x => x.AppInfo.Description).Select(a => a.First()).ToList();
+
+                    uniqueApps.AddRange(urls);
 
                     App.Current.Dispatcher.Invoke(() =>
                     {
                         Apps.Clear();
-                        foreach (var app in expandedApps)
+                        foreach (var app in uniqueApps)
                             Apps.Add(app);
                     });
                 });
