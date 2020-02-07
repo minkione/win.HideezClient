@@ -225,9 +225,9 @@ namespace WinSampleApp.ViewModel
                     {
                         return CurrentDevice != null;
                     },
-                    CommandAction = (x) =>
+                    CommandAction = async (x) =>
                     {
-                        SetPin(CurrentDevice);
+                        await SetPin(CurrentDevice);
                     }
                 };
             }
@@ -243,9 +243,9 @@ namespace WinSampleApp.ViewModel
                     {
                         return CurrentDevice != null;
                     },
-                    CommandAction = (x) =>
+                    CommandAction = async (x) =>
                     {
-                        ForceSetPin(CurrentDevice);
+                        await ForceSetPin(CurrentDevice);
                     }
                 };
             }
@@ -263,7 +263,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        EnterPin(CurrentDevice);
+                        _ = EnterPin(CurrentDevice);
                     }
                 };
             }
@@ -281,7 +281,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        LinkDevice(CurrentDevice);
+                        _ = LinkDevice(CurrentDevice);
                     }
                 };
             }
@@ -299,7 +299,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        AccessDevice(CurrentDevice);
+                        _ = AccessDevice(CurrentDevice);
                     }
                 };
             }
@@ -317,7 +317,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        WipeDevice(CurrentDevice);
+                        _ = WipeDevice(CurrentDevice);
                     }
                 };
             }
@@ -335,7 +335,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        WipeDeviceManual(CurrentDevice);
+                        _ = WipeDeviceManual(CurrentDevice);
                     }
                 };
             }
@@ -353,7 +353,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        UnlockDevice(CurrentDevice);
+                        _ = UnlockDevice(CurrentDevice);
                     }
                 };
             }
@@ -531,9 +531,9 @@ namespace WinSampleApp.ViewModel
                     {
                         return true;
                     },
-                    CommandAction = (x) =>
+                    CommandAction = async (x) =>
                     {
-                        ConnectDeviceByMac(ConectByMacAddress);
+                        await ConnectDeviceByMac(ConectByMacAddress);
                     }
                 };
             }
@@ -569,7 +569,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        DisconnectDevice(CurrentDevice);
+                        _ = DisconnectDevice(CurrentDevice);
                     }
                 };
             }
@@ -587,7 +587,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        PingDevice(CurrentDevice);
+                        _ = PingDevice(CurrentDevice);
                     }
                 };
             }
@@ -605,7 +605,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        AddDeviceChannel(CurrentDevice);
+                        _ = AddDeviceChannel(CurrentDevice);
                     }
                 };
             }
@@ -623,7 +623,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        RemoveDeviceChannel(CurrentDevice);
+                        _ = RemoveDeviceChannel(CurrentDevice);
                     }
                 };
             }
@@ -659,7 +659,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        BoostDeviceRssi(CurrentDevice);
+                        _ = BoostDeviceRssi(CurrentDevice);
                     }
                 };
             }
@@ -677,7 +677,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        UpdateFw(CurrentDevice);
+                        _ = UpdateFw(CurrentDevice);
                     }
                 };
             }
@@ -695,7 +695,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        WritePrimaryAccount(CurrentDevice);
+                        _ = WritePrimaryAccount(CurrentDevice);
                     }
                 };
             }
@@ -713,7 +713,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        DeviceInfo(CurrentDevice);
+                        _ = DeviceInfo(CurrentDevice);
                     }
                 };
             }
@@ -731,7 +731,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        OnConfirmAsync(CurrentDevice);
+                        _ = OnConfirmAsync(CurrentDevice);
                     }
                 };
             }
@@ -749,7 +749,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        OnGetOtpAsync(CurrentDevice);
+                        _ = OnGetOtpAsync(CurrentDevice);
                     }
                 };
             }
@@ -785,7 +785,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        LoadLicense(CurrentDevice, 0, LicenseText);
+                        _ = LoadLicense(CurrentDevice, 0, LicenseText);
                     }
                 };
             }
@@ -803,7 +803,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        LoadLicense(CurrentDevice, LicenseText);
+                        _ = LoadLicense(CurrentDevice, LicenseText);
                     }
                 };
             }
@@ -820,7 +820,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        QueryLicense(CurrentDevice, 0);
+                        _ = QueryLicense(CurrentDevice, 0);
                     }
                 };
             }
@@ -838,7 +838,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        QueryAllLicenses(CurrentDevice);
+                        _ = QueryAllLicenses(CurrentDevice);
                     }
                 };
             }
@@ -1086,7 +1086,7 @@ namespace WinSampleApp.ViewModel
             _connectionManager.ConnectDiscoveredDeviceAsync(e.Id);
         }
 
-        async void ConnectDeviceByMac(string mac)
+        async Task ConnectDeviceByMac(string mac)
         {
             try
             {
@@ -1117,7 +1117,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void DisconnectDevice(DeviceViewModel device)
+        async Task DisconnectDevice(DeviceViewModel device)
         {
             try
             {
@@ -1129,7 +1129,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void PingDevice(DeviceViewModel device)
+        async Task PingDevice(DeviceViewModel device)
         {
             try
             {
@@ -1148,7 +1148,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void WritePrimaryAccount(DeviceViewModel device)
+        async Task WritePrimaryAccount(DeviceViewModel device)
         {
             try
             {
@@ -1178,12 +1178,12 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void AddDeviceChannel(DeviceViewModel currentDevice)
+        async Task AddDeviceChannel(DeviceViewModel currentDevice)
         {
-            IDevice newDevice = await _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++, isRemote: false);
+            _ = await _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++, isRemote: false);
         }
 
-        async void RemoveDeviceChannel(DeviceViewModel currentDevice)
+        async Task RemoveDeviceChannel(DeviceViewModel currentDevice)
         {
             await _deviceManager.Remove(currentDevice.Device);
             _nextChannelNo--;
@@ -1241,7 +1241,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void BoostDeviceRssi(DeviceViewModel device)
+        async Task BoostDeviceRssi(DeviceViewModel device)
         {
             try
             {
@@ -1265,7 +1265,7 @@ namespace WinSampleApp.ViewModel
             //}
         }
 
-        async void UpdateFw(DeviceViewModel device)
+        async Task UpdateFw(DeviceViewModel device)
         {
             try
             {
@@ -1296,7 +1296,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void LinkDevice(DeviceViewModel device)
+        async Task LinkDevice(DeviceViewModel device)
         {
             try
             {
@@ -1308,7 +1308,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void AccessDevice(DeviceViewModel device)
+        async Task AccessDevice(DeviceViewModel device)
         {
             try
             {
@@ -1328,7 +1328,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void WipeDevice(DeviceViewModel device)
+        async Task WipeDevice(DeviceViewModel device)
         {
             try
             {
@@ -1340,7 +1340,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void WipeDeviceManual(DeviceViewModel device)
+        async Task WipeDeviceManual(DeviceViewModel device)
         {
             try
             {
@@ -1352,7 +1352,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void UnlockDevice(DeviceViewModel device)
+        async Task UnlockDevice(DeviceViewModel device)
         {
             try
             {
@@ -1364,7 +1364,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void SetPin(DeviceViewModel device)
+        async Task SetPin(DeviceViewModel device)
         {
             try
             {
@@ -1379,7 +1379,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void ForceSetPin(DeviceViewModel device)
+        async Task ForceSetPin(DeviceViewModel device)
         {
             try
             {
@@ -1394,7 +1394,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void EnterPin(DeviceViewModel device)
+        async Task EnterPin(DeviceViewModel device)
         {
             try
             {
@@ -1413,7 +1413,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void DeviceInfo(DeviceViewModel device)
+        async Task DeviceInfo(DeviceViewModel device)
         {
             try
             {
@@ -1425,7 +1425,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void OnConfirmAsync(DeviceViewModel device)
+        async Task OnConfirmAsync(DeviceViewModel device)
         {
             try
             {
@@ -1437,7 +1437,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void OnGetOtpAsync(DeviceViewModel device)
+        async Task OnGetOtpAsync(DeviceViewModel device)
         {
             try
             {
@@ -1466,7 +1466,7 @@ namespace WinSampleApp.ViewModel
         }
 
         // Load license into specified slot
-        async void LoadLicense(DeviceViewModel device, int slot, string license)
+        async Task LoadLicense(DeviceViewModel device, int slot, string license)
         {
             try
             {
@@ -1481,7 +1481,7 @@ namespace WinSampleApp.ViewModel
         }
 
         // Load license into first free slot
-        async void LoadLicense(DeviceViewModel device, string license)
+        async Task LoadLicense(DeviceViewModel device, string license)
         {
             try
             {
@@ -1495,7 +1495,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void QueryLicense(DeviceViewModel device, int slot)
+        async Task QueryLicense(DeviceViewModel device, int slot)
         {
             try
             {
@@ -1526,7 +1526,7 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async void QueryAllLicenses(DeviceViewModel device)
+        async Task QueryAllLicenses(DeviceViewModel device)
         {
             try
             {
