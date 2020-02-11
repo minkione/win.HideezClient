@@ -141,7 +141,7 @@ namespace HideezMiddleware
                     _screenActivator?.StartPeriodicScreenActivation(0);
 
                     await new WaitWorkstationUnlockerConnectProc(_workstationUnlocker)
-                        .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct); 
+                        .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct);
                 }
 
                 device = await ConnectDevice(mac, ct);
@@ -150,6 +150,9 @@ namespace HideezMiddleware
                 device.OperationCancelled += OnUserCancelledByButton;
 
                 await WaitDeviceInitialization(mac, device, ct);
+
+                if (device.IsBoot)
+                    throw new HideezException(HideezErrorCode.DeviceInBootloaderMode);
 
                 var deviceInfo = await deviceInfoProc;
                 WriteLine($"Device info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}");

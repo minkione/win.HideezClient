@@ -351,10 +351,13 @@ namespace DeviceMaintenance.ViewModel
                         {
                             // Prevent reconnect of devices that neither finished nor failed firmware update
                             if (Devices.ToList().FirstOrDefault(d =>
-                            !d.ErrorState &&
-                            !d.SuccessState &&
-                            BleUtils.MacToConnectionId(d.Device?.Mac).Equals(e.Id)) != null)
+                                !d.ErrorState &&
+                                !d.SuccessState &&
+                                d.Device != null &&
+                                BleUtils.MacToConnectionId(d.Device.Mac).Equals(e.Id)) != null)
+                            {
                                 return;
+                            }
 
                             if (_pendingConnections.ContainsKey(e.Id))
                                 return;
