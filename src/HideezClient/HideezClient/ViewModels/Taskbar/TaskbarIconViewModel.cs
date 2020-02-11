@@ -87,11 +87,11 @@ namespace HideezClient.ViewModels
             // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.LaunchOnStartup));
             // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
             // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.UserManual));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.TechnicalSupport));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.LiveChat));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.TechnicalSupport));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.LiveChat));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Legal));
             // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
-            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.RFIDUsage));
+            // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.RFIDUsage));
             // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.VideoTutorial));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.GetLogsSubmenu));
