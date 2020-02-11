@@ -54,7 +54,11 @@ namespace HideezClient.ViewModels
 
         public void ApplyChanges()
         {
-            Title = EditableTitle;
+            if (IsUrl)
+                Title = Hideez.ARM.UrlUtils.GetDomainFromUrl(EditableTitle) ?? EditableTitle;
+            else
+                Title = EditableTitle;
+
             IsInEditState = false;
         }
 
