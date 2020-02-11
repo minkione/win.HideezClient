@@ -9,13 +9,32 @@ namespace HideezClient.Tests.Modules.AccountManager
     [Parallelizable(ParallelScope.All)]
     public class AccountsExtensionsTests
     {
+        // Saved url with domain includes domain and all subdomains
+        // Saved url with subdomain includes only that subdomain
+        // Port must always match between two
+
         [Test]
-        [TestCase(false, "google.com", "google.net")]
         [TestCase(true, "google.com", "google.com")]
         [TestCase(true, "account.google.com", "google.com")]
         [TestCase(true, "account.google.com", "account.google.com")]
-        [TestCase(false, "google.com", "special.google.com")]
-        [TestCase(false, "account.google.com", "special.google.com")]
+        [TestCase(true, "office.com:80", "office.com:80")]
+        [TestCase(true, "microsoft.office.com:80", "microsoft.office.com:80")]
+        [TestCase(true, "microsoft.office.com:80", "office.com:80")]
+        [TestCase(false, "google.com", "google.net")] // Different domains
+        [TestCase(false, "google.com", "special.google.com")] // Target is for domain, saved is for subdomain
+        [TestCase(false, "account.google.com", "special.google.com")] // Different subdomains
+        // Cases with domain ports        
+        [TestCase(false, "office.com:80", "office.com")] // Different ports
+        [TestCase(false, "office.com", "office.com:80")] // Different ports
+        [TestCase(false, "office.com:8", "office.com:80")] // Different ports
+        [TestCase(false, "office.com:80", "office.com:8")] // Different ports
+        [TestCase(false, "office.com:8080", "office.com:80")] // Different ports, similar symbols in port
+        [TestCase(false, "office.com:90", "office.com:80")] // Different ports
+        [TestCase(false, "microsoft.office.com:80", "google.office.com:80")] // Different subdomains
+        [TestCase(false, "office.com:80", "microsoft.office.com:80")] // Target is for domain, saved is for subdomain
+        [TestCase(false, "microsoft.office.com:8080", "microsoft.office.com:80")] // Different ports, similar symbols in ports
+        [TestCase(false, "microsoft.office.com", "microsoft.office.com:80")] // Different ports
+        [TestCase(false, "microsoft.office.com:80", "microsoft.office.com")] // Different ports
         public void MatchByDomainTest(bool expectedResult, string targetUrl, params string[] savedUrls)
         {
             // Arrange
