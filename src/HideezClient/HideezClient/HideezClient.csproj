@@ -345,6 +345,7 @@
     <Compile Include="Modules\AccountManager\AccountExtensions.cs" />
     <Compile Include="Modules\ActionHandler\Exception\AccountException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\FieldNotSecureException.cs" />
+    <Compile Include="Modules\ActionHandler\Exception\HideezWindowSelectedException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\LoginNotFoundException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\OtpNotFoundException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\PasswordNotFoundException.cs" />

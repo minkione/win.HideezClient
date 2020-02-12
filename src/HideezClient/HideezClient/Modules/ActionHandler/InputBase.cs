@@ -86,6 +86,12 @@ namespace HideezClient.Modules.ActionHandler
                     currentAppInfo = AppInfoFactory.GetCurrentAppInfo();
                 });
 
+                // Our application window was active during action invocation
+                if (currentAppInfo.ProcessName == "HideezClient")
+                    throw new HideezWindowSelectedException("Did you try to enter credentials into an app or browser?" +
+                    Environment.NewLine + Environment.NewLine +
+                    "Select login field and press the device button or key combination again");
+
                 inputCache.CacheInputField();
 
                 if (await BeforeCondition(devicesId))

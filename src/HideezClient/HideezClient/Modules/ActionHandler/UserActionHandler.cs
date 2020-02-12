@@ -106,6 +106,11 @@ namespace HideezClient.Modules.ActionHandler
             {
                 await inputAlgorithm.InputAsync(devicesId);
             }
+            catch (HideezWindowSelectedException ex)
+            {
+                var msgOptions = new NotificationOptions { CloseTimeout = TimeSpan.FromSeconds(30) };
+                _messenger.Send(new ShowInfoNotificationMessage(ex.Message, options: msgOptions));
+            }
             catch (OtpNotFoundException ex)
             {
                 _messenger.Send(new ShowWarningNotificationMessage(ex.Message));
@@ -113,9 +118,8 @@ namespace HideezClient.Modules.ActionHandler
             }
             catch (AccountException ex) when (ex is LoginNotFoundException || ex is PasswordNotFoundException)
             {
-                string message = string.Format(TranslationSource.Instance["Exception.AccountNotFound"], ex.AppInfo.Title);
-                _messenger.Send(new ShowWarningNotificationMessage(message));
-                WriteLine(message, LogErrorSeverity.Warning);
+                _messenger.Send(new ShowWarningNotificationMessage(ex.Message));
+                WriteLine(ex.Message, LogErrorSeverity.Warning);
             }
             catch (FieldNotSecureException) // Assume that precondition failed because field is not secure
             {
