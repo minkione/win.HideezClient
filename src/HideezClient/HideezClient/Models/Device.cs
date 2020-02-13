@@ -61,6 +61,7 @@ namespace HideezClient.Models
         double proximity = 0;
         int battery = 0;
         bool finishedMainFlow;
+        byte storageUpdateCounter;
 
         bool isCreatingRemoteDevice;
         bool isAuthorizingRemoteDevice;
@@ -284,14 +285,25 @@ namespace HideezClient.Models
             {
                 dmc.CallMethod(async () =>
                 {
-                    try
+                    if (_remoteDevice != null && PasswordManager != null)
                     {
-                        await LoadStorage();
+                        var updateCounter = _remoteDevice.StorageUpdateCounter;
+                        var loadedUpdateCounter = PasswordManager.LoadedStorageUpdateCounter;
+                        var delta = loadedUpdateCounter - updateCounter;
+                        if (updateCounter > loadedUpdateCounter || delta > 100)
+                        {
+                            try
+                            {
+                                await LoadStorage();
+                            }
+                            catch (Exception ex)
+                            {
+                                _log.WriteLine(ex);
+                            }
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        _log.WriteLine(ex);
-                    }
+
+                                
                 });
             });
 

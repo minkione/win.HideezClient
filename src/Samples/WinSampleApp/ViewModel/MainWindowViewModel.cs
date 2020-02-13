@@ -943,6 +943,7 @@ namespace WinSampleApp.ViewModel
                     _credentialProviderProxy, // use _credentialProviderProxy as IWorkstationUnlocker in real app
                     null,
                     uiProxyManager,
+                    null,
                     _log);
 
                 _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, rfidSettingsManager, null, uiProxyManager, _log);

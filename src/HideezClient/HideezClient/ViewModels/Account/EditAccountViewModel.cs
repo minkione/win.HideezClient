@@ -250,7 +250,7 @@ namespace HideezClient.ViewModels
         public IEnumerable<string> Apps { get { return AppsAndUrls.Where(x => !x.IsUrl).Select(x => x.Title); } }
         public IEnumerable<string> Urls { get { return AppsAndUrls.Where(x => x.IsUrl).Select(x => x.Title); } }
         public ObservableCollection<AppViewModel> AppsAndUrls { get; } = new ObservableCollection<AppViewModel>();
-        public IEnumerable<string> Logins { get { return device?.Accounts.Select(a => a.Login).Distinct(); } }
+        public IEnumerable<string> Logins { get { return device?.AccountsRecords.Select(a => a.Value.Login).Distinct(); } }
         public ObservableCollection<AppInfo> OpenedApps { get; } = new ObservableCollection<AppInfo>();
         public ObservableCollection<AppInfo> OpenedForegroundUrls { get; } = new ObservableCollection<AppInfo>();
 

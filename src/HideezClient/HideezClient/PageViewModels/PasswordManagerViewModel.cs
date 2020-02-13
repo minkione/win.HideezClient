@@ -36,6 +36,8 @@ namespace HideezClient.PageViewModels
 {
     class PasswordManagerViewModel : ReactiveObject
     {
+        // TODO: Optimize AccountRecord reading
+
         readonly Logger log = LogManager.GetCurrentClassLogger(nameof(PasswordManagerViewModel));
         readonly IQrScannerHelper qrScannerHelper;
         readonly IWindowsManager windowsManager;
@@ -142,7 +144,7 @@ namespace HideezClient.PageViewModels
                     {
                         if (EditAccount.CanSave())
                         {
-                            OnSaveAccountAsdync((x as PasswordBox)?.SecurePassword);
+                            OnSaveAccountAsync((x as PasswordBox)?.SecurePassword);
                         }
                     },
                     CanExecuteFunc = () => EditAccount != null && EditAccount.HasChanges && !EditAccount.HasError,
@@ -172,7 +174,7 @@ namespace HideezClient.PageViewModels
             Device = obj.NewDevice != null ? new DeviceViewModel(obj.NewDevice) : null;
         }
 
-        private async Task OnSaveAccountAsdync(SecureString password)
+        private async Task OnSaveAccountAsync(SecureString password)
         {
             try
             {
@@ -181,6 +183,7 @@ namespace HideezClient.PageViewModels
                 IsAvailable = false;
                 account.AccountRecord.Password = password.GetAsString();
                 await Device.SaveOrUpdateAccountAsync(account.AccountRecord);
+                OnFilterAccount();
             }
             catch (Exception ex)
             {
@@ -192,7 +195,7 @@ namespace HideezClient.PageViewModels
         private void OnDeviceChanged()
         {
             OnFilterAccount();
-            CollectionChangedEventManager.AddHandler(Device.Accounts, (s, args) => OnFilterAccount());
+            PropertyChangedEventManager.AddHandler(Device, (s, e) => OnFilterAccount(), nameof(DeviceViewModel.AccountsRecords));
         }
 
         private void OnAddAccount()
@@ -214,6 +217,7 @@ namespace HideezClient.PageViewModels
                 {
                     EditAccount = null;
                     await Device.DeleteAccountAsync(SelectedAccount.AccountRecord);
+                    OnFilterAccount();
                 }
                 catch (Exception ex)
                 {
@@ -243,7 +247,7 @@ namespace HideezClient.PageViewModels
 
         private void OnFilterAccount()
         {
-            var filteredAccounts = Device.Accounts.Where(a => a.CanVisible).Where(a => Contains(a, SearchQuery));
+            var filteredAccounts = Device.AccountsRecords.Select(r => new AccountInfoViewModel(r.Value)).Where(a => a.CanVisible).Where(a => Contains(a, SearchQuery));
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Accounts.RemoveMany(Accounts.Except(filteredAccounts));
@@ -252,6 +256,7 @@ namespace HideezClient.PageViewModels
 
             IsAvailable = true;
         }
+        
         private bool Contains(AccountInfoViewModel account, string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -265,6 +270,7 @@ namespace HideezClient.PageViewModels
 
             return false;
         }
+        
         private bool Contains(string source, string toCheck)
         {
             return source != null && toCheck != null && source.IndexOf(toCheck, StringComparison.InvariantCultureIgnoreCase) >= 0;

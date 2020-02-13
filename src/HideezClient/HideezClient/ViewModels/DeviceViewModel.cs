@@ -30,22 +30,8 @@ namespace HideezClient.ViewModels
             if (device == null)
                 throw new ArgumentNullException(nameof(device));
 
-
-
             this.device = device;
             device.PropertyChanged += (sender, e) => RaisePropertyChanged(e.PropertyName);
-
-            StorageLoadedStateChanged();
-            bindingRaiseeventIsStorageLoaded = new WeakPropertyObserver(device, nameof(device.IsStorageLoaded));
-            bindingRaiseeventIsStorageLoaded.ValueChanged += (propName, obj) => StorageLoadedStateChanged();
-        }
-        private void StorageLoadedStateChanged()
-        {
-            if (device.IsStorageLoaded && device.PasswordManager != null)
-            {
-                Accounts.Clear();
-                Accounts.AddRange(device.PasswordManager.Accounts.Values.Select(acc => new AccountInfoViewModel(acc)));
-            }
         }
         public string Name => device.Name;
         public string SerialNo => device.SerialNo;
@@ -74,6 +60,7 @@ namespace HideezClient.ViewModels
         [DependsOn(nameof(StorageFreeSize), nameof(StorageTotalSize))]
         public byte StorageFreePercent => (byte)(((double)StorageFreeSize / StorageTotalSize) * 100);
 
+        [DependsOn(nameof(IsStorageLoaded))]
         public IDictionary<ushort, AccountRecord> AccountsRecords 
         { 
             get 
@@ -84,7 +71,6 @@ namespace HideezClient.ViewModels
                     return new Dictionary<ushort, AccountRecord>();
             } 
         }
-        public ObservableCollection<AccountInfoViewModel> Accounts { get; } = new ObservableCollection<AccountInfoViewModel>();
 
         public bool CanLockByProximity => device.CanLockByProximity;
 
