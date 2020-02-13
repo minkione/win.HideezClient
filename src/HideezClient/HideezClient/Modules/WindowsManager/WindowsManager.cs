@@ -205,20 +205,6 @@ namespace HideezClient.Modules
             }
         }
 
-        public void ShowDialogAddCredential(Device device)
-        {
-            UIDispatcher.Invoke(() =>
-            {
-                var addCredentialWindow = new AddCredentialView();
-                SetStartupLocation(addCredentialWindow, IsMainWindowVisible);
-                if (addCredentialWindow.DataContext is AddCredentialViewModel viewModel)
-                {
-                    viewModel.Device = device;
-                }
-                addCredentialWindow.ShowDialog();
-            });
-        }
-
         public void ShowError(string message, string title = null, string notificationId = "")
         {
             UIDispatcher.Invoke(() => _notifier.ShowError(notificationId, title ?? GetTitle(), message));

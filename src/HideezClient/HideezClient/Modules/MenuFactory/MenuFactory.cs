@@ -116,26 +116,6 @@ namespace HideezClient.Modules
             }
         }
 
-        private MenuItemViewModel GetMenuAddCredential(Device device)
-        {
-            return new MenuItemViewModel
-            {
-                Header = "Menu.SavePCPassword",
-                Command = new DelegateCommand
-                {
-                    CommandAction = x =>
-                    {
-                        if (x is Device d)
-                        {
-                            _windowsManager.ShowDialogAddCredential(d);
-                        }
-                    },
-                    CanExecuteFunc = () => device.IsConnected
-                },
-                CommandParameter = device,
-            };
-        }
-
         private MenuItemViewModel GetMenuRemoveDevice(Device device)
         {
             return new MenuItemViewModel

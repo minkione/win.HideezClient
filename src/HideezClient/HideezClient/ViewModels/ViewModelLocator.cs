@@ -83,11 +83,6 @@ namespace HideezClient.ViewModels
 
         #region Dialog
 
-        public AddCredentialViewModel AddCredentialViewModel
-        {
-            get { return DIContainer.Resolve<AddCredentialViewModel>(); }
-        }
-
         public PinViewModel PinViewModel
         {
             get { return DIContainer.Resolve<PinViewModel>(); }

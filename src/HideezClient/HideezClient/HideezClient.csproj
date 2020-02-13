@@ -434,12 +434,8 @@
     <Compile Include="Utilities\LocalToMSAccountConverter.cs" />
     <Compile Include="Utilities\LogManagement.cs" />
     <Compile Include="Utilities\TemporaryCache.cs" />
-    <Compile Include="ViewModels\Dialog\AddCredentialViewModel.cs" />
     <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
     <Compile Include="ViewModels\Controls\IndicatorsViewModel.cs" />
-    <Compile Include="Views\Dialog\AddCredentialView.xaml.cs">
-      <DependentUpon>AddCredentialView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\PinView.xaml.cs" />
     <Compile Include="Views\SimpleMainView.xaml.cs">
       <DependentUpon>SimpleMainView.xaml</DependentUpon>
@@ -552,10 +548,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Resources\Dictionaries\SVG.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Dialog\AddCredentialView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
