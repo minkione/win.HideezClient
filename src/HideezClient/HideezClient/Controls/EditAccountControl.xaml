@@ -301,6 +301,7 @@
                                                 BorderThickness="0"
                                                 CaretBrush="{StaticResource DarkForeground}"
                                                 FontSize="16"
+                                                AcceptsReturn="False"
                                                 Foreground="{StaticResource DarkForeground}"
                                                 IsReadOnly="{Binding IsInEditState, Converter={StaticResource InvertBooleanConverter}}"
                                                 Text="{Binding EditableTitle, UpdateSourceTrigger=PropertyChanged}" />
@@ -313,6 +314,7 @@
                                                 CommandParameter="{Binding}"
                                                 IsEnabled="{Binding CanCancel}"
                                                 Style="{StaticResource IconButtonStyle}"
+                                                IsCancel="true"
                                                 Visibility="Visible">
                                                 <iconPacks:PackIconModern
                                                     Height="15"
@@ -330,6 +332,7 @@
                                                 IsEnabled="{Binding CanApply}"
                                                 Style="{StaticResource IconButtonStyle}"
                                                 ToolTip="{x:Null}"
+                                                IsDefault="True"
                                                 Visibility="Collapsed">
                                                 <iconPacks:PackIconModern
                                                     Height="15"
@@ -627,14 +630,12 @@
                     Click="Button_Click"
                     Command="{Binding CancelCommand}"
                     Content="{l:Localization Button.Cancel}"
-                    IsCancel="True"
                     Style="{DynamicResource CancelButtonStyle}" />
                 <Rectangle Width="14" />
                 <Button
                     Command="{Binding SaveAccountCommand}"
                     CommandParameter="{Binding ElementName=PasswordBox}"
-                    Content="{l:Localization Button.Save}"
-                    IsDefault="True">
+                    Content="{l:Localization Button.Save}">
                     <Button.Style>
                         <Style BasedOn="{StaticResource ConfirmButtonStyle}" TargetType="Button">
                             <Setter Property="Visibility" Value="Collapsed" />
