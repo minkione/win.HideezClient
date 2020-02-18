@@ -597,4 +597,52 @@ to access stored credentials</value>
   <data name="ActionCancelled.DeviceIsNotActive" xml:space="preserve">
     <value>Action cancelled. Device ({0}) is not selected as active.</value>
   </data>
+  <data name="Enum.ButtonPressCode.Double" xml:space="preserve">
+    <value>twice</value>
+  </data>
+  <data name="Enum.ButtonPressCode.Hepta" xml:space="preserve">
+    <value>7 times</value>
+  </data>
+  <data name="Enum.ButtonPressCode.Hexa" xml:space="preserve">
+    <value>6 times</value>
+  </data>
+  <data name="Enum.ButtonPressCode.Octa" xml:space="preserve">
+    <value>8 times</value>
+  </data>
+  <data name="Enum.ButtonPressCode.Penta" xml:space="preserve">
+    <value>5 times</value>
+  </data>
+  <data name="Enum.ButtonPressCode.Quad" xml:space="preserve">
+    <value>4 times</value>
+  </data>
+  <data name="Enum.ButtonPressCode.Single" xml:space="preserve">
+    <value>once</value>
+  </data>
+  <data name="Enum.ButtonPressCode.Triple" xml:space="preserve">
+    <value>3 times</value>
+  </data>
+  <data name="Enum.UserAction.AddAccount" xml:space="preserve">
+    <value>Add new account</value>
+  </data>
+  <data name="Enum.UserAction.InputLogin" xml:space="preserve">
+    <value>Input Login</value>
+  </data>
+  <data name="Enum.UserAction.InputOtp" xml:space="preserve">
+    <value>Input Otp</value>
+  </data>
+  <data name="Enum.UserAction.InputPassword" xml:space="preserve">
+    <value>Input Password</value>
+  </data>
+  <data name="UserAction.HideezWindowSelected.AddAccount" xml:space="preserve">
+    <value>Did you try to create new account for an app or website?{0}{0}Open app or browser{0}then {1}</value>
+  </data>
+  <data name="UserAction.HideezWindowSelected.InputLogin" xml:space="preserve">
+    <value>Did you try to enter login into an app or browser?{0}{0}Select login field in app or browser{0}then {1}</value>
+  </data>
+  <data name="UserAction.HideezWindowSelected.InputOtp" xml:space="preserve">
+    <value>Did you try to enter OTP into an app or browser?{0}{0}Select OTP field in app or browser{0}then {1}</value>
+  </data>
+  <data name="UserAction.HideezWindowSelected.InputPassword" xml:space="preserve">
+    <value>Did you try to enter password into an app or browser?{0}{0}Select password field in app or browser{0}then {1}</value>
+  </data>
 </root>

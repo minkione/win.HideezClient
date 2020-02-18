@@ -87,16 +87,18 @@ namespace HideezClient.Modules.ActionHandler
             {
                 await HandleActionAsync(activeDeviceId, action);
             }
-            catch (HideezWindowSelectedException ex)
+            catch (HideezWindowSelectedException)
             {
-                // TODO: Format message according to action and hotkey
+                var localizedAction = $"press {hotkey}";
+                var message = TranslationSource.Instance[$"UserAction.HideezWindowSelected.{action.ToString()}"];
+                message = string.Format(message, Environment.NewLine, localizedAction);
                 var msgOptions = new NotificationOptions { CloseTimeout = TimeSpan.FromSeconds(30) };
-                _messenger.Send(new ShowInfoNotificationMessage(ex.Message, options: msgOptions));
+                _messenger.Send(new ShowInfoNotificationMessage(message, options: msgOptions));
             }
-            catch (ActionNotSupportedException ex)
+            catch (ActionNotSupportedException)
             {
-                // TODO: Format message according to action and hotkey
-                _messenger.Send(new ShowInfoNotificationMessage(ex.Message));
+                var localizedAction = TranslationSource.Instance[$"Enum.UserAction.{action.ToString()}"].ToLowerInvariant();
+                _messenger.Send(new ShowInfoNotificationMessage($"Unable to {localizedAction}{Environment.NewLine}Action not supported"));
             }
             catch (Exception ex)
             {
@@ -111,16 +113,18 @@ namespace HideezClient.Modules.ActionHandler
             {
                 await HandleActionAsync(senderDeviceId, action);
             }
-            catch (HideezWindowSelectedException ex)
+            catch (HideezWindowSelectedException)
             {
-                // TODO: Format message according to action and button code
+                var localizedAction = $"press device button {TranslationSource.Instance[$"Enum.ButtonPressCode.{code.ToString()}"]}";
+                var message = TranslationSource.Instance[$"UserAction.HideezWindowSelected.{action.ToString()}"];
+                message = string.Format(message, Environment.NewLine, localizedAction);
                 var msgOptions = new NotificationOptions { CloseTimeout = TimeSpan.FromSeconds(30) };
-                _messenger.Send(new ShowInfoNotificationMessage(ex.Message, options: msgOptions));
+                _messenger.Send(new ShowInfoNotificationMessage(message, options: msgOptions));
             }
-            catch (ActionNotSupportedException ex)
+            catch (ActionNotSupportedException)
             {
-                // TODO: Format message according to action and button code
-                _messenger.Send(new ShowInfoNotificationMessage(ex.Message));
+                var localizedAction = TranslationSource.Instance[$"Enum.UserAction.{action.ToString()}"].ToLowerInvariant();
+                _messenger.Send(new ShowInfoNotificationMessage($"Unable to {localizedAction}{Environment.NewLine}Action not supported"));
             }
             catch (Exception ex)
             {
@@ -147,7 +151,7 @@ namespace HideezClient.Modules.ActionHandler
                         case UserAction.InputOtp:
                             await HandleInputActionAsync(deviceId, _inputOtp);
                             break;
-                        case UserAction.AddPassword:
+                        case UserAction.AddAccount:
                             await OnAddNewAccount(deviceId);
                             break;
                         case UserAction.LockWorkstation:

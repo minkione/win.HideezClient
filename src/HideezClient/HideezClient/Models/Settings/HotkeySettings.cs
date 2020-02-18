@@ -37,7 +37,7 @@ namespace HideezClient.Models.Settings
                 {UserAction.InputLogin, "Control + Alt + L" },
                 {UserAction.InputPassword, "Control + Alt + P" },
                 {UserAction.InputOtp, "Control + Alt + O" },
-                {UserAction.AddPassword, "Control + Alt + A" },
+                {UserAction.AddAccount, "Control + Alt + A" },
             };
         }
 
