@@ -31,14 +31,13 @@ namespace HideezClient.Models.Settings
         /// </summary>
         public HotkeySettings()
         {
-            SettingsVersion = new Version(1, 0, 0);
+            SettingsVersion = new Version(1, 1, 0);
             Hotkeys = new Dictionary<UserAction, string>()
             {
                 {UserAction.InputLogin, "Control + Alt + L" },
                 {UserAction.InputPassword, "Control + Alt + P" },
-                {UserAction.InputDefaultPassword, "Control + Alt + D" },
-                {UserAction.AddPassword, "Control + Alt + A" },
                 {UserAction.InputOtp, "Control + Alt + O" },
+                {UserAction.AddPassword, "Control + Alt + A" },
             };
         }
 

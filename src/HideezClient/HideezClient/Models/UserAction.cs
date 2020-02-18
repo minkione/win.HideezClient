@@ -4,10 +4,10 @@
     {
         InputLogin,
         InputPassword,
-        InputDefaultPassword,
-        AddPassword,
         InputOtp,
+        AddPassword,
         CustomAccountEntry,
+        LockWorkstation,
         None,
     }
 }

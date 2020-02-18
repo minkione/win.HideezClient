@@ -193,6 +193,12 @@ namespace HideezClient
             }
 
             await _windowsManager.InitializeMainWindowAsync();
+
+            // This will create an instance of password manager view model and allow handling of "Add new account" user action
+            // It is required for subscribtion of PasswordManagerViewModel to the "AddAccountForApp" message
+            // Note: PasswordManagerViewModel is not required for simplified UI
+            Container.Resolve<PasswordManagerViewModel>();
+            
         }
 
         private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)

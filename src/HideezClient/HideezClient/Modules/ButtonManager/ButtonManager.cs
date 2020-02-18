@@ -65,7 +65,7 @@ namespace HideezClient.Modules.ButtonManager
                     return;
             }
 
-            _messenger.Send(new ButtonPressedMessage(msg.DeviceId, action));
+            _messenger.Send(new ButtonPressedMessage(msg.DeviceId, action, msg.Button));
         }
     }
 }

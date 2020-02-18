@@ -309,6 +309,7 @@
     <Compile Include="Extension\VisualEx.cs" />
     <Compile Include="Messages\ActivateScreenMessage.cs" />
     <Compile Include="Messages\ActiveDeviceChangedMessage.cs" />
+    <Compile Include="Messages\AddAccountForAppMessage.cs" />
     <Compile Include="Messages\ButtonPressedMessage.cs" />
     <Compile Include="Messages\ConnectionChangedMessage.cs" />
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
@@ -327,6 +328,7 @@
     <Compile Include="Messages\HotkeyPressedMessage.cs" />
     <Compile Include="Messages\HotkeyStateChangedMessage.cs" />
     <Compile Include="Messages\LockWorkstationMessage.cs" />
+    <Compile Include="Messages\OpenPasswordManagerMessage.cs" />
     <Compile Include="Messages\Remote\Remote_BaseMessage.cs" />
     <Compile Include="Messages\Remote\Remote_DeviceStateChangedMessage.cs" />
     <Compile Include="Messages\SendPinMessage.cs" />
@@ -335,6 +337,7 @@
     <Compile Include="Messages\ServiceNotificationReceivedMessage.cs" />
     <Compile Include="Messages\SessionSwitchMessage.cs" />
     <Compile Include="Messages\SettingsChangedMessage.cs" />
+    <Compile Include="Messages\ShowActivateMainWindowMessage.cs" />
     <Compile Include="Messages\ShowButtonConfirmUiMessage.cs" />
     <Compile Include="Messages\ShowErrorNotificationMessage.cs" />
     <Compile Include="Messages\ShowInfoNotificationMessage.cs" />
@@ -344,6 +347,7 @@
     <Compile Include="Models\Account.cs" />
     <Compile Include="Modules\AccountManager\AccountExtensions.cs" />
     <Compile Include="Modules\ActionHandler\Exception\AccountException.cs" />
+    <Compile Include="Modules\ActionHandler\Exception\ActionNotSupportedException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\FieldNotSecureException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\HideezWindowSelectedException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\LoginNotFoundException.cs" />

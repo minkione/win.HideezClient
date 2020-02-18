@@ -50,6 +50,7 @@ namespace HideezClient.PageViewModels
             _messenger = messenger;
 
             _messenger.Register<ActiveDeviceChangedMessage>(this, OnActiveDeviceChanged);
+            _messenger.Register<AddAccountForAppMessage>(this, OnAddAccountForApp);
 
             this.WhenAnyValue(x => x.SearchQuery)
                  .Throttle(TimeSpan.FromMilliseconds(100))
@@ -172,6 +173,22 @@ namespace HideezClient.PageViewModels
         {
             // Todo: ViewModel should be reused instead of being recreated each time active device is changed
             Device = obj.NewDevice != null ? new DeviceViewModel(obj.NewDevice) : null;
+        }
+
+        private void OnAddAccountForApp(AddAccountForAppMessage obj)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var vm = new EditAccountViewModel(Device, windowsManager, qrScannerHelper)
+                {
+                    DeleteAccountCommand = this.DeleteAccountCommand,
+                    CancelCommand = this.CancelCommand,
+                    SaveAccountCommand = this.SaveAccountCommand,
+                };
+                vm.Name = obj.AppInfo.Title;
+                vm.AppsAndUrls.Add(new AppViewModel(obj.AppInfo.Title, !string.IsNullOrWhiteSpace(obj.AppInfo.Domain)));
+                EditAccount = vm;
+            });
         }
 
         private async Task OnSaveAccountAsync(SecureString password)

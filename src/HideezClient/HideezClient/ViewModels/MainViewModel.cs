@@ -1,6 +1,5 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
-using HideezClient.Models;
 using HideezClient.Modules.DeviceManager;
 using HideezClient.Mvvm;
 using MvvmExtensions.Commands;
@@ -10,11 +9,9 @@ using System.Reflection;
 using System.Windows.Input;
 using System.Linq;
 using HideezClient.Modules;
-using HideezClient.Modules.ServiceProxy;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using MvvmExtensions.Attributes;
+using System.Windows;
 
 namespace HideezClient.ViewModels
 {
@@ -30,7 +27,7 @@ namespace HideezClient.ViewModels
         Uri _displayPage;
         DeviceInfoViewModel _activeDeviceVM = null;
 
-        public MainViewModel(IDeviceManager deviceManager, IMenuFactory menuFactory, IActiveDevice activeDevice, ViewModelLocator viewModelLocator)
+        public MainViewModel(IDeviceManager deviceManager, IMenuFactory menuFactory, IActiveDevice activeDevice, IMessenger messenger, ViewModelLocator viewModelLocator)
         {
             _deviceManager = deviceManager;
             _menuFactory = menuFactory;
@@ -41,6 +38,8 @@ namespace HideezClient.ViewModels
             
             _deviceManager.DevicesCollectionChanged += Devices_CollectionChanged;
             _activeDevice.ActiveDeviceChanged += ActiveDevice_ActiveDeviceChanged;
+
+            messenger.Register<OpenPasswordManagerMessage>(this, (p) => { MenuPasswordManager.IsChecked = true; });
         }
 
         void InitMenu()

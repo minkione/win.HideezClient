@@ -57,6 +57,8 @@ namespace HideezClient.Modules
             messenger.Register<ShowButtonConfirmUiMessage>(this, ShowButtonConfirmAsync);
             messenger.Register<ShowPinUiMessage>(this, ShowPinAsync);
             messenger.Register<HidePinUiMessage>(this, HidePinAsync);
+
+            messenger.Register<ShowActivateMainWindowMessage>(this, (p) => ActivateMainWindow());
         }
 
         public void ActivateMainWindow()
@@ -287,6 +289,7 @@ namespace HideezClient.Modules
                             vm.Initialize(obj.DeviceId);
                             pinView = new PinDialog(vm);
                             pinView.Closed += PinView_Closed;
+                            OnActivateMainWindow();
                             metroWindow.ShowMetroDialogAsync(pinView);
                         }
                     });
@@ -316,6 +319,7 @@ namespace HideezClient.Modules
                             vm.Initialize(obj.DeviceId);
                             pinView = new PinDialog(vm);
                             pinView.Closed += PinView_Closed;
+                            OnActivateMainWindow();
                             metroWindow.ShowMetroDialogAsync(pinView);
                         }
                     });
