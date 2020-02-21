@@ -502,7 +502,7 @@ to access stored credentials</value>
     <value>Make sure that all indicators below are green.</value>
   </data>
   <data name="EnableDevice.Step2" xml:space="preserve">
-    <value>Long touch the dongle with the device untill initication process launches.</value>
+    <value>Long touch the dongle with the device until initication process launches.</value>
   </data>
   <data name="EnableDevice.Step3" xml:space="preserve">
     <value>Follow the screen notifications.</value>
@@ -644,5 +644,17 @@ to access stored credentials</value>
   </data>
   <data name="UserAction.HideezWindowSelected.InputPassword" xml:space="preserve">
     <value>Did you try to enter password into an app or browser?{0}{0}Select password field in app or browser{0}then {1}</value>
+  </data>
+  <data name="Menu.Authorize" xml:space="preserve">
+    <value>Authorize device access</value>
+  </data>
+  <data name="Menu.Authorize.Tooltip" xml:space="preserve">
+    <value>Launch authorization to access device storage</value>
+  </data>
+  <data name="Menu.DisconnectDevice.Tooltip" xml:space="preserve">
+    <value>Disconnect device</value>
+  </data>
+  <data name="Menu.RemoveDevice.Tooltip" xml:space="preserve">
+    <value>Disconnect device and delete bluetooth bond</value>
   </data>
 </root>

@@ -120,7 +120,7 @@ namespace HideezClient.Modules
         {
             return new MenuItemViewModel
             {
-                Header = "Menu.RemoveDevice",
+                Header = "Menu.RemoveDevice.Tooltip",
                 Command = new DelegateCommand
                 {
                     CommandAction = OnRemoveDevice,
@@ -133,7 +133,7 @@ namespace HideezClient.Modules
         {
             return new MenuItemViewModel
             {
-                Header = "Menu.DisconnectDevice",
+                Header = "Menu.DisconnectDevice.Tooltip",
                 Command = new DelegateCommand
                 {
                     CommandAction = OnDisconnectDevice,
@@ -147,7 +147,7 @@ namespace HideezClient.Modules
         {
             return new MenuItemViewModel
             {
-                Header = "Authorize",
+                Header = "Menu.Authorize.Tooltip",
                 Command = new DelegateCommand
                 {
                     CanExecuteFunc = () =>

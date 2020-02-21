@@ -197,6 +197,47 @@
         </Style.Triggers>
     </Style>
 
+    <!-- Semi-transparent button style -->
+    <Style
+        x:Key="SemiTransparentButtonStyle"
+        BasedOn="{StaticResource BaseButtonStyle}"
+        TargetType="{x:Type ButtonBase}">
+        <Setter Property="Background" Value="#E1F3F8" />
+        <Setter Property="Foreground" Value="{StaticResource DarkForeground}" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Command" Value="{Binding Command}" />
+        <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
+        <Setter Property="ToolTip" Value="{Binding Header}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
+                    <Grid>
+                        <Border
+                            x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            Opacity="0.2"
+                            CornerRadius="4">
+                        </Border>
+                        <ContentPresenter Margin="4,4" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#CCEBF4" />
+                            <Setter TargetName="border" Property="Opacity" Value="0.4" />
+                            <Setter Property="Cursor" Value="Hand" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#CCEBF4" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  Window style  -->
     <Style x:Key="WindowStyle" TargetType="Window">
         <Setter Property="FontFamily" Value="{DynamicResource MainFontFamily}" />

@@ -94,7 +94,7 @@
                             Opacity="0.5"
                             Text="{l:Localization EnableDevice.Step2}"
                             TextWrapping="Wrap" />
-                        <TextBlock Grid.Row="4" Text="2." />
+                        <TextBlock Grid.Row="4" Text="3." />
                         <TextBlock
                             Grid.Row="4"
                             Grid.Column="2"
@@ -169,6 +169,8 @@
             <StackPanel Grid.Row="3">
                 <controls:LeftMenuItemControl DataContext="{Binding MenuDefaultPage}" Visibility="Hidden" />
 
+                <!-- Hidden until implemented -->
+                <!--
                 <controls:LeftMenuItemControl DataContext="{Binding MenuHelp}" IsEnabled="False">
                     <controls:LeftMenuItemControl.Tag>
                         <iconPacks:PackIconFontAwesome Kind="QuestionCircleSolid" />
@@ -180,6 +182,7 @@
                         <iconPacks:PackIconFontAwesome Kind="CogSolid" />
                     </controls:LeftMenuItemControl.Tag>
                 </controls:LeftMenuItemControl>
+                -->
             </StackPanel>
 
             <Rectangle

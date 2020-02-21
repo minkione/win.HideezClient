@@ -611,14 +611,13 @@
                 Grid.Row="12"
                 HorizontalAlignment="Left"
                 ma:VisibilityHelper.IsCollapsed="{Binding IsNewAccount}"
-                Background="Transparent"
                 Click="Button_Click"
                 Command="{Binding DeleteAccountCommand}"
                 Foreground="{DynamicResource DeliteIconButtonBrush}"
-                Style="{DynamicResource IconButtonStyle}">
+                Style="{DynamicResource CancelButtonStyle}">
                 <iconPacks:PackIconMaterial
                     Height="26"
-                    Margin="30,9"
+                    Margin="0,9"
                     Kind="Delete" />
             </Button>
             <StackPanel
