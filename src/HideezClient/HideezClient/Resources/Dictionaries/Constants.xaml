@@ -26,6 +26,7 @@
     <!--  AccountItem  -->
     <SolidColorBrush x:Key="AccountItem.MouseOver.Background" Color="#E1F3F8" />
     <SolidColorBrush x:Key="AccountItem.Selected.Background" Color="#CCEBF4" />
+    <SolidColorBrush x:Key="AccountItem.Disabled.Background" Color="#E9F2F3" />
 
     <!--  Main Window  -->
     <SolidColorBrush x:Key="WindowTitleBrush" Color="#22446D" />

@@ -124,13 +124,13 @@
                 HorizontalAlignment="Left"
                 Orientation="Horizontal">
                 <Button
-                    ma:VisibilityHelper.IsVisible="{Binding CanEditable}"
+                    ma:VisibilityHelper.IsVisible="{Binding IsEditable}"
                     Command="{Binding DataContext.EditAccountCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}}"
                     Content="Edit"
                     Style="{DynamicResource ChangeButtonStyle}" />
                 <Rectangle Width="14" />
                 <Button
-                    ma:VisibilityHelper.IsVisible="{Binding CanDelete}"
+                    ma:VisibilityHelper.IsVisible="{Binding IsEditable}"
                     Background="Transparent"
                     Command="{Binding DataContext.DeleteAccountCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}}"
                     Style="{DynamicResource IconButtonStyle}">

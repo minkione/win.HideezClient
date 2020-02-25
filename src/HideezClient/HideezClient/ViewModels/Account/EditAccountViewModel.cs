@@ -75,7 +75,7 @@ namespace HideezClient.ViewModels
                 };
                 InitProp(AccountRecord);
             }
-            HasOpt = cache.HasOtp;
+            HasOpt = cache.Flags.HasOtp;
             InitDependencies();
         }
 
@@ -108,7 +108,7 @@ namespace HideezClient.ViewModels
         }
         private void VerifyHasChanged()
         {
-            HasChanges = CompareNotEquals(cache.Name, Name) || CompareNotEquals(cache.Login, Login) || IsPasswordChanged || CompareNotEquals(cache.Apps, AccountRecord.Apps) || CompareNotEquals(cache.Urls, AccountRecord.Urls) || (HasOpt != AccountRecord.HasOtp || !string.IsNullOrWhiteSpace(AccountRecord.OtpSecret));
+            HasChanges = CompareNotEquals(cache.Name, Name) || CompareNotEquals(cache.Login, Login) || IsPasswordChanged || CompareNotEquals(cache.Apps, AccountRecord.Apps) || CompareNotEquals(cache.Urls, AccountRecord.Urls) || (HasOpt != AccountRecord.Flags.HasOtp || !string.IsNullOrWhiteSpace(AccountRecord.OtpSecret));
         }
 
         private bool CompareNotEquals(string str1, string str2)
@@ -447,7 +447,7 @@ namespace HideezClient.ViewModels
                     CommandAction = (x) =>
                     {
                         EditOtp = false;
-                        HasOpt = AccountRecord.HasOtp;
+                        HasOpt = AccountRecord.Flags.HasOtp;
                         AccountRecord.OtpSecret = null;
                         OtpSecret = null;
                         ErrorOtpSecret = null;

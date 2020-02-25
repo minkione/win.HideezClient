@@ -264,7 +264,8 @@ namespace HideezClient.PageViewModels
 
         private void OnFilterAccount()
         {
-            var filteredAccounts = Device.AccountsRecords.Select(r => new AccountInfoViewModel(r.Value)).Where(a => a.CanVisible).Where(a => Contains(a, SearchQuery));
+            var filteredAccounts = Device.AccountsRecords.Select(r => new AccountInfoViewModel(r.Value)).Where(a => a.IsVisible).Where(a => Contains(a, SearchQuery));
+            filteredAccounts = filteredAccounts.OrderBy(a => a.Name).OrderByDescending(a => a.IsEditable); // Editable accounts will be shown first in the list
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Accounts.RemoveMany(Accounts.Except(filteredAccounts));

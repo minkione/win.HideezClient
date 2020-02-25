@@ -25,14 +25,13 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public bool CanEditable { get; set; } = true;
-        public bool CanVisible { get; set; } = true;
-        public bool CanDelete { get; set; } = true;
+        public bool IsEditable { get { return accountRecord.Key % 2 > 0; } }// { get { return !accountRecord.Flags.IsReadOnly; } }
+        public bool IsVisible { get { return !accountRecord.Flags.IsHidden; } }
 
         public ushort Key { get { return accountRecord.Key; } }
         public string Name { get { return accountRecord.Name; } }
         public string Login { get { return accountRecord.Login; } }
-        public bool HasOpt { get { return accountRecord.HasOtp; } }
+        public bool HasOpt { get { return accountRecord.Flags.HasOtp; } }
         public bool IsPrimary { get { return accountRecord.IsPrimary; } }
         public ObservableCollection<string> AppsUrls { get; } = new ObservableCollection<string>();
         public AccountRecord AccountRecord { get { return accountRecord; } }

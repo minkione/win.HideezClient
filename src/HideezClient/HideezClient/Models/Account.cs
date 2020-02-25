@@ -27,7 +27,7 @@ namespace HideezClient.Models
         public string[] Domains => AccountUtility.Split(accountRecord.Urls);
 
         public string Login => accountRecord.Login;
-        public bool HasOtp => accountRecord.HasOtp;
+        public bool HasOtp => accountRecord.Flags.HasOtp;
 
         public async Task<string> TryGetPasswordAsync()
         {

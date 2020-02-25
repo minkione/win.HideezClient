@@ -164,7 +164,8 @@
             <StackPanel.Style>
                 <Style TargetType="StackPanel">
                     <Setter Property="Visibility" Value="Collapsed" />
-                    <Style.Triggers>
+                    <!-- Disabled until logic is implemented -->
+                    <!--<Style.Triggers>
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
                                 <Condition Binding="{Binding Device.IsInitialized}" Value="True" />
@@ -174,7 +175,7 @@
                                 <Setter Property="Visibility" Value="Visible" />
                             </MultiDataTrigger.Setters>
                         </MultiDataTrigger>
-                    </Style.Triggers>
+                    </Style.Triggers>-->
                 </Style>
             </StackPanel.Style>
             <TextBlock Style="{StaticResource SettingsHeaderStyle}" Text="Proximity settings" />
