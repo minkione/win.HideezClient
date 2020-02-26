@@ -116,6 +116,9 @@ namespace HideezMiddleware
                     localizedStr = code.ToString();
                 }
 
+                if (exception is HesException)
+                    localizedStr = $"Server: {localizedStr}";
+
                 return localizedStr;
             }
             else
