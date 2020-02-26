@@ -556,7 +556,7 @@ namespace HideezClient.Models
                 _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
 
-                await _remoteDevice.Verify(channelNo);
+                await _remoteDevice.Verify();
                 await _remoteDevice.Initialize(INIT_TIMEOUT);
 
                 if (_remoteDevice.SerialNo != SerialNo)
