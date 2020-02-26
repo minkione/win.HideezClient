@@ -1,10 +1,5 @@
 ﻿using HideezClient.Models;
-using HideezClient.Modules.ActionHandler;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace HideezClient.Controls
 {
@@ -15,8 +10,24 @@ namespace HideezClient.Controls
             Account = account;
         }
 
-        public string FullName { get { return Account.Name; } }
-
         public Account Account { get; }
+
+        public string FullName 
+        { 
+            get 
+            {
+                var sb = new StringBuilder();
+
+                sb.Append(Account.Name.Trim());
+
+                if (!string.IsNullOrWhiteSpace(Account.Login))
+                    sb.Append($" - {Account.Login.Trim()}");
+
+                return sb.ToString(); 
+            } 
+        }
+
+        public bool IsReadOnly => Account.IsReadOnly;
+
     }
 }

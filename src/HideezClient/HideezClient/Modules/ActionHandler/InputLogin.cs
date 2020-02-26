@@ -8,6 +8,7 @@ using HideezClient.Modules.Localize;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using System;
+using System.Linq;
 
 namespace HideezClient.Modules.ActionHandler
 {
@@ -42,6 +43,17 @@ namespace HideezClient.Modules.ActionHandler
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Filtering intersect accounts and devices
+        /// </summary>
+        /// <param name="accounts">Found accounts on devices</param>
+        /// <param name="devicesId">Devices for filtering</param>
+        /// <returns>Filtered accounts</returns>
+        protected override Account[] FilterAccounts(Account[] accounts, string[] devicesId)
+        {
+            return base.FilterAccounts(accounts, devicesId).Where(a => !string.IsNullOrWhiteSpace(a.Login)).ToArray();
         }
 
         /// <summary>

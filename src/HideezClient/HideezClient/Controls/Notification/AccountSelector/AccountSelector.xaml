@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:HideezClient.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     MinHeight="60"
     Background="{DynamicResource NotificationBackground}"
     FontSize="14"
@@ -56,6 +57,7 @@
             MouseLeftButtonUp="AccountsList_MouseDoubleClick"
             SelectedItem="{Binding SelectedAccount}"
             SelectionMode="Single"
+            ScrollViewer.HorizontalScrollBarVisibility="Hidden"
             VirtualizingStackPanel.IsVirtualizing="False">
             <ListView.Resources>
                 <Style TargetType="GridViewColumnHeader">
@@ -63,14 +65,33 @@
                 </Style>
             </ListView.Resources>
             <ListView.View>
-                <GridView>
-                    <GridViewColumn DisplayMemberBinding="{Binding FullName}" />
+                <GridView >
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <DockPanel>
+                                    <iconPacks:PackIconMaterial
+                                        Kind="Cloud"
+                                        Visibility="{Binding IsReadOnly, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        Width="16"
+                                        Height="16"
+                                        Margin="0,2,8,0"
+                                        VerticalAlignment="Center"
+                                        />
+                                    <TextBlock Text="{Binding FullName}" 
+                                               VerticalAlignment="Center" 
+                                               TextWrapping="NoWrap" />
+                                </DockPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
             <ListView.ItemContainerStyle>
                 <Style BasedOn="{StaticResource MetroListViewItem}" TargetType="ListViewItem">
                     <Setter Property="Height" Value="46" />
                     <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                 </Style>
             </ListView.ItemContainerStyle>
         </ListView>
