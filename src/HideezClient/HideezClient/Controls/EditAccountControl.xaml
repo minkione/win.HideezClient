@@ -86,7 +86,7 @@
             </ContentControl>
 
             <!--  Logins  -->
-            <ContentControl Grid.Row="1" Style="{StaticResource UnderLine}">
+            <ContentControl Grid.Row="1" Style="{StaticResource UnderLine}" Tag="{Binding ErrorAccountLogin}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition SharedSizeGroup="L" />

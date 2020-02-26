@@ -84,7 +84,7 @@ namespace HideezClient.ViewModels
             Application.Current.MainWindow.Activated += WeakEventHandler.Create(this, (@this, o, args) => Task.Run(@this.UpdateAppsAndUrls));
 
             this.WhenAnyValue(vm => vm.OtpSecret).Where(x => !string.IsNullOrWhiteSpace(x)).Subscribe(o => ErrorOtpSecret = (ValidateBase32String(OtpSecret) ? null : "Not valid OTP secret"));
-            this.WhenAnyValue(vm => vm.ErrorAccountName, vm => vm.ErrorOtpSecret).Subscribe(observer => HasError = !(ErrorAccountName == null && ErrorOtpSecret == null));
+            this.WhenAnyValue(vm => vm.ErrorAccountName, vm => vm.ErrorAccountLogin, vm => vm.ErrorOtpSecret).Subscribe(observer => HasError = !(ErrorAccountName == null && ErrorAccountLogin == null && ErrorOtpSecret == null));
             this.WhenAnyValue(vm => vm.Name, vm => vm.Login, vm => vm.IsPasswordChanged, vm => vm.OtpSecret, vm => vm.HasOpt, vm => vm.Apps, vm => vm.Urls)
                 .Subscribe(o => VerifyHasChanged());
 
@@ -118,7 +118,7 @@ namespace HideezClient.ViewModels
 
         public bool CanSave()
         {
-            ValidateName();
+            ValidateNameAndLogin();
             ErrorPassword = IsNewAccount && !IsPasswordChanged ? "Password cannot be empty." : null;
             return ErrorAccountName == null && ErrorOtpSecret == null && ErrorPassword == null;
         }
@@ -197,6 +197,7 @@ namespace HideezClient.ViewModels
         [Reactive] public bool HasChanges { get; set; }
         public bool IsNewAccount { get; }
         [Reactive] public string ErrorAccountName { get; private set; }
+        [Reactive] public string ErrorAccountLogin { get; private set; }
         public string Name
         {
             get { return AccountRecord.Name; }
@@ -205,7 +206,7 @@ namespace HideezClient.ViewModels
                 if (AccountRecord.Name != value)
                 {
                     AccountRecord.Name = value;
-                    ValidateName();
+                    ValidateNameAndLogin();
                     this.RaisePropertyChanged(nameof(Name));
                 }
             }
@@ -221,6 +222,7 @@ namespace HideezClient.ViewModels
                 if (AccountRecord.Login != value)
                 {
                     AccountRecord.Login = value;
+                    ValidateNameAndLogin();
                     this.RaisePropertyChanged(nameof(Login));
                 }
             }
@@ -460,21 +462,26 @@ namespace HideezClient.ViewModels
 
         #endregion
 
-        private void ValidateName()
+        private void ValidateNameAndLogin()
         {
             if (string.IsNullOrWhiteSpace(AccountRecord.Name))
             {
                 ErrorAccountName = "Account name cannot be empty";
+                ErrorAccountLogin = null;
             }
             else if (device.AccountsRecords.Select(a => a.Value)
                 .Where(a => a.Flags.IsUserAccount)
-                .Any(a => a.Name.Equals(AccountRecord.Name) && a.Key != AccountRecord.Key)) // Strasse != Straße in default/ordinal comparison
+                .Any(a => a.Name.Equals(AccountRecord.Name) && 
+                a.Login.Equals(AccountRecord.Login) && 
+                a.Key != AccountRecord.Key)) // Strasse != Straße in default/ordinal comparison
             {
-                ErrorAccountName = "Account with that name already exists";
+                ErrorAccountName = "Account with the same name and login already exists";
+                ErrorAccountLogin = ErrorAccountName;
             }
             else
             {
                 ErrorAccountName = null;
+                ErrorAccountLogin = null;
             }
         }
 
