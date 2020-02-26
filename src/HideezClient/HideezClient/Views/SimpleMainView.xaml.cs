@@ -52,8 +52,15 @@ namespace HideezClient.Views
 
         private void MetroWindow_Closing(object sender, CancelEventArgs e)
         {
-            this.Visibility = Visibility.Collapsed;
+            Visibility = Visibility.Hidden;
             e.Cancel = true;
+        }
+
+        void MetroWindow_StateChanged(object sender, EventArgs e)
+        {
+            // When changing state from minimized to normal, this case ensures that window is properly resized
+            if (ActualHeight > 0)
+                InvalidateVisual();
         }
     }
 }

@@ -24,13 +24,14 @@
     WindowTitleBrush="{DynamicResource WindowTitleBrush}"
     WindowCloseButtonStyle="{DynamicResource CloseWindowButtonStyle}"
     ResizeMode="CanMinimize"
+    StateChanged="MetroWindow_StateChanged"    
     mc:Ignorable="d">
     <Metro:MetroWindow.Resources>
         <mvvm:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
         <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter" />
     </Metro:MetroWindow.Resources>
 
-    <Grid VerticalAlignment="Top">
+    <Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />

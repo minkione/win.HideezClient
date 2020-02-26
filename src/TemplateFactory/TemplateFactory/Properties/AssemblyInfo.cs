@@ -7,12 +7,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("HideezDeviceMaintenanceApplication")]
-[assembly: AssemblyDescription("Hideez Device Maintenance Application")]
+[assembly: AssemblyTitle("TemplateFactory")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Hideez Group Inc.")]
-[assembly: AssemblyProduct("Hideez Device Maintenance Application")]
-[assembly: AssemblyCopyright("© 2019 Hideez Group Inc. All rights reserved.")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("TemplateFactory")]
+[assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,5 +51,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.2.2")]
-[assembly: AssemblyFileVersion("1.2.2")]
+[assembly: AssemblyVersion("1.0.0")]
+[assembly: AssemblyFileVersion("1.0.0")]

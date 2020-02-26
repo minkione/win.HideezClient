@@ -149,7 +149,7 @@ namespace HideezMiddleware
                     _screenActivator?.StartPeriodicScreenActivation(0);
 
                     await new WaitWorkstationUnlockerConnectProc(_workstationUnlocker)
-                        .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct); 
+                        .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct);
                 }
 
                 device = await ConnectDevice(mac, ct);
@@ -158,6 +158,9 @@ namespace HideezMiddleware
                 device.OperationCancelled += OnUserCancelledByButton;
 
                 await WaitDeviceInitialization(mac, device, ct);
+
+                if (device.IsBoot)
+                    throw new HideezException(HideezErrorCode.DeviceInBootloaderMode);
 
                 var deviceInfo = await deviceInfoProcTask;
                 if (deviceInfoProc.IsSuccessful)
@@ -565,6 +568,12 @@ namespace HideezMiddleware
             {
                 if (ct.IsCancellationRequested)
                     return;
+
+                if (license.Data == null)
+                    throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_DATA). Please, contact your administrator.");
+
+                if (license.Id == null)
+                    throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_ID). Please, contact your administrator.");
 
                 await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
                 await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
