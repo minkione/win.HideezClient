@@ -466,6 +466,12 @@ namespace HideezClient.ViewModels
             {
                 ErrorAccountName = "Account name cannot be empty";
             }
+            else if (device.AccountsRecords.Select(a => a.Value)
+                .Where(a => a.Flags.IsUserAccount)
+                .Any(a => a.Name.Equals(AccountRecord.Name) && a.Key != AccountRecord.Key)) // Strasse != Straße in default/ordinal comparison
+            {
+                ErrorAccountName = "Account with that name already exists";
+            }
             else
             {
                 ErrorAccountName = null;

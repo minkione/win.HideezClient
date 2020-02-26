@@ -76,7 +76,20 @@ namespace HideezClient.ViewModels
 
         public Task<ushort> SaveOrUpdateAccountAsync(AccountRecord account)
         {
-            return device.PasswordManager.SaveOrUpdateAccount(account.Key, account.Name, account.Password, account.Login, account.OtpSecret, account.Apps, account.Urls, account.IsPrimary);
+            var flags = new AccountFlagsOptions
+            {
+                IsUserAccount = true,
+            };
+            return device.PasswordManager.SaveOrUpdateAccount(
+                account.Key, 
+                account.Name, 
+                account.Password, 
+                account.Login, 
+                account.OtpSecret, 
+                account.Apps, 
+                account.Urls, 
+                account.IsPrimary, 
+                flags);
         }
 
         public Task DeleteAccountAsync(AccountRecord account)

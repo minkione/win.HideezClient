@@ -25,7 +25,7 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public bool IsEditable { get { return accountRecord.Key % 2 > 0; } }// { get { return !accountRecord.Flags.IsReadOnly; } }
+        public bool IsEditable { get { return !accountRecord.Flags.IsReadOnly; } }
         public bool IsVisible { get { return !accountRecord.Flags.IsHidden; } }
 
         public ushort Key { get { return accountRecord.Key; } }

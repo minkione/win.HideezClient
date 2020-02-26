@@ -29,6 +29,8 @@ namespace HideezClient.Models
         public string Login => accountRecord.Login;
         public bool HasOtp => accountRecord.Flags.HasOtp;
 
+        public bool IsReadOnly => accountRecord.Flags.IsReadOnly;
+
         public async Task<string> TryGetPasswordAsync()
         {
             string password = null;
