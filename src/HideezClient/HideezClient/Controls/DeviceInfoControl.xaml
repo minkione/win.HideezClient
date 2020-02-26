@@ -217,7 +217,7 @@
                         DataContext="{Binding DisconnectDeviceMenu}" 
                         Style="{StaticResource SemiTransparentButtonStyle}"
                         Width="30"
-                        Height="30">
+                        Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}">
                         <iconPacks:PackIconFontAwesome
                             Width="14"
                             Height="14"
@@ -232,7 +232,7 @@
                     DataContext="{Binding RemoveDeviceMenu}"
                     Style="{StaticResource SemiTransparentButtonStyle}"
                     Width="30"
-                    Height="30">
+                    Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}">
                     <iconPacks:PackIconMaterial
                         Margin="3"
                         Foreground="{DynamicResource DisconnectedBrush}"
@@ -263,7 +263,7 @@
                     DataContext="{Binding AuthorizeDeviceAndLoadStorageMenu}" 
                     Style="{StaticResource SemiTransparentButtonStyle}"
                     Width="30"
-                    Height="30">
+                    Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}">
                     <iconPacks:PackIconMaterial
                         x:Name="NotAuthorizedIco"
                         Width="16"

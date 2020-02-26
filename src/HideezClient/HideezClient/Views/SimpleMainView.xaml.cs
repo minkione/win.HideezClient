@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using HideezClient.Mvvm;
 using System.ComponentModel;
+using System;
 
 namespace HideezClient.Views
 {

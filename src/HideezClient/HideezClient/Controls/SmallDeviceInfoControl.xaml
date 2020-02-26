@@ -213,29 +213,27 @@
 
                 <Border mah:VisibilityHelper.IsVisible="{Binding IsConnected}">
                     <Button 
-                        Width="22"
-                        Height="22"
+                        Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}"
                         DataContext="{Binding DisconnectDeviceMenu}" 
-                        Style="{StaticResource IconMenuButtonStyle}">
-                        <iconPacks:PackIconMaterial
+                        Style="{StaticResource SemiTransparentButtonStyle}">
+                        <iconPacks:PackIconFontAwesome
                             Margin="3"
-                            Width="16"
-                            Height="16"
+                            Width="13"
+                            Height="13"
                             Foreground="{DynamicResource WindowBackground}"
-                            Kind="BluetoothOff" />
+                            Kind="UnlinkSolid" />
                     </Button>
                 </Border>
 
                 <Button
-                    Margin="2,0,2,0"
-                    Width="22"
-                    Height="22"
+                    Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}"
+                    Margin="4,0,4,0"
                     DataContext="{Binding RemoveDeviceMenu}"
-                    Style="{StaticResource IconMenuButtonStyle}">
+                    Style="{StaticResource SemiTransparentButtonStyle}">
                     <iconPacks:PackIconFontAwesome
                         Margin="3"
-                        Width="14"
-                        Height="14"
+                        Width="13"
+                        Height="13"
                         Foreground="{DynamicResource DisconnectedBrush}"
                         Kind="TrashSolid" 
                         />
@@ -244,14 +242,13 @@
 
             <Border mah:VisibilityHelper.IsVisible="{Binding IsConnected}">
                 <Button 
-                        Width="22"
-                        Height="22"
-                        DataContext="{Binding SetAsActiveDeviceMenu}" 
-                        Style="{StaticResource IconMenuButtonStyle}">
+                    Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}"
+                    DataContext="{Binding SetAsActiveDeviceMenu}" 
+                    Style="{StaticResource SemiTransparentButtonStyle}">
                     <iconPacks:PackIconMaterial
                             Margin="3"
-                            Width="14"
-                            Height="14"
+                            Width="13"
+                            Height="13"
                             Foreground="{StaticResource HighlighBrush}"
                             Kind="Power" />
                 </Button>
