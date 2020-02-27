@@ -269,6 +269,24 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand CheckPassphraseCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        _ = CheckPassphrase(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         public ICommand LinkDeviceCommand
         {
             get
@@ -1294,6 +1312,19 @@ namespace WinSampleApp.ViewModel
             {
                 MessageBox.Show(ex.Message);
                 device.UpdateFwProgress = 0;
+            }
+        }
+
+        async Task CheckPassphrase(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.CheckPassphrase(Encoding.UTF8.GetBytes("passphrase"));
+                MessageBox.Show("Passphrase check - ok");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 

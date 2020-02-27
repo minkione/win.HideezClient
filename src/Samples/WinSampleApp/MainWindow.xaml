@@ -82,6 +82,7 @@
                     <Button Content="Storage" Margin="0,10,0,0" Command="{Binding StorageCommand}"/>
                     <Button Content="Get OTP" Margin="0,10,0,0" Command="{Binding GetOtpCommand}" />
                     <Button Content="Boost" Margin="0,10,0,0" Command="{Binding BoostDeviceRssiCommand}"/>
+                    <Button Content="CheckPassphrase" Margin="0,10,0,0" Command="{Binding CheckPassphraseCommand}"/>
                     <Button Content="Link" Margin="0,10,0,0" Command="{Binding LinkDeviceCommand}"/>
                     <Button Content="Access" Margin="0,10,0,0" Command="{Binding AccessDeviceCommand}"/>
                     <Button Content="Wipe" Margin="0,10,0,0" Command="{Binding WipeDeviceCommand}"/>
