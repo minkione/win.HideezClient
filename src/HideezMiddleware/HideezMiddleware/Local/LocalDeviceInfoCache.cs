@@ -57,10 +57,10 @@ namespace HideezMiddleware.Local
 
             var cacheKey = _cacheRootKey.CreateSubKey(keyName);
 
-            cacheKey.SetValue(nameof(info.SerialNo), info.SerialNo, RegistryValueKind.String);
-            cacheKey.SetValue(nameof(info.RFID), info.RFID, RegistryValueKind.String);
-            cacheKey.SetValue(nameof(info.OwnerName), info.OwnerName, RegistryValueKind.String);
-            cacheKey.SetValue(nameof(info.OwnerEmail), info.OwnerEmail, RegistryValueKind.String);
+            cacheKey.SetValue(nameof(info.SerialNo), info.SerialNo ?? string.Empty, RegistryValueKind.String);
+            cacheKey.SetValue(nameof(info.RFID), info.RFID ?? string.Empty, RegistryValueKind.String);
+            cacheKey.SetValue(nameof(info.OwnerName), info.OwnerName ?? string.Empty, RegistryValueKind.String);
+            cacheKey.SetValue(nameof(info.OwnerEmail), info.OwnerEmail ?? string.Empty, RegistryValueKind.String);
         }
 
     }
