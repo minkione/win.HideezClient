@@ -189,7 +189,7 @@ namespace HideezClient.Modules
             {
                 try
                 {
-                    var result = await _windowsManager.ShowDisconnectDevicePromptAsync(LocalizedObject.L("HideezKey2EEName"));
+                    var result = await _windowsManager.ShowDisconnectDevicePromptAsync(device.Name);
 
                     if (result)
                         await _serviceProxy.GetService().DisconnectDeviceAsync(device.Id);
@@ -211,7 +211,7 @@ namespace HideezClient.Modules
             {
                 try
                 {
-                    var result = await _windowsManager.ShowRemoveDevicePromptAsync(LocalizedObject.L("HideezKey2EEName"));
+                    var result = await _windowsManager.ShowRemoveDevicePromptAsync(device.Name);
 
                     if (result)
                         await _serviceProxy.GetService().RemoveDeviceAsync(device.Id);
