@@ -861,6 +861,42 @@ namespace WinSampleApp.ViewModel
                 };
             }
         }
+
+        public ICommand FetchLogCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        _ = FetchDeviceLog(CurrentDevice);
+                    }
+                };
+            }
+        }
+
+        public ICommand ClearLogCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        _ = ClearDeviceLog(CurrentDevice);
+                    }
+                };
+            }
+        }
         #endregion
 
         public MainWindowViewModel()
@@ -1259,6 +1295,45 @@ namespace WinSampleApp.ViewModel
                 MessageBox.Show(ex.Message);
             }
         }
+        
+        async Task FetchDeviceLog(DeviceViewModel device)
+        {
+            try
+            {
+                const UInt32 EVENTLOG_MAGIC = 0x9dcae500;
+                UInt32 current_magic;
+                var reply = await device.Device.FetchLog();
+                byte[] log_device = reply.Result;
+
+                current_magic = DeviceLogParser.BinToUint32(log_device, 0);
+                if ((current_magic & ~0xffUL )== EVENTLOG_MAGIC)
+                {
+                    string str = DeviceLogParser.Parser(log_device);
+                    Clipboard.SetText(str);
+                    MessageBox.Show($"Log copied into clipboard ({str.Length} chars)");
+                }
+                else
+                {
+                    MessageBox.Show("No eventlog data recorded\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(HideezExceptionLocalization.GetErrorAsString(ex));
+            }
+        }
+
+        async Task ClearDeviceLog(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.ClearLog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(HideezExceptionLocalization.GetErrorAsString(ex));
+            }
+        }
 
         async Task BoostDeviceRssi(DeviceViewModel device)
         {
@@ -1597,6 +1672,18 @@ namespace WinSampleApp.ViewModel
         void CancelConnectionFlow(DeviceViewModel currentDevice)
         {
             _connectionFlowProcessor.Cancel();
+        }
+
+        async Task DeviceFetchLog(DeviceViewModel device)
+        {
+            try
+            {
+                //await device.Device.
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         #region IClientUiProxy

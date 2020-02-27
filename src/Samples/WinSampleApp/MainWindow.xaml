@@ -194,6 +194,8 @@
                             </Grid>
                         </Button.Content>
                     </Button>
+                    <Button Content="Fetch Log" Margin="0,40,0,0" Command="{Binding FetchLogCommand}"/>
+                    <Button Content="Clear Log" Margin="0,10,0,0" Command="{Binding ClearLogCommand}"/>
                 </StackPanel>
                 <StackPanel Margin="10">
                     <Label>Primary account:</Label>
