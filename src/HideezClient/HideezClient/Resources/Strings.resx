@@ -657,4 +657,7 @@ to access stored credentials</value>
   <data name="Menu.RemoveDevice.Tooltip" xml:space="preserve">
     <value>Disconnect device and delete bluetooth bond</value>
   </data>
+  <data name="SearchPasswords" xml:space="preserve">
+    <value>Search passwords</value>
+  </data>
 </root>
