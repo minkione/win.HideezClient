@@ -469,9 +469,13 @@ namespace HideezClient.Models
                             _errNid = Guid.NewGuid().ToString();
 
                             await CreateRemoteDeviceAsync();
-                            if (authorizeDevice)
+
+                            if (authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && !_remoteDevice.AccessLevel.IsAllOk)
                                 await AuthorizeRemoteDevice(ct);
-                            if (!ct.IsCancellationRequested)
+                            else if (!authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsAllOk)
+                                await AuthorizeRemoteDevice(ct);
+
+                            if (!ct.IsCancellationRequested && !IsStorageLoaded)
                                 await LoadStorage();
                         }
                         catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceDisconnected)

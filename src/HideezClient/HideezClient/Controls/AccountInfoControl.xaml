@@ -121,6 +121,7 @@
 
             <StackPanel
                 Grid.Row="8"
+                Grid.ColumnSpan="3"
                 HorizontalAlignment="Left"
                 Orientation="Horizontal">
                 <Button
@@ -131,12 +132,12 @@
                 <Rectangle Width="14" />
                 <Button
                     ma:VisibilityHelper.IsVisible="{Binding IsEditable}"
-                    Background="Transparent"
+                    Foreground="{DynamicResource DeleteIconButtonBrush}"
                     Command="{Binding DataContext.DeleteAccountCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}}"
-                    Style="{DynamicResource IconButtonStyle}">
+                    Style="{DynamicResource CancelButtonStyle}">
                     <iconPacks:PackIconMaterial
                         Height="26"
-                        Margin="30,9"
+                        Margin="0,9"
                         Kind="Delete" />
                 </Button>
             </StackPanel>

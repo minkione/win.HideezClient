@@ -104,6 +104,10 @@ namespace HideezClient.ViewModels
             {
                 MenuDefaultPage.IsChecked = true;
             }
+            else if (_deviceManager.Devices.Count() == 0)
+            {
+                MenuDefaultPage.IsChecked = true;
+            }
 
             NotifyPropertyChanged(nameof(Devices));
         }
@@ -114,12 +118,16 @@ namespace HideezClient.ViewModels
             {
                 ActiveDevice.PropertyChanged -= ActiveDevice_PropertyChanged;
                 ActiveDevice = null;
-            }
 
+                MenuDefaultPage.IsChecked = true;
+            }
+            
             if (args.NewDevice != null)
             {
                 ActiveDevice = new DeviceInfoViewModel(args.NewDevice, _menuFactory);
                 ActiveDevice.PropertyChanged += ActiveDevice_PropertyChanged;
+
+                MenuDeviceSettings.IsChecked = true;
             }
         }
 
@@ -130,6 +138,14 @@ namespace HideezClient.ViewModels
                 if (ActiveDevice != null && (!ActiveDevice.CanShowPasswordManager && _leftDeviceMenuItems.Any(m => m.IsChecked)))
                 {
                     MenuDeviceSettings.IsChecked = true;
+                }
+            }
+
+            if (e.PropertyName == nameof(DeviceInfoViewModel.IsStorageLoaded))
+            {
+                if (ActiveDevice != null && ActiveDevice.IsAuthorized && ActiveDevice.IsStorageLoaded && ActiveDevice.CanShowPasswordManager)
+                {
+                    MenuPasswordManager.IsChecked = true;
                 }
             }
         }

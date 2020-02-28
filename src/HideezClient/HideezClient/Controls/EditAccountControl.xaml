@@ -273,7 +273,7 @@
                                                 <iconPacks:PackIconMaterial
                                                     Height="15"
                                                     Margin="3,0"
-                                                    Foreground="{StaticResource DeliteIconButtonBrush}"
+                                                    Foreground="{StaticResource DeleteIconButtonBrush}"
                                                     Kind="Delete" />
                                             </Button>
 
@@ -466,7 +466,7 @@
                             <iconPacks:PackIconMaterial
                                 Height="15"
                                 Margin="3,0"
-                                Foreground="{DynamicResource DeliteIconButtonBrush}"
+                                Foreground="{DynamicResource DeleteIconButtonBrush}"
                                 Kind="Delete" />
                         </Button>
                     </StackPanel>
@@ -613,7 +613,7 @@
                 ma:VisibilityHelper.IsCollapsed="{Binding IsNewAccount}"
                 Click="Button_Click"
                 Command="{Binding DeleteAccountCommand}"
-                Foreground="{DynamicResource DeliteIconButtonBrush}"
+                Foreground="{DynamicResource DeleteIconButtonBrush}"
                 Style="{DynamicResource CancelButtonStyle}">
                 <iconPacks:PackIconMaterial
                     Height="26"

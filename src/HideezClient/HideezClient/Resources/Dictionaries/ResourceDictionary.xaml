@@ -450,9 +450,8 @@
                     <ControlTemplate.Triggers>
                         <EventTrigger RoutedEvent="UIElement.GotFocus">
                             <BeginStoryboard>
-                                <Storyboard>
+                                <Storyboard Storyboard.Target="{Binding ElementName=PasswordSeparator}">
                                     <DoubleAnimation
-                                        Storyboard.TargetName="PasswordSeparator"
                                         Storyboard.TargetProperty="(RenderTransform).(ScaleTransform.ScaleX)"
                                         To="1"
                                         Duration="0:00:0.5" />
@@ -461,9 +460,8 @@
                         </EventTrigger>
                         <EventTrigger RoutedEvent="UIElement.LostFocus">
                             <BeginStoryboard>
-                                <Storyboard>
+                                <Storyboard Storyboard.Target="{Binding ElementName=PasswordSeparator}">
                                     <DoubleAnimation
-                                        Storyboard.TargetName="PasswordSeparator"
                                         Storyboard.TargetProperty="(RenderTransform).(ScaleTransform.ScaleX)"
                                         To="0"
                                         Duration="0:00:0.2" />

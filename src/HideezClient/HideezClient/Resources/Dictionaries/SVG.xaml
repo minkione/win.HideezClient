@@ -4,7 +4,7 @@
     xmlns:local="clr-namespace:HideezClient.Resources">
 
     <!--  Pentagon Style  -->
-    <Style x:Key="PentagonStyle" TargetType="Path">
+    <Style x:Key="PentagonStyle" TargetType="Path" x:Shared="false">
         <Setter Property="Fill" Value="#22446D" />
         <Setter Property="Opacity" Value="0.1" />
         <Style.Triggers>
@@ -18,7 +18,8 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="IcoKeyProcess"
-        Stretch="Uniform">
+        Stretch="Uniform"
+        x:Shared="false">
         <Canvas Width="64" Height="64">
             <Canvas.RenderTransform>
                 <TranslateTransform X="0" Y="0" />
@@ -83,7 +84,8 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="IconKeyFinish"
-        Stretch="Uniform">
+        Stretch="Uniform"
+        x:Shared="false">
         <Canvas Width="64" Height="64">
             <Canvas.RenderTransform>
                 <TranslateTransform X="0" Y="0" />
@@ -148,7 +150,7 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="InfoIco"
-        x:Shared="False"
+        x:Shared="false"
         Stretch="Uniform">
         <Canvas Width="90" Height="90">
             <Canvas.RenderTransform>
@@ -186,7 +188,7 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="WarnIco"
-        x:Shared="False"
+        x:Shared="false"
         Stretch="Uniform">
         <Canvas Width="90" Height="90">
             <Canvas.RenderTransform>
@@ -234,7 +236,7 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="ErrorIco"
-        x:Shared="False"
+        x:Shared="false"
         Stretch="Uniform">
         <Canvas Width="90" Height="90">
             <Canvas.RenderTransform>
@@ -274,7 +276,7 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="KeyHandIco"
-        x:Shared="False"
+        x:Shared="false"
         Stretch="Uniform">
         <Canvas Width="64" Height="64">
             <Canvas.RenderTransform>
@@ -322,7 +324,8 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="LockIco"
-        Stretch="Uniform">
+        Stretch="Uniform"
+        x:Shared="false">
         <Canvas Width="64" Height="64">
             <Canvas.RenderTransform>
                 <TranslateTransform X="0" Y="0" />
@@ -407,7 +410,7 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="TwoFactorAuthenticationImg"
-        x:Shared="False"
+        x:Shared="false"
         Stretch="Uniform">
         <Canvas
             Name="svg3917"
@@ -466,7 +469,7 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="PapcaImg"
-        x:Shared="False"
+        x:Shared="false"
         Stretch="Uniform">
         <Canvas
             Name="svg3875"
@@ -557,7 +560,7 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="PCandKeyImg"
-        x:Shared="False"
+        x:Shared="false"
         Stretch="Uniform">
         <Canvas
             Name="svg3805"
@@ -677,7 +680,7 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="HideezKeySimpleIMG"
-        x:Shared="False"
+        x:Shared="false"
         Stretch="Uniform">
         <Canvas Width="12" Height="12">
             <Canvas.RenderTransform>
@@ -715,7 +718,7 @@
     </Path>
 
     <!--  icons / download phone app  -->
-    <Canvas x:Key="icons_download_phone_app">
+    <Canvas x:Key="icons_download_phone_app" x:Shared="false">
         <Canvas.RenderTransform>
             <TranslateTransform X="0" Y="0" />
         </Canvas.RenderTransform>
@@ -799,7 +802,8 @@
     <Canvas
         x:Key="icon_screen"
         Width="96"
-        Height="72">
+        Height="72"
+        x:Shared="false">
         <Canvas.RenderTransform>
             <TranslateTransform X="0" Y="0" />
         </Canvas.RenderTransform>
@@ -866,7 +870,8 @@
     <Viewbox
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         x:Key="PlayVideo"
-        Stretch="Uniform">
+        Stretch="Uniform"
+        x:Shared="false">
         <Canvas Width="178" Height="178">
             <Canvas.Resources>
                 <LinearGradientBrush xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Key="paint0_linear" MappingMode="Absolute" StartPoint="77,68" EndPoint="112,99">
