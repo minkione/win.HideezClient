@@ -96,15 +96,7 @@ namespace HideezClient.ViewModels
 
         void Devices_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (_deviceManager.Devices.Count() > 0 && MenuDefaultPage.IsChecked)
-            {
-                MenuDeviceSettings.IsChecked = true;
-            }
-            else if (!_leftAppMenuItems.Any(m => m.IsChecked))
-            {
-                MenuDefaultPage.IsChecked = true;
-            }
-            else if (_deviceManager.Devices.Count() == 0)
+            if (_deviceManager.Devices.Count() == 0)
             {
                 MenuDefaultPage.IsChecked = true;
             }
@@ -135,7 +127,7 @@ namespace HideezClient.ViewModels
         {
             if (e.PropertyName == nameof(DeviceInfoViewModel.CanShowPasswordManager))
             {
-                if (ActiveDevice != null && (!ActiveDevice.CanShowPasswordManager && _leftDeviceMenuItems.Any(m => m.IsChecked)))
+                if (ActiveDevice != null && !ActiveDevice.CanShowPasswordManager && MenuPasswordManager.IsChecked)
                 {
                     MenuDeviceSettings.IsChecked = true;
                 }
@@ -143,7 +135,7 @@ namespace HideezClient.ViewModels
 
             if (e.PropertyName == nameof(DeviceInfoViewModel.IsStorageLoaded))
             {
-                if (ActiveDevice != null && ActiveDevice.IsAuthorized && ActiveDevice.IsStorageLoaded && ActiveDevice.CanShowPasswordManager)
+                if (ActiveDevice != null && ActiveDevice.IsStorageLoaded && ActiveDevice.CanShowPasswordManager)
                 {
                     MenuPasswordManager.IsChecked = true;
                 }
