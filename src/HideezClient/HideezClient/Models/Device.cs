@@ -560,8 +560,7 @@ namespace HideezClient.Models
                 _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
 
-                await _remoteDevice.Verify();
-                await _remoteDevice.Initialize(INIT_TIMEOUT);
+                await _remoteDevice.VerifyAndInitialize();
 
                 if (_remoteDevice.SerialNo != SerialNo)
                     throw new Exception("Remote device serial number does not match the enumerated serial");
