@@ -471,8 +471,8 @@ namespace HideezClient.ViewModels
             }
             else if (device.AccountsRecords.Select(a => a.Value)
                 .Where(a => a.Flags.IsUserAccount)
-                .Any(a => a.Name.Equals(AccountRecord.Name) && 
-                a.Login.Equals(AccountRecord.Login) && 
+                .Any(a => a.Name == AccountRecord.Name && 
+                (a.Login == AccountRecord.Login || string.IsNullOrWhiteSpace(a.Login) && string.IsNullOrWhiteSpace(AccountRecord.Login)) && 
                 a.Key != AccountRecord.Key)) // Strasse != Straße in default/ordinal comparison
             {
                 ErrorAccountName = "Account with the same name and login already exists";
