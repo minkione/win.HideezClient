@@ -738,6 +738,9 @@ namespace HideezServiceHost.HideezServiceReference {
         private HideezServiceHost.HideezServiceReference.ButtonPressCode ButtonField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private sbyte OtherConnectionsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private byte PinAttemptsRemainField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -791,6 +794,19 @@ namespace HideezServiceHost.HideezServiceReference {
                 if ((this.ButtonField.Equals(value) != true)) {
                     this.ButtonField = value;
                     this.RaisePropertyChanged("Button");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public sbyte OtherConnections {
+            get {
+                return this.OtherConnectionsField;
+            }
+            set {
+                if ((this.OtherConnectionsField.Equals(value) != true)) {
+                    this.OtherConnectionsField = value;
+                    this.RaisePropertyChanged("OtherConnections");
                 }
             }
         }

@@ -56,7 +56,15 @@ namespace HideezClient.Modules.ActionHandler
             WriteLine($"Handling button pressed message ({message.Action.ToString()}, {message.Code.ToString()})");
 
             if (_activeDevice.Device?.Id == message.DeviceId)
-                Task.Run(async () => await HandleButtonActionAsync(message.DeviceId, message.Action, message.Code));
+            {
+                if (_activeDevice.Device.OtherConnections > 0)
+                {
+                    // TODO: Add proper message that shows which hotkey user should use to accomplish the action
+                    _messenger.Send(new ShowWarningNotificationMessage("To many simultaneous connections to the same device. Use hotkeys instead"));
+                }
+                else
+                    Task.Run(async () => await HandleButtonActionAsync(message.DeviceId, message.Action, message.Code));
+            }
             else
             {
                 string warn = string.Format(TranslationSource.Instance["DeviceIsNotActive"], message.DeviceId);

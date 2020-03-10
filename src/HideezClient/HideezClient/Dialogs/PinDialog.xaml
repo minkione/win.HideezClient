@@ -123,7 +123,7 @@
                         <Grid>
                             <TextBlock
                                 Style="{StaticResource TitleTextBlockStyle}"
-                                Text="Set up new PIN for device"
+                                Text="{Binding MinLenghtPin, StringFormat=Set up new PIN for device (minimum {0})}"
                                 Visibility="{Binding IsNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <TextBlock
                                 Style="{StaticResource TitleTextBlockStyle}"

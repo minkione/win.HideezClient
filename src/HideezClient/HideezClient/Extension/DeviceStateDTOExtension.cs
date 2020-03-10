@@ -15,6 +15,7 @@ namespace HideezClient.Extension
                 StorageUpdateCounter = dto.StorageUpdateCounter,
                 Button = (Hideez.SDK.Communication.ButtonPressCode)dto.Button,
                 AccessLevel = dto.AccessLevel.ToAccessLevel(),
+                OtherConnections = dto.OtherConnections,
             };
         }
     }

@@ -264,6 +264,11 @@ namespace HideezClient.Models
             get { return isProximityLockEnabled; }
             private set { Set(ref isProximityLockEnabled, value); }
         }
+
+        public int OtherConnections
+        {
+            get { return _remoteDevice != null ? (int)_remoteDevice?.OtherConnections : 0; }
+        }
         #endregion
 
         #region Messege & Event handlers

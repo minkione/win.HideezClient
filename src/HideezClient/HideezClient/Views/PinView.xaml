@@ -151,7 +151,7 @@
                         <TextBlock
                             Margin="0,10,0,0"
                             Style="{StaticResource LabelTextBlockStyle}"
-                            Text="New PIN"
+                            Text="{Binding MinLenghtPin, StringFormat={}New PIN (minimum {0})}"
                             Visibility="{Binding AskNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <PasswordBox
                             x:Name="NewPinPasswordBox"

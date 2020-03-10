@@ -165,11 +165,9 @@ namespace HideezClient.ViewModels
             set { Set(ref _maxLenghtPin, value); }
         }
         
-        // Todo: Retrieve Min Pin Length from the device
-        public uint MinLenghtPin
+        public int MinLenghtPin
         {
-            get { return _minLenghtPin; }
-            set { Set(ref _minLenghtPin, value); }
+            get { return Device != null ? Device.PinAttemptsRemain : 1; }
         }
 
         public Device Device

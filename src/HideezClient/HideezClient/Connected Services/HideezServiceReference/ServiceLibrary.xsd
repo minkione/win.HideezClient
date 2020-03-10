@@ -81,6 +81,7 @@
       <xs:element minOccurs="0" name="AccessLevel" nillable="true" type="tns:AccessLevelDTO" />
       <xs:element minOccurs="0" name="Battery" type="xs:byte" />
       <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/Hideez.SDK.Communication" minOccurs="0" name="Button" type="q3:ButtonPressCode" />
+      <xs:element minOccurs="0" name="OtherConnections" type="xs:byte" />
       <xs:element minOccurs="0" name="PinAttemptsRemain" type="xs:unsignedByte" />
       <xs:element minOccurs="0" name="Rssi" type="xs:byte" />
       <xs:element minOccurs="0" name="StorageUpdateCounter" type="xs:unsignedByte" />

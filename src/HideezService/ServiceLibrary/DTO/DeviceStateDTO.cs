@@ -15,6 +15,7 @@ namespace ServiceLibrary
             StorageUpdateCounter = state.StorageUpdateCounter;
             Button = state.Button;
             AccessLevel = new AccessLevelDTO(state.AccessLevel);
+            OtherConnections = state.OtherConnections;
         }
 
         [DataMember]
@@ -34,5 +35,8 @@ namespace ServiceLibrary
 
         [DataMember]
         public AccessLevelDTO AccessLevel { get; set; }
+
+        [DataMember]
+        public sbyte OtherConnections { get; set; }
     }
 }
