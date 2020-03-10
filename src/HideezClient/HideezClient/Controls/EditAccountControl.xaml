@@ -61,7 +61,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150" SharedSizeGroup="L" />
                         <ColumnDefinition Width="24" SharedSizeGroup="C" />
-                        <ColumnDefinition Width="*" SharedSizeGroup="R" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock
                         VerticalAlignment="Center"
