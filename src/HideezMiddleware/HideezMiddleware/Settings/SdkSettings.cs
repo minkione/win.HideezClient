@@ -7,7 +7,7 @@ namespace HideezMiddleware.Settings
     {
         public SdkSettings()
         {
-            SettingsVersion = new Version(1, 0);
+            SettingsVersion = new Version(1, 1);
         }
 
         public SdkSettings(SdkSettings copy)
@@ -32,6 +32,9 @@ namespace HideezMiddleware.Settings
             ConnectDeviceTimeout = copy.ConnectDeviceTimeout;
             DeviceInitializationTimeout = copy.DeviceInitializationTimeout;
             SystemStateEventWaitTimeout = copy.SystemStateEventWaitTimeout;
+
+            DeviceBusyTransmitTimeout = copy.DeviceBusyTransmitTimeout;
+            DeviceBusyTransmitInterval = copy.DeviceBusyTransmitInterval;
         }
 
         [Setting]
@@ -67,6 +70,11 @@ namespace HideezMiddleware.Settings
         [Setting]
         public int SystemStateEventWaitTimeout { get; set; } = 2_000;
 
+        [Setting]
+        public int DeviceBusyTransmitTimeout { get; set; } = 90;
+
+        [Setting]
+        public int DeviceBusyTransmitInterval { get; set; } = 5;
 
         public override object Clone()
         {

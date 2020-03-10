@@ -29,6 +29,9 @@ namespace HideezMiddleware
             SdkConfig.ConnectDeviceTimeout = settings.ConnectDeviceTimeout;
             SdkConfig.DeviceInitializationTimeout = settings.DeviceInitializationTimeout;
             SdkConfig.SystemStateEventWaitTimeout = settings.SystemStateEventWaitTimeout;
+
+            SdkConfig.DeviceBusyTransmitInterval = settings.DeviceBusyTransmitInterval;
+            SdkConfig.DeviceBusyTransmitTimeout = settings.DeviceBusyTransmitTimeout;
         }
     }
 }
