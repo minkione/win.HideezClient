@@ -33,7 +33,6 @@ namespace HideezClient.ViewModels
         string _errorMessage = string.Empty;
 
         Device _device;
-        uint _minLenghtPin = 1;
         uint _maxLenghtPin = 8;
 
         public event EventHandler ViewModelUpdated;
@@ -167,7 +166,13 @@ namespace HideezClient.ViewModels
         
         public int MinLenghtPin
         {
-            get { return Device != null ? Device.PinAttemptsRemain : 1; }
+            get 
+            {
+                if (Device != null && Device.AccessLevel != null && Device.AccessLevel.IsNewPinRequired)
+                    return Device.PinAttemptsRemain;
+                else
+                    return 1;
+            }
         }
 
         public Device Device
