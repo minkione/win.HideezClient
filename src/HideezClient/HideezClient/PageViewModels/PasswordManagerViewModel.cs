@@ -200,8 +200,9 @@ namespace HideezClient.PageViewModels
                 EditAccount = null;
                 IsAvailable = false;
                 account.AccountRecord.Password = password.GetAsString();
-                await Device.SaveOrUpdateAccountAsync(account.AccountRecord);
+                var key = await Device.SaveOrUpdateAccountAsync(account.AccountRecord);
                 OnFilterAccount();
+                SelectedAccount = Accounts.FirstOrDefault(a => a.AccountRecord.Key == key);
             }
             catch (Exception ex)
             {
