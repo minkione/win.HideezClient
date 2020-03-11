@@ -138,6 +138,9 @@
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="InnerBorder" Property="Background" Value="#33000000" />
                         </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="InnerBorder" Property="Background" Value="#ffC0C0C0" />
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
