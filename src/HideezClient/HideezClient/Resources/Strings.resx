@@ -340,7 +340,7 @@ Device is not connected</value>
   <data name="Exception.AccountNotFound" xml:space="preserve">
     <value>Account not found for {0}</value>
   </data>
-  <data name="NoAnyConnectedDevice" xml:space="preserve">
+  <data name="NoConnectedDevices" xml:space="preserve">
     <value>No connected devices</value>
   </data>
   <data name="Menu.DeviceSettings" xml:space="preserve">
@@ -594,7 +594,7 @@ to access stored credentials</value>
   <data name="CredentialsLoad.Failed" xml:space="preserve">
     <value>Credentials loading failed {0}</value>
   </data>
-  <data name="ActionCancelled.DeviceIsNotActive" xml:space="preserve">
+  <data name="UserAction.DeviceIsNotActive" xml:space="preserve">
     <value>Action cancelled. Device ({0}) is not selected as active.</value>
   </data>
   <data name="Enum.ButtonPressCode.Double" xml:space="preserve">
@@ -659,5 +659,8 @@ to access stored credentials</value>
   </data>
   <data name="SearchPasswords" xml:space="preserve">
     <value>Search passwords</value>
+  </data>
+  <data name="UserAction.ButtonDisabled.ToManyOtherConnections" xml:space="preserve">
+    <value>Button actions are disabled because your device ({0}) is connected to {1} other workstations. Instead use hotkey {2} to {3}.</value>
   </data>
 </root>

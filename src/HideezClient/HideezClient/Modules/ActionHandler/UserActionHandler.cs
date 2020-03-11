@@ -13,6 +13,7 @@ using System.Threading;
 using Hideez.ARM;
 using HideezClient.Models.Settings;
 using HideezMiddleware.Settings;
+using HideezClient.Modules.HotkeyManager;
 
 namespace HideezClient.Modules.ActionHandler
 {
@@ -29,6 +30,7 @@ namespace HideezClient.Modules.ActionHandler
         private int _isPerformingActionLock = 0;
         private const int DELAY_BEFORE_NEXT_ACTION = 500; // Delay after user action is finished but before next one will be handled
         private readonly ISettingsManager<ApplicationSettings> _appSettingsManager;
+        private readonly IHotkeyManager _hotkeyManager;
 
         public UserActionHandler(
             IMessenger messenger,
@@ -37,6 +39,7 @@ namespace HideezClient.Modules.ActionHandler
             InputPassword inputPassword,
             InputOtp inputOtp,
             ISettingsManager<ApplicationSettings> appSettingsManager,
+            IHotkeyManager hotkeyManager,
             ILog log)
             : base(nameof(UserActionHandler), log)
         {
@@ -46,12 +49,14 @@ namespace HideezClient.Modules.ActionHandler
             _inputPassword = inputPassword;
             _inputOtp = inputOtp;
             _appSettingsManager = appSettingsManager;
+            _hotkeyManager = hotkeyManager;
 
             _messenger.Register<HotkeyPressedMessage>(this, HotkeyPressedMessageHandler);
             _messenger.Register<ButtonPressedMessage>(this, ButtonPressedMessageHandler);
         }
 
-        void ButtonPressedMessageHandler(ButtonPressedMessage message)
+        // Messages from Messenger are events. async void is fine in this case.
+        async void ButtonPressedMessageHandler(ButtonPressedMessage message)
         {
             WriteLine($"Handling button pressed message ({message.Action.ToString()}, {message.Code.ToString()})");
 
@@ -59,33 +64,39 @@ namespace HideezClient.Modules.ActionHandler
             {
                 if (_activeDevice.Device.OtherConnections > 0)
                 {
-                    // TODO: Add proper message that shows which hotkey user should use to accomplish the action
-                    _messenger.Send(new ShowWarningNotificationMessage("To many simultaneous connections to the same device. Use hotkeys instead"));
+                    string info = TranslationSource.Instance["UserAction.ButtonDisabled.ToManyOtherConnections"];
+                    var deviceName = _activeDevice.Device.Name;
+                    var otherConnections = _activeDevice.Device.OtherConnections;
+                    var hotkey = await _hotkeyManager.GetHotkeyForAction(message.Action);
+                    var localizedAction = TranslationSource.Instance[$"Enum.UserAction.{message.Action.ToString()}"].ToLowerInvariant();
+                    info = string.Format(info, deviceName, otherConnections, hotkey, localizedAction);
+                    var msgOptions = new NotificationOptions { CloseTimeout = TimeSpan.FromSeconds(30) };
+                    _messenger.Send(new ShowInfoNotificationMessage(info, options: msgOptions));
                 }
                 else
-                    Task.Run(async () => await HandleButtonActionAsync(message.DeviceId, message.Action, message.Code));
+                    await HandleButtonActionAsync(message.DeviceId, message.Action, message.Code);
             }
             else
             {
-                string warn = string.Format(TranslationSource.Instance["DeviceIsNotActive"], message.DeviceId);
+                string warn = string.Format(TranslationSource.Instance["UserAction.DeviceIsNotActive"], message.DeviceId);
                 _messenger.Send(new ShowWarningNotificationMessage(warn));
                 WriteLine(warn, LogErrorSeverity.Warning);
             }
         }
 
-        void HotkeyPressedMessageHandler(HotkeyPressedMessage message)
+        async void HotkeyPressedMessageHandler(HotkeyPressedMessage message)
         {
             WriteLine($"Handling hotkey pressed message ({message.Hotkey}, {message.Action.ToString()})");
 
             if (_activeDevice.Device == null)
             {
-                string warning = TranslationSource.Instance["NoAnyConnectedDevice"];
+                string warning = TranslationSource.Instance["NoConnectedDevices"];
                 _messenger.Send(new ShowWarningNotificationMessage(warning));
                 WriteLine(warning, LogErrorSeverity.Warning);
                 return;
             }
             else
-                Task.Run(async () => await HandleHotkeyActionAsync(_activeDevice.Device.Id, message.Action, message.Hotkey));
+                await HandleHotkeyActionAsync(_activeDevice.Device.Id, message.Action, message.Hotkey);
 
         }
 
