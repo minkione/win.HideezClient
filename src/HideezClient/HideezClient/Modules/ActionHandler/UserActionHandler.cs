@@ -182,7 +182,7 @@ namespace HideezClient.Modules.ActionHandler
                 }
                 finally
                 {
-                    await Task.Delay(500);
+                    await Task.Delay(DELAY_BEFORE_NEXT_ACTION);
                     Interlocked.Exchange(ref _isPerformingActionLock, 0);
                     WriteLine("User action lock lifted");
                 }
