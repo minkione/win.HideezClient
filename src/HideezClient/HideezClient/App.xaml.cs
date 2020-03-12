@@ -66,6 +66,10 @@ namespace HideezClient
         public App()
         {
             App.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            
+            // Fixes System.ComponentModel.Win32Exception (0x80004005): Not enough quota is available to process this command
+            // Occurs when we receive 10000 windows messages per second
+            BaseCompatibilityPreferences.HandleDispatcherRequestProcessingFailure = BaseCompatibilityPreferences.HandleDispatcherRequestProcessingFailureOptions.Reset;
 
             SetupExceptionHandling();
 
