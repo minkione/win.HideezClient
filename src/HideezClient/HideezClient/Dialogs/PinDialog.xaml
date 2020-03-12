@@ -131,7 +131,7 @@
                                 Visibility="{Binding IsEnterPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <TextBlock
                                 Style="{StaticResource TitleTextBlockStyle}"
-                                Text="Change device PIN"
+                                Text="{Binding MinLenghtPin, StringFormat=Change device PIN (minimum {0})}"
                                 Visibility="{Binding IsChangePin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         </Grid>
 

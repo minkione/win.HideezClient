@@ -200,6 +200,7 @@ namespace HideezMiddleware
                     // request HES to update this device
                     await _ui.SendNotification("Uploading new credentials to the device...", _infNid);
                     await _hesConnection.FixDevice(device, ct);
+                    await device.RefreshDeviceInfo();
                 }
 
                 int timeout = SdkConfig.MainWorkflowTimeout;
@@ -392,7 +393,7 @@ namespace HideezMiddleware
             bool res = false;
             while (device.AccessLevel.IsNewPinRequired)
             {
-                await _ui.SendNotification("Please create new PIN code for your Hideez Key", _infNid);
+                await _ui.SendNotification($"Please create new PIN code for your Hideez Key (minimum {device.PinAttemptsRemain})", _infNid);
                 string pin = await _ui.GetPin(device.Id, timeout, ct, withConfirm: true);
 
                 if (string.IsNullOrWhiteSpace(pin))

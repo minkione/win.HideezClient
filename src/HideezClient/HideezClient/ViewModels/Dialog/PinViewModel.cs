@@ -356,7 +356,7 @@ namespace HideezClient.ViewModels
             if (pin == null)
                 return -1;
 
-            if (pin.Length < MinLenghtPin)
+            if (pin.Length < 1)
                 return -1;
             else if (pin.Length > MaxLenghtPin)
                 return 1;
