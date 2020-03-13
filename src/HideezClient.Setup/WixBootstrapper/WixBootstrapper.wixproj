@@ -59,6 +59,7 @@
     <Content Include="..\WiXSetup\Include.wxi">
       <Link>Include.wxi</Link>
     </Content>
+    <Content Include="128x128.ico" />
     <Content Include="app.manifest" />
     <Content Include="readme.txt" />
     <Content Include="redistr\redistr readme.txt" />

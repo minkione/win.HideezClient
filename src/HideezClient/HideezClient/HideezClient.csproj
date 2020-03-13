@@ -58,11 +58,9 @@
     <StartupObject>HideezClient.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resources\Icon\Idle\32x32.ico</ApplicationIcon>
+    <ApplicationIcon>128x128.ico</ApplicationIcon>
   </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug\</OutputPath>
@@ -102,6 +100,9 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommonServiceLocator, Version=2.0.2.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
@@ -649,13 +650,14 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Resource Include="Resources\Icon\Idle\Idle1.ico" />
+    <Resource Include="128x128.ico" />
     <None Include="Connected Services\HideezServiceReference\HideezClient.HideezServiceReference.ProximitySettingsDTO.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Resources\Data\public_suffix_list.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Resource Include="Resources\Icon\Idle\Idle1.ico" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -718,6 +720,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataTypes\" />
+    <Folder Include="Resources\Icon\Alert\" />
+    <Folder Include="Resources\Icon\NoCon\" />
+    <Folder Include="Resources\Icon\NoKeyAlert\" />
+    <Folder Include="Resources\Icon\NoKey\" />
+    <Folder Include="Resources\Icon\Sync\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">
@@ -730,30 +737,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Icon\Idle\Idle.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Icon\Idle\128x128.ico" />
-    <Resource Include="Resources\Icon\Idle\16x16.ico" />
-    <Resource Include="Resources\Icon\Idle\32x32.ico" />
-    <Resource Include="Resources\Icon\Idle\48x48.ico" />
-    <Resource Include="Resources\Icon\Idle\64x64.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Icon\Alert\Alert1.ico" />
-    <Resource Include="Resources\Icon\NoCon\NoCon1.ico" />
-    <Resource Include="Resources\Icon\NoKeyAlert\NoKeyAlert1.ico" />
-    <Resource Include="Resources\Icon\NoKey\NoKey1.ico" />
-    <Resource Include="Resources\Icon\Sync\Sync1.ico" />
-    <Resource Include="Resources\Icon\Sync\Sync2.ico" />
-    <Resource Include="Resources\Icon\Sync\Sync3.ico" />
-    <Resource Include="Resources\Icon\Sync\Sync4.ico" />
-    <Resource Include="Resources\Icon\Sync\Sync5.ico" />
-    <Resource Include="Resources\Icon\Sync\Sync6.ico" />
-    <Resource Include="Resources\Icon\Sync\Sync7.ico" />
-    <Resource Include="Resources\Icon\Sync\Sync8.ico" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

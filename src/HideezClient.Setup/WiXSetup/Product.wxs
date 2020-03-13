@@ -60,7 +60,7 @@
            Cabinet="hideezsafe.cab"
            EmbedCab="yes" />
 
-    <Icon Id="app.ico" SourceFile="32x32.ico"/>
+    <Icon Id="app.ico" SourceFile="128x128.ico"/>
     <Property Id="ARPPRODUCTICON" Value="app.ico" />
 
     <WixVariable Id="WixUIBannerBmp" Value="Resources\InstallerBanner.jpg"/>

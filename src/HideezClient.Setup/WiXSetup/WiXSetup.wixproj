@@ -51,6 +51,7 @@
     </WixExtension>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="128x128.ico" />
     <Content Include="Include.wxi" />
     <Content Include="Resources\InstallerBanner.jpg" />
     <Content Include="Resources\InstallerDialog.jpg" />

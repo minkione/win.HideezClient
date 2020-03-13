@@ -13,7 +13,7 @@
           UpdateUrl="$(var.UpdateUrl)"
           AboutUrl="$(var.AboutUrl)"
           UpgradeCode="$(var.UpgradeCode)"
-          IconSourceFile="32x32.ico"
+          IconSourceFile="128x128.ico"
           DisableModify="yes">
 
     <Variable Name="HESAddress"
