@@ -30,6 +30,7 @@ namespace HideezClient.ViewModels
             messenger.Register<ConnectionServiceChangedMessage>(this, c => ResetIndicators(c.IsConnected), true);
             messenger.Register<ServiceComponentsStateChangedMessage>(this, message =>
             {
+                log.WriteLine("Updating components state indicators");
                 Server.State = message.HesConnected;
                 Server.Visible = message.ShowHesStatus;
 
@@ -105,11 +106,12 @@ namespace HideezClient.ViewModels
             Indicators.Add(Dongle);
         }
 
-        private void ResetIndicators(bool isServiceisConnected)
+        private void ResetIndicators(bool isServiceConnected)
         {
+            log.WriteLine("Resetting components state indicators");
             try
             {
-                Service.State = serviceProxy.IsConnected;
+                Service.State = isServiceConnected;
                 Dongle.State = false;
                 RFID.State = false;
                 RFID.Visible = false;

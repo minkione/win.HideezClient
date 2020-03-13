@@ -50,11 +50,11 @@ namespace HideezClient.Controls
 
         public string Header
         {
-            get { return (string)GetValue(HederProperty); }
-            set { SetValue(HederProperty, value); }
+            get { return (string)GetValue(HeaderProperty); }
+            set { SetValue(HeaderProperty, value); }
         }
 
-        public static readonly DependencyProperty HederProperty =
+        public static readonly DependencyProperty HeaderProperty =
             DependencyProperty.Register(nameof(Header), typeof(string), typeof(StateControl)
                 , new PropertyMetadata("", PropertyHeaderChangedCallback));
 
