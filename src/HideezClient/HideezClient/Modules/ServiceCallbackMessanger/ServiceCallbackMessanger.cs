@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
+using HideezMiddleware.Threading;
 
 namespace HideezClient.Modules.ServiceCallbackMessanger
 {
@@ -14,6 +15,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
     {
         readonly IMessenger _messenger;
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(ServiceCallbackMessanger));
+        readonly SemaphoreQueue _sendMessageSemaphore = new SemaphoreQueue(1, 1);
 
         public ServiceCallbackMessanger(IMessenger messenger)
         {
@@ -129,8 +131,9 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
         /// <param name="message">Message to send using IMessenger</param>
         void SendMessage<T>(T message)
         {
-            Task.Run(() =>
+            Task.Run(async () =>
             {
+                await _sendMessageSemaphore.WaitAsync();
                 try
                 { 
                     _messenger.Send(message);
@@ -138,6 +141,10 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
                 catch (Exception ex)
                 {
                     _log.WriteLine(ex);
+                }
+                finally
+                {
+                    _sendMessageSemaphore.Release();
                 }
             });
         }
