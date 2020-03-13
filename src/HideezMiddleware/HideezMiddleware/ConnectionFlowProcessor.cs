@@ -541,7 +541,7 @@ namespace HideezMiddleware
                 }
 
                 if (credentials.IsEmpty)
-                    throw new Exception($"Device '{device.SerialNo}' has not a primary account stored");
+                    throw new Exception($"Device '{device.SerialNo}' doesn't have any stored windows accounts");
             }
             else
             {
