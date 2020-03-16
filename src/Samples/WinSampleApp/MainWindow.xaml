@@ -226,6 +226,7 @@
                     <Button Content="Load license into empty" Margin="0,10,0,0" Command="{Binding LoadLicenseIntoEmptyCommand}" />
                     <Button Content="Query license (0 slot)" Margin="0,10,0,0" Command="{Binding QueryLicenseCommand}" />
                     <Button Content="Query all licenses" Margin="0,10,0,0" Command="{Binding QueryAllLicensesCommand}" />
+                    <Button Content="Query active license" Margin="0,10,0,0" Command="{Binding QueryActiveLicenseCommand}" />
                 </StackPanel>
                 <!--client UI-->
                 <StackPanel>

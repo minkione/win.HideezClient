@@ -181,6 +181,12 @@ namespace HideezMiddleware
                     LoadLocalDeviceOwner(device);
                 }
 
+                var activeLicense = await device.QueryActiveLicense(SdkConfig.DefaultCommandTimeout);
+                if (activeLicense.IsEmpty)
+                    throw new HideezException(HideezErrorCode.ERR_NO_LICENSE);
+                
+                //var hasLicense = activeLicense.Expires > DateTime.UtcNow;
+
                 WriteLine($"IsLocked: {device.AccessLevel.IsLocked},  IsLinkRequired: {device.AccessLevel.IsLinkRequired}");
                 if (device.AccessLevel.IsLocked || device.AccessLevel.IsLinkRequired)
                 {

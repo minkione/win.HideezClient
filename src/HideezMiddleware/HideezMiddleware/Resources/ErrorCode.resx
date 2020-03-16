@@ -465,4 +465,7 @@
   <data name="WorkstationUnlockerConnectTimeout" xml:space="preserve">
     <value>Workstation unlocker connect timeout</value>
   </data>
+  <data name="ERR_NO_LICENSE" xml:space="preserve">
+    <value>No license for device. Contact your system administrator.</value>
+  </data>
 </root>

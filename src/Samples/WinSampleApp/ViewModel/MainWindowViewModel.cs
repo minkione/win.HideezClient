@@ -862,6 +862,24 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand QueryActiveLicenseCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        _ = QueryActiveLicense(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         public ICommand FetchLogCommand
         {
             get
@@ -1660,6 +1678,36 @@ namespace WinSampleApp.ViewModel
                         sb.AppendLine();
                     }
                 }
+
+                MessageBox.Show(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async Task QueryActiveLicense(DeviceViewModel device)
+        {
+            try
+            {
+                var activeLicense = await device.Device.QueryActiveLicense();
+
+                if (activeLicense.IsEmpty)
+                    throw new HideezException(HideezErrorCode.ERR_NO_LICENSE);
+
+                if (activeLicense.Expires < DateTime.UtcNow)
+                    throw new HideezException(HideezErrorCode.ERR_LICENSE_EXPIRED);
+
+                var sb = new StringBuilder();
+                sb.AppendLine($"Active License");
+                //sb.AppendLine($"Magic: {license.Magic}");
+                sb.AppendLine($"Issuer: {activeLicense.Issuer}");
+                sb.AppendLine($"Features: {ConvertUtils.ByteArrayToString(activeLicense.Features)}");
+                sb.AppendLine($"Expires: {activeLicense.Expires}");
+                sb.AppendLine($"Text: {activeLicense.Text}");
+                sb.AppendLine($"SerialNum: {activeLicense.SerialNum}");
+                sb.AppendLine($"Signature: {ConvertUtils.ByteArrayToString(activeLicense.Signature)}");
 
                 MessageBox.Show(sb.ToString());
             }
