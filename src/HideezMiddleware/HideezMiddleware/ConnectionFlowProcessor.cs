@@ -568,6 +568,8 @@ namespace HideezMiddleware
         {
             var licenses = await _hesConnection.GetNewDeviceLicenses(device.SerialNo);
 
+            WriteLine($"Received {licenses.Count} licenses from HES");
+
             if (ct.IsCancellationRequested)
                 return;
 
@@ -583,6 +585,7 @@ namespace HideezMiddleware
                     throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_ID). Please, contact your administrator.");
 
                 await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
+                WriteLine($"Loaded license ({license.Id}) into device ({device.SerialNo})");
                 await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
             }
         }
