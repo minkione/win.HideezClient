@@ -33,7 +33,6 @@ namespace HideezClient.ViewModels
         string _errorMessage = string.Empty;
 
         Device _device;
-        uint _maxLenghtPin = 8;
 
         public event EventHandler ViewModelUpdated;
         public event EventHandler PasswordsCleared;
@@ -158,10 +157,9 @@ namespace HideezClient.ViewModels
         }
 
         // Todo: Retrieve Max Pin Length from the device
-        public uint MaxLenghtPin
+        public int MaxLenghtPin
         {
-            get { return _maxLenghtPin; }
-            set { Set(ref _maxLenghtPin, value); }
+            get { return 8; }
         }
         
         public int MinLenghtPin
@@ -258,20 +256,20 @@ namespace HideezClient.ViewModels
         {
             if (IsNewPin)
             {
-                if (IsValidLength(SecureNewPin) != 0 || 
-                    IsValidLength(SecureConfirmPin) != 0)
+                if (IsValidLength(SecureNewPin, MinLenghtPin, MaxLenghtPin) != 0 || 
+                    IsValidLength(SecureConfirmPin, MinLenghtPin, MaxLenghtPin) != 0)
                     return false;
             }
             else if (IsEnterPin)
             {
-                if (IsValidLength(SecureCurrentPin) != 0)
+                if (IsValidLength(SecureCurrentPin, 1, MaxLenghtPin) != 0)
                     return false;
             }
             else if (IsChangePin)
             {
-                if (IsValidLength(SecureNewPin) != 0 ||
-                    IsValidLength(SecureCurrentPin) != 0 ||
-                    IsValidLength(SecureConfirmPin) != 0)
+                if (IsValidLength(SecureCurrentPin, 1, MaxLenghtPin) != 0 ||
+                    IsValidLength(SecureNewPin, MinLenghtPin, MaxLenghtPin) != 0 ||
+                    IsValidLength(SecureConfirmPin, MinLenghtPin, MaxLenghtPin) != 0)
                     return false;
             }
 
@@ -351,14 +349,14 @@ namespace HideezClient.ViewModels
         /// Returns 1 if pin is to long.
         /// Returns -1 if pin is to short.
         /// </returns>
-        int IsValidLength(SecureString pin)
+        int IsValidLength(SecureString pin, int minLength, int maxLengh)
         {
             if (pin == null)
                 return -1;
 
-            if (pin.Length < 1)
+            if (pin.Length < minLength)
                 return -1;
-            else if (pin.Length > MaxLenghtPin)
+            else if (pin.Length > maxLengh)
                 return 1;
             
             return 0;
