@@ -40,7 +40,7 @@ namespace HideezClient.Modules.ActionHandler
             {
                 await SimulateInput(otpSecret);
                 SimulateEnter();
-                SetCache(account);
+                temporaryCacheAccount.Clear();
                 return true;
             }
 

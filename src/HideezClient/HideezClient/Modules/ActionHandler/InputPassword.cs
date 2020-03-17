@@ -42,6 +42,7 @@ namespace HideezClient.Modules.ActionHandler
                     await SimulateInput(password);
                     SimulateEnter();
                     SetCache(account);
+                    temporaryCacheAccount.PasswordReqCache.Clear();
                     return true;
                 }
             }
