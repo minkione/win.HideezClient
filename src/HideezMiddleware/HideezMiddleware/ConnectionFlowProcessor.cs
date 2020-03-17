@@ -163,6 +163,18 @@ namespace HideezMiddleware
                     throw new HideezException(HideezErrorCode.DeviceInBootloaderMode);
 
                 var deviceInfo = await deviceInfoProcTask;
+
+                WriteLine($"Check if device is locked: {device.AccessLevel.IsLocked}");
+                if (device.AccessLevel.IsLocked)
+                {
+                    // request HES to update this device
+                    await _hesConnection.FixDevice(device, ct);
+                    await device.RefreshDeviceInfo();
+                }
+
+                if (device.AccessLevel.IsLocked)
+                    throw new HideezException(HideezErrorCode.DeviceIsLocked);
+
                 if (deviceInfoProc.IsSuccessful)
                 {
                     CacheAndUpdateDeviceOwner(device, deviceInfo);
@@ -180,17 +192,6 @@ namespace HideezMiddleware
                     WriteLine("Couldn't retrieve device info from HES. Using local device info.");
                     LoadLocalDeviceOwner(device);
                 }
-
-                WriteLine($"Check if device is locked: {device.AccessLevel.IsLocked}");
-                if (device.AccessLevel.IsLocked)
-                {
-                    // request HES to update this device
-                    await _hesConnection.FixDevice(device, ct);
-                    await device.RefreshDeviceInfo();
-                }
-
-                if (device.AccessLevel.IsLocked)
-                    throw new HideezException(HideezErrorCode.DeviceIsLocked);
 
                 WriteLine("Query licenses");
                 var activeLicense = await device.QueryActiveLicense(SdkConfig.DefaultCommandTimeout);
