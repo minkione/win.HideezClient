@@ -50,9 +50,11 @@ namespace HideezClient.Modules
             messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message, notificationId: p.Id));
             messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message, notificationId: p.Id));
 
-            messenger.Register<ShowInfoNotificationMessage>(this, (p) => ShowInfo(p.Message, p.Title, notificationId: p.NotificationId));
+            messenger.Register<ShowInfoNotificationMessage>(this, (p) => ShowInfo(p.Message, p.Title, p.Options, p.NotificationId));
             messenger.Register<ShowWarningNotificationMessage>(this, (p) => ShowWarn(p.Message, p.Title, notificationId: p.NotificationId));
             messenger.Register<ShowErrorNotificationMessage>(this, (p) => ShowError(p.Message, p.Title, notificationId: p.NotificationId));
+
+            messenger.Register<ShowDeviceLockedNotificationMessage>(this, (p) => ShowLocked(p.Device));
 
             messenger.Register<ShowButtonConfirmUiMessage>(this, ShowButtonConfirmAsync);
             messenger.Register<ShowPinUiMessage>(this, ShowPinAsync);
@@ -207,19 +209,24 @@ namespace HideezClient.Modules
             }
         }
 
-        public void ShowError(string message, string title = null, string notificationId = "")
+        private void ShowError(string message, string title = null, NotificationOptions options = null, string notificationId = "")
         {
-            UIDispatcher.Invoke(() => _notifier.ShowError(notificationId, title ?? GetTitle(), message));
+            UIDispatcher.Invoke(() => _notifier.ShowError(notificationId, title ?? GetTitle(), message, options));
         }
 
-        public void ShowWarn(string message, string title = null, string notificationId = "")
+        private void ShowWarn(string message, string title = null, NotificationOptions options = null, string notificationId = "")
         {
-            UIDispatcher.Invoke(() => _notifier.ShowWarn(notificationId, title ?? GetTitle(), message));
+            UIDispatcher.Invoke(() => _notifier.ShowWarn(notificationId, title ?? GetTitle(), message, options));
         }
 
-        public void ShowInfo(string message, string title = null, string notificationId = "")
+        private void ShowInfo(string message, string title = null, NotificationOptions options = null, string notificationId = "")
         {
-            UIDispatcher.Invoke(() => _notifier.ShowInfo(notificationId, title ?? GetTitle(), message));
+            UIDispatcher.Invoke(() => _notifier.ShowInfo(notificationId, title ?? GetTitle(), message, options));
+        }
+
+        private void ShowLocked(Device device)
+        {
+            UIDispatcher.Invoke(() => _notifier.ShowDeviceIsLockedNotification(device));
         }
 
         private string GetTitle()
@@ -369,6 +376,7 @@ namespace HideezClient.Modules
             UIDispatcher.Invoke(() => _notifier.ShowDeviceNotAuthorizedNotification(device));
         }
 
+
         public async Task<Bitmap> GetCurrentScreenImageAsync()
         {
             Bitmap screenShot = new Bitmap(1, 1);
@@ -418,14 +426,6 @@ namespace HideezClient.Modules
             }
 
             return bitmap;
-        }
-
-        public Task ShowDeviceLockedAsync()
-        {
-            var vm = new MessageViewModel();
-            vm.SetCaptionFormat("MessageBox.DeviceLocked.Caption");
-            vm.SetMessageFormat("MessageBox.DeviceLocked.Message");
-            return ShowMessageViewAsync(vm, "LockIco", "Button.Ok");
         }
 
         public Task<bool> ShowDeleteCredentialsPromptAsync()

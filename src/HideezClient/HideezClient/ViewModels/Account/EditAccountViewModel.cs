@@ -14,9 +14,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using DynamicData;
+using GalaSoft.MvvmLight.Messaging;
 using Hideez.ARM;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
+using HideezClient.Messages;
 using HideezClient.Modules;
 using HideezClient.Modules.Log;
 using HideezClient.Mvvm;
@@ -32,25 +34,31 @@ namespace HideezClient.ViewModels
     class EditAccountViewModel : ReactiveObject
     {
         readonly Logger log = LogManager.GetCurrentClassLogger(nameof(EditAccountViewModel));
-        readonly IQrScannerHelper qrScannerHelper;
-        readonly IWindowsManager windowsManager;
+        readonly IQrScannerHelper _qrScannerHelper;
+        readonly IWindowsManager _windowsManager;
+        readonly IMessenger _messenger;
         bool isUpdateAppsUrls;
-        DeviceViewModel device;
+        DeviceViewModel _device;
         int generatePasswordLength = 16;
         readonly AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
         readonly AppInfo addUrlAppInfo = new AppInfo { Domain = "<Enter Url>" };
         bool canScanOtpSecretQrCode = true;
         readonly AccountRecord cache;
 
-        public EditAccountViewModel(DeviceViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper)
-            : this(device, null, windowsManager, qrScannerHelper)
+        public EditAccountViewModel(DeviceViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger)
+            : this(device, null, windowsManager, qrScannerHelper, messenger)
         { }
 
-        public EditAccountViewModel(DeviceViewModel device, AccountRecord accountRecord, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper)
+        public EditAccountViewModel(DeviceViewModel device, 
+            AccountRecord accountRecord, 
+            IWindowsManager windowsManager, 
+            IQrScannerHelper qrScannerHelper,
+            IMessenger messenger)
         {
-            this.windowsManager = windowsManager;
-            this.qrScannerHelper = qrScannerHelper;
-            this.device = device;
+            _windowsManager = windowsManager;
+            _qrScannerHelper = qrScannerHelper;
+            _device = device;
+            _messenger = messenger;
 
             if (accountRecord == null)
             {
@@ -252,7 +260,7 @@ namespace HideezClient.ViewModels
         public IEnumerable<string> Apps { get { return AppsAndUrls.Where(x => !x.IsUrl).Select(x => x.Title); } }
         public IEnumerable<string> Urls { get { return AppsAndUrls.Where(x => x.IsUrl).Select(x => x.Title); } }
         public ObservableCollection<AppViewModel> AppsAndUrls { get; } = new ObservableCollection<AppViewModel>();
-        public IEnumerable<string> Logins { get { return device?.AccountsRecords.Select(a => a.Value.Login).Distinct(); } }
+        public IEnumerable<string> Logins { get { return _device?.AccountsRecords.Select(a => a.Value.Login).Distinct(); } }
         public ObservableCollection<AppInfo> OpenedApps { get; } = new ObservableCollection<AppInfo>();
         public ObservableCollection<AppInfo> OpenedForegroundUrls { get; } = new ObservableCollection<AppInfo>();
 
@@ -469,7 +477,7 @@ namespace HideezClient.ViewModels
                 ErrorAccountName = "Account name cannot be empty";
                 ErrorAccountLogin = null;
             }
-            else if (device.AccountsRecords.Select(a => a.Value)
+            else if (_device.AccountsRecords.Select(a => a.Value)
                 .Where(a => a.Flags.IsUserAccount)
                 .Any(a => a.Name == AccountRecord.Name && 
                 (a.Login == AccountRecord.Login || string.IsNullOrWhiteSpace(a.Login) && string.IsNullOrWhiteSpace(AccountRecord.Login)) && 
@@ -505,12 +513,12 @@ namespace HideezClient.ViewModels
 
             try
             {
-                var screenShot = await windowsManager.GetCurrentScreenImageAsync();
-                var scanResult = qrScannerHelper.DecoreQrFromImage(screenShot);
+                var screenShot = await _windowsManager.GetCurrentScreenImageAsync();
+                var scanResult = _qrScannerHelper.DecoreQrFromImage(screenShot);
 
                 if (!string.IsNullOrWhiteSpace(scanResult?.Text))
                 {
-                    OtpSecret = qrScannerHelper.GetOtpSecret(scanResult.Text);
+                    OtpSecret = _qrScannerHelper.GetOtpSecret(scanResult.Text);
                     EditOtp = true;
                     isScanedQr = true;
                 }
@@ -522,7 +530,7 @@ namespace HideezClient.ViewModels
 
             if (!isScanedQr)
             {
-                windowsManager.ShowWarn(LocalizedObject.L("Notify.NotScanQr"));
+                _messenger.Send(new ShowWarningNotificationMessage(LocalizedObject.L("Notify.NotScanQr")));
             }
 
             canScanOtpSecretQrCode = true;

@@ -18,6 +18,7 @@ namespace HideezClient.Modules
 
         void ShowStorageLoadingNotification(CredentialsLoadNotificationViewModel viewModel);
         void ShowDeviceNotAuthorizedNotification(Device device);
+        void ShowDeviceIsLockedNotification(Device device);
         Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd);
     }
 }

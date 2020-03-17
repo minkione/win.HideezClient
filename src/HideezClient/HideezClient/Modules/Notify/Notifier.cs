@@ -1,5 +1,6 @@
 ﻿using HideezClient.Controls;
 using HideezClient.Models;
+using HideezClient.Modules.Localize;
 using HideezClient.Mvvm;
 using HideezClient.Utilities;
 using HideezClient.ViewModels;
@@ -23,6 +24,7 @@ namespace HideezClient.Modules
 
         static HashSet<string> viewLoadingCredentialsForDevices = new HashSet<string>();
         static Dictionary<string, NotificationBase> displayedNotAuthorizedDeviceNotifications = new Dictionary<string, NotificationBase>();
+        static Dictionary<string, NotificationBase> displayedDeviceIsLockedNotifications = new Dictionary<string, NotificationBase>();
 
         public Notifier()
         {
@@ -71,7 +73,7 @@ namespace HideezClient.Modules
 
         public void ShowInfo(string notificationId, string title, string message, NotificationOptions options = null)
         {
-            ShowSimpleNotification(notificationId, title, message, options, SimpleNotificationType.Info);
+            ShowSimpleNotification(notificationId, title, message, options, NotificationIconType.Info);
         }
 
 
@@ -82,7 +84,7 @@ namespace HideezClient.Modules
 
         public void ShowWarn(string notificationid, string title, string message, NotificationOptions options = null)
         {
-            ShowSimpleNotification(notificationid, title, message, options, SimpleNotificationType.Warn);
+            ShowSimpleNotification(notificationid, title, message, options, NotificationIconType.Warn);
         }
 
 
@@ -93,7 +95,7 @@ namespace HideezClient.Modules
 
         public void ShowError(string notificationId, string title, string message, NotificationOptions options = null)
         {
-            ShowSimpleNotification(notificationId, title, message, options, SimpleNotificationType.Error);
+            ShowSimpleNotification(notificationId, title, message, options, NotificationIconType.Error);
         }
 
 
@@ -166,8 +168,47 @@ namespace HideezClient.Modules
             }
         }
 
+        public void ShowDeviceIsLockedNotification(Device device)
+        {
+            var options = new NotificationOptions()
+            {
+                CloseTimeout = TimeSpan.FromSeconds(20)
+            };
 
-        void ShowSimpleNotification(string notificationId, string title, string message, NotificationOptions options, SimpleNotificationType notificationType)
+            ShowSimpleNotification(device.SerialNo + "_Locked",
+                TranslationSource.Instance["Notification.DeviceLocked.Caption"],
+                TranslationSource.Instance["Notification.DeviceLocked.Message"],
+                options,
+                NotificationIconType.Lock);
+            /*
+            // Prevent multiple not authorized notifications for the same device
+            if (!displayedDeviceIsLockedNotifications.Keys.Contains(device.SerialNo))
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    Screen screen = GetCurrentScreen();
+                    var options = new NotificationOptions 
+                    { 
+                        CloseTimeout = TimeSpan.FromSeconds(20) 
+                    };
+                    SimpleNotification notification = new SimpleNotification(options, NotificationIconType.Lock);
+                    if (notification.DataContext is DeviceIsLockedNotificationViewModel viewModel)
+                    {
+                        viewModel.Device = device;
+                        notification.Closed += (sender, e) => displayedNotAuthorizedDeviceNotifications.Remove(device.SerialNo);
+                        AddNotification(screen, notification);
+                        displayedDeviceIsLockedNotifications.Add(device.SerialNo, notification);
+                    }
+                });
+            }
+            else
+            {
+                displayedDeviceIsLockedNotifications[device.SerialNo]?.ResetCloseTimer();
+            }
+            */
+        }
+
+        void ShowSimpleNotification(string notificationId, string title, string message, NotificationOptions options, NotificationIconType notificationType)
         {
             Screen screen = GetCurrentScreen();
 

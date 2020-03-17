@@ -252,6 +252,7 @@
     <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Notification\ViewModel\DeviceIsLockedNotificationViewModel.cs" />
     <Compile Include="Controls\SmallDeviceInfoControl.xaml.cs">
       <DependentUpon>SmallDeviceInfoControl.xaml</DependentUpon>
     </Compile>
@@ -272,7 +273,7 @@
     </Compile>
     <Compile Include="Controls\Notification\AccountSelector\AccountSelectorViewModel.cs" />
     <Compile Include="Controls\Notification\AccountSelector\AccountViewModel.cs" />
-    <Compile Include="Controls\Notification\IconType.cs" />
+    <Compile Include="Controls\Notification\NotificationIconType.cs" />
     <Compile Include="Controls\Notification\ViewModel\CredentialsLoadNotificationViewModel.cs" />
     <Compile Include="Controls\Notification\ViewModel\DeviceNotAuthorizedNotificationViewModel.cs" />
     <Compile Include="Controls\Notification\ViewModel\SimpleNotificationViewModel.cs" />
@@ -340,6 +341,7 @@
     <Compile Include="Messages\SettingsChangedMessage.cs" />
     <Compile Include="Messages\ShowActivateMainWindowMessage.cs" />
     <Compile Include="Messages\ShowButtonConfirmUiMessage.cs" />
+    <Compile Include="Messages\ShowDeviceLockedNotificationMessage.cs" />
     <Compile Include="Messages\ShowErrorNotificationMessage.cs" />
     <Compile Include="Messages\ShowInfoNotificationMessage.cs" />
     <Compile Include="Messages\ShowPinUiMessage.cs" />

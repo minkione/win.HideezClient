@@ -22,21 +22,24 @@ namespace HideezClient.Controls
     /// </summary>
     public partial class SimpleNotification : NotificationBase
     {
-        public SimpleNotification(NotificationOptions options, SimpleNotificationType type)
+        public SimpleNotification(NotificationOptions options, NotificationIconType type)
             : base(options)
         {
             InitializeComponent();
             string icoKey = "";
             switch (type)
             {
-                case SimpleNotificationType.Info:
+                case NotificationIconType.Info:
                     icoKey = "InfoIco";
                     break;
-                case SimpleNotificationType.Warn:
+                case NotificationIconType.Warn:
                     icoKey = "WarnIco";
                     break;
-                case SimpleNotificationType.Error:
+                case NotificationIconType.Error:
                     icoKey = "ErrorIco";
+                    break;
+                case NotificationIconType.Lock:
+                    icoKey = "LockIco";
                     break;
             }
 

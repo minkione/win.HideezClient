@@ -20,6 +20,7 @@ using HideezClient.HideezServiceReference;
 using System.ServiceModel;
 using HideezMiddleware.Settings;
 using HideezClient.Mvvm;
+using HideezClient.Messages;
 
 namespace HideezClient.Modules
 {
@@ -196,11 +197,11 @@ namespace HideezClient.Modules
                 }
                 catch (FaultException<HideezServiceFault> ex)
                 {
-                    _windowsManager.ShowError(ex.Message);
+                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
                 }
                 catch (Exception ex)
                 {
-                    _windowsManager.ShowError(ex.Message);
+                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
                 }
             }
         }
@@ -218,11 +219,11 @@ namespace HideezClient.Modules
                 }
                 catch (FaultException<HideezServiceFault> ex)
                 {
-                    _windowsManager.ShowError(ex.Message);
+                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
                 }
                 catch (Exception ex)
                 {
-                    _windowsManager.ShowError(ex.Message);
+                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
                 }
             }
         }

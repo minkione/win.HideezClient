@@ -102,7 +102,7 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        OnDeleteAccountAsync();
+                        _ = OnDeleteAccountAsync(); // Fire and forget
                     },
                 };
             }
@@ -146,7 +146,7 @@ namespace HideezClient.PageViewModels
                     {
                         if (EditAccount.CanSave())
                         {
-                            OnSaveAccountAsync((x as PasswordBox)?.SecurePassword);
+                            _ = OnSaveAccountAsync((x as PasswordBox)?.SecurePassword); // Fire and forget
                         }
                     },
                     CanExecuteFunc = () => EditAccount != null && EditAccount.HasChanges && !EditAccount.HasError,
@@ -180,7 +180,7 @@ namespace HideezClient.PageViewModels
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                var vm = new EditAccountViewModel(Device, windowsManager, qrScannerHelper)
+                var vm = new EditAccountViewModel(Device, windowsManager, qrScannerHelper, _messenger)
                 {
                     DeleteAccountCommand = this.DeleteAccountCommand,
                     CancelCommand = this.CancelCommand,
@@ -219,7 +219,7 @@ namespace HideezClient.PageViewModels
 
         private void OnAddAccount()
         {
-            EditAccount = new EditAccountViewModel(Device, windowsManager, qrScannerHelper)
+            EditAccount = new EditAccountViewModel(Device, windowsManager, qrScannerHelper, _messenger)
             {
                 DeleteAccountCommand = this.DeleteAccountCommand,
                 CancelCommand = this.CancelCommand,
@@ -250,7 +250,7 @@ namespace HideezClient.PageViewModels
         {
             if (Device.AccountsRecords.TryGetValue(SelectedAccount.Key, out AccountRecord record))
             {
-                EditAccount = new EditAccountViewModel(Device, record, windowsManager, qrScannerHelper)
+                EditAccount = new EditAccountViewModel(Device, record, windowsManager, qrScannerHelper, _messenger)
                 {
                     DeleteAccountCommand = this.DeleteAccountCommand,
                     CancelCommand = this.CancelCommand,
@@ -305,16 +305,16 @@ namespace HideezClient.PageViewModels
                 {
                     if (hex.ErrorCode == HideezErrorCode.ERR_UNAUTHORIZED)
                     {
-                        windowsManager.ShowError("Authorization error.");
+                        _messenger.Send(new ShowErrorNotificationMessage("An error occured during operation: Unauthorizated"));
                     }
                     else if (hex.ErrorCode == HideezErrorCode.PmPasswordNameCannotBeEmpty)
                     {
-                        windowsManager.ShowError("Account name cannot be empty.");
+                        _messenger.Send(new ShowErrorNotificationMessage("Account name cannot be empty"));
                     }
                 }
                 else
                 {
-                    windowsManager.ShowError(message);
+                    _messenger.Send(new ShowErrorNotificationMessage(message));
                 }
             }
             catch (Exception ManagerEx)

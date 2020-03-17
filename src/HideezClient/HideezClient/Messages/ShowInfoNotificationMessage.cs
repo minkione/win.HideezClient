@@ -10,7 +10,7 @@ namespace HideezClient.Messages
 
         public string Title { get; }
 
-        NotificationOptions Options { get; }
+        public NotificationOptions Options { get; }
 
         public ShowInfoNotificationMessage(string message = null, string title = null, NotificationOptions options = null, string notificationId = null)
         {

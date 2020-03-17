@@ -638,6 +638,11 @@ namespace HideezClient.Models
                 _log.WriteLine(ex.FormattedMessage());
                 ShowError(ex.FormattedMessage(), _errNid);
             }
+            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked)
+            {
+                _log.WriteLine($"Auth failed. Device ({SerialNo}) is locked due to too many incorrect PIN entries");
+                ShowDeviceLocked();
+            }
             catch (HideezException ex)
             {
                 _log.WriteLine(ex);
@@ -767,6 +772,11 @@ namespace HideezClient.Models
             return pinOk;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>Returns true is pin workflow successful. Returns false if workflow cancelled.</returns>
+        /// <exception cref="HideezException">Thrown with code <see cref="HideezErrorCode.DeviceIsLocked"/> if device is locked due to failed attempt</exception>
         async Task<bool> EnterPinWorkflow(CancellationToken ct)
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> EnterPinWorkflow +++++++++++++++++++++++++++++++++++++++");
@@ -789,6 +799,7 @@ namespace HideezClient.Models
                     continue;
                 }
 
+                var attemptsLeft = PinAttemptsRemain - 1;
                 var pinResult = await _remoteDevice.EnterPin(Encoding.UTF8.GetString(pin)); //this using default timeout for BLE commands
 
                 if (pinResult == HideezErrorCode.Ok)
@@ -797,13 +808,17 @@ namespace HideezClient.Models
                     pinOk = true;
                     break;
                 }
+                else if (pinResult == HideezErrorCode.ERR_DEVICE_LOCKED)
+                {
+                    throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                }
                 else // ERR_PIN_WRONG and ERR_PIN_TOO_SHORT should just be displayed as wrong pin for security reasons
                 {
-                    Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({PinAttemptsRemain} attempts left)");
+                    Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({attemptsLeft} attempts left)");
                     if (AccessLevel.IsLocked)
                         ShowError($"Device is locked", _errNid);
                     else
-                        ShowError($"Wrong PIN ({PinAttemptsRemain} attempts left)", _errNid);
+                        ShowError($"Wrong PIN ({attemptsLeft} attempts left)", _errNid);
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow ------------------------------");
@@ -848,6 +863,11 @@ namespace HideezClient.Models
         void ShowWarn(string message, string notificationId)
         {
             _messenger?.Send(new ShowWarningNotificationMessage(message, notificationId: notificationId));
+        }
+
+        void ShowDeviceLocked()
+        {
+            _messenger.Send(new ShowDeviceLockedNotificationMessage(this));
         }
         #endregion
 

@@ -26,6 +26,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
 
             public async Task Run()
             {
+                /*
                 if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked)
                 {
                     try
@@ -45,6 +46,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                         WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked)
                         _wtsapiLocker.LockWorkstation();
                 }
+                */
             }
 
             void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)

@@ -165,7 +165,7 @@ namespace HideezClient.PageViewModels
                            }
                            catch (Exception ex)
                            {
-                               windowsManager.ShowError("Error seva proximity settings.");
+                               _messenger.Send(new ShowErrorNotificationMessage("An error occured while updating proximity settings"));
                                log.WriteLine(ex);
                            }
                        });
