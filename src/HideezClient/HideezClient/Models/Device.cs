@@ -487,6 +487,10 @@ namespace HideezClient.Models
                         {
                             _log.WriteLine("Remote device creation aborted, device disconnected", LogErrorSeverity.Warning);
                         }
+                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked)
+                        {
+                            _messenger.Send(new ShowDeviceLockedNotificationMessage(this));
+                        }
                         catch (Exception ex)
                         {
                             ShowError(ex.Message, _errNid);
@@ -818,7 +822,10 @@ namespace HideezClient.Models
                     if (AccessLevel.IsLocked)
                         ShowError($"Device is locked", _errNid);
                     else
+                    {
                         ShowError($"Wrong PIN ({attemptsLeft} attempts left)", _errNid);
+                        await _remoteDevice.RefreshDeviceInfo(); // Remaining pin attempts update is not quick enough 
+                    }
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow ------------------------------");

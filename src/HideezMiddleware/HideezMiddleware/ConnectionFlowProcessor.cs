@@ -258,6 +258,11 @@ namespace HideezMiddleware
                 fatalError = true;
                 errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
             }
+            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked)
+            {
+                fatalError = true;
+                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex) + ". Contact your system administrator.";
+            }
             catch (HideezException ex)
             {
                 if (ex.ErrorCode == HideezErrorCode.ButtonConfirmationTimeout ||
@@ -460,6 +465,7 @@ namespace HideezMiddleware
                     continue;
                 }
 
+                var attemptsLeft = device.PinAttemptsRemain - 1;
                 var pinResult = await device.EnterPin(pin); //this using default timeout for BLE commands
 
                 if (pinResult == HideezErrorCode.Ok)
@@ -468,13 +474,20 @@ namespace HideezMiddleware
                     res = true;
                     break;
                 }
+                else if (pinResult == HideezErrorCode.ERR_DEVICE_LOCKED)
+                {
+                    throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                }
                 else // ERR_PIN_WRONG and ERR_PIN_TOO_SHORT should just be displayed as wrong pin for security reasons
                 {
-                    Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({device.PinAttemptsRemain} attempts left)");
+                    Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({attemptsLeft} attempts left)");
                     if (device.AccessLevel.IsLocked)
                         await _ui.SendError($"Device is locked", _errNid);
                     else
-                        await _ui.SendError($"Wrong PIN ({device.PinAttemptsRemain} attempts left)", _errNid);
+                    {
+                        await _ui.SendError($"Wrong PIN ({attemptsLeft} attempts left)", _errNid);
+                        await device.RefreshDeviceInfo(); // Remaining pin attempts update is not quick enough 
+                    }
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow ------------------------------");
