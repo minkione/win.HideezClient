@@ -26,7 +26,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
 
             public async Task Run()
             {
-                /*
+#if !DEBUG
                 if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked)
                 {
                     try
@@ -46,7 +46,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                         WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked)
                         _wtsapiLocker.LockWorkstation();
                 }
-                */
+#endif
             }
 
             void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
@@ -60,7 +60,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                 }
             }
 
-            #region IDisposable Support
+#region IDisposable Support
             bool disposed = false; // To detect redundant calls
             public void Dispose()
             {
@@ -85,7 +85,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                 // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
                 Dispose(false);
             }
-            #endregion
+#endregion
         }
 
         readonly int _lockTimeout;
