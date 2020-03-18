@@ -70,7 +70,7 @@ namespace HideezClient.Modules.ActionHandler
                     var hotkey = await _hotkeyManager.GetHotkeyForAction(message.Action);
                     var localizedAction = TranslationSource.Instance[$"Enum.UserAction.{message.Action.ToString()}"].ToLowerInvariant();
                     info = string.Format(info, deviceName, otherConnections, hotkey, localizedAction);
-                    var msgOptions = new NotificationOptions { CloseTimeout = TimeSpan.FromSeconds(30) };
+                    var msgOptions = new NotificationOptions { CloseTimeout = NotificationOptions.LongTimeout };
                     _messenger.Send(new ShowInfoNotificationMessage(info, options: msgOptions));
                 }
                 else
@@ -111,7 +111,7 @@ namespace HideezClient.Modules.ActionHandler
                 var localizedAction = $"press {hotkey}";
                 var message = TranslationSource.Instance[$"UserAction.HideezWindowSelected.{action.ToString()}"];
                 message = string.Format(message, Environment.NewLine, localizedAction);
-                var msgOptions = new NotificationOptions { CloseTimeout = TimeSpan.FromSeconds(30) };
+                var msgOptions = new NotificationOptions { CloseTimeout = NotificationOptions.LongTimeout };
                 _messenger.Send(new ShowInfoNotificationMessage(message, options: msgOptions));
             }
             catch (ActionNotSupportedException)
@@ -137,7 +137,7 @@ namespace HideezClient.Modules.ActionHandler
                 var localizedAction = $"press device button {TranslationSource.Instance[$"Enum.ButtonPressCode.{code.ToString()}"]}";
                 var message = TranslationSource.Instance[$"UserAction.HideezWindowSelected.{action.ToString()}"];
                 message = string.Format(message, Environment.NewLine, localizedAction);
-                var msgOptions = new NotificationOptions { CloseTimeout = TimeSpan.FromSeconds(30) };
+                var msgOptions = new NotificationOptions { CloseTimeout = NotificationOptions.LongTimeout };
                 _messenger.Send(new ShowInfoNotificationMessage(message, options: msgOptions));
             }
             catch (ActionNotSupportedException)

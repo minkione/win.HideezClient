@@ -128,10 +128,7 @@ namespace HideezClient.Modules
             {
                 viewLoadingCredentialsForDevices.Add(viewModel.DeviceSN);
                 Screen screen = GetCurrentScreen();
-                NotificationOptions options = new NotificationOptions
-                {
-                    CloseTimeout = TimeSpan.Zero,
-                };
+                var options = new NotificationOptions { CloseTimeout = TimeSpan.Zero, };
 
                 CredentialsLoadNotification notification = null;
                 notification = new CredentialsLoadNotification(options)
@@ -170,42 +167,13 @@ namespace HideezClient.Modules
 
         public void ShowDeviceIsLockedNotification(Device device)
         {
-            var options = new NotificationOptions()
-            {
-                CloseTimeout = TimeSpan.FromSeconds(20)
-            };
+            var options = new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout };
 
             ShowSimpleNotification(device.SerialNo + "_Locked",
                 TranslationSource.Instance["Notification.DeviceLocked.Caption"],
                 TranslationSource.Instance["Notification.DeviceLocked.Message"],
                 options,
                 NotificationIconType.Lock);
-            /*
-            // Prevent multiple not authorized notifications for the same device
-            if (!displayedDeviceIsLockedNotifications.Keys.Contains(device.SerialNo))
-            {
-                App.Current.Dispatcher.Invoke(() =>
-                {
-                    Screen screen = GetCurrentScreen();
-                    var options = new NotificationOptions 
-                    { 
-                        CloseTimeout = TimeSpan.FromSeconds(20) 
-                    };
-                    SimpleNotification notification = new SimpleNotification(options, NotificationIconType.Lock);
-                    if (notification.DataContext is DeviceIsLockedNotificationViewModel viewModel)
-                    {
-                        viewModel.Device = device;
-                        notification.Closed += (sender, e) => displayedNotAuthorizedDeviceNotifications.Remove(device.SerialNo);
-                        AddNotification(screen, notification);
-                        displayedDeviceIsLockedNotifications.Add(device.SerialNo, notification);
-                    }
-                });
-            }
-            else
-            {
-                displayedDeviceIsLockedNotifications[device.SerialNo]?.ResetCloseTimer();
-            }
-            */
         }
 
         void ShowSimpleNotification(string notificationId, string title, string message, NotificationOptions options, NotificationIconType notificationType)

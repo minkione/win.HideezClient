@@ -479,6 +479,8 @@ namespace HideezClient.Models
                                 await AuthorizeRemoteDevice(ct);
                             else if (!authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsAllOk)
                                 await AuthorizeRemoteDevice(ct);
+                            else if (_remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsLocked)
+                                throw new HideezException(HideezErrorCode.DeviceIsLocked);
 
                             if (!ct.IsCancellationRequested && !IsStorageLoaded)
                                 await LoadStorage();
