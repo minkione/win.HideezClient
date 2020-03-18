@@ -355,7 +355,7 @@
     <value>Device already exists</value>
   </data>
   <data name="DeviceIsLocked" xml:space="preserve">
-    <value>Device is locked</value>
+    <value>Device is locked. Contact your system administrator.</value>
   </data>
   <data name="DeviceNotAssignedToUser" xml:space="preserve">
     <value>The device is not assigned to any user</value>

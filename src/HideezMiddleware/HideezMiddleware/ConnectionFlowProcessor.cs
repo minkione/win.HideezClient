@@ -261,7 +261,7 @@ namespace HideezMiddleware
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked)
             {
                 fatalError = true;
-                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex) + ". Contact your system administrator.";
+                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
             }
             catch (HideezException ex)
             {
