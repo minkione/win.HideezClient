@@ -197,17 +197,17 @@ namespace HideezClient.PageViewModels
             try
             {
                 var account = EditAccount;
-                EditAccount = null;
                 IsAvailable = false;
                 account.AccountRecord.Password = password.GetAsString();
                 var key = await Device.SaveOrUpdateAccountAsync(account.AccountRecord);
+                EditAccount = null;
                 OnFilterAccount();
                 SelectedAccount = Accounts.FirstOrDefault(a => a.AccountRecord.Key == key);
             }
             catch (Exception ex)
             {
                 IsAvailable = true;
-                HandleError(ex, "Error save account.");
+                HandleError(ex, "An error occured while saving account");
             }
         }
 
@@ -241,7 +241,7 @@ namespace HideezClient.PageViewModels
                 catch (Exception ex)
                 {
                     IsAvailable = true;
-                    HandleError(ex, "Error delete account.");
+                    HandleError(ex, "An error occured while deleting account");
                 }
             }
         }
@@ -314,7 +314,7 @@ namespace HideezClient.PageViewModels
                 }
                 else
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage(message));
+                    _messenger.Send(new ShowErrorNotificationMessage($"{message}{Environment.NewLine}{ex.Message}"));
                 }
             }
             catch (Exception ManagerEx)
