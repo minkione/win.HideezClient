@@ -274,7 +274,7 @@ namespace HideezClient.Models
         #region Messege & Event handlers
         void RemoteDevice_ButtonPressed(object sender, Hideez.SDK.Communication.ButtonPressCode e)
         {
-            _log.WriteLine($"Device ({Id}) button pressed, code: {e}");
+            _log.WriteLine($"({SerialNo}) Device button pressed, code: {e}");
 
             Task.Run(() =>
             {
@@ -284,7 +284,7 @@ namespace HideezClient.Models
 
         void RemoteDevice_StorageModified(object sender, EventArgs e)
         {
-            _log.WriteLine($"Device ({Id}) storage modified");
+            _log.WriteLine($"({SerialNo}) Device storage modified");
 
             Task.Run(() =>
             {
@@ -480,13 +480,13 @@ namespace HideezClient.Models
                                 _log.WriteLine($"({_remoteDevice.SerialNo}) Remote device created");
                                 if (_remoteDevice?.AccessLevel != null)
                                 {
-                                    _log.WriteLine($"({_remoteDevice.SerialNo}) allOk:{_remoteDevice.AccessLevel.IsAllOk}; " +
+                                    _log.WriteLine($"({_remoteDevice.SerialNo}) access profile (allOk:{_remoteDevice.AccessLevel.IsAllOk}; " +
                                         $"pin:{_remoteDevice.AccessLevel.IsPinRequired}; " +
                                         $"newPin:{_remoteDevice.AccessLevel.IsNewPinRequired}; " +
                                         $"button:{_remoteDevice.AccessLevel.IsButtonRequired}; " +
                                         $"link:{_remoteDevice.AccessLevel.IsLinkRequired}; " +
                                         $"master:{_remoteDevice.AccessLevel.IsMasterKeyRequired}; " +
-                                        $"locked:{_remoteDevice.AccessLevel.IsLocked};");
+                                        $"locked:{_remoteDevice.AccessLevel.IsLocked})");
                                 }
                                 else
                                     _log.WriteLine($"({_remoteDevice.SerialNo}) access level is null");
@@ -574,7 +574,7 @@ namespace HideezClient.Models
 
             try
             {
-                _log.WriteLine($"Device ({SerialNo}), establishing remote device connection");
+                _log.WriteLine($"({SerialNo}) Establishing remote device connection");
 
                 _log.WriteLine("Checking for available channels");
                 var channels = await _serviceProxy.GetService().GetAvailableChannelsAsync(SerialNo);
@@ -583,7 +583,7 @@ namespace HideezClient.Models
                 var channelNo = channels.FirstOrDefault();
                 _log.WriteLine($"{channels.Length} channels available");
 
-                ShowInfo($"Preparing for device ({SerialNo}) authorization", _infNid);
+                ShowInfo($"Preparing for device {SerialNo} authorization", _infNid);
                 IsCreatingRemoteDevice = true;
                 _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
@@ -593,12 +593,12 @@ namespace HideezClient.Models
                 if (_remoteDevice.SerialNo != SerialNo)
                     throw new Exception("Remote device serial number does not match the enumerated serial");
 
-                _log.WriteLine($"Creating password manager for device ({SerialNo})");
+                _log.WriteLine($"({SerialNo}) Creating password manager");
                 PasswordManager = new DevicePasswordManager(_remoteDevice, null);
                 _remoteDevice.StorageModified += RemoteDevice_StorageModified;
                 _remoteDevice.ButtonPressed += RemoteDevice_ButtonPressed;
 
-                _log.WriteLine($"Remote device ({SerialNo}) connection established");
+                _log.WriteLine($"({SerialNo}) Remote device connection established");
             }
             catch (FaultException<HideezServiceFault> ex)
             {
@@ -650,11 +650,11 @@ namespace HideezClient.Models
                 await PinWorkflow(ct);
 
                 if (ct.IsCancellationRequested)
-                    ShowError($"Authorization cancelled for device ({SerialNo})", _errNid);
+                    ShowError($"({SerialNo}) Authorization cancelled", _errNid);
                 else if (IsAuthorized)
-                    _log.WriteLine($"Remote device ({_remoteDevice.Id}) is authorized");
+                    _log.WriteLine($"({_remoteDevice.Id}) Remote device authorized");
                 else
-                    ShowError($"Authorization for device ({SerialNo}) failed", _errNid);
+                    ShowError($"({SerialNo}) Authorization failed", _errNid);
             }
             catch (FaultException<HideezServiceFault> ex)
             {
@@ -663,7 +663,7 @@ namespace HideezClient.Models
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked)
             {
-                _log.WriteLine($"Auth failed. Device ({SerialNo}) is locked due to too many incorrect PIN entries");
+                _log.WriteLine($"({SerialNo}) Auth failed. Device is locked due to too many incorrect PIN entries");
                 ShowDeviceLocked();
             }
             catch (HideezException ex)
@@ -702,9 +702,9 @@ namespace HideezClient.Models
                 IsStorageLoaded = false;
                 IsLoadingStorage = true;
 
-                _log.WriteLine($"Device ({Id}) loading storage");
+                _log.WriteLine($"({serialNo}) Loading storage");
                 await PasswordManager.Load();
-                _log.WriteLine($"Device ({Id}) loaded {PasswordManager.Accounts.Count} entries from storage");
+                _log.WriteLine($"({serialNo}) Loaded {PasswordManager.Accounts.Count} entries from storage");
                 
                 IsStorageLoaded = true;
             }

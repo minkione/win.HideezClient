@@ -42,43 +42,43 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
 
         public void DeviceConnectionStateChanged(DeviceDTO device)
         {
-            _log.WriteLine($"Device ({device.Id}) connection state changed to: {device.IsConnected}");
+            _log.WriteLine($"({device.Id}) Device connection state changed to: {device.IsConnected}");
             SendMessage(new DeviceConnectionStateChangedMessage(device));
         }
 
         public void DeviceInitialized(DeviceDTO device)
         {
-            _log.WriteLine($"Device ({device.Id}) is initialized");
+            _log.WriteLine($"({device.Id}) Device is initialized");
             SendMessage(new DeviceInitializedMessage(device));
         }
 
         public void DeviceFinishedMainFlow(DeviceDTO device)
         {
-            _log.WriteLine($"Device ({device.Id}) has finished main flow");
+            _log.WriteLine($"({device.Id}) Device has finished main flow");
             SendMessage(new DeviceFinishedMainFlowMessage(device));
         }
 
         public void DeviceOperationCancelled(DeviceDTO device)
         {
-            _log.WriteLine($"Device ({device.Id}) operation cancelled");
+            _log.WriteLine($"({device.Id}) Device operation cancelled");
             SendMessage(new DeviceOperationCancelledMessage(device));
         }
 
         public void DeviceProximityChanged(string deviceId, double proximity)
         {
-            _log.WriteLine($"Device ({deviceId}) proximity changed to {proximity}");
+            _log.WriteLine($"({deviceId}) Device proximity changed to {proximity}");
             SendMessage(new DeviceProximityChangedMessage(deviceId, proximity));
         }
 
         public void DeviceBatteryChanged(string deviceId, int battery)
         {
-            _log.WriteLine($"Device ({deviceId}) battery changed to {battery}");
+            _log.WriteLine($"({deviceId}) Device battery changed to {battery}");
             SendMessage(new DeviceBatteryChangedMessage(deviceId, battery));
         }
 
         public void RemoteConnection_DeviceStateChanged(string deviceId, DeviceStateDTO stateDto)
         {
-            //_log.WriteLine($"Remote ({deviceId}) system state received");
+            //_log.WriteLine($"({deviceId}) Remote system state received");
             SendMessage(new Remote_DeviceStateChangedMessage(deviceId, stateDto.ToDeviceState()));
         }
 
@@ -121,7 +121,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
 
         public void DeviceProximityLockEnabled(DeviceDTO device)
         {
-            _log.WriteLine($"Device ({device.Id}) marked as valid for workstation lock");
+            _log.WriteLine($"({device.Id}) Device marked as valid for workstation lock");
             SendMessage(new DeviceProximityLockEnabledMessage(device));
         }
 
