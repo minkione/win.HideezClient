@@ -32,6 +32,7 @@ namespace HideezMiddleware
 
             SdkConfig.DeviceBusyTransmitInterval = settings.DeviceBusyTransmitInterval;
             SdkConfig.DeviceBusyTransmitTimeout = settings.DeviceBusyTransmitTimeout;
+            SdkConfig.HesRequestTimeout = settings.HesRequestTimeout;
         }
     }
 }
