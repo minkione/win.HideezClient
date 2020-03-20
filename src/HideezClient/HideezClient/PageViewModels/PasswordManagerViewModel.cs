@@ -198,6 +198,7 @@ namespace HideezClient.PageViewModels
             {
                 var account = EditAccount;
                 IsAvailable = false;
+                account.AccountRecord.Name = account.AccountRecord.Name.Trim();
                 account.AccountRecord.Password = password.GetAsString();
                 var key = await Device.SaveOrUpdateAccountAsync(account.AccountRecord);
                 EditAccount = null;

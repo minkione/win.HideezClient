@@ -479,7 +479,7 @@ namespace HideezClient.ViewModels
             }
             else if (_device.AccountsRecords.Select(a => a.Value)
                 .Where(a => a.Flags.IsUserAccount)
-                .Any(a => a.Name == AccountRecord.Name && 
+                .Any(a => a.Name.Trim() == AccountRecord.Name.Trim() && 
                 (a.Login == AccountRecord.Login || string.IsNullOrWhiteSpace(a.Login) && string.IsNullOrWhiteSpace(AccountRecord.Login)) && 
                 a.Key != AccountRecord.Key)) // Strasse != Straße in default/ordinal comparison
             {
