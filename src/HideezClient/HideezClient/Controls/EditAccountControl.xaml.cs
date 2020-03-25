@@ -68,5 +68,15 @@ namespace HideezClient.Controls
                     catch (Exception ex) { }
                 }));
         }
+
+        private void ComboBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            // Prevent selection of items when combobox is selected, dropdown is closed and mouse wheel is rolled up-down
+            if (sender is ComboBox c)
+            {
+                if (!c.IsDropDownOpen)
+                    e.Handled = true;
+            }
+        }
     }
 }

@@ -51,7 +51,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="*" MinHeight="25" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
@@ -137,6 +137,7 @@
 
                     <PasswordBox
                         x:Name="PasswordBox"
+                        ScrollViewer.CanContentScroll="False"
                         Grid.Column="2"
                         VerticalAlignment="Center"
                         ma:PasswordBoxHelper.CapsLockWarningToolTip="CapsLock is enabled"
@@ -386,7 +387,8 @@
                         ItemsSource="{Binding OpenedForegroundUrls}"
                         SelectedValue="{Binding SelectedUrl}"
                         Style="{DynamicResource DropDownButtonStyle}"
-                        Tag="{l:Localization PM.AddWebSite}" />
+                        Tag="{l:Localization PM.AddWebSite}" 
+                        PreviewMouseWheel="ComboBox_PreviewMouseWheel"/>
 
                     <!--  Add app  -->
                     <ComboBox
@@ -398,7 +400,8 @@
                         ItemsSource="{Binding OpenedApps}"
                         SelectedValue="{Binding SelectedApp}"
                         Style="{DynamicResource DropDownButtonStyle}"
-                        Tag="{l:Localization PM.AddApp}" />
+                        Tag="{l:Localization PM.AddApp}" 
+                        PreviewMouseWheel="ComboBox_PreviewMouseWheel" />
                 </Grid>
             </ContentControl>
 

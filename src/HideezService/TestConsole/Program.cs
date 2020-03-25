@@ -28,7 +28,7 @@ namespace TestConsole
                     if (line == "q" || line == "exit")
                     {
                         Console.WriteLine("exiting...");
-                        HideezService.OnServiceStopped().Wait();
+                        HideezService.OnServiceStopped();
 
                         // connect and ask the service to finish all works and close all connections
                         var callback = new HideezServiceCallbacks();
