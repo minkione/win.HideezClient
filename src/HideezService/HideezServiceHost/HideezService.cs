@@ -67,14 +67,16 @@ namespace HideezServiceHost
         {
             try
             {
-                ServiceLibrary.Implementation.HideezService.OnServiceStopped().Wait();
+                ServiceLibrary.Implementation.HideezService.OnServiceStopped();
 
                 // connect and ask the service to finish all works and close all connections
                 var callback = new HideezServiceCallbacks();
                 var instanceContext = new InstanceContext(callback);
 
                 service = new HideezServiceClient(instanceContext);
-                service.ShutdownAsync().Wait();
+                var shutdowntask = service.ShutdownAsync();
+                shutdowntask.Start();
+                shutdowntask.Wait();
 
                 // close the host
                 if (serviceHost.State == CommunicationState.Faulted)

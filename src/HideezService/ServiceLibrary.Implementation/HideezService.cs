@@ -194,13 +194,15 @@ namespace ServiceLibrary.Implementation
             _eventSaver.AddNew(workstationEvent);
         }
 
-        public static async Task OnServiceStopped()
+        public static void OnServiceStopped()
         {
             // Generate event for audit
             var workstationEvent = _eventSaver.GetWorkstationEvent();
             workstationEvent.EventId = WorkstationEventType.ServiceStopped;
             _eventSaver.AddNew(workstationEvent);
-            await _eventSender.SendEventsAsync(true);
+            var task = _eventSender.SendEventsAsync(true);
+            task.Start();
+            task.Wait();
         }
         #endregion
     }
