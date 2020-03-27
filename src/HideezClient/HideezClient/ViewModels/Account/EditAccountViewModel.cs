@@ -103,8 +103,8 @@ namespace HideezClient.ViewModels
                       .Subscribe(change => AppsOrUrlsCollectonChanges());
 
             OpenedApps.Add(loadingAppInfo);
-            OpenedForegroundUrls.Add(loadingAppInfo);
             OpenedForegroundUrls.Add(addUrlAppInfo);
+            OpenedForegroundUrls.Add(loadingAppInfo);
             Task.Run(UpdateAppsAndUrls).ContinueWith(_ =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
@@ -156,10 +156,6 @@ namespace HideezClient.ViewModels
                     OpenedApps.Add(apps);
                     OpenedForegroundUrls.Add(urls);
                 });
-            }
-            catch (InvalidOperationException)
-            {
-                // AppInfoFactory.GetVisibleAppsInfo(), InvalidOperatiopExcetion: "Unsupported Pattern"
             }
             finally
             {
