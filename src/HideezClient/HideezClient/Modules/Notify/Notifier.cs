@@ -1,4 +1,5 @@
-﻿using HideezClient.Controls;
+﻿using Hideez.ARM;
+using HideezClient.Controls;
 using HideezClient.Models;
 using HideezClient.Modules.Localize;
 using HideezClient.Mvvm;
@@ -24,7 +25,6 @@ namespace HideezClient.Modules
 
         static HashSet<string> viewLoadingCredentialsForDevices = new HashSet<string>();
         static Dictionary<string, NotificationBase> displayedNotAuthorizedDeviceNotifications = new Dictionary<string, NotificationBase>();
-        static Dictionary<string, NotificationBase> displayedDeviceIsLockedNotifications = new Dictionary<string, NotificationBase>();
 
         public Notifier()
         {
@@ -113,8 +113,8 @@ namespace HideezClient.Modules
 
             Screen screen = Screen.FromHandle(hwnd);
             AddNotification(screen, notification, true);
-            bool dialogResalt = await taskCompletionSourceForDialog.Task;
-            if (dialogResalt)
+            bool dialogResult = await taskCompletionSourceForDialog.Task;
+            if (dialogResult)
             {
                 return viewModel.SelectedAccount.Account;
             }
@@ -174,6 +174,36 @@ namespace HideezClient.Modules
                 TranslationSource.Instance["Notification.DeviceLocked.Message"],
                 options,
                 NotificationIconType.Lock);
+        }
+
+        public async Task<bool> ShowAccountNotFoundNotification(string title, string message)
+        {
+            ClearContainers();
+
+            TaskCompletionSource<bool> taskCompletionSourceForDialog = new TaskCompletionSource<bool>();
+
+            var options = new NotificationOptions()
+            {
+                CloseTimeout = NotificationOptions.LongTimeout,
+                SetFocus = true,
+                CloseWhenDeactivate = true,
+                TaskCompletionSource = taskCompletionSourceForDialog,
+            };
+
+            var viewModel = new SimpleNotificationViewModel()
+            {
+                Title = title,
+                //Message = message + Environment.NewLine + "Create new account?",
+                Message = message
+            };
+            AccountNotFoundNotification notification = new AccountNotFoundNotification(options)
+            {
+                DataContext = viewModel,
+            };
+
+            Screen screen = GetCurrentScreen();
+            AddNotification(screen, notification, true);
+            return await taskCompletionSourceForDialog.Task;
         }
 
         void ShowSimpleNotification(string notificationId, string title, string message, NotificationOptions options, NotificationIconType notificationType)
@@ -275,5 +305,6 @@ namespace HideezClient.Modules
             }
             catch { }
         }
+
     }
 }

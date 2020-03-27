@@ -18,6 +18,7 @@ namespace HideezClient.Models.Settings
             AddEnterAfterInput = false;
             LimitPasswordEntry = false;
             UseSimplifiedUI = false;
+            AutoCreateAccountIfNotFound = false;
         }
 
         /// <summary>
@@ -37,6 +38,7 @@ namespace HideezClient.Models.Settings
             AddEnterAfterInput = copy.AddEnterAfterInput;
             LimitPasswordEntry = copy.LimitPasswordEntry;
             UseSimplifiedUI = copy.UseSimplifiedUI;
+            AutoCreateAccountIfNotFound = copy.AutoCreateAccountIfNotFound;
         }
 
         [Setting]
@@ -59,6 +61,9 @@ namespace HideezClient.Models.Settings
 
         [Setting]
         public bool UseSimplifiedUI { get; set; }
+
+        [Setting]
+        public bool AutoCreateAccountIfNotFound { get; set; }
 
         public override object Clone()
         {

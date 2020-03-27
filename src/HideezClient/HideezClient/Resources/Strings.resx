@@ -320,7 +320,7 @@ Device is not connected</value>
     <value>Service Logs</value>
   </data>
   <data name="Exception.LoginNotFound" xml:space="preserve">
-    <value>Login not found for {0}.</value>
+    <value>Login not found for {0}</value>
   </data>
   <data name="Exception.NoOneAccountWithOtp" xml:space="preserve">
     <value>OTP not found for {0}</value>

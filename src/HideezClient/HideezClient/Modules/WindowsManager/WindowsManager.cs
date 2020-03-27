@@ -23,6 +23,7 @@ using HideezMiddleware.Settings;
 using HideezClient.Models.Settings;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
+using Hideez.ARM;
 
 namespace HideezClient.Modules
 {
@@ -227,6 +228,11 @@ namespace HideezClient.Modules
         private void ShowLocked(Device device)
         {
             UIDispatcher.Invoke(() => _notifier.ShowDeviceIsLockedNotification(device));
+        }
+
+        public Task<bool> ShowAccountNotFoundAsync(string message, string title = null)
+        {
+            return UIDispatcher.Invoke(() => _notifier.ShowAccountNotFoundNotification(title ?? GetTitle(), message));
         }
 
         private string GetTitle()

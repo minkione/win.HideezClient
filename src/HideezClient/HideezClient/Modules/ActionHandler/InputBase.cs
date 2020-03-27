@@ -99,6 +99,9 @@ namespace HideezClient.Modules.ActionHandler
 
                     if (!accounts.Any()) // No accounts for current application
                     {
+                        if (inputCache.HasCache())
+                            await inputCache.SetFocusAsync();
+
                         OnAccountNotFoundError(currentAppInfo, devicesId);
                     }
                     else if (accounts.Length == 1) // Single account for current application

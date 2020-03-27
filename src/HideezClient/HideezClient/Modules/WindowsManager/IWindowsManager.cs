@@ -1,13 +1,9 @@
-﻿using HideezClient.ViewModels;
-using HideezClient.Modules.ActionHandler;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
 using HideezClient.Models;
 using HideezClient.Controls;
 using System.Drawing;
+using Hideez.ARM;
 
 namespace HideezClient.Modules
 {
@@ -26,6 +22,7 @@ namespace HideezClient.Modules
         void CloseWindow(string id);
 
 
+        Task<bool> ShowAccountNotFoundAsync(string message, string title = null);
         Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd);
         void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel);
 

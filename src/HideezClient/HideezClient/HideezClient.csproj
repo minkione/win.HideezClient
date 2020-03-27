@@ -253,6 +253,9 @@
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\Notification\ViewModel\DeviceIsLockedNotificationViewModel.cs" />
+    <Compile Include="Controls\Notification\View\AccountNotFoundNotification.xaml.cs">
+      <DependentUpon>AccountNotFoundNotification.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\SmallDeviceInfoControl.xaml.cs">
       <DependentUpon>SmallDeviceInfoControl.xaml</DependentUpon>
     </Compile>
@@ -455,6 +458,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\AccountInfoControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Notification\View\AccountNotFoundNotification.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

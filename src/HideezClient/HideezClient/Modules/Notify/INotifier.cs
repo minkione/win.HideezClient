@@ -2,6 +2,7 @@
 using HideezClient.Controls;
 using HideezClient.Models;
 using System.Threading.Tasks;
+using Hideez.ARM;
 
 namespace HideezClient.Modules
 {
@@ -20,5 +21,6 @@ namespace HideezClient.Modules
         void ShowDeviceNotAuthorizedNotification(Device device);
         void ShowDeviceIsLockedNotification(Device device);
         Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd);
+        Task<bool> ShowAccountNotFoundNotification(string title, string message);
     }
 }

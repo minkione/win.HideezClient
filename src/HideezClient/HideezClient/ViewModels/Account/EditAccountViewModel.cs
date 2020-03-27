@@ -157,6 +157,10 @@ namespace HideezClient.ViewModels
                     OpenedForegroundUrls.Add(urls);
                 });
             }
+            catch (InvalidOperationException)
+            {
+                // AppInfoFactory.GetVisibleAppsInfo(), InvalidOperatiopExcetion: "Unsupported Pattern"
+            }
             finally
             {
                 isUpdateAppsUrls = false;

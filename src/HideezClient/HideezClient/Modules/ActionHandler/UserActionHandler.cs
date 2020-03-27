@@ -31,6 +31,7 @@ namespace HideezClient.Modules.ActionHandler
         private const int DELAY_BEFORE_NEXT_ACTION = 500; // Delay after user action is finished but before next one will be handled
         private readonly ISettingsManager<ApplicationSettings> _appSettingsManager;
         private readonly IHotkeyManager _hotkeyManager;
+        private readonly IWindowsManager _windowsManager;
 
         public UserActionHandler(
             IMessenger messenger,
@@ -40,6 +41,7 @@ namespace HideezClient.Modules.ActionHandler
             InputOtp inputOtp,
             ISettingsManager<ApplicationSettings> appSettingsManager,
             IHotkeyManager hotkeyManager,
+            IWindowsManager windowsManager,
             ILog log)
             : base(nameof(UserActionHandler), log)
         {
@@ -50,6 +52,7 @@ namespace HideezClient.Modules.ActionHandler
             _inputOtp = inputOtp;
             _appSettingsManager = appSettingsManager;
             _hotkeyManager = hotkeyManager;
+            _windowsManager = windowsManager;
 
             _messenger.Register<HotkeyPressedMessage>(this, HotkeyPressedMessageHandler);
             _messenger.Register<ButtonPressedMessage>(this, ButtonPressedMessageHandler);
@@ -204,8 +207,24 @@ namespace HideezClient.Modules.ActionHandler
             }
             catch (AccountException ex) when (ex is LoginNotFoundException || ex is PasswordNotFoundException)
             {
-                _messenger.Send(new ShowWarningNotificationMessage(ex.Message));
-                WriteLine(ex.Message, LogErrorSeverity.Warning);
+                if (_appSettingsManager.Settings.UseSimplifiedUI)
+                {
+                    _messenger.Send(new ShowWarningNotificationMessage(ex.Message));
+                    WriteLine(ex.Message, LogErrorSeverity.Warning);
+                }
+                else if (_appSettingsManager.Settings.AutoCreateAccountIfNotFound)
+                {
+                    await OnAddNewAccount(deviceId);
+                }
+                else
+                {
+                    var appInfo = AppInfoFactory.GetCurrentAppInfo();
+                    WriteLine(ex.Message, LogErrorSeverity.Warning);
+                    var createNewAccount = await _windowsManager.ShowAccountNotFoundAsync(ex.Message);
+
+                    if (createNewAccount)
+                        await OnAddNewAccount(deviceId, appInfo);
+                }
             }
             catch (FieldNotSecureException) // Assume that precondition failed because field is not secure
             {
@@ -215,12 +234,13 @@ namespace HideezClient.Modules.ActionHandler
             }
         }
 
-        async Task OnAddNewAccount(string deviceId)
+        async Task OnAddNewAccount(string deviceId, AppInfo appInfo = null)
         {
             if (_appSettingsManager.Settings.UseSimplifiedUI)
                 throw new ActionNotSupportedException();
 
-            var appInfo = AppInfoFactory.GetCurrentAppInfo();
+            if (appInfo == null)
+                appInfo = AppInfoFactory.GetCurrentAppInfo();
 
             if (appInfo.ProcessName == "HideezClient")
                 throw new HideezWindowSelectedException();
@@ -232,6 +252,7 @@ namespace HideezClient.Modules.ActionHandler
             
             if (_activeDevice.Device.IsAuthorized && _activeDevice.Device.IsStorageLoaded)
             {
+                _messenger.Send(new ShowInfoNotificationMessage($"Creating new account for {appInfo.Title}"));
                 _messenger.Send(new ShowActivateMainWindowMessage());
                 _messenger.Send(new OpenPasswordManagerMessage(deviceId));
                 _messenger.Send(new AddAccountForAppMessage(deviceId, appInfo));
