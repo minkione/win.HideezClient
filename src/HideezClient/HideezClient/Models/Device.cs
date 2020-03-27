@@ -100,7 +100,7 @@ namespace HideezClient.Models
         }
 
         #region Properties
-        public IDeviceStorage Storage
+        public IHardwareVault Storage
         {
             get
             {
@@ -108,7 +108,7 @@ namespace HideezClient.Models
             }
         }
 
-        public DevicePasswordManager PasswordManager { get; private set; }
+        public HardwareVaultPasswordManager PasswordManager { get; private set; }
 
         public string TypeName { get; } = "Hideez key";
 
@@ -594,7 +594,7 @@ namespace HideezClient.Models
                     throw new Exception("Remote device serial number does not match the enumerated serial");
 
                 _log.WriteLine($"({SerialNo}) Creating password manager");
-                PasswordManager = new DevicePasswordManager(_remoteDevice, null);
+                PasswordManager = new HardwareVaultPasswordManager(_remoteDevice, null);
                 _remoteDevice.StorageModified += RemoteDevice_StorageModified;
                 _remoteDevice.ButtonPressed += RemoteDevice_ButtonPressed;
 

@@ -541,7 +541,7 @@ namespace HideezMiddleware
 
         async Task<Credentials> GetCredentials(IDevice device)
         {
-            ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
+            ushort primaryAccountKey = await HardwareVaultPasswordManager.GetPrimaryAccountKey(device);
             var credentials = await GetCredentials(device, primaryAccountKey);
             return credentials;
         }
