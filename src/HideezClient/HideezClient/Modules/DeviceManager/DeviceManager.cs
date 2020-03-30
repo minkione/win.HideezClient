@@ -17,16 +17,20 @@ using Hideez.SDK.Communication;
 using HideezMiddleware.Threading;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
+using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.HES.DTO;
+using Hideez.SDK.Communication.Vaults.Software;
 
 namespace HideezClient.Modules.DeviceManager
 {
-    class DeviceManager : IDeviceManager
+    class DeviceManager : Logger, IDeviceManager
     {
-        private readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(DeviceManager));
+        private readonly ILog _log;
         private readonly IMessenger _messenger;
         private readonly IServiceProxy _serviceProxy;
         private readonly IWindowsManager _windowsManager;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
+        readonly HesSoftwareVaultConnection _hesSoftwareVaultConnection;
         readonly SemaphoreQueue _semaphoreQueue = new SemaphoreQueue(1, 1);
         ConcurrentDictionary<string, Device> _devices { get; } = new ConcurrentDictionary<string, Device>();
 
@@ -48,18 +52,24 @@ namespace HideezClient.Modules.DeviceManager
         public event NotifyCollectionChangedEventHandler DevicesCollectionChanged;
 
         public DeviceManager(IMessenger messenger, IServiceProxy serviceProxy,
-            IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory)
+            IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory, HesSoftwareVaultConnection hesSoftwareVaultConnection, ILog log)
+            : base(nameof(DeviceManager), log)
         {
             _messenger = messenger;
             _serviceProxy = serviceProxy;
             _windowsManager = windowsManager;
             _remoteDeviceFactory = remoteDeviceFactory;
+            _hesSoftwareVaultConnection = hesSoftwareVaultConnection;
+            _log = log;
 
             _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
             _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
 
             _serviceProxy.Disconnected += OnServiceProxyConnectionStateChanged;
             _serviceProxy.Connected += OnServiceProxyConnectionStateChanged;
+
+            _hesSoftwareVaultConnection.HubConnectedSoftwareVaultsListChanged += OnSoftwareVaultsListChanged;
+            _hesSoftwareVaultConnection.HubConnectionStateChanged += OnSoftwareVaultHubConnectionStateChanged;
         }
 
         public IEnumerable<Device> Devices => _devices.Values;
@@ -76,7 +86,7 @@ namespace HideezClient.Modules.DeviceManager
             }
             catch (Exception ex)
             {
-                _log.WriteLine(ex);
+                WriteLine(ex);
             }
             finally
             {
@@ -93,7 +103,7 @@ namespace HideezClient.Modules.DeviceManager
             }
             catch (Exception ex)
             {
-                _log.WriteLine(ex);
+                WriteLine(ex);
             }
             finally
             {
@@ -110,7 +120,42 @@ namespace HideezClient.Modules.DeviceManager
             }
             catch (Exception ex)
             {
-                _log.WriteLine(ex);
+                WriteLine(ex);
+            }
+            finally
+            {
+                _semaphoreQueue.Release();
+            }
+        }
+
+        async void OnSoftwareVaultsListChanged(object sender, IEnumerable<SoftwareVaultInfoDto> e)
+        {
+            await _semaphoreQueue.WaitAsync();
+            try
+            {
+                throw new NotImplementedException();
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
+            finally
+            {
+                _semaphoreQueue.Release();
+            }
+        }
+
+        async void OnSoftwareVaultHubConnectionStateChanged(object sender, EventArgs e)
+        {
+            await _semaphoreQueue.WaitAsync();
+            try
+            {
+                // TODO: Remove all SoftwareVaults
+                throw new NotImplementedException();
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
             }
             finally
             {
@@ -133,11 +178,11 @@ namespace HideezClient.Modules.DeviceManager
             }
             catch (FaultException<HideezServiceFault> ex)
             {
-                _log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
+                WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
             }
             catch (Exception ex)
             {
-                _log.WriteLine(ex);
+                WriteLine(ex);
             }
         }
 
@@ -158,11 +203,11 @@ namespace HideezClient.Modules.DeviceManager
             }
             catch (FaultException<HideezServiceFault> ex)
             {
-                _log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
+                WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
             }
             catch (Exception ex)
             {
-                _log.WriteLine(ex);
+                WriteLine(ex);
             }
         }
 
@@ -171,6 +216,24 @@ namespace HideezClient.Modules.DeviceManager
             if (!_devices.ContainsKey(dto.Id))
             {
                 var device = new Device(_serviceProxy, _remoteDeviceFactory, _messenger, dto);
+                device.PropertyChanged += Device_PropertyChanged;
+
+                if (_devices.TryAdd(device.Id, device))
+                {
+                    DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, device));
+                }
+            }
+        }
+
+        void AddDevice(SoftwareVaultInfoDto dto)
+        {
+            throw new NotImplementedException();
+
+            if (!_devices.ContainsKey(dto.Id))
+            {
+
+                var vault = new SoftwareVault(dto, _hesSoftwareVaultConnection, _log);
+                Device device = null; // Todo: Create SoftwareVault
                 device.PropertyChanged += Device_PropertyChanged;
 
                 if (_devices.TryAdd(device.Id, device))

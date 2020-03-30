@@ -1225,7 +1225,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                var pm = new DevicePasswordManager(device.Device, _log);
+                var pm = new HardwareVaultPasswordManager(device.Device, _log);
 
                 var account = new AccountRecord()
                 {

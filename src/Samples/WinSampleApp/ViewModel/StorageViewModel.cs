@@ -63,7 +63,7 @@ namespace WinSampleApp.ViewModel
         }
 
         string _data;
-        private DevicePasswordManager _pm;
+        private HardwareVaultPasswordManager _pm;
 
         public string Data
         {
@@ -401,7 +401,7 @@ namespace WinSampleApp.ViewModel
             try
             {
                 Mouse.OverrideCursor = Cursors.Wait;
-                var pm = new DevicePasswordManager(Device, _log);
+                var pm = new HardwareVaultPasswordManager(Device, _log);
 
                 // array of records
                 //for (int i = 0; i < 100; i++)
@@ -465,7 +465,7 @@ namespace WinSampleApp.ViewModel
                 Mouse.OverrideCursor = Cursors.Wait;
 
                 if (_pm == null)
-                    _pm = new DevicePasswordManager(Device, _log);
+                    _pm = new HardwareVaultPasswordManager(Device, _log);
                 await _pm.Load();
 
                 foreach (var a in _pm.Accounts.Values)
