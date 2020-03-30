@@ -468,4 +468,7 @@
   <data name="ERR_NO_LICENSE" xml:space="preserve">
     <value>No license for device. Contact your system administrator.</value>
   </data>
+  <data name="HesRequestTimeout" xml:space="preserve">
+    <value>Server did not reply in a specified amout of time. Please try again in 30 seconds.</value>
+  </data>
 </root>

@@ -102,6 +102,7 @@ namespace HideezMiddleware
                 }
                 finally
                 {
+                    _cts.Cancel();
                     _cts.Dispose();
                     _cts = null;
 
@@ -590,7 +591,7 @@ namespace HideezMiddleware
 
         async Task LicenseWorkflow(IDevice device, CancellationToken ct)
         {
-            var licenses = await _hesConnection.GetNewDeviceLicenses(device.SerialNo);
+            var licenses = await _hesConnection.GetNewDeviceLicenses(device.SerialNo, ct);
 
             WriteLine($"Received {licenses.Count} licenses from HES");
 
