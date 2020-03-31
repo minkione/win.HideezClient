@@ -232,6 +232,9 @@ namespace HideezMiddleware
                             !device.AccessLevel.IsButtonRequired &&
                             !device.AccessLevel.IsPinRequired)
                         {
+                            await _ui.SendNotification("", _infNid);
+                            await _ui.SendError("", _errNid);
+
                             var unlockResult = await TryUnlockWorkstation(device);
                             success = unlockResult.IsSuccessful;
                             onUnlockAttempt?.Invoke(unlockResult);
@@ -352,10 +355,12 @@ namespace HideezMiddleware
             var result = new WorkstationUnlockResult();
 
             await _ui.SendNotification("Reading credentials from the device...", _infNid);
+            await _ui.SendError("", _errNid);
             var credentials = await GetCredentials(device);
 
             // send credentials to the Credential Provider to unlock the PC
             await _ui.SendNotification("Unlocking the PC...", _infNid);
+            await _ui.SendError("", _errNid); 
             result.IsSuccessful = await _workstationUnlocker
                 .SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
 
@@ -482,7 +487,10 @@ namespace HideezMiddleware
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({attemptsLeft} attempts left)");
                     if (device.AccessLevel.IsLocked)
+                    {
+                        await _ui.SendNotification("", _infNid);
                         await _ui.SendError($"Device is locked", _errNid);
+                    }
                     else
                     {
                         await _ui.SendError($"Wrong PIN ({attemptsLeft} attempts left)", _errNid);
