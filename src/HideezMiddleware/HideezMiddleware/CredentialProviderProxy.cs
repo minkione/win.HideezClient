@@ -236,11 +236,13 @@ namespace HideezMiddleware
 
         public async Task SendError(string message, string notificationId = null)
         {
+            WriteLine($"SendError: {message}");
+            
+            string formattedMessage = "";
             if (!string.IsNullOrEmpty(message))
-            {
-                WriteLine($"SendError: {message}");
-                await SendMessageAsync(CredentialProviderCommandCode.Error, true, $"{DateTime.Now.ToShortTimeString()}: {message}");
-            }
+                formattedMessage = $"{DateTime.Now.ToLongTimeString()}: {message}";
+                
+            await SendMessageAsync(CredentialProviderCommandCode.Error, true, formattedMessage);
         }
 
         public async Task SendNotification(string message, string notificationId = null)
@@ -250,6 +252,7 @@ namespace HideezMiddleware
             string formattedMessage = "";
             if (!string.IsNullOrEmpty(message))
                 formattedMessage = $"{DateTime.Now.ToLongTimeString()}: {message}";
+
             await SendMessageAsync(CredentialProviderCommandCode.Notification, true, formattedMessage);
         }
 
