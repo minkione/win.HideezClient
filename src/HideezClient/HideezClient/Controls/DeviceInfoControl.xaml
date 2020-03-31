@@ -93,7 +93,7 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal">
             <TextBlock
                 x:Name="deviceName"
-                VerticalAlignment="Stretch"
+                VerticalAlignment="Center"
                 FontSize="18"
                 Text="{Binding Name}" />
 
