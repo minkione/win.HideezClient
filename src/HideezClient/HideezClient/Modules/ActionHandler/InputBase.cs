@@ -94,7 +94,7 @@ namespace HideezClient.Modules.ActionHandler
 
                 if (await BeforeCondition(devicesId))
                 {
-                    Account[] accounts = await GetAccountsByAppInfoAsync(currentAppInfo, devicesId);
+                    AccountModel[] accounts = await GetAccountsByAppInfoAsync(currentAppInfo, devicesId);
                     accounts = FilterAccounts(accounts, devicesId);
 
                     if (!accounts.Any()) // No accounts for current application
@@ -107,7 +107,7 @@ namespace HideezClient.Modules.ActionHandler
                     }
                     else // Multiple accounts for current application
                     {
-                        Account selectedAccount = null;
+                        AccountModel selectedAccount = null;
                         try
                         {
                             selectedAccount = await windowsManager.SelectAccountAsync(accounts, inputCache.WindowHandle);
@@ -144,11 +144,11 @@ namespace HideezClient.Modules.ActionHandler
             }
         }
 
-        private Task<Account[]> GetAccountsByAppInfoAsync(AppInfo appInfo, string[] devicesId)
+        private Task<AccountModel[]> GetAccountsByAppInfoAsync(AppInfo appInfo, string[] devicesId)
         {
             return Task.Run(() =>
             {
-                List<Account> accounts = new List<Account>();
+                List<AccountModel> accounts = new List<AccountModel>();
                 foreach (var device in deviceManager.Vaults.Where(d => d.IsConnected && d.IsAuthorized && d.IsStorageLoaded && devicesId.Contains(d.Id)))
                 {
                     accounts.AddRange(device.FindAccountsByApp(appInfo));
@@ -164,7 +164,7 @@ namespace HideezClient.Modules.ActionHandler
         /// If is not data for input called method NotFoundAccounts
         /// </summary>
         /// <param name="account">Accounts data for input</param>
-        private async Task InputAsync(Account account)
+        private async Task InputAsync(AccountModel account)
         {
             if (await InputAccountAsync(account))
             {
@@ -172,7 +172,7 @@ namespace HideezClient.Modules.ActionHandler
             }
             else
             {
-                OnAccountNotFoundError(currentAppInfo, new[] { account.Device.Id });
+                OnAccountNotFoundError(currentAppInfo, new[] { account.Vault.Id });
             }
         }
 
@@ -188,7 +188,7 @@ namespace HideezClient.Modules.ActionHandler
         /// </summary>
         /// <param name="appInfo"></param>
         /// <param name="account"></param>
-        protected virtual void OnAccountEntered(AppInfo appInfo, Account account)
+        protected virtual void OnAccountEntered(AppInfo appInfo, AccountModel account)
         {
         }
 
@@ -199,7 +199,7 @@ namespace HideezClient.Modules.ActionHandler
         /// </summary>
         /// <param name="account">AppInfo for found account</param>
         /// <returns>True if found data for input</returns>
-        protected abstract Task<bool> InputAccountAsync(Account account);
+        protected abstract Task<bool> InputAccountAsync(AccountModel account);
 
         /// <summary>
         /// Filter accounts before input or select any
@@ -207,7 +207,7 @@ namespace HideezClient.Modules.ActionHandler
         /// </summary>
         /// <param name="accounts">Found accounts on devices</param>
         /// <returns>Filtered accounts</returns>
-        protected virtual Account[] FilterAccounts(Account[] accounts, string[] devicesId)
+        protected virtual AccountModel[] FilterAccounts(AccountModel[] accounts, string[] devicesId)
         {
             return accounts;//.Where(a => devicesId.Contains(a.DeviceId)).ToArray();
         }
@@ -260,11 +260,11 @@ namespace HideezClient.Modules.ActionHandler
         /// <param name="accounts">Found accounts on devices</param>
         /// <param name="cachedAccountPrevInput">Cached account of previous input</param>
         /// <returns></returns>
-        protected Account[] FindValueForPreviousInput(Account[] accounts, Account cachedAccountPrevInput)
+        protected AccountModel[] FindValueForPreviousInput(AccountModel[] accounts, AccountModel cachedAccountPrevInput)
         {
             if (cachedAccountPrevInput != null)
             {
-                Account[] pmas = accounts.Where(a => a.Id == cachedAccountPrevInput.Id).ToArray();
+                AccountModel[] pmas = accounts.Where(a => a.Id == cachedAccountPrevInput.Id).ToArray();
                 if (pmas.Length > 0)
                 {
                     return pmas;
@@ -278,7 +278,7 @@ namespace HideezClient.Modules.ActionHandler
         /// Set account to cache
         /// </summary>
         /// <param name="account">Account for cache</param>
-        protected void SetCache(Account account)
+        protected void SetCache(AccountModel account)
         {
             temporaryCacheAccount.PasswordReqCache.Value = account;
             temporaryCacheAccount.OtpReqCache.Value = account;

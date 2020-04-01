@@ -10,8 +10,8 @@ namespace HideezClient.Modules.ActionHandler
 {
     interface ITemporaryCacheAccount
     {
-        TemporaryCache<Account> OtpReqCache { get; set; }
-        TemporaryCache<Account> PasswordReqCache { get; set; }
+        TemporaryCache<AccountModel> OtpReqCache { get; set; }
+        TemporaryCache<AccountModel> PasswordReqCache { get; set; }
 
         void Clear();
     }

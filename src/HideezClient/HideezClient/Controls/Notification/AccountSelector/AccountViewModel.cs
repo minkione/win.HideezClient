@@ -5,12 +5,12 @@ namespace HideezClient.Controls
 {
     public class AccountViewModel
     {
-        public AccountViewModel(Account account)
+        public AccountViewModel(AccountModel account)
         {
             Account = account;
         }
 
-        public Account Account { get; }
+        public AccountModel Account { get; }
 
         public string FullName 
         { 

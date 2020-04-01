@@ -1,7 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Device;
-using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
@@ -29,7 +28,7 @@ using HideezClient.Modules.Log;
 namespace HideezClient.Models
 {
     // Todo: Implement thread-safety lock for password manager and remote device
-    public class HardwareVaultModel : ObservableObject, IVaultModel, IDisposable
+    public class HardwareVaultModel : ObservableObject, IVaultModel
     {
         const int INIT_TIMEOUT = 5_000;
         readonly int CREDENTIAL_TIMEOUT = SdkConfig.MainWorkflowTimeout;
@@ -445,8 +444,8 @@ namespace HideezClient.Models
         /// <summary>
         /// Create and authorize remote device, then load credentials storage from this device
         /// </summary>
-        /// <param name="authorizeDevice">If false, skip remote device authorization step. Default is true.</param>
-        public async Task InitRemoteAndLoadStorageAsync(bool authorizeDevice = true)
+        /// <param name="authorize">If false, skip remote device authorization step. Default is true.</param>
+        public async Task InitRemoteAndLoadStorageAsync(bool authorize = true)
         {
             if (Interlocked.CompareExchange(ref _interlockedRemote, 1, 0) == 0)
             {
@@ -484,9 +483,9 @@ namespace HideezClient.Models
                                     _log.WriteLine($"({_remoteDevice.SerialNo}) access level is null");
                             }
 
-                            if (authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && !_remoteDevice.AccessLevel.IsAllOk)
+                            if (authorize && !IsAuthorized && _remoteDevice?.AccessLevel != null && !_remoteDevice.AccessLevel.IsAllOk)
                                 await AuthorizeRemoteDevice(ct);
-                            else if (!authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsAllOk)
+                            else if (!authorize && !IsAuthorized && _remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsAllOk)
                                 await AuthorizeRemoteDevice(ct);
                             else if (_remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsLocked)
                                 throw new HideezException(HideezErrorCode.DeviceIsLocked);

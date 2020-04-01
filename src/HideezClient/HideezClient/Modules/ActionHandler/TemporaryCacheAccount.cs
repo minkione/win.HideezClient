@@ -12,12 +12,12 @@ namespace HideezClient.Modules.ActionHandler
     {
         public TemporaryCacheAccount(TimeSpan timeAvailableCash)
         {
-            PasswordReqCache = new TemporaryCache<Account>(timeAvailableCash);
-            OtpReqCache = new TemporaryCache<Account>(timeAvailableCash);
+            PasswordReqCache = new TemporaryCache<AccountModel>(timeAvailableCash);
+            OtpReqCache = new TemporaryCache<AccountModel>(timeAvailableCash);
         }
 
-        public TemporaryCache<Account> PasswordReqCache { get; set; }
-        public TemporaryCache<Account> OtpReqCache { get; set; }
+        public TemporaryCache<AccountModel> PasswordReqCache { get; set; }
+        public TemporaryCache<AccountModel> OtpReqCache { get; set; }
 
         public void Clear()
         {

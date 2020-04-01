@@ -347,7 +347,7 @@
     <Compile Include="Messages\ShowPinUiMessage.cs" />
     <Compile Include="Messages\ShowWarningNotificationMessage.cs" />
     <Compile Include="Models\HardwareVaultModel.cs" />
-    <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\AccountModel.cs" />
     <Compile Include="Models\IVaultModel.cs" />
     <Compile Include="Models\SoftwareVaultModel.cs" />
     <Compile Include="Modules\AccountManager\AccountExtensions.cs" />
@@ -445,7 +445,6 @@
     <Compile Include="Utilities\TemporaryCache.cs" />
     <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
     <Compile Include="ViewModels\Controls\IndicatorsViewModel.cs" />
-    <Compile Include="Views\PinView.xaml.cs" />
     <Compile Include="Views\SimpleMainView.xaml.cs">
       <DependentUpon>SimpleMainView.xaml</DependentUpon>
     </Compile>
@@ -627,10 +626,6 @@
       <DependentUpon>MainWindowView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Views\PinView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Views\SimpleMainView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

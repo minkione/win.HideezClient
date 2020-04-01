@@ -171,7 +171,7 @@ namespace HideezClient.ViewModels
             {
                 // Todo: cache ViewModels instead of recreating them each time the device collection changes.
                 return _deviceManager.Vaults
-                    .Where(d => d.Id != _activeDevice.Device.Id)
+                    .Where(d => d.Id != _activeDevice.Vault.Id)
                     .Select(v => new VaultInfoViewModel(v, _menuFactory))
                     .Reverse()
                     .ToList();

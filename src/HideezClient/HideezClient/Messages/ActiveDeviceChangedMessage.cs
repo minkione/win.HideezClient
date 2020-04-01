@@ -4,11 +4,11 @@ namespace HideezClient.Messages
 {
     class ActiveDeviceChangedMessage
     {
-        public HardwareVaultModel PreviousDevice { get; }
+        public IVaultModel PreviousDevice { get; }
         
-        public HardwareVaultModel NewDevice { get; }
+        public IVaultModel NewDevice { get; }
 
-        public ActiveDeviceChangedMessage(HardwareVaultModel previousDevice, HardwareVaultModel newDevice)
+        public ActiveDeviceChangedMessage(IVaultModel previousDevice, IVaultModel newDevice)
         {
             PreviousDevice = previousDevice;
             NewDevice = newDevice;

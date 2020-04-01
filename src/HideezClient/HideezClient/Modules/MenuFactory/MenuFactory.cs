@@ -374,7 +374,7 @@ namespace HideezClient.Modules
 
         private async void OnChangeActiveDevice(HardwareVaultModel device)
         {
-            _activeDevice.Device = device;
+            _activeDevice.Vault = device;
             await device.InitRemoteAndLoadStorageAsync(true);
         }
     }

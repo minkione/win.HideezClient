@@ -65,11 +65,7 @@ namespace HideezClient.PageViewModels
             this.WhenAnyValue(x => x.SelectedAccount)
                 .InvokeCommand(CancelCommand);
 
-            // Todo: On update, preserve selection or if unable, clear it
-            //Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Accounts, nameof(ObservableCollection<string>.CollectionChanged))
-            //          .Subscribe(change => SelectedAccount = Accounts.FirstOrDefault());
-
-            Device = activeDevice.Device != null ? new VaultViewModel(activeDevice.Device) : null;
+            Device = activeDevice.Vault != null ? new VaultViewModel(activeDevice.Vault) : null;
         }
 
         [Reactive] public bool IsAvailable { get; set; }

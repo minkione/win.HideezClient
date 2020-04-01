@@ -242,7 +242,7 @@ namespace HideezClient.Modules
             return titleNotification;
         }
 
-        public Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd)
+        public Task<AccountModel> SelectAccountAsync(AccountModel[] accounts, IntPtr hwnd)
         {
             return UIDispatcher.Invoke(() => _notifier.SelectAccountAsync(accounts, hwnd));
         }

@@ -26,7 +26,7 @@ namespace HideezClient.Modules
         void CloseWindow(string id);
 
 
-        Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd);
+        Task<AccountModel> SelectAccountAsync(AccountModel[] accounts, IntPtr hwnd);
         void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel);
 
         Task<bool> ShowDeleteCredentialsPromptAsync();

@@ -13,7 +13,7 @@ namespace HideezClient.Modules
     {
         readonly IVaultManager _deviceManager;
         readonly IMessenger _messenger;
-        HardwareVaultModel _device;
+        IVaultModel _device;
 
         readonly object _deviceLock = new object();
 
@@ -26,7 +26,7 @@ namespace HideezClient.Modules
             _deviceManager.DevicesCollectionChanged += DeviceManager_DevicesCollectionChanged;
         }
 
-        public HardwareVaultModel Device 
+        public IVaultModel Vault 
         {
             get { return _device; }
             set
@@ -46,16 +46,16 @@ namespace HideezClient.Modules
 
         void DeviceManager_DevicesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action == NotifyCollectionChangedAction.Add && Device == null)
+            if (e.Action == NotifyCollectionChangedAction.Add && Vault == null)
             {
                 // Devices collection changed, set the first available device as active
-                Device = _deviceManager.Vaults.FirstOrDefault();
+                Vault = _deviceManager.Vaults.FirstOrDefault();
             }
             else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
                 // Change active device to the last added device, if current active device was amongst the removed devices
-                if (e.OldItems.Contains(Device))
-                    Device = _deviceManager.Vaults.LastOrDefault();
+                if (e.OldItems.Contains(Vault))
+                    Vault = _deviceManager.Vaults.LastOrDefault();
             }
         }
 

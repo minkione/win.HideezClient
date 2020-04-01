@@ -8,6 +8,6 @@ namespace HideezClient.Modules.VaultManager
     {
         event NotifyCollectionChangedEventHandler DevicesCollectionChanged;
 
-        IEnumerable<HardwareVaultModel> Vaults { get; }
+        IEnumerable<IVaultModel> Vaults { get; }
     }
 }

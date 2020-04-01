@@ -58,23 +58,28 @@ namespace HideezClient.Modules.ActionHandler
         // Messages from Messenger are events. async void is fine in this case.
         async void ButtonPressedMessageHandler(ButtonPressedMessage message)
         {
-            WriteLine($"Handling button pressed message ({message.Action.ToString()}, {message.Code.ToString()})");
+            WriteLine($"Handling button pressed message ({message.DeviceId}, {message.Action}, {message.Code})");
 
-            if (_activeDevice.Device?.Id == message.DeviceId)
+            if (_activeDevice.Vault?.Id == message.DeviceId)
             {
-                if (_activeDevice.Device.OtherConnections > 0)
+                if (_activeDevice.Vault is HardwareVaultModel hardwareVault)
                 {
-                    string info = TranslationSource.Instance["UserAction.ButtonDisabled.ToManyOtherConnections"];
-                    var deviceName = _activeDevice.Device.Name;
-                    var otherConnections = _activeDevice.Device.OtherConnections;
-                    var hotkey = await _hotkeyManager.GetHotkeyForAction(message.Action);
-                    var localizedAction = TranslationSource.Instance[$"Enum.UserAction.{message.Action.ToString()}"].ToLowerInvariant();
-                    info = string.Format(info, deviceName, otherConnections, hotkey, localizedAction);
-                    var msgOptions = new NotificationOptions { CloseTimeout = NotificationOptions.LongTimeout };
-                    _messenger.Send(new ShowInfoNotificationMessage(info, options: msgOptions));
+                    if (hardwareVault.OtherConnections > 0)
+                    {
+                        string info = TranslationSource.Instance["UserAction.ButtonDisabled.ToManyOtherConnections"];
+                        var deviceName = hardwareVault.Name;
+                        var otherConnections = hardwareVault.OtherConnections;
+                        var hotkey = await _hotkeyManager.GetHotkeyForAction(message.Action);
+                        var localizedAction = TranslationSource.Instance[$"Enum.UserAction.{message.Action}"].ToLowerInvariant();
+                        info = string.Format(info, deviceName, otherConnections, hotkey, localizedAction);
+                        var msgOptions = new NotificationOptions { CloseTimeout = NotificationOptions.LongTimeout };
+                        _messenger.Send(new ShowInfoNotificationMessage(info, options: msgOptions));
+                    }
+                    else
+                        await HandleButtonActionAsync(message.DeviceId, message.Action, message.Code);
                 }
                 else
-                    await HandleButtonActionAsync(message.DeviceId, message.Action, message.Code);
+                    WriteLine("Button pressed message sent for non-hardware vault", LogErrorSeverity.Warning);
             }
             else
             {
@@ -86,9 +91,9 @@ namespace HideezClient.Modules.ActionHandler
 
         async void HotkeyPressedMessageHandler(HotkeyPressedMessage message)
         {
-            WriteLine($"Handling hotkey pressed message ({message.Hotkey}, {message.Action.ToString()})");
+            WriteLine($"Handling hotkey pressed message ({message.Hotkey}, {message.Action})");
 
-            if (_activeDevice.Device == null)
+            if (_activeDevice.Vault == null)
             {
                 string warning = TranslationSource.Instance["NoConnectedDevices"];
                 _messenger.Send(new ShowWarningNotificationMessage(warning));
@@ -96,7 +101,7 @@ namespace HideezClient.Modules.ActionHandler
                 return;
             }
             else
-                await HandleHotkeyActionAsync(_activeDevice.Device.Id, message.Action, message.Hotkey);
+                await HandleHotkeyActionAsync(_activeDevice.Vault.Id, message.Action, message.Hotkey);
 
         }
 
@@ -225,12 +230,12 @@ namespace HideezClient.Modules.ActionHandler
             if (appInfo.ProcessName == "HideezClient")
                 throw new HideezWindowSelectedException();
 
-            if (!_activeDevice.Device.IsAuthorized || !_activeDevice.Device.IsStorageLoaded)
+            if (!_activeDevice.Vault.IsAuthorized || !_activeDevice.Vault.IsStorageLoaded)
             {
-                await _activeDevice.Device.InitRemoteAndLoadStorageAsync();
+                await _activeDevice.Vault.InitRemoteAndLoadStorageAsync();
             }
             
-            if (_activeDevice.Device.IsAuthorized && _activeDevice.Device.IsStorageLoaded)
+            if (_activeDevice.Vault.IsAuthorized && _activeDevice.Vault.IsStorageLoaded)
             {
                 _messenger.Send(new ShowActivateMainWindowMessage());
                 _messenger.Send(new OpenPasswordManagerMessage(deviceId));

@@ -33,7 +33,7 @@ namespace HideezClient.Modules.ActionHandler
         /// </summary>
         /// <param name="account">Account info about the login</param>
         /// <returns>True if PmAccountDTO has login</returns>
-        protected override async Task<bool> InputAccountAsync(Account account)
+        protected override async Task<bool> InputAccountAsync(AccountModel account)
         {
             if (account != null && !string.IsNullOrWhiteSpace(account.Login))
             {
@@ -51,7 +51,7 @@ namespace HideezClient.Modules.ActionHandler
         /// <param name="accounts">Found accounts on devices</param>
         /// <param name="devicesId">Devices for filtering</param>
         /// <returns>Filtered accounts</returns>
-        protected override Account[] FilterAccounts(Account[] accounts, string[] devicesId)
+        protected override AccountModel[] FilterAccounts(AccountModel[] accounts, string[] devicesId)
         {
             return base.FilterAccounts(accounts, devicesId).Where(a => !string.IsNullOrWhiteSpace(a.Login)).ToArray();
         }
@@ -66,7 +66,7 @@ namespace HideezClient.Modules.ActionHandler
             throw new LoginNotFoundException(string.Format(TranslationSource.Instance["Exception.LoginNotFound"], appInfo.Title), appInfo, devicesId);
         }
 
-        protected override async void OnAccountEntered(AppInfo appInfo, Account account)
+        protected override async void OnAccountEntered(AppInfo appInfo, AccountModel account)
         {
             base.OnAccountEntered(appInfo, account);
 
@@ -76,7 +76,7 @@ namespace HideezClient.Modules.ActionHandler
                 Date = DateTime.UtcNow,
                 AccountLogin = account.Login,
                 AccountName = account.Name,
-                DeviceId = account.Device.SerialNo,
+                DeviceId = account.Vault.SerialNo,
                 EventId = (int)WorkstationEventType.CredentialsUsed_Login,
                 Note = appInfo.Title,
                 Severity = (int)WorkstationEventSeverity.Info,

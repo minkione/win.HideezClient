@@ -99,7 +99,7 @@ namespace HideezClient.Modules
         }
 
 
-        public async Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd)
+        public async Task<AccountModel> SelectAccountAsync(AccountModel[] accounts, IntPtr hwnd)
         {
             ClearContainers();
 

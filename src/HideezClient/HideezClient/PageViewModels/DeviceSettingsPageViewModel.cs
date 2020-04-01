@@ -88,7 +88,7 @@ namespace HideezClient.PageViewModels
             this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Where(t => t.Item1 != 0 && t.Item2 != 0).Subscribe(o => ProximityHasChanges = true);
             this.WhenAnyValue(x => x.Device).Where(d => d != null).Subscribe(o => Task.Run(LoadCurrentProximitySettings));
 
-            Device = activeDevice.Device != null ? new VaultViewModel(activeDevice.Device) : null;
+            Device = activeDevice.Vault != null ? new VaultViewModel(activeDevice.Vault) : null;
         }
 
         [Reactive] public VaultViewModel Device { get; set; }

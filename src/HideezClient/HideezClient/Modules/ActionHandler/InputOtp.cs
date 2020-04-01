@@ -33,7 +33,7 @@ namespace HideezClient.Modules.ActionHandler
         /// </summary>
         /// <param name="account">Account info about the OTP</param>
         /// <returns>True if found data for OTP</returns>
-        protected override async Task<bool> InputAccountAsync(Account account)
+        protected override async Task<bool> InputAccountAsync(AccountModel account)
         {
             string otpSecret = await account?.TryGetOptAsync();
             if (!string.IsNullOrEmpty(otpSecret))
@@ -61,7 +61,7 @@ namespace HideezClient.Modules.ActionHandler
         /// <param name="accounts">Found accounts on devices</param>
         /// <param name="devicesId">Devices for filtering</param>
         /// <returns>Filtered accounts</returns>
-        protected override Account[] FilterAccounts(Account[] accounts, string[] devicesId)
+        protected override AccountModel[] FilterAccounts(AccountModel[] accounts, string[] devicesId)
         {
             var filterAccounts = base.FilterAccounts(accounts, devicesId)
                 .Where(a => a.HasOtp).ToArray();
@@ -69,7 +69,7 @@ namespace HideezClient.Modules.ActionHandler
             return FindValueForPreviousInput(filterAccounts, temporaryCacheAccount.OtpReqCache.Value);
         }
 
-        protected override async void OnAccountEntered(AppInfo appInfo, Account account)
+        protected override async void OnAccountEntered(AppInfo appInfo, AccountModel account)
         {
             base.OnAccountEntered(appInfo, account);
 
@@ -79,7 +79,7 @@ namespace HideezClient.Modules.ActionHandler
                 Date = DateTime.UtcNow,
                 AccountLogin = account.Login,
                 AccountName = account.Name,
-                DeviceId = account.Device.SerialNo,
+                DeviceId = account.Vault.SerialNo,
                 EventId = (int)WorkstationEventType.CredentialsUsed_Otp,
                 Note = appInfo.Title,
                 Severity = (int)WorkstationEventSeverity.Info,

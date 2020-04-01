@@ -13,7 +13,7 @@ namespace HideezClient.Controls
     {
         private AccountViewModel selectedAccount;
 
-        public AccountSelectorViewModel(Account[] accounts)
+        public AccountSelectorViewModel(AccountModel[] accounts)
         {
             Accounts = accounts.Select(a => new AccountViewModel(a)).ToList();
             SelectedAccount = Accounts.FirstOrDefault();

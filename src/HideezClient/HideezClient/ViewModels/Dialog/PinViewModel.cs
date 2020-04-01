@@ -227,7 +227,7 @@ namespace HideezClient.ViewModels
             {
                 if (Device == null && !string.IsNullOrWhiteSpace(deviceId))
                 {
-                    var device = _deviceManager.Vaults.FirstOrDefault(d => d.Id == deviceId);
+                    var device = _deviceManager.Vaults.FirstOrDefault(d => d.Id == deviceId) as HardwareVaultModel;
                     if (device != null)
                     {
                         Device = device;

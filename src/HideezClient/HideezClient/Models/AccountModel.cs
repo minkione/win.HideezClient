@@ -1,26 +1,23 @@
 ﻿using Hideez.SDK.Communication.PasswordManager;
 using HideezClient.Utilities;
 using System;
-using System.Diagnostics;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace HideezClient.Models
 {
-    public class Account
+    public class AccountModel
     {
-        private readonly HardwareVaultModel device;
+        private readonly IVaultModel vault;
         private readonly AccountRecord accountRecord;
 
-        public Account(HardwareVaultModel device, AccountRecord accountRecord)
+        public AccountModel(IVaultModel device, AccountRecord accountRecord)
         {
-            this.device = device;
+            this.vault = device;
             this.accountRecord = accountRecord;
         }
 
-        public string Id => $"{device.Id}:{accountRecord.Key}";
-        public HardwareVaultModel Device => device;
+        public string Id => $"{vault.Id}:{accountRecord.Key}";
+        public IVaultModel Vault => vault;
         public string Name => accountRecord.Name;
 
         public string[] Apps => AccountUtility.Split(accountRecord.Apps);
@@ -37,9 +34,9 @@ namespace HideezClient.Models
 
             try
             {
-                if (device.IsConnected && device.IsInitialized)
+                if (vault.IsConnected && vault.IsInitialized)
                 {
-                    return await device.PasswordManager.GetPasswordAsync(accountRecord.Key);
+                    return await vault.PasswordManager.GetPasswordAsync(accountRecord.Key);
                 }
             }
             catch { }
@@ -52,9 +49,9 @@ namespace HideezClient.Models
             string otp = null;
             try
             {
-                if (device.IsConnected && device.IsInitialized && HasOtp)
+                if (vault.IsConnected && vault.IsInitialized && HasOtp)
                 {
-                    otp = await device.PasswordManager.GetOtpAsync(accountRecord.Key);
+                    otp = await vault.PasswordManager.GetOtpAsync(accountRecord.Key);
                 }
             }
             catch (Exception ex){ }

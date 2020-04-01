@@ -16,7 +16,6 @@ using HideezClient.Controls;
 using Hideez.SDK.Communication;
 using HideezMiddleware.Threading;
 using Hideez.SDK.Communication.Log;
-using HideezClient.Modules.Log;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Vaults.Software;
@@ -32,7 +31,7 @@ namespace HideezClient.Modules.VaultManager
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         readonly HesSoftwareVaultConnection _hesSoftwareVaultConnection;
         readonly SemaphoreQueue _semaphoreQueue = new SemaphoreQueue(1, 1);
-        ConcurrentDictionary<string, HardwareVaultModel> _vaults { get; } = new ConcurrentDictionary<string, HardwareVaultModel>();
+        ConcurrentDictionary<string, IVaultModel> _vaults { get; } = new ConcurrentDictionary<string, IVaultModel>();
 
         // Custom dispatcher is required for unit tests because during test 
         // runs the Application.Current property is null
@@ -72,7 +71,7 @@ namespace HideezClient.Modules.VaultManager
             _hesSoftwareVaultConnection.HubConnectionStateChanged += OnSoftwareVaultHubConnectionStateChanged;
         }
 
-        public IEnumerable<HardwareVaultModel> Vaults => _vaults.Values;
+        public IEnumerable<IVaultModel> Vaults => _vaults.Values;
 
         async void OnServiceProxyConnectionStateChanged(object sender, EventArgs e)
         {
@@ -198,7 +197,7 @@ namespace HideezClient.Modules.VaultManager
                     AddDevice(deviceDto);
 
                 // delete device from UI if its deleted from service
-                HardwareVaultModel[] missingDevices = _vaults.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
+                IVaultModel[] missingDevices = _vaults.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.Id == d.Id) == null).ToArray();
                 await RemoveDevices(missingDevices);
             }
             catch (FaultException<HideezServiceFault> ex)
@@ -252,9 +251,9 @@ namespace HideezClient.Modules.VaultManager
             }
         }
 
-        async Task RemoveDevice(HardwareVaultModel device)
+        async Task RemoveDevice(IVaultModel device)
         {
-            if (_vaults.TryRemove(device.Id, out HardwareVaultModel removedDevice))
+            if (_vaults.TryRemove(device.Id, out IVaultModel removedDevice))
             {
                 removedDevice.PropertyChanged -= Device_PropertyChanged;
                 await removedDevice.ShutdownRemoteDeviceAsync(HideezErrorCode.DeviceRemoved);
@@ -263,7 +262,7 @@ namespace HideezClient.Modules.VaultManager
             }
         }
 
-        async Task RemoveDevices(HardwareVaultModel[] devices)
+        async Task RemoveDevices(IVaultModel[] devices)
         {
             foreach (var device in devices)
                 await RemoveDevice(device);

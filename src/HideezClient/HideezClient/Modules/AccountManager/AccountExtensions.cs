@@ -12,11 +12,11 @@ namespace HideezClient.Modules
 {
     public static class AccountExtensions
     {
-        public static Account[] FindAccountsByApp(this HardwareVaultModel device, AppInfo appInfo)
+        public static AccountModel[] FindAccountsByApp(this IVaultModel vault, AppInfo appInfo)
         {
-            List<Account> accounts = new List<Account>();
+            List<AccountModel> accounts = new List<AccountModel>();
 
-            foreach (var accountRecord in device.PasswordManager?.Accounts.Values)
+            foreach (var accountRecord in vault.PasswordManager?.Accounts.Values)
             {
                 // login must be the same
                 if (!string.IsNullOrEmpty(appInfo.Login))
@@ -28,7 +28,7 @@ namespace HideezClient.Modules
                 if (MatchByDomain(appInfo, AccountUtility.Split(accountRecord.Urls))
                     || MatchByApp(appInfo, AccountUtility.Split(accountRecord.Apps)))
                 {
-                    accounts.Add(new Account(device, accountRecord));
+                    accounts.Add(new AccountModel(vault, accountRecord));
                 }
             }
 

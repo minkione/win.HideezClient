@@ -4,11 +4,11 @@ namespace HideezClient.Modules
 {
     class ActiveDeviceChangedEventArgs
     {
-        public HardwareVaultModel PreviousDevice { get; }
+        public IVaultModel PreviousDevice { get; }
 
-        public HardwareVaultModel NewDevice { get; }
+        public IVaultModel NewDevice { get; }
 
-        public ActiveDeviceChangedEventArgs(HardwareVaultModel previousDevice, HardwareVaultModel newDevice)
+        public ActiveDeviceChangedEventArgs(IVaultModel previousDevice, IVaultModel newDevice)
         {
             PreviousDevice = previousDevice;
             NewDevice = newDevice;
@@ -21,6 +21,6 @@ namespace HideezClient.Modules
     {
         event ActiveDeviceChangedEventHandler ActiveDeviceChanged;
 
-        HardwareVaultModel Device { get; set; }
+        IVaultModel Vault { get; set; }
     }
 }
