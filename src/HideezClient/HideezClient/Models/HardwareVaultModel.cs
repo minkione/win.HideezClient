@@ -29,12 +29,12 @@ using HideezClient.Modules.Log;
 namespace HideezClient.Models
 {
     // Todo: Implement thread-safety lock for password manager and remote device
-    public class Device : ObservableObject, IDisposable
+    public class HardwareVaultModel : ObservableObject, IVaultModel, IDisposable
     {
         const int INIT_TIMEOUT = 5_000;
         readonly int CREDENTIAL_TIMEOUT = SdkConfig.MainWorkflowTimeout;
 
-        readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(Device));
+        readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(HardwareVaultModel));
         readonly IServiceProxy _serviceProxy;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         readonly IMessenger _messenger;
@@ -72,7 +72,7 @@ namespace HideezClient.Models
         CancellationTokenSource authCancellationTokenSource;
         int _interlockedRemote = 0;
 
-        public Device(
+        public HardwareVaultModel(
             IServiceProxy serviceProxy,
             IRemoteDeviceFactory remoteDeviceFactory,
             IMessenger messenger,
@@ -100,15 +100,7 @@ namespace HideezClient.Models
         }
 
         #region Properties
-        public IHardwareVault Storage
-        {
-            get
-            {
-                return _remoteDevice;
-            }
-        }
-
-        public HardwareVaultPasswordManager PasswordManager { get; private set; }
+        public IDynamicPasswordManager PasswordManager { get; private set; }
 
         public string TypeName { get; } = "Hideez key";
 
@@ -914,7 +906,7 @@ namespace HideezClient.Models
             }
         }
 
-        ~Device()
+        ~HardwareVaultModel()
         {
             Dispose(false);
         }

@@ -35,11 +35,11 @@ namespace HideezClient.Views
 
                 // To subscribe to all properties, uncomment next line and remote the rest of weak property bindings
                 // bindings.Add(new WeakPropertyObserver(device, string.Empty));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsConnected)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.FinishedMainFlow)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorized)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorizingRemoteDevice)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsCreatingRemoteDevice)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(VaultViewModel.IsConnected)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(VaultViewModel.FinishedMainFlow)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(VaultViewModel.IsAuthorized)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(VaultViewModel.IsAuthorizingRemoteDevice)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(VaultViewModel.IsCreatingRemoteDevice)));
 
                 bindings.ForEach(b => b.ValueChanged += DeviceValueChanged);
             };

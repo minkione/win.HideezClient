@@ -20,7 +20,7 @@ using HideezClient.Modules.Localize;
 using HideezClient.HideezServiceReference;
 using HideezClient.Modules.ServiceCallbackMessanger;
 using HideezClient.Modules.ServiceWatchdog;
-using HideezClient.Modules.DeviceManager;
+using HideezClient.Modules.VaultManager;
 using HideezClient.Modules.ActionHandler;
 using Hideez.ISM;
 using WindowsInput;
@@ -56,7 +56,7 @@ namespace HideezClient
         private IMessenger _messenger;
         private IWindowsManager _windowsManager;
         private IServiceWatchdog _serviceWatchdog;
-        private IDeviceManager _deviceManager;
+        private IVaultManager _deviceManager;
         private UserActionHandler _userActionHandler;
         private IHotkeyManager _hotkeyManager;
         private IButtonManager _buttonManager;
@@ -179,7 +179,7 @@ namespace HideezClient
             Container.Resolve<IHideezServiceCallback>();
             _serviceWatchdog = Container.Resolve<IServiceWatchdog>();
             _serviceWatchdog.Start();
-            _deviceManager = Container.Resolve<IDeviceManager>();
+            _deviceManager = Container.Resolve<IVaultManager>();
             _userActionHandler = Container.Resolve<UserActionHandler>();
             _hotkeyManager = Container.Resolve<IHotkeyManager>();
             _hotkeyManager.Enabled = true;
@@ -281,7 +281,7 @@ namespace HideezClient
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
             //Container.RegisterType<IDialogManager, DialogManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
-            Container.RegisterType<IDeviceManager, DeviceManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IVaultManager, VaultManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ISupportMailContentGenerator, SupportMailContentGenerator>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IButtonManager, ButtonManager>(new ContainerControlledLifetimeManager());

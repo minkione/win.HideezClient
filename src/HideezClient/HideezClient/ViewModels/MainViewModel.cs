@@ -1,6 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
-using HideezClient.Modules.DeviceManager;
+using HideezClient.Modules.VaultManager;
 using HideezClient.Mvvm;
 using MvvmExtensions.Commands;
 using System;
@@ -18,16 +18,16 @@ namespace HideezClient.ViewModels
     class MainViewModel : ObservableObject
     {
         string currentPage = "";
-        readonly IDeviceManager _deviceManager;
+        readonly IVaultManager _deviceManager;
         readonly IMenuFactory _menuFactory;
         readonly IActiveDevice _activeDevice;
         readonly ViewModelLocator _viewModelLocator;
         readonly ISet<MenuItemViewModel> _leftAppMenuItems = new HashSet<MenuItemViewModel>();
         readonly ISet<MenuItemViewModel> _leftDeviceMenuItems = new HashSet<MenuItemViewModel>();
         Uri _displayPage;
-        DeviceInfoViewModel _activeDeviceVM = null;
+        VaultInfoViewModel _activeDeviceVM = null;
 
-        public MainViewModel(IDeviceManager deviceManager, IMenuFactory menuFactory, IActiveDevice activeDevice, IMessenger messenger, ViewModelLocator viewModelLocator)
+        public MainViewModel(IVaultManager deviceManager, IMenuFactory menuFactory, IActiveDevice activeDevice, IMessenger messenger, ViewModelLocator viewModelLocator)
         {
             _deviceManager = deviceManager;
             _menuFactory = menuFactory;
@@ -96,7 +96,7 @@ namespace HideezClient.ViewModels
 
         void Devices_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (_deviceManager.Devices.Count() == 0)
+            if (_deviceManager.Vaults.Count() == 0)
             {
                 MenuDefaultPage.IsChecked = true;
             }
@@ -116,7 +116,7 @@ namespace HideezClient.ViewModels
             
             if (args.NewDevice != null)
             {
-                ActiveDevice = new DeviceInfoViewModel(args.NewDevice, _menuFactory);
+                ActiveDevice = new VaultInfoViewModel(args.NewDevice, _menuFactory);
                 ActiveDevice.PropertyChanged += ActiveDevice_PropertyChanged;
 
                 MenuDeviceSettings.IsChecked = true;
@@ -125,7 +125,7 @@ namespace HideezClient.ViewModels
 
         void ActiveDevice_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(DeviceInfoViewModel.CanShowPasswordManager))
+            if (e.PropertyName == nameof(VaultInfoViewModel.CanShowPasswordManager))
             {
                 if (ActiveDevice != null && !ActiveDevice.CanShowPasswordManager && MenuPasswordManager.IsChecked)
                 {
@@ -133,7 +133,7 @@ namespace HideezClient.ViewModels
                 }
             }
 
-            if (e.PropertyName == nameof(DeviceInfoViewModel.IsStorageLoaded))
+            if (e.PropertyName == nameof(VaultInfoViewModel.IsStorageLoaded))
             {
                 if (ActiveDevice != null && ActiveDevice.IsStorageLoaded && ActiveDevice.CanShowPasswordManager)
                 {
@@ -158,21 +158,21 @@ namespace HideezClient.ViewModels
             set { Set(ref _displayPage, value); }
         }
 
-        public DeviceInfoViewModel ActiveDevice
+        public VaultInfoViewModel ActiveDevice
         {
             get { return _activeDeviceVM; }
             set { Set(ref _activeDeviceVM, value); }
         }
 
         [DependsOn(nameof(ActiveDevice))]
-        public  List<DeviceInfoViewModel> Devices
+        public  List<VaultInfoViewModel> Devices
         {
             get
             {
                 // Todo: cache ViewModels instead of recreating them each time the device collection changes.
-                return _deviceManager.Devices
+                return _deviceManager.Vaults
                     .Where(d => d.Id != _activeDevice.Device.Id)
-                    .Select(v => new DeviceInfoViewModel(v, _menuFactory))
+                    .Select(v => new VaultInfoViewModel(v, _menuFactory))
                     .Reverse()
                     .ToList();
             }

@@ -10,18 +10,18 @@ namespace HideezClient.Controls
     /// </summary>
     public partial class SelectableDevicesList : UserControl
     {
-        public IEnumerable<DeviceInfoViewModel> Devices
+        public IEnumerable<VaultInfoViewModel> Devices
         {
-            get { return (IEnumerable<DeviceInfoViewModel>)GetValue(DevicesProperty); }
+            get { return (IEnumerable<VaultInfoViewModel>)GetValue(DevicesProperty); }
             set { SetValue(DevicesProperty, value); }
         }
 
         public static readonly DependencyProperty DevicesProperty =
             DependencyProperty.Register(
                 "Devices", 
-                typeof(IEnumerable<DeviceInfoViewModel>), 
+                typeof(IEnumerable<VaultInfoViewModel>), 
                 typeof(SelectableDevicesList), 
-                new PropertyMetadata(new List<DeviceInfoViewModel>())
+                new PropertyMetadata(new List<VaultInfoViewModel>())
                 );
 
         public SelectableDevicesList()

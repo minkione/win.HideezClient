@@ -2,7 +2,7 @@
 using HideezClient.Extension;
 using HideezClient.Messages;
 using HideezClient.Models;
-using HideezClient.Modules.DeviceManager;
+using HideezClient.Modules.VaultManager;
 using HideezClient.Mvvm;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.Commands;
@@ -17,7 +17,7 @@ namespace HideezClient.ViewModels
     public class PinViewModel : ObservableObject
     {
         readonly IMessenger _messenger;
-        readonly IDeviceManager _deviceManager;
+        readonly IVaultManager _deviceManager;
         readonly byte[] _emptyBytes = new byte[0];
 
         readonly object initLock = new object();
@@ -32,12 +32,12 @@ namespace HideezClient.ViewModels
         bool _inProgress = false;
         string _errorMessage = string.Empty;
 
-        Device _device;
+        HardwareVaultModel _device;
 
         public event EventHandler ViewModelUpdated;
         public event EventHandler PasswordsCleared;
 
-        public PinViewModel(IMessenger messenger, IDeviceManager deviceManager)
+        public PinViewModel(IMessenger messenger, IVaultManager deviceManager)
         {
             _messenger = messenger;
             _deviceManager = deviceManager;
@@ -173,7 +173,7 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public Device Device
+        public HardwareVaultModel Device
         {
             get { return _device; }
             set { Set(ref _device, value); }
@@ -227,7 +227,7 @@ namespace HideezClient.ViewModels
             {
                 if (Device == null && !string.IsNullOrWhiteSpace(deviceId))
                 {
-                    var device = _deviceManager.Devices.FirstOrDefault(d => d.Id == deviceId);
+                    var device = _deviceManager.Vaults.FirstOrDefault(d => d.Id == deviceId);
                     if (device != null)
                     {
                         Device = device;

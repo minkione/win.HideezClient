@@ -5,9 +5,9 @@ namespace HideezClient.Messages
 {
     class ShowDeviceLockedNotificationMessage
     {
-        public Device Device{ get; set; }
+        public HardwareVaultModel Device{ get; set; }
 
-        public ShowDeviceLockedNotificationMessage(Device device)
+        public ShowDeviceLockedNotificationMessage(HardwareVaultModel device)
         {
             Device = device;
         }

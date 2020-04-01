@@ -141,7 +141,7 @@ namespace HideezClient.Modules
             }
         }
 
-        public void ShowDeviceNotAuthorizedNotification(Device device)
+        public void ShowDeviceNotAuthorizedNotification(HardwareVaultModel device)
         {
             // Prevent multiple not authorized notifications for the same device
             if (!displayedNotAuthorizedDeviceNotifications.Keys.Contains(device.SerialNo))
@@ -165,7 +165,7 @@ namespace HideezClient.Modules
             }
         }
 
-        public void ShowDeviceIsLockedNotification(Device device)
+        public void ShowDeviceIsLockedNotification(HardwareVaultModel device)
         {
             var options = new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout };
 

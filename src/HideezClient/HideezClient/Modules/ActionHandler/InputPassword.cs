@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using HideezClient.Modules.Localize;
 using Hideez.ISM;
 using HideezClient.Models;
-using HideezClient.Modules.DeviceManager;
+using HideezClient.Modules.VaultManager;
 using Hideez.ARM;
 using HideezMiddleware.Settings;
 using Hideez.SDK.Communication;
@@ -20,7 +20,7 @@ namespace HideezClient.Modules.ActionHandler
 
         public InputPassword(IInputHandler inputHandler, ITemporaryCacheAccount temporaryCacheAccount
                         , IInputCache inputCache, ISettingsManager<ApplicationSettings> settingsManager
-                        , IWindowsManager windowsManager, IDeviceManager deviceManager
+                        , IWindowsManager windowsManager, IVaultManager deviceManager
                         , IEventPublisher eventPublisher)
                         : base(inputHandler, temporaryCacheAccount, inputCache, settingsManager, windowsManager, deviceManager)
         {

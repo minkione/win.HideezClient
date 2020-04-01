@@ -3,7 +3,7 @@ using Hideez.ISM;
 using HideezMiddleware.Settings;
 using HideezClient.Models;
 using HideezClient.Models.Settings;
-using HideezClient.Modules.DeviceManager;
+using HideezClient.Modules.VaultManager;
 using HideezClient.Modules.Localize;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +21,7 @@ namespace HideezClient.Modules.ActionHandler
 
         public InputOtp(IInputHandler inputHandler, ITemporaryCacheAccount temporaryCacheAccount
                         , IInputCache inputCache, ISettingsManager<ApplicationSettings> settingsManager
-                        , IWindowsManager windowsManager, IDeviceManager deviceManager
+                        , IWindowsManager windowsManager, IVaultManager deviceManager
                         , IEventPublisher eventPublisher)
                         : base(inputHandler, temporaryCacheAccount, inputCache, settingsManager, windowsManager, deviceManager)
         {

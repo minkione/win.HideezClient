@@ -21,9 +21,9 @@ using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Vaults.Software;
 
-namespace HideezClient.Modules.DeviceManager
+namespace HideezClient.Modules.VaultManager
 {
-    class DeviceManager : Logger, IDeviceManager
+    class VaultManager : Logger, IVaultManager
     {
         private readonly ILog _log;
         private readonly IMessenger _messenger;
@@ -32,7 +32,7 @@ namespace HideezClient.Modules.DeviceManager
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         readonly HesSoftwareVaultConnection _hesSoftwareVaultConnection;
         readonly SemaphoreQueue _semaphoreQueue = new SemaphoreQueue(1, 1);
-        ConcurrentDictionary<string, Device> _devices { get; } = new ConcurrentDictionary<string, Device>();
+        ConcurrentDictionary<string, HardwareVaultModel> _vaults { get; } = new ConcurrentDictionary<string, HardwareVaultModel>();
 
         // Custom dispatcher is required for unit tests because during test 
         // runs the Application.Current property is null
@@ -51,9 +51,9 @@ namespace HideezClient.Modules.DeviceManager
 
         public event NotifyCollectionChangedEventHandler DevicesCollectionChanged;
 
-        public DeviceManager(IMessenger messenger, IServiceProxy serviceProxy,
+        public VaultManager(IMessenger messenger, IServiceProxy serviceProxy,
             IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory, HesSoftwareVaultConnection hesSoftwareVaultConnection, ILog log)
-            : base(nameof(DeviceManager), log)
+            : base(nameof(VaultManager), log)
         {
             _messenger = messenger;
             _serviceProxy = serviceProxy;
@@ -72,7 +72,7 @@ namespace HideezClient.Modules.DeviceManager
             _hesSoftwareVaultConnection.HubConnectionStateChanged += OnSoftwareVaultHubConnectionStateChanged;
         }
 
-        public IEnumerable<Device> Devices => _devices.Values;
+        public IEnumerable<HardwareVaultModel> Vaults => _vaults.Values;
 
         async void OnServiceProxyConnectionStateChanged(object sender, EventArgs e)
         {
@@ -165,7 +165,7 @@ namespace HideezClient.Modules.DeviceManager
 
         async Task ClearDevicesCollection()
         {
-            foreach (var dvm in Devices.ToArray())
+            foreach (var dvm in Vaults.ToArray())
                 await RemoveDevice(dvm);
         }
 
@@ -198,7 +198,7 @@ namespace HideezClient.Modules.DeviceManager
                     AddDevice(deviceDto);
 
                 // delete device from UI if its deleted from service
-                Device[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
+                HardwareVaultModel[] missingDevices = _vaults.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
                 await RemoveDevices(missingDevices);
             }
             catch (FaultException<HideezServiceFault> ex)
@@ -213,12 +213,12 @@ namespace HideezClient.Modules.DeviceManager
 
         void AddDevice(DeviceDTO dto)
         {
-            if (!_devices.ContainsKey(dto.Id))
+            if (!_vaults.ContainsKey(dto.Id))
             {
-                var device = new Device(_serviceProxy, _remoteDeviceFactory, _messenger, dto);
+                var device = new HardwareVaultModel(_serviceProxy, _remoteDeviceFactory, _messenger, dto);
                 device.PropertyChanged += Device_PropertyChanged;
 
-                if (_devices.TryAdd(device.Id, device))
+                if (_vaults.TryAdd(device.Id, device))
                 {
                     DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, device));
                 }
@@ -229,14 +229,14 @@ namespace HideezClient.Modules.DeviceManager
         {
             throw new NotImplementedException();
 
-            if (!_devices.ContainsKey(dto.Id))
+            if (!_vaults.ContainsKey(dto.Id))
             {
 
                 var vault = new SoftwareVault(dto, _hesSoftwareVaultConnection, _log);
-                Device device = null; // Todo: Create SoftwareVault
+                HardwareVaultModel device = null; // Todo: Create SoftwareVault
                 device.PropertyChanged += Device_PropertyChanged;
 
-                if (_devices.TryAdd(device.Id, device))
+                if (_vaults.TryAdd(device.Id, device))
                 {
                     DevicesCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, device));
                 }
@@ -245,16 +245,16 @@ namespace HideezClient.Modules.DeviceManager
 
         private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if(sender is Device device && e.PropertyName == nameof(Device.IsLoadingStorage) && device.IsLoadingStorage)
+            if(sender is HardwareVaultModel device && e.PropertyName == nameof(HardwareVaultModel.IsLoadingStorage) && device.IsLoadingStorage)
             {
                 CredentialsLoadNotificationViewModel viewModal = new CredentialsLoadNotificationViewModel(device);
                 _windowsManager.ShowCredentialsLoading(viewModal);
             }
         }
 
-        async Task RemoveDevice(Device device)
+        async Task RemoveDevice(HardwareVaultModel device)
         {
-            if (_devices.TryRemove(device.Id, out Device removedDevice))
+            if (_vaults.TryRemove(device.Id, out HardwareVaultModel removedDevice))
             {
                 removedDevice.PropertyChanged -= Device_PropertyChanged;
                 await removedDevice.ShutdownRemoteDeviceAsync(HideezErrorCode.DeviceRemoved);
@@ -263,7 +263,7 @@ namespace HideezClient.Modules.DeviceManager
             }
         }
 
-        async Task RemoveDevices(Device[] devices)
+        async Task RemoveDevices(HardwareVaultModel[] devices)
         {
             foreach (var device in devices)
                 await RemoveDevice(device);

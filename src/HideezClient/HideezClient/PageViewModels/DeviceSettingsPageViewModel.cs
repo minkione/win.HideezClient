@@ -88,10 +88,10 @@ namespace HideezClient.PageViewModels
             this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Where(t => t.Item1 != 0 && t.Item2 != 0).Subscribe(o => ProximityHasChanges = true);
             this.WhenAnyValue(x => x.Device).Where(d => d != null).Subscribe(o => Task.Run(LoadCurrentProximitySettings));
 
-            Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
+            Device = activeDevice.Device != null ? new VaultViewModel(activeDevice.Device) : null;
         }
 
-        [Reactive] public DeviceViewModel Device { get; set; }
+        [Reactive] public VaultViewModel Device { get; set; }
         [Reactive] public ConnectionIndicatorViewModel Сonnected { get; set; }
         [Reactive] public ConnectionIndicatorViewModel Initialized { get; set; }
         [Reactive] public ConnectionIndicatorViewModel Authorized { get; set; }
@@ -179,7 +179,7 @@ namespace HideezClient.PageViewModels
         private void OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
         {
             // Todo: ViewModel should be reused instead of being recreated each time active device is changed
-            Device = obj.NewDevice != null ? new DeviceViewModel(obj.NewDevice) : null;
+            Device = obj.NewDevice != null ? new VaultViewModel(obj.NewDevice) : null;
         }
 
         private void OnDeviceProximitySettingsChanged(DeviceProximitySettingsChangedMessage obj)
@@ -204,7 +204,7 @@ namespace HideezClient.PageViewModels
         {
             // We still receive events from previous device, so this check is important
             // to filter events from device relevant/selected device only
-            if (Device != null && Device == sender as DeviceViewModel)
+            if (Device != null && Device == sender as VaultViewModel)
             {
                 Сonnected.State = Device.IsConnected;
                 Initialized.State = Device.IsInitialized;

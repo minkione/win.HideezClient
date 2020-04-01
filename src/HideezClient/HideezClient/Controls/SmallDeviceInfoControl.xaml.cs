@@ -9,16 +9,16 @@ namespace HideezClient.Controls
     /// </summary>
     public partial class SmallDeviceInfoControl : UserControl
     {
-        public DeviceInfoViewModel Device
+        public VaultInfoViewModel Device
         {
-            get { return (DeviceInfoViewModel)GetValue(DeviceProperty); }
+            get { return (VaultInfoViewModel)GetValue(DeviceProperty); }
             set { SetValue(DeviceProperty, value); }
         }
 
         public static readonly DependencyProperty DeviceProperty =
             DependencyProperty.Register(
                 "Device", 
-                typeof(DeviceInfoViewModel), 
+                typeof(VaultInfoViewModel), 
                 typeof(SmallDeviceInfoControl), 
                 new PropertyMetadata(null)
                 );

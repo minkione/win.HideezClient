@@ -1,7 +1,7 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
 using HideezClient.Models;
-using HideezClient.Modules.DeviceManager;
+using HideezClient.Modules.VaultManager;
 using HideezClient.ViewModels;
 using System;
 using System.Collections.Specialized;
@@ -11,22 +11,22 @@ namespace HideezClient.Modules
 {
     class ActiveDevice : IActiveDevice, IDisposable
     {
-        readonly IDeviceManager _deviceManager;
+        readonly IVaultManager _deviceManager;
         readonly IMessenger _messenger;
-        Device _device;
+        HardwareVaultModel _device;
 
         readonly object _deviceLock = new object();
 
         public event ActiveDeviceChangedEventHandler ActiveDeviceChanged;
 
-        public ActiveDevice(IDeviceManager deviceManager, IMessenger messenger)
+        public ActiveDevice(IVaultManager deviceManager, IMessenger messenger)
         {
             _deviceManager = deviceManager;
             _messenger = messenger;
             _deviceManager.DevicesCollectionChanged += DeviceManager_DevicesCollectionChanged;
         }
 
-        public Device Device 
+        public HardwareVaultModel Device 
         {
             get { return _device; }
             set
@@ -49,13 +49,13 @@ namespace HideezClient.Modules
             if (e.Action == NotifyCollectionChangedAction.Add && Device == null)
             {
                 // Devices collection changed, set the first available device as active
-                Device = _deviceManager.Devices.FirstOrDefault();
+                Device = _deviceManager.Vaults.FirstOrDefault();
             }
             else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
                 // Change active device to the last added device, if current active device was amongst the removed devices
                 if (e.OldItems.Contains(Device))
-                    Device = _deviceManager.Devices.LastOrDefault();
+                    Device = _deviceManager.Vaults.LastOrDefault();
             }
         }
 

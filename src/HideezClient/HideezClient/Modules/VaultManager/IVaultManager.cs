@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
-namespace HideezClient.Modules.DeviceManager
+namespace HideezClient.Modules.VaultManager
 {
-    public interface IDeviceManager
+    public interface IVaultManager
     {
         event NotifyCollectionChangedEventHandler DevicesCollectionChanged;
 
-        IEnumerable<Device> Devices { get; }
+        IEnumerable<HardwareVaultModel> Vaults { get; }
     }
 }

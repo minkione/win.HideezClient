@@ -5,7 +5,7 @@ using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware.Settings;
 using HideezClient.Models;
 using HideezClient.Models.Settings;
-using HideezClient.Modules.DeviceManager;
+using HideezClient.Modules.VaultManager;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,11 +33,11 @@ namespace HideezClient.Modules.ActionHandler
         protected readonly IInputCache inputCache;
         protected readonly ISettingsManager<ApplicationSettings> settingsManager;
         private readonly IWindowsManager windowsManager;
-        private readonly IDeviceManager deviceManager;
+        private readonly IVaultManager deviceManager;
 
         protected InputBase(IInputHandler inputHandler, ITemporaryCacheAccount temporaryCacheAccount
             , IInputCache inputCache, ISettingsManager<ApplicationSettings> settingsManager
-            , IWindowsManager windowsManager, IDeviceManager deviceManager)
+            , IWindowsManager windowsManager, IVaultManager deviceManager)
         {
             this.inputHandler = inputHandler;
             this.temporaryCacheAccount = temporaryCacheAccount;
@@ -149,7 +149,7 @@ namespace HideezClient.Modules.ActionHandler
             return Task.Run(() =>
             {
                 List<Account> accounts = new List<Account>();
-                foreach (var device in deviceManager.Devices.Where(d => d.IsConnected && d.IsAuthorized && d.IsStorageLoaded && devicesId.Contains(d.Id)))
+                foreach (var device in deviceManager.Vaults.Where(d => d.IsConnected && d.IsAuthorized && d.IsStorageLoaded && devicesId.Contains(d.Id)))
                 {
                     accounts.AddRange(device.FindAccountsByApp(appInfo));
                 }
@@ -221,7 +221,7 @@ namespace HideezClient.Modules.ActionHandler
         {
             if (currentAppInfo != null)
             {
-                var connectedDevices = deviceManager.Devices.Where(d => d.IsConnected && d.IsInitialized && devicesId.Contains(d.Id)).ToArray();
+                var connectedDevices = deviceManager.Vaults.Where(d => d.IsConnected && d.IsInitialized && devicesId.Contains(d.Id)).ToArray();
                 foreach (var device in connectedDevices.Where(d => !d.IsAuthorized))
                 {
                     await device.InitRemoteAndLoadStorageAsync();

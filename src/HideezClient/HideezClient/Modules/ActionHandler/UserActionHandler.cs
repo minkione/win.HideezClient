@@ -3,7 +3,7 @@ using System.Linq;
 using HideezClient.Messages;
 using System.Threading.Tasks;
 using HideezClient.Modules.Localize;
-using HideezClient.Modules.DeviceManager;
+using HideezClient.Modules.VaultManager;
 using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Models;
 using System.Diagnostics;

@@ -346,8 +346,10 @@
     <Compile Include="Messages\ShowInfoNotificationMessage.cs" />
     <Compile Include="Messages\ShowPinUiMessage.cs" />
     <Compile Include="Messages\ShowWarningNotificationMessage.cs" />
-    <Compile Include="Models\Device.cs" />
+    <Compile Include="Models\HardwareVaultModel.cs" />
     <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\IVaultModel.cs" />
+    <Compile Include="Models\SoftwareVaultModel.cs" />
     <Compile Include="Modules\AccountManager\AccountExtensions.cs" />
     <Compile Include="Modules\ActionHandler\Exception\AccountException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\ActionNotSupportedException.cs" />
@@ -369,8 +371,8 @@
     <Compile Include="Modules\ActiveDevice\IActiveDevice.cs" />
     <Compile Include="Modules\ButtonManager\ButtonManager.cs" />
     <Compile Include="Modules\ButtonManager\IButtonManager.cs" />
-    <Compile Include="Modules\DeviceManager\DeviceManager.cs" />
-    <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
+    <Compile Include="Modules\VaultManager\VaultManager.cs" />
+    <Compile Include="Modules\VaultManager\IVaultManager.cs" />
     <Compile Include="Controls\Notification\NotificationBase.cs" />
     <Compile Include="Modules\Log\LogManager.cs" />
     <Compile Include="Modules\Notify\INotifier.cs" />
@@ -424,8 +426,8 @@
     <Compile Include="Utilities\Url\URLHelper.cs" />
     <Compile Include="Utilities\WeakEvents\WeakEvent.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
-    <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
-    <Compile Include="ViewModels\DeviceViewModel.cs" />
+    <Compile Include="ViewModels\Controls\VaultInfoViewModel.cs" />
+    <Compile Include="ViewModels\VaultViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
     <Compile Include="ViewModels\MessageViewModel.cs" />
     <Compile Include="ViewModels\NotificationsContainerViewModel.cs" />

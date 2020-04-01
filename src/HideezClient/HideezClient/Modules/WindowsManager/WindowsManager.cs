@@ -224,7 +224,7 @@ namespace HideezClient.Modules
             UIDispatcher.Invoke(() => _notifier.ShowInfo(notificationId, title ?? GetTitle(), message, options));
         }
 
-        private void ShowLocked(Device device)
+        private void ShowLocked(HardwareVaultModel device)
         {
             UIDispatcher.Invoke(() => _notifier.ShowDeviceIsLockedNotification(device));
         }
@@ -371,7 +371,7 @@ namespace HideezClient.Modules
             }
         }
 
-        public void ShowDeviceNotAuthorized(Device device)
+        public void ShowDeviceNotAuthorized(HardwareVaultModel device)
         {
             UIDispatcher.Invoke(() => _notifier.ShowDeviceNotAuthorizedNotification(device));
         }

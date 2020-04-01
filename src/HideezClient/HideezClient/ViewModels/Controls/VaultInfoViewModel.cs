@@ -5,14 +5,14 @@ using HideezClient.Modules.Localize;
 
 namespace HideezClient.ViewModels
 {
-    public class DeviceInfoViewModel : DeviceViewModel
+    public class VaultInfoViewModel : VaultViewModel
     {
         private MenuItemViewModel disconnectDeviceMenu;
         private MenuItemViewModel removeDeviceMenu;
         private MenuItemViewModel authorizeDeviceAndLoadStorageMenu;
         private MenuItemViewModel setAsActiveDeviceMenu;
 
-        public DeviceInfoViewModel(Device device, IMenuFactory menuFactory)
+        public VaultInfoViewModel(HardwareVaultModel device, IMenuFactory menuFactory)
             : base(device)
         {
             DisconnectDeviceMenu = menuFactory.GetMenuItem(device, MenuItemType.DisconnectDevice);
@@ -26,7 +26,7 @@ namespace HideezClient.ViewModels
         public string IcoKey { get; } = "HideezKeySimpleIMG";
 
         [Localization]
-        public string TypeName { get { return device.TypeName; } }
+        public string TypeName { get { return _vault.TypeName; } }
 
         public MenuItemViewModel DisconnectDeviceMenu
         {

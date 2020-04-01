@@ -1,6 +1,6 @@
 ﻿using HideezMiddleware.Settings;
 using HideezClient.Models.Settings;
-using HideezClient.Modules.DeviceManager;
+using HideezClient.Modules.VaultManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +11,10 @@ namespace HideezClient.Modules
 {
     class SupportMailContentGenerator : ISupportMailContentGenerator
     {
-        private IDeviceManager deviceManager;
+        private IVaultManager deviceManager;
         private ISettingsManager<ApplicationSettings> settingsManager;
 
-        public SupportMailContentGenerator(IDeviceManager deviceManager,
+        public SupportMailContentGenerator(IVaultManager deviceManager,
             ISettingsManager<ApplicationSettings> settingsManager)
         {
             this.deviceManager = deviceManager;

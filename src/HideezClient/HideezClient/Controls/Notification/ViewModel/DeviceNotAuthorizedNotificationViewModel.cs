@@ -15,14 +15,14 @@ namespace HideezClient.Controls
     {
         readonly IWindowsManager _windowsManager;
 
-        Device device;
+        HardwareVaultModel device;
 
         public DeviceNotAuthorizedNotificationViewModel(IWindowsManager windowsManager)
         {
             _windowsManager = windowsManager;
         }
 
-        public Device Device
+        public HardwareVaultModel Device
         {
             get { return device; }
             set

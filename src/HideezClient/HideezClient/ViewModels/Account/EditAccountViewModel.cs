@@ -38,18 +38,18 @@ namespace HideezClient.ViewModels
         readonly IWindowsManager _windowsManager;
         readonly IMessenger _messenger;
         bool isUpdateAppsUrls;
-        DeviceViewModel _device;
+        VaultViewModel _device;
         int generatePasswordLength = 16;
         readonly AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
         readonly AppInfo addUrlAppInfo = new AppInfo { Domain = "<Enter Url>" };
         bool canScanOtpSecretQrCode = true;
         readonly AccountRecord cache;
 
-        public EditAccountViewModel(DeviceViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger)
+        public EditAccountViewModel(VaultViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger)
             : this(device, null, windowsManager, qrScannerHelper, messenger)
         { }
 
-        public EditAccountViewModel(DeviceViewModel device, 
+        public EditAccountViewModel(VaultViewModel device, 
             AccountRecord accountRecord, 
             IWindowsManager windowsManager, 
             IQrScannerHelper qrScannerHelper,
