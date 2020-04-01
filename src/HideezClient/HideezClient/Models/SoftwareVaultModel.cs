@@ -3,7 +3,6 @@ using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
-using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using System;
 using System.Threading.Tasks;
@@ -44,6 +43,14 @@ namespace HideezClient.Models
         public bool IsAuthorized => throw new NotImplementedException();
 
         public bool IsStorageLoaded => throw new NotImplementedException();
+
+        public bool FinishedMainFlow => throw new NotImplementedException();
+
+        public bool IsAuthorizingRemoteDevice => throw new NotImplementedException();
+
+        public bool IsCreatingRemoteDevice => throw new NotImplementedException();
+
+        public bool CanShowPasswordManager => throw new NotImplementedException();
         #endregion
 
         public Task ShutdownRemoteDeviceAsync(HideezErrorCode deviceRemoved)

@@ -88,10 +88,10 @@ namespace HideezClient.PageViewModels
             this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Where(t => t.Item1 != 0 && t.Item2 != 0).Subscribe(o => ProximityHasChanges = true);
             this.WhenAnyValue(x => x.Device).Where(d => d != null).Subscribe(o => Task.Run(LoadCurrentProximitySettings));
 
-            Device = activeDevice.Vault != null ? new VaultViewModel(activeDevice.Vault) : null;
+            Device = activeDevice.Vault;
         }
 
-        [Reactive] public VaultViewModel Device { get; set; }
+        [Reactive] public IVaultModel Device { get; set; }
         [Reactive] public ConnectionIndicatorViewModel Сonnected { get; set; }
         [Reactive] public ConnectionIndicatorViewModel Initialized { get; set; }
         [Reactive] public ConnectionIndicatorViewModel Authorized { get; set; }
@@ -156,19 +156,23 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
+                        // Commented because chose not to spend resources refactoring functionality that is not yet available
+                        // IVaultModel no longer contains Mac, but proximity settings are saved using Mac as primary key
+                        /*
                         Task.Run(async () =>
-                       {
-                           try
-                           {
-                               await serviceProxy.GetService().SetProximitySettingsAsync(Device.Mac, LockProximity, UnlockProximity);
-                               ProximityHasChanges = false;
-                           }
-                           catch (Exception ex)
-                           {
-                               _messenger.Send(new ShowErrorNotificationMessage("An error occured while updating proximity settings"));
-                               log.WriteLine(ex);
-                           }
-                       });
+                        {
+                            try
+                            {
+                                await serviceProxy.GetService().SetProximitySettingsAsync(Device.Mac, LockProximity, UnlockProximity);
+                                ProximityHasChanges = false;
+                            }
+                            catch (Exception ex)
+                            {
+                                _messenger.Send(new ShowErrorNotificationMessage("An error occured while updating proximity settings"));
+                                log.WriteLine(ex);
+                            }
+                        });
+                        */
                     }
                 };
             }
@@ -178,8 +182,7 @@ namespace HideezClient.PageViewModels
 
         private void OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
         {
-            // Todo: ViewModel should be reused instead of being recreated each time active device is changed
-            Device = obj.NewDevice != null ? new VaultViewModel(obj.NewDevice) : null;
+            Device = obj.NewDevice;
         }
 
         private void OnDeviceProximitySettingsChanged(DeviceProximitySettingsChangedMessage obj)
@@ -189,6 +192,9 @@ namespace HideezClient.PageViewModels
 
         private async Task LoadCurrentProximitySettings()
         {
+            // Commented because chose not to spend resources refactoring functionality that is not yet available
+            // IVaultModel no longer contains Mac, but proximity settings are saved using Mac as primary key
+            /*
             // TODO: Race condition and potential NullReferenceException at Device.Mac
             if (Device != null)
             {
@@ -198,13 +204,14 @@ namespace HideezClient.PageViewModels
                 UnlockProximity = dto.UnlockProximity;
                 ProximityHasChanges = false;
             }
+            */
         }
 
         public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {
             // We still receive events from previous device, so this check is important
             // to filter events from device relevant/selected device only
-            if (Device != null && Device == sender as VaultViewModel)
+            if (Device != null && Device == sender as IVaultModel)
             {
                 Сonnected.State = Device.IsConnected;
                 Initialized.State = Device.IsInitialized;

@@ -24,6 +24,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
+using Hideez.SDK.Communication.BLE;
+using System.Collections.Generic;
 
 namespace HideezClient.Models
 {
@@ -109,6 +111,8 @@ namespace HideezClient.Models
             get { return id; }
             private set { Set(ref id, value); }
         }
+
+        public string Mac => BleUtils.DeviceIdToMac(Id);
 
         public string Name
         {
@@ -259,6 +263,28 @@ namespace HideezClient.Models
         public int OtherConnections
         {
             get { return _remoteDevice != null ? (int)_remoteDevice?.OtherConnections : 0; }
+        }
+
+        // These properties are derivative and required for proper UI display
+        [DependsOn(nameof(IsConnected), nameof(IsInitialized), nameof(IsAuthorized), nameof(IsStorageLoaded))]
+        public bool CanShowPasswordManager { get { return IsConnected && IsInitialized && IsAuthorized && IsStorageLoaded; } }
+
+        [DependsOn(nameof(StorageTotalSize))]
+        public uint StorageTotalSizeKb => StorageTotalSize / 1024;
+
+        [DependsOn(nameof(StorageFreeSize), nameof(StorageTotalSize))]
+        public byte StorageFreePercent => (byte)(((double)StorageFreeSize / StorageTotalSize) * 100);
+
+        [DependsOn(nameof(IsStorageLoaded))]
+        public IDictionary<ushort, AccountRecord> AccountsRecords
+        {
+            get
+            {
+                if (PasswordManager != null)
+                    return PasswordManager.Accounts;
+                else
+                    return new Dictionary<ushort, AccountRecord>();
+            }
         }
         #endregion
 

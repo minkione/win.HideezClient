@@ -19,6 +19,7 @@ using Hideez.ARM;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezClient.Messages;
+using HideezClient.Models;
 using HideezClient.Modules;
 using HideezClient.Modules.Log;
 using HideezClient.Mvvm;
@@ -38,18 +39,18 @@ namespace HideezClient.ViewModels
         readonly IWindowsManager _windowsManager;
         readonly IMessenger _messenger;
         bool isUpdateAppsUrls;
-        VaultViewModel _device;
+        IVaultModel _vault;
         int generatePasswordLength = 16;
         readonly AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
         readonly AppInfo addUrlAppInfo = new AppInfo { Domain = "<Enter Url>" };
         bool canScanOtpSecretQrCode = true;
         readonly AccountRecord cache;
 
-        public EditAccountViewModel(VaultViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger)
-            : this(device, null, windowsManager, qrScannerHelper, messenger)
+        public EditAccountViewModel(IVaultModel vault, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger)
+            : this(vault, null, windowsManager, qrScannerHelper, messenger)
         { }
 
-        public EditAccountViewModel(VaultViewModel device, 
+        public EditAccountViewModel(IVaultModel vault, 
             AccountRecord accountRecord, 
             IWindowsManager windowsManager, 
             IQrScannerHelper qrScannerHelper,
@@ -57,7 +58,7 @@ namespace HideezClient.ViewModels
         {
             _windowsManager = windowsManager;
             _qrScannerHelper = qrScannerHelper;
-            _device = device;
+            _vault = vault;
             _messenger = messenger;
 
             if (accountRecord == null)
@@ -260,7 +261,7 @@ namespace HideezClient.ViewModels
         public IEnumerable<string> Apps { get { return AppsAndUrls.Where(x => !x.IsUrl).Select(x => x.Title); } }
         public IEnumerable<string> Urls { get { return AppsAndUrls.Where(x => x.IsUrl).Select(x => x.Title); } }
         public ObservableCollection<AppViewModel> AppsAndUrls { get; } = new ObservableCollection<AppViewModel>();
-        public IEnumerable<string> Logins { get { return _device?.AccountsRecords.Select(a => a.Value.Login).Distinct(); } }
+        public IEnumerable<string> Logins { get { return _vault.PasswordManager.Accounts.Select(a => a.Value.Login).Distinct(); } }
         public ObservableCollection<AppInfo> OpenedApps { get; } = new ObservableCollection<AppInfo>();
         public ObservableCollection<AppInfo> OpenedForegroundUrls { get; } = new ObservableCollection<AppInfo>();
 
@@ -477,7 +478,7 @@ namespace HideezClient.ViewModels
                 ErrorAccountName = "Account name cannot be empty";
                 ErrorAccountLogin = null;
             }
-            else if (_device.AccountsRecords.Select(a => a.Value)
+            else if (_vault.PasswordManager.Accounts.Select(a => a.Value)
                 .Where(a => a.Flags.IsUserAccount)
                 .Any(a => a.Name.Trim() == AccountRecord.Name.Trim() && 
                 (a.Login == AccountRecord.Login || string.IsNullOrWhiteSpace(a.Login) && string.IsNullOrWhiteSpace(AccountRecord.Login)) && 

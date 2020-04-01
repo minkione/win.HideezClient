@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using HideezClient.Mvvm;
 using System.ComponentModel;
+using HideezClient.Models;
 
 namespace HideezClient.Views
 {
@@ -35,11 +36,11 @@ namespace HideezClient.Views
 
                 // To subscribe to all properties, uncomment next line and remote the rest of weak property bindings
                 // bindings.Add(new WeakPropertyObserver(device, string.Empty));
-                bindings.Add(new WeakPropertyObserver(device, nameof(VaultViewModel.IsConnected)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(VaultViewModel.FinishedMainFlow)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(VaultViewModel.IsAuthorized)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(VaultViewModel.IsAuthorizingRemoteDevice)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(VaultViewModel.IsCreatingRemoteDevice)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(IVaultModel.IsConnected)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(IVaultModel.FinishedMainFlow)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(IVaultModel.IsAuthorized)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(IVaultModel.IsAuthorizingRemoteDevice)));
+                bindings.Add(new WeakPropertyObserver(device, nameof(IVaultModel.IsCreatingRemoteDevice)));
 
                 bindings.ForEach(b => b.ValueChanged += DeviceValueChanged);
             };

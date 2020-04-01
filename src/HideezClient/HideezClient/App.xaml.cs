@@ -42,6 +42,7 @@ using HideezClient.Utilities.QrCode;
 using ZXing;
 using HideezClient.Modules.Log;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.Workstation;
 
 namespace HideezClient
 {
@@ -287,6 +288,7 @@ namespace HideezClient
             Container.RegisterType<IButtonManager, ButtonManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IActiveDevice, ActiveDevice>(new ContainerControlledLifetimeManager());
             Container.RegisterType<HesSoftwareVaultConnection>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IWorkstationInfoProvider, WorkstationInfoProvider>(new ContainerControlledLifetimeManager());
 
             // Settings
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()

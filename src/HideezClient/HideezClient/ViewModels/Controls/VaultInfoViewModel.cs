@@ -1,32 +1,33 @@
 ﻿using System.Windows;
 using HideezClient.Models;
 using HideezClient.Modules;
-using HideezClient.Modules.Localize;
+using HideezClient.Mvvm;
 
 namespace HideezClient.ViewModels
 {
-    public class VaultInfoViewModel : VaultViewModel
+    public class VaultInfoViewModel : LocalizedObject
     {
         private MenuItemViewModel disconnectDeviceMenu;
         private MenuItemViewModel removeDeviceMenu;
         private MenuItemViewModel authorizeDeviceAndLoadStorageMenu;
         private MenuItemViewModel setAsActiveDeviceMenu;
 
-        public VaultInfoViewModel(HardwareVaultModel device, IMenuFactory menuFactory)
-            : base(device)
+        public VaultInfoViewModel(IVaultModel vault, IMenuFactory menuFactory)
         {
-            DisconnectDeviceMenu = menuFactory.GetMenuItem(device, MenuItemType.DisconnectDevice);
-            RemoveDeviceMenu = menuFactory.GetMenuItem(device, MenuItemType.RemoveDevice);
-            AuthorizeDeviceAndLoadStorageMenu = menuFactory.GetMenuItem(device, MenuItemType.AuthorizeDeviceAndLoadStorage);
-            SetAsActiveDeviceMenu = menuFactory.GetMenuItem(device, MenuItemType.SetAsActiveDevice);
+            Vault = vault;
+
+            DisconnectDeviceMenu = menuFactory.GetMenuItem(Vault, MenuItemType.DisconnectDevice);
+            RemoveDeviceMenu = menuFactory.GetMenuItem(Vault, MenuItemType.RemoveDevice);
+            AuthorizeDeviceAndLoadStorageMenu = menuFactory.GetMenuItem(Vault, MenuItemType.AuthorizeDeviceAndLoadStorage);
+            SetAsActiveDeviceMenu = menuFactory.GetMenuItem(Vault, MenuItemType.SetAsActiveDevice);
         }
 
         #region Properties
+        public IVaultModel Vault { get; }
 
-        public string IcoKey { get; } = "HideezKeySimpleIMG";
-
-        [Localization]
-        public string TypeName { get { return _vault.TypeName; } }
+        // TODO: Separate icon for software, hardware and file vaults. 
+        // Bind to Vault then apply converter to get IcoKey based on implementation class type
+        public string IcoKey { get; } = "HideezKeySimpleIMG"; 
 
         public MenuItemViewModel DisconnectDeviceMenu
         {

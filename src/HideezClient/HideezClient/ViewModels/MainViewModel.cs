@@ -12,6 +12,7 @@ using HideezClient.Modules;
 using System.Collections.Generic;
 using MvvmExtensions.Attributes;
 using System.Windows;
+using HideezClient.Models;
 
 namespace HideezClient.ViewModels
 {
@@ -25,7 +26,7 @@ namespace HideezClient.ViewModels
         readonly ISet<MenuItemViewModel> _leftAppMenuItems = new HashSet<MenuItemViewModel>();
         readonly ISet<MenuItemViewModel> _leftDeviceMenuItems = new HashSet<MenuItemViewModel>();
         Uri _displayPage;
-        VaultInfoViewModel _activeDeviceVM = null;
+        IVaultModel _activeDeviceVM = null;
 
         public MainViewModel(IVaultManager deviceManager, IMenuFactory menuFactory, IActiveDevice activeDevice, IMessenger messenger, ViewModelLocator viewModelLocator)
         {
@@ -116,7 +117,7 @@ namespace HideezClient.ViewModels
             
             if (args.NewDevice != null)
             {
-                ActiveDevice = new VaultInfoViewModel(args.NewDevice, _menuFactory);
+                ActiveDevice = args.NewDevice;
                 ActiveDevice.PropertyChanged += ActiveDevice_PropertyChanged;
 
                 MenuDeviceSettings.IsChecked = true;
@@ -125,7 +126,7 @@ namespace HideezClient.ViewModels
 
         void ActiveDevice_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(VaultInfoViewModel.CanShowPasswordManager))
+            if (e.PropertyName == nameof(IVaultModel.CanShowPasswordManager))
             {
                 if (ActiveDevice != null && !ActiveDevice.CanShowPasswordManager && MenuPasswordManager.IsChecked)
                 {
@@ -133,7 +134,7 @@ namespace HideezClient.ViewModels
                 }
             }
 
-            if (e.PropertyName == nameof(VaultInfoViewModel.IsStorageLoaded))
+            if (e.PropertyName == nameof(IVaultModel.IsStorageLoaded))
             {
                 if (ActiveDevice != null && ActiveDevice.IsStorageLoaded && ActiveDevice.CanShowPasswordManager)
                 {
@@ -158,21 +159,20 @@ namespace HideezClient.ViewModels
             set { Set(ref _displayPage, value); }
         }
 
-        public VaultInfoViewModel ActiveDevice
+        public IVaultModel ActiveDevice
         {
             get { return _activeDeviceVM; }
             set { Set(ref _activeDeviceVM, value); }
         }
 
         [DependsOn(nameof(ActiveDevice))]
-        public  List<VaultInfoViewModel> Devices
+        public  List<IVaultModel> Devices
         {
             get
             {
                 // Todo: cache ViewModels instead of recreating them each time the device collection changes.
                 return _deviceManager.Vaults
                     .Where(d => d.Id != _activeDevice.Vault.Id)
-                    .Select(v => new VaultInfoViewModel(v, _menuFactory))
                     .Reverse()
                     .ToList();
             }

@@ -92,7 +92,7 @@ namespace HideezClient.Modules
             }
         }
 
-        public MenuItemViewModel GetMenuItem(HardwareVaultModel device, MenuItemType type)
+        public MenuItemViewModel GetMenuItem(IVaultModel device, MenuItemType type)
         {
             if (device == null)
             {
@@ -117,7 +117,7 @@ namespace HideezClient.Modules
             }
         }
 
-        private MenuItemViewModel GetMenuRemoveDevice(HardwareVaultModel device)
+        private MenuItemViewModel GetMenuRemoveDevice(IVaultModel vault)
         {
             return new MenuItemViewModel
             {
@@ -126,11 +126,11 @@ namespace HideezClient.Modules
                 {
                     CommandAction = OnRemoveDevice,
                 },
-                CommandParameter = device,
+                CommandParameter = vault,
             };
         }
 
-        private MenuItemViewModel GetMenuDisconnectDevice(HardwareVaultModel device)
+        private MenuItemViewModel GetMenuDisconnectDevice(IVaultModel vault)
         {
             return new MenuItemViewModel
             {
@@ -138,13 +138,13 @@ namespace HideezClient.Modules
                 Command = new DelegateCommand
                 {
                     CommandAction = OnDisconnectDevice,
-                    CanExecuteFunc = () => device.IsConnected
+                    CanExecuteFunc = () => vault.IsConnected
                 },
-                CommandParameter = device,
+                CommandParameter = vault,
             };
         }
 
-        private MenuItemViewModel GetMenuAuthorizeAndLoadStorage(HardwareVaultModel device)
+        private MenuItemViewModel GetMenuAuthorizeAndLoadStorage(IVaultModel vault)
         {
             return new MenuItemViewModel
             {
@@ -152,24 +152,24 @@ namespace HideezClient.Modules
                 Command = new DelegateCommand
                 {
                     CanExecuteFunc = () =>
-                    device.FinishedMainFlow &&
-                    !device.IsAuthorized &&
-                    !device.IsAuthorizingRemoteDevice &&
-                    !device.IsCreatingRemoteDevice,
+                    vault.FinishedMainFlow &&
+                    !vault.IsAuthorized &&
+                    !vault.IsAuthorizingRemoteDevice &&
+                    !vault.IsCreatingRemoteDevice,
 
                     CommandAction = (x) =>
                     {
                         OnAuthorizeAndLoadStorage(x);
                     }
                 },
-                CommandParameter = device,
+                CommandParameter = vault,
                 // Todo: Add support for Menu item hiding
                 // This will allow us to hide Authoriz menu item, if its no longe relevant (i.e. device alrady authorized)
                 //IsVisible = !device.IsAuthorized,
             };
         }
 
-        private MenuItemViewModel GetMenuSetAsActiveDevice(HardwareVaultModel device)
+        private MenuItemViewModel GetMenuSetAsActiveDevice(IVaultModel device)
         {
             return new MenuItemViewModel
             {
@@ -372,7 +372,7 @@ namespace HideezClient.Modules
             }
         }
 
-        private async void OnChangeActiveDevice(HardwareVaultModel device)
+        private async void OnChangeActiveDevice(IVaultModel device)
         {
             _activeDevice.Vault = device;
             await device.InitRemoteAndLoadStorageAsync(true);

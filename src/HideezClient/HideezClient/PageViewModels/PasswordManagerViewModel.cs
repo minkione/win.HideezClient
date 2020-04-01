@@ -65,11 +65,11 @@ namespace HideezClient.PageViewModels
             this.WhenAnyValue(x => x.SelectedAccount)
                 .InvokeCommand(CancelCommand);
 
-            Device = activeDevice.Vault != null ? new VaultViewModel(activeDevice.Vault) : null;
+            Device = activeDevice.Vault;
         }
 
         [Reactive] public bool IsAvailable { get; set; }
-        [Reactive] public VaultViewModel Device { get; set; }
+        [Reactive] public IVaultModel Device { get; set; }
         [Reactive] public AccountInfoViewModel SelectedAccount { get; set; }
         [Reactive] public EditAccountViewModel EditAccount { get; set; }
         [Reactive] public string SearchQuery { get; set; }
@@ -169,7 +169,7 @@ namespace HideezClient.PageViewModels
         private void OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
         {
             // Todo: ViewModel should be reused instead of being recreated each time active device is changed
-            Device = obj.NewDevice != null ? new VaultViewModel(obj.NewDevice) : null;
+            Device = obj.NewDevice;
         }
 
         private void OnAddAccountForApp(AddAccountForAppMessage obj)
@@ -196,7 +196,20 @@ namespace HideezClient.PageViewModels
                 IsAvailable = false;
                 account.AccountRecord.Name = account.AccountRecord.Name.Trim();
                 account.AccountRecord.Password = password.GetAsString();
-                var key = await Device.SaveOrUpdateAccountAsync(account.AccountRecord);
+                var flagOptions = new AccountFlagsOptions { IsUserAccount = true };
+                
+                // TODO: Create extension method for password manager that accepts AccountRecord
+                var key = await Device.PasswordManager.SaveOrUpdateAccount(
+                    account.AccountRecord.Key,
+                    account.AccountRecord.Name,
+                    account.AccountRecord.Password,
+                    account.AccountRecord.Login,
+                    account.AccountRecord.OtpSecret,
+                    account.AccountRecord.Apps,
+                    account.AccountRecord.Urls,
+                    account.IsPrimary,
+                    flagOptions);
+
                 EditAccount = null;
                 OnFilterAccount();
                 SelectedAccount = Accounts.FirstOrDefault(a => a.AccountRecord.Key == key);
@@ -211,7 +224,6 @@ namespace HideezClient.PageViewModels
         private void OnDeviceChanged()
         {
             OnFilterAccount();
-            PropertyChangedEventManager.AddHandler(Device, (s, e) => OnFilterAccount(), nameof(VaultViewModel.AccountsRecords));
         }
 
         private void OnAddAccount()
@@ -232,7 +244,7 @@ namespace HideezClient.PageViewModels
                 try
                 {
                     EditAccount = null;
-                    await Device.DeleteAccountAsync(SelectedAccount.AccountRecord);
+                    await Device.PasswordManager.DeleteAccount(SelectedAccount.Key, SelectedAccount.IsPrimary);
                     OnFilterAccount();
                 }
                 catch (Exception ex)
@@ -245,7 +257,7 @@ namespace HideezClient.PageViewModels
 
         private void OnEditAccount()
         {
-            if (Device.AccountsRecords.TryGetValue(SelectedAccount.Key, out AccountRecord record))
+            if (Device.PasswordManager.Accounts.TryGetValue(SelectedAccount.Key, out AccountRecord record))
             {
                 EditAccount = new EditAccountViewModel(Device, record, windowsManager, qrScannerHelper, _messenger)
                 {
@@ -263,7 +275,7 @@ namespace HideezClient.PageViewModels
 
         private void OnFilterAccount()
         {
-            var filteredAccounts = Device.AccountsRecords.Select(r => new AccountInfoViewModel(r.Value)).Where(a => a.IsVisible).Where(a => Contains(a, SearchQuery));
+            var filteredAccounts = Device.PasswordManager.Accounts.Select(r => new AccountInfoViewModel(r.Value)).Where(a => a.IsVisible).Where(a => Contains(a, SearchQuery));
             filteredAccounts = filteredAccounts.OrderBy(a => a.Name).OrderByDescending(a => a.IsEditable); // Editable accounts will be shown first in the list
             Application.Current.Dispatcher.Invoke(() =>
             {

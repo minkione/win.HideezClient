@@ -17,6 +17,10 @@ namespace HideezClient.Models
 
         IDynamicPasswordManager PasswordManager { get; }
         string SerialNo { get; }
+        bool FinishedMainFlow { get; }
+        bool IsAuthorizingRemoteDevice { get; }
+        bool IsCreatingRemoteDevice { get; }
+        bool CanShowPasswordManager { get; }
 
         Task ShutdownRemoteDeviceAsync(HideezErrorCode deviceRemoved);
 
