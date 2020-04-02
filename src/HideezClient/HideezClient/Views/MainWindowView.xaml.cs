@@ -27,22 +27,26 @@ namespace HideezClient.Views
 
         private void DeviceInfo_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            bindingRaiseEventSelectedDevice = new WeakPropertyObserver(e.NewValue, nameof(MainViewModel.ActiveDevice));
-            bindingRaiseEventSelectedDevice.ValueChanged += (name, device) =>
+            bindingRaiseEventSelectedDevice = new WeakPropertyObserver(e.NewValue, nameof(MainViewModel.ActiveVault));
+            bindingRaiseEventSelectedDevice.ValueChanged += (name, vault) =>
             {
                 this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
 
                 bindings.Clear();
 
-                // To subscribe to all properties, uncomment next line and remote the rest of weak property bindings
-                // bindings.Add(new WeakPropertyObserver(device, string.Empty));
-                bindings.Add(new WeakPropertyObserver(device, nameof(IVaultModel.IsConnected)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(IVaultModel.FinishedMainFlow)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(IVaultModel.IsAuthorized)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(IVaultModel.IsAuthorizingRemoteDevice)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(IVaultModel.IsCreatingRemoteDevice)));
+                VaultInfoViewModel vaultInfoViewModel = vault as VaultInfoViewModel;
+                if (vaultInfoViewModel != null)
+                {
+                    // To subscribe to all properties, uncomment next line and remote the rest of weak property bindings
+                    // bindings.Add(new WeakPropertyObserver(device, string.Empty));
+                    bindings.Add(new WeakPropertyObserver(vaultInfoViewModel.Vault, nameof(IVaultModel.IsConnected)));
+                    bindings.Add(new WeakPropertyObserver(vaultInfoViewModel.Vault, nameof(IVaultModel.FinishedMainFlow)));
+                    bindings.Add(new WeakPropertyObserver(vaultInfoViewModel.Vault, nameof(IVaultModel.IsAuthorized)));
+                    bindings.Add(new WeakPropertyObserver(vaultInfoViewModel.Vault, nameof(IVaultModel.IsAuthorizingRemoteDevice)));
+                    bindings.Add(new WeakPropertyObserver(vaultInfoViewModel.Vault, nameof(IVaultModel.IsCreatingRemoteDevice)));
 
-                bindings.ForEach(b => b.ValueChanged += DeviceValueChanged);
+                    bindings.ForEach(b => b.ValueChanged += DeviceValueChanged);
+                }
             };
         }
 

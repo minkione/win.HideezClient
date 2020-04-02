@@ -62,7 +62,7 @@
                 <StackPanel
                     Margin="24,34"
                     Orientation="Vertical"
-                    Visibility="{Binding ActiveDevice, Converter={StaticResource NullToVisibilityCollapsedConverter}}">
+                    Visibility="{Binding ActiveVault, Converter={StaticResource NullToVisibilityCollapsedConverter}}">
                     <TextBlock
                         FontSize="18"
                         FontWeight="DemiBold"
@@ -105,16 +105,16 @@
                     </Grid>
                 </StackPanel>
 
-                <StackPanel Visibility="{Binding ActiveDevice, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
+                <StackPanel Visibility="{Binding ActiveVault, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
                     <controls:DeviceInfoControl
                         x:Name="currentDeviceInfo"
                         Padding="16,16,30,16"
                         VerticalAlignment="Top"
-                        Device="{Binding ActiveDevice}" />
+                        Device="{Binding ActiveVault}" />
                     <controls:LeftMenuItemControl
-                        Metro:VisibilityHelper.IsVisible="{Binding Path=ActiveDevice.IsConnected}"
+                        Metro:VisibilityHelper.IsVisible="{Binding Path=ActiveVault.Vault.IsConnected}"
                         DataContext="{Binding MenuDeviceSettings}"
-                        Tag="{Binding Path=DataContext.ActiveDevice.IcoKey, Mode=OneWay, ElementName=currentDeviceInfo, Converter={StaticResource StringToResource}}" />
+                        Tag="{Binding Path=DataContext.ActiveVault.IcoKey, Mode=OneWay, ElementName=currentDeviceInfo, Converter={StaticResource StringToResource}}" />
                     <Border>
                         <Border.Style>
                             <Style TargetType="{x:Type Border}">
@@ -122,7 +122,7 @@
                                 <Style.Triggers>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding ActiveDevice.CanShowPasswordManager}" Value="True" />
+                                            <Condition Binding="{Binding Path=ActiveVault.Vault.CanShowPasswordManager}" Value="True" />
                                         </MultiDataTrigger.Conditions>
                                         <MultiDataTrigger.Setters>
                                             <Setter Property="Visibility" Value="Visible" />
@@ -147,16 +147,16 @@
                 Height="1"
                 Fill="#22446D"
                 VerticalAlignment="Bottom"
-                Visibility="{Binding Path=Devices.Count, Converter={StaticResource IntToVisibilityConverter}}" />
+                Visibility="{Binding Path=Vaults.Count, Converter={StaticResource IntToVisibilityConverter}}" />
             
             <ScrollViewer
                 Grid.Row="2"
                 MaxHeight="220"
                 VerticalAlignment="Bottom"
                 VerticalScrollBarVisibility="Auto"
-                Visibility="{Binding Path=Devices.Count, Converter={StaticResource IntToVisibilityConverter}}">
+                Visibility="{Binding Path=Vaults.Count, Converter={StaticResource IntToVisibilityConverter}}">
                 <controls:SelectableDevicesList
-                    Devices="{Binding Devices}" >
+                    Devices="{Binding Vaults}" >
                     <controls:SelectableDevicesList.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                             <GradientStop Offset="0" Color="#0022446D" />

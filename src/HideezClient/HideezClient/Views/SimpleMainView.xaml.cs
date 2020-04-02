@@ -28,7 +28,7 @@ namespace HideezClient.Views
 
         private void DeviceInfo_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            bindingRaiseEventSelectedDevice = new WeakPropertyObserver(e.NewValue, nameof(MainViewModel.ActiveDevice));
+            bindingRaiseEventSelectedDevice = new WeakPropertyObserver(e.NewValue, nameof(MainViewModel.ActiveVault));
             bindingRaiseEventSelectedDevice.ValueChanged += (name, device) =>
             {
                 this.Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);

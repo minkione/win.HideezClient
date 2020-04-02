@@ -26,7 +26,6 @@ namespace HideezClient.ViewModels
         readonly ISet<MenuItemViewModel> _leftAppMenuItems = new HashSet<MenuItemViewModel>();
         readonly ISet<MenuItemViewModel> _leftDeviceMenuItems = new HashSet<MenuItemViewModel>();
         Uri _displayPage;
-        IVaultModel _activeDeviceVM = null;
 
         public MainViewModel(IVaultManager deviceManager, IMenuFactory menuFactory, IActiveDevice activeDevice, IMessenger messenger, ViewModelLocator viewModelLocator)
         {
@@ -102,33 +101,31 @@ namespace HideezClient.ViewModels
                 MenuDefaultPage.IsChecked = true;
             }
 
-            NotifyPropertyChanged(nameof(Devices));
+            NotifyPropertyChanged(nameof(Vaults));
         }
 
         void ActiveDevice_ActiveDeviceChanged(object sender, ActiveDeviceChangedEventArgs args)
         {
-            if (ActiveDevice != null)
+            if (args.PreviousDevice != null)
             {
-                ActiveDevice.PropertyChanged -= ActiveDevice_PropertyChanged;
-                ActiveDevice = null;
-
+                args.PreviousDevice.PropertyChanged -= ActiveDevice_PropertyChanged;
                 MenuDefaultPage.IsChecked = true;
             }
             
             if (args.NewDevice != null)
             {
-                ActiveDevice = args.NewDevice;
-                ActiveDevice.PropertyChanged += ActiveDevice_PropertyChanged;
-
+                args.NewDevice.PropertyChanged += ActiveDevice_PropertyChanged;
                 MenuDeviceSettings.IsChecked = true;
             }
+
+            NotifyPropertyChanged(nameof(ActiveVault));
         }
 
         void ActiveDevice_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IVaultModel.CanShowPasswordManager))
             {
-                if (ActiveDevice != null && !ActiveDevice.CanShowPasswordManager && MenuPasswordManager.IsChecked)
+                if (_activeDevice.Vault != null && !_activeDevice.Vault.CanShowPasswordManager && MenuPasswordManager.IsChecked)
                 {
                     MenuDeviceSettings.IsChecked = true;
                 }
@@ -136,7 +133,7 @@ namespace HideezClient.ViewModels
 
             if (e.PropertyName == nameof(IVaultModel.IsStorageLoaded))
             {
-                if (ActiveDevice != null && ActiveDevice.IsStorageLoaded && ActiveDevice.CanShowPasswordManager)
+                if (_activeDevice.Vault != null && _activeDevice.Vault.IsStorageLoaded && _activeDevice.Vault.CanShowPasswordManager)
                 {
                     MenuPasswordManager.IsChecked = true;
                 }
@@ -159,20 +156,26 @@ namespace HideezClient.ViewModels
             set { Set(ref _displayPage, value); }
         }
 
-        public IVaultModel ActiveDevice
+        public VaultInfoViewModel ActiveVault
         {
-            get { return _activeDeviceVM; }
-            set { Set(ref _activeDeviceVM, value); }
+            get 
+            {
+                if (_activeDevice.Vault != null)
+                    return new VaultInfoViewModel(_activeDevice.Vault, _menuFactory);
+                else
+                    return null;
+            }
         }
 
-        [DependsOn(nameof(ActiveDevice))]
-        public  List<IVaultModel> Devices
+        [DependsOn(nameof(ActiveVault))]
+        public  List<VaultInfoViewModel> Vaults
         {
             get
             {
                 // Todo: cache ViewModels instead of recreating them each time the device collection changes.
                 return _deviceManager.Vaults
-                    .Where(d => d.Id != _activeDevice.Vault.Id)
+                    .Where(d => d.Id != _activeDevice.Vault?.Id)
+                    .Select(v => new VaultInfoViewModel(v, _menuFactory))
                     .Reverse()
                     .ToList();
             }

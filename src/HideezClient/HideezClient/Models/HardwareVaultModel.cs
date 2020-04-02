@@ -274,18 +274,6 @@ namespace HideezClient.Models
 
         [DependsOn(nameof(StorageFreeSize), nameof(StorageTotalSize))]
         public byte StorageFreePercent => (byte)(((double)StorageFreeSize / StorageTotalSize) * 100);
-
-        [DependsOn(nameof(IsStorageLoaded))]
-        public IDictionary<ushort, AccountRecord> AccountsRecords
-        {
-            get
-            {
-                if (PasswordManager != null)
-                    return PasswordManager.Accounts;
-                else
-                    return new Dictionary<ushort, AccountRecord>();
-            }
-        }
         #endregion
 
         #region Messege & Event handlers

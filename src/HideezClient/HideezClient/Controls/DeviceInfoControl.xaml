@@ -83,8 +83,8 @@
                 FontSize="13">
                 <TextBlock.Text>
                     <MultiBinding Converter="{StaticResource SerialNoAndFirmwareVerFormater}">
-                        <Binding Path="SerialNo" />
-                        <Binding Path="FirmwareVersion" />
+                        <Binding Path="Vault.SerialNo" />
+                        <Binding Path="Vault.FirmwareVersion" />
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
@@ -95,7 +95,7 @@
                 x:Name="deviceName"
                 VerticalAlignment="Stretch"
                 FontSize="18"
-                Text="{Binding Name}" />
+                Text="{Binding Path=Vault.Name}" />
 
             <!--
             <iconPacks:PackIconModern
@@ -106,18 +106,18 @@
                 Foreground="{DynamicResource DisconnectedBrush}"
                 Kind="Connect"
                 VerticalAlignment="Center"
-                Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
+                Visibility="{Binding Path=Vault.IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
             -->
             
             <StackPanel
                 x:Name="IconsContainer"
                 VerticalAlignment="Center"
                 Orientation="Horizontal"
-                Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                Visibility="{Binding Path=Vault.IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
 
                 <StackPanel
                     Orientation="Horizontal"
-                    Visibility="{Binding CanLockByProximity, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Visibility="{Binding Path=Vault.CanLockByProximity, Converter={StaticResource BooleanToVisibilityConverter}}"
                     >
                     <Grid
                         x:Name="connectionQuality"
@@ -125,7 +125,7 @@
                         Grid.Column="4"
                         Width="24"
                         Margin="6,0,0,0"
-                        Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        Visibility="{Binding Path=Vault.IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Viewbox
                             Width="Auto"
                             Height="Auto"
@@ -134,19 +134,19 @@
                                 <Path
                                     Data="F1 M 5.000,16.000 L 7.000,16.000 L 7.000,20.000 L 5.000,20.000 L 5.000,16.000 Z"
                                     Fill="#ffffffff"
-                                    Opacity="{Binding Proximity, ConverterParameter=20, Converter={StaticResource ProximityToOpacityConverter}}" />
+                                    Opacity="{Binding Path=Vault.Proximity, ConverterParameter=20, Converter={StaticResource ProximityToOpacityConverter}}" />
                                 <Path
                                     Data="F1 M 9.000,12.000 L 11.000,12.000 L 11.000,20.000 L 9.000,20.000 L 9.000,12.000 Z"
                                     Fill="#ffffffff"
-                                    Opacity="{Binding Proximity, ConverterParameter=40, Converter={StaticResource ProximityToOpacityConverter}}" />
+                                    Opacity="{Binding Path=Vault.Proximity, ConverterParameter=40, Converter={StaticResource ProximityToOpacityConverter}}" />
                                 <Path
                                     Data="F1 M 13.000,8.000 L 15.000,8.000 L 15.000,20.000 L 13.000,20.000 L 13.000,8.000 Z"
                                     Fill="#ffffffff"
-                                    Opacity="{Binding Proximity, ConverterParameter=60, Converter={StaticResource ProximityToOpacityConverter}}" />
+                                    Opacity="{Binding Path=Vault.Proximity, ConverterParameter=60, Converter={StaticResource ProximityToOpacityConverter}}" />
                                 <Path
                                     Data="F1 M 17.000,4.000 L 19.000,4.000 L 19.000,20.000 L 17.000,20.000 L 17.000,4.000 Z"
                                     Fill="#ffffffff"
-                                    Opacity="{Binding Proximity, ConverterParameter=80, Converter={StaticResource ProximityToOpacityConverter}}" />
+                                    Opacity="{Binding Path=Vault.Proximity, ConverterParameter=80, Converter={StaticResource ProximityToOpacityConverter}}" />
                             </Canvas>
                         </Viewbox>
                     </Grid>
@@ -155,10 +155,10 @@
                         Width="43"
                         VerticalAlignment="Stretch"
                         FontSize="18"
-                        Text="{Binding Proximity, StringFormat='{}{0,3}%'}"
+                        Text="{Binding Path=Vault.Proximity, StringFormat='{}{0,3}%'}"
                         TextAlignment="Right"
                         ToolTip="Device proximity level"
-                        Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        Visibility="{Binding Path=Vault.IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </StackPanel>
 
                 <iconPacks:PackIconModern
@@ -170,7 +170,7 @@
                     Foreground="{DynamicResource InitializingBrush}"
                     Kind="Disconnect"
                     ToolTip="Connecting device"
-                    Visibility="{Binding IsInitializing, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    Visibility="{Binding Path=Vault.IsInitializing, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 <iconPacks:PackIconOcticons
                     x:Name="Sync"
                     Width="16"
@@ -180,7 +180,7 @@
                     Foreground="{DynamicResource InitializingBrush}"
                     Kind="Sync"
                     ToolTip="Loading storage"
-                    Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    Visibility="{Binding Path=Vault.IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                 <iconPacks:PackIconModern
                     Width="22"
@@ -191,9 +191,9 @@
                     Kind="Battery1">
                     <iconPacks:PackIconModern.Visibility>
                         <MultiBinding Converter="{StaticResource LowBatteryIndicatorVisibilityConverter}">
-                            <Binding Path="IsConnected" />
-                            <Binding Path="FinishedMainFlow" />
-                            <Binding Path="Battery" />
+                            <Binding Path="Vault.IsConnected" />
+                            <Binding Path="Vault.FinishedMainFlow" />
+                            <Binding Path="Vault.Battery" />
                         </MultiBinding>
                     </iconPacks:PackIconModern.Visibility>
                 </iconPacks:PackIconModern>
@@ -212,7 +212,7 @@
                 Opacity="0.0"
                 Orientation="Horizontal">
 
-                <Border mah:VisibilityHelper.IsVisible="{Binding IsConnected}">
+                <Border mah:VisibilityHelper.IsVisible="{Binding Path=Vault.IsConnected}">
                     <Button 
                         DataContext="{Binding DisconnectDeviceMenu}" 
                         Style="{StaticResource SemiTransparentButtonStyle}"
@@ -247,10 +247,10 @@
                         <Style.Triggers>
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding FinishedMainFlow}" Value="True" />
-                                    <Condition Binding="{Binding IsAuthorized}" Value="False" />
-                                    <Condition Binding="{Binding IsAuthorizingRemoteDevice}" Value="False" />
-                                    <Condition Binding="{Binding IsCreatingRemoteDevice}" Value="False" />
+                                    <Condition Binding="{Binding Path=Vault.FinishedMainFlow}" Value="True" />
+                                    <Condition Binding="{Binding Path=Vault.IsAuthorized}" Value="False" />
+                                    <Condition Binding="{Binding Path=Vault.IsAuthorizingRemoteDevice}" Value="False" />
+                                    <Condition Binding="{Binding Path=Vault.IsCreatingRemoteDevice}" Value="False" />
                                 </MultiDataTrigger.Conditions>
                                 <MultiDataTrigger.Setters>
                                     <Setter Property="Visibility" Value="Visible" />
@@ -278,6 +278,6 @@
             Grid.Row="4"
             FontSize="13"
             Opacity="0.5"
-            Text="{Binding OwnerName}" />
+            Text="{Binding Path=Vault.OwnerName}" />
     </Grid>
 </UserControl>
