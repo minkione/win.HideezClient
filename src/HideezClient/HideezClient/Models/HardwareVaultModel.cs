@@ -43,6 +43,7 @@ namespace HideezClient.Models
         DelayedMethodCaller dmc = new DelayedMethodCaller(2000);
         readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetPinRequests
             = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
+        IDynamicPasswordManager _passwordManager;
 
         string _infNid = Guid.NewGuid().ToString(); // Notification Id, which must be the same for the entire duration of MainWorkflow
         string _errNid = Guid.NewGuid().ToString(); // Error Notification Id
@@ -101,7 +102,11 @@ namespace HideezClient.Models
         }
 
         #region Properties
-        public IDynamicPasswordManager PasswordManager { get; private set; }
+        public IDynamicPasswordManager PasswordManager
+        {
+            get { return _passwordManager; }
+            private set { Set(ref _passwordManager, value); }
+        }
 
         public string TypeName { get; } = "Hideez key";
 

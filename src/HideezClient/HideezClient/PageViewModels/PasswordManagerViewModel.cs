@@ -31,6 +31,7 @@ using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
 using HideezClient.Modules.Log;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Interfaces;
 
 namespace HideezClient.PageViewModels
 {
@@ -58,18 +59,18 @@ namespace HideezClient.PageViewModels
                  .DistinctUntilChanged()
                  .InvokeCommand(FilterAccountCommand);
 
-            this.WhenAnyValue(x => x.Device)
+            this.WhenAnyValue(x => x.Vault)
                 .Where(x => null != x)
                 .Subscribe(d => OnDeviceChanged());
 
             this.WhenAnyValue(x => x.SelectedAccount)
                 .InvokeCommand(CancelCommand);
 
-            Device = activeDevice.Vault;
+            Vault = activeDevice.Vault;
         }
 
         [Reactive] public bool IsAvailable { get; set; }
-        [Reactive] public IVaultModel Device { get; set; }
+        [Reactive] public IVaultModel Vault { get; set; }
         [Reactive] public AccountInfoViewModel SelectedAccount { get; set; }
         [Reactive] public EditAccountViewModel EditAccount { get; set; }
         [Reactive] public string SearchQuery { get; set; }
@@ -169,14 +170,14 @@ namespace HideezClient.PageViewModels
         private void OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
         {
             // Todo: ViewModel should be reused instead of being recreated each time active device is changed
-            Device = obj.NewDevice;
+            Vault = obj.NewDevice;
         }
 
         private void OnAddAccountForApp(AddAccountForAppMessage obj)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                var vm = new EditAccountViewModel(Device, windowsManager, qrScannerHelper, _messenger)
+                var vm = new EditAccountViewModel(Vault, windowsManager, qrScannerHelper, _messenger)
                 {
                     DeleteAccountCommand = this.DeleteAccountCommand,
                     CancelCommand = this.CancelCommand,
@@ -199,7 +200,7 @@ namespace HideezClient.PageViewModels
                 var flagOptions = new AccountFlagsOptions { IsUserAccount = true };
                 
                 // TODO: Create extension method for password manager that accepts AccountRecord
-                var key = await Device.PasswordManager.SaveOrUpdateAccount(
+                var key = await Vault.PasswordManager.SaveOrUpdateAccount(
                     account.AccountRecord.Key,
                     account.AccountRecord.Name,
                     account.AccountRecord.Password,
@@ -224,11 +225,21 @@ namespace HideezClient.PageViewModels
         private void OnDeviceChanged()
         {
             OnFilterAccount();
+            PropertyChangedEventManager.AddHandler(Vault, (s, e) => OnDevicePasswordManagerChanged(), nameof(IVaultModel.PasswordManager));
         }
 
+        private void OnDevicePasswordManagerChanged()
+        {
+            if (Vault?.PasswordManager != null)
+            {
+                WeakEventManager<IDynamicPasswordManager, EventArgs>.AddHandler(Vault.PasswordManager,
+                    nameof(IDynamicPasswordManager.LoadingFinished), (s, e) => OnFilterAccount());
+            }
+        }
+        
         private void OnAddAccount()
         {
-            EditAccount = new EditAccountViewModel(Device, windowsManager, qrScannerHelper, _messenger)
+            EditAccount = new EditAccountViewModel(Vault, windowsManager, qrScannerHelper, _messenger)
             {
                 DeleteAccountCommand = this.DeleteAccountCommand,
                 CancelCommand = this.CancelCommand,
@@ -244,7 +255,7 @@ namespace HideezClient.PageViewModels
                 try
                 {
                     EditAccount = null;
-                    await Device.PasswordManager.DeleteAccount(SelectedAccount.Key, SelectedAccount.IsPrimary);
+                    await Vault.PasswordManager.DeleteAccount(SelectedAccount.Key, SelectedAccount.IsPrimary);
                     OnFilterAccount();
                 }
                 catch (Exception ex)
@@ -257,9 +268,9 @@ namespace HideezClient.PageViewModels
 
         private void OnEditAccount()
         {
-            if (Device.PasswordManager.Accounts.TryGetValue(SelectedAccount.Key, out AccountRecord record))
+            if (Vault.PasswordManager.Accounts.TryGetValue(SelectedAccount.Key, out AccountRecord record))
             {
-                EditAccount = new EditAccountViewModel(Device, record, windowsManager, qrScannerHelper, _messenger)
+                EditAccount = new EditAccountViewModel(Vault, record, windowsManager, qrScannerHelper, _messenger)
                 {
                     DeleteAccountCommand = this.DeleteAccountCommand,
                     CancelCommand = this.CancelCommand,
@@ -275,7 +286,10 @@ namespace HideezClient.PageViewModels
 
         private void OnFilterAccount()
         {
-            var filteredAccounts = Device.PasswordManager.Accounts.Select(r => new AccountInfoViewModel(r.Value)).Where(a => a.IsVisible).Where(a => Contains(a, SearchQuery));
+            if (Vault?.PasswordManager == null)
+                return;
+
+            var filteredAccounts = Vault.PasswordManager.Accounts.Select(r => new AccountInfoViewModel(r.Value)).Where(a => a.IsVisible).Where(a => Contains(a, SearchQuery));
             filteredAccounts = filteredAccounts.OrderBy(a => a.Name).OrderByDescending(a => a.IsEditable); // Editable accounts will be shown first in the list
             Application.Current.Dispatcher.Invoke(() =>
             {
