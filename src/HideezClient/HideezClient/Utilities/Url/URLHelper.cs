@@ -21,6 +21,14 @@ namespace HideezClient.Utilities
             }
         }
 
+        public static void PreloadPublicSuffixAsync()
+        {
+            if (publicSuffix == null)
+            {
+                publicSuffix = new PublicSuffix();
+            }
+        }
+
         public static string GetRegistrableDomain(string hostname)
         {
             string tld = PublicSuffix.GetTLD(hostname);

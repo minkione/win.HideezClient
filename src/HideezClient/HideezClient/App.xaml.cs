@@ -202,6 +202,10 @@ namespace HideezClient
             // It is required for subscribtion of PasswordManagerViewModel to the "AddAccountForApp" message
             // Note: PasswordManagerViewModel is not required for simplified UI
             Container.Resolve<PasswordManagerViewModel>();
+
+            // Public Suffix list loading and updating may take some time (more than 8000 entries)
+            // Better to load it before its required (for main domain extraction)
+            await Task.Run(URLHelper.PreloadPublicSuffixAsync);
             
         }
 
