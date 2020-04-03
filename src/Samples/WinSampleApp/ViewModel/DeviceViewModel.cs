@@ -23,6 +23,7 @@ namespace WinSampleApp.ViewModel
         public int Battery => Device.Battery;
 
         public AccessLevel AccessLevel => Device.AccessLevel;
+        public StatusLevel StatusLevel => Device.StatusLevel;
         public byte PinAttemptsRemain => Device.PinAttemptsRemain;
         public DateTime DeviceTime => Device.DeviceTime;
         public ushort MaxMessageSize => Device.MaxMessageSize;

@@ -18,5 +18,15 @@
             BoolValue="False"
             OneBrush="Red"
             TwoBrush="LightGreen" />
+        <converter:BoolToColorConverter
+            x:Key="FalseToGrayConverter"
+            BoolValue="False"
+            OneBrush="Gray"
+            TwoBrush="LightGreen" />
+        <converter:BoolToColorConverter
+            x:Key="FalseToGray2Converter"
+            BoolValue="False"
+            OneBrush="Gray"
+            TwoBrush="Red" />
     </Application.Resources>
 </Application>

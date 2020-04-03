@@ -45,7 +45,7 @@ namespace WinSampleApp.ViewModel
 
         public string Pin { get; set; }
         public string OldPin { get; set; }
-
+        public string CODE { get; set; }
         public string BleAdapterState => _connectionManager?.State.ToString();
 
         public string ConectByMacAddress
@@ -915,6 +915,42 @@ namespace WinSampleApp.ViewModel
                 };
             }
         }
+        //
+        public ICommand LockDeviceCodeCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        _ = LockDeviceCode(CurrentDevice);
+                    }
+                };
+            }
+        }
+        public ICommand UnlockDeviceCodeCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        _ = UnlockDeviceCode(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         #endregion
 
         public MainWindowViewModel()
@@ -1353,6 +1389,38 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        //LockDeviceCode
+        async Task LockDeviceCode(DeviceViewModel device)
+        {
+            try
+            {
+                byte[] code = Encoding.UTF8.GetBytes(CODE);
+                byte[] key= Encoding.UTF8.GetBytes("passphrase");
+                byte UnlockAttempts = 5;// Options 3-15
+                await device.Device.LockDeviceCode(key, code, UnlockAttempts);
+                await device.Device.RefreshDeviceInfo();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(HideezExceptionLocalization.GetErrorAsString(ex));
+            }
+        }
+
+        async Task UnlockDeviceCode(DeviceViewModel device)
+        {
+            try
+            {
+                byte[] code = Encoding.UTF8.GetBytes(CODE);
+                await device.Device.UnlockDeviceCode(code);
+                await device.Device.RefreshDeviceInfo();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(HideezExceptionLocalization.GetErrorAsString(ex));
+                await device.Device.RefreshDeviceInfo();
+            }
+        }
+
         async Task BoostDeviceRssi(DeviceViewModel device)
         {
             try
@@ -1722,6 +1790,7 @@ namespace WinSampleApp.ViewModel
             _connectionFlowProcessor.Cancel();
         }
 
+        /*
         async Task DeviceFetchLog(DeviceViewModel device)
         {
             try
@@ -1733,6 +1802,8 @@ namespace WinSampleApp.ViewModel
                 MessageBox.Show(ex.Message);
             }
         }
+        */
+
 
         #region IClientUiProxy
         public event EventHandler<EventArgs> ClientConnected;

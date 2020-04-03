@@ -39,7 +39,7 @@
                 <Button Content=" Connect " Margin="10,0,0,0" Command="{Binding ConnectHesCommand}"/>
                 <Button Content=" Disconnect " Margin="10,0,0,0" Command="{Binding DisconnectHesCommand}"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" Height="699">
                 <StackPanel Margin="10">
                     <Label>Discovered devices:</Label>
                     <ListView ItemsSource="{Binding DiscoveredDevices}" SelectedItem="{Binding CurrentDiscoveredDevice, Mode=OneWayToSource}" Height="270">
@@ -114,7 +114,13 @@
                         <RowDefinition Height="25"/>
                         <RowDefinition Height="25"/>
                         <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
                         <RowDefinition Height="*"/>
+                     
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -179,9 +185,24 @@
 
                     <TextBlock Grid.Row="19" Grid.Column="0" Text="IsPinRequired: " />
                     <TextBox Grid.Row="19" Grid.Column="1" Text="{Binding CurrentDevice.AccessLevel.IsPinRequired, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.AccessLevel.IsPinRequired, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}"/>
-
+                  
                     <TextBlock Grid.Row="20" Grid.Column="0" Text="IsButtonRequired: " />
                     <TextBox Grid.Row="20" Grid.Column="1" Text="{Binding CurrentDevice.AccessLevel.IsButtonRequired, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.AccessLevel.IsButtonRequired, Mode=OneWay, Converter={StaticResource TrueToRedConverter}}" Style="{StaticResource DependsOnIsInitialised}"/>
+
+                    <TextBlock Grid.Row="21" Grid.Column="0" Text="isStatusPresented: "/>
+                    <TextBox Grid.Row="21" Grid.Column="1" Text="{Binding CurrentDevice.StatusLevel.isStatusPresented, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.StatusLevel.isStatusPresented, Mode=OneWay, Converter={StaticResource FalseToGrayConverter}}" Style="{StaticResource DependsOnIsInitialised}"/>
+
+                    <TextBlock Grid.Row="22" Grid.Column="0" Text="isLockedDeviceCode: "/>
+                    <TextBox Grid.Row="22" Grid.Column="1" Text="{Binding CurrentDevice.StatusLevel.isLockedDevice, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.StatusLevel.isLockedDevice, Mode=OneWay, Converter={StaticResource FalseToGray2Converter}}" Style="{StaticResource DependsOnIsInitialised}"/>
+
+                    <TextBlock Grid.Row="23" Grid.Column="0" Text="isCanUnlockDeviceCode: " />
+                    <TextBox Grid.Row="23" Grid.Column="1" Text="{Binding CurrentDevice.StatusLevel.isCanUnlockDevice, Mode=OneWay}" IsReadOnly="True" Background="{Binding CurrentDevice.StatusLevel.isCanUnlockDevice, Mode=OneWay, Converter={StaticResource FalseToGrayConverter}}" Style="{StaticResource DependsOnIsInitialised}"/>
+
+                    <TextBlock Grid.Row="24" Grid.Column="0" Text="UnlockAttemptsRemain: " />
+                    <TextBox Grid.Row="24" Grid.Column="1" Text="{Binding CurrentDevice.StatusLevel.UnlockAttemptsRemain, Mode=OneWay}" IsReadOnly="True" />
+
+
+
                 </Grid>
                 <StackPanel Margin="10">
                     <Label>Tests:</Label>
@@ -199,14 +220,11 @@
                 </StackPanel>
                 <StackPanel Margin="10">
                     <Label>Primary account:</Label>
-                    <Label> </Label>
                     <Label>Login:</Label>
                     <TextBox Width="120" Margin="0,0,0,0" Text="{Binding PrimaryAccountLogin}" />
                     <Label>Password:</Label>
                     <TextBox Width="120" Margin="0,0,0,0" Text="{Binding PrimaryAccountPassword}" />
                     <Button Content="Write" Margin="0,10,0,0" Command="{Binding WritePrimaryAccountCommand}"/>
-                    <Label></Label>
-                    <Label></Label>
                     <Label></Label>
                     <Label>PIN:</Label>
                     <TextBox Width="120" Margin="0,0,0,0" Text="{Binding Pin}" />
@@ -216,10 +234,12 @@
                     <Button Content="Set PIN" Margin="0,10,0,0" Command="{Binding SetPinCommand}"/>
                     <Button Content="Force Set PIN" Margin="0,10,0,0" Command="{Binding ForceSetPinCommand}"/>
                     <Label></Label>
-                    <Label></Label>
+                    <Label Content="CODE:"/>
+                    <TextBox Width="120" Margin="0,0,0,0" Text="{Binding CODE}" />
+                    <Button Content="LockDeviceCode" Margin="0,10,0,0" Command="{Binding LockDeviceCodeCommand}"/>
+                    <Button Content="UnlockDeviceCode" Margin="0,10,0,0" Command="{Binding UnlockDeviceCodeCommand}"/>
                     <Label></Label>
                     <Label>License</Label>
-                    <Label></Label>
                     <Label>License string</Label>
                     <TextBox Width="120" Margin="0" Text="{Binding LicenseText}" />
                     <Button Content="Load license (0 slot)" Margin="0,10,0,0" Command="{Binding LoadLicenseCommand}" />
@@ -235,8 +255,21 @@
                     <TextBlock Text="{Binding ClientUiNotification}" Margin="0,0,0,10"/>
                     <TextBlock Text="{Binding ClientUiError}" Foreground="Red" Margin="0,0,0,10"/>
                     <Button Content="Cancel connection flow" Margin="0,10,0,0" Command="{Binding CancelConnectionFlowCommand}"/>
+                    <Label></Label>
+                    <Label></Label>
+                    <Label></Label>
+                    <Label></Label>
+                    <Label></Label>
+                    <Label></Label>
+                    
+
 
                 </StackPanel>
+
+                <StackPanel Margin="10">
+                    <Label>Reserved</Label>
+                </StackPanel>
+
             </StackPanel>
         </StackPanel>
     </Grid>
