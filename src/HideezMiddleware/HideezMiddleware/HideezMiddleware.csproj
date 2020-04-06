@@ -97,6 +97,8 @@
     <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
     <Compile Include="IClientUiProxy.cs" />
+    <Compile Include="UnlockToken\UnlockTokenGenerator.cs" />
+    <Compile Include="UnlockToken\UnlockTokenProvider.cs" />
     <Compile Include="ScreenActivation\IScreenActivator.cs" />
     <Compile Include="IWorkstationLocker.cs" />
     <Compile Include="NLogWrapper.cs" />

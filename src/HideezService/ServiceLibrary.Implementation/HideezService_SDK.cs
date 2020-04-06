@@ -16,6 +16,7 @@ using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Proximity;
 using Hideez.SDK.Communication.WCF;
+using Hideez.SDK.Communication.Workstation;
 using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware;
 using HideezMiddleware.Audit;
@@ -23,6 +24,7 @@ using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.Local;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
+using HideezMiddleware.UnlockToken;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ClientManagement;
 using ServiceLibrary.Implementation.ScreenActivation;
@@ -59,6 +61,10 @@ namespace ServiceLibrary.Implementation
         static SessionSwitchLogger _sessionSwitchLogger;
         static ConnectionManagerRestarter _connectionManagerRestarter;
         static ILocalDeviceInfoCache _localDeviceInfoCache;
+
+        static IUnlockTokenProvider _unlockTokenProvider;
+        static UnlockTokenGenerator _unlockTokenGenerator;
+        static RemoteWorkstationUnlocker _remoteWorkstationUnlocker;
 
         void InitializeSDK()
         {
@@ -176,10 +182,10 @@ namespace ServiceLibrary.Implementation
             _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _rfidSettingsManager, _sdkLogger);
 
             // Local device info cache
-            RegistryKey deviceInfoCacheRegistryKey = null;
+            RegistryKey clientRootRegistryKey = null;
             try
             {
-                deviceInfoCacheRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
+                clientRootRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -189,7 +195,7 @@ namespace ServiceLibrary.Implementation
             {
                 Error($"Failed to get write access for Client registry key: {ex.Message}");
             }
-            _localDeviceInfoCache = new LocalDeviceInfoCache(deviceInfoCacheRegistryKey, _sdkLogger);
+            _localDeviceInfoCache = new LocalDeviceInfoCache(clientRootRegistryKey, _sdkLogger);
 
             // ConnectionFlowProcessor
             _connectionFlowProcessor = new ConnectionFlowProcessor(
@@ -248,6 +254,11 @@ namespace ServiceLibrary.Implementation
             _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver, _connectionFlowProcessor,
                 _tapProcessor, _rfidProcessor, _proximityProcessor,
                 _workstationLockProcessor, _deviceManager, _sdkLogger);
+
+            // Secondary Unlock Mechanism
+            _unlockTokenProvider = new UnlockTokenProvider(clientRootRegistryKey, _sdkLogger);
+            _unlockTokenGenerator = new UnlockTokenGenerator(_unlockTokenProvider, _sdkLogger);
+            _remoteWorkstationUnlocker = new RemoteWorkstationUnlocker(_unlockTokenProvider, _hesConnection, _credentialProviderProxy, _sdkLogger);
 
             // SDK initialization finished, start essential components
             _credentialProviderProxy.Start();
