@@ -15,27 +15,9 @@ namespace HideezMiddleware
 {
     public class WorkstationInfoProvider : Logger, IWorkstationInfoProvider
     {
-        readonly IPEndPoint endPoint;
-
-        public WorkstationInfoProvider(string hostNameOrAddress, ILog log)
+        public WorkstationInfoProvider(ILog log)
             : base(nameof(WorkstationInfoProvider), log)
         {
-            try
-            {
-                if (UrlUtils.TryGetUri(hostNameOrAddress, out Uri uri))
-                {
-                    IPAddress hostAddress = Dns.GetHostEntry(uri.Host).AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-                    endPoint = new IPEndPoint(hostAddress, uri.Port);
-                }
-                else
-                {
-                    log?.WriteLine(nameof(WorkstationInfoProvider), $"{nameof(hostNameOrAddress)} not valid format.", LogErrorSeverity.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                log?.WriteLine(nameof(WorkstationInfoProvider), ex);
-            }
         }
 
         public string WorkstationId
@@ -46,7 +28,7 @@ namespace HideezMiddleware
             }
         }
 
-        public async Task<WorkstationInfo> GetWorkstationInfoAsync()
+        public WorkstationInfo GetWorkstationInfo()
         {
             WorkstationInfo workstationInfo = new WorkstationInfo();
 
@@ -70,20 +52,7 @@ namespace HideezMiddleware
                     Debug.Assert(false, "An exception occured while querrying workstation operating system");
                 }
 
-                if (endPoint != null)
-                {
-                    IPAddress localIP = await WorkstationHelper.GetLocalIPAddressAsync(endPoint);
-                    PhysicalAddress mac = WorkstationHelper.GetCurrentMAC(localIP);
-
-                    workstationInfo.IP = localIP.ToString();
-                    workstationInfo.MAC = mac.ToString();
-                }
-                else
-                {
-                    WriteLine($"{nameof(endPoint)} is null or none.", LogErrorSeverity.Error);
-                }
-
-                workstationInfo.Users = await WorkstationHelper.GetAllUserNamesAsync();
+                workstationInfo.Users = WorkstationHelper.GetAllUserNames();
             }
             catch (Exception ex)
             {

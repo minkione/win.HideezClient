@@ -148,7 +148,7 @@ namespace ServiceLibrary.Implementation
 
             // WorkstationInfoProvider ==================================
             WorkstationHelper.Log = _sdkLogger;
-            var workstationInfoProvider = new WorkstationInfoProvider(hesAddress, _sdkLogger);
+            var workstationInfoProvider = new WorkstationInfoProvider(_sdkLogger);
 
             // HES Connection ==================================
             _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sdkLogger);
