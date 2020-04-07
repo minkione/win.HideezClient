@@ -257,7 +257,7 @@ namespace ServiceLibrary.Implementation
 
             // Secondary Unlock Mechanism
             _unlockTokenProvider = new UnlockTokenProvider(clientRootRegistryKey, _sdkLogger);
-            _unlockTokenGenerator = new UnlockTokenGenerator(_unlockTokenProvider, _sdkLogger);
+            _unlockTokenGenerator = new UnlockTokenGenerator(_unlockTokenProvider, workstationInfoProvider, _sdkLogger);
             _remoteWorkstationUnlocker = new RemoteWorkstationUnlocker(_unlockTokenProvider, _hesConnection, _credentialProviderProxy, _sdkLogger);
 
             // SDK initialization finished, start essential components
