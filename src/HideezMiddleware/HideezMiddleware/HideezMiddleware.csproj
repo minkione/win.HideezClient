@@ -83,6 +83,7 @@
     <Compile Include="Audit\SessionInfoProvider.cs" />
     <Compile Include="Audit\SessionSwitchLogger.cs" />
     <Compile Include="Audit\SessionTimestampLogger.cs" />
+    <Compile Include="DeviceLogFetcher.cs" />
     <Compile Include="HideezClientRegistryRoot.cs" />
     <Compile Include="ConnectionManagerRestarter.cs" />
     <Compile Include="CredentialProviderProxy.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="Settings\Manager\ISettingsManager.cs" />
     <Compile Include="Settings\RfidSettings.cs" />
     <Compile Include="Settings\SdkSettings.cs" />
+    <Compile Include="Settings\ServiceSettings.cs" />
     <Compile Include="Settings\SettingAttribute.cs" />
     <Compile Include="Settings\Manager\SettingsManager.cs" />
     <Compile Include="Settings\FileSerializer\XmlFileSerializer.cs" />
