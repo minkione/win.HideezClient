@@ -663,4 +663,7 @@ to access stored credentials</value>
   <data name="UserAction.ButtonDisabled.ToManyOtherConnections" xml:space="preserve">
     <value>Button actions are disabled because your device ({0}) is connected to {1} other workstations. Instead use hotkey {2} to {3}.</value>
   </data>
+  <data name="Menu.Logs.OpenDeviceFolder" xml:space="preserve">
+    <value>Device Logs</value>
+  </data>
 </root>

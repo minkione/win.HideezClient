@@ -351,9 +351,27 @@ namespace HideezClient.Modules
                         }
                     }
                 };
+                var openDeviceLogsFolderItem = new MenuItemViewModel
+                {
+                    Header = "Menu.Logs.OpenDeviceFolder",
+                    Command = new DelegateCommand
+                    {
+                        CommandAction = x =>
+                        {
+                            try
+                            {
+                                var logsPath = LogManager.Configuration.Variables["deviceLogDir"].Text;
+                                var fullPath = LogManagement.GetTargetFolder(logsPath);
+                                Process.Start(fullPath);
+                            }
+                            catch (Exception) { }
+                        }
+                    }
+                };
 
                 logsMenu.MenuItems.Add(openClientLogsFolderItem);
                 logsMenu.MenuItems.Add(openServiceLogsFolderItem);
+                logsMenu.MenuItems.Add(openDeviceLogsFolderItem);
             }
             catch (Exception ex)
             {
