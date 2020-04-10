@@ -418,7 +418,11 @@
       <Component Id="HideezService.AsyncEnumerable.dll" Guid="{439A1245-4CD6-4279-94E6-4A9D9A5822C2}" Win64="$(var.Win64)">
         <File Id="HideezService.AsyncEnumerable.dll" Name="AsyncEnumerable.dll" Source="$(var.HideezServiceHost_TargetDir)AsyncEnumerable.dll" />
       </Component>
-      
+
+      <Component Id="HideezService.zxing.dll" Guid="{D00AA5C7-3653-4010-9749-BD81612B579D}" Win64="$(var.Win64)">
+        <File Id="HideezService.zxing.dll" Name="zxing.dll" Source="$(var.HideezServiceHost_TargetDir)zxing.dll" />
+      </Component>
+
     </ComponentGroup>
   </Fragment>
   
