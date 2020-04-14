@@ -57,7 +57,7 @@ namespace HideezClient.Models
                     otp = await device.PasswordManager.GetOtpAsync(accountRecord.Key);
                 }
             }
-            catch (Exception ex){ }
+            catch (Exception){ }
 
             return otp;
         }

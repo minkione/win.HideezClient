@@ -23,7 +23,6 @@ namespace HideezClient.ViewModels
     public class DeviceViewModel : LocalizedObject
     {
         protected Device device;
-        private WeakPropertyObserver bindingRaiseeventIsStorageLoaded;
 
         public DeviceViewModel(Device device)
         {

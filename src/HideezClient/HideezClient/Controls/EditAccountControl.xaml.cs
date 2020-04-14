@@ -65,7 +65,7 @@ namespace HideezClient.Controls
                         AccountName.Focus();            // Set Logical Focus
                         Keyboard.Focus(AccountName);    // Set Keyboard Focus
                     }
-                    catch (Exception ex) { }
+                    catch (Exception) { }
                 }));
         }
 

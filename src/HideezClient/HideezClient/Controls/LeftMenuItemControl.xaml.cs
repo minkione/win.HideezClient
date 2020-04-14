@@ -39,7 +39,7 @@ namespace HideezClient.Controls
                         command.Execute(null);
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
