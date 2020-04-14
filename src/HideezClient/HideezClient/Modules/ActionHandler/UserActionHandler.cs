@@ -232,6 +232,12 @@ namespace HideezClient.Modules.ActionHandler
                 _messenger.Send(new ShowWarningNotificationMessage(message));
                 WriteLine(message, LogErrorSeverity.Warning);
             }
+            catch (AuthEndedUnexpectedlyException)
+            {
+                var message = TranslationSource.Instance["Exception.AuthEndedUnexpectedly"];
+                _messenger.Send(new ShowWarningNotificationMessage(message));
+                WriteLine(message, LogErrorSeverity.Warning);
+            }
         }
 
         async Task OnAddNewAccount(string deviceId, AppInfo appInfo = null)

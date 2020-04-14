@@ -595,7 +595,7 @@ to access stored credentials</value>
     <value>Credentials loading failed {0}</value>
   </data>
   <data name="UserAction.DeviceIsNotActive" xml:space="preserve">
-    <value>Action cancelled. Device ({0}) is not selected as active.</value>
+    <value>Action cancelled. Device ({0}) is not selected as active device.</value>
   </data>
   <data name="Enum.ButtonPressCode.Double" xml:space="preserve">
     <value>twice</value>
@@ -665,5 +665,8 @@ to access stored credentials</value>
   </data>
   <data name="Menu.Logs.OpenDeviceFolder" xml:space="preserve">
     <value>Device Logs</value>
+  </data>
+  <data name="Exception.AuthEndedUnexpectedly" xml:space="preserve">
+    <value>Device authorization ended unexpectedly. Please, try again.</value>
   </data>
 </root>
