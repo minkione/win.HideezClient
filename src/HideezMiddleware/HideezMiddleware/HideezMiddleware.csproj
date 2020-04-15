@@ -83,7 +83,9 @@
     <Compile Include="Audit\SessionInfoProvider.cs" />
     <Compile Include="Audit\SessionSwitchLogger.cs" />
     <Compile Include="Audit\SessionTimestampLogger.cs" />
-    <Compile Include="DeviceLogFetcher.cs" />
+    <Compile Include="DeviceLogging\DeviceLogManager.cs" />
+    <Compile Include="DeviceLogging\DeviceLogWriter.cs" />
+    <Compile Include="DeviceLogging\IDeviceLogWriter.cs" />
     <Compile Include="HideezClientRegistryRoot.cs" />
     <Compile Include="ConnectionManagerRestarter.cs" />
     <Compile Include="CredentialProviderProxy.cs" />

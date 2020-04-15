@@ -20,6 +20,7 @@ using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware;
 using HideezMiddleware.Audit;
 using HideezMiddleware.DeviceConnection;
+using HideezMiddleware.DeviceLogging;
 using HideezMiddleware.Local;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
@@ -60,7 +61,7 @@ namespace ServiceLibrary.Implementation
         static SessionSwitchLogger _sessionSwitchLogger;
         static ConnectionManagerRestarter _connectionManagerRestarter;
         static ILocalDeviceInfoCache _localDeviceInfoCache;
-        static DeviceLogFetcher _deviceLogFetcher;
+        static DeviceLogManager _deviceLogManager;
 
         void InitializeSDK()
         {
@@ -210,7 +211,7 @@ namespace ServiceLibrary.Implementation
                 _uiProxy,
                 _localDeviceInfoCache,
                 _sdkLogger);
-            _deviceLogFetcher = new DeviceLogFetcher(deviceLogsPath, _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
+            _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreList = new AdvertisementIgnoreList(
                 _connectionManager,

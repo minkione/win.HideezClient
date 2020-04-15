@@ -10,7 +10,7 @@ namespace HideezMiddleware.Settings
             SettingsVersion = new Version(1, 0);
             ReadDeviceLog = false;
             ClearDeviceLogsAfterRead = false;
-            ClearDeviceLogsAfterDays = 30;
+            ClearDeviceLogsAfterDays = 3;
         }
 
         public ServiceSettings(ServiceSettings copy)
