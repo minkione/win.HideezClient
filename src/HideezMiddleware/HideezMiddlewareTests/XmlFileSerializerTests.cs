@@ -8,6 +8,7 @@ using Moq;
 
 namespace HideezMiddleware.Tests
 {
+    // todo: Update tests to use TempTestFolder
     [TestClass]
     public class XmlFileSerializerTests
     {

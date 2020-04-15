@@ -89,6 +89,9 @@
   </Choose>
   <ItemGroup>
     <Compile Include="BaseSettingsTests.cs" />
+    <Compile Include="TempTestFolder.cs" />
+    <Compile Include="DeviceLogManagerTests.cs" />
+    <Compile Include="DeviceLogWriterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SettingsManagerTests.cs" />
     <Compile Include="XmlFileSerializerTests.cs" />

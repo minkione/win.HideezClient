@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.Tests
 {
+    // todo: Update tests to use TempTestFolder
     [TestClass]
     public class SettingsManagerTests
     {
