@@ -23,6 +23,7 @@
   <?define CsrWin8_x86_SourceDir=$(var.DPInst_SourceDir)win8\win32\ ?>
   
   <?define TemplateFactory_TargetDir=$(var.TemplateFactory.TargetDir)?>
+  <?define DeviceMaintenance_TargetDir=$(var.DeviceMaintenance.TargetDir)?>
   
   <!-- Architecture specific path detection -->
   <?if $(var.Platform) = x64 ?>
@@ -732,6 +733,10 @@
     
       <Component Id="TemplateFactory.exe" Guid="{B6F59702-3133-428F-A3EF-2C03A4C3FE02}" Win64="$(var.Win64)">
         <File Id="TemplateFactory.exe" Name="TemplateFactory.exe" Source="$(var.TemplateFactory_TargetDir)TemplateFactory.exe" />
+      </Component>
+
+      <Component Id="DeviceMaintenanceApplication.exe" Guid="{75B827C4-632A-4137-9405-F0563E6FEC63}" Win64="$(var.Win64)">
+        <File Id="DeviceMaintenanceApplication.exe" Name="Hideez Device Maintenance Application.exe" Source="$(var.DeviceMaintenance_TargetDir)Hideez Device Maintenance Application.exe" />
       </Component>
     </ComponentGroup>
   </Fragment>
