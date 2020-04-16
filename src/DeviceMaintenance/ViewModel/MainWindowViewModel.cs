@@ -1,23 +1,24 @@
-﻿using Hideez.CsrBLE;
+﻿using DeviceMaintenance.Service;
+using Hideez.CsrBLE;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.FW;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.LongOperations;
+using HideezMiddleware.DeviceConnection;
+using HideezMiddleware.Settings;
+using HideezMiddleware.Settings.Manager;
 using Microsoft.Win32;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.PropertyChangedMonitoring;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.ServiceProcess;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 
@@ -25,36 +26,23 @@ namespace DeviceMaintenance.ViewModel
 {
     public class MainWindowViewModel : PropertyChangedImplementation
     {
-        readonly object pendingConnectionsLock = new object();
-        const string SERVICE_NAME = "Hideez Service";
-
+        const string FW_FILE_EXTENSION = "img";
+            
         readonly EventLogger _log;
         readonly BleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
+        readonly AdvertisementIgnoreList _advIgnoreList;
 
         readonly Dictionary<string, Guid> _pendingConnections = new Dictionary<string, Guid>();
-
-        ServiceController _hideezServiceController;
-        Timer _serviceStateRefreshTimer;
+        readonly object pendingConnectionsLock = new object();
 
         bool _restartServiceOnExit = false;
-        bool _automaticallyUpdateFirmware = true;
+        bool _automaticallyUpdateFirmware = Properties.Settings.Default.AutomaticallyUpdate;
         string _fileName = Properties.Settings.Default.FirmwareFileName;
         DeviceViewModel _currentDevice;
         DiscoveredDeviceAddedEventArgs _currentDiscoveredDevice;
 
-        private ServiceController HideezServiceController
-        {
-            get
-            {
-                return _hideezServiceController;
-            }
-            set
-            {
-                _hideezServiceController = value;
-                NotifyPropertyChanged();
-            }
-        }
+        #region Properties
 
         public string Title
         {
@@ -62,23 +50,6 @@ namespace DeviceMaintenance.ViewModel
             {
                 var assembly = Assembly.GetExecutingAssembly().GetName();
                 return $"{assembly.Name} v{assembly.Version.ToString()}";
-            }
-        }
-
-        [DependsOn(nameof(HideezServiceController))]
-        public bool CanInteractWithService
-        {
-            get
-            {
-                return _hideezServiceController != null;
-            }
-        }
-
-        public bool HideezServiceOnline
-        {
-            get
-            {
-                return HideezServiceController?.Status == ServiceControllerStatus.Running;
             }
         }
 
@@ -90,7 +61,7 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
-        public string FileName
+        public string FirmwareFilePath
         {
             get
             {
@@ -101,24 +72,8 @@ namespace DeviceMaintenance.ViewModel
                 if (_fileName != value)
                 {
                     _fileName = value;
-                    Properties.Settings.Default.FirmwareFileName = FileName;
+                    Properties.Settings.Default.FirmwareFileName = FirmwareFilePath;
                     Properties.Settings.Default.Save();
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-
-        public bool RestartServiceOnExit
-        {
-            get
-            {
-                return _restartServiceOnExit;
-            }
-            set
-            {
-                if (_restartServiceOnExit != value)
-                {
-                    _restartServiceOnExit = value;
                     NotifyPropertyChanged();
                 }
             }
@@ -135,6 +90,8 @@ namespace DeviceMaintenance.ViewModel
                 if (_automaticallyUpdateFirmware != value)
                 {
                     _automaticallyUpdateFirmware = value;
+                    Properties.Settings.Default.AutomaticallyUpdate = AutomaticallyUpdateFirmware;
+                    Properties.Settings.Default.Save();
                     NotifyPropertyChanged();
                 }
             }
@@ -190,22 +147,11 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
+        public HideezServiceController HideezServiceController { get; }
+
+        #endregion
 
         #region Commands
-
-        public ICommand StopServiceCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CommandAction = (x) =>
-                    {
-                        StopService();
-                    }
-                };
-            }
-        }
 
         public ICommand SelectFirmwareCommand
         {
@@ -227,7 +173,13 @@ namespace DeviceMaintenance.ViewModel
         {
             _log = new EventLogger("ExampleApp");
 
-            InitializeHideezServiceController();
+            HideezServiceController = new HideezServiceController();
+
+            if (HideezServiceController.IsServiceRunning)
+            {
+                HideezServiceController.StopService();
+                _restartServiceOnExit = true;
+            }
 
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
@@ -244,6 +196,8 @@ namespace DeviceMaintenance.ViewModel
             _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
             _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
 
+            _advIgnoreList = new AdvertisementIgnoreList(_connectionManager, new VirtualSettingsManager<ProximitySettings>(), null);
+
             _connectionManager.StartDiscovery();
 
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
@@ -257,60 +211,6 @@ namespace DeviceMaintenance.ViewModel
                 e.Reason == SessionSwitchReason.SessionLogon)
             {
                 AutomaticallyUpdateFirmware = false;
-            }
-        }
-
-        void InitializeHideezServiceController()
-        {
-            try
-            {
-                _serviceStateRefreshTimer = new Timer(2000);
-                _serviceStateRefreshTimer.Elapsed += ServiceStateCheckTimer_Elapsed;
-                _serviceStateRefreshTimer.AutoReset = true;
-                _serviceStateRefreshTimer.Start();
-
-                var controller = new ServiceController(SERVICE_NAME);
-                var st = controller.Status; // Will trigger InvalidOperationException if service is not installed
-                HideezServiceController = controller;
-
-                NotifyPropertyChanged(nameof(HideezServiceOnline));
-            }
-            catch (InvalidOperationException)
-            {
-                // The most probable reason is that service is not installed. It is ok.
-            }
-            catch (ArgumentException)
-            {
-                // The most probable reason is that service is not installed. It is ok.
-            }
-        }
-
-        void ServiceStateCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            try
-            {
-                if (HideezServiceController == null)
-                {
-                    var controller = new ServiceController(SERVICE_NAME);
-                    var st = controller.Status; // Will trigger InvalidOperationException if service is not installed
-                    HideezServiceController = controller;
-                }
-
-                HideezServiceController?.Refresh();
-
-                NotifyPropertyChanged(nameof(HideezServiceOnline));
-            }
-            catch (InvalidOperationException)
-            {
-                // The most probable reason is that service is not installed. It is ok.
-            }
-            catch (ArgumentException)
-            {
-                // The most probable reason is that service is not installed. It is ok.
-            }
-            catch (Exception ex)
-            {
-                _log.WriteLine(nameof(ServiceStateCheckTimer_Elapsed), ex);
             }
         }
 
@@ -339,13 +239,39 @@ namespace DeviceMaintenance.ViewModel
             });
         }
 
+        void ConnectionManager_DiscoveredDeviceAdded(object sender, DiscoveredDeviceAddedEventArgs e)
+        {
+            Application.Current?.Dispatcher.Invoke(() =>
+            {
+                DiscoveredDevices.Add(e);
+            });
+        }
+
+        void ConnectionManager_DiscoveredDeviceRemoved(object sender, DiscoveredDeviceRemovedEventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var item = DiscoveredDevices.FirstOrDefault(x => x.Id == e.Id);
+                if (item != null)
+                    DiscoveredDevices.Remove(item);
+            });
+        }
+
+        void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
+        {
+            NotifyPropertyChanged(nameof(BleAdapterAvailable));
+        }
+
         void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
-            Task.Run(async () =>
+            if (string.IsNullOrWhiteSpace(FirmwareFilePath) || !FirmwareFilePath.EndsWith($".{FW_FILE_EXTENSION}"))
+                return;
+
+            if (e.Rssi > SdkConfig.TapProximityUnlockThreshold + 4 && !_advIgnoreList.IsIgnored(e.Id)) // -33 is to much and picks up devices from very far
             {
-                try
+                Task.Run(async () =>
                 {
-                    if (e.Rssi > -25)
+                    try
                     {
                         lock (pendingConnectionsLock)
                         {
@@ -372,7 +298,10 @@ namespace DeviceMaintenance.ViewModel
                             {
                                 await deviceVM.Device.WaitInitialization(timeout: 10_000, System.Threading.CancellationToken.None);
                                 if (AutomaticallyUpdateFirmware || deviceVM.Device.IsBoot)
+                                {
                                     deviceVM.StartFirmwareUpdate();
+                                    _advIgnoreList.Ignore(deviceVM.Device.Mac);
+                                }
                             }
 
                             lock (pendingConnectionsLock)
@@ -386,43 +315,15 @@ namespace DeviceMaintenance.ViewModel
                             throw;
                         }
                     }
-                }
-                catch (Exception)
-                {
-                    lock (pendingConnectionsLock)
+                    catch (Exception)
                     {
-                        _pendingConnections.Remove(e.Id);
+                        lock (pendingConnectionsLock)
+                        {
+                            _pendingConnections.Remove(e.Id);
+                        }
                     }
-                }
-            });
-        }
-
-        void ConnectionManager_DiscoveredDeviceAdded(object sender, DiscoveredDeviceAddedEventArgs e)
-        {
-            Application.Current?.Dispatcher.Invoke(() =>
-            {
-                DiscoveredDevices.Add(e);
-            });
-        }
-
-        void ConnectionManager_DiscoveredDeviceRemoved(object sender, DiscoveredDeviceRemovedEventArgs e)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var item = DiscoveredDevices.FirstOrDefault(x => x.Id == e.Id);
-                if (item != null)
-                    DiscoveredDevices.Remove(item);
-            });
-        }
-
-        void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
-        {
-            NotifyPropertyChanged(nameof(BleAdapterAvailable));
-        }
-
-        void ConnectDiscoveredDevice(DiscoveredDeviceAddedEventArgs e)
-        {
-            _connectionManager.ConnectDiscoveredDeviceAsync(e.Id);
+                });
+            }
         }
 
         async Task<DeviceViewModel> ConnectDeviceByMac(string mac)
@@ -474,69 +375,41 @@ namespace DeviceMaintenance.ViewModel
         {
             try
             {
-                var imageUploader = new FirmwareImageUploader(FileName, _log);
+                var imageUploader = new FirmwareImageUploader(FirmwareFilePath, _log);
                 await imageUploader.RunAsync(false, _deviceManager, device, longOperation);
+                _advIgnoreList.Ignore(device.Mac);
             }
             catch (Exception ex)
             {
                 sender.CustomError = ex.Message;
             }
-        }
-
-        void StopService()
-        {
-            try
+            finally
             {
-                HideezServiceController?.Refresh();
-                NotifyPropertyChanged(nameof(HideezServiceOnline));
-
-                if (HideezServiceController.CanStop)
-                {
-                    HideezServiceController?.Stop();
-                    HideezServiceController?.Refresh();
-                    NotifyPropertyChanged(nameof(HideezServiceOnline));
-                }
-            }
-            catch (Exception ex)
-            {
-                _log.WriteLine(nameof(StopService), ex);
-            }
-        }
-
-        void StartService()
-        {
-            try
-            {
-                HideezServiceController?.Start();
-            }
-            catch (Exception ex)
-            {
-                _log.WriteLine(nameof(StopService), ex);
+                await _deviceManager.DisconnectDevice(device);
             }
         }
 
         void SelectFirmware()
         {
-            if (string.IsNullOrWhiteSpace(FileName))
-                FileName = "Not selected...";
+            if (string.IsNullOrWhiteSpace(FirmwareFilePath))
+                FirmwareFilePath = "Not selected...";
 
             OpenFileDialog ofd = new OpenFileDialog
             {
-                InitialDirectory = Path.GetDirectoryName(FileName),
+                InitialDirectory = Path.GetDirectoryName(FirmwareFilePath),
                 Filter = "Firmware Image file | *.img"
             };
 
             if (ofd.ShowDialog() == true)
-                FileName = ofd.FileName;
+                FirmwareFilePath = ofd.FileName;
         }
 
         internal void OnClosing()
         {
             SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
 
-
-            if (RestartServiceOnExit && !HideezServiceOnline)
-                StartService();
+            if (_restartServiceOnExit && !HideezServiceController.IsServiceRunning)
+                HideezServiceController.StartService();
         }
     }
 }

@@ -131,6 +131,7 @@
     <Compile Include="Controls\StateControl.xaml.cs">
       <DependentUpon>StateControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Service\HideezServiceController.cs" />
     <Compile Include="Utils\DelegateCommand.cs" />
     <Compile Include="ViewModel\DeviceViewModel.cs" />
     <Compile Include="ViewModel\FirmwareUpdateViewModel.cs" />
@@ -192,12 +193,6 @@
     <Resource Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\Binaries\32rel\Crypto.dll">
-      <Link>Crypto.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\win.SDK\Communication\Communication.csproj">
       <Project>{5e081b1a-3a77-45cd-a35e-f9647448a2cf}</Project>
       <Name>Communication</Name>
@@ -205,6 +200,10 @@
     <ProjectReference Include="..\..\win.SDK\CsrBLE\CsrBLE.vcxproj">
       <Project>{d274aa09-5b34-4450-a6fb-5a5a351c7b45}</Project>
       <Name>CsrBLE</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HideezMiddleware\HideezMiddleware\HideezMiddleware.csproj">
+      <Project>{2a5abf59-55ee-461b-8c6f-2a294481129b}</Project>
+      <Name>HideezMiddleware</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

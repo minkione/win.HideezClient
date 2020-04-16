@@ -110,6 +110,7 @@
     <Compile Include="Settings\DeviceProximitySettingsHelper.cs" />
     <Compile Include="Settings\FileSerializer\IFileSerializer.cs" />
     <Compile Include="Settings\Manager\ISettingsManager.cs" />
+    <Compile Include="Settings\Manager\VirtualSettingsManager.cs" />
     <Compile Include="Settings\RfidSettings.cs" />
     <Compile Include="Settings\SdkSettings.cs" />
     <Compile Include="Settings\ServiceSettings.cs" />
