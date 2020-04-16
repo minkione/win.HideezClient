@@ -78,7 +78,7 @@ namespace HideezClient.Modules.ActionHandler
                         var msgOptions = new NotificationOptions { CloseTimeout = NotificationOptions.LongTimeout };
                         _messenger.Send(new ShowInfoNotificationMessage(info, options: msgOptions));
                     }
-                    else
+                    else if (!_activeDevice.Device.IsLoadingStorage)
                         await HandleButtonActionAsync(message.DeviceId, message.Action, message.Code);
                 }
                 else
@@ -103,7 +103,7 @@ namespace HideezClient.Modules.ActionHandler
                     WriteLine(warning, LogErrorSeverity.Warning);
                     return;
                 }
-                else
+                else if(!_activeDevice.Device.IsLoadingStorage)
                     await HandleHotkeyActionAsync(_activeDevice.Device.Id, message.Action, message.Hotkey);
             });
         }
