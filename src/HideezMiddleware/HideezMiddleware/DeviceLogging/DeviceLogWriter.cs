@@ -55,7 +55,7 @@ namespace HideezMiddleware.DeviceLogging
                 {
                     // Write additional device metadata
                     sw.WriteLine($"=== Additional metadata ===");
-                    sw.WriteLine($"== Collected at: {DateTime.Now.ToFileTime()}");
+                    sw.WriteLine($"== Collected at: {DateTime.Now}");
                     sw.WriteLine($"== Name: {device.Name}");
                     sw.WriteLine($"== Serial: {device.SerialNo}");
                     sw.WriteLine($"== Mac: {device.Mac}");
@@ -94,7 +94,7 @@ namespace HideezMiddleware.DeviceLogging
                 {
                     if (string.IsNullOrWhiteSpace(lastLineWithDate))
                     {
-                        sw.WriteLine("======== No dated entries, reprinting full log ========");
+                        sw.WriteLine($"======== No dated entries, reprinting full log, {DateTime.Now} ========");
                         foreach (var entry in deviceLog.Entries)
                             sw.WriteLine(entry.ToString());
                         sw.WriteLine("======== Log end ========");
@@ -104,7 +104,7 @@ namespace HideezMiddleware.DeviceLogging
                         var duplicateEntryIndex = deviceLog.Entries.FindIndex(e => e.ToString() == lastLineWithDate);
                         if (duplicateEntryIndex == -1)
                         {
-                            sw.WriteLine("======== No matching dated entries, printing new log,  ========");
+                            sw.WriteLine($"======== No matching dated entries, printing new log, {DateTime.Now}  ========");
                             foreach (var entry in deviceLog.Entries)
                                 sw.WriteLine(entry.ToString());
                             sw.WriteLine("======== Log end ========");
@@ -114,7 +114,7 @@ namespace HideezMiddleware.DeviceLogging
                             var filteredEntries = deviceLog.Entries.Skip(duplicateEntryIndex + 1); // Skip duplicated entry too
                             if (filteredEntries.Count() > 0)
                             {
-                                sw.WriteLine("======== Found matching dated entry, continue printing since last dated entry ========");
+                                sw.WriteLine($"======== Found matching dated entry, continue printing since last dated entry, {DateTime.Now} ========");
                                 foreach (var entry in filteredEntries)
                                     sw.WriteLine(entry.ToString());
                                 sw.WriteLine("======== Log end ========");
