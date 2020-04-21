@@ -38,12 +38,12 @@ namespace DeviceMaintenance.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool AutomaticallyUpdate {
+        public bool AutomaticallyUpload {
             get {
-                return ((bool)(this["AutomaticallyUpdate"]));
+                return ((bool)(this["AutomaticallyUpload"]));
             }
             set {
-                this["AutomaticallyUpdate"] = value;
+                this["AutomaticallyUpload"] = value;
             }
         }
     }

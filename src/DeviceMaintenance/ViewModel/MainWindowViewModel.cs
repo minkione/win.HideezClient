@@ -37,7 +37,7 @@ namespace DeviceMaintenance.ViewModel
         readonly object pendingConnectionsLock = new object();
 
         bool _restartServiceOnExit = false;
-        bool _automaticallyUpdateFirmware = Properties.Settings.Default.AutomaticallyUpdate;
+        bool _automaticallyUploadFirmware = Properties.Settings.Default.AutomaticallyUpload;
         string _fileName = Properties.Settings.Default.FirmwareFileName;
         DeviceViewModel _currentDevice;
         DiscoveredDeviceAddedEventArgs _currentDiscoveredDevice;
@@ -79,18 +79,27 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
-        public bool AutomaticallyUpdateFirmware
+        [DependsOn(nameof(FirmwareFilePath))]
+        public bool IsFirmwareSelected
         {
             get
             {
-                return _automaticallyUpdateFirmware;
+                return !string.IsNullOrWhiteSpace(FirmwareFilePath) && FirmwareFilePath.EndsWith($".{FW_FILE_EXTENSION}");
+            }
+        }
+
+        public bool AutomaticallyUploadFirmware
+        {
+            get
+            {
+                return _automaticallyUploadFirmware;
             }
             set
             {
-                if (_automaticallyUpdateFirmware != value)
+                if (_automaticallyUploadFirmware != value)
                 {
-                    _automaticallyUpdateFirmware = value;
-                    Properties.Settings.Default.AutomaticallyUpdate = AutomaticallyUpdateFirmware;
+                    _automaticallyUploadFirmware = value;
+                    Properties.Settings.Default.AutomaticallyUpload = AutomaticallyUploadFirmware;
                     Properties.Settings.Default.Save();
                     NotifyPropertyChanged();
                 }
@@ -210,7 +219,7 @@ namespace DeviceMaintenance.ViewModel
                 e.Reason == SessionSwitchReason.SessionUnlock ||
                 e.Reason == SessionSwitchReason.SessionLogon)
             {
-                AutomaticallyUpdateFirmware = false;
+                AutomaticallyUploadFirmware = false;
             }
         }
 
@@ -264,7 +273,7 @@ namespace DeviceMaintenance.ViewModel
 
         void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(FirmwareFilePath) || !FirmwareFilePath.EndsWith($".{FW_FILE_EXTENSION}"))
+            if (!IsFirmwareSelected)
                 return;
 
             if (e.Rssi > SdkConfig.TapProximityUnlockThreshold + 4 && !_advIgnoreList.IsIgnored(e.Id)) // -33 is to much and picks up devices from very far
@@ -297,7 +306,7 @@ namespace DeviceMaintenance.ViewModel
                             if (deviceVM?.Device != null)
                             {
                                 await deviceVM.Device.WaitInitialization(timeout: 10_000, System.Threading.CancellationToken.None);
-                                if (AutomaticallyUpdateFirmware || deviceVM.Device.IsBoot)
+                                if (AutomaticallyUploadFirmware || deviceVM.Device.IsBoot)
                                 {
                                     deviceVM.StartFirmwareUpdate();
                                     _advIgnoreList.Ignore(deviceVM.Device.Mac);
@@ -391,12 +400,9 @@ namespace DeviceMaintenance.ViewModel
 
         void SelectFirmware()
         {
-            if (string.IsNullOrWhiteSpace(FirmwareFilePath))
-                FirmwareFilePath = "Not selected...";
-
             OpenFileDialog ofd = new OpenFileDialog
             {
-                InitialDirectory = Path.GetDirectoryName(FirmwareFilePath),
+                InitialDirectory = string.IsNullOrWhiteSpace(FirmwareFilePath) ? string.Empty : Path.GetDirectoryName(FirmwareFilePath),
                 Filter = "Firmware Image file | *.img"
             };
 

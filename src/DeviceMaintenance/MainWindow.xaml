@@ -62,9 +62,9 @@
                 <CheckBox 
                     Style="{DynamicResource MetroCheckBox}"
                     Margin="0,20,20,0"
-                    Content="Automatically update connected devices" 
+                    Content="Automatically start uploading device firmware" 
                     HorizontalAlignment="Right" 
-                    IsChecked="{Binding AutomaticallyUpdateFirmware, Mode=TwoWay}"
+                    IsChecked="{Binding AutomaticallyUploadFirmware, Mode=TwoWay}"
                     />
 
                 <WrapPanel 
@@ -78,13 +78,23 @@
                         Foreground="LightBlue"
                         VerticalAlignment="Center"
                         />
-                    <TextBlock 
+                    <TextBlock
                         Margin="10"
-                        Text="Tap the device on the bluetooth dongle to make it appear in the list below" 
+                        Text="Please, select firmware file"
                         FontSize="14"
                         Foreground="White"
                         FontWeight="DemiBold"
                         VerticalAlignment="Center"
+                        Visibility="{Binding Path=IsFirmwareSelected, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
+                        />
+                    <TextBlock 
+                        Margin="10"
+                        Text="Tap the device on the bluetooth dongle to upload new firmware" 
+                        FontSize="14"
+                        Foreground="White"
+                        FontWeight="DemiBold"
+                        VerticalAlignment="Center"
+                        Visibility="{Binding Path=IsFirmwareSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
                         />
                 </WrapPanel>
 
