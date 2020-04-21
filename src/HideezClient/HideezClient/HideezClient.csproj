@@ -359,6 +359,7 @@
     <Compile Include="Modules\ActionHandler\Exception\LoginNotFoundException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\OtpNotFoundException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\PasswordNotFoundException.cs" />
+    <Compile Include="Modules\ActionHandler\Exception\AuthEndedUnexpectedlyException.cs" />
     <Compile Include="Modules\ActionHandler\IInputAlgorithm.cs" />
     <Compile Include="Modules\ActionHandler\InputBase.cs" />
     <Compile Include="Modules\ActionHandler\InputHelper.cs" />

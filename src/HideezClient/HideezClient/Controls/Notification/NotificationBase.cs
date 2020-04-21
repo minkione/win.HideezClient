@@ -2,6 +2,7 @@
 using MahApps.Metro.Controls;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,7 +15,7 @@ namespace HideezClient.Controls
     public abstract class NotificationBase : UserControl
     {
         private readonly object lockObj = new object();
-        private bool closing = false;
+        private int _closing = 0;
         private DispatcherTimer timer;
 
         protected NotificationBase(NotificationOptions options)
@@ -46,35 +47,35 @@ namespace HideezClient.Controls
 
         public void Close()
         {
-            lock (lockObj)
+            if (Interlocked.CompareExchange(ref _closing, 1, 0) == 0)
             {
-                if (!closing)
+                Options.TaskCompletionSource?.TrySetResult(false);
+
+                var errorInStoryboard = false;
+                try
                 {
-                    Options.TaskCompletionSource?.TrySetResult(false);
+                    // TODO: Find out, why 'Cannot resolve all property references' occurs for RenderTransform.ScaleX
+                    // Maybe, its somehow related to lock screen or resolution change when leaving suspended mode
+                    // Maybe there was an attempt to close/animate it before its style was set.
+                    Application.Current.Invoke(() => BeginAnimation("HideNotificationAnimation"));
+                }
+                catch (Exception) 
+                {
+                    // Some kind of error occured while starting animation
+                    errorInStoryboard = true;
+                }
 
-                    closing = true;
-
-                    var errorOccuredInStoryboard = false;
-                    try
+                if (!errorInStoryboard)
+                {
+                    var delayDuration = ((Duration)FindResource("AnimationHideTime")).TimeSpan;
+                    Application.Current.BeginInvoke(async () =>
                     {
-                        // TODO: Find out, why 'Cannot resolve all property references' occurs for RenderTransform.ScaleX
-                        // Maybe, its somehow related to lock screen or resolution change when leaving suspended mode
-                        // Maybe there was an attempt to close/animate it before its style was set.
-                        BeginAnimation("HideNotificationAnimation");
-                    }
-                    catch (Exception) 
-                    {
-                        errorOccuredInStoryboard = true;
-                    }
-                    
-                    Task.Run(async () =>
-                    {
-                        if (!errorOccuredInStoryboard) // Skip 300ms delay if failed to start animation
-                            await Task.Delay(((Duration)FindResource("AnimationHideTime")).TimeSpan);
-
-                        await App.Current.Dispatcher.InvokeAsync(() => Closed?.Invoke(this, EventArgs.Empty));
+                        // Wait for animation to finish
+                        await Task.Delay(delayDuration);
+                        Closed?.Invoke(this, EventArgs.Empty);
                     });
                 }
+
             }
         }
 

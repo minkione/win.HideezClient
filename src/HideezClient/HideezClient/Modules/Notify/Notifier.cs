@@ -1,8 +1,6 @@
-﻿using Hideez.ARM;
-using HideezClient.Controls;
+﻿using HideezClient.Controls;
 using HideezClient.Models;
 using HideezClient.Modules.Localize;
-using HideezClient.Mvvm;
 using HideezClient.Utilities;
 using HideezClient.ViewModels;
 using HideezClient.Views;
@@ -105,8 +103,16 @@ namespace HideezClient.Modules
 
             TaskCompletionSource<bool> taskCompletionSourceForDialog = new TaskCompletionSource<bool>();
 
+            var options = new NotificationOptions
+            {
+                SetFocus = true,
+                CloseWhenDeactivate = true,
+                Position = NotificationPosition.Bottom,
+                TaskCompletionSource = taskCompletionSourceForDialog,
+            };
+
             var viewModel = new AccountSelectorViewModel(accounts);
-            AccountSelector notification = new AccountSelector(new NotificationOptions { SetFocus = true, CloseWhenDeactivate = true, Position = NotificationPosition.Bottom, TaskCompletionSource = taskCompletionSourceForDialog, })
+            AccountSelector notification = new AccountSelector(options)
             {
                 DataContext = viewModel,
             };
@@ -203,7 +209,8 @@ namespace HideezClient.Modules
 
             Screen screen = GetCurrentScreen();
             AddNotification(screen, notification, true);
-            return await taskCompletionSourceForDialog.Task;
+            var result = await taskCompletionSourceForDialog.Task;
+            return result;
         }
 
         void ShowSimpleNotification(string notificationId, string title, string message, NotificationOptions options, NotificationIconType notificationType)

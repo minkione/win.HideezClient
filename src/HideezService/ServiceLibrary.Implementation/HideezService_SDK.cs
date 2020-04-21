@@ -21,6 +21,7 @@ using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware;
 using HideezMiddleware.Audit;
 using HideezMiddleware.DeviceConnection;
+using HideezMiddleware.DeviceLogging;
 using HideezMiddleware.Local;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
@@ -51,6 +52,7 @@ namespace ServiceLibrary.Implementation
 
         static ISettingsManager<RfidSettings> _rfidSettingsManager;
         static ISettingsManager<ProximitySettings> _proximitySettingsManager;
+        static ISettingsManager<ServiceSettings> _serviceSettingsManager;
         static DeviceProximitySettingsHelper _deviceProximitySettingsHelper;
 
         static ConnectionFlowProcessor _connectionFlowProcessor;
@@ -61,6 +63,7 @@ namespace ServiceLibrary.Implementation
         static SessionSwitchLogger _sessionSwitchLogger;
         static ConnectionManagerRestarter _connectionManagerRestarter;
         static ILocalDeviceInfoCache _localDeviceInfoCache;
+        static DeviceLogManager _deviceLogManager;
 
         static IUnlockTokenProvider _unlockTokenProvider;
         static UnlockTokenGenerator _unlockTokenGenerator;
@@ -78,7 +81,7 @@ namespace ServiceLibrary.Implementation
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
-            string settingsDirectory = $@"{commonAppData}\Hideez\Service\Settings\";
+            var deviceLogsPath = $"{commonAppData}\\Hideez\\Service\\DeviceLogs";
 
             // Connection Manager ============================
             _connectionManager = new BleConnectionManager(_sdkLogger, bondsFilePath);
@@ -107,8 +110,10 @@ namespace ServiceLibrary.Implementation
             _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
 
             // Settings
+            var settingsDirectory = $@"{commonAppData}\Hideez\Service\Settings\";
             string rfidSettingsPath = Path.Combine(settingsDirectory, "Rfid.xml");
             string proximitySettingsPath = Path.Combine(settingsDirectory, "Proximity.xml");
+            string serviceSettingsPath = Path.Combine(settingsDirectory, "Service.xml");
             string sdkSettingsPath = Path.Combine(settingsDirectory, "Sdk.xml");
             IFileSerializer fileSerializer = new XmlFileSerializer(_sdkLogger);
             var sdkSettingsManager = new SettingsManager<SdkSettings>(sdkSettingsPath, fileSerializer);
@@ -120,11 +125,16 @@ namespace ServiceLibrary.Implementation
 
             _rfidSettingsManager = new SettingsManager<RfidSettings>(rfidSettingsPath, fileSerializer);
             _rfidSettingsManager.InitializeFileStruct();
+            _rfidSettingsManager.LoadSettingsAsync().Wait();
 
             _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
             _proximitySettingsManager.InitializeFileStruct();
             _proximitySettingsManager.SettingsChanged += ProximitySettingsManager_SettingsChanged;
             _proximitySettingsManager.GetSettingsAsync().Wait();
+
+            _serviceSettingsManager = new SettingsManager<ServiceSettings>(serviceSettingsPath, fileSerializer);
+            _serviceSettingsManager.InitializeFileStruct();
+            _serviceSettingsManager.LoadSettingsAsync().Wait();
 
             _deviceProximitySettingsHelper = new DeviceProximitySettingsHelper(_proximitySettingsManager);
 
@@ -207,6 +217,7 @@ namespace ServiceLibrary.Implementation
                 _uiProxy,
                 _localDeviceInfoCache,
                 _sdkLogger);
+            _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreList = new AdvertisementIgnoreList(
                 _connectionManager,
@@ -243,7 +254,7 @@ namespace ServiceLibrary.Implementation
 
             // WorkstationLocker ==================================
             // TODO: Use value from SdkConfig for timeout
-            _workstationLocker = new UniversalWorkstationLocker(5_000, sessionManager, _sdkLogger);
+            _workstationLocker = new UniversalWorkstationLocker(SdkConfig.DefaultLockTimeout * 1000, sessionManager, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager,
