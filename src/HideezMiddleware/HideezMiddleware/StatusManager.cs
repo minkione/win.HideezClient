@@ -10,12 +10,14 @@ namespace HideezMiddleware
     public class StatusManager : Logger, IDisposable
     {
         readonly HesAppConnection _hesConnection;
+        readonly HesAppConnection _tbHesConnection;
         readonly RfidServiceConnection _rfidService;
         readonly IBleConnectionManager _connectionManager;
         readonly IClientUiManager _uiClientManager;
         readonly ISettingsManager<RfidSettings> _rfidSettingsManager;
 
         public StatusManager(HesAppConnection hesConnection,
+            HesAppConnection tbHesConnection,
             RfidServiceConnection rfidService,
             IBleConnectionManager connectionManager,
             IClientUiManager clientUiManager,
@@ -24,6 +26,7 @@ namespace HideezMiddleware
             : base(nameof(StatusManager), log)
         {
             _hesConnection = hesConnection;
+            _tbHesConnection = tbHesConnection;
             _rfidService = rfidService;
             _connectionManager = connectionManager;
             _uiClientManager = clientUiManager;
@@ -37,6 +40,14 @@ namespace HideezMiddleware
 
             if (_hesConnection != null)
                 _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
+
+            if(_tbHesConnection != null)
+                _tbHesConnection.HubConnectionStateChanged += TryAndBuyHesConnection_HubConnectionStateChanged;
+        }
+
+        private void TryAndBuyHesConnection_HubConnectionStateChanged(object sender, EventArgs e)
+        {
+            SendStatusToUI();
         }
 
         private void RfidSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<RfidSettings> e)
@@ -113,7 +124,9 @@ namespace HideezMiddleware
 
                 var bluetoothStatus = GetBluetoothStatus();
 
-                await _uiClientManager.SendStatus(hesStatus, rfidStatus, bluetoothStatus);
+                var tbHesStatus = GetTBHesStatus();
+
+                await _uiClientManager.SendStatus(hesStatus, tbHesStatus, rfidStatus, bluetoothStatus);
             }
             catch (Exception ex)
             {
@@ -158,6 +171,14 @@ namespace HideezMiddleware
         HesStatus GetHesStatus()
         {
             if (_hesConnection == null || _hesConnection.State != HesConnectionState.Connected)
+                return HesStatus.HesNotConnected;
+            else
+                return HesStatus.Ok;
+        }
+
+        HesStatus GetTBHesStatus()
+        {
+            if (_tbHesConnection == null || _tbHesConnection.State != HesConnectionState.Connected)
                 return HesStatus.HesNotConnected;
             else
                 return HesStatus.Ok;

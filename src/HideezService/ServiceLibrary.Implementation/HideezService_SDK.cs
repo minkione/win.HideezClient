@@ -69,6 +69,8 @@ namespace ServiceLibrary.Implementation
         static UnlockTokenGenerator _unlockTokenGenerator;
         static RemoteWorkstationUnlocker _remoteWorkstationUnlocker;
 
+        static HesAppConnection _tbHesConnection;
+
         void InitializeSDK()
         {
 #if DEBUG
@@ -176,6 +178,9 @@ namespace ServiceLibrary.Implementation
             };
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
 
+            // Try & Buy HES Connection ==================================
+            _tbHesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sdkLogger);
+
             // Audit Log / Event Aggregator =============================
             _eventSender = new EventSender(_hesConnection, _eventSaver, _sdkLogger);
 
@@ -189,7 +194,7 @@ namespace ServiceLibrary.Implementation
             _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, _sdkLogger);
 
             // StatusManager =============================
-            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _rfidSettingsManager, _sdkLogger);
+            _statusManager = new StatusManager(_hesConnection, _tbHesConnection, _rfidService, _connectionManager, _uiProxy, _rfidSettingsManager, _sdkLogger);
 
             // Local device info cache
             RegistryKey clientRootRegistryKey = null;
@@ -269,7 +274,7 @@ namespace ServiceLibrary.Implementation
             // Secondary Unlock Mechanism
             _unlockTokenProvider = new UnlockTokenProvider(clientRootRegistryKey, _sdkLogger);
             _unlockTokenGenerator = new UnlockTokenGenerator(_unlockTokenProvider, workstationInfoProvider, _sdkLogger);
-            _remoteWorkstationUnlocker = new RemoteWorkstationUnlocker(_unlockTokenProvider, _hesConnection, _credentialProviderProxy, _sdkLogger);
+            _remoteWorkstationUnlocker = new RemoteWorkstationUnlocker(_unlockTokenProvider, _tbHesConnection, _credentialProviderProxy, _sdkLogger);
 
             // SDK initialization finished, start essential components
             _credentialProviderProxy.Start();
@@ -284,13 +289,25 @@ namespace ServiceLibrary.Implementation
 
             if (_hesConnection.State == HesConnectionState.Error)
             {
-                Task.Run(async () => { await _hesConnection.Stop(); });
+                Task.Run(_hesConnection.Stop);
 
                 Error("Hideez Service has encountered an error during HES connection initialization"
                     + Environment.NewLine
                     + "New connection establishment will be attempted after service restart"
                     + Environment.NewLine
                     + _hesConnection.ErrorMessage);
+            }
+
+            _tbHesConnection.Start("https://trynbuy.hideez.com");
+            if (_tbHesConnection.State == HesConnectionState.Error)
+            {
+                Task.Run(_tbHesConnection.Stop);
+
+                Error("Try & Buy server is not available"
+                    + Environment.NewLine
+                    + "New connection establishment will be attempted after service restart"
+                    + Environment.NewLine
+                    + _tbHesConnection.ErrorMessage);
             }
         }
 

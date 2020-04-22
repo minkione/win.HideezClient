@@ -241,6 +241,7 @@
         <xs:element minOccurs="0" name="rfidConnected" type="xs:boolean" />
         <xs:element minOccurs="0" name="showRfidStatus" type="xs:boolean" />
         <xs:element minOccurs="0" name="bleConnected" type="xs:boolean" />
+        <xs:element minOccurs="0" name="tbHesConnected" type="xs:boolean" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

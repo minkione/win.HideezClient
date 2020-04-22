@@ -90,7 +90,7 @@ namespace ServiceLibrary
 
 
         [OperationContract(IsOneWay = true)]
-        void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected);
+        void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected, bool tbHesConnected);
 
         [OperationContract(IsOneWay = true)]
         void ServiceNotificationReceived(string message, string notificationId);
@@ -135,7 +135,6 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void HidePinUi();
-
     }
 
     public enum Adapter

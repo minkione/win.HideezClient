@@ -48,7 +48,7 @@ namespace HideezMiddleware
         Task ShowButtonConfirmUi(string deviceId);
         Task HidePinUi();
 
-        Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus);
+        Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus);
         Task SendError(string message, string notificationId);
         Task SendNotification(string message, string notificationId);
     }
@@ -64,7 +64,7 @@ namespace HideezMiddleware
         Task ShowButtonConfirmUi(string deviceId);
         Task HidePinUi();
 
-        Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus);
+        Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus);
         Task SendError(string message, string notificationId = null);
         Task SendNotification(string message, string notificationId = null);
     }

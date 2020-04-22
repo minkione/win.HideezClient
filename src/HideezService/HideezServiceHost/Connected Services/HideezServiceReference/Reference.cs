@@ -1168,7 +1168,7 @@ namespace HideezServiceHost.HideezServiceReference {
         void ActivateWorkstationScreenRequest();
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceComponentsStateChanged")]
-        void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected);
+        void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected, bool tbHesConnected);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceNotificationReceived")]
         void ServiceNotificationReceived(string message, string notificationId);

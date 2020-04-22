@@ -12,13 +12,16 @@
 
         public bool BleConnected { get; set; }
 
-        public ServiceComponentsStateChangedMessage(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected)
+        public bool TBHesConnected { get; set; }
+
+        public ServiceComponentsStateChangedMessage(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected, bool tbHesConnected)
         {
             HesConnected = hesConnected;
             ShowHesStatus = showHesStatus;
             RfidConnected = rfidConnected;
             ShowRfidStatus = showRfidStatus;
             BleConnected = bleConnected;
+            TBHesConnected = tbHesConnected;
         }
     }
 }

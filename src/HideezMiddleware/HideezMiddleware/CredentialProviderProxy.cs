@@ -311,7 +311,7 @@ namespace HideezMiddleware
         #endregion Utils
 
 
-        public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
+        public async Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
         {
             var statuses = new List<string>();
 

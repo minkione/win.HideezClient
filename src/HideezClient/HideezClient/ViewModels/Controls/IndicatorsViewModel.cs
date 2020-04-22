@@ -19,6 +19,7 @@ namespace HideezClient.ViewModels
         private ConnectionIndicatorViewModel server;
         private ConnectionIndicatorViewModel rfid;
         private ConnectionIndicatorViewModel dongle;
+        private ConnectionIndicatorViewModel tbServer;
 
         public IndicatorsViewModel(IMessenger messenger, IServiceProxy serviceProxy)
         {
@@ -38,6 +39,8 @@ namespace HideezClient.ViewModels
                 RFID.Visible = message.ShowRfidStatus;
 
                 Dongle.State = message.BleConnected;
+
+                TBServer.State = message.TBHesConnected;
             }
             , true);
         }
@@ -68,6 +71,12 @@ namespace HideezClient.ViewModels
         {
             get { return dongle; }
             set { Set(ref dongle, value); }
+        }
+
+        public ConnectionIndicatorViewModel TBServer
+        {
+            get { return tbServer; }
+            set { Set(ref tbServer, value); }
         }
 
         #endregion
@@ -101,9 +110,18 @@ namespace HideezClient.ViewModels
                 HasConnectionText = "Status.Tooltip.ConectedDongle",
                 NoConnectionText = "Status.Tooltip.DisconectedDongle",
             };
+
+            TBServer = new ConnectionIndicatorViewModel
+            {
+                Name = "Status.Network",
+                HasConnectionText = "Status.Tooltip.NetworkAvailable",
+                NoConnectionText = "Status.Tooltip.NetworkUnavailable",
+            };
+
             Indicators.Add(Server);
             Indicators.Add(RFID);
             Indicators.Add(Dongle);
+            Indicators.Add(TBServer);
         }
 
         private void ResetIndicators(bool isServiceConnected)

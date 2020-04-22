@@ -1,4 +1,5 @@
-﻿using HideezMiddleware;
+﻿using Hideez.SDK.Communication.Log;
+using HideezMiddleware;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -167,7 +168,7 @@ namespace ServiceLibrary.Implementation.ClientManagement
             });
         }
 
-        public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
+        public async Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
         {
             await Task.Run(() =>
             {
@@ -181,11 +182,13 @@ namespace ServiceLibrary.Implementation.ClientManagement
 
                 var isBleOk = bluetoothStatus == BluetoothStatus.Ok;
 
+                var isTbHesOk = tbHesStatus == HesStatus.Ok;
+
                 foreach (var session in _clientSessionManager.Sessions)
                 {
                     try
                     {
-                        session.Callbacks.ServiceComponentsStateChanged(isHesOk, showHesStatus, isRfidOk, showRfidStatus, isBleOk);
+                        session.Callbacks.ServiceComponentsStateChanged(isHesOk, showHesStatus, isRfidOk, showRfidStatus, isBleOk, isTbHesOk);
                     }
                     catch (Exception ex)
                     {

@@ -82,11 +82,11 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             SendMessage(new Remote_DeviceStateChangedMessage(deviceId, stateDto.ToDeviceState()));
         }
 
-        public void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected)
+        public void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected, bool tbHesConnected)
         {
             _log.WriteLine($"Service components state changed (hes:{hesConnected}; showHes:{showHesStatus}; " +
-                $"rfid:{rfidConnected}; showRfid:{showRfidStatus};  ble:{bleConnected})");
-            SendMessage(new ServiceComponentsStateChangedMessage(hesConnected, showHesStatus, rfidConnected, showRfidStatus, bleConnected));
+                $"rfid:{rfidConnected}; showRfid:{showRfidStatus};  ble:{bleConnected}; tbHes:{tbHesConnected};)");
+            SendMessage(new ServiceComponentsStateChangedMessage(hesConnected, showHesStatus, rfidConnected, showRfidStatus, bleConnected, tbHesConnected));
         }
 
         public void ServiceNotificationReceived(string message, string notificationId)
