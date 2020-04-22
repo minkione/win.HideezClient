@@ -47,5 +47,22 @@ namespace ServiceLibrary.Implementation
 
             return string.Empty;
         }
+
+        public static void SetHesAddress(Logger log, string address)
+        {
+            try
+            {
+                var registryKey = HideezClientRegistryRoot.GetRootRegistryKey();
+
+                if (registryKey == null)
+                    throw new Exception("Couldn't find Hideez Client registry key. (HKLM\\SOFTWARE\\Hideez\\Client)");
+
+                registryKey.SetValue(_hesAddressRegistryValueName, address);
+            }
+            catch (Exception ex)
+            {
+                log.WriteLine(ex);
+            }
+        }
     }
 }

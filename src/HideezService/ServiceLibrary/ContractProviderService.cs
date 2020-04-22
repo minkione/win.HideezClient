@@ -103,5 +103,10 @@ namespace ServiceLibrary
         {
             throw new NotImplementedException();
         }
+
+        public Task<bool> ChangeServerAddress(string address)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -75,6 +75,10 @@ namespace ServiceLibrary
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         ProximitySettingsDTO GetCurrentProximitySettings(string mac);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        Task<bool> ChangeServerAddress(string address);
     }
 
     public interface ICallbacks

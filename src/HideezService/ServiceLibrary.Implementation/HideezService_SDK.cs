@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Security;
 using System.Security;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication;
@@ -15,6 +16,7 @@ using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Proximity;
+using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.WCF;
 using Hideez.SDK.Communication.Workstation;
 using Hideez.SDK.Communication.WorkstationEvents;
@@ -779,6 +781,34 @@ namespace ServiceLibrary.Implementation
                 AllowEditProximitySettings = _deviceProximitySettingsHelper?.GetAllowEditProximity(mac) ?? false,
             };
             return dto;
+        }
+
+        public async Task<bool> ChangeServerAddress(string address)
+        {
+            try
+            {
+                _log.WriteLine($"Trying to change HES address to {address}");
+                var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(address).TimeoutAfter(5_000);
+                
+                if (connectedOnNewAddress)
+                {
+                    _log.WriteLine($"Passed connectivity check to {address}");
+                    RegistrySettings.SetHesAddress(_log, address);
+                    await _hesConnection.Stop();
+                    _hesConnection.Start(address);
+
+                    return true;
+                }
+                else
+                {
+                    _log.WriteLine($"Failed connectivity check to {address}");
+                    return false;
+                }
+            }
+            catch (TimeoutException)
+            {
+                return false;
+            }
         }
 
         #region Remote device management

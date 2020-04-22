@@ -134,7 +134,7 @@ namespace HideezClient.ViewModels
                 RFID.State = false;
                 RFID.Visible = false;
                 Server.State = false;
-                TBServer = false;
+                TBServer.State = false;
             }
             catch (Exception ex)
             {

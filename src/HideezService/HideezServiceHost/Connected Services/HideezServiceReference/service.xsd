@@ -218,6 +218,20 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="ChangeServerAddress">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="address" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangeServerAddressResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ChangeServerAddressResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="ProximitySettingsChanged">
     <xs:complexType>
       <xs:sequence />

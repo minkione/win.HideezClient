@@ -1153,6 +1153,13 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetCurrentProximitySettings", ReplyAction="http://tempuri.org/IHideezService/GetCurrentProximitySettingsResponse")]
         System.Threading.Tasks.Task<TestConsole.HideezServiceReference.ProximitySettingsDTO> GetCurrentProximitySettingsAsync(string mac);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/ChangeServerAddress", ReplyAction="http://tempuri.org/IHideezService/ChangeServerAddressResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/ChangeServerAddressHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        bool ChangeServerAddress(string address);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/ChangeServerAddress", ReplyAction="http://tempuri.org/IHideezService/ChangeServerAddressResponse")]
+        System.Threading.Tasks.Task<bool> ChangeServerAddressAsync(string address);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1375,6 +1382,14 @@ namespace TestConsole.HideezServiceReference {
         
         public System.Threading.Tasks.Task<TestConsole.HideezServiceReference.ProximitySettingsDTO> GetCurrentProximitySettingsAsync(string mac) {
             return base.Channel.GetCurrentProximitySettingsAsync(mac);
+        }
+        
+        public bool ChangeServerAddress(string address) {
+            return base.Channel.ChangeServerAddress(address);
+        }
+        
+        public System.Threading.Tasks.Task<bool> ChangeServerAddressAsync(string address) {
+            return base.Channel.ChangeServerAddressAsync(address);
         }
     }
 }

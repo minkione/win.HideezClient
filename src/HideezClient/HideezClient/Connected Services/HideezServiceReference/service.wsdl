@@ -195,6 +195,15 @@
   <wsdl:message name="IHideezService_GetCurrentProximitySettings_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q17="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q17:HideezServiceFault" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_ChangeServerAddress_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeServerAddress" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_ChangeServerAddress_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeServerAddressResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_ChangeServerAddress_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q18="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q18:HideezServiceFault" />
+  </wsdl:message>
   <wsdl:message name="IHideezService_ProximitySettingsChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:ProximitySettingsChanged" />
   </wsdl:message>
@@ -334,6 +343,11 @@
       <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/GetCurrentProximitySettings" message="tns:IHideezService_GetCurrentProximitySettings_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/GetCurrentProximitySettingsResponse" message="tns:IHideezService_GetCurrentProximitySettings_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/GetCurrentProximitySettingsHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_GetCurrentProximitySettings_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ChangeServerAddress">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/ChangeServerAddress" message="tns:IHideezService_ChangeServerAddress_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ChangeServerAddressResponse" message="tns:IHideezService_ChangeServerAddress_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/ChangeServerAddressHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_ChangeServerAddress_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ProximitySettingsChanged">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ProximitySettingsChanged" message="tns:IHideezService_ProximitySettingsChanged_OutputCallbackMessage" />
@@ -588,6 +602,18 @@
     </wsdl:operation>
     <wsdl:operation name="GetCurrentProximitySettings">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/GetCurrentProximitySettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeServerAddress">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/ChangeServerAddress" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
