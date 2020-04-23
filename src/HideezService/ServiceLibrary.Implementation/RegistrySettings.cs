@@ -52,7 +52,7 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                var registryKey = HideezClientRegistryRoot.GetRootRegistryKey();
+                var registryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
 
                 if (registryKey == null)
                     throw new Exception("Couldn't find Hideez Client registry key. (HKLM\\SOFTWARE\\Hideez\\Client)");

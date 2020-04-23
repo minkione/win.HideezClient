@@ -78,6 +78,10 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
+        string GetServerAddress();
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
         Task<bool> ChangeServerAddress(string address);
     }
 

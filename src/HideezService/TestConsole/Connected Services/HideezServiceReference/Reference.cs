@@ -1154,6 +1154,13 @@ namespace TestConsole.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetCurrentProximitySettings", ReplyAction="http://tempuri.org/IHideezService/GetCurrentProximitySettingsResponse")]
         System.Threading.Tasks.Task<TestConsole.HideezServiceReference.ProximitySettingsDTO> GetCurrentProximitySettingsAsync(string mac);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetServerAddress", ReplyAction="http://tempuri.org/IHideezService/GetServerAddressResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetServerAddressHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        string GetServerAddress();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetServerAddress", ReplyAction="http://tempuri.org/IHideezService/GetServerAddressResponse")]
+        System.Threading.Tasks.Task<string> GetServerAddressAsync();
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/ChangeServerAddress", ReplyAction="http://tempuri.org/IHideezService/ChangeServerAddressResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TestConsole.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/ChangeServerAddressHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
         bool ChangeServerAddress(string address);
@@ -1382,6 +1389,14 @@ namespace TestConsole.HideezServiceReference {
         
         public System.Threading.Tasks.Task<TestConsole.HideezServiceReference.ProximitySettingsDTO> GetCurrentProximitySettingsAsync(string mac) {
             return base.Channel.GetCurrentProximitySettingsAsync(mac);
+        }
+        
+        public string GetServerAddress() {
+            return base.Channel.GetServerAddress();
+        }
+        
+        public System.Threading.Tasks.Task<string> GetServerAddressAsync() {
+            return base.Channel.GetServerAddressAsync();
         }
         
         public bool ChangeServerAddress(string address) {

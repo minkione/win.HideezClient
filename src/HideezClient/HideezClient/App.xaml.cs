@@ -271,6 +271,7 @@ namespace HideezClient
             Container.RegisterType<PasswordManagerViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<DefaultPageViewModel>();
             Container.RegisterType<DeviceSettingsPageViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<SaveAddressEditControlViewModel>(new ContainerControlledLifetimeManager());
 
             #endregion ViewModels
 

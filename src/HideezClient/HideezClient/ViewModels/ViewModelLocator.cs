@@ -79,6 +79,11 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<IndicatorsViewModel>(); }
         }
 
+        public SaveAddressEditControlViewModel SaveAddressEditControlViewModel
+        {
+            get { return DIContainer.Resolve<SaveAddressEditControlViewModel>(); }
+        }
+
         #endregion
 
         #region Dialog

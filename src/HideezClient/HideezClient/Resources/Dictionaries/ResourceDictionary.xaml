@@ -96,6 +96,10 @@
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="border" Property="Background" Value="#CCEBF4" />
                         </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Background" Value="#ffC0C0C0" />
+                            <Setter Property="Foreground" Value="{StaticResource LightForeground}" />
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -140,6 +144,7 @@
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="InnerBorder" Property="Background" Value="#ffC0C0C0" />
+                            <Setter TargetName="OuterBorder" Property="Background" Value="#ffC0C0C0" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

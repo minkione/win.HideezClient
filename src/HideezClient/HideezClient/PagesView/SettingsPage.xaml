@@ -8,20 +8,21 @@
     xmlns:local="clr-namespace:HideezClient.PagesView"    
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HideezClient.Controls"
     Title="SettingsPage"
     d:DesignHeight="450"
     d:DesignWidth="800"
     DataContext="{Binding SettingsPage, Mode=OneWay, Source={StaticResource Locator}}"
     Style="{DynamicResource PageStyle}"
     mc:Ignorable="d">
-    <Grid Margin="16" VerticalAlignment="Stretch">
+    <Grid Margin="16" VerticalAlignment="Stretch"  >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <!--  Search  -->
-        <StackPanel Margin="4,4,0,0" Orientation="Horizontal">
+        <!--<StackPanel Margin="4,4,0,0" Orientation="Horizontal">
             <iconPacks:PackIconFontAwesome
                 VerticalAlignment="Center"
                 Foreground="{StaticResource LeftColumMenuActiveBrush}"
@@ -44,9 +45,10 @@
         <Separator
             Grid.Row="1"
             Margin="0,16"
-            Style="{DynamicResource SeparatorStyle}" />
-        <StackPanel Grid.Row="2">
-            <Border
+            Style="{DynamicResource SeparatorStyle}" />-->
+        <StackPanel Grid.Row="2" HorizontalAlignment="Left" Width="450" Margin="70,70,0,0">
+            <controls:ServerAddressEditControl />
+            <!--<Border
                 Height="190"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
@@ -65,14 +67,7 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 Background="#E1F3F8"
-                CornerRadius="8" />
-            <Rectangle Height="16" />
-            <Border
-                Height="190"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                Background="#E1F3F8"
-                CornerRadius="8" />
+                CornerRadius="8" />-->
         </StackPanel>
     </Grid>
 </Page>

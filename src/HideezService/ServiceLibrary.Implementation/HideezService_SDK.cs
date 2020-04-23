@@ -783,26 +783,41 @@ namespace ServiceLibrary.Implementation
             return dto;
         }
 
+        public string GetServerAddress()
+        {
+            return RegistrySettings.GetHesAddress(_log);
+        }
+
         public async Task<bool> ChangeServerAddress(string address)
         {
             try
             {
-                _log.WriteLine($"Trying to change HES address to {address}");
-                var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(address).TimeoutAfter(5_000);
-                
-                if (connectedOnNewAddress)
+                _log.WriteLine($"Client requested HES address change to \"{address}\"");
+
+                if (string.IsNullOrWhiteSpace(address))
                 {
-                    _log.WriteLine($"Passed connectivity check to {address}");
+                    _log.WriteLine($"Clearing server address and shutting down connection");
                     RegistrySettings.SetHesAddress(_log, address);
                     await _hesConnection.Stop();
-                    _hesConnection.Start(address);
-
                     return true;
                 }
                 else
                 {
-                    _log.WriteLine($"Failed connectivity check to {address}");
-                    return false;
+                    var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(address).TimeoutAfter(5_000);
+                    if (connectedOnNewAddress)
+                    {
+                        _log.WriteLine($"Passed connectivity check to {address}");
+                        RegistrySettings.SetHesAddress(_log, address);
+                        await _hesConnection.Stop();
+                        _hesConnection.Start(address);
+
+                        return true;
+                    }
+                    else
+                    {
+                        _log.WriteLine($"Failed connectivity check to {address}");
+                        return false;
+                    }
                 }
             }
             catch (TimeoutException)

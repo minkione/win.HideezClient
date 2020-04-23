@@ -672,4 +672,22 @@ to access stored credentials</value>
   <data name="Url.Help" xml:space="preserve">
     <value>https://support.hideez.com</value>
   </data>
+  <data name="Settings.Label.RequestAddressFromAdmin" xml:space="preserve">
+    <value>Contact your Administrator and ask for URL of Hideez Enterprise Server</value>
+  </data>
+  <data name="Settings.Label.ServerAddress" xml:space="preserve">
+    <value>Hideez Enterprise Server</value>
+  </data>
+  <data name="Settings.Label.ServerUnavailable" xml:space="preserve">
+    <value>Hideez Enterprise Server is unavailable or entered address is incorrect</value>
+  </data>
+  <data name="Settings.Watermark.ServerAddress" xml:space="preserve">
+    <value>Enter URL here</value>
+  </data>
+  <data name="Error.CantReachServer" xml:space="preserve">
+    <value>Failed to connect to the server</value>
+  </data>
+  <data name="Settings.Label.CheckingConnection" xml:space="preserve">
+    <value>Checking server...</value>
+  </data>
 </root>
