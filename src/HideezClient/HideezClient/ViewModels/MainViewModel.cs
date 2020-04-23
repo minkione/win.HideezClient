@@ -12,6 +12,8 @@ using HideezClient.Modules;
 using System.Collections.Generic;
 using MvvmExtensions.Attributes;
 using System.Windows;
+using HideezClient.Utilities;
+using HideezClient.Modules.Localize;
 
 namespace HideezClient.ViewModels
 {
@@ -22,17 +24,24 @@ namespace HideezClient.ViewModels
         readonly IMenuFactory _menuFactory;
         readonly IActiveDevice _activeDevice;
         readonly ViewModelLocator _viewModelLocator;
+        readonly IAppHelper _appHelper;
         readonly ISet<MenuItemViewModel> _leftAppMenuItems = new HashSet<MenuItemViewModel>();
         readonly ISet<MenuItemViewModel> _leftDeviceMenuItems = new HashSet<MenuItemViewModel>();
         Uri _displayPage;
         DeviceInfoViewModel _activeDeviceVM = null;
 
-        public MainViewModel(IDeviceManager deviceManager, IMenuFactory menuFactory, IActiveDevice activeDevice, IMessenger messenger, ViewModelLocator viewModelLocator)
+        public MainViewModel(IDeviceManager deviceManager, 
+            IMenuFactory menuFactory, 
+            IActiveDevice activeDevice, 
+            IMessenger messenger, 
+            ViewModelLocator viewModelLocator, 
+            IAppHelper appHelper)
         {
             _deviceManager = deviceManager;
             _menuFactory = menuFactory;
             _activeDevice = activeDevice;
             _viewModelLocator = viewModelLocator;
+            _appHelper = appHelper;
 
             InitMenu();
             
@@ -66,7 +75,7 @@ namespace HideezClient.ViewModels
             MenuHelp = new MenuItemViewModel
             {
                 Header = "Menu.Help",
-                Command = OpenHelpPageCommand,
+                Command = OpenHelpWebpageCommand,
             };
             MenuSettings = new MenuItemViewModel
             {
@@ -235,7 +244,7 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public ICommand OpenHelpPageCommand
+        public ICommand OpenHelpWebpageCommand
         {
             get
             {
@@ -305,7 +314,7 @@ namespace HideezClient.ViewModels
 
         private void OnOpenHelp()
         {
-            ProcessNavRequest("HelpPage");
+            _appHelper.OpenUrl(TranslationSource.Instance["Url.HelpPage"]);
         }
 
         private void OnOpenPasswordManager()

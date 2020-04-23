@@ -1,0 +1,98 @@
+﻿<UserControl
+    x:Class="HideezClient.Controls.LeftMenuButtonControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:HideezClient.Controls"
+    mc:Ignorable="d" 
+    d:DesignHeight="450" d:DesignWidth="800">
+    <!-- Copied from LeftMenuItemControl but RadioButton switched to conventional button -->
+    <Button
+        Height="40"
+        Click="Button_Click"
+        CommandParameter="{Binding CommandParameter}"
+        FocusVisualStyle="{x:Null}">
+        <Button.Resources>
+            <Style TargetType="{x:Type Button}">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="10" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="10" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="30" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Rectangle Grid.Column="0" Width="6">
+                                        <Rectangle.Style>
+                                            <Style TargetType="Rectangle">
+                                                <Setter Property="Fill" Value="Transparent" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" Value="True">
+                                                        <Setter Property="Fill" Value="{StaticResource WindowBackground}" />
+                                                        <Setter Property="Effect" Value="{StaticResource ShadowEffect}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Rectangle.Style>
+                                    </Rectangle>
+                                    <ContentControl
+                                        x:Name="menuIcon"
+                                        Grid.Column="2"
+                                        Width="18"
+                                        Height="18"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        Content="{Binding Tag, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+                                        <ContentControl.Style>
+                                            <Style TargetType="ContentControl">
+                                                <Setter Property="Opacity" Value="0.25" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" Value="True">
+                                                        <Setter Property="Opacity" Value="1" />
+                                                        <Setter Property="Effect" Value="{StaticResource ShadowEffect}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ContentControl.Style>
+                                    </ContentControl>
+                                    <TextBlock
+                                        Grid.Column="4"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Text="{Binding Header}" />
+                                </Grid>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <MultiTrigger>
+                        <MultiTrigger.Conditions>
+                            <Condition Property="IsMouseOver" Value="True" />
+                        </MultiTrigger.Conditions>
+                        <MultiTrigger.Setters>
+                            <Setter Property="Background" Value="{StaticResource LeftColumMenuHoverBrush}" />
+                            <Setter Property="Cursor" Value="Hand" />
+                        </MultiTrigger.Setters>
+                    </MultiTrigger>
+                    <MultiTrigger>
+                        <MultiTrigger.Conditions>
+                            <Condition Property="IsPressed" Value="True" />
+                        </MultiTrigger.Conditions>
+                        <MultiTrigger.Setters>
+                            <Setter Property="Background" Value="{StaticResource LeftColumMenuPressedBrush}" />
+                        </MultiTrigger.Setters>
+                    </MultiTrigger>
+                </Style.Triggers>
+            </Style>
+        </Button.Resources>
+    </Button>
+</UserControl>

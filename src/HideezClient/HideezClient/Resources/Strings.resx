@@ -669,4 +669,7 @@ to access stored credentials</value>
   <data name="Exception.AuthEndedUnexpectedly" xml:space="preserve">
     <value>Device authorization ended unexpectedly. Please, try again.</value>
   </data>
+  <data name="Url.HelpPage" xml:space="preserve">
+    <value>https://support.hideez.com</value>
+  </data>
 </root>

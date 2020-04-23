@@ -170,20 +170,17 @@
             <StackPanel Grid.Row="3">
                 <controls:LeftMenuItemControl DataContext="{Binding MenuDefaultPage}" Visibility="Hidden" />
 
-                <!-- Hidden until implemented -->
-                <!--
-                <controls:LeftMenuItemControl DataContext="{Binding MenuHelp}" IsEnabled="False">
-                    <controls:LeftMenuItemControl.Tag>
+                <controls:LeftMenuButtonControl DataContext="{Binding MenuHelp}">
+                    <controls:LeftMenuButtonControl.Tag>
                         <iconPacks:PackIconFontAwesome Kind="QuestionCircleSolid" />
-                    </controls:LeftMenuItemControl.Tag>
-                </controls:LeftMenuItemControl>
+                    </controls:LeftMenuButtonControl.Tag>
+                </controls:LeftMenuButtonControl>
 
-                <controls:LeftMenuItemControl DataContext="{Binding MenuSettings}" IsEnabled="False">
+                <controls:LeftMenuItemControl DataContext="{Binding MenuSettings}">
                     <controls:LeftMenuItemControl.Tag>
                         <iconPacks:PackIconFontAwesome Kind="CogSolid" />
                     </controls:LeftMenuItemControl.Tag>
                 </controls:LeftMenuItemControl>
-                -->
             </StackPanel>
 
             <Rectangle
