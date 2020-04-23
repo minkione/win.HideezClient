@@ -75,7 +75,7 @@ namespace HideezClient.ViewModels
             MenuHelp = new MenuItemViewModel
             {
                 Header = "Menu.Help",
-                Command = OpenHelpWebpageCommand,
+                Command = _menuFactory.GetMenuItem(MenuItemType.Help).Command,
             };
             MenuSettings = new MenuItemViewModel
             {
@@ -244,17 +244,6 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public ICommand OpenHelpWebpageCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CommandAction = x => OnOpenHelp(),
-                };
-            }
-        }
-
         public ICommand OpenSettingsPageCommand
         {
             get
@@ -310,11 +299,6 @@ namespace HideezClient.ViewModels
         private void OnOpenSettings()
         {
             ProcessNavRequest("SettingsPage");
-        }
-
-        private void OnOpenHelp()
-        {
-            _appHelper.OpenUrl(TranslationSource.Instance["Url.HelpPage"]);
         }
 
         private void OnOpenPasswordManager()

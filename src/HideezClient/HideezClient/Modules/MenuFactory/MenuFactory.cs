@@ -78,12 +78,14 @@ namespace HideezClient.Modules
                     return GetViewModel("Menu.LogOff", x => throw new NotImplementedException());
                 case MenuItemType.Exit:
                     return GetViewModel("Menu.Exit", x => _appHelper.Shutdown());
-                case MenuItemType.Lenguage:
+                case MenuItemType.Language:
                     return GetLanguages();
                 case MenuItemType.LaunchOnStartup:
                     return GetLaunchOnStartup();
                 case MenuItemType.GetLogsSubmenu:
                     return GetLogsSubmenu();
+                case MenuItemType.Help:
+                    return GetViewModel("Menu.Help", x => OnOpenUrl("Url.Help"));
                 case MenuItemType.Separator:
                     return null;
                 default:
