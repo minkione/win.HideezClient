@@ -272,6 +272,7 @@ namespace HideezClient
             Container.RegisterType<DefaultPageViewModel>();
             Container.RegisterType<DeviceSettingsPageViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<SaveAddressEditControlViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ServiceViewModel>(new ContainerControlledLifetimeManager());
 
             #endregion ViewModels
 

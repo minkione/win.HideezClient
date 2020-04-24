@@ -690,4 +690,7 @@ to access stored credentials</value>
   <data name="Settings.Label.CheckingConnection" xml:space="preserve">
     <value>Checking server...</value>
   </data>
+  <data name="Settings.Label.ServiceOfflineTip" xml:space="preserve">
+    <value>Certain settings cannot be changed while Hideez Service is offline</value>
+  </data>
 </root>

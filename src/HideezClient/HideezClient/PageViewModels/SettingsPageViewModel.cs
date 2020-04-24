@@ -1,13 +1,15 @@
 ﻿using HideezClient.Mvvm;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HideezClient.ViewModels;
 
 namespace HideezClient.PageViewModels
 {
     class SettingsPageViewModel : LocalizedObject
     {
+        public ServiceViewModel Service { get; }
+
+        public SettingsPageViewModel(ServiceViewModel serviceViewModel)
+        {
+            Service = serviceViewModel;
+        }
     }
 }
