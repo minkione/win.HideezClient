@@ -7,6 +7,7 @@
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     xmlns:local="clr-namespace:HideezClient.PagesView"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HideezClient.Controls"
     Title="SoftwareKeyPage"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -17,6 +18,113 @@
         HorizontalAlignment="Center"
         VerticalAlignment="Center"
         TextBlock.FontSize="16">
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="320" />
+        </Grid.ColumnDefinitions>
+
+        <!--  1 line  -->
+        <ContentPresenter
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Grid.Column="0"
+            Width="64"
+            Height="64"
+            Content="{StaticResource KeyIco}" />
+
+        <StackPanel
+            Orientation="Horizontal"
+            VerticalAlignment="Top"
+            Grid.Row="0"
+            Grid.Column="2"
+            Margin="0,0,0,8">
+            <TextBlock
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="{l:Localization HMK.Login.Header}"
+                TextWrapping="Wrap"/>
+
+            <controls:InfoButton Margin="2,-2,0,0" />
+        </StackPanel>
+
+
+        <TextBlock
+            Grid.Row="1"
+            Grid.Column="2"
+            Text="{l:Localization HMK.Login.Description}"
+            TextWrapping="Wrap" 
+            VerticalAlignment="Top"/>
+
+        <!--  2 line  -->
+        <ContentPresenter
+            Grid.Row="3"
+            Grid.RowSpan="2"
+            Grid.Column="0"
+            Width="64"
+            Height="64"
+            Content="{StaticResource MobileKeyIco}" />
+
+        <StackPanel 
+            Orientation="Horizontal"
+            Grid.Row="3"
+            Grid.Column="2"
+            Margin="0,0,0,8">
+            <TextBlock
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="{l:Localization HMK.MobileKey.Header}"
+                TextWrapping="Wrap" />
+
+            <controls:InfoButton Margin="2,-2,0,0"/>
+        </StackPanel>
+
+        <TextBlock
+            Grid.Row="4"
+            Grid.Column="2"
+            Text="{l:Localization HMK.MobileKey.Description}"
+            TextWrapping="Wrap" />
+
+        <!--  3 line  -->
+        <StackPanel 
+            Orientation="Horizontal"
+            Grid.Row="6"
+            Grid.Column="2"
+            Margin="0,0,0,8">
+            <TextBlock
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="{l:Localization HMK.ActivationCode.Header}"
+                TextWrapping="Wrap" />
+
+            <controls:InfoButton Margin="2,-2,0,0"/>
+        </StackPanel>
+
+        <Border
+            Grid.Row="7"
+            Grid.Column="2"
+            Width="152"
+            Height="152"
+            BorderThickness="0"
+            Background="#C4C4C4"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top">
+            <Image 
+                Source="{Binding ActivationQR}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch" />
+        </Border>
+            
+            
     </Grid>
 </Page>

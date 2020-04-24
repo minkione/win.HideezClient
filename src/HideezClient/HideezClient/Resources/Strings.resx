@@ -723,11 +723,11 @@ to access stored credentials</value>
   <data name="HMK.Login.Header" xml:space="preserve">
     <value>Login into Computer</value>
   </data>
-  <data name="HMK.MobikeKey.Header" xml:space="preserve">
-    <value>Hideez Mobile Key</value>
-  </data>
   <data name="HMK.MobileKey.Description" xml:space="preserve">
     <value>You can install this application from Google Play Market and Apple App Store</value>
+  </data>
+  <data name="HMK.MobileKey.Header" xml:space="preserve">
+    <value>Hideez Mobile Key</value>
   </data>
   <data name="Menu.HardwareKeyPage" xml:space="preserve">
     <value>Hideez Key - Hardware</value>
