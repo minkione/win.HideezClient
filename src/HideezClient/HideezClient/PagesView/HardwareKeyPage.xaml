@@ -35,16 +35,16 @@
 
                 <Separator 
                     Grid.Row="1"
-                    Margin="40,64,45,-46" 
+                    Margin="40,64,45,34" 
                     HorizontalAlignment="Stretch" 
                     Style="{DynamicResource SeparatorStyle}"/>
             </Grid>
         </Grid>
 
         <Grid 
-            Margin="0,70,0,0"
             Grid.Row="1"
-            HorizontalAlignment="Center">
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="24" />
