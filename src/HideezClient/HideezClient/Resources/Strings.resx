@@ -477,22 +477,22 @@ to access stored credentials</value>
   <data name="PM.Label.Account" xml:space="preserve">
     <value>ACCOUNT</value>
   </data>
-  <data name="DP.2F.Description" xml:space="preserve">
+  <data name="HKP.2F.Description" xml:space="preserve">
     <value>Enable two-factor authentication to ensure the highest security.</value>
   </data>
-  <data name="DP.2F.Header" xml:space="preserve">
+  <data name="HKP.2F.Header" xml:space="preserve">
     <value>Two-factor authentication</value>
   </data>
-  <data name="DP.PM.Description" xml:space="preserve">
+  <data name="HKP.PM.Description" xml:space="preserve">
     <value>Insert your credentials fast with the hotkeys. No need to memorize passwords.</value>
   </data>
-  <data name="DP.PM.Header" xml:space="preserve">
+  <data name="HKP.PM.Header" xml:space="preserve">
     <value>Secure password management</value>
   </data>
-  <data name="DP.Proximity.Description" xml:space="preserve">
+  <data name="HKP.Proximity.Description" xml:space="preserve">
     <value>The computer is locked automatically and instantly once you walk away.</value>
   </data>
-  <data name="DP.Proximity.Header" xml:space="preserve">
+  <data name="HKP.Proximity.Header" xml:space="preserve">
     <value>Proximity-based computer lock</value>
   </data>
   <data name="EnableDevice.Header" xml:space="preserve">
@@ -692,6 +692,42 @@ to access stored credentials</value>
   </data>
   <data name="Settings.Label.ServiceOfflineTip" xml:space="preserve">
     <value>Certain settings cannot be changed while Hideez Service is offline</value>
+  </data>
+  <data name="DP.Description" xml:space="preserve">
+    <value>Includes Hideez Enterprise Server, Hideez Client Application and two types of security key</value>
+  </data>
+  <data name="DP.Header" xml:space="preserve">
+    <value>Hideez Authentication Solution</value>
+  </data>
+  <data name="DP.HideezKey.Description" xml:space="preserve">
+    <value>Hardware token with Bluetooth connection</value>
+  </data>
+  <data name="DP.HideezKey.Header" xml:space="preserve">
+    <value>Hideez Key - Hardware</value>
+  </data>
+  <data name="DP.MobileKey.Description" xml:space="preserve">
+    <value>Software Application which can be installed on your smartphone</value>
+  </data>
+  <data name="DP.MobileKey.Header" xml:space="preserve">
+    <value>Hideez Mobile Key - Software</value>
+  </data>
+  <data name="HKP.UserGuide.Header" xml:space="preserve">
+    <value>User Guide</value>
+  </data>
+  <data name="HMK.ActivationCode.Header" xml:space="preserve">
+    <value>Activation Code</value>
+  </data>
+  <data name="HMK.Login.Description" xml:space="preserve">
+    <value>Turn your smartphone with biometric sensor into mobile security key</value>
+  </data>
+  <data name="HMK.Login.Header" xml:space="preserve">
+    <value>Login into Computer</value>
+  </data>
+  <data name="HMK.MobikeKey.Header" xml:space="preserve">
+    <value>Hideez Mobile Key</value>
+  </data>
+  <data name="HMK.MobileKey.Description" xml:space="preserve">
+    <value>You can install this application from Google Play Market and Apple App Store</value>
   </data>
   <data name="Menu.HardwareKeyPage" xml:space="preserve">
     <value>Hideez Key - Hardware</value>
