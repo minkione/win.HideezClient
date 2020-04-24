@@ -100,7 +100,10 @@
                 Width="650"
                 Margin="16"
                 Padding="24">
-                <CheckBox Content="Enable unlock with Hideez Mobile Key"/>
+                <Grid>
+                    <CheckBox Content="Enable unlock with Hideez Mobile Key"/>
+                    <controls:InfoButton HorizontalAlignment="Right" Url="" />
+                </Grid>
             </Border>
             -->
         </StackPanel>

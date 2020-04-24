@@ -252,6 +252,9 @@
     <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\InfoButton.xaml.cs">
+      <DependentUpon>InfoButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\LeftMenuButtonControl.xaml.cs">
       <DependentUpon>LeftMenuButtonControl.xaml</DependentUpon>
     </Compile>
@@ -467,6 +470,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\AccountInfoControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\InfoButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
