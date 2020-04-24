@@ -107,6 +107,16 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<DefaultPageViewModel>(); }
         }
 
+        public HardwareKeyPageViewModel HardwareKeyPageViewModel
+        {
+            get { return DIContainer.Resolve<HardwareKeyPageViewModel>(); }
+        }
+
+        public SoftwareKeyPageViewModel SoftwareKeyPageViewModel
+        {
+            get { return DIContainer.Resolve<SoftwareKeyPageViewModel>(); }
+        }
+
         public HelpPageViewModel HelpPage
         {
             get { return DIContainer.Resolve<HelpPageViewModel>(); }

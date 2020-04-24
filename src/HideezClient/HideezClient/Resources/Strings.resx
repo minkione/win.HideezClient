@@ -693,4 +693,10 @@ to access stored credentials</value>
   <data name="Settings.Label.ServiceOfflineTip" xml:space="preserve">
     <value>Certain settings cannot be changed while Hideez Service is offline</value>
   </data>
+  <data name="Menu.HardwareKeyPage" xml:space="preserve">
+    <value>Hideez Key - Hardware</value>
+  </data>
+  <data name="Menu.SoftwareKeyPage" xml:space="preserve">
+    <value>Hideez Mobile Key - Software</value>
+  </data>
 </root>

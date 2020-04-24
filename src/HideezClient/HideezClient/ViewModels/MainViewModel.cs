@@ -14,6 +14,7 @@ using MvvmExtensions.Attributes;
 using System.Windows;
 using HideezClient.Utilities;
 using HideezClient.Modules.Localize;
+using System.Windows.Controls;
 
 namespace HideezClient.ViewModels
 {
@@ -30,11 +31,11 @@ namespace HideezClient.ViewModels
         Uri _displayPage;
         DeviceInfoViewModel _activeDeviceVM = null;
 
-        public MainViewModel(IDeviceManager deviceManager, 
-            IMenuFactory menuFactory, 
-            IActiveDevice activeDevice, 
-            IMessenger messenger, 
-            ViewModelLocator viewModelLocator, 
+        public MainViewModel(IDeviceManager deviceManager,
+            IMenuFactory menuFactory,
+            IActiveDevice activeDevice,
+            IMessenger messenger,
+            ViewModelLocator viewModelLocator,
             IAppHelper appHelper)
         {
             _deviceManager = deviceManager;
@@ -44,7 +45,7 @@ namespace HideezClient.ViewModels
             _appHelper = appHelper;
 
             InitMenu();
-            
+
             _deviceManager.DevicesCollectionChanged += Devices_CollectionChanged;
             _activeDevice.ActiveDeviceChanged += ActiveDevice_ActiveDeviceChanged;
 
@@ -82,9 +83,21 @@ namespace HideezClient.ViewModels
                 Header = "Menu.Settings",
                 Command = OpenSettingsPageCommand,
             };
+            MenuHardwareKeyPage = new MenuItemViewModel
+            {
+                Header = "Menu.HardwareKeyPage",
+                Command = OpenHardwareKeyPageCommand,
+            };
+            MenuSoftwareKeyPage = new MenuItemViewModel
+            {
+                Header = "Menu.SoftwareKeyPage",
+                Command = OpenSoftwareKeyPageCommand,
+            };
             _leftAppMenuItems.Add(MenuDefaultPage);
             _leftAppMenuItems.Add(MenuHelp);
             _leftAppMenuItems.Add(MenuSettings);
+            _leftAppMenuItems.Add(MenuHardwareKeyPage);
+            _leftAppMenuItems.Add(MenuSoftwareKeyPage);
 
             foreach (var item in _leftDeviceMenuItems.Concat(_leftAppMenuItems))
             {
@@ -122,7 +135,7 @@ namespace HideezClient.ViewModels
 
                 MenuDefaultPage.IsChecked = true;
             }
-            
+
             if (args.NewDevice != null)
             {
                 ActiveDevice = new DeviceInfoViewModel(args.NewDevice, _menuFactory);
@@ -174,7 +187,7 @@ namespace HideezClient.ViewModels
         }
 
         [DependsOn(nameof(ActiveDevice))]
-        public  List<DeviceInfoViewModel> Devices
+        public List<DeviceInfoViewModel> Devices
         {
             get
             {
@@ -195,6 +208,8 @@ namespace HideezClient.ViewModels
         private MenuItemViewModel menuSettings;
         private MenuItemViewModel menuAboutDevice;
         private MenuItemViewModel menuDefaultPage;
+        private MenuItemViewModel menuHardwareKeyPage;
+        private MenuItemViewModel menuSoftwareKeyPage;
 
         public MenuItemViewModel MenuPasswordManager
         {
@@ -224,6 +239,18 @@ namespace HideezClient.ViewModels
         {
             get { return menuDefaultPage; }
             set { Set(ref menuDefaultPage, value); }
+        }
+
+        public MenuItemViewModel MenuHardwareKeyPage
+        {
+            get { return menuHardwareKeyPage; }
+            set { Set(ref menuHardwareKeyPage, value); }
+        }
+
+        public MenuItemViewModel MenuSoftwareKeyPage
+        {
+            get { return menuSoftwareKeyPage; }
+            set { Set(ref menuSoftwareKeyPage, value); }
         }
 
         #endregion
@@ -283,6 +310,33 @@ namespace HideezClient.ViewModels
             }
         }
 
+        public ICommand OpenHardwareKeyPageCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        OnOpenHardwareKeyPage();
+                    },
+                };
+            }
+        }
+
+        public ICommand OpenSoftwareKeyPageCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        OnOpenSoftwareKeyPage();
+                    },
+                };
+            }
+        }
         #endregion Command
 
         #region Navigation
@@ -314,6 +368,16 @@ namespace HideezClient.ViewModels
         private void OnOpenDeviceSettingsPage()
         {
             ProcessNavRequest("DeviceSettingsPage");
+        }
+
+        private void OnOpenHardwareKeyPage()
+        {
+            ProcessNavRequest("HardwareKeyPage");
+        }
+
+        private void OnOpenSoftwareKeyPage()
+        {
+            ProcessNavRequest("SoftwareKeyPage");
         }
 
         #endregion

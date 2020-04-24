@@ -401,11 +401,14 @@
     <Compile Include="Mvvm\IRequireViewIdentification.cs" />
     <Compile Include="Mvvm\LocalizedObject.cs" />
     <Compile Include="Mvvm\ObservableObject.cs" />
+    <Compile Include="PagesView\DefaultPage.xaml.cs">
+      <DependentUpon>DefaultPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PagesView\DeviceSettingsPage.xaml.cs">
       <DependentUpon>DeviceSettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PagesView\DefaultPage.xaml.cs">
-      <DependentUpon>DefaultPage.xaml</DependentUpon>
+    <Compile Include="PagesView\HardwareKeyPage.xaml.cs">
+      <DependentUpon>HardwareKeyPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="PagesView\HelpPage.xaml.cs">
       <DependentUpon>HelpPage.xaml</DependentUpon>
@@ -416,10 +419,15 @@
     <Compile Include="PagesView\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PagesView\SoftwareKeyPage.xaml.cs">
+      <DependentUpon>SoftwareKeyPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PageViewModels\DefaultPageViewModel.cs" />
     <Compile Include="PageViewModels\DeviceSettingsPageViewModel.cs" />
     <Compile Include="PageViewModels\HelpPageViewModel.cs" />
     <Compile Include="PageViewModels\SettingsPageViewModel.cs" />
-    <Compile Include="PageViewModels\DefaultPageViewModel.cs" />
+    <Compile Include="PageViewModels\HardwareKeyPageViewModel.cs" />
+    <Compile Include="PageViewModels\SoftwareKeyPageViewModel.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
     <Compile Include="Utilities\Base32Encoding.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
@@ -513,6 +521,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="PagesView\DefaultPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PagesView\SoftwareKeyPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Resources\Dictionaries\ComboBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -553,7 +569,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PagesView\DefaultPage.xaml">
+    <Page Include="PagesView\HardwareKeyPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
