@@ -163,7 +163,7 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public async Task InitializeViewModel()
+        async Task InitializeViewModel()
         {
             try
             {

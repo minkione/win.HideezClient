@@ -18,7 +18,9 @@
                 Kind="InfoCircleSolid" 
                 VerticalAlignment="Center" 
                 HorizontalAlignment="Center" 
-                Foreground="{StaticResource IcoButtonBrush}"/>
+                Foreground="{StaticResource IcoButtonBrush}"
+                Width="14"
+                Height="14" />
         </Button>
     </Grid>
 </UserControl>
