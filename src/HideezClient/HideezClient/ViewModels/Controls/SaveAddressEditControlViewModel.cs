@@ -12,7 +12,7 @@ using System.Windows.Input;
 
 namespace HideezClient.ViewModels
 {
-    class SaveAddressEditControlViewModel : ObservableObject
+    class SaveAddressEditControlViewModel : ObservableObject, IDisposable
     {
         readonly IServiceProxy _serviceProxy;
         private readonly IMessenger _messenger;
@@ -116,7 +116,14 @@ namespace HideezClient.ViewModels
             _messenger = messenger;
             _log = log;
 
+            _serviceProxy.Connected += ServiceProxy_Connected;
+
             Task.Run(InitializeViewModel).ConfigureAwait(false);
+        }
+
+        async void ServiceProxy_Connected(object sender, EventArgs e)
+        {
+            await InitializeViewModel();
         }
 
         void OnCancel()
@@ -158,8 +165,15 @@ namespace HideezClient.ViewModels
 
         public async Task InitializeViewModel()
         {
-            var address = await _serviceProxy.GetService().GetServerAddressAsync();
-            ResetViewModel(address);
+            try
+            {
+                if (_serviceProxy.IsConnected)
+                {
+                    var address = await _serviceProxy.GetService().GetServerAddressAsync();
+                    ResetViewModel(address);
+                }
+            }
+            catch (Exception) { }
         }
 
         void ResetViewModel(string address)
@@ -188,5 +202,27 @@ namespace HideezClient.ViewModels
             ShowError = true;
             ShowInfo = false;
         }
+
+        #region IDisposable Support
+        bool disposed = false;
+
+        protected virtual void Dispose(bool dispose)
+        {
+            if (!disposed)
+            {
+                if (dispose)
+                {
+                    _serviceProxy.Connected -= ServiceProxy_Connected;
+                }
+
+                disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+        #endregion
     }
 }
