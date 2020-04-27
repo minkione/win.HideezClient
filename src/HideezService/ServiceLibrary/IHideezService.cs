@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
+using System.Diagnostics.Eventing.Reader;
 using System.ServiceModel;
 using System.Threading.Tasks;
 
@@ -83,6 +84,14 @@ namespace ServiceLibrary
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         Task<bool> ChangeServerAddress(string address);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        bool IsSoftwareVaultUnlockModuleEnabled();
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void SetSoftwareVaultUnlockModuleState(bool enabled);
     }
 
     public interface ICallbacks

@@ -11,6 +11,7 @@ namespace HideezMiddleware.Settings
             ReadDeviceLog = false;
             ClearDeviceLogsAfterRead = false;
             ClearDeviceLogsAfterDays = 3;
+            EnableSoftwareVaultUnlock = false;
         }
 
         public ServiceSettings(ServiceSettings copy)
@@ -23,6 +24,7 @@ namespace HideezMiddleware.Settings
             ReadDeviceLog = copy.ReadDeviceLog;
             ClearDeviceLogsAfterRead = copy.ClearDeviceLogsAfterRead;
             ClearDeviceLogsAfterDays = copy.ClearDeviceLogsAfterDays;
+            EnableSoftwareVaultUnlock = copy.EnableSoftwareVaultUnlock;
         }
 
         [Setting]
@@ -36,6 +38,9 @@ namespace HideezMiddleware.Settings
 
         [Setting]
         public int ClearDeviceLogsAfterDays { get; set; }
+
+        [Setting]
+        public bool EnableSoftwareVaultUnlock { get; set; }
 
         public override object Clone()
         {

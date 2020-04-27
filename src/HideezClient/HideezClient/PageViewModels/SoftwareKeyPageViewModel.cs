@@ -1,4 +1,5 @@
-﻿using HideezClient.Mvvm;
+﻿using HideezClient.Modules.ServiceProxy;
+using HideezClient.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +10,8 @@ namespace HideezClient.PageViewModels
 {
     class SoftwareKeyPageViewModel : LocalizedObject
     {
+        public SoftwareKeyPageViewModel()
+        {
+        }
     }
 }

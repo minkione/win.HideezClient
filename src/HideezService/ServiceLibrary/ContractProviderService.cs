@@ -113,5 +113,15 @@ namespace ServiceLibrary
         {
             throw new NotImplementedException();
         }
+
+        public bool IsSoftwareVaultUnlockModuleEnabled()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetSoftwareVaultUnlockModuleState(bool enabled)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

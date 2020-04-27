@@ -1,13 +1,12 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Workstation;
+using HideezMiddleware.Settings;
 using Microsoft.Win32;
 using System;
+using System.Configuration;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Threading.Tasks;
-using ZXing;
-using ZXing.QrCode;
 
 namespace HideezMiddleware.UnlockToken
 {
@@ -20,7 +19,10 @@ namespace HideezMiddleware.UnlockToken
         readonly IWorkstationInfoProvider _workstationInfoProvider;
         readonly UnlockQrFactory _qrUnlockTokenFactory;
 
-        readonly string CPImagePath = Path.Combine(Environment.SystemDirectory, "HideezCredentialProvider3.bmp");
+        readonly string _CPImagePath = Path.Combine(Environment.SystemDirectory, "HideezCredentialProvider3.bmp");
+
+        readonly object _isRunningLock = new object();
+        bool _isRunning;
 
         public UnlockTokenGenerator(IUnlockTokenProvider unlockTokenProvider, IWorkstationInfoProvider workstationInfoProvider, ILog log)
             : base(nameof(UnlockTokenGenerator), log)
@@ -30,25 +32,58 @@ namespace HideezMiddleware.UnlockToken
             _qrUnlockTokenFactory = new UnlockQrFactory(_workstationInfoProvider, log);
 
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
+        }
 
-            if (!WorkstationHelper.IsActiveSessionLocked())
-                GenerateAndSaveUnlockToken();
-            
-            // Ensure that during the first launch on locked workstation unlock token is still generated
-            if (unlockTokenProvider.GetUnlockToken() == string.Empty)
-                GenerateAndSaveUnlockToken();
+        public void Start()
+        {
+            lock (_isRunningLock)
+            {
+                if (!_isRunning)
+                {
+                    if (!WorkstationHelper.IsActiveSessionLocked())
+                        GenerateAndSaveUnlockToken();
+
+                    // Ensure that during the first launch on locked workstation unlock token is still generated
+                    if (_unlockTokenProvider.GetUnlockToken() == string.Empty)
+                        GenerateAndSaveUnlockToken();
+
+                    _isRunning = true;
+                    WriteLine("Started");
+                }
+            }
+        }
+
+        public void Stop()
+        {
+            lock (_isRunningLock)
+            {
+                if (_isRunning)
+                {
+                    _isRunning = false;
+                    WriteLine("Stopped");
+                }
+            }
+        }
+
+        public void DeleteSavedToken()
+        {
+            // We only cake about the token in form of QR
+            File.Delete(_CPImagePath);
         }
 
         void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
-            switch (reason)
+            if (_isRunning)
             {
-                case SessionSwitchReason.SessionLogon:
-                case SessionSwitchReason.SessionUnlock:
-                    GenerateAndSaveUnlockToken();
-                    break;
-                default:
-                    break;
+                switch (reason)
+                {
+                    case SessionSwitchReason.SessionLogon:
+                    case SessionSwitchReason.SessionUnlock:
+                        GenerateAndSaveUnlockToken();
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -94,7 +129,7 @@ namespace HideezMiddleware.UnlockToken
             WriteLine("Saving token in system");
             using (var qrBitmap = _qrUnlockTokenFactory.GenerateNewUnlockQr(token))
             {
-                using (var fs = new FileStream(CPImagePath, FileMode.Create))
+                using (var fs = new FileStream(_CPImagePath, FileMode.Create))
                 {
                     qrBitmap.Save(fs, ImageFormat.Bmp);
                 }

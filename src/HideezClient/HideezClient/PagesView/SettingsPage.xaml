@@ -79,33 +79,20 @@
             </Border>
             
             <Border
-                HorizontalAlignment="Left"
-                VerticalAlignment="Stretch"
-                Background="#66E1F3F8"
-                CornerRadius="8"
-                Width="650"
-                Margin="16"
-                Padding="24"
+                Style="{StaticResource SettingsBorderStyle}"
                 Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <controls:ServerAddressEditControl Width="450"/>
             </Border>
-            
-            <!-- todo -->
-            <!--
-            <Border
-                HorizontalAlignment="Left"
-                VerticalAlignment="Stretch"
-                Background="#66E1F3F8"
-                CornerRadius="8"
-                Width="650"
-                Margin="16"
-                Padding="24">
+
+            <Border 
+                Style="{StaticResource SettingsBorderStyle}"
+                Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid>
-                    <CheckBox Content="Enable unlock with Hideez Mobile Key"/>
-                    <controls:InfoButton HorizontalAlignment="Right" Url="" />
+                    <CheckBox 
+                        Content="{l:Localization Settings.CheckBox.EnableSoftwareVaultUnlockModule}"
+                        IsChecked="{Binding Path=SoftwareUnlock.IsChecked}" />
                 </Grid>
             </Border>
-            -->
         </StackPanel>
     </Grid>
 </Page>

@@ -289,6 +289,12 @@ namespace ServiceLibrary.Implementation
             _connectionManager.StartDiscovery();
             _connectionManagerRestarter.Start();
 
+            if (_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock)
+            {
+                _unlockTokenGenerator.Start();
+                _remoteWorkstationUnlocker.Start();
+            }
+
             if (_hesConnection.State == HesConnectionState.Error)
             {
                 Task.Run(_hesConnection.Stop);
@@ -823,6 +829,34 @@ namespace ServiceLibrary.Implementation
             catch (TimeoutException)
             {
                 return false;
+            }
+        }
+
+        public bool IsSoftwareVaultUnlockModuleEnabled()
+        {
+            return _serviceSettingsManager.Settings.EnableSoftwareVaultUnlock;
+        }
+
+        public void SetSoftwareVaultUnlockModuleState(bool enabled)
+        {
+            var settings = _serviceSettingsManager.Settings;
+            if (settings.EnableSoftwareVaultUnlock != enabled)
+            {
+                _log.WriteLine($"Client requested to switch software unlock module. New value: {enabled}");
+                settings.EnableSoftwareVaultUnlock = enabled;
+                _serviceSettingsManager.SaveSettings(settings);
+
+                if (enabled)
+                {
+                    _unlockTokenGenerator.Start();
+                    _remoteWorkstationUnlocker.Start();
+                }
+                else
+                {
+                    _unlockTokenGenerator.Stop();
+                    _remoteWorkstationUnlocker.Stop();
+                    _unlockTokenGenerator.DeleteSavedToken();
+                }
             }
         }
 

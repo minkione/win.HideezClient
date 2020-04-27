@@ -7,9 +7,12 @@ namespace HideezClient.PageViewModels
     {
         public ServiceViewModel Service { get; }
 
-        public SettingsPageViewModel(ServiceViewModel serviceViewModel)
+        public SoftwareUnlockSettingViewModel SoftwareUnlock { get; }
+
+        public SettingsPageViewModel(ServiceViewModel serviceViewModel, SoftwareUnlockSettingViewModel softwareUnlockModuleSwitchViewModel)
         {
             Service = serviceViewModel;
+            SoftwareUnlock = softwareUnlockModuleSwitchViewModel;
         }
     }
 }

@@ -244,6 +244,30 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="IsSoftwareVaultUnlockEnabled">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="IsSoftwareVaultUnlockEnabledResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="IsSoftwareVaultUnlockEnabledResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetSoftwareUnlockState">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="enabled" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetSoftwareUnlockStateResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
   <xs:element name="ProximitySettingsChanged">
     <xs:complexType>
       <xs:sequence />

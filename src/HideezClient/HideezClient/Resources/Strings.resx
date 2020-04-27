@@ -735,4 +735,7 @@ to access stored credentials</value>
   <data name="Menu.SoftwareKeyPage" xml:space="preserve">
     <value>Hideez Mobile Key - Software</value>
   </data>
+  <data name="Settings.CheckBox.EnableSoftwareVaultUnlockModule" xml:space="preserve">
+    <value>Allow unlock with Hideez Mobile Authenticator</value>
+  </data>
 </root>

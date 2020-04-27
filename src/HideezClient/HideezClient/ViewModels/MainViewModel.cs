@@ -15,6 +15,8 @@ using System.Windows;
 using HideezClient.Utilities;
 using HideezClient.Modules.Localize;
 using System.Windows.Controls;
+using HideezClient.Modules.ServiceProxy;
+using System.Threading.Tasks;
 
 namespace HideezClient.ViewModels
 {
@@ -26,6 +28,7 @@ namespace HideezClient.ViewModels
         readonly IActiveDevice _activeDevice;
         readonly ViewModelLocator _viewModelLocator;
         readonly IAppHelper _appHelper;
+        readonly SoftwareUnlockSettingViewModel _softwareUnlock;
         readonly ISet<MenuItemViewModel> _leftAppMenuItems = new HashSet<MenuItemViewModel>();
         readonly ISet<MenuItemViewModel> _leftDeviceMenuItems = new HashSet<MenuItemViewModel>();
         Uri _displayPage;
@@ -36,13 +39,15 @@ namespace HideezClient.ViewModels
             IActiveDevice activeDevice,
             IMessenger messenger,
             ViewModelLocator viewModelLocator,
-            IAppHelper appHelper)
+            IAppHelper appHelper,
+            SoftwareUnlockSettingViewModel softwareUnlock)
         {
             _deviceManager = deviceManager;
             _menuFactory = menuFactory;
             _activeDevice = activeDevice;
             _viewModelLocator = viewModelLocator;
             _appHelper = appHelper;
+            _softwareUnlock = softwareUnlock;
 
             InitMenu();
 
@@ -378,6 +383,9 @@ namespace HideezClient.ViewModels
         private void OnOpenSoftwareKeyPage()
         {
             ProcessNavRequest("SoftwareKeyPage");
+
+            // Todo: Temporary for Try&Buy
+            _softwareUnlock.IsChecked = true;
         }
 
         #endregion
