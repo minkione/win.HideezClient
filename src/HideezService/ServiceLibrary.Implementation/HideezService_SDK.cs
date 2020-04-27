@@ -181,7 +181,7 @@ namespace ServiceLibrary.Implementation
             _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
 
             // Try & Buy HES Connection ==================================
-            _tbHesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sdkLogger);
+            _tbHesConnection = new HesAppConnection(workstationInfoProvider, _sdkLogger);
 
             // Audit Log / Event Aggregator =============================
             _eventSender = new EventSender(_hesConnection, _eventSaver, _sdkLogger);
@@ -300,7 +300,7 @@ namespace ServiceLibrary.Implementation
                     + _hesConnection.ErrorMessage);
             }
 
-            _tbHesConnection.Start("https://trynbuy.hideez.com");
+            _tbHesConnection.Start("https://testhub.hideez.com/");
             if (_tbHesConnection.State == HesConnectionState.Error)
             {
                 Task.Run(_tbHesConnection.Stop);
