@@ -87,11 +87,10 @@
             <Border 
                 Style="{StaticResource SettingsBorderStyle}"
                 Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Grid>
-                    <CheckBox 
-                        Content="{l:Localization Settings.CheckBox.EnableSoftwareVaultUnlockModule}"
-                        IsChecked="{Binding Path=SoftwareUnlock.IsChecked}" />
-                </Grid>
+                <CheckBox 
+                    Style="{StaticResource CheckboxStyle}"
+                    Content="{l:Localization Settings.CheckBox.EnableSoftwareVaultUnlockModule}"
+                    IsChecked="{Binding Path=SoftwareUnlock.IsChecked}" />
             </Border>
         </StackPanel>
     </Grid>
