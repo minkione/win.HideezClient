@@ -15,83 +15,92 @@
     DataContext="{Binding SettingsPage, Mode=OneWay, Source={StaticResource Locator}}"
     Style="{DynamicResource PageStyle}"
     mc:Ignorable="d">
-    <Grid Margin="16" VerticalAlignment="Stretch"  >
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <!--  Search  -->
-        <!--<StackPanel Margin="4,4,0,0" Orientation="Horizontal">
-            <iconPacks:PackIconFontAwesome
-                VerticalAlignment="Center"
-                Foreground="{StaticResource LeftColumMenuActiveBrush}"
-                Kind="SearchSolid" />
-            <Rectangle Width="12" />
-            <TextBox
-                Width="400"
-                VerticalAlignment="Center"
-                adorners:Watermark.Text="{l:Localization WaterMark.SearchSettings}"
-                adorners:Watermark.TextStyle="{StaticResource AdornerTextStyle}"
-                adorners:Watermark.VisibleWhen="EmptyAndNotKeyboardFocused"
-                Background="Transparent"
-                BorderThickness="0"
-                CaretBrush="{DynamicResource DarkForeground}"
-                FocusVisualStyle="{x:Null}"
-                FontSize="16"
-                Foreground="{DynamicResource DarkForeground}"
-                Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
-        </StackPanel>
-        <Separator
-            Grid.Row="1"
-            Margin="0,16"
-            Style="{DynamicResource SeparatorStyle}" />-->
-        <StackPanel Grid.Row="2">
-            <Border
-                HorizontalAlignment="Left"
-                VerticalAlignment="Stretch"
-                Background="#66E1F3F8"
-                CornerRadius="8"
-                Width="650"
-                Margin="16"
-                Padding="24"
-                Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
-                <Grid HorizontalAlignment="Center">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="24" />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <ContentPresenter
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Width="50"
-                        Height="50"
-                        Content="{StaticResource WarnIco}"/>
+    <ScrollViewer 
+        HorizontalScrollBarVisibility="Hidden"
+        VerticalScrollBarVisibility="Auto"
+        CanContentScroll="True">
 
-                    <TextBlock
-                        Grid.Column="2"
-                        VerticalAlignment="Center"
-                        TextWrapping="Wrap"
-                        Text="{l:Localization Settings.Label.ServiceOfflineTip}"
-                        />
-                </Grid>
-            </Border>
-            
-            <Border
-                Style="{StaticResource SettingsBorderStyle}"
-                Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <controls:ServerAddressEditControl Width="450"/>
-            </Border>
+        <Grid Margin="16" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <!--  Search  -->
+            <!--<StackPanel Margin="4,4,0,0" Orientation="Horizontal">
+                <iconPacks:PackIconFontAwesome
+                    VerticalAlignment="Center"
+                    Foreground="{StaticResource LeftColumMenuActiveBrush}"
+                    Kind="SearchSolid" />
+                <Rectangle Width="12" />
+                <TextBox
+                    Width="400"
+                    VerticalAlignment="Center"
+                    adorners:Watermark.Text="{l:Localization WaterMark.SearchSettings}"
+                    adorners:Watermark.TextStyle="{StaticResource AdornerTextStyle}"
+                    adorners:Watermark.VisibleWhen="EmptyAndNotKeyboardFocused"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    CaretBrush="{DynamicResource DarkForeground}"
+                    FocusVisualStyle="{x:Null}"
+                    FontSize="16"
+                    Foreground="{DynamicResource DarkForeground}"
+                    Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+            <Separator
+                Grid.Row="1"
+                Margin="0,16"
+                Style="{DynamicResource SeparatorStyle}" />-->
+            <StackPanel Grid.Row="2">
+                <Border
+                    Style="{StaticResource SettingsBorderStyle}"
+                    Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <controls:ServerAddressEditControl Width="450"/>
+                </Border>
 
-            <Border 
-                Style="{StaticResource SettingsBorderStyle}"
-                Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <CheckBox 
-                    Style="{StaticResource CheckboxStyle}"
-                    Content="{l:Localization Settings.CheckBox.EnableSoftwareVaultUnlockModule}"
-                    IsChecked="{Binding Path=SoftwareUnlock.IsChecked}" />
-            </Border>
-        </StackPanel>
-    </Grid>
+                <!-- Server Address Editing control -->
+                <Border
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Stretch"
+                    Background="#66E1F3F8"
+                    CornerRadius="8"
+                    Width="650"
+                    Margin="16"
+                    Padding="24"
+                    Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+                    <Grid HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <ContentPresenter
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Width="50"
+                            Height="50"
+                            Content="{StaticResource WarnIco}"/>
+
+                        <TextBlock
+                            Grid.Column="2"
+                            VerticalAlignment="Center"
+                            TextWrapping="Wrap"
+                            Text="{l:Localization Settings.Label.ServiceOfflineTip}"
+                            />
+                    </Grid>
+                </Border>
+
+                <!-- Enable Mobile Authenticator unlock -->
+                <Border 
+                    Style="{StaticResource SettingsBorderStyle}"
+                    Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <CheckBox 
+                        Style="{StaticResource CheckboxStyle}"
+                        Content="{l:Localization Settings.CheckBox.EnableSoftwareVaultUnlockModule}"
+                        IsChecked="{Binding Path=SoftwareUnlock.IsChecked}" />
+                </Border>
+ 
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </Page>
