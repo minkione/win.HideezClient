@@ -11,7 +11,7 @@
     Title="DefaultPage"
     d:DesignHeight="450"
     d:DesignWidth="800"
-    DataContext="{Binding SoftwareKeyPageViewModel, Mode=OneWay, Source={StaticResource Locator}}"
+    DataContext="{Binding DefaultPageViewModel, Mode=OneWay, Source={StaticResource Locator}}"
     Style="{DynamicResource PageStyle}"
     mc:Ignorable="d">
     <Grid
@@ -45,77 +45,109 @@
         <Grid Grid.Row="1" HorizontalAlignment="Center" Margin="0,50,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="50" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition />
             </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="24" />
-                <ColumnDefinition Width="320" />
-            </Grid.ColumnDefinitions>
 
             <!--  1 line  -->
-            <ContentPresenter
-                Grid.Row="0"
-                Grid.RowSpan="2"
-                Grid.Column="0"
-                Width="64"
-                Height="64"
-                Content="{StaticResource KeyIco}" />
+            <Button 
+                Grid.Row="1" 
+                HorizontalAlignment="Center" 
+                Style="{StaticResource IconButtonStyle}" 
+                Command="{Binding OpenHideezKeyPageCommand}">
+                <Grid >
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition Width="320" />
+                    </Grid.ColumnDefinitions>
 
-            <StackPanel
-                Orientation="Horizontal"
-                VerticalAlignment="Top"
-                Grid.Row="0"
-                Grid.Column="2"
-                Margin="0,0,0,8">
-                <TextBlock
-                    FontWeight="DemiBold"
-                    Foreground="{DynamicResource DarkForeground}"
-                    Text="{l:Localization DP.HideezKey.Header}"
-                    TextWrapping="Wrap"/>
+                    <ContentPresenter
+                        Grid.Row="0"
+                        Grid.RowSpan="2"
+                        Grid.Column="0"
+                        Width="64"
+                        Height="64"
+                        Content="{StaticResource KeyIco}" />
+
+                    <StackPanel
+                        Orientation="Horizontal"
+                        VerticalAlignment="Top"
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Margin="0,0,0,8">
+                        <TextBlock
+                            FontWeight="DemiBold"
+                            Foreground="{DynamicResource DarkForeground}"
+                            Text="{l:Localization DP.HideezKey.Header}"
+                            TextWrapping="Wrap"/>
                 
-                <controls:InfoButton Margin="2,-2,0,0" />
-            </StackPanel>
-            
+                        <!--<controls:InfoButton Margin="2,-2,0,0" />-->
+                    </StackPanel>
 
-            <TextBlock
-                Grid.Row="1"
-                Grid.Column="2"
-                Text="{l:Localization DP.HideezKey.Description}"
-                TextWrapping="Wrap" 
-                VerticalAlignment="Top"/>
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Text="{l:Localization DP.HideezKey.Description}"
+                        Foreground="{StaticResource Foreground}"
+                        TextWrapping="Wrap" 
+                        VerticalAlignment="Top"/>
+                </Grid>
+            </Button>
 
             <!--  2 line  -->
-            <ContentPresenter
-                Grid.Row="3"
-                Grid.RowSpan="2"
-                Grid.Column="0"
-                Width="64"
-                Height="64"
-                Content="{StaticResource MobileKeyIco}" />
+            <Button 
+                Grid.Row="3" 
+                HorizontalAlignment="Center"
+                Style="{StaticResource IconButtonStyle}" 
+                Command="{Binding OpenMobileAuthenticatorPageCommand}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition Width="320" />
+                    </Grid.ColumnDefinitions>
 
-            <StackPanel 
-                Orientation="Horizontal"
-                Grid.Row="3"
-                Grid.Column="2"
-                Margin="0,0,0,8">
-                <TextBlock
-                    FontWeight="DemiBold"
-                    Foreground="{DynamicResource DarkForeground}"
-                    Text="{l:Localization DP.MobileKey.Header}"
-                    TextWrapping="Wrap" />
+                    <ContentPresenter
+                        Grid.Row="0"
+                        Grid.RowSpan="2"
+                        Grid.Column="0"
+                        Width="64"
+                        Height="64"
+                        Content="{StaticResource MobileKeyIco}" />
 
-                <controls:InfoButton Margin="2,-2,0,0"/>
-            </StackPanel>
+                    <StackPanel 
+                        Orientation="Horizontal"
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Margin="0,0,0,8">
+                        <TextBlock
+                            FontWeight="DemiBold"
+                            Foreground="{DynamicResource DarkForeground}"
+                            Text="{l:Localization DP.MobileKey.Header}"
+                            TextWrapping="Wrap" />
 
-            <TextBlock
-                Grid.Row="4"
-                Grid.Column="2"
-                Text="{l:Localization DP.MobileKey.Description}"
-                TextWrapping="Wrap" />
+                        <!--<controls:InfoButton Margin="2,-2,0,0"/>-->
+                    </StackPanel>
+
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Text="{l:Localization DP.MobileKey.Description}"
+                        Foreground="{StaticResource Foreground}"
+                        TextWrapping="Wrap" 
+                        VerticalAlignment="Top"/>
+                </Grid>
+            </Button>
         </Grid>
     </Grid>
 </Page>

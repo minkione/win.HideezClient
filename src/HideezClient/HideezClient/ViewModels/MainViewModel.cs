@@ -55,6 +55,8 @@ namespace HideezClient.ViewModels
             _activeDevice.ActiveDeviceChanged += ActiveDevice_ActiveDeviceChanged;
 
             messenger.Register<OpenPasswordManagerMessage>(this, (p) => { MenuPasswordManager.IsChecked = true; });
+            messenger.Register<OpenHideezKeyPageMessage>(this, (p) => { MenuHardwareKeyPage.IsChecked = true; });
+            messenger.Register<OpenMobileAuthenticatorPageMessage>(this, (p) => { MenuSoftwareKeyPage.IsChecked = true; });
         }
 
         void InitMenu()
