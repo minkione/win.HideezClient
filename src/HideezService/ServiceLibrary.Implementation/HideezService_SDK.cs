@@ -27,7 +27,7 @@ using HideezMiddleware.DeviceLogging;
 using HideezMiddleware.Local;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
-using HideezMiddleware.UnlockToken;
+using HideezMiddleware.SoftwareVault.UnlockToken;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ClientManagement;
 using ServiceLibrary.Implementation.ScreenActivation;

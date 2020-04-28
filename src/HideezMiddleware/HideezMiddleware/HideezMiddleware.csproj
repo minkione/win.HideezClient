@@ -107,9 +107,11 @@
     <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
     <Compile Include="IClientUiProxy.cs" />
-    <Compile Include="UnlockToken\UnlockQrFactory.cs" />
-    <Compile Include="UnlockToken\UnlockTokenGenerator.cs" />
-    <Compile Include="UnlockToken\UnlockTokenProvider.cs" />
+    <Compile Include="SoftwareVault\QrFactories\ActivationQrBitmapFactory.cs" />
+    <Compile Include="SoftwareVault\QrFactories\SimpleQrBitmapFactory.cs" />
+    <Compile Include="SoftwareVault\QrFactories\UnlockQrBitmapFactory.cs" />
+    <Compile Include="SoftwareVault\UnlockToken\UnlockTokenGenerator.cs" />
+    <Compile Include="SoftwareVault\UnlockToken\UnlockTokenProvider.cs" />
     <Compile Include="ScreenActivation\IScreenActivator.cs" />
     <Compile Include="IWorkstationLocker.cs" />
     <Compile Include="NLogWrapper.cs" />
@@ -137,6 +139,7 @@
     <Compile Include="Tasks\WaitWorkstationUnlockerConnectProc.cs" />
     <Compile Include="Threading\SemaphoreQueue.cs" />
     <Compile Include="UiProxyManager.cs" />
+    <Compile Include="Utils\QrBitmapFactory.cs" />
     <Compile Include="Utils\LocalToMSAccountConverter.cs" />
     <Compile Include="Utils\WorkstationHelper.cs" />
     <Compile Include="Utils\WorkstationHelper_UnlockCheck.cs" />

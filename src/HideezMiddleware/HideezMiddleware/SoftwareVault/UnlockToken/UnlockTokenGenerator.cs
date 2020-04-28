@@ -1,14 +1,13 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Workstation;
-using HideezMiddleware.Settings;
+using HideezMiddleware.SoftwareVault.QrFactories;
 using Microsoft.Win32;
 using System;
-using System.Configuration;
 using System.Drawing.Imaging;
 using System.IO;
 
-namespace HideezMiddleware.UnlockToken
+namespace HideezMiddleware.SoftwareVault.UnlockToken
 {
     /// <summary>
     /// Ensures that new unlock token is generated when user is logged into session or service is restarted in unlocked session
@@ -17,7 +16,7 @@ namespace HideezMiddleware.UnlockToken
     {
         readonly IUnlockTokenProvider _unlockTokenProvider;
         readonly IWorkstationInfoProvider _workstationInfoProvider;
-        readonly UnlockQrFactory _qrUnlockTokenFactory;
+        readonly UnlockQrBitmapFactory _unlockQrBitmapFactory;
 
         readonly string _CPImagePath = Path.Combine(Environment.SystemDirectory, "HideezCredentialProvider3.bmp");
 
@@ -29,7 +28,7 @@ namespace HideezMiddleware.UnlockToken
         {
             _unlockTokenProvider = unlockTokenProvider ?? throw new ArgumentNullException(nameof(unlockTokenProvider));
             _workstationInfoProvider = workstationInfoProvider ?? throw new ArgumentNullException(nameof(workstationInfoProvider));
-            _qrUnlockTokenFactory = new UnlockQrFactory(_workstationInfoProvider, log);
+            _unlockQrBitmapFactory = new UnlockQrBitmapFactory(_workstationInfoProvider);
 
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
         }
@@ -127,7 +126,7 @@ namespace HideezMiddleware.UnlockToken
         void SaveUnlockTokenToSystem32(string token)
         {
             WriteLine("Saving token in system");
-            using (var qrBitmap = _qrUnlockTokenFactory.GenerateNewUnlockQr(token))
+            using (var qrBitmap = _unlockQrBitmapFactory.GenerateUnlockQrBitmap(token))
             {
                 using (var fs = new FileStream(_CPImagePath, FileMode.Create))
                 {

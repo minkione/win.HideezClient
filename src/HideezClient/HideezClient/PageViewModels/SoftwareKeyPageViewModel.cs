@@ -1,17 +1,34 @@
-﻿using HideezClient.Modules.ServiceProxy;
+﻿using Hideez.SDK.Communication.Workstation;
+using HideezClient.Extension;
 using HideezClient.Mvvm;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HideezMiddleware.SoftwareVault.QrFactories;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace HideezClient.PageViewModels
 {
     class SoftwareKeyPageViewModel : LocalizedObject
     {
-        public SoftwareKeyPageViewModel()
+        readonly ActivationQrBitmapFactory _activationQrBitmapFactory;
+        BitmapImage _activationQR;
+
+        public BitmapImage ActivationQR
         {
+            get { return _activationQR; }
+            set { Set(ref _activationQR, value); }
+        }
+
+        public SoftwareKeyPageViewModel(IWorkstationInfoProvider workstationInfoProvider)
+        {
+            _activationQrBitmapFactory = new ActivationQrBitmapFactory(workstationInfoProvider);
+
+            GenerateActivationQr();
+        }
+
+        void GenerateActivationQr()
+        {
+            var qrBitmap = _activationQrBitmapFactory.GenerateActivationQrBitmap();
+            Application.Current.Dispatcher.Invoke(() => { ActivationQR = qrBitmap.ToBitmapImage(); });
         }
     }
 }

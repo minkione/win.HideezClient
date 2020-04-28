@@ -3,7 +3,7 @@ using Hideez.SDK.Communication.Log;
 using Microsoft.Win32;
 using System;
 
-namespace HideezMiddleware.UnlockToken
+namespace HideezMiddleware.SoftwareVault.UnlockToken
 {
     public class UnlockTokenProvider : Logger, IUnlockTokenProvider
     {
