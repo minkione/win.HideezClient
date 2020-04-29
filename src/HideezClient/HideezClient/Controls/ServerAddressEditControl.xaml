@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:HideezClient.Controls"
     xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     DataContext="{Binding Source={StaticResource Locator}, Path=SaveAddressEditControlViewModel, Mode=OneWay}"
     mc:Ignorable="d"
     Width="525"
@@ -34,17 +35,43 @@
                 Grid.Column="2"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Top">
-                <TextBox
-                    ma:TextBoxHelper.Watermark="{l:Localization Settings.Watermark.ServerAddress}"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    CaretBrush="{DynamicResource DarkForeground}"
-                    Focusable="True"
-                    FontSize="16"
-                    Foreground="{DynamicResource DarkForeground}"
-                    IsTabStop="True"
-                    Text="{Binding ServerAddress, UpdateSourceTrigger=PropertyChanged}" 
-                    IsReadOnly="{Binding CheckingConnection}"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox
+                        ma:TextBoxHelper.Watermark="{l:Localization Settings.Watermark.ServerAddress}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        CaretBrush="{DynamicResource DarkForeground}"
+                        Focusable="True"
+                        FontSize="16"
+                        Foreground="{DynamicResource DarkForeground}"
+                        IsTabStop="True"
+                        Text="{Binding ServerAddress, UpdateSourceTrigger=PropertyChanged}" 
+                        IsReadOnly="{Binding CheckingConnection}"/>
+
+                    <Button
+                        Grid.Column="2"
+                        Width="24"
+                        Height="24"
+                        Margin="0,0,6,0"
+                        Style="{StaticResource IconButtonStyle}"
+                        Command="{Binding CancelCommand}"
+                        Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                        <iconPacks:PackIconFontAwesome 
+                            Kind="TimesSolid" 
+                            Foreground="{StaticResource IcoButtonBrush}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Width="12"
+                            Height="12"/>
+                    </Button>
+                </Grid>
+               
             </ContentControl>
         </Grid>
 
