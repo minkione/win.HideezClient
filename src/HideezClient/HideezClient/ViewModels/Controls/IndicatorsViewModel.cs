@@ -121,7 +121,6 @@ namespace HideezClient.ViewModels
             Indicators.Add(Server);
             Indicators.Add(RFID);
             Indicators.Add(Dongle);
-            //Indicators.Add(TBServer);
         }
 
         private void ResetIndicators(bool isServiceConnected)

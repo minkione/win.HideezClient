@@ -153,17 +153,17 @@
                 Grid.Row="3">
                 <controls:LeftMenuItemControl DataContext="{Binding MenuDefaultPage}" Visibility="Hidden" />
 
-                <controls:LeftMenuButtonControl DataContext="{Binding MenuHelp}">
-                    <controls:LeftMenuButtonControl.Tag>
-                        <iconPacks:PackIconFontAwesome Kind="QuestionCircleSolid" />
-                    </controls:LeftMenuButtonControl.Tag>
-                </controls:LeftMenuButtonControl>
-
                 <controls:LeftMenuItemControl DataContext="{Binding MenuSettings}">
                     <controls:LeftMenuItemControl.Tag>
                         <iconPacks:PackIconFontAwesome Kind="CogSolid" />
                     </controls:LeftMenuItemControl.Tag>
                 </controls:LeftMenuItemControl>
+
+                <controls:LeftMenuButtonControl DataContext="{Binding MenuHelp}">
+                    <controls:LeftMenuButtonControl.Tag>
+                        <iconPacks:PackIconFontAwesome Kind="QuestionCircleSolid" />
+                    </controls:LeftMenuButtonControl.Tag>
+                </controls:LeftMenuButtonControl>
             </StackPanel>
 
             <Rectangle
@@ -173,12 +173,27 @@
                 Fill="{DynamicResource WindowBackground}"
                 Opacity="0.05" />
 
-            <controls:ConnectivityIndicators
+            <Grid 
                 Grid.Row="7"
-                Padding="0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
-                Focusable="False" />
+                Visibility="{Binding Path=MenuSoftwareKeyPage.IsChecked, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+                <controls:ConnectivityIndicators
+                    Padding="0"
+                    Focusable="False" 
+                    />
+            </Grid>
+
+            <Grid
+                Grid.Row="7"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Bottom"
+                Visibility="{Binding Path=MenuSoftwareKeyPage.IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <controls:TBConnectivityIndicator
+                    Padding="0"
+                    Focusable="False" 
+                    />
+            </Grid>
         </Grid>
 
         <!--  page content  -->

@@ -738,4 +738,13 @@ to access stored credentials</value>
   <data name="Settings.CheckBox.EnableSoftwareVaultUnlockModule" xml:space="preserve">
     <value>Allow unlock with Hideez Mobile Authenticator</value>
   </data>
+  <data name="Status.Network" xml:space="preserve">
+    <value>Network</value>
+  </data>
+  <data name="Status.Tooltip.NetworkAvailable" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="Status.Tooltip.NetworkUnavailable" xml:space="preserve">
+    <value>Please, check your internet connection</value>
+  </data>
 </root>
