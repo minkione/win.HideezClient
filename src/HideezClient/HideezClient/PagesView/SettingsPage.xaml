@@ -60,34 +60,9 @@
 
                 <!-- Server Address Editing control -->
                 <Border
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Stretch"
-                    Background="#66E1F3F8"
-                    CornerRadius="8"
-                    Width="650"
-                    Margin="16"
-                    Padding="24"
+                    Style="{StaticResource SettingsBorderStyle}"
                     Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
-                    <Grid HorizontalAlignment="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="24" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <ContentPresenter
-                            Grid.Column="0"
-                            VerticalAlignment="Center"
-                            Width="50"
-                            Height="50"
-                            Content="{StaticResource WarnIco}"/>
-
-                        <TextBlock
-                            Grid.Column="2"
-                            VerticalAlignment="Center"
-                            TextWrapping="Wrap"
-                            Text="{l:Localization Settings.Label.ServiceOfflineTip}"
-                            />
-                    </Grid>
+                    <controls:ServiceRequiredMessageControl HorizontalAlignment="Center" />
                 </Border>
 
                 <!-- Enable Mobile Authenticator unlock -->

@@ -19,148 +19,90 @@
         TextBlock.FontSize="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Grid Visibility="{Binding ShowServiceAddressEdit, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <controls:ServerAddressEditControl 
-                    Grid.Row="0" 
-                    Margin="0,70,0,0"
-                    HorizontalAlignment="Center" />
-
-                <Separator 
-                    Grid.Row="1"
-                    Margin="40,64,45,34" 
-                    HorizontalAlignment="Stretch" 
-                    Style="{DynamicResource SeparatorStyle}"/>
-            </Grid>
-        </Grid>
+        <Border
+            Margin="0,86,0,0"
+            HorizontalAlignment="Center"
+            Style="{StaticResource SettingsBorderStyle}"
+            Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+            <controls:ServiceRequiredMessageControl />
+        </Border>
 
         <Grid 
+            Margin="0,70,0,0"
+            HorizontalAlignment="Center"
+            Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <controls:ServerAddressEditControl Width="450"  />
+        </Grid>
+
+        <Separator 
             Grid.Row="1"
+            Margin="40,46,45,45" 
+            HorizontalAlignment="Stretch" 
+            Style="{DynamicResource SeparatorStyle}"/>
+        
+        <Grid
+            Grid.Row="2"
+            Width="390"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="24" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="48" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="48" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="24" />
-                <ColumnDefinition Width="320" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-            <!-- User Guide header -->
             <TextBlock
-                Grid.Row="0"
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="1."/>
+
+            <TextBlock
                 Grid.Column="2"
                 FontWeight="DemiBold"
                 Foreground="{DynamicResource DarkForeground}"
-                Text="{l:Localization HKP.UserGuide.Header}"
+                Text="{l:Localization HKP.Description1}"
                 TextWrapping="Wrap" />
-            
-            <!--  1 line  -->
-            <ContentPresenter
+
+            <TextBlock
                 Grid.Row="2"
-                Grid.RowSpan="2"
-                Grid.Column="0"
-                Width="64"
-                Height="64"
-                Content="{StaticResource PCandKeyImg}" />
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="2."/>
 
-            <StackPanel
+            <TextBlock
+                Grid.Column="2"
                 Grid.Row="2"
-                Grid.Column="2"
-                Margin="0,0,0,8"
-                Orientation="Horizontal">
-                <TextBlock
-                    FontWeight="DemiBold"
-                    Foreground="{DynamicResource DarkForeground}"
-                    Text="{l:Localization HKP.Proximity.Header}"
-                    TextWrapping="Wrap" />
-
-                <controls:InfoButton Margin="2,-2,0,0" />
-            </StackPanel>
-
-            <TextBlock
-                Grid.Row="3"
-                Grid.Column="2"
-                Text="{l:Localization HKP.Proximity.Description}"
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="{l:Localization HKP.Description2}"
                 TextWrapping="Wrap" />
 
-            <!--  2 line  -->
-            <ContentPresenter
-                Grid.Row="5"
-                Grid.RowSpan="2"
-                Grid.Column="0"
-                Width="64"
-                Height="64"
-                Content="{StaticResource PapcaImg}" />
-
-            <StackPanel
-                Grid.Row="5"
-                Grid.Column="2"
-                Margin="0,0,0,8"
-                Orientation="Horizontal">
-                <TextBlock
-                    FontWeight="DemiBold"
-                    Foreground="{DynamicResource DarkForeground}"
-                    Text="{l:Localization HKP.PM.Header}"
-                    TextWrapping="Wrap" />
-
-                <controls:InfoButton Margin="2,-2,0,0" />
-            </StackPanel>
-            
+            <TextBlock
+                Grid.Row="4"
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="3."/>
 
             <TextBlock
-                Grid.Row="6"
                 Grid.Column="2"
-                Text="{l:Localization HKP.PM.Description}"
-                TextWrapping="Wrap" />
-
-            <!--  3 line  -->
-            <ContentPresenter
-                Grid.Row="8"
-                Grid.RowSpan="2"
-                Grid.Column="0"
-                Width="64"
-                Height="64"
-                Content="{StaticResource TwoFactorAuthenticationImg}" />
-
-            <StackPanel
-                Grid.Row="8"
-                Grid.Column="2"
-                Margin="0,0,0,8"
-                Orientation="Horizontal">
-                <TextBlock
-                    FontWeight="DemiBold"
-                    Foreground="{DynamicResource DarkForeground}"
-                    Text="{l:Localization HKP.2F.Header}"
-                    TextWrapping="Wrap" />
-
-                <controls:InfoButton Margin="2,-2,0,0" />
-            </StackPanel>
-
-            <TextBlock
-                Grid.Row="9"
-                Grid.Column="2"
-                Text="{l:Localization HKP.2F.Description}"
+                Grid.Row="4"
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="{l:Localization HKP.Description3}"
                 TextWrapping="Wrap" />
         </Grid>
-        
+
 
     </Grid>
 </Page>

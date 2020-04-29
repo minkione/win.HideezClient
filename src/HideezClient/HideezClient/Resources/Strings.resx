@@ -477,24 +477,6 @@ to access stored credentials</value>
   <data name="PM.Label.Account" xml:space="preserve">
     <value>ACCOUNT</value>
   </data>
-  <data name="HKP.2F.Description" xml:space="preserve">
-    <value>Enable two-factor authentication to ensure the highest security.</value>
-  </data>
-  <data name="HKP.2F.Header" xml:space="preserve">
-    <value>Two-factor authentication</value>
-  </data>
-  <data name="HKP.PM.Description" xml:space="preserve">
-    <value>Insert your credentials fast with the hotkeys. No need to memorize passwords.</value>
-  </data>
-  <data name="HKP.PM.Header" xml:space="preserve">
-    <value>Secure password management</value>
-  </data>
-  <data name="HKP.Proximity.Description" xml:space="preserve">
-    <value>The computer is locked automatically and instantly once you walk away.</value>
-  </data>
-  <data name="HKP.Proximity.Header" xml:space="preserve">
-    <value>Proximity-based computer lock</value>
-  </data>
   <data name="EnableDevice.Header" xml:space="preserve">
     <value>Enable your device</value>
   </data>
@@ -711,9 +693,6 @@ to access stored credentials</value>
   <data name="DP.MobileKey.Header" xml:space="preserve">
     <value>Hideez Mobile Key - Software</value>
   </data>
-  <data name="HKP.UserGuide.Header" xml:space="preserve">
-    <value>User Guide</value>
-  </data>
   <data name="HMK.ActivationCode.Header" xml:space="preserve">
     <value>Activation Code</value>
   </data>
@@ -752,6 +731,15 @@ to access stored credentials</value>
   </data>
   <data name="Menu.SoftwareKeyPage.Description" xml:space="preserve">
     <value>Software Vault</value>
+  </data>
+  <data name="HKP.Description1" xml:space="preserve">
+    <value>Make sure that all the indicators in the bottom left corner are green.</value>
+  </data>
+  <data name="HKP.Description2" xml:space="preserve">
+    <value>Long tap the dongle with the device until the initiation process launches.</value>
+  </data>
+  <data name="HKP.Description3" xml:space="preserve">
+    <value>Follow the screen notifications.</value>
   </data>
   <data name="HMK.ActivationCode.Description1" xml:space="preserve">
     <value>Scan this Activation code by your smartphone.</value>

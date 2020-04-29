@@ -265,6 +265,9 @@
     <Compile Include="Controls\ServerAddressEditControl.xaml.cs">
       <DependentUpon>ServerAddressEditControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ServiceRequiredMessageControl.xaml.cs">
+      <DependentUpon>ServiceRequiredMessageControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\SmallDeviceInfoControl.xaml.cs">
       <DependentUpon>SmallDeviceInfoControl.xaml</DependentUpon>
     </Compile>
@@ -501,6 +504,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ServerAddressEditControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ServiceRequiredMessageControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
