@@ -8,13 +8,13 @@
     xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     DataContext="{Binding Source={StaticResource Locator}, Path=SaveAddressEditControlViewModel, Mode=OneWay}"
-    mc:Ignorable="d" 
+    mc:Ignorable="d"
+    Width="525"
     d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         
         <Grid Grid.Row="0">
@@ -51,23 +51,71 @@
         <StackPanel 
             Grid.Row="1"
             Orientation="Horizontal"
-            HorizontalAlignment="Right">
-            <StackPanel.Style>
-                <Style TargetType="{x:Type StackPanel}">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding CheckingConnection}" Value="true">
-                            <Setter Property="Control.Visibility" Value="Hidden" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </StackPanel.Style>
-            <Button 
-                Style="{StaticResource CancelButtonStyle}" 
-                Content="{l:Localization Button.Cancel}"
-                Command="{Binding CancelCommand}" />
+            HorizontalAlignment="Right"
+            Visibility="{Binding CheckingConnection, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+
+            <Grid 
+                HorizontalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="24" />
+                    <ColumnDefinition Width="320" />
+                </Grid.ColumnDefinitions>
+                <Grid.Style>
+                    <Style TargetType="{x:Type Grid}">
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding ShowInfo}" Value="false" />
+                                    <Condition Binding="{Binding ShowError}" Value="false" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Control.Visibility" Value="Hidden" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <!-- Info icon -->
+                <ContentPresenter
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Width="50"
+                    Height="50"
+                    Content="{StaticResource InfoIco}"
+                    Visibility="{Binding ShowInfo, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                <!-- Error icon -->
+                <ContentPresenter
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Width="50"
+                    Height="50"
+                    Content="{StaticResource ErrorIco}"
+                    Visibility="{Binding ShowError, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                <TextBlock
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    TextWrapping="Wrap" >
+                    <TextBlock.Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ShowInfo}" Value="True">
+                                    <Setter Property="Text" Value="{l:Localization Settings.Label.RequestAddressFromAdmin}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ShowError}" Value="True">
+                                    <Setter Property="Text" Value="{l:Localization Settings.Label.ServerUnavailable}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+
             <Button 
                 x:Name="SaveButton"
                 Margin="16,0,0,0"
+                VerticalAlignment="Center"
                 Content="{l:Localization Button.Save}"
                 Command="{Binding SaveCommand}"
                 Style="{StaticResource ConfirmButtonStyle}" />
@@ -87,82 +135,5 @@
                 Text="{l:Localization Settings.Label.CheckingConnection}" />
         </StackPanel>
 
-        <Grid 
-            Grid.Row="2"
-            HorizontalAlignment="Center"
-            Margin="0,24,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="24" />
-                <ColumnDefinition Width="320" />
-            </Grid.ColumnDefinitions>
-            <Grid.Style>
-                <Style TargetType="{x:Type Grid}">
-                    <Style.Triggers>
-                        <MultiDataTrigger>
-                            <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding ShowInfo}" Value="false" />
-                                <Condition Binding="{Binding ShowError}" Value="false" />
-                            </MultiDataTrigger.Conditions>
-                            <Setter Property="Control.Visibility" Value="Collapsed" />
-                        </MultiDataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
-
-            <!-- Info icon -->
-            <ContentPresenter
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                Width="50"
-                Height="50"
-                Content="{StaticResource InfoIco}">
-                <ContentPresenter.Style>
-                    <Style TargetType="{x:Type ContentPresenter}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding ShowInfo}" Value="false">
-                                <Setter Property="Control.Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ContentPresenter.Style>
-            </ContentPresenter>
-
-            <!-- Error icon -->
-            <ContentPresenter
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                Width="50"
-                Height="50"
-                Content="{StaticResource ErrorIco}">
-                <ContentPresenter.Style>
-                    <Style TargetType="{x:Type ContentPresenter}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding ShowError}" Value="false">
-                                <Setter Property="Control.Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ContentPresenter.Style>
-            </ContentPresenter>
-
-            <TextBlock
-                Grid.Column="2"
-                VerticalAlignment="Center"
-                TextWrapping="Wrap" >
-                <TextBlock.Style>
-                    <Style TargetType="{x:Type TextBlock}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding ShowInfo}" Value="True">
-                                <Setter Property="Text" Value="{l:Localization Settings.Label.RequestAddressFromAdmin}" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding ShowError}" Value="True">
-                                <Setter Property="Text" Value="{l:Localization Settings.Label.ServerUnavailable}" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-        </Grid>
     </Grid>
 </UserControl>

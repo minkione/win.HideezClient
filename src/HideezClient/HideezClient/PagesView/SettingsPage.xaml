@@ -55,7 +55,7 @@
                 <Border
                     Style="{StaticResource SettingsBorderStyle}"
                     Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <controls:ServerAddressEditControl Width="450"/>
+                    <controls:ServerAddressEditControl FontSize="14" HorizontalAlignment="Center" />
                 </Border>
 
                 <!-- Server Address Editing control -->
