@@ -365,18 +365,18 @@ Device is not connected</value>
     <value>Enter PIN code for {0} 
 to access stored credentials</value>
   </data>
-  <data name="Pin.InavalidPin" xml:space="preserve">
+  <data name="Pin.InvalidPin" xml:space="preserve">
     <value>Invalid PIN!
-{0} attempts left</value>
+{0} attempts left.</value>
   </data>
   <data name="Pin.ReqBtnConfirm" xml:space="preserve">
-    <value>Press the button on your device to confirm connection</value>
+    <value>Press the button on your device to confirm authorization</value>
   </data>
   <data name="Pin.VerifyingPIN" xml:space="preserve">
     <value>Verifying PIN code</value>
   </data>
   <data name="CredentialsLoad.Loaded" xml:space="preserve">
-    <value>Credentials loading finished {0}</value>
+    <value>Credentials loading completed {0}</value>
   </data>
   <data name="CredentialsLoad.Loading" xml:space="preserve">
     <value>Loading credentials {0}</value>
@@ -406,19 +406,19 @@ to access stored credentials</value>
     <value>New PIN</value>
   </data>
   <data name="Pin.Old" xml:space="preserve">
-    <value>Old PIN</value>
+    <value>Current PIN</value>
   </data>
   <data name="Pin.ChangedPIN" xml:space="preserve">
     <value>PIN changed successfully</value>
   </data>
   <data name="Pin.SavedPIN" xml:space="preserve">
-    <value>PIN saved successfully</value>
+    <value>PIN saved successfully.</value>
   </data>
   <data name="Pin.ErrorChangePIN" xml:space="preserve">
-    <value>Error changing PIN code</value>
+    <value>Error while changing PIN code</value>
   </data>
   <data name="Pin.ErrorSavedPIN" xml:space="preserve">
-    <value>Error saving PIN code</value>
+    <value>Error while saving the PIN code.</value>
   </data>
   <data name="Pin.Error.ConfirmNotMatch" xml:space="preserve">
     <value>Confirmation PIN code does not match.</value>
@@ -655,13 +655,13 @@ to access stored credentials</value>
     <value>https://support.hideez.com</value>
   </data>
   <data name="Settings.Label.RequestAddressFromAdmin" xml:space="preserve">
-    <value>Contact your Administrator and ask for URL of Hideez Enterprise Server</value>
+    <value>Contact your Administrator and ask the URL of Hideez Enterprise Server.</value>
   </data>
   <data name="Settings.Label.ServerAddress" xml:space="preserve">
     <value>Hideez Enterprise Server</value>
   </data>
   <data name="Settings.Label.ServerUnavailable" xml:space="preserve">
-    <value>Hideez Enterprise Server is unavailable or entered address is incorrect</value>
+    <value>Hideez Enterprise Server is not available, or the address is incorrect.</value>
   </data>
   <data name="Settings.Watermark.ServerAddress" xml:space="preserve">
     <value>Enter URL here</value>
@@ -676,7 +676,7 @@ to access stored credentials</value>
     <value>Certain settings cannot be changed while Hideez Service is offline</value>
   </data>
   <data name="DP.Description" xml:space="preserve">
-    <value>Includes Hideez Enterprise Server, Hideez Client Application and two types of security key</value>
+    <value>Includes Hideez Enterprise Server, Hideez Client Application and two types of a security key:</value>
   </data>
   <data name="DP.Header" xml:space="preserve">
     <value>Hideez Authentication Solution</value>
@@ -688,7 +688,7 @@ to access stored credentials</value>
     <value>Hideez Key - Hardware</value>
   </data>
   <data name="DP.MobileKey.Description" xml:space="preserve">
-    <value>Software Application which can be installed on your smartphone</value>
+    <value>Software Vault that can be installed on your smartphone</value>
   </data>
   <data name="DP.MobileKey.Header" xml:space="preserve">
     <value>Hideez Mobile Key - Software</value>
@@ -697,13 +697,13 @@ to access stored credentials</value>
     <value>Activation Code</value>
   </data>
   <data name="HMK.Login.Description" xml:space="preserve">
-    <value>Turn your smartphone with biometric sensor into mobile security key.</value>
+    <value>Turn your smartphone with a biometric sensor into mobile security key.</value>
   </data>
   <data name="HMK.Login.Header" xml:space="preserve">
     <value>Login into Computer</value>
   </data>
   <data name="HMK.MobileKey.Description" xml:space="preserve">
-    <value>You can install this application from Google Play Market and Apple App Store.</value>
+    <value>Install the application on your smartphone from the Google Play Market or Apple App Store.</value>
   </data>
   <data name="HMK.MobileKey.Header" xml:space="preserve">
     <value>Hideez Mobile Key</value>
@@ -724,7 +724,7 @@ to access stored credentials</value>
     <value>Ok</value>
   </data>
   <data name="Status.Tooltip.NetworkUnavailable" xml:space="preserve">
-    <value>Please, check your internet connection</value>
+    <value>Please check your internet connection</value>
   </data>
   <data name="Menu.HardwareKeyPage.Description" xml:space="preserve">
     <value>Hardware Vault</value>
@@ -746,5 +746,12 @@ to access stored credentials</value>
   </data>
   <data name="HMK.ActivationCode.Description2" xml:space="preserve">
     <value>Follow the instructions on your smartphone.</value>
+  </data>
+  <data name="Menu.SecurityType.Header" xml:space="preserve">
+    <value>Please choose your type of Security Vault</value>
+  </data>
+  <data name="Pin.InvalidPin.LastAttempt" xml:space="preserve">
+    <value>Invalid PIN!
+Only 1 attempt left.</value>
   </data>
 </root>

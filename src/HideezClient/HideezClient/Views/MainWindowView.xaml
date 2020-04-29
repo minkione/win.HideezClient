@@ -69,7 +69,7 @@
                         FontSize="18"
                         FontWeight="DemiBold"
                         TextWrapping="Wrap"
-                        Text="Please chose your type of security Key" />
+                        Text="{l:Localization Menu.SecurityType.Header}" />
 
                     <controls:LeftMenuItemControl 
                         DataContext="{Binding MenuHardwareKeyPage}" 

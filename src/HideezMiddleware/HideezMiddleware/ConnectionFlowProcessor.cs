@@ -493,7 +493,10 @@ namespace HideezMiddleware
                     }
                     else
                     {
-                        await _ui.SendError($"Wrong PIN ({attemptsLeft} attempts left)", _errNid);
+                        if (attemptsLeft > 1)
+                            await _ui.SendError($"Invalid PIN! {attemptsLeft} attempts left.", _errNid);
+                        else
+                            await _ui.SendError($"Invalid PIN! 1 attempt left.", _errNid);
                         await device.RefreshDeviceInfo(); // Remaining pin attempts update is not quick enough 
                     }
                 }
