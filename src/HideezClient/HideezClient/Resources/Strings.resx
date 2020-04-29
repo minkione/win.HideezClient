@@ -718,13 +718,13 @@ to access stored credentials</value>
     <value>Activation Code</value>
   </data>
   <data name="HMK.Login.Description" xml:space="preserve">
-    <value>Turn your smartphone with biometric sensor into mobile security key</value>
+    <value>Turn your smartphone with biometric sensor into mobile security key.</value>
   </data>
   <data name="HMK.Login.Header" xml:space="preserve">
     <value>Login into Computer</value>
   </data>
   <data name="HMK.MobileKey.Description" xml:space="preserve">
-    <value>You can install this application from Google Play Market and Apple App Store</value>
+    <value>You can install this application from Google Play Market and Apple App Store.</value>
   </data>
   <data name="HMK.MobileKey.Header" xml:space="preserve">
     <value>Hideez Mobile Key</value>
@@ -752,5 +752,11 @@ to access stored credentials</value>
   </data>
   <data name="Menu.SoftwareKeyPage.Description" xml:space="preserve">
     <value>Software Vault</value>
+  </data>
+  <data name="HMK.ActivationCode.Description1" xml:space="preserve">
+    <value>Scan this Activation code by your smartphone.</value>
+  </data>
+  <data name="HMK.ActivationCode.Description2" xml:space="preserve">
+    <value>Follow the instructions on your smartphone.</value>
   </data>
 </root>
