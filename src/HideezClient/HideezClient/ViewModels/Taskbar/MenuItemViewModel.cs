@@ -9,6 +9,7 @@ namespace HideezClient.ViewModels
     public class MenuItemViewModel : LocalizedObject
     {
         private string header;
+        private string description;
         private bool isCheckable;
         private bool isChecked;
         private bool isVisible = true;
@@ -26,6 +27,16 @@ namespace HideezClient.ViewModels
             set
             {
                 Set(ref header, value);
+            }
+        }
+
+        [Localization]
+        public string Description
+        {
+            get { return description != null ? L(description) : null; }
+            set
+            {
+                Set(ref description, value);
             }
         }
 

@@ -92,12 +92,14 @@ namespace HideezClient.ViewModels
             };
             MenuHardwareKeyPage = new MenuItemViewModel
             {
-                Header = "Menu.HardwareKeyPage",
+                Header = "Menu.HardwareKeyPage.Header",
+                Description = "Menu.HardwareKeyPage.Description",
                 Command = OpenHardwareKeyPageCommand,
             };
             MenuSoftwareKeyPage = new MenuItemViewModel
             {
-                Header = "Menu.SoftwareKeyPage",
+                Header = "Menu.SoftwareKeyPage.Header",
+                Description = "Menu.SoftwareKeyPage.Description",
                 Command = OpenSoftwareKeyPageCommand,
             };
             _leftAppMenuItems.Add(MenuDefaultPage);
