@@ -23,8 +23,13 @@ namespace WinSampleApp.ViewModel
         public int Battery => Device.Battery;
 
         public AccessLevel AccessLevel => Device.AccessLevel;
-        public StatusLevel StatusLevel => Device.StatusLevel;
+        public bool IsLocked => Device.IsLocked;
+        public bool IsLockedByCode => Device.IsLockedByCode;
+        public bool IsLockedByPin => Device.IsLockedByPin;
+        public bool IsCanUnlock => Device.IsCanUnlock;
+        public int UnlockAttemptsRemain => Device.UnlockAttemptsRemain;
         public byte PinAttemptsRemain => Device.PinAttemptsRemain;
+
         public DateTime DeviceTime => Device.DeviceTime;
         public ushort MaxMessageSize => Device.MaxMessageSize;
 

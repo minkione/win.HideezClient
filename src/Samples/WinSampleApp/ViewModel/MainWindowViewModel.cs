@@ -989,6 +989,8 @@ namespace WinSampleApp.ViewModel
 
                 _log = new EventLogger("ExampleApp");
 
+                CODE = "123456";
+
                 // BleConnectionManager ============================
                 var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
                 var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
@@ -1493,7 +1495,11 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await device.Device.Link(Encoding.UTF8.GetBytes("passphrase"));
+                byte[] code = Encoding.UTF8.GetBytes(CODE);
+                byte[] key = Encoding.UTF8.GetBytes("passphrase");
+                byte UnlockAttempts = 5;// Options 3-15
+                await device.Device.Link(key,code, UnlockAttempts);
+                await device.Device.RefreshDeviceInfo();
             }
             catch (Exception ex)
             {
