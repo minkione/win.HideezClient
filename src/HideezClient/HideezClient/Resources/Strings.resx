@@ -685,13 +685,13 @@ to access stored credentials</value>
     <value>Hardware token with Bluetooth connection</value>
   </data>
   <data name="DP.HideezKey.Header" xml:space="preserve">
-    <value>Hideez Key - Hardware</value>
+    <value>Hideez Key</value>
   </data>
   <data name="DP.MobileKey.Description" xml:space="preserve">
     <value>Software Vault that can be installed on your smartphone</value>
   </data>
   <data name="DP.MobileKey.Header" xml:space="preserve">
-    <value>Hideez Mobile Key - Software</value>
+    <value>Hideez Mobile Authenticator</value>
   </data>
   <data name="HMK.ActivationCode.Header" xml:space="preserve">
     <value>Activation Code</value>
@@ -709,10 +709,10 @@ to access stored credentials</value>
     <value>Hideez Mobile Key</value>
   </data>
   <data name="Menu.HardwareKeyPage.Header" xml:space="preserve">
-    <value>Hideez Key - Hardware</value>
+    <value>Hideez Key</value>
   </data>
   <data name="Menu.SoftwareKeyPage.Header" xml:space="preserve">
-    <value>Hideez Mobile Key - Software</value>
+    <value>Hideez Mobile Authenticator</value>
   </data>
   <data name="Settings.CheckBox.EnableSoftwareVaultUnlockModule" xml:space="preserve">
     <value>Allow unlock with Hideez Mobile Authenticator</value>
