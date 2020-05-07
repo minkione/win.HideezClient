@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
+using HideezMiddleware.ReconnectManager;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,28 +15,38 @@ namespace HideezMiddleware
 
         readonly ConnectionFlowProcessor _flowProcessor;
         readonly ProximityMonitorManager _proximityMonitorManager;
-        readonly IWorkstationLocker _workstationLocker;
         readonly BleDeviceManager _deviceManager;
+        readonly IWorkstationLocker _workstationLocker;
+        readonly DeviceReconnectManager _deviceReconnectManager;
 
         readonly object _deviceListsLock = new object();
 
         public event EventHandler<IDevice> DeviceProxLockEnabled;
         public event EventHandler<WorkstationLockingEventArgs> WorkstationLocking;
 
-        public WorkstationLockProcessor(ConnectionFlowProcessor flowProcessor, ProximityMonitorManager proximityMonitorManager, BleDeviceManager deviceManager, IWorkstationLocker workstationLocker, ILog log)
+        public WorkstationLockProcessor(
+            ConnectionFlowProcessor flowProcessor, 
+            ProximityMonitorManager proximityMonitorManager, 
+            BleDeviceManager deviceManager, 
+            IWorkstationLocker workstationLocker, 
+            DeviceReconnectManager deviceReconnectManager,
+            ILog log)
             :base(nameof(WorkstationLockProcessor), log)
         {
             _flowProcessor = flowProcessor;
             _proximityMonitorManager = proximityMonitorManager;
-            _workstationLocker = workstationLocker;
             _deviceManager = deviceManager;
+            _workstationLocker = workstationLocker;
+            _deviceReconnectManager = deviceReconnectManager;
 
             _flowProcessor.DeviceFinishedMainFlow += FlowProcessor_DeviceFinishedMainFlow;
             _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
 
-            _proximityMonitorManager.DeviceConnectionLost += ProximityMonitorManager_DeviceConnectionLost;
             _proximityMonitorManager.DeviceBelowLockForToLong += ProximityMonitorManager_DeviceBelowLockForToLong;
             _proximityMonitorManager.DeviceProximityTimeout += ProximityMonitorManager_DeviceProximityTimeout;
+            _proximityMonitorManager.DeviceConnectionLost += ProximityMonitorManager_DeviceConnectionLost;
+
+            _deviceReconnectManager.DeviceDisconnected += DeviceReconnectManager_DeviceDisconnected;
         }
 
         void FlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
@@ -132,32 +143,16 @@ namespace HideezMiddleware
             }
         }
 
-        void ProximityMonitorManager_DeviceConnectionLost(object sender, IDevice device)
-        {
-            lock (_deviceListsLock)
-            {
-                if (!CanLock(device))
-                    return;
-
-                WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Device ID: {device.Id}");
-                WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceConnectionLost));
-                _workstationLocker.LockWorkstation();
-            }
-        }
-
         void ProximityMonitorManager_DeviceBelowLockForToLong(object sender, IDevice device)
         {
             lock (_deviceListsLock)
             {
-                if (!CanLock(device))
-                { 
-                    Task.Run(async () => { await _deviceManager.DisconnectDevice(device); });
-                    return;
+                if (CanLock(device))
+                {
+                    WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Device ID: {device.Id}");
+                    WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceBelowThreshold));
+                    _workstationLocker.LockWorkstation();
                 }
-
-                WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Device ID: {device.Id}");
-                WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceBelowThreshold));
-                _workstationLocker.LockWorkstation();
             }
         }
 
@@ -165,15 +160,38 @@ namespace HideezMiddleware
         {
             lock (_deviceListsLock)
             {
-                if (!CanLock(device))
+                if (CanLock(device))
                 {
-                    Task.Run(async () => { await _deviceManager.DisconnectDevice(device); });
-                    return;
+                    WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Device ID: {device.Id}");
+                    WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.ProximityTimeout));
+                    _workstationLocker.LockWorkstation();
                 }
+            }
+        }
 
-                WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Device ID: {device.Id}");
-                WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.ProximityTimeout));
-                _workstationLocker.LockWorkstation();
+        void ProximityMonitorManager_DeviceConnectionLost(object sender, IDevice device)
+        {
+            lock (_deviceListsLock)
+            {
+                if (!_deviceReconnectManager.IsEnabled && CanLock(device))
+                {
+                    WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Device ID: {device.Id}");
+                    WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceConnectionLost));
+                    _workstationLocker.LockWorkstation();
+                }
+            }
+        }
+
+        void DeviceReconnectManager_DeviceDisconnected(object sender, IDevice device)
+        {
+            lock (_deviceListsLock)
+            {
+                if (_deviceReconnectManager.IsEnabled && CanLock(device))
+                {
+                    WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Device ID: {device.Id}");
+                    WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceConnectionLost));
+                    _workstationLocker.LockWorkstation();
+                }
             }
         }
 

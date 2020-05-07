@@ -22,6 +22,7 @@ using HideezMiddleware.Audit;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.DeviceLogging;
 using HideezMiddleware.Local;
+using HideezMiddleware.ReconnectManager;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using Microsoft.Win32;
@@ -62,6 +63,8 @@ namespace ServiceLibrary.Implementation
         static ConnectionManagerRestarter _connectionManagerRestarter;
         static ILocalDeviceInfoCache _localDeviceInfoCache;
         static DeviceLogManager _deviceLogManager;
+
+        static DeviceReconnectManager _deviceReconnectManager;
 
         void InitializeSDK()
         {
@@ -246,13 +249,21 @@ namespace ServiceLibrary.Implementation
             ProximitySettings proximitySettings = _proximitySettingsManager.Settings;
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _sdkLogger, proximitySettings.DevicesProximity);
 
+            // Device Reconnect Manager ================================
+            _deviceReconnectManager = new DeviceReconnectManager(_proximityMonitorManager, _deviceManager, _connectionFlowProcessor, _sdkLogger);
+            _deviceReconnectManager.DeviceReconnected += (s, a) => _log.WriteLine($"Device {a.SerialNo} reconnected successfully");
+
             // WorkstationLocker ==================================
             // TODO: Use value from SdkConfig for timeout
             _workstationLocker = new UniversalWorkstationLocker(SdkConfig.DefaultLockTimeout * 1000, sessionManager, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
-            _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager,
-                _deviceManager, _workstationLocker, _sdkLogger);
+            _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, 
+                _proximityMonitorManager,
+                _deviceManager, 
+                _workstationLocker, 
+                _deviceReconnectManager,
+                _sdkLogger);
             _workstationLockProcessor.DeviceProxLockEnabled += WorkstationLockProcessor_DeviceProxLockEnabled;
 
             // SessionSwitchLogger ==================================
@@ -270,6 +281,8 @@ namespace ServiceLibrary.Implementation
 
             _connectionManager.StartDiscovery();
             _connectionManagerRestarter.Start();
+
+            _deviceReconnectManager.Start();
 
             if (_hesConnection.State == HesConnectionState.Error)
             {
@@ -611,6 +624,7 @@ namespace ServiceLibrary.Implementation
                 if (reason == SessionSwitchReason.SessionLogoff || reason == SessionSwitchReason.SessionLock)
                 {
                     // Disconnect all connected devices
+                    _deviceReconnectManager.DisableAllDevicesReconnect();
                     await _deviceManager.DisconnectAllDevices();
                 }
             }
@@ -694,6 +708,7 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
+                _deviceReconnectManager.DisableDeviceReconnect(id);
                 await _deviceManager.DisconnectDevice(id);
             }
             catch (Exception ex)
@@ -709,8 +724,10 @@ namespace ServiceLibrary.Implementation
             {
                 var device = _deviceManager.Find(id);
                 if (device != null)
+                {
+                    _deviceReconnectManager.DisableDeviceReconnect(device);
                     await _deviceManager.Remove(device);
-                    //await _deviceManager.RemoveAll(device.Mac);
+                }
             }
             catch (Exception ex)
             {
