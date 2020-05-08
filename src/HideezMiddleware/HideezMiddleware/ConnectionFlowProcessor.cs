@@ -98,7 +98,7 @@ namespace HideezMiddleware
                 try
                 {
                     _cts = new CancellationTokenSource();
-                    await MainWorkflow(mac, onSuccessfulUnlock, _cts.Token);
+                    await MainWorkflow(mac, true, true, onSuccessfulUnlock, _cts.Token);
                 }
                 finally
                 {
@@ -110,7 +110,26 @@ namespace HideezMiddleware
             }
         }
 
-        async Task MainWorkflow(string mac, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
+        public async Task Connect(string mac)
+        {
+            if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
+            {
+                try
+                {
+                    _cts = new CancellationTokenSource();
+                    await MainWorkflow(mac, false, false, null, _cts.Token);
+                }
+                finally
+                {
+                    _cts.Dispose();
+                    _cts = null;
+
+                    Interlocked.Exchange(ref _isConnecting, 0);
+                }
+            }
+        }
+
+        async Task MainWorkflow(string mac, bool retryOnConnectionFail, bool tryUnlock, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
         {
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
@@ -152,7 +171,7 @@ namespace HideezMiddleware
                         .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct);
                 }
 
-                device = await ConnectDevice(mac, ct);
+                device = await ConnectDevice(mac, retryOnConnectionFail, ct);
 
                 device.Disconnected += OnDeviceDisconnectedDuringFlow;
                 device.OperationCancelled += OnUserCancelledByButton;
@@ -224,7 +243,7 @@ namespace HideezMiddleware
 
                 await MasterKeyWorkflow(device, ct);
 
-                if (_workstationUnlocker.IsConnected && WorkstationHelper.IsActiveSessionLocked())
+                if (_workstationUnlocker.IsConnected && WorkstationHelper.IsActiveSessionLocked() && tryUnlock)
                 {
                     if (await ButtonWorkflow(device, timeout, ct) && await PinWorkflow(device, timeout, ct))
                     {
@@ -502,14 +521,14 @@ namespace HideezMiddleware
             return res;
         }
 
-        async Task<IDevice> ConnectDevice(string mac, CancellationToken ct)
+        async Task<IDevice> ConnectDevice(string mac, bool retryOnFail, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
             await _ui.SendNotification("Connecting to the device...", _infNid);
 
             var device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
 
-            if (device == null)
+            if (retryOnFail && device == null)
             {
                 ct.ThrowIfCancellationRequested();
                 await _ui.SendNotification("Connection failed. Retrying...", _infNid);
@@ -524,11 +543,11 @@ namespace HideezMiddleware
                     await _deviceManager.RemoveByMac(mac);
                     await _ui.SendNotification("Connection failed. Trying re-bond the device...", _infNid);
                     device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
-
-                    if (device == null)
-                        throw new Exception($"Failed to connect device '{mac}'.");
                 }
             }
+
+            if (device == null)
+                throw new Exception($"Failed to connect device '{mac}'.");
 
             return device;
         }

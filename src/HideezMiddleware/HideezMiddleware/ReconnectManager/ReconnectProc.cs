@@ -24,7 +24,7 @@ namespace HideezMiddleware.ReconnectManager
             try
             {
                 _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
-                var connectionTask = _connectionFlowProcessor.ConnectAndUnlock(_device.Mac, null);
+                var connectionTask = _connectionFlowProcessor.Connect(_device.Mac);
                 await Task.WhenAll(_tcs.Task.TimeoutAfter(timeout, ct), connectionTask);
 
                 return await _tcs.Task;
