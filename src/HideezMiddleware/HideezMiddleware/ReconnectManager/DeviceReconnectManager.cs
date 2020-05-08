@@ -105,8 +105,10 @@ namespace HideezMiddleware.ReconnectManager
             WriteLine($"Starting reconnect procedure for {device.SerialNo}"); 
             using (var cts = new CancellationTokenSource())
             {
+                await Task.Delay(SdkConfig.ReconnectDelay); // Small delay before reconnecting
+
                 var proc = new ReconnectProc(device, _connectionFlowProcessor);
-                var reconnectSuccessful = await proc.Run(SdkConfig.MainWorkflowTimeout, cts.Token);
+                var reconnectSuccessful = await proc.Run(SdkConfig.ReconnectWorkflowTimeout, cts.Token);
                 cts.Dispose();
 
                 if (reconnectSuccessful)

@@ -24,9 +24,10 @@ namespace HideezMiddleware.ReconnectManager
             try
             {
                 _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
-                await _connectionFlowProcessor.ConnectAndUnlock(_device.Mac, null);
-                
-                return await _tcs.Task.TimeoutAfter(timeout, ct);
+                var connectionTask = _connectionFlowProcessor.ConnectAndUnlock(_device.Mac, null);
+                await Task.WhenAll(_tcs.Task.TimeoutAfter(timeout, ct), connectionTask);
+
+                return await _tcs.Task;
             }
             catch (Exception)
             {
@@ -43,6 +44,8 @@ namespace HideezMiddleware.ReconnectManager
         {
             if (e.Id == _device.Id)
                 _tcs.TrySetResult(true);
+            else
+                _tcs.TrySetResult(false);
         }
     }
 }

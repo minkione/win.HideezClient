@@ -40,7 +40,6 @@ namespace HideezMiddleware
             _deviceReconnectManager = deviceReconnectManager;
 
             _flowProcessor.DeviceFinishedMainFlow += FlowProcessor_DeviceFinishedMainFlow;
-            _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
 
             _proximityMonitorManager.DeviceBelowLockForToLong += ProximityMonitorManager_DeviceBelowLockForToLong;
             _proximityMonitorManager.DeviceProximityTimeout += ProximityMonitorManager_DeviceProximityTimeout;
@@ -59,10 +58,13 @@ namespace HideezMiddleware
                 if (!device.IsRemote && !device.IsBoot)
                 {
                     // Limit of one device that may be authorized for workstation lock
-                    if (!_deviceManager.Devices.Any(d => d.GetUserProperty<bool>(PROX_LOCK_ENABLED_PROP)))
+                    if (_deviceManager.Devices.Any(d => d.IsConnected && d.Id != device.Id && d.GetUserProperty<bool>(PROX_LOCK_ENABLED_PROP)))
+                    {
+                        device.SetUserProperty(PROX_LOCK_ENABLED_PROP, false);
+                    }
+                    else
                     {
                         WriteLine($"Device ({device.Id}) added as valid to trigger workstation lock");
-                        device.Disconnected += Device_Disconnected;
                         device.SetUserProperty(PROX_LOCK_ENABLED_PROP, true);
                         SafeInvoke(DeviceProxLockEnabled, device);
                     }
@@ -86,14 +88,10 @@ namespace HideezMiddleware
             if (disposing)
             {
                 _flowProcessor.DeviceFinishedMainFlow -= FlowProcessor_DeviceFinishedMainFlow;
-                _deviceManager.DeviceRemoved -= DeviceManager_DeviceRemoved;
 
                 _proximityMonitorManager.DeviceConnectionLost -= ProximityMonitorManager_DeviceConnectionLost;
                 _proximityMonitorManager.DeviceBelowLockForToLong -= ProximityMonitorManager_DeviceBelowLockForToLong;
                 _proximityMonitorManager.DeviceProximityTimeout -= ProximityMonitorManager_DeviceProximityTimeout;
-
-                foreach (var device in _deviceManager.Devices.ToList())
-                    device.Disconnected -= Device_Disconnected;
             }
 
             disposed = true;
@@ -115,32 +113,6 @@ namespace HideezMiddleware
         public void Stop()
         {
             IsEnabled = false;
-        }
-
-        void DeviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
-        {
-            if (e.RemovedDevice == null)
-                return;
-
-            lock (_deviceListsLock)
-            {
-                e.RemovedDevice.Disconnected -= Device_Disconnected;
-            }
-        }
-
-        void Device_Disconnected(object sender, EventArgs e)
-        {
-            if (sender is IDevice device)
-            {
-                lock (_deviceListsLock)
-                {
-                    if (device.GetUserProperty<bool>(PROX_LOCK_ENABLED_PROP))
-                    {
-                        WriteLine($"Device ({device.Id}) is no longer a valid trigger for workstation lock");
-                        device.SetUserProperty(PROX_LOCK_ENABLED_PROP, false);
-                    }
-                }
-            }
         }
 
         void ProximityMonitorManager_DeviceBelowLockForToLong(object sender, IDevice device)
