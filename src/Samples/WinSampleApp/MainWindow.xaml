@@ -23,8 +23,11 @@
                 <Button Content=" Start Discovery " Margin="10,0,0,0" Command="{Binding StartDiscoveryCommand}"/>
                 <Button Content=" Stop Discovery " Margin="10,0,0,0" Command="{Binding StopDiscoveryCommand}"/>
                 <TextBlock Margin="10,0,10,0" Visibility="{Binding BleAdapterDiscovering, Converter={StaticResource BooleanToVisibilityConverter}}">Discovering...</TextBlock>
-                <Button Content="Connect by MAC" Margin="10,0,0,0" Command="{Binding ConnectBondedDeviceCommand}"/>
-                <TextBox Width="120" Margin="10,0,0,0" Text="{Binding ConectByMacAddress}"></TextBox>
+                <Button Content="Connect by MAC 1" Margin="10,0,0,0" Command="{Binding ConnectByMacCommand1}"/>
+                <TextBox Width="120" Margin="10,0,0,0" Text="{Binding ConectByMacAddress1}"></TextBox>
+                <Button Content="Connect by MAC 2" Margin="10,0,0,0" Command="{Binding ConnectByMacCommand2}"/>
+                <TextBox Width="120" Margin="10,0,0,0" Text="{Binding ConectByMacAddress2}"></TextBox>
+                <Button Content=" Sync Devices " Margin="10,0,0,0" Command="{Binding SyncDevicesCommand}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="10,5,0,0">
                 <TextBlock Margin="0,0,10,0">RFID Adapter:</TextBlock>

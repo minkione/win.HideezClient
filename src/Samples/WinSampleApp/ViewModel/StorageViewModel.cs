@@ -23,6 +23,7 @@ namespace WinSampleApp.ViewModel
     public class StorageViewModel : ViewModelBase
     {
         readonly EventLogger _log;
+        int _counter = 1;
 
         public DeviceViewModel CurrentDevice { get; }
         public IDevice Device => CurrentDevice.Device;
@@ -430,17 +431,22 @@ namespace WinSampleApp.ViewModel
                 // single record
                 var account = new AccountRecord()
                 {
-                    Key = 1,
-                    Name = $"My Google Account 0",
-                    Login = $"admin_0@hideez.com",
-                    Password = $"my_password_0",
+                    StorageId = ConvertUtils.ConvertToUnixTime(DateTime.Now),
+                    Timestamp = ConvertUtils.ConvertToUnixTime(DateTime.Now),
+                    Name = $"{Data} My Google Account {_counter}",
+                    Login = $"{Data} admin_0@hideez.com {_counter}",
+                    Password = $"{Data} my_password_{_counter}",
                     OtpSecret = $"DPMYUOUOQDCAABSIAE5DFBANESXGOHDV",
-                    Apps = $"12431412412342134_0",
-                    Urls = $"www.hideez.com;www.google.com_0",
-                    IsPrimary = true
+                    Apps = $"{Data} 12431412412342134_{_counter}",
+                    Urls = $"{Data} www.hideez.com;www.google.com_{_counter}",
+                    IsPrimary = false
                 };
 
-                var key = await pm.SaveOrUpdateAccount(account.Key, account.Name,
+                _counter++;
+
+                await pm.SaveOrUpdateAccount(
+                    account.StorageId, account.Timestamp,
+                    account.Name,
                     account.Password, account.Login, account.OtpSecret,
                     account.Apps, account.Urls,
                     account.IsPrimary

@@ -31,8 +31,8 @@ namespace WinSampleApp.ViewModel
         readonly BleDeviceManager _deviceManager;
         readonly CredentialProviderProxy _credentialProviderProxy;
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
-        private readonly RfidConnectionProcessor _rfidProcessor;
-        private readonly TapConnectionProcessor _tapProcessor;
+        readonly RfidConnectionProcessor _rfidProcessor;
+        readonly TapConnectionProcessor _tapProcessor;
         readonly RfidServiceConnection _rfidService;
         readonly HesAppConnection _hesConnection;
 
@@ -48,12 +48,22 @@ namespace WinSampleApp.ViewModel
         public string CODE { get; set; }
         public string BleAdapterState => _connectionManager?.State.ToString();
 
-        public string ConectByMacAddress
+        public string ConectByMacAddress1
         {
             get { return Properties.Settings.Default.DefaultMac; }
             set
             {
                 Properties.Settings.Default.DefaultMac = value;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        public string ConectByMacAddress2
+        {
+            get { return Properties.Settings.Default.DefaultMac2; }
+            set
+            {
+                Properties.Settings.Default.DefaultMac2 = value;
                 Properties.Settings.Default.Save();
             }
         }
@@ -539,7 +549,8 @@ namespace WinSampleApp.ViewModel
                 };
             }
         }
-        public ICommand ConnectBondedDeviceCommand
+
+        public ICommand ConnectByMacCommand1
         {
             get
             {
@@ -551,7 +562,43 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = async (x) =>
                     {
-                        await ConnectDeviceByMac(ConectByMacAddress);
+                        await ConnectDeviceByMac(ConectByMacAddress1);
+                    }
+                };
+            }
+        }
+
+        public ICommand ConnectByMacCommand2
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return true;
+                    },
+                    CommandAction = async (x) =>
+                    {
+                        await ConnectDeviceByMac(ConectByMacAddress2);
+                    }
+                };
+            }
+        }
+
+        public ICommand SyncDevicesCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        SyncDevices();
                     }
                 };
             }
@@ -1201,14 +1248,14 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                _log.WriteLine("MainVM", $"Waiting Device connectin {mac} ..........................");
+                _log.WriteLine("MainVM", $"Waiting Device connection {mac} ..........................");
 
                 var device = await _deviceManager.ConnectDevice(mac, timeout: 10_000);
 
                 if (device != null)
                     _log.WriteLine("MainVM", $"Device connected {device.Name} ++++++++++++++++++++++++");
                 else
-                    _log.WriteLine("MainVM", $"Device NOT connected --------------------------");
+                    _log.WriteLine("MainVM", "Device NOT connected --------------------------");
             }
             catch (Exception ex)
             {
@@ -1265,10 +1312,12 @@ namespace WinSampleApp.ViewModel
             {
                 var pm = new DevicePasswordManager(device.Device, _log);
 
-                var account = new AccountRecord()
+                var account = new AccountRecord
                 {
                     Key = 1,
-                    Name = $"My Primary Account",
+                    StorageId = 0,
+                    Timestamp = 0,
+                    Name = "My Primary Account",
                     Login = PrimaryAccountLogin,
                     Password = PrimaryAccountPassword,
                     OtpSecret = null,
@@ -1277,7 +1326,8 @@ namespace WinSampleApp.ViewModel
                     IsPrimary = true
                 };
 
-                var key = await pm.SaveOrUpdateAccount(account.Key, account.Name,
+                await pm.SaveOrUpdateAccount(
+                    account.StorageId, account.Timestamp, account.Name,
                     account.Password, account.Login, account.OtpSecret,
                     account.Apps, account.Urls,
                     account.IsPrimary
@@ -1398,8 +1448,8 @@ namespace WinSampleApp.ViewModel
             {
                 byte[] code = Encoding.UTF8.GetBytes(CODE);
                 byte[] key= Encoding.UTF8.GetBytes("passphrase");
-                byte UnlockAttempts = 5;// Options 3-15
-                await device.Device.LockDeviceCode(key, code, UnlockAttempts);
+                byte unlockAttempts = 5;// Options 3-15
+                await device.Device.LockDeviceCode(key, code, unlockAttempts);
                 await device.Device.RefreshDeviceInfo();
             }
             catch (Exception ex)
@@ -1497,8 +1547,8 @@ namespace WinSampleApp.ViewModel
             {
                 byte[] code = Encoding.UTF8.GetBytes(CODE);
                 byte[] key = Encoding.UTF8.GetBytes("passphrase");
-                byte UnlockAttempts = 5;// Options 3-15
-                await device.Device.Link(key,code, UnlockAttempts);
+                byte unlockAttempts = 5;// Options 3-15
+                await device.Device.Link(key, code, unlockAttempts);
                 await device.Device.RefreshDeviceInfo();
             }
             catch (Exception ex)
@@ -1794,6 +1844,19 @@ namespace WinSampleApp.ViewModel
         void CancelConnectionFlow(DeviceViewModel currentDevice)
         {
             _connectionFlowProcessor.Cancel();
+        }
+
+        async void SyncDevices()
+        {
+            try
+            {
+                await new DeviceStorageReplicator(Devices[0].Device, Devices[1].Device, _log)
+                    .Start();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         /*
