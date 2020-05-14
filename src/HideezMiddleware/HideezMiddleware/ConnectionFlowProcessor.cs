@@ -129,7 +129,7 @@ namespace HideezMiddleware
             }
         }
 
-        async Task MainWorkflow(string mac, bool retryOnConnectionFail, bool tryUnlock, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
+        async Task MainWorkflow(string mac, bool rebondOnConnectionFail, bool tryUnlock, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
         {
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
@@ -171,7 +171,7 @@ namespace HideezMiddleware
                         .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct);
                 }
 
-                device = await ConnectDevice(mac, retryOnConnectionFail, ct);
+                device = await ConnectDevice(mac, rebondOnConnectionFail, ct);
 
                 device.Disconnected += OnDeviceDisconnectedDuringFlow;
                 device.OperationCancelled += OnUserCancelledByButton;
@@ -529,21 +529,21 @@ namespace HideezMiddleware
             return res;
         }
 
-        async Task<IDevice> ConnectDevice(string mac, bool retryOnFail, CancellationToken ct)
+        async Task<IDevice> ConnectDevice(string mac, bool rebondOnFail, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
             await _ui.SendNotification("Connecting to the device...", _infNid);
 
             var device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
 
-            if (retryOnFail && device == null)
+            if (device == null)
             {
                 ct.ThrowIfCancellationRequested();
                 await _ui.SendNotification("Connection failed. Retrying...", _infNid);
 
                 device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
 
-                if (device == null)
+                if (device == null && rebondOnFail)
                 {
                     ct.ThrowIfCancellationRequested();
 
