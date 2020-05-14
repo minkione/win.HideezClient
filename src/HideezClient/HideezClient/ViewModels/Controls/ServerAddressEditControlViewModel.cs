@@ -12,7 +12,7 @@ using System.Windows.Input;
 
 namespace HideezClient.ViewModels
 {
-    class SaveAddressEditControlViewModel : ObservableObject, IDisposable
+    class ServerAddressEditControlViewModel : ObservableObject, IDisposable
     {
         readonly IServiceProxy _serviceProxy;
         private readonly IMessenger _messenger;
@@ -110,7 +110,7 @@ namespace HideezClient.ViewModels
 
         // TODO: Add re-initialization if service is reconnected
         // TODO: Add error handling if service is offline
-        public SaveAddressEditControlViewModel(IServiceProxy serviceProxy, IMessenger messenger, ILog log)
+        public ServerAddressEditControlViewModel(IServiceProxy serviceProxy, IMessenger messenger, ILog log)
         {
             _serviceProxy = serviceProxy;
             _messenger = messenger;
@@ -152,7 +152,7 @@ namespace HideezClient.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    _log.WriteLine(nameof(SaveAddressEditControlViewModel), ex);
+                    _log.WriteLine(nameof(ServerAddressEditControlViewModel), ex);
                     _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
                 }
                 finally

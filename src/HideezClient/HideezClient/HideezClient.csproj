@@ -455,7 +455,7 @@
     <Compile Include="Utilities\WeakEvents\WeakEvent.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
-    <Compile Include="ViewModels\Controls\SaveAddressEditControlViewModel.cs" />
+    <Compile Include="ViewModels\Controls\ServerAddressEditControlViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
     <Compile Include="ViewModels\MessageViewModel.cs" />

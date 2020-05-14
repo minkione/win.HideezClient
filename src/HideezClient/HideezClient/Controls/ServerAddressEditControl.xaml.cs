@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using HideezClient.ViewModels;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace HideezClient.Controls
 {
@@ -23,6 +12,27 @@ namespace HideezClient.Controls
         public ServerAddressEditControl()
         {
             InitializeComponent();
+            (DataContext as ServerAddressEditControlViewModel).PropertyChanged += ServerAddressEditControl_PropertyChanged;
+        }
+
+        private void ServerAddressEditControl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ServerAddressEditControlViewModel.CheckingConnection) ||
+                e.PropertyName == nameof(ServerAddressEditControlViewModel.ServerAddress))
+            {
+                Dispatcher.Invoke(CommandManager.InvalidateRequerySuggested);
+            }
+        }
+
+        private void TextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                if (SaveButton.Command.CanExecute(null))
+                    SaveButton.Command.Execute(null);
+
+                e.Handled = true;
+            }
         }
     }
 }

@@ -8,7 +8,7 @@
     xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-    DataContext="{Binding Source={StaticResource Locator}, Path=SaveAddressEditControlViewModel, Mode=OneWay}"
+    DataContext="{Binding Source={StaticResource Locator}, Path=ServerAddressEditControlViewModel, Mode=OneWay}"
     mc:Ignorable="d"
     Width="525"
     d:DesignHeight="450" d:DesignWidth="800">
@@ -52,7 +52,8 @@
                         Foreground="{DynamicResource DarkForeground}"
                         IsTabStop="True"
                         Text="{Binding ServerAddress, UpdateSourceTrigger=PropertyChanged}" 
-                        IsReadOnly="{Binding CheckingConnection}"/>
+                        IsReadOnly="{Binding CheckingConnection}" 
+                        KeyDown="TextBox_KeyDown"/>
 
                     <Button
                         Grid.Column="2"
