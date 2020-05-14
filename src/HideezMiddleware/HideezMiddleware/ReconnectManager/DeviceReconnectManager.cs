@@ -19,6 +19,7 @@ namespace HideezMiddleware.ReconnectManager
         readonly object _reconnectListLock = new object();
 
         HashSet<string> _reconnectAllowedList = new HashSet<string>();
+        HashSet<string> _reconnectInProgressList = new HashSet<string>(); // prevents start of multiple reconnects of same device
 
         public event EventHandler<IDevice> DeviceReconnected;
         public event EventHandler<IDevice> DeviceDisconnected;
@@ -102,25 +103,33 @@ namespace HideezMiddleware.ReconnectManager
 
         internal async Task Reconnect(IDevice device)
         {
-            WriteLine($"Starting reconnect procedure for {device.SerialNo}"); 
-            using (var cts = new CancellationTokenSource())
+            try
             {
-                await Task.Delay(SdkConfig.ReconnectDelay); // Small delay before reconnecting
-
-                var proc = new ReconnectProc(device, _connectionFlowProcessor);
-                var reconnectSuccessful = await proc.Run(SdkConfig.ReconnectWorkflowTimeout, cts.Token);
-                cts.Dispose();
-
-                if (reconnectSuccessful)
+                WriteLine($"Starting reconnect procedure for {device.SerialNo}");
+                _reconnectInProgressList.Add(device.SerialNo);
+                using (var cts = new CancellationTokenSource())
                 {
-                    WriteLine($"{device.SerialNo} reconnected successfully");
-                    SafeInvoke(DeviceReconnected, device);
+                    await Task.Delay(SdkConfig.ReconnectDelay); // Small delay before reconnecting
+
+                    var proc = new ReconnectProc(device, _connectionFlowProcessor);
+                    var reconnectSuccessful = await proc.Run(SdkConfig.ReconnectWorkflowTimeout, cts.Token);
+                    cts.Dispose();
+
+                    if (reconnectSuccessful)
+                    {
+                        WriteLine($"{device.SerialNo} reconnected successfully");
+                        SafeInvoke(DeviceReconnected, device);
+                    }
+                    else
+                    {
+                        WriteLine($"{device.SerialNo} reconnect failed");
+                        SafeInvoke(DeviceDisconnected, device);
+                    }
                 }
-                else
-                {
-                    WriteLine($"{device.SerialNo} reconnect failed"); 
-                    SafeInvoke(DeviceDisconnected, device);
-                }
+            }
+            finally
+            {
+                _reconnectInProgressList.Remove(device.SerialNo);
             }
         }
 
@@ -230,7 +239,7 @@ namespace HideezMiddleware.ReconnectManager
         {
             lock (_reconnectListLock)
             {
-                return _reconnectAllowedList.Contains(deviceSerialNo);
+                return _reconnectAllowedList.Contains(deviceSerialNo) && !_reconnectInProgressList.Contains(deviceSerialNo);
             }
         }
     }
