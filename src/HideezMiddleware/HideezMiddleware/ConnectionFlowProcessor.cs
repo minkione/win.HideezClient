@@ -181,7 +181,15 @@ namespace HideezMiddleware
                 if (device.IsBoot)
                     throw new HideezException(HideezErrorCode.DeviceInBootloaderMode);
 
-                var deviceInfo = await deviceInfoProcTask;
+                DeviceInfoDto deviceInfo = null;
+                try
+                {
+                    deviceInfo = await deviceInfoProcTask;
+                }
+                catch (Exception ex)
+                {
+                    WriteLine("Non-fatal error occured while loading device info from HES", ex);
+                }
 
                 WriteLine($"Check if device is locked: {device.AccessLevel.IsLocked}");
                 if (device.AccessLevel.IsLocked)
