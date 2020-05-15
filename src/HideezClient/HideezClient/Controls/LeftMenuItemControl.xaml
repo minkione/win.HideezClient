@@ -80,8 +80,6 @@
 
                                         <ContentControl
                                             x:Name="menuIcon"
-                                            Width="18"
-                                            Height="18"
                                             HorizontalAlignment="Stretch"
                                             VerticalAlignment="Center"
                                             Content="{Binding Tag, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
