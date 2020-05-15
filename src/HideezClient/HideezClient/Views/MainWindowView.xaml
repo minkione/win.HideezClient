@@ -75,7 +75,7 @@
                         DataContext="{Binding MenuHardwareKeyPage}" 
                         Height="54">
                         <controls:LeftMenuItemControl.Tag>
-                            <ContentPresenter Content="{StaticResource HideezKeySimpleIMG}" Width="18" Height="18" />
+                            <ContentPresenter Content="{StaticResource HideezKeySimpleIMG}" />
                         </controls:LeftMenuItemControl.Tag>
                     </controls:LeftMenuItemControl>
 
@@ -84,8 +84,7 @@
                         DataContext="{Binding MenuSoftwareKeyPage}"
                         Height="54">
                         <controls:LeftMenuItemControl.Tag>
-                            <ContentPresenter Content="{StaticResource HideezMobileKeySimpleIMG}" Width="22" Height="22" Margin="-2,0,-2,-4"/>
-                            <!-- Margin="-2,0,-2,-4"-->
+                            <ContentPresenter Content="{StaticResource HideezMobileKeySimpleIMG}" />
                         </controls:LeftMenuItemControl.Tag>
                     </controls:LeftMenuItemControl>
                 </StackPanel>
