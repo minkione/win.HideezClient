@@ -84,7 +84,7 @@
                         DataContext="{Binding MenuSoftwareKeyPage}"
                         Height="54">
                         <controls:LeftMenuItemControl.Tag>
-                            <ContentPresenter Content="{StaticResource HideezMobileKeySimpleIMG}" />
+                            <ContentPresenter Content="{StaticResource HideezMobileKeySimpleIMG}" Margin="-1.5,0,-1.5,-3"/>
                         </controls:LeftMenuItemControl.Tag>
                     </controls:LeftMenuItemControl>
                 </StackPanel>
