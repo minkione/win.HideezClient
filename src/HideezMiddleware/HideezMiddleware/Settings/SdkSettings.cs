@@ -22,7 +22,6 @@ namespace HideezMiddleware.Settings
             TapProximityUnlockThreshold = copy.TapProximityUnlockThreshold;
             DelayAfterMainWorkflow = copy.DelayAfterMainWorkflow;
             WorkstationUnlockerConnectTimeout = copy.WorkstationUnlockerConnectTimeout;
-            ReconnectWorkflowTimeout = copy.ReconnectWorkflowTimeout;
             ReconnectDelay = copy.ReconnectDelay;
 
             DefaultCommandTimeout = copy.DefaultCommandTimeout;
@@ -52,8 +51,6 @@ namespace HideezMiddleware.Settings
         public int DelayAfterMainWorkflow { get; set; } = 1500;
         [Setting]
         public int WorkstationUnlockerConnectTimeout { get; set; } = 5_000;
-        [Setting]
-        public int ReconnectWorkflowTimeout { get; set; } = 10_000;
         [Setting]
         public int ReconnectDelay { get; set; } = 2_000;
 

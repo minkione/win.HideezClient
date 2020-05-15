@@ -41,7 +41,7 @@ namespace HideezMiddleware.ReconnectManager
             _proximityMonitorManager.DeviceConnectionLost += ProximityMonitorManager_DeviceConnectionLost;
             _proximityMonitorManager.DeviceProximityTimeout += ProximityMonitorManager_DeviceProximityTimeout;
             _proximityMonitorManager.DeviceBelowLockForToLong += ProximityMonitorManager_DeviceBelowLockForToLong;
-            _proximityMonitorManager.DeviceBelowLockWarning += ProximityMonitorManager_DeviceBelowLockWarning;
+            _proximityMonitorManager.DeviceBelowUnlockWarning += ProximityMonitorManager_DeviceBelowUnlockWarning;
             _proximityMonitorManager.DeviceProximityNormalized += ProximityMonitorManager_DeviceProximityNormalized;
         }
 
@@ -93,7 +93,7 @@ namespace HideezMiddleware.ReconnectManager
             }
         }
 
-        void ProximityMonitorManager_DeviceBelowLockWarning(object sender, IDevice device)
+        void ProximityMonitorManager_DeviceBelowUnlockWarning(object sender, IDevice device)
         {
             lock (_reconnectListLock)
             {
@@ -146,7 +146,7 @@ namespace HideezMiddleware.ReconnectManager
                     _proximityMonitorManager.DeviceConnectionLost -= ProximityMonitorManager_DeviceConnectionLost;
                     _proximityMonitorManager.DeviceProximityTimeout -= ProximityMonitorManager_DeviceProximityTimeout;
                     _proximityMonitorManager.DeviceBelowLockForToLong -= ProximityMonitorManager_DeviceBelowLockForToLong;
-                    _proximityMonitorManager.DeviceBelowLockWarning -= ProximityMonitorManager_DeviceBelowLockWarning;
+                    _proximityMonitorManager.DeviceBelowUnlockWarning -= ProximityMonitorManager_DeviceBelowUnlockWarning;
                     _proximityMonitorManager.DeviceProximityNormalized -= ProximityMonitorManager_DeviceProximityNormalized;
                 }
 
