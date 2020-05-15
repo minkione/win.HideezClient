@@ -11,7 +11,7 @@ namespace HideezMiddleware.ReconnectManager
     {
         readonly IDevice _device;
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
-        readonly TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
+        bool _isReconnectSuccessful = false;
 
         public ReconnectProc(IDevice device, ConnectionFlowProcessor connectionFlowProcessor)
         {
@@ -19,15 +19,13 @@ namespace HideezMiddleware.ReconnectManager
             _connectionFlowProcessor = connectionFlowProcessor;
         }
 
-        public async Task<bool> Run(int timeout, CancellationToken ct)
+        public async Task<bool> Run()
         {
             try
             {
                 _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
-                var connectionTask = _connectionFlowProcessor.Connect(_device.Mac);
-                await Task.WhenAll(_tcs.Task.TimeoutAfter(timeout, ct), connectionTask);
-
-                return await _tcs.Task;
+                await _connectionFlowProcessor.Connect(_device.Mac);
+                return _isReconnectSuccessful;
             }
             catch (Exception)
             {
@@ -43,9 +41,7 @@ namespace HideezMiddleware.ReconnectManager
         void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice e)
         {
             if (e.Id == _device.Id)
-                _tcs.TrySetResult(true);
-            else
-                _tcs.TrySetResult(false);
+                _isReconnectSuccessful = true;
         }
     }
 }
