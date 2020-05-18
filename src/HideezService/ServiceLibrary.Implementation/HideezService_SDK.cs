@@ -809,7 +809,7 @@ namespace ServiceLibrary.Implementation
                 }
                 else
                 {
-                    var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(address).TimeoutAfter(5_000);
+                    var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(address, _sdkLogger).TimeoutAfter(5_000);
                     if (connectedOnNewAddress)
                     {
                         _log.WriteLine($"Passed connectivity check to {address}");
