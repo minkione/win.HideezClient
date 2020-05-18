@@ -137,7 +137,7 @@
 
                         <StackPanel>
                             <ContentControl Style="{StaticResource UnderLine}" Visibility="{Binding AskCurrentPin, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <Grid>
+                                <Grid Margin="0,0,0,24">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="90" />
                                         <ColumnDefinition Width="24" />
@@ -164,7 +164,7 @@
 
 
                             <ContentControl Style="{StaticResource UnderLine}" Visibility="{Binding AskNewPin, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <Grid>
+                                <Grid Margin="0,0,0,24">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="90" />
                                         <ColumnDefinition Width="24" />
@@ -187,7 +187,7 @@
                             </ContentControl>
 
                             <ContentControl Style="{StaticResource UnderLine}" Visibility="{Binding AskConfirmPin, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <Grid>
+                                <Grid Margin="0,0,0,24">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="90" />
                                         <ColumnDefinition Width="24" />

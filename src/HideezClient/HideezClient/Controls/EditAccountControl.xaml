@@ -57,7 +57,7 @@
 
             <!--  Account Name  -->
             <ContentControl Style="{StaticResource UnderLine}" Tag="{Binding ErrorAccountName}">
-                <Grid>
+                <Grid Margin="0,0,0,24">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150" SharedSizeGroup="L" />
                         <ColumnDefinition Width="24" SharedSizeGroup="C" />
@@ -87,7 +87,7 @@
 
             <!--  Logins  -->
             <ContentControl Grid.Row="1" Style="{StaticResource UnderLine}" Tag="{Binding ErrorAccountLogin}">
-                <Grid>
+                <Grid Margin="0,0,0,24">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition SharedSizeGroup="L" />
                         <ColumnDefinition SharedSizeGroup="C" />
@@ -121,7 +121,7 @@
                 Grid.Row="2"
                 Style="{StaticResource UnderLine}"
                 Tag="{Binding ErrorPassword}">
-                <Grid>
+                <Grid Margin="0,0,0,24">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition SharedSizeGroup="L" />
                         <ColumnDefinition SharedSizeGroup="C" />
@@ -203,7 +203,7 @@
 
             <!--  Web-site & App  -->
             <ContentControl Grid.Row="3" Style="{StaticResource UnderLine}">
-                <Grid>
+                <Grid Margin="0,0,0,24">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition SharedSizeGroup="L" />
                         <ColumnDefinition SharedSizeGroup="C" />

@@ -413,7 +413,7 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
-                            <RowDefinition Height="45" />
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <ContentPresenter >
                             <ContentPresenter.Triggers>
@@ -444,6 +444,7 @@
                         <Rectangle
                             x:Name="PasswordSeparator"
                             Grid.Row="1"
+                            VerticalAlignment="Top"
                             Height="2"
                             Fill="{TemplateBinding Background}"
                             Opacity="1">
@@ -470,15 +471,20 @@
                             </Grid.Style>
                             <Rectangle
                                 x:Name="ErrorLine"
+                                VerticalAlignment="Top"
                                 Height="2"
                                 Fill="{DynamicResource ErrorBrush}" />
                             <TextBlock
                                 Margin="0,25,0,0"
+                                VerticalAlignment="Top"
                                 FontSize="10"
                                 Foreground="{StaticResource ErrorBrush}"
                                 Text="{TemplateBinding Tag}" />
                         </Grid>
-                        <Separator Grid.Row="1" Style="{StaticResource SeparatorOfAccountInfo}" />
+                        <Separator 
+                            Grid.Row="1"
+                            VerticalAlignment="Top"
+                            Style="{StaticResource SeparatorOfAccountInfo}" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
