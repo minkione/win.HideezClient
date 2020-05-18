@@ -415,7 +415,32 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="45" />
                         </Grid.RowDefinitions>
-                        <ContentPresenter />
+                        <ContentPresenter >
+                            <ContentPresenter.Triggers>
+                                <EventTrigger RoutedEvent="UIElement.GotFocus">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="PasswordSeparator"
+                                                Storyboard.TargetProperty="(RenderTransform).(ScaleTransform.ScaleX)"
+                                                To="1"
+                                                Duration="0:00:0.2" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="UIElement.LostFocus">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="PasswordSeparator"
+                                                Storyboard.TargetProperty="(RenderTransform).(ScaleTransform.ScaleX)"
+                                                To="0"
+                                                Duration="0:00:0.2" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </ContentPresenter.Triggers>
+                        </ContentPresenter>
                         <Rectangle
                             x:Name="PasswordSeparator"
                             Grid.Row="1"
@@ -455,30 +480,6 @@
                         </Grid>
                         <Separator Grid.Row="1" Style="{StaticResource SeparatorOfAccountInfo}" />
                     </Grid>
-                    <ControlTemplate.Triggers>
-                        <EventTrigger RoutedEvent="UIElement.GotFocus">
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation
-                                        Storyboard.TargetName="PasswordSeparator"
-                                        Storyboard.TargetProperty="(RenderTransform).(ScaleTransform.ScaleX)"
-                                        To="1"
-                                        Duration="0:00:0.2" />
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                        <EventTrigger RoutedEvent="UIElement.LostFocus">
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation
-                                        Storyboard.TargetName="PasswordSeparator"
-                                        Storyboard.TargetProperty="(RenderTransform).(ScaleTransform.ScaleX)"
-                                        To="0"
-                                        Duration="0:00:0.2" />
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
