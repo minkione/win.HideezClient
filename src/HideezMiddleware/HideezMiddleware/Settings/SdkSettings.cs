@@ -7,7 +7,7 @@ namespace HideezMiddleware.Settings
     {
         public SdkSettings()
         {
-            SettingsVersion = new Version(1, 1);
+            SettingsVersion = new Version(1, 2);
         }
 
         public SdkSettings(SdkSettings copy)
@@ -22,6 +22,7 @@ namespace HideezMiddleware.Settings
             TapProximityUnlockThreshold = copy.TapProximityUnlockThreshold;
             DelayAfterMainWorkflow = copy.DelayAfterMainWorkflow;
             WorkstationUnlockerConnectTimeout = copy.WorkstationUnlockerConnectTimeout;
+            ReconnectDelay = copy.ReconnectDelay;
 
             DefaultCommandTimeout = copy.DefaultCommandTimeout;
             DefaultRemoteCommandTimeout = copy.DefaultRemoteCommandTimeout;
@@ -50,7 +51,8 @@ namespace HideezMiddleware.Settings
         public int DelayAfterMainWorkflow { get; set; } = 1500;
         [Setting]
         public int WorkstationUnlockerConnectTimeout { get; set; } = 5_000;
-
+        [Setting]
+        public int ReconnectDelay { get; set; } = 2_000;
 
         [Setting]
         public int DefaultCommandTimeout { get; set; } = 5_000;

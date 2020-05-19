@@ -52,7 +52,6 @@ namespace HideezClient.Modules.Remote
             {
                 error = ex.Message;
                 _log.WriteLine(ex);
-                _messenger.Send(new ShowErrorNotificationMessage(error));
             }
             catch (Exception ex)
             {

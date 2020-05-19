@@ -107,6 +107,8 @@
     <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
     <Compile Include="IClientUiProxy.cs" />
+    <Compile Include="ReconnectManager\DeviceReconnectManager.cs" />
+    <Compile Include="ReconnectManager\ReconnectProc.cs" />
     <Compile Include="SoftwareVault\QrFactories\ActivationQrBitmapFactory.cs" />
     <Compile Include="SoftwareVault\QrFactories\SimpleQrBitmapFactory.cs" />
     <Compile Include="SoftwareVault\QrFactories\UnlockQrBitmapFactory.cs" />
