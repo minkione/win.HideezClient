@@ -475,9 +475,10 @@
                                 Height="2"
                                 Fill="{DynamicResource ErrorBrush}" />
                             <TextBlock
-                                Margin="0,25,0,0"
+                                Margin="0,4,0,0"
                                 VerticalAlignment="Top"
                                 FontSize="10"
+                                FontWeight="Bold"
                                 Foreground="{StaticResource ErrorBrush}"
                                 Text="{TemplateBinding Tag}" />
                         </Grid>
