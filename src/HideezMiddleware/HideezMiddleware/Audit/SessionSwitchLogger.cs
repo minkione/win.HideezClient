@@ -1,13 +1,10 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.Tasks;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.Audit
@@ -35,10 +32,10 @@ namespace HideezMiddleware.Audit
         readonly BleDeviceManager _bleDeviceManager;
 
         LockProcedure _lockProcedure = null;
-        object _lpLock = new object();
+        readonly object _lpLock = new object();
 
         UnlockSessionSwitchProc _unlockProcedure = null;
-        object _upLock = new object();
+        readonly object _upLock = new object();
 
 
         public SessionSwitchLogger(EventSaver eventSaver,
@@ -122,23 +119,10 @@ namespace HideezMiddleware.Audit
 
         async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
-            // If there is a better way of checking that enum belongs to a range values, use it
-            switch (reason)
-            {
-                case SessionSwitchReason.SessionLock:
-                case SessionSwitchReason.SessionLogoff:
-                case SessionSwitchReason.SessionLogon:
-                case SessionSwitchReason.SessionUnlock:
-                    break;
-                default:
-                    return; // Ignore all events except lock/unlock and logoff/logon
-            }
-
-            WorkstationEventType eventType = 0;
-
             bool isLock = false;
             bool isUnlock = false;
 
+            WorkstationEventType eventType;
             switch (reason)
             {
                 case SessionSwitchReason.SessionLock:
@@ -157,6 +141,8 @@ namespace HideezMiddleware.Audit
                     eventType = WorkstationEventType.ComputerLogon;
                     isUnlock = true;
                     break;
+                default:
+                    return; // Ignore all events except lock/unlock and logoff/logon
             }
 
             try
@@ -228,6 +214,8 @@ namespace HideezMiddleware.Audit
                 we.AccountName = procedure.FlowUnlockResult.AccountName;
                 WriteLine($"Procedure successful ({we.DeviceId}, method: {we.Note})");
             }
+
+            _unlockProcedure = null;
 
             await _eventSaver.AddNewAsync(we, true);
 
