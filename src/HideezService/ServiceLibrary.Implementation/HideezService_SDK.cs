@@ -29,6 +29,7 @@ using HideezMiddleware.ReconnectManager;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using HideezMiddleware.SoftwareVault.UnlockToken;
+using HideezMiddleware.Workstation;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ClientManagement;
 using ServiceLibrary.Implementation.ScreenActivation;
@@ -75,6 +76,7 @@ namespace ServiceLibrary.Implementation
         static RemoteWorkstationUnlocker _remoteWorkstationUnlocker;
 
         static HesAppConnection _tbHesConnection;
+        static IWorkstationIdProvider _workstationIdProvider;
 
         void InitializeSDK()
         {
@@ -163,9 +165,17 @@ namespace ServiceLibrary.Implementation
                 };
             }
 
+            // Hideez Client root registry key ============================
+            RegistryKey clientRootRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
+
+            // Workstation Id ============================
+            _workstationIdProvider = new WorkstationIdProvider(clientRootRegistryKey, _sdkLogger);
+            if (string.IsNullOrWhiteSpace(_workstationIdProvider.GetWorkstationId()))
+                _workstationIdProvider.SaveWorkstationId(Guid.NewGuid().ToString());
+
             // WorkstationInfoProvider ==================================
             WorkstationHelper.Log = _sdkLogger;
-            var workstationInfoProvider = new WorkstationInfoProvider(_sdkLogger);
+            var workstationInfoProvider = new WorkstationInfoProvider(_workstationIdProvider, _sdkLogger);
 
             // HES Connection ==================================
             _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sdkLogger);
@@ -202,19 +212,6 @@ namespace ServiceLibrary.Implementation
             _statusManager = new StatusManager(_hesConnection, _tbHesConnection, _rfidService, _connectionManager, _uiProxy, _rfidSettingsManager, _sdkLogger);
 
             // Local device info cache
-            RegistryKey clientRootRegistryKey = null;
-            try
-            {
-                clientRootRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Error($"Failed to get write access for Client registry key: {ex.Message}");
-            }
-            catch (SecurityException ex)
-            {
-                Error($"Failed to get write access for Client registry key: {ex.Message}");
-            }
             _localDeviceInfoCache = new LocalDeviceInfoCache(clientRootRegistryKey, _sdkLogger);
 
             // ConnectionFlowProcessor

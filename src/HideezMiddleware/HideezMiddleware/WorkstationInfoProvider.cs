@@ -1,30 +1,28 @@
 ﻿using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.Workstation;
+using HideezMiddleware.Workstation;
 using Microsoft.Win32;
 using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
     public class WorkstationInfoProvider : Logger, IWorkstationInfoProvider
     {
-        public WorkstationInfoProvider(ILog log)
+        readonly IWorkstationIdProvider _workstationIdProvider;
+
+        public WorkstationInfoProvider(IWorkstationIdProvider workstationIdProvider, ILog log)
             : base(nameof(WorkstationInfoProvider), log)
         {
+            _workstationIdProvider = workstationIdProvider;
         }
 
         public string WorkstationId
         {
             get
             {
-                return Environment.MachineName;
+                return _workstationIdProvider.GetWorkstationId();
             }
         }
 
@@ -36,6 +34,7 @@ namespace HideezMiddleware
             {
                 workstationInfo.AppVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
+                workstationInfo.Id = WorkstationId;
                 workstationInfo.MachineName = Environment.MachineName;
                 workstationInfo.Domain = Environment.UserDomainName;
 

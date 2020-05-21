@@ -15,7 +15,7 @@ namespace ServiceLibrary.Implementation
                 var registryKey = HideezClientRegistryRoot.GetRootRegistryKey();
 
                 if (registryKey == null)
-                    throw new Exception("Couldn't find Hideez Client registry key. (HKLM\\SOFTWARE\\Hideez\\Client)");
+                    throw new Exception($"Couldn't find Hideez Client registry key. ({HideezClientRegistryRoot.RootKeyPath})");
 
                 var value = registryKey.GetValue(_hesAddressRegistryValueName);
                 if (value == null)
@@ -55,7 +55,7 @@ namespace ServiceLibrary.Implementation
                 var registryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
 
                 if (registryKey == null)
-                    throw new Exception("Couldn't find Hideez Client registry key. (HKLM\\SOFTWARE\\Hideez\\Client)");
+                    throw new Exception($"Couldn't find Hideez Client registry key. ({HideezClientRegistryRoot.RootKeyPath})");
 
                 registryKey.SetValue(_hesAddressRegistryValueName, address);
             }
