@@ -239,7 +239,7 @@ namespace HideezMiddleware
                 if (device.AccessLevel.IsLinkRequired)
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
-                if (deviceInfo.NeedUpdate)
+                if (deviceInfoProc.IsSuccessful && deviceInfo.NeedUpdate)
                 {
                     // request HES to update this device
                     await _ui.SendNotification("Uploading new credentials to the device...", _infNid);
