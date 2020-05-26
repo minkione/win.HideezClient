@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
 
@@ -15,6 +17,7 @@ namespace HideezMiddleware
         readonly IBleConnectionManager _connectionManager;
         readonly IClientUiManager _uiClientManager;
         readonly ISettingsManager<RfidSettings> _rfidSettingsManager;
+        readonly IWorkstationUnlocker _workstationUnlocker;
 
         public StatusManager(HesAppConnection hesConnection,
             HesAppConnection tbHesConnection,
@@ -22,6 +25,7 @@ namespace HideezMiddleware
             IBleConnectionManager connectionManager,
             IClientUiManager clientUiManager,
             ISettingsManager<RfidSettings> rfidSettingsManager,
+            IWorkstationUnlocker workstationUnlocker,
             ILog log)
             : base(nameof(StatusManager), log)
         {
@@ -31,6 +35,7 @@ namespace HideezMiddleware
             _connectionManager = connectionManager;
             _uiClientManager = clientUiManager;
             _rfidSettingsManager = rfidSettingsManager;
+            _workstationUnlocker = workstationUnlocker;
 
             _uiClientManager.ClientConnected += Ui_ClientUiConnected;
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
@@ -43,16 +48,9 @@ namespace HideezMiddleware
 
             if(_tbHesConnection != null)
                 _tbHesConnection.HubConnectionStateChanged += TryAndBuyHesConnection_HubConnectionStateChanged;
-        }
 
-        private void TryAndBuyHesConnection_HubConnectionStateChanged(object sender, EventArgs e)
-        {
-            SendStatusToUI();
-        }
-
-        private void RfidSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<RfidSettings> e)
-        {
-            SendStatusToUI();
+            if (_workstationUnlocker != null)
+                _workstationUnlocker.Connected += WorkstationUnlocker_Connected;
         }
 
         #region IDisposable
@@ -78,6 +76,12 @@ namespace HideezMiddleware
 
                 if (_hesConnection != null)
                     _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
+
+                if (_tbHesConnection != null)
+                    _tbHesConnection.HubConnectionStateChanged -= TryAndBuyHesConnection_HubConnectionStateChanged;
+
+                if (_workstationUnlocker != null)
+                    _workstationUnlocker.Connected -= WorkstationUnlocker_Connected;
             }
 
             disposed = true;
@@ -111,6 +115,22 @@ namespace HideezMiddleware
 
         void RfidService_RfidServiceStateChanged(object sender, EventArgs e)
         {
+            SendStatusToUI();
+        }
+
+        private void TryAndBuyHesConnection_HubConnectionStateChanged(object sender, EventArgs e)
+        {
+            SendStatusToUI();
+        }
+
+        private void RfidSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<RfidSettings> e)
+        {
+            SendStatusToUI();
+        }
+
+        private async void WorkstationUnlocker_Connected(object sender, EventArgs e)
+        {
+            await Task.Delay(200);
             SendStatusToUI();
         }
 

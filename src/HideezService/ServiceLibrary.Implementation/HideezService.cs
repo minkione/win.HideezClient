@@ -69,7 +69,7 @@ namespace ServiceLibrary.Implementation
                 OnServiceStarted();
 
                 _log.WriteLine(">>>>>> Initialize SDK");
-                InitializeSDK();
+                InitializeSDK().Wait();
 
                 _log.WriteLine(">>>>>> Service started");
             }
@@ -84,6 +84,11 @@ namespace ServiceLibrary.Implementation
                 // Exit code 0 prevents automatic service restart trigger on exit
                 Environment.Exit(0);
             }
+        }
+
+        void InitializeSessionTimeStampMonitor(string sessionTimestampPath)
+        {
+            
         }
 
         #region Utils
@@ -191,7 +196,7 @@ namespace ServiceLibrary.Implementation
             // Generate event for audit
             var workstationEvent = _eventSaver.GetWorkstationEvent();
             workstationEvent.EventId = WorkstationEventType.ServiceStarted;
-            _eventSaver.AddNew(workstationEvent);
+            Task.Run(() => _eventSaver.AddNewAsync(workstationEvent));
         }
 
         public static void OnServiceStopped()
@@ -199,7 +204,8 @@ namespace ServiceLibrary.Implementation
             // Generate event for audit
             var workstationEvent = _eventSaver.GetWorkstationEvent();
             workstationEvent.EventId = WorkstationEventType.ServiceStopped;
-            _eventSaver.AddNew(workstationEvent);
+            // We must wait for the sending completion
+            _eventSaver.AddNew(workstationEvent); 
             var task = _eventSender.SendEventsAsync(true);
             task.Start();
             task.Wait();
