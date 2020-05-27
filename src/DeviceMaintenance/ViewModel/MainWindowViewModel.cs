@@ -1,25 +1,19 @@
-﻿using DeviceMaintenance.Service;
-using Hideez.CsrBLE;
+﻿using DeviceMaintenance.Messages;
+using DeviceMaintenance.Service;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.FW;
-using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.LongOperations;
-using HideezMiddleware.DeviceConnection;
-using HideezMiddleware.Settings;
-using HideezMiddleware.Settings.Manager;
+using Meta.Lib.Modules.PubSub;
 using Microsoft.Win32;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.PropertyChangedMonitoring;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 
 namespace DeviceMaintenance.ViewModel
@@ -29,18 +23,18 @@ namespace DeviceMaintenance.ViewModel
         const string FW_FILE_EXTENSION = "img";
             
         readonly EventLogger _log;
-        readonly BleConnectionManager _connectionManager;
-        readonly BleDeviceManager _deviceManager;
-        readonly AdvertisementIgnoreList _advIgnoreList;
+        readonly MetaPubSub _hub;
 
-        readonly Dictionary<string, Guid> _pendingConnections = new Dictionary<string, Guid>();
-        readonly object pendingConnectionsLock = new object();
-
-        bool _restartServiceOnExit = false;
         bool _automaticallyUploadFirmware = Properties.Settings.Default.AutomaticallyUpload;
         string _fileName = Properties.Settings.Default.FirmwareFileName;
-        DeviceViewModel _currentDevice;
-        DiscoveredDeviceAddedEventArgs _currentDiscoveredDevice;
+
+        readonly ConcurrentDictionary<string, DeviceViewModel> _devices =
+            new ConcurrentDictionary<string, DeviceViewModel>();
+
+        public IEnumerable<DeviceViewModel> Devices => _devices.Values;
+        public HideezServiceController HideezServiceController { get; }
+        public ConnectionManagerViewModel ConnectionManager { get; }
+
 
         #region Properties
 
@@ -49,15 +43,7 @@ namespace DeviceMaintenance.ViewModel
             get
             {
                 var assembly = Assembly.GetExecutingAssembly().GetName();
-                return $"{assembly.Name} v{assembly.Version.ToString()}";
-            }
-        }
-
-        public bool BleAdapterAvailable
-        {
-            get
-            {
-                return _connectionManager?.State == BluetoothAdapterState.PoweredOn;
+                return $"{assembly.Name} v{assembly.Version}";
             }
         }
 
@@ -84,7 +70,8 @@ namespace DeviceMaintenance.ViewModel
         {
             get
             {
-                return !string.IsNullOrWhiteSpace(FirmwareFilePath) && FirmwareFilePath.EndsWith($".{FW_FILE_EXTENSION}");
+                return !string.IsNullOrWhiteSpace(FirmwareFilePath) && 
+                        FirmwareFilePath.EndsWith($".{FW_FILE_EXTENSION}");
             }
         }
 
@@ -106,44 +93,6 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
-        public DeviceViewModel CurrentDevice
-        {
-            get
-            {
-                return _currentDevice;
-            }
-            set
-            {
-                if (_currentDevice != value)
-                {
-                    _currentDevice = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-
-        public DiscoveredDeviceAddedEventArgs CurrentDiscoveredDevice
-        {
-            get
-            {
-                return _currentDiscoveredDevice;
-            }
-            set
-            {
-                if (_currentDiscoveredDevice != value)
-                {
-                    _currentDiscoveredDevice = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-
-        public ObservableCollection<DiscoveredDeviceAddedEventArgs> DiscoveredDevices { get; }
-            = new ObservableCollection<DiscoveredDeviceAddedEventArgs>();
-
-        public ObservableCollection<DeviceViewModel> Devices { get; }
-            = new ObservableCollection<DeviceViewModel>();
-
         /// <summary>
         /// Returns true if any device is currently undergoing firmware update
         /// </summary>
@@ -155,9 +104,6 @@ namespace DeviceMaintenance.ViewModel
                 return Devices.Any(d => d.InProgress);
             }
         }
-
-        public HideezServiceController HideezServiceController { get; }
-
         #endregion
 
         #region Commands
@@ -178,38 +124,67 @@ namespace DeviceMaintenance.ViewModel
 
         #endregion
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(MetaPubSub hub)
         {
-            _log = new EventLogger("ExampleApp");
+            // default value -33 is to much and picks up devices from very far
+            SdkConfig.TapProximityUnlockThreshold = -29;
+            SdkConfig.ConnectDeviceTimeout = 5_000;
+            SdkConfig.DeviceInitializationTimeout = 5_000;
 
-            HideezServiceController = new HideezServiceController();
+            _hub = hub;
+            _log = new EventLogger("Maintenance");
 
-            if (HideezServiceController.IsServiceRunning)
-            {
-                HideezServiceController.StopService();
-                _restartServiceOnExit = true;
-            }
+            _hub.Subscribe<AdvertismentReceivedEvent>(OnAdvertismentReceived);
+            _hub.Subscribe<DeviceConnectedEvent>(OnDeviceConnected);
+            _hub.Subscribe<ClosingEvent>(OnClosing);
 
-            var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
-
-            _connectionManager = new BleConnectionManager(_log, bondsFilePath);
-
-            _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
-            _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
-            _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
-
-            // BLE ============================
-            _deviceManager = new BleDeviceManager(_log, _connectionManager);
-            _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
-            _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
-
-            _advIgnoreList = new AdvertisementIgnoreList(_connectionManager, new VirtualSettingsManager<ProximitySettings>(), null);
-
-            _connectionManager.StartDiscovery();
+            ConnectionManager = new ConnectionManagerViewModel(_log, _hub);
+            HideezServiceController = new HideezServiceController(_log, _hub);
 
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
+
+            if (IsFirmwareSelected)
+                _hub.Publish(new StartDiscoveryCommand());
+        }
+
+        Task OnClosing(ClosingEvent arg)
+        {
+            SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
+            return Task.CompletedTask;
+        }
+
+        async Task OnAdvertismentReceived(AdvertismentReceivedEvent arg)
+        {
+            DeviceViewModel deviceViewModel = null;
+            try
+            {
+                bool added = false;
+                deviceViewModel = _devices.GetOrAdd(arg.DeviceId, (id) =>
+                {
+                    added = true;
+                    return new DeviceViewModel(BleUtils.ConnectionIdToMac(id), _hub, FirmwareFilePath);
+                });
+
+                if (added)
+                {
+                    NotifyPropertyChanged(nameof(Devices));
+                }
+
+                await deviceViewModel.TryConnect();
+            }
+            catch (Exception ex)
+            {
+                if (deviceViewModel != null)
+                    deviceViewModel.CustomError = ex.Message;
+            }
+        }
+
+        Task OnDeviceConnected(DeviceConnectedEvent arg)
+        {
+            if (AutomaticallyUploadFirmware || arg.DeviceViewModel.IsBoot)
+                return arg.DeviceViewModel.StartFirmwareUpdate();
+
+            return Task.CompletedTask;
         }
 
         void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
@@ -223,181 +198,6 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
-        void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                //if (e.AddedDevice != null)
-                //{
-                //    var deviceViewModel = new DeviceViewModel(e.AddedDevice);
-                //    Devices.Add(deviceViewModel);
-                //    if (CurrentDevice == null)
-                //        CurrentDevice = deviceViewModel;
-                //}
-                //else 
-                if (e.RemovedDevice != null)
-                {
-                    var item = Devices.FirstOrDefault(x => x.Id == e.RemovedDevice.Id && x.ChannelNo == e.RemovedDevice.ChannelNo);
-
-                    if (item != null)
-                    {
-                        Devices.Remove(item);
-                        item.FirmwareUpdateRequest -= Device_FirmwareUpdateRequest;
-                    }
-                }
-            });
-        }
-
-        void ConnectionManager_DiscoveredDeviceAdded(object sender, DiscoveredDeviceAddedEventArgs e)
-        {
-            Application.Current?.Dispatcher.Invoke(() =>
-            {
-                DiscoveredDevices.Add(e);
-            });
-        }
-
-        void ConnectionManager_DiscoveredDeviceRemoved(object sender, DiscoveredDeviceRemovedEventArgs e)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var item = DiscoveredDevices.FirstOrDefault(x => x.Id == e.Id);
-                if (item != null)
-                    DiscoveredDevices.Remove(item);
-            });
-        }
-
-        void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
-        {
-            NotifyPropertyChanged(nameof(BleAdapterAvailable));
-        }
-
-        void ConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
-        {
-            if (!IsFirmwareSelected)
-                return;
-
-            if (e.Rssi > SdkConfig.TapProximityUnlockThreshold + 4 && !_advIgnoreList.IsIgnored(e.Id)) // -33 is to much and picks up devices from very far
-            {
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        lock (pendingConnectionsLock)
-                        {
-                            // Prevent reconnect of devices that neither finished nor failed firmware update
-                            if (Devices.ToList().FirstOrDefault(d =>
-                                !d.ErrorState &&
-                                !d.SuccessState &&
-                                d.Device != null &&
-                                BleUtils.MacToConnectionId(d.Device.Mac).Equals(e.Id)) != null)
-                            {
-                                return;
-                            }
-
-                            if (_pendingConnections.ContainsKey(e.Id))
-                                return;
-                            else
-                                _pendingConnections.Add(e.Id, Guid.NewGuid());
-                        }
-
-                        var deviceVM = await ConnectDeviceByMac(e.Id);
-                        try
-                        {
-                            if (deviceVM?.Device != null)
-                            {
-                                await deviceVM.Device.WaitInitialization(timeout: 10_000, System.Threading.CancellationToken.None);
-                                if (AutomaticallyUploadFirmware || deviceVM.Device.IsBoot)
-                                {
-                                    deviceVM.StartFirmwareUpdate();
-                                    _advIgnoreList.Ignore(deviceVM.Device.Mac);
-                                }
-                            }
-
-                            lock (pendingConnectionsLock)
-                            {
-                                _pendingConnections.Remove(e.Id);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            deviceVM.CustomError = ex.Message;
-                            throw;
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        lock (pendingConnectionsLock)
-                        {
-                            _pendingConnections.Remove(e.Id);
-                        }
-                    }
-                });
-            }
-        }
-
-        async Task<DeviceViewModel> ConnectDeviceByMac(string mac)
-        {
-            _log.WriteLine("MainVM", $"Waiting Device connectin {mac} ..........................");
-            var dvm = new DeviceViewModel(mac);
-
-            var prevDvm = Devices.FirstOrDefault(d => d.Device != null && d.Device.Mac.Replace(":","") == mac);
-            if (prevDvm != null)
-            {
-                prevDvm.FirmwareUpdateRequest -= Device_FirmwareUpdateRequest;
-                await _deviceManager.Remove(prevDvm.Device);
-            }
-
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Devices.Add(dvm);
-                dvm.FirmwareUpdateRequest += Device_FirmwareUpdateRequest;
-            });
-
-            var device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
-
-            if (device == null)
-            {
-                device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
-            }
-            
-            if (device == null)
-            {
-                await _deviceManager.RemoveByMac(mac);
-                device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
-            }
-
-            if (device != null)
-            {
-                dvm.SetDevice(device);
-                _log.WriteLine("MainVM", $"Device connected {device.Name} ++++++++++++++++++++++++");
-            }
-            else
-            {
-                _log.WriteLine("MainVM", $"Device NOT connected --------------------------");
-                dvm.CustomError = "Connection failed";
-            }
-
-            return dvm;
-        }
-
-        async void Device_FirmwareUpdateRequest(DeviceViewModel sender, IDevice device, LongOperation longOperation)
-        {
-            try
-            {
-                var imageUploader = new FirmwareImageUploader(FirmwareFilePath, _log);
-                await imageUploader.RunAsync(false, _deviceManager, device, longOperation);
-                _advIgnoreList.Ignore(device.Mac);
-            }
-            catch (Exception ex)
-            {
-                sender.CustomError = ex.Message;
-            }
-            finally
-            {
-                await _deviceManager.DisconnectDevice(device);
-            }
-        }
-
         void SelectFirmware()
         {
             OpenFileDialog ofd = new OpenFileDialog
@@ -408,14 +208,10 @@ namespace DeviceMaintenance.ViewModel
 
             if (ofd.ShowDialog() == true)
                 FirmwareFilePath = ofd.FileName;
+
+            if (IsFirmwareSelected)
+                _hub.Publish(new StartDiscoveryCommand());
         }
 
-        internal void OnClosing()
-        {
-            SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
-
-            if (_restartServiceOnExit && !HideezServiceController.IsServiceRunning)
-                HideezServiceController.StartService();
-        }
     }
 }

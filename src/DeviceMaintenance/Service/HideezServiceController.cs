@@ -1,5 +1,9 @@
-﻿using System;
+﻿using DeviceMaintenance.Messages;
+using Hideez.SDK.Communication.Log;
+using Meta.Lib.Modules.PubSub;
+using System;
 using System.ServiceProcess;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace DeviceMaintenance.Service
@@ -8,21 +12,24 @@ namespace DeviceMaintenance.Service
     {
         const string SERVICE_NAME = "Hideez Service";
 
+        readonly EventLogger _log;
+        readonly MetaPubSub _hub;
+        readonly Timer _serviceStateRefreshTimer;
+        readonly bool _restartServiceOnExit = false;
+
         ServiceController _serviceController;
-        Timer _serviceStateRefreshTimer;
 
-        public bool IsServiceRunning
-        {
-            get
-            {
-                return _serviceController?.Status == ServiceControllerStatus.Running;
-            }
-        }
+        public bool IsServiceRunning => _serviceController?.Status == ServiceControllerStatus.Running;
 
-        public HideezServiceController()
+        public HideezServiceController(EventLogger log, MetaPubSub hub)
         {
             try
             {
+                _log = log;
+                _hub = hub;
+
+                _hub.Subscribe<ClosingEvent>(OnClosing);
+
                 _serviceStateRefreshTimer = new Timer(2000);
                 _serviceStateRefreshTimer.Elapsed += ServiceStateCheckTimer_Elapsed;
                 _serviceStateRefreshTimer.AutoReset = true;
@@ -31,6 +38,12 @@ namespace DeviceMaintenance.Service
                 var controller = new ServiceController(SERVICE_NAME); // Will trigger ArgumentException if service is not installed
                 var st = controller.Status; // Will trigger InvalidOperationException if service is not installed
                 _serviceController = controller;
+
+                if (IsServiceRunning)
+                {
+                    StopService();
+                    _restartServiceOnExit = true;
+                }
             }
             catch (InvalidOperationException)
             {
@@ -40,6 +53,13 @@ namespace DeviceMaintenance.Service
             {
                 // The most probable reason is that service is not installed. It is ok.
             }
+        }
+
+        private Task OnClosing(ClosingEvent arg)
+        {
+            if (_restartServiceOnExit && !IsServiceRunning)
+                StartService();
+            return Task.CompletedTask;
         }
 
         public void StopService()
