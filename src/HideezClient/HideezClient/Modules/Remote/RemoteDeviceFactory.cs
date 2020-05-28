@@ -27,7 +27,7 @@ namespace HideezClient.Modules
             _log.WriteLine($"({serialNo}) Creating remote device on channel:{channelNo}");
             var connectionId = await _serviceProxy.GetService().EstablishRemoteDeviceConnectionAsync(serialNo, channelNo);
 
-            var remoteCommands = new RemoteDeviceCommands(_serviceProxy, _messenger);
+            var remoteCommands = new RemoteDeviceCommands(_serviceProxy);
             var remoteEvents = new RemoteDeviceEvents(_messenger);
 
             var device = new RemoteDevice(connectionId, channelNo, remoteCommands, remoteEvents, SdkConfig.DefaultRemoteCommandTimeout, new NLogWrapper());
