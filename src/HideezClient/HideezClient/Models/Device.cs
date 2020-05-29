@@ -71,6 +71,7 @@ namespace HideezClient.Models
 
         CancellationTokenSource authCancellationTokenSource;
         int _interlockedRemote = 0;
+        CancellationTokenSource remoteCancellationTokenSource;
 
         public Device(
             IServiceProxy serviceProxy,
@@ -450,6 +451,11 @@ namespace HideezClient.Models
             }
         }
 
+        void CancelRemoteDeviceCreation()
+        {
+            remoteCancellationTokenSource?.Cancel();
+        }
+
         /// <summary>
         /// Create and authorize remote device, then load credentials storage from this device
         /// </summary>
@@ -470,10 +476,18 @@ namespace HideezClient.Models
                             authCancellationTokenSource = new CancellationTokenSource();
                             var ct = authCancellationTokenSource.Token;
 
+                            remoteCancellationTokenSource = new CancellationTokenSource();
+
                             _infNid = Guid.NewGuid().ToString();
                             _errNid = Guid.NewGuid().ToString();
 
-                            await CreateRemoteDeviceAsync();
+                            await CreateRemoteDeviceAsync(remoteCancellationTokenSource.Token);
+
+                            if (remoteCancellationTokenSource.IsCancellationRequested)
+                            {
+                                _log.WriteLine($"({SerialNo}) Remove device creation cancelled");
+                                return;
+                            }
 
                             if (_remoteDevice != null)
                             {
@@ -516,8 +530,13 @@ namespace HideezClient.Models
                         }
                         finally
                         {
-                            authCancellationTokenSource.Dispose();
+                            var tmp = authCancellationTokenSource;
                             authCancellationTokenSource = null;
+                            tmp.Dispose();
+
+                            tmp = remoteCancellationTokenSource;
+                            remoteCancellationTokenSource = null;
+                            tmp.Dispose();
                         }
                     }
                 }
@@ -539,17 +558,21 @@ namespace HideezClient.Models
             {
                 if (_remoteDevice != null)
                 {
+                    CancelRemoteDeviceCreation();
                     CancelDeviceAuthorization();
 
                     var tempRemoteDevice = _remoteDevice;
                     _remoteDevice = null;
                     PasswordManager = null;
 
-                    tempRemoteDevice.ButtonPressed -= RemoteDevice_ButtonPressed;
-                    tempRemoteDevice.StorageModified -= RemoteDevice_StorageModified;
-                    tempRemoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
-                    await tempRemoteDevice.Shutdown(code);
-                    await _serviceProxy.GetService().RemoveDeviceAsync(tempRemoteDevice.Id);
+                    if (tempRemoteDevice != null)
+                    {
+                        tempRemoteDevice.ButtonPressed -= RemoteDevice_ButtonPressed;
+                        tempRemoteDevice.StorageModified -= RemoteDevice_StorageModified;
+                        tempRemoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
+                        await tempRemoteDevice.Shutdown(code);
+                        await _serviceProxy.GetService().RemoveDeviceAsync(tempRemoteDevice.Id);
+                    }
                 }
             }
             catch (Exception ex)
@@ -565,7 +588,7 @@ namespace HideezClient.Models
             NotifyPropertyChanged(nameof(IsAuthorized));
         }
 
-        async Task CreateRemoteDeviceAsync()
+        async Task CreateRemoteDeviceAsync(CancellationToken cancellationToken)
         {
             if (_remoteDevice != null || IsCreatingRemoteDevice)
                 return;
@@ -576,6 +599,12 @@ namespace HideezClient.Models
             {
                 _log.WriteLine($"({SerialNo}) Establishing remote device connection");
 
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    initErrorCode = HideezErrorCode.RemoteDeviceCreationCancelled;
+                    return;
+                }
+
                 _log.WriteLine("Checking for available channels");
                 var channels = await _serviceProxy.GetService().GetAvailableChannelsAsync(SerialNo);
                 if (channels.Length == 0)
@@ -583,12 +612,30 @@ namespace HideezClient.Models
                 var channelNo = channels.FirstOrDefault();
                 _log.WriteLine($"{channels.Length} channels available");
 
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    initErrorCode = HideezErrorCode.RemoteDeviceCreationCancelled;
+                    return;
+                }
+
                 ShowInfo($"Preparing for device {SerialNo} authorization", _infNid);
                 IsCreatingRemoteDevice = true;
                 _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
 
-                await _remoteDevice.VerifyAndInitialize();
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    initErrorCode = HideezErrorCode.RemoteDeviceCreationCancelled;
+                    return;
+                }
+
+                await _remoteDevice.VerifyAndInitialize(cancellationToken);
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    initErrorCode = HideezErrorCode.RemoteDeviceCreationCancelled;
+                    return;
+                }
 
                 if (_remoteDevice.SerialNo != SerialNo)
                     throw new Exception("Remote device serial number does not match the enumerated serial");
