@@ -61,6 +61,7 @@ namespace ServiceLibrary.Implementation
         static ISettingsManager<ProximitySettings> _proximitySettingsManager;
         static ISettingsManager<ServiceSettings> _serviceSettingsManager;
         static DeviceProximitySettingsHelper _deviceProximitySettingsHelper;
+        static WatchingSettingsManager<WorkstationSettings> _workstationSettingsManager;
 
         static ConnectionFlowProcessor _connectionFlowProcessor;
         static AdvertisementIgnoreList _advIgnoreList;
@@ -139,10 +140,11 @@ namespace ServiceLibrary.Implementation
 
             // Settings
             var settingsDirectory = $@"{commonAppData}\Hideez\Service\Settings\";
-            string rfidSettingsPath = Path.Combine(settingsDirectory, "Rfid.xml");
-            string proximitySettingsPath = Path.Combine(settingsDirectory, "Proximity.xml");
-            string serviceSettingsPath = Path.Combine(settingsDirectory, "Service.xml");
             string sdkSettingsPath = Path.Combine(settingsDirectory, "Sdk.xml");
+            string rfidSettingsPath = Path.Combine(settingsDirectory, "Rfid.xml");
+            string proximitySettingsPath = Path.Combine(settingsDirectory, "Unlock.xml");
+            string serviceSettingsPath = Path.Combine(settingsDirectory, "Service.xml");
+            string workstationSettingsPath = Path.Combine(settingsDirectory, "Workstation.xml");
             IFileSerializer fileSerializer = new XmlFileSerializer(_sdkLogger);
 
             List<Task> settingsInitializationTasks = new List<Task>
@@ -165,7 +167,6 @@ namespace ServiceLibrary.Implementation
                 {
                     _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
                     _proximitySettingsManager.InitializeFileStruct();
-                    _proximitySettingsManager.SettingsChanged += ProximitySettingsManager_SettingsChanged;
                     await _proximitySettingsManager.GetSettingsAsync().ConfigureAwait(false);
 
                     _deviceProximitySettingsHelper = new DeviceProximitySettingsHelper(_proximitySettingsManager);
@@ -177,6 +178,15 @@ namespace ServiceLibrary.Implementation
                     _serviceSettingsManager.InitializeFileStruct();
                     await _serviceSettingsManager.LoadSettingsAsync().ConfigureAwait(false);
                     _sdkLogger.WriteLine(nameof(HideezService), $"{nameof(ServiceSettings)} loaded");
+                }),
+                Task.Run(async () =>
+                {
+                    _workstationSettingsManager = new WatchingSettingsManager<WorkstationSettings>(workstationSettingsPath, fileSerializer);
+                    _workstationSettingsManager.InitializeFileStruct();
+                    await _workstationSettingsManager.LoadSettingsAsync().ConfigureAwait(false);
+                    _workstationSettingsManager.AutoReloadOnFileChanges = true;
+                    _workstationSettingsManager.SettingsChanged += WorkstationProximitySettingsManager_SettingsChanged;
+                    _sdkLogger.WriteLine(nameof(HideezService), $"{nameof(WorkstationSettings)} loaded");
                 })
             };
             await Task.WhenAll(settingsInitializationTasks).ConfigureAwait(false);
@@ -262,7 +272,7 @@ namespace ServiceLibrary.Implementation
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreList = new AdvertisementIgnoreList(
                 _connectionManager,
-                _proximitySettingsManager,
+                _workstationSettingsManager,
                 _sdkLogger);
             _rfidProcessor = new RfidConnectionProcessor(
                 _connectionFlowProcessor,
@@ -294,7 +304,7 @@ namespace ServiceLibrary.Implementation
 
             // Proximity Monitor ==================================
             ProximitySettings proximitySettings = _proximitySettingsManager.Settings;
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _sdkLogger, proximitySettings.DevicesProximity);
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _workstationSettingsManager.Settings.GetProximityMonitorSettings(), _sdkLogger);
 
             // Device Reconnect Manager ================================
             _deviceReconnectManager = new DeviceReconnectManager(_proximityMonitorManager, _deviceManager, _connectionFlowProcessor, _sdkLogger);
@@ -451,14 +461,14 @@ namespace ServiceLibrary.Implementation
 
         #region Event Handlers
 
-        void ProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
+        void WorkstationProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<WorkstationSettings> e)
         {
             try
             {
                 if (_proximityMonitorManager != null)
                 {
-                    _proximityMonitorManager.ProximitySettings = e.NewSettings.DevicesProximity;
-                    _log.WriteLine("Updated proximity settings in proximity monitor.");
+                    _log.WriteLine("Updating proximity monitors with new settings");
+                    _proximityMonitorManager.MonitorSettings = e.NewSettings.GetProximityMonitorSettings();
                 }
             }
             catch (Exception ex)
@@ -911,16 +921,14 @@ namespace ServiceLibrary.Implementation
 
         public ProximitySettingsDTO GetCurrentProximitySettings(string mac)
         {
-            var s = _proximitySettingsManager.Settings.GetProximitySettings(mac);
-            var dto = new ProximitySettingsDTO
+            return new ProximitySettingsDTO
             {
-                Mac = s.Mac,
-                SerialNo = s.SerialNo,
-                LockProximity = s.LockProximity,
-                UnlockProximity = s.UnlockProximity,
+                Mac = mac,
+                SerialNo = string.Empty,
+                LockProximity = _workstationSettingsManager.Settings.LockProximity,
+                UnlockProximity = _workstationSettingsManager.Settings.UnlockProximity,
                 AllowEditProximitySettings = _deviceProximitySettingsHelper?.GetAllowEditProximity(mac) ?? false,
             };
-            return dto;
         }
 
         public string GetServerAddress()

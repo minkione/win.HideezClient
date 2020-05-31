@@ -31,7 +31,7 @@ namespace HideezMiddleware.Settings
                     lock (lockObj)
                     {
                         // Create a new file stream for reading the XML file
-                        using (FileStream readFileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        using (FileStream readFileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
                             try
                             {
