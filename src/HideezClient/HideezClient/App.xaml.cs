@@ -41,6 +41,8 @@ using HideezClient.Modules.ButtonManager;
 using HideezClient.Utilities.QrCode;
 using ZXing;
 using HideezClient.Modules.Log;
+using Hideez.SDK.Communication.Workstation;
+using HideezMiddleware.Workstation;
 
 namespace HideezClient
 {
@@ -202,6 +204,10 @@ namespace HideezClient
             // It is required for subscribtion of PasswordManagerViewModel to the "AddAccountForApp" message
             // Note: PasswordManagerViewModel is not required for simplified UI
             Container.Resolve<PasswordManagerViewModel>();
+
+            // Public Suffix list loading and updating may take some time (more than 8000 entries)
+            // Better to load it before its required (for main domain extraction)
+            await Task.Run(URLHelper.PreloadPublicSuffixAsync);
             
         }
 
@@ -265,8 +271,13 @@ namespace HideezClient
             Container.RegisterType<HelpPageViewModel>();
             Container.RegisterType<SettingsPageViewModel>();
             Container.RegisterType<PasswordManagerViewModel>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<DefaultPageViewModel>();
             Container.RegisterType<DeviceSettingsPageViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ServerAddressEditControlViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ServiceViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<DefaultPageViewModel>();
+            Container.RegisterType<HardwareKeyPageViewModel>();
+            Container.RegisterType<SoftwareKeyPageViewModel>();
+            Container.RegisterType<SoftwareUnlockSettingViewModel>(new ContainerControlledLifetimeManager());
 
             #endregion ViewModels
 
@@ -285,6 +296,9 @@ namespace HideezClient
             Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IButtonManager, ButtonManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IActiveDevice, ActiveDevice>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IWorkstationIdProvider, WorkstationIdProvider>(new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(HideezClientRegistryRoot.GetRootRegistryKey(false), typeof(ILog)));
+            Container.RegisterType<IWorkstationInfoProvider, WorkstationInfoProvider>(new ContainerControlledLifetimeManager());
 
             // Settings
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()

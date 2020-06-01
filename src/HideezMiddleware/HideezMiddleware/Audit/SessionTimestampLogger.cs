@@ -162,16 +162,16 @@ namespace HideezMiddleware.Audit
 
         void GenerateSessionEndEvent(SessionTimestamp timestamp)
         {
-            var baseEvent = _eventSaver.GetWorkstationEvent();
-
-            baseEvent.WorkstationSessionId = timestamp.SessionId;
-            baseEvent.UserSession = timestamp.SessionName;
-            baseEvent.Date = timestamp.Time;
-            baseEvent.Note = "Unexpected Shutdown";
-            baseEvent.EventId = WorkstationEventType.ComputerLock; // TODO: Maybe, add another event for Unexpected Shutdown
-
             Task.Run(async () =>
             {
+                var baseEvent = _eventSaver.GetWorkstationEvent();
+
+                baseEvent.WorkstationSessionId = timestamp.SessionId;
+                baseEvent.UserSession = timestamp.SessionName;
+                baseEvent.Date = timestamp.Time;
+                baseEvent.Note = "Unexpected Shutdown";
+                baseEvent.EventId = WorkstationEventType.ComputerLock; // TODO: Maybe, add another event for Unexpected Shutdown
+
                 await _eventSaver.AddNewAsync(baseEvent, true);
             });
         }

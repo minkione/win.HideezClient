@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
+using System.Runtime.Remoting.Messaging;
 using System.Security;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication;
@@ -14,15 +17,22 @@ using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
+using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
+using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.WCF;
+using Hideez.SDK.Communication.Workstation;
 using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware;
 using HideezMiddleware.Audit;
 using HideezMiddleware.DeviceConnection;
+using HideezMiddleware.DeviceLogging;
 using HideezMiddleware.Local;
+using HideezMiddleware.ReconnectManager;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
+using HideezMiddleware.SoftwareVault.UnlockToken;
+using HideezMiddleware.Workstation;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ClientManagement;
 using ServiceLibrary.Implementation.ScreenActivation;
@@ -49,7 +59,9 @@ namespace ServiceLibrary.Implementation
 
         static ISettingsManager<RfidSettings> _rfidSettingsManager;
         static ISettingsManager<ProximitySettings> _proximitySettingsManager;
+        static ISettingsManager<ServiceSettings> _serviceSettingsManager;
         static DeviceProximitySettingsHelper _deviceProximitySettingsHelper;
+        static WatchingSettingsManager<WorkstationSettings> _workstationSettingsManager;
 
         static ConnectionFlowProcessor _connectionFlowProcessor;
         static AdvertisementIgnoreList _advIgnoreList;
@@ -59,8 +71,20 @@ namespace ServiceLibrary.Implementation
         static SessionSwitchLogger _sessionSwitchLogger;
         static ConnectionManagerRestarter _connectionManagerRestarter;
         static ILocalDeviceInfoCache _localDeviceInfoCache;
+        static DeviceLogManager _deviceLogManager;
 
-        void InitializeSDK()
+        static DeviceReconnectManager _deviceReconnectManager;
+
+        static IUnlockTokenProvider _unlockTokenProvider;
+        static UnlockTokenGenerator _unlockTokenGenerator;
+        static RemoteWorkstationUnlocker _remoteWorkstationUnlocker;
+
+        static HesAppConnection _tbHesConnection;
+        static IWorkstationIdProvider _workstationIdProvider;
+
+        #region Initialization
+
+        async Task InitializeSDK()
         {
 #if DEBUG
             _log.WriteLine($">>>>>> Verifying error codes.");
@@ -69,58 +93,104 @@ namespace ServiceLibrary.Implementation
             // Debug.Assert(isVerified, $">>>>>> Verifying error codes resalt: {isVerified}");
 #endif
 
+            // Collection of module initialization tasks that must be finished to complete service launch
+            // but otherwise are not immediatelly required by other modules
+            List<Task> serviceInitializationTasks = new List<Task>(); 
+
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
-            string settingsDirectory = $@"{commonAppData}\Hideez\Service\Settings\";
+            var deviceLogsPath = $"{commonAppData}\\Hideez\\Service\\DeviceLogs";
 
-            // Connection Manager ============================
-            _connectionManager = new BleConnectionManager(_sdkLogger, bondsFilePath);
-            _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
-            _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
-            _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
-            _connectionManagerRestarter = new ConnectionManagerRestarter(_connectionManager, _sdkLogger);
-
-            // BLE ============================
-            _deviceManager = new BleDeviceManager(_sdkLogger, _connectionManager);
-            _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
-            _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
-            _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
-            _deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
-            SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
-
-            // WCF ============================
-            _wcfDeviceFactory = new WcfDeviceFactory(_deviceManager, _sdkLogger);
-
-            // Named Pipes Server ==============================
-            _credentialProviderProxy = new CredentialProviderProxy(_sdkLogger);
-
-            // RFID Service Connection ============================
-            _rfidService = new RfidServiceConnection(_sdkLogger);
-            _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
-
-            // Settings
-            string rfidSettingsPath = Path.Combine(settingsDirectory, "Rfid.xml");
-            string proximitySettingsPath = Path.Combine(settingsDirectory, "Proximity.xml");
-            string sdkSettingsPath = Path.Combine(settingsDirectory, "Sdk.xml");
-            IFileSerializer fileSerializer = new XmlFileSerializer(_sdkLogger);
-            var sdkSettingsManager = new SettingsManager<SdkSettings>(sdkSettingsPath, fileSerializer);
-            sdkSettingsManager.InitializeFileStruct();
-            Task.Run(async () =>
+            var bleInitTask = Task.Run(() =>
             {
-                await SdkConfigLoader.LoadSdkConfigFromFileAsync(sdkSettingsManager);
+                // Connection Manager ============================
+                _connectionManager = new BleConnectionManager(_sdkLogger, bondsFilePath);
+                _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+                _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
+                _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
+                _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+                _connectionManagerRestarter = new ConnectionManagerRestarter(_connectionManager, _sdkLogger);
+
+                // BLE ============================
+                _deviceManager = new BleDeviceManager(_sdkLogger, _connectionManager);
+                _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
+                _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
+                _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
+                _deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
+                SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
+
+                // WCF ============================
+                _wcfDeviceFactory = new WcfDeviceFactory(_deviceManager, _sdkLogger);
+                _sdkLogger.WriteLine(nameof(HideezService), "BLE initialized");
             });
 
-            _rfidSettingsManager = new SettingsManager<RfidSettings>(rfidSettingsPath, fileSerializer);
-            _rfidSettingsManager.InitializeFileStruct();
+            var pipeInitTask = Task.Run(() =>
+            {
+                // Named Pipes Server ==============================
+                _credentialProviderProxy = new CredentialProviderProxy(_sdkLogger);
+                _credentialProviderProxy.Start(); // Faster we connect to the CP, the better
 
-            _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
-            _proximitySettingsManager.InitializeFileStruct();
-            _proximitySettingsManager.SettingsChanged += ProximitySettingsManager_SettingsChanged;
-            _proximitySettingsManager.GetSettingsAsync().Wait();
+                // RFID Service Connection ============================
+                _rfidService = new RfidServiceConnection(_sdkLogger);
+                _rfidService.RfidReaderStateChanged += RFIDService_ReaderStateChanged;
+                _sdkLogger.WriteLine(nameof(HideezService), "Pipe initialized");
+            });
 
-            _deviceProximitySettingsHelper = new DeviceProximitySettingsHelper(_proximitySettingsManager);
+
+            // Settings
+            var settingsDirectory = $@"{commonAppData}\Hideez\Service\Settings\";
+            string sdkSettingsPath = Path.Combine(settingsDirectory, "Sdk.xml");
+            string rfidSettingsPath = Path.Combine(settingsDirectory, "Rfid.xml");
+            string proximitySettingsPath = Path.Combine(settingsDirectory, "Unlock.xml");
+            string serviceSettingsPath = Path.Combine(settingsDirectory, "Service.xml");
+            string workstationSettingsPath = Path.Combine(settingsDirectory, "Workstation.xml");
+            IFileSerializer fileSerializer = new XmlFileSerializer(_sdkLogger);
+
+            List<Task> settingsInitializationTasks = new List<Task>
+            {
+                Task.Run(async () =>
+                {
+                    var sdkSettingsManager = new SettingsManager<SdkSettings>(sdkSettingsPath, fileSerializer);
+                    sdkSettingsManager.InitializeFileStruct();
+                    await SdkConfigLoader.LoadSdkConfigFromFileAsync(sdkSettingsManager).ConfigureAwait(false);
+                    _sdkLogger.WriteLine(nameof(HideezService), $"{nameof(SdkSettings)} loaded");
+                }),
+                Task.Run(async () =>
+                {
+                    _rfidSettingsManager = new SettingsManager<RfidSettings>(rfidSettingsPath, fileSerializer);
+                    _rfidSettingsManager.InitializeFileStruct();
+                    await _rfidSettingsManager.LoadSettingsAsync().ConfigureAwait(false);
+                    _sdkLogger.WriteLine(nameof(HideezService), $"{nameof(RfidSettings)} loaded");
+                }),
+                Task.Run(async () =>
+                {
+                    _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
+                    _proximitySettingsManager.InitializeFileStruct();
+                    await _proximitySettingsManager.GetSettingsAsync().ConfigureAwait(false);
+
+                    _deviceProximitySettingsHelper = new DeviceProximitySettingsHelper(_proximitySettingsManager);
+                    _sdkLogger.WriteLine(nameof(HideezService), $"{nameof(ProximitySettings)} loaded");
+                }),
+                Task.Run(async () =>
+                {
+                    _serviceSettingsManager = new SettingsManager<ServiceSettings>(serviceSettingsPath, fileSerializer);
+                    _serviceSettingsManager.InitializeFileStruct();
+                    await _serviceSettingsManager.LoadSettingsAsync().ConfigureAwait(false);
+                    _sdkLogger.WriteLine(nameof(HideezService), $"{nameof(ServiceSettings)} loaded");
+                }),
+                Task.Run(async () =>
+                {
+                    _workstationSettingsManager = new WatchingSettingsManager<WorkstationSettings>(workstationSettingsPath, fileSerializer);
+                    _workstationSettingsManager.InitializeFileStruct();
+                    await _workstationSettingsManager.LoadSettingsAsync().ConfigureAwait(false);
+                    _workstationSettingsManager.AutoReloadOnFileChanges = true;
+                    _workstationSettingsManager.SettingsChanged += WorkstationProximitySettingsManager_SettingsChanged;
+                    _sdkLogger.WriteLine(nameof(HideezService), $"{nameof(WorkstationSettings)} loaded");
+                })
+            };
+            await Task.WhenAll(settingsInitializationTasks).ConfigureAwait(false);
+            _sdkLogger.WriteLine(nameof(HideezService), "Settings loaded");
 
             // Get HES address from registry ==================================
             // HKLM\SOFTWARE\Hideez\Client, client_hes_address REG_SZ
@@ -140,25 +210,34 @@ namespace ServiceLibrary.Implementation
                 };
             }
 
+            // Hideez Client root registry key ============================
+            RegistryKey clientRootRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
+
+            // Workstation Id ============================
+            _workstationIdProvider = new WorkstationIdProvider(clientRootRegistryKey, _sdkLogger);
+            if (string.IsNullOrWhiteSpace(_workstationIdProvider.GetWorkstationId()))
+                _workstationIdProvider.SaveWorkstationId(Guid.NewGuid().ToString());
+
             // WorkstationInfoProvider ==================================
             WorkstationHelper.Log = _sdkLogger;
-            var workstationInfoProvider = new WorkstationInfoProvider(hesAddress, _sdkLogger);
+            var workstationInfoProvider = new WorkstationInfoProvider(_workstationIdProvider, _sdkLogger);
 
-            // HES Connection ==================================
-            _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _sdkLogger);
-            _hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
-            {
-                var settings = await _proximitySettingsManager.GetSettingsAsync();
-                settings.DevicesProximity = receivedSettings.ToArray();
-                _proximitySettingsManager.SaveSettings(settings);
-            };
-            _hesConnection.HubRFIDIndicatorStateArrived += async (sender, isEnabled) =>
-            {
-                var settings = await _rfidSettingsManager.GetSettingsAsync();
-                settings.IsRfidEnabled = isEnabled;
-                _rfidSettingsManager.SaveSettings(settings);
-            };
-            _hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
+
+            // TB & HES Connections ==================================
+            await pipeInitTask.ConfigureAwait(false); 
+            await CreateHubs(_deviceManager, workstationInfoProvider, _proximitySettingsManager, _rfidSettingsManager, _sdkLogger).ConfigureAwait(false);
+
+            serviceInitializationTasks.Add(StartHubs(hesAddress));
+
+            // Software Vault Unlock Mechanism
+            _unlockTokenProvider = new UnlockTokenProvider(clientRootRegistryKey, _sdkLogger);
+            _unlockTokenGenerator = new UnlockTokenGenerator(_unlockTokenProvider, workstationInfoProvider, _sdkLogger);
+            await pipeInitTask.ConfigureAwait(false);
+            _remoteWorkstationUnlocker = new RemoteWorkstationUnlocker(_unlockTokenProvider, _tbHesConnection, _credentialProviderProxy, _sdkLogger);
+
+            // Start Software Vault unlock modules
+            if (_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock)
+                serviceInitializationTasks.Add(Task.Run(_unlockTokenGenerator.Start));
 
             // Audit Log / Event Aggregator =============================
             _eventSender = new EventSender(_hesConnection, _eventSaver, _sdkLogger);
@@ -173,23 +252,11 @@ namespace ServiceLibrary.Implementation
             _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, _sdkLogger);
 
             // StatusManager =============================
-            _statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, _uiProxy, _rfidSettingsManager, _sdkLogger);
+            _statusManager = new StatusManager(_hesConnection, _tbHesConnection, _rfidService, 
+                _connectionManager, _uiProxy, _rfidSettingsManager, _credentialProviderProxy, _sdkLogger);
 
             // Local device info cache
-            RegistryKey deviceInfoCacheRegistryKey = null;
-            try
-            {
-                deviceInfoCacheRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Error($"Failed to get write access for Client registry key: {ex.Message}");
-            }
-            catch (SecurityException ex)
-            {
-                Error($"Failed to get write access for Client registry key: {ex.Message}");
-            }
-            _localDeviceInfoCache = new LocalDeviceInfoCache(deviceInfoCacheRegistryKey, _sdkLogger);
+            _localDeviceInfoCache = new LocalDeviceInfoCache(clientRootRegistryKey, _sdkLogger);
 
             // ConnectionFlowProcessor
             _connectionFlowProcessor = new ConnectionFlowProcessor(
@@ -201,10 +268,11 @@ namespace ServiceLibrary.Implementation
                 _uiProxy,
                 _localDeviceInfoCache,
                 _sdkLogger);
+            _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreList = new AdvertisementIgnoreList(
                 _connectionManager,
-                _proximitySettingsManager,
+                _workstationSettingsManager,
                 _sdkLogger);
             _rfidProcessor = new RfidConnectionProcessor(
                 _connectionFlowProcessor,
@@ -227,21 +295,31 @@ namespace ServiceLibrary.Implementation
                 _credentialProviderProxy,
                 _sdkLogger);
 
-            _proximityProcessor.Start();
-            _tapProcessor.Start();
-            _rfidProcessor.Start();
+            serviceInitializationTasks.Add(Task.Run(() =>
+            {
+                _proximityProcessor.Start();
+                _tapProcessor.Start();
+                _rfidProcessor.Start();
+            }));
 
             // Proximity Monitor ==================================
             ProximitySettings proximitySettings = _proximitySettingsManager.Settings;
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _sdkLogger, proximitySettings.DevicesProximity);
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _workstationSettingsManager.Settings.GetProximityMonitorSettings(), _sdkLogger);
+
+            // Device Reconnect Manager ================================
+            _deviceReconnectManager = new DeviceReconnectManager(_proximityMonitorManager, _deviceManager, _connectionFlowProcessor, _sdkLogger);
+            _deviceReconnectManager.DeviceReconnected += (s, a) => _log.WriteLine($"Device {a.SerialNo} reconnected successfully");
 
             // WorkstationLocker ==================================
-            // TODO: Use value from SdkConfig for timeout
-            _workstationLocker = new UniversalWorkstationLocker(5_000, sessionManager, _sdkLogger);
+            _workstationLocker = new UniversalWorkstationLocker(SdkConfig.DefaultLockTimeout * 1000, sessionManager, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
-            _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, _proximityMonitorManager,
-                _deviceManager, _workstationLocker, _sdkLogger);
+            _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, 
+                _proximityMonitorManager,
+                _deviceManager, 
+                _workstationLocker, 
+                _deviceReconnectManager,
+                _sdkLogger);
             _workstationLockProcessor.DeviceProxLockEnabled += WorkstationLockProcessor_DeviceProxLockEnabled;
 
             // SessionSwitchLogger ==================================
@@ -250,9 +328,10 @@ namespace ServiceLibrary.Implementation
                 _workstationLockProcessor, _deviceManager, _sdkLogger);
 
             // SDK initialization finished, start essential components
-            _credentialProviderProxy.Start();
+            if (_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock)
+                _remoteWorkstationUnlocker.Start();
+
             _rfidService.Start();
-            _hesConnection.Start(hesAddress);
 
             _workstationLockProcessor.Start();
             _proximityMonitorManager.Start();
@@ -260,28 +339,136 @@ namespace ServiceLibrary.Implementation
             _connectionManager.StartDiscovery();
             _connectionManagerRestarter.Start();
 
-            if (_hesConnection.State == HesConnectionState.Error)
-            {
-                Task.Run(async () => { await _hesConnection.Stop(); });
+            _deviceReconnectManager.Start();
 
-                Error("Hideez Service has encountered an error during HES connection initialization"
-                    + Environment.NewLine
-                    + "New connection establishment will be attempted after service restart"
-                    + Environment.NewLine
-                    + _hesConnection.ErrorMessage);
-            }
+            await Task.WhenAll(serviceInitializationTasks).ConfigureAwait(false);
         }
+
+        Task<HesAppConnection> CreateHesHub(BleDeviceManager deviceManager, 
+            WorkstationInfoProvider workstationInfoProvider, 
+            ISettingsManager<ProximitySettings> proximitySettingsManager, 
+            ISettingsManager<RfidSettings> rfidSettingsManager, 
+            ILog log)
+        {
+            return Task.Run(() =>
+            {
+                var hesConnection = new HesAppConnection(deviceManager, workstationInfoProvider, log);
+
+                hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
+                {
+                    var settings = await proximitySettingsManager.GetSettingsAsync().ConfigureAwait(false);
+                    settings.DevicesProximity = receivedSettings.ToArray();
+                    proximitySettingsManager.SaveSettings(settings);
+                };
+                hesConnection.HubRFIDIndicatorStateArrived += async (sender, isEnabled) =>
+                {
+                    var settings = await rfidSettingsManager.GetSettingsAsync().ConfigureAwait(false);
+                    settings.IsRfidEnabled = isEnabled;
+                    rfidSettingsManager.SaveSettings(settings);
+                };
+                hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
+
+                return hesConnection;
+            });
+        }
+
+        Task<HesAppConnection> CreateTbHesHub(WorkstationInfoProvider workstationInfoProvider, ILog log)
+        {
+            return Task.Run(() =>
+            {
+                return new HesAppConnection(workstationInfoProvider, _sdkLogger);
+            });
+        }
+
+        Task CreateHubs(BleDeviceManager deviceManager, 
+            WorkstationInfoProvider workstationInfoProvider,
+            ISettingsManager<ProximitySettings> proximitySettingsManager,
+            ISettingsManager<RfidSettings> rfidSettingsManager,
+            ILog log)
+        {
+            return Task.Run(async () =>
+            {
+                var hubTask = CreateHesHub(deviceManager, workstationInfoProvider, proximitySettingsManager, rfidSettingsManager, log);
+                var tbHubTask = CreateTbHesHub(workstationInfoProvider, log);
+
+                await Task.WhenAll(hubTask, tbHubTask).ConfigureAwait(false);
+
+                _hesConnection = hubTask.Result;
+                _tbHesConnection = tbHubTask.Result;
+            });
+        }
+
+        Task StartHubs(string hesAddress)
+        {
+            return Task.Run(async () =>
+            {
+                var tasks = new List<Task>
+                {
+                    StartHesHub(hesAddress),
+                    StartTbHesHub()
+                };
+
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+            });
+        }
+
+        Task StartHesHub(string hesAddress)
+        {
+            return Task.Run(async () =>
+            {
+                if (!string.IsNullOrWhiteSpace(hesAddress))
+                {
+                    _hesConnection.Start(hesAddress); // Launch HES connection immediatelly to save time
+                    if (_hesConnection.State == HesConnectionState.Error)
+                    {
+                        await _hesConnection.Stop().ConfigureAwait(false);
+
+                        Error("Hideez Service has encountered an error during HES connection initialization"
+                            + Environment.NewLine
+                            + "New connection establishment will be attempted after service restart"
+                            + Environment.NewLine
+                            + _hesConnection.ErrorMessage);
+                    }
+                }
+                else
+                {
+                    Error("HES connection initialization aborted. HES address is not specified."
+                        + Environment.NewLine
+                        + "New connection establishment will be attempted after service restart");
+                }
+            });
+        }
+
+        Task StartTbHesHub()
+        {
+            return Task.Run(async () =>
+            {
+                _tbHesConnection.Start("https://testhub.hideez.com/"); // Launch Try&Buy immediatelly to reduce loading time
+                if (_tbHesConnection.State == HesConnectionState.Error)
+                {
+                    await _tbHesConnection.Stop().ConfigureAwait(false);
+
+                    Error("Try & Buy server is not available"
+                        + Environment.NewLine
+                        + "New connection establishment will be attempted after service restart"
+                        + Environment.NewLine
+                        + _tbHesConnection.ErrorMessage);
+                }
+            });
+        }
+
+        #endregion
 
         #region Event Handlers
 
-        void ProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
+        void WorkstationProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<WorkstationSettings> e)
         {
             try
             {
                 if (_proximityMonitorManager != null)
                 {
-                    _proximityMonitorManager.ProximitySettings = e.NewSettings.DevicesProximity;
-                    _log.WriteLine("Updated proximity settings in proximity monitor.");
+                    _log.WriteLine("Updating proximity monitors with new settings");
+                    _proximityMonitorManager.MonitorSettings = e.NewSettings.GetProximityMonitorSettings();
                 }
             }
             catch (Exception ex)
@@ -600,6 +787,7 @@ namespace ServiceLibrary.Implementation
                 if (reason == SessionSwitchReason.SessionLogoff || reason == SessionSwitchReason.SessionLock)
                 {
                     // Disconnect all connected devices
+                    _deviceReconnectManager.DisableAllDevicesReconnect();
                     await _deviceManager.DisconnectAllDevices();
                 }
             }
@@ -683,6 +871,7 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
+                _deviceReconnectManager.DisableDeviceReconnect(id);
                 await _deviceManager.DisconnectDevice(id);
             }
             catch (Exception ex)
@@ -698,8 +887,10 @@ namespace ServiceLibrary.Implementation
             {
                 var device = _deviceManager.Find(id);
                 if (device != null)
+                {
+                    _deviceReconnectManager.DisableDeviceReconnect(device);
                     await _deviceManager.Remove(device);
-                    //await _deviceManager.RemoveAll(device.Mac);
+                }
             }
             catch (Exception ex)
             {
@@ -730,16 +921,85 @@ namespace ServiceLibrary.Implementation
 
         public ProximitySettingsDTO GetCurrentProximitySettings(string mac)
         {
-            var s = _proximitySettingsManager.Settings.GetProximitySettings(mac);
-            var dto = new ProximitySettingsDTO
+            return new ProximitySettingsDTO
             {
-                Mac = s.Mac,
-                SerialNo = s.SerialNo,
-                LockProximity = s.LockProximity,
-                UnlockProximity = s.UnlockProximity,
+                Mac = mac,
+                SerialNo = string.Empty,
+                LockProximity = _workstationSettingsManager.Settings.LockProximity,
+                UnlockProximity = _workstationSettingsManager.Settings.UnlockProximity,
                 AllowEditProximitySettings = _deviceProximitySettingsHelper?.GetAllowEditProximity(mac) ?? false,
             };
-            return dto;
+        }
+
+        public string GetServerAddress()
+        {
+            return RegistrySettings.GetHesAddress(_log);
+        }
+
+        public async Task<bool> ChangeServerAddress(string address)
+        {
+            try
+            {
+                _log.WriteLine($"Client requested HES address change to \"{address}\"");
+
+                if (string.IsNullOrWhiteSpace(address))
+                {
+                    _log.WriteLine($"Clearing server address and shutting down connection");
+                    RegistrySettings.SetHesAddress(_log, address);
+                    await _hesConnection.Stop();
+                    return true;
+                }
+                else
+                {
+                    var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(address, _sdkLogger).TimeoutAfter(5_000);
+                    if (connectedOnNewAddress)
+                    {
+                        _log.WriteLine($"Passed connectivity check to {address}");
+                        RegistrySettings.SetHesAddress(_log, address);
+                        await _hesConnection.Stop();
+                        _hesConnection.Start(address);
+
+                        return true;
+                    }
+                    else
+                    {
+                        _log.WriteLine($"Failed connectivity check to {address}");
+                        return false;
+                    }
+                }
+            }
+            catch (TimeoutException)
+            {
+                return false;
+            }
+        }
+
+        public bool IsSoftwareVaultUnlockModuleEnabled()
+        {
+            return _serviceSettingsManager.Settings.EnableSoftwareVaultUnlock;
+        }
+
+        public void SetSoftwareVaultUnlockModuleState(bool enabled)
+        {
+            var settings = _serviceSettingsManager.Settings;
+            if (settings.EnableSoftwareVaultUnlock != enabled)
+            {
+                _log.WriteLine($"Client requested to switch software unlock module. New value: {enabled}");
+                settings.EnableSoftwareVaultUnlock = enabled;
+                _serviceSettingsManager.SaveSettings(settings);
+
+                if (enabled)
+                {
+                    _unlockTokenGenerator.Start();
+                    _remoteWorkstationUnlocker.Start();
+                }
+                else
+                {
+                    _unlockTokenGenerator.Stop();
+                    _remoteWorkstationUnlocker.Stop();
+                    _unlockTokenGenerator.DeleteSavedToken();
+                }
+            }
         }
 
         #region Remote device management

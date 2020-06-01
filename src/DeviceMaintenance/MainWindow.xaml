@@ -29,40 +29,15 @@
 
                 <WrapPanel >
                     <controls:StateControl
-                        HasConnectionText="Service stopped"
-                        NoConnectionText="Service is running!"
-                        State="{Binding HideezServiceOnline, Converter={StaticResource InvertBooleanConverter}}"
-                        NoConnectionBackground="{DynamicResource DisconnectedBrush}"
-                        HasConnectionBackground="{DynamicResource ConnectedBrush}"
-                        />
-
-                    <controls:StateControl
-                        Margin="10,0,0,0"
+                        Margin="0,0,0,0"
                         HasConnectionText="BLE"
                         NoConnectionText="BLE"
-                        State="{Binding BleAdapterAvailable}"
+                        State="{Binding ConnectionManager.BleAdapterAvailable}"
                         NoConnectionBackground="{DynamicResource DisconnectedBrush}"
                         HasConnectionBackground="{DynamicResource ConnectedBrush}"
                         />
-
                 </WrapPanel>
 
-                <WrapPanel Margin="0,10,0,0">
-                    <Button
-                        Style="{DynamicResource BlueButton}"
-                        Content="Stop service"
-                        Command="{Binding StopServiceCommand}"
-                        IsEnabled="{Binding CanInteractWithService}"
-                        />
-                    <CheckBox
-                        Style="{DynamicResource MetroCheckBox}"
-                        Content="Restart service on exit"
-                        VerticalAlignment="Center"
-                        Margin="10,0,0,0"
-                        IsChecked="{Binding RestartServiceOnExit}"
-                        IsEnabled="{Binding CanInteractWithService}"
-                        />
-                </WrapPanel>
 
                 <WrapPanel Margin="0,10,0,0" >
                     <Button
@@ -72,21 +47,20 @@
                         IsEnabled="{Binding IsFirmwareUpdateInProgress, Converter={StaticResource InvertBooleanConverter}}"
                         />
                     <TextBlock 
-                        Text="{Binding FileName}" 
+                        Text="{Binding FirmwareFilePath}" 
                         FontSize="16"
                         Foreground="White"
                         VerticalAlignment="Center"
                         Margin="10,0,0,0"
                         />
-
                 </WrapPanel>
 
                 <CheckBox 
                     Style="{DynamicResource MetroCheckBox}"
                     Margin="0,20,20,0"
-                    Content="Automatically update connected devices" 
-                    HorizontalAlignment="Right" 
-                    IsChecked="{Binding AutomaticallyUpdateFirmware, Mode=TwoWay}"
+                    Content="Automatically start uploading device firmware" 
+                    HorizontalAlignment="Left" 
+                    IsChecked="{Binding AutomaticallyUploadFirmware, Mode=TwoWay}"
                     />
 
                 <WrapPanel 
@@ -100,21 +74,31 @@
                         Foreground="LightBlue"
                         VerticalAlignment="Center"
                         />
-                    <TextBlock 
+                    <TextBlock
                         Margin="10"
-                        Text="Tap the device on the bluetooth dongle to make it appear in the list below" 
+                        Text="Please, select firmware file"
                         FontSize="14"
                         Foreground="White"
                         FontWeight="DemiBold"
                         VerticalAlignment="Center"
+                        Visibility="{Binding Path=IsFirmwareSelected, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
+                        />
+                    <TextBlock 
+                        Margin="10"
+                        Text="Tap the device on the bluetooth dongle to upload new firmware" 
+                        FontSize="14"
+                        Foreground="White"
+                        FontWeight="DemiBold"
+                        VerticalAlignment="Center"
+                        Visibility="{Binding Path=IsFirmwareSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
                         />
                 </WrapPanel>
 
             </StackPanel>
 
-            <ItemsControl 
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <ItemsControl 
                 Margin="0,10,0,0"
-                Grid.Row="1"
                 BorderThickness="0"
                 Background="{DynamicResource DeepDarkGray}"
                 ItemsSource="{Binding Devices}" 
@@ -220,7 +204,7 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-
+            </ScrollViewer>
         </Grid>
 
     </Grid>

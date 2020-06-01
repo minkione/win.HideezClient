@@ -5,6 +5,7 @@ using HideezClient.Mvvm;
 using MvvmExtensions.Commands;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -89,6 +90,7 @@ namespace HideezClient.ViewModels
             // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.UserManual));
             // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.TechnicalSupport));
             // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.LiveChat));
+            MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Help));
             MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Legal));
             // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.Separator));
             // MenuItems.Add(menuFactory.GetMenuItem(MenuItemType.RFIDUsage));

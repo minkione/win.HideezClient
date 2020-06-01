@@ -1,52 +1,32 @@
 ﻿using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.Workstation;
+using HideezMiddleware.Workstation;
 using Microsoft.Win32;
 using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
     public class WorkstationInfoProvider : Logger, IWorkstationInfoProvider
     {
-        readonly IPEndPoint endPoint;
+        readonly IWorkstationIdProvider _workstationIdProvider;
 
-        public WorkstationInfoProvider(string hostNameOrAddress, ILog log)
+        public WorkstationInfoProvider(IWorkstationIdProvider workstationIdProvider, ILog log)
             : base(nameof(WorkstationInfoProvider), log)
         {
-            try
-            {
-                if (UrlUtils.TryGetUri(hostNameOrAddress, out Uri uri))
-                {
-                    IPAddress hostAddress = Dns.GetHostEntry(uri.Host).AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-                    endPoint = new IPEndPoint(hostAddress, uri.Port);
-                }
-                else
-                {
-                    log?.WriteLine(nameof(WorkstationInfoProvider), $"{nameof(hostNameOrAddress)} not valid format.", LogErrorSeverity.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                log?.WriteLine(nameof(WorkstationInfoProvider), ex);
-            }
+            _workstationIdProvider = workstationIdProvider;
         }
 
         public string WorkstationId
         {
             get
             {
-                return Environment.MachineName;
+                return _workstationIdProvider.GetWorkstationId();
             }
         }
 
-        public async Task<WorkstationInfo> GetWorkstationInfoAsync()
+        public WorkstationInfo GetWorkstationInfo()
         {
             WorkstationInfo workstationInfo = new WorkstationInfo();
 
@@ -54,6 +34,7 @@ namespace HideezMiddleware
             {
                 workstationInfo.AppVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
+                workstationInfo.Id = WorkstationId;
                 workstationInfo.MachineName = Environment.MachineName;
                 workstationInfo.Domain = Environment.UserDomainName;
 
@@ -70,20 +51,7 @@ namespace HideezMiddleware
                     Debug.Assert(false, "An exception occured while querrying workstation operating system");
                 }
 
-                if (endPoint != null)
-                {
-                    IPAddress localIP = await WorkstationHelper.GetLocalIPAddressAsync(endPoint);
-                    PhysicalAddress mac = WorkstationHelper.GetCurrentMAC(localIP);
-
-                    workstationInfo.IP = localIP.ToString();
-                    workstationInfo.MAC = mac.ToString();
-                }
-                else
-                {
-                    WriteLine($"{nameof(endPoint)} is null or none.", LogErrorSeverity.Error);
-                }
-
-                workstationInfo.Users = await WorkstationHelper.GetAllUserNamesAsync();
+                workstationInfo.Users = WorkstationHelper.GetAllUserNames();
             }
             catch (Exception ex)
             {

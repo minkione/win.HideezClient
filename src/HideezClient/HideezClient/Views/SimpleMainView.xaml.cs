@@ -34,15 +34,18 @@ namespace HideezClient.Views
 
                 bindings.Clear();
 
-                // To subscribe to all properties, uncomment next line and remote the rest of weak property bindings
-                // bindings.Add(new WeakPropertyObserver(device, string.Empty));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsConnected)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.FinishedMainFlow)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorized)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorizingRemoteDevice)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsCreatingRemoteDevice)));
+                if (device != null)
+                {
+                    // To subscribe to all properties, uncomment next line and remote the rest of weak property bindings
+                    // bindings.Add(new WeakPropertyObserver(device, string.Empty));
+                    bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsConnected)));
+                    bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.FinishedMainFlow)));
+                    bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorized)));
+                    bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorizingRemoteDevice)));
+                    bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsCreatingRemoteDevice)));
 
-                bindings.ForEach(b => b.ValueChanged += DeviceValueChanged);
+                    bindings.ForEach(b => b.ValueChanged += DeviceValueChanged);
+                }
             };
         }
 

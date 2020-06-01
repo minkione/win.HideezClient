@@ -29,7 +29,7 @@ namespace HideezClient.Mvvm
                 if (!string.IsNullOrEmpty(propertyName))
                 {
                     var value = sender.GetType().GetProperty(path)?.GetValue(sender);
-                    if (value != null && ValueChanged != null)
+                    if (ValueChanged != null)
                     {
                         ValueChanged.Invoke(propertyName, value);
                     }

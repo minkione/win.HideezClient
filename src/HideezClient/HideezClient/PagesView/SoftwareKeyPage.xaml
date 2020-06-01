@@ -1,0 +1,182 @@
+﻿<Page 
+    x:Class="HideezClient.PagesView.SoftwareKeyPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    xmlns:local="clr-namespace:HideezClient.PagesView"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:HideezClient.Controls"
+    Title="SoftwareKeyPage"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    DataContext="{Binding SoftwareKeyPageViewModel, Mode=OneWay, Source={StaticResource Locator}}"
+    Style="{DynamicResource PageStyle}"
+    mc:Ignorable="d">
+    <Grid
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        TextBlock.FontSize="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="320" />
+        </Grid.ColumnDefinitions>
+
+        <!--  1 line  -->
+        <ContentPresenter
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Grid.Column="0"
+            Width="64"
+            Height="64"
+            HorizontalAlignment="Right"
+            Content="{StaticResource PcAndMobileKeyIco}" />
+
+        <StackPanel
+            Orientation="Horizontal"
+            VerticalAlignment="Top"
+            Grid.Row="0"
+            Grid.Column="2"
+            Margin="0,0,0,8">
+            <TextBlock
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="{l:Localization HMK.Login.Header}"
+                TextWrapping="Wrap"/>
+
+            <!--<controls:InfoButton Margin="2,-2,0,0" />-->
+        </StackPanel>
+
+
+        <TextBlock
+            Grid.Row="1"
+            Grid.Column="2"
+            Text="{l:Localization HMK.Login.Description}"
+            TextWrapping="Wrap" 
+            VerticalAlignment="Top"/>
+
+        <!--  2 line  -->
+        <ContentPresenter
+            Grid.Row="3"
+            Grid.RowSpan="2"
+            Grid.Column="0"
+            Width="64"
+            Height="64"
+            HorizontalAlignment="Right"
+            Content="{StaticResource MobileKeyIco}" />
+
+        <StackPanel 
+            Orientation="Horizontal"
+            Grid.Row="3"
+            Grid.Column="2"
+            Margin="0,0,0,8">
+            <TextBlock
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="{l:Localization HMK.MobileKey.Header}"
+                TextWrapping="Wrap" />
+
+            <!--<controls:InfoButton Margin="2,-2,0,0"/>-->
+        </StackPanel>
+
+        <TextBlock
+            Grid.Row="4"
+            Grid.Column="2"
+            Text="{l:Localization HMK.MobileKey.Description}"
+            TextWrapping="Wrap" />
+
+        <!--  3 line  -->
+        <StackPanel 
+            Orientation="Horizontal"
+            Grid.Row="6"
+            Grid.Column="2"
+            Margin="0,0,0,8">
+            <TextBlock
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="{l:Localization HMK.ActivationCode.Header}"
+                TextWrapping="Wrap" />
+
+            <!--<controls:InfoButton Margin="2,-2,0,0"/>-->
+        </StackPanel>
+
+        <Border
+            Grid.Row="7"
+            Grid.Column="0"
+            Width="152"
+            Height="152"
+            BorderThickness="0"
+            Background="#C4C4C4"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top">
+            <Image 
+                Source="{Binding ActivationQR}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch" >
+                <Image.Triggers>
+                    <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Image.Triggers>
+            </Image>
+        </Border>
+
+        <Grid
+            Grid.Row="7"
+            Grid.Column="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="1."/>
+
+            <TextBlock
+                Grid.Column="2"
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="{l:Localization HMK.ActivationCode.Description1}"
+                TextWrapping="Wrap" />
+
+            <TextBlock
+                Grid.Row="2"
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="2."/>
+
+            <TextBlock
+                Grid.Column="2"
+                Grid.Row="2"
+                FontWeight="DemiBold"
+                Foreground="{DynamicResource DarkForeground}"
+                Text="{l:Localization HMK.ActivationCode.Description2}"
+                TextWrapping="Wrap" />
+        </Grid>
+        
+    </Grid>
+</Page>

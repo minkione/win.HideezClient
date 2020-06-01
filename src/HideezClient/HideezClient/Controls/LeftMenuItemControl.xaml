@@ -10,9 +10,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    Height="40"
     mc:Ignorable="d">
     <RadioButton
-        Height="40"
         Checked="RadioButton_Checked"
         CommandParameter="{Binding CommandParameter}"
         FocusVisualStyle="{x:Null}"
@@ -30,12 +30,25 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="10" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="10" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="30" />
-                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
+
+                                    <Border
+                                        Grid.ColumnSpan="3"
+                                        Height="1"
+                                        Margin="0,0,0,0"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Top"
+                                        Background="#0c2a4e"
+                                        Visibility="{TemplateBinding Property=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <Border.Effect>
+                                            <DropShadowEffect
+                                                BlurRadius="27"
+                                                ShadowDepth="5"
+                                                Color="#0c2a4e" />
+                                        </Border.Effect>
+                                    </Border>
+
                                     <Rectangle Grid.Column="0" Width="6">
                                         <Rectangle.Style>
                                             <Style TargetType="Rectangle">
@@ -49,48 +62,58 @@
                                             </Style>
                                         </Rectangle.Style>
                                     </Rectangle>
-                                    <ContentControl
-                                        x:Name="menuIcon"
-                                        Grid.Column="2"
-                                        Width="18"
-                                        Height="18"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Center"
-                                        Content="{Binding Tag, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
-                                        <ContentControl.Style>
-                                            <Style TargetType="ContentControl">
-                                                <Setter Property="Opacity" Value="0.25" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" Value="True">
-                                                        <Setter Property="Opacity" Value="1" />
-                                                        <Setter Property="Effect" Value="{StaticResource ShadowEffect}" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ContentControl.Style>
-                                    </ContentControl>
-                                    <TextBlock
-                                        Grid.Column="4"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        Text="{Binding Header}" />
 
-                                    <Border
-                                        Grid.ColumnSpan="7"
-                                        Height="1"
-                                        Margin="6,0,1,0"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Top"
-                                        Background="#0c2a4e"
-                                        Visibility="{TemplateBinding Property=IsChecked,
-                                                                     Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <Border.Effect>
-                                            <DropShadowEffect
-                                                BlurRadius="27"
-                                                ShadowDepth="5"
-                                                Color="#0c2a4e" />
-                                        </Border.Effect>
-                                    </Border>
+                                    <Grid Grid.Column="2" VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <!-- Icon -->
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="10" />
+                                            <!-- Text -->
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="30" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <ContentControl
+                                            x:Name="menuIcon"
+                                            Width="18"
+                                            Height="18"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Center"
+                                            Content="{Binding Tag, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+                                            <ContentControl.Style>
+                                                <Style TargetType="ContentControl">
+                                                    <Setter Property="Opacity" Value="0.25" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" Value="True">
+                                                            <Setter Property="Opacity" Value="1" />
+                                                            <Setter Property="Effect" Value="{StaticResource ShadowEffect}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ContentControl.Style>
+                                        </ContentControl>
+
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            FontWeight="SemiBold"
+                                            Text="{Binding Header}" />
+
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Grid.Row="1"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Text="{Binding Description}" 
+                                            Opacity="0.5"
+                                            Visibility="{Binding Description, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                    </Grid>
                                 </Grid>
                             </Border>
                         </ControlTemplate>

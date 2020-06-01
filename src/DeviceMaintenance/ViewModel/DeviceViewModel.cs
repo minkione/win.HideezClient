@@ -1,147 +1,96 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using DeviceMaintenance.Messages;
 using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.FW;
 using Hideez.SDK.Communication.Interfaces;
-using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.LongOperations;
+using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.PropertyChangedMonitoring;
+using System;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace DeviceMaintenance.ViewModel
 {
     public class DeviceViewModel : PropertyChangedImplementation
     {
+        //  None -> Connecting -> Connected -> EnteringBoot -> Updating -> Success
+        public enum State
+        {
+            None,
+            Connecting,
+            Connected,
+            EnteringBoot,
+            Updating,
+            Success,
+            Error
+        }
+
+        readonly object _stateLocker = new object();
+        readonly MetaPubSub _hub;
         readonly string _mac;
+        readonly string _fwFilePath;
         readonly LongOperation _longOperation = new LongOperation(1);
 
-        bool startedUpdate = false;
-        string customError = string.Empty;
-        IDevice device = null;
+        IDevice _device = null;
+        string _customError = string.Empty;
+        State _state;
 
-        public delegate void FirmwareUpdateRequestEventHandler(DeviceViewModel sender, IDevice device, LongOperation longOperation);
-        public event FirmwareUpdateRequestEventHandler FirmwareUpdateRequest;
 
-        public IDevice Device
-        {
-            get
-            {
-                return device;
-            }
-            private set
-            {
-                if (device != value)
-                {
-                    device = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-        public string Id => Device?.Id;
-        public bool IsConnected => Device?.IsConnected ?? false;
-        public int ChannelNo => Device?.ChannelNo ?? 0;
-        public ConnectionState ConnectionState => Device?.IsConnected == true ? ConnectionState.Connected : ConnectionState.NotConnected;
-        public string SerialNo => Device?.SerialNo ?? _mac;
-        public Version FirmwareVersion => Device?.FirmwareVersion;
-        public Version BootloaderVersion => Device?.BootloaderVersion;
-        public uint StorageTotalSize => Device?.StorageTotalSize ?? 0;
-        public uint StorageFreeSize => Device?.StorageFreeSize ?? 0;
-        public bool IsInitialized => Device?.IsInitialized ?? false;
+        public bool IsConnected => _device?.IsConnected ?? false;
+        public bool IsBoot => _device?.IsBoot ?? false;
+        public string SerialNo => _device != null ? $"{_device.SerialNo} (v{_device.FirmwareVersion}, b{_device.BootloaderVersion})" : _mac;
+
         public double Progress => _longOperation.Progress;
         public bool InProgress => _longOperation.IsRunning;
-        [DependsOn(nameof(Error), nameof(CustomError))]
-        public bool IsError
-        {
-            get
-            {
-                return (_longOperation != null && _longOperation.IsError) || !string.IsNullOrWhiteSpace(CustomError);
-            }
-        }
-        public string Error => _longOperation.ErrorMessage;
+
         public string CustomError
         {
             get
             {
-                return customError;
+                return _customError;
             }
             set
             {
-                if (customError != value)
+                if (_customError != value)
                 {
-                    customError = value;
+                    _customError = value;
                     NotifyPropertyChanged();
                 }
             }
         }
-        public bool StartedUpdate
-        { 
+
+        public State CurrentState
+        {
             get
             {
-                return startedUpdate;
+                return _state;
             }
             set
             {
-                if (startedUpdate != value)
-                {
-                    startedUpdate = value;
-                    NotifyPropertyChanged();
-                }
+                _state = value;
+                NotifyPropertyChanged();
             }
         }
+
 
         #region Visual States
-        [DependsOn(nameof(Device), nameof(IsConnected), nameof(IsInitialized), nameof(SuccessState), nameof(ErrorState))]
-        public bool ConnectingState
-        {
-            get
-            {
-                return !IsConnected && !IsInitialized && !SuccessState && !ErrorState;
-            }
-        }
+        [DependsOn(nameof(CurrentState))]
+        public bool ConnectingState => CurrentState == State.Connecting;
 
-        [DependsOn(nameof(Device), nameof(IsConnected), nameof(IsInitialized), nameof(StartedUpdate))]
-        public bool ReadyToUpdateState
-        {
-            get
-            {
-                return IsConnected && IsInitialized && !StartedUpdate;
-            }
-        }
+        [DependsOn(nameof(CurrentState))]
+        public bool ReadyToUpdateState => CurrentState == State.Connected;
 
-        [DependsOn(nameof(Device), nameof(IsConnected), nameof(IsInitialized), nameof(StartedUpdate), nameof(InProgress), nameof(Progress))]
-        public bool EnteringBootModeState
-        {
-            get
-            {
-                return IsConnected && IsInitialized && StartedUpdate && !InProgress && Progress == 0;
-            }
-        }
-        [DependsOn(nameof(Device), nameof(IsConnected), nameof(IsInitialized), nameof(InProgress))]
-        public bool UpdatingState
-        {
-            get
-            {
-                return IsConnected && IsInitialized && InProgress;
-            }
-        }
-        [DependsOn(nameof(Device), nameof(InProgress), nameof(Progress), nameof(IsError))]
-        public bool SuccessState
-        {
-            get
-            {
-                return !InProgress & Progress == 100 && !IsError;
-            }
-        }
-        [DependsOn(nameof(Device), nameof(IsError))]
-        public bool ErrorState
-        {
-            get
-            {
-                return IsError;
-            }
-        }
+        [DependsOn(nameof(CurrentState))]
+        public bool EnteringBootModeState => CurrentState == State.EnteringBoot;
+
+        [DependsOn(nameof(CurrentState))]
+        public bool UpdatingState => CurrentState == State.Updating;
+
+        [DependsOn(nameof(CurrentState))]
+        public bool SuccessState => CurrentState == State.Success;
+
+        [DependsOn(nameof(CurrentState))]
+        public bool ErrorState => CurrentState == State.Error;
         #endregion
 
         public ICommand UpdateDevice
@@ -150,50 +99,97 @@ namespace DeviceMaintenance.ViewModel
             {
                 return new DelegateCommand
                 {
-                    CommandAction = (x) =>
+                    CommandAction = async (x) =>
                     {
-                        StartFirmwareUpdate();
+                        await StartFirmwareUpdate();
                     }
                 };
             }
         }
 
-        public DeviceViewModel(string mac)
+        public DeviceViewModel(string mac, MetaPubSub hub, string fwFilePath)
         {
             RegisterDependencies();
 
+            _hub = hub;
             _mac = mac;
-            _longOperation.StateChanged += LongOperation_StateChanged;
-        }
+            _fwFilePath = fwFilePath;
 
-        void LongOperation_StateChanged(object sender, EventArgs e)
-        {
-            NotifyPropertyChanged(nameof(InProgress));
-            NotifyPropertyChanged(nameof(Progress));
-        }
-
-        void Device_PropertyChanged(object sender, string e)
-        {
-            NotifyPropertyChanged(e);
+            _longOperation.StateChanged += (object sender, EventArgs e) =>
+            {
+                NotifyPropertyChanged(nameof(InProgress));
+                NotifyPropertyChanged(nameof(Progress));
+            };
         }
 
         public void SetDevice(IDevice device)
         {
-            Device = device;
+            _device = device;
 
-            Device.ConnectionStateChanged += (object sender, EventArgs e) =>
+            _device.ConnectionStateChanged += (object sender, EventArgs e) =>
             {
                 NotifyPropertyChanged(nameof(IsConnected));
-                NotifyPropertyChanged(nameof(ConnectionState));
             };
 
-            Device.PropertyChanged += Device_PropertyChanged;
+            _device.PropertyChanged += (object sender, string e) =>
+            {
+                NotifyPropertyChanged(e);
+            };
+
+            NotifyPropertyChanged(nameof(SerialNo));
         }
 
-        public void StartFirmwareUpdate()
+        //  None -> Connecting -> Connected -> EnteringBoot -> Updating -> Success
+        internal async Task TryConnect()
         {
-            StartedUpdate = true;
-            FirmwareUpdateRequest?.Invoke(this, Device, _longOperation);
+            lock (_stateLocker)
+            {
+                if (CurrentState != State.None && CurrentState != State.Error)
+                    return;
+                CurrentState = State.Connecting;
+            }
+
+            try
+            {
+                var res = await _hub.Process<ConnectDeviceResponse>(
+                    new ConnectDeviceCommand(_mac),
+                    SdkConfig.ConnectDeviceTimeout * 2 + SdkConfig.DeviceInitializationTimeout,
+                    x => x.Mac == _mac);
+
+                if (res.Device == null)
+                    throw new Exception("Failed to connect device");
+
+                CurrentState = State.Connected;
+                SetDevice(res.Device);
+                await _hub.Publish(new DeviceConnectedEvent(this));
+            }
+            catch (Exception ex)
+            {
+                CustomError = ex.FlattenMessage();
+                CurrentState = State.Error;
+            }
+        }
+
+        public async Task StartFirmwareUpdate()
+        {
+            try
+            {
+                CurrentState = State.EnteringBoot;
+
+                var res = await _hub.Process<EnterBootResponse>(
+                    new EnterBootCommand(this, _fwFilePath, _device, _longOperation), 5_000);
+
+                CurrentState = State.Updating;
+
+                await res.ImageUploader.Run(false);
+
+                CurrentState = State.Success;
+            }
+            catch (Exception ex)
+            {
+                CustomError = ex.FlattenMessage();
+                CurrentState = State.Error;
+            }
         }
     }
 }

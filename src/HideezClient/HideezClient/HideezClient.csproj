@@ -235,11 +235,11 @@
     <Reference Include="XAMLMarkupExtensions, Version=1.5.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\XAMLMarkupExtensions.1.5.1\lib\net452\XAMLMarkupExtensions.dll</HintPath>
     </Reference>
-    <Reference Include="zxing, Version=0.16.4.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\ZXing.Net.0.16.4\lib\net47\zxing.dll</HintPath>
+    <Reference Include="zxing, Version=0.16.5.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ZXing.Net.0.16.5\lib\net47\zxing.dll</HintPath>
     </Reference>
-    <Reference Include="zxing.presentation, Version=0.16.4.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\ZXing.Net.0.16.4\lib\net47\zxing.presentation.dll</HintPath>
+    <Reference Include="zxing.presentation, Version=0.16.5.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ZXing.Net.0.16.5\lib\net47\zxing.presentation.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -252,9 +252,21 @@
     <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\InfoButton.xaml.cs">
+      <DependentUpon>InfoButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\LeftMenuButtonControl.xaml.cs">
+      <DependentUpon>LeftMenuButtonControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Notification\ViewModel\DeviceIsLockedNotificationViewModel.cs" />
     <Compile Include="Controls\Notification\View\AccountNotFoundNotification.xaml.cs">
       <DependentUpon>AccountNotFoundNotification.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ServerAddressEditControl.xaml.cs">
+      <DependentUpon>ServerAddressEditControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ServiceRequiredMessageControl.xaml.cs">
+      <DependentUpon>ServiceRequiredMessageControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\SmallDeviceInfoControl.xaml.cs">
       <DependentUpon>SmallDeviceInfoControl.xaml</DependentUpon>
@@ -289,6 +301,9 @@
     <Compile Include="Controls\Notification\View\SimpleNotification.xaml.cs">
       <DependentUpon>SimpleNotification.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\TBConnectivityIndicator.xaml.cs">
+      <DependentUpon>TBConnectivityIndicator.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\BooleanToVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\FormatStringConverter.cs" />
     <Compile Include="Converters\IntToVisibilityConverter.cs" />
@@ -308,6 +323,7 @@
     </Compile>
     <Compile Include="Exception\HideezClientException.cs" />
     <Compile Include="Extension\AccessLevelDTOExtension.cs" />
+    <Compile Include="Extension\BitmapExtension.cs" />
     <Compile Include="Extension\DeviceStateDTOExtension.cs" />
     <Compile Include="Extension\SecureStringExtension.cs" />
     <Compile Include="Extension\TaskExtension.cs" />
@@ -333,6 +349,8 @@
     <Compile Include="Messages\HotkeyPressedMessage.cs" />
     <Compile Include="Messages\HotkeyStateChangedMessage.cs" />
     <Compile Include="Messages\LockWorkstationMessage.cs" />
+    <Compile Include="Messages\OpenHideezKeyPageMessage.cs" />
+    <Compile Include="Messages\OpenMobileAuthenticatorPageMessage.cs" />
     <Compile Include="Messages\OpenPasswordManagerMessage.cs" />
     <Compile Include="Messages\Remote\Remote_BaseMessage.cs" />
     <Compile Include="Messages\Remote\Remote_DeviceStateChangedMessage.cs" />
@@ -359,6 +377,7 @@
     <Compile Include="Modules\ActionHandler\Exception\LoginNotFoundException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\OtpNotFoundException.cs" />
     <Compile Include="Modules\ActionHandler\Exception\PasswordNotFoundException.cs" />
+    <Compile Include="Modules\ActionHandler\Exception\AuthEndedUnexpectedlyException.cs" />
     <Compile Include="Modules\ActionHandler\IInputAlgorithm.cs" />
     <Compile Include="Modules\ActionHandler\InputBase.cs" />
     <Compile Include="Modules\ActionHandler\InputHelper.cs" />
@@ -391,11 +410,14 @@
     <Compile Include="Mvvm\IRequireViewIdentification.cs" />
     <Compile Include="Mvvm\LocalizedObject.cs" />
     <Compile Include="Mvvm\ObservableObject.cs" />
+    <Compile Include="PagesView\DefaultPage.xaml.cs">
+      <DependentUpon>DefaultPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PagesView\DeviceSettingsPage.xaml.cs">
       <DependentUpon>DeviceSettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PagesView\DefaultPage.xaml.cs">
-      <DependentUpon>DefaultPage.xaml</DependentUpon>
+    <Compile Include="PagesView\HardwareKeyPage.xaml.cs">
+      <DependentUpon>HardwareKeyPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="PagesView\HelpPage.xaml.cs">
       <DependentUpon>HelpPage.xaml</DependentUpon>
@@ -406,10 +428,15 @@
     <Compile Include="PagesView\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PagesView\SoftwareKeyPage.xaml.cs">
+      <DependentUpon>SoftwareKeyPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PageViewModels\DefaultPageViewModel.cs" />
     <Compile Include="PageViewModels\DeviceSettingsPageViewModel.cs" />
     <Compile Include="PageViewModels\HelpPageViewModel.cs" />
     <Compile Include="PageViewModels\SettingsPageViewModel.cs" />
-    <Compile Include="PageViewModels\DefaultPageViewModel.cs" />
+    <Compile Include="PageViewModels\HardwareKeyPageViewModel.cs" />
+    <Compile Include="PageViewModels\SoftwareKeyPageViewModel.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
     <Compile Include="Utilities\Base32Encoding.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
@@ -428,6 +455,7 @@
     <Compile Include="Utilities\WeakEvents\WeakEvent.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
+    <Compile Include="ViewModels\Controls\ServerAddressEditControlViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
     <Compile Include="ViewModels\MessageViewModel.cs" />
@@ -435,6 +463,8 @@
     <Compile Include="PageViewModels\PasswordManagerViewModel.cs" />
     <Compile Include="ViewModels\Dialog\PinViewModel.cs" />
     <Compile Include="ViewModels\Account\AccountInfoViewModel.cs" />
+    <Compile Include="ViewModels\ServiceViewModel.cs" />
+    <Compile Include="ViewModels\SoftwareUnlockSettingViewModel.cs" />
     <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
       <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>
     </Compile>
@@ -461,7 +491,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\InfoButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\LeftMenuButtonControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\Notification\View\AccountNotFoundNotification.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ServerAddressEditControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ServiceRequiredMessageControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -481,11 +527,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\TBConnectivityIndicator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialogs\MessageDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\PinDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PagesView\DefaultPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PagesView\SoftwareKeyPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -529,7 +587,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PagesView\DefaultPage.xaml">
+    <Page Include="PagesView\HardwareKeyPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

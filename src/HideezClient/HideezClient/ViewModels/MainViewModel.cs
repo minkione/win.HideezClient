@@ -12,6 +12,11 @@ using HideezClient.Modules;
 using System.Collections.Generic;
 using MvvmExtensions.Attributes;
 using System.Windows;
+using HideezClient.Utilities;
+using HideezClient.Modules.Localize;
+using System.Windows.Controls;
+using HideezClient.Modules.ServiceProxy;
+using System.Threading.Tasks;
 
 namespace HideezClient.ViewModels
 {
@@ -22,24 +27,36 @@ namespace HideezClient.ViewModels
         readonly IMenuFactory _menuFactory;
         readonly IActiveDevice _activeDevice;
         readonly ViewModelLocator _viewModelLocator;
+        readonly IAppHelper _appHelper;
+        readonly SoftwareUnlockSettingViewModel _softwareUnlock;
         readonly ISet<MenuItemViewModel> _leftAppMenuItems = new HashSet<MenuItemViewModel>();
         readonly ISet<MenuItemViewModel> _leftDeviceMenuItems = new HashSet<MenuItemViewModel>();
         Uri _displayPage;
         DeviceInfoViewModel _activeDeviceVM = null;
 
-        public MainViewModel(IDeviceManager deviceManager, IMenuFactory menuFactory, IActiveDevice activeDevice, IMessenger messenger, ViewModelLocator viewModelLocator)
+        public MainViewModel(IDeviceManager deviceManager,
+            IMenuFactory menuFactory,
+            IActiveDevice activeDevice,
+            IMessenger messenger,
+            ViewModelLocator viewModelLocator,
+            IAppHelper appHelper,
+            SoftwareUnlockSettingViewModel softwareUnlock)
         {
             _deviceManager = deviceManager;
             _menuFactory = menuFactory;
             _activeDevice = activeDevice;
             _viewModelLocator = viewModelLocator;
+            _appHelper = appHelper;
+            _softwareUnlock = softwareUnlock;
 
             InitMenu();
-            
+
             _deviceManager.DevicesCollectionChanged += Devices_CollectionChanged;
             _activeDevice.ActiveDeviceChanged += ActiveDevice_ActiveDeviceChanged;
 
             messenger.Register<OpenPasswordManagerMessage>(this, (p) => { MenuPasswordManager.IsChecked = true; });
+            messenger.Register<OpenHideezKeyPageMessage>(this, (p) => { MenuHardwareKeyPage.IsChecked = true; });
+            messenger.Register<OpenMobileAuthenticatorPageMessage>(this, (p) => { MenuSoftwareKeyPage.IsChecked = true; });
         }
 
         void InitMenu()
@@ -66,16 +83,30 @@ namespace HideezClient.ViewModels
             MenuHelp = new MenuItemViewModel
             {
                 Header = "Menu.Help",
-                Command = OpenHelpPageCommand,
+                Command = _menuFactory.GetMenuItem(MenuItemType.Help).Command,
             };
             MenuSettings = new MenuItemViewModel
             {
                 Header = "Menu.Settings",
                 Command = OpenSettingsPageCommand,
             };
+            MenuHardwareKeyPage = new MenuItemViewModel
+            {
+                Header = "Menu.HardwareKeyPage.Header",
+                Description = "Menu.HardwareKeyPage.Description",
+                Command = OpenHardwareKeyPageCommand,
+            };
+            MenuSoftwareKeyPage = new MenuItemViewModel
+            {
+                Header = "Menu.SoftwareKeyPage.Header",
+                Description = "Menu.SoftwareKeyPage.Description",
+                Command = OpenSoftwareKeyPageCommand,
+            };
             _leftAppMenuItems.Add(MenuDefaultPage);
             _leftAppMenuItems.Add(MenuHelp);
             _leftAppMenuItems.Add(MenuSettings);
+            _leftAppMenuItems.Add(MenuHardwareKeyPage);
+            _leftAppMenuItems.Add(MenuSoftwareKeyPage);
 
             foreach (var item in _leftDeviceMenuItems.Concat(_leftAppMenuItems))
             {
@@ -113,7 +144,7 @@ namespace HideezClient.ViewModels
 
                 MenuDefaultPage.IsChecked = true;
             }
-            
+
             if (args.NewDevice != null)
             {
                 ActiveDevice = new DeviceInfoViewModel(args.NewDevice, _menuFactory);
@@ -165,7 +196,7 @@ namespace HideezClient.ViewModels
         }
 
         [DependsOn(nameof(ActiveDevice))]
-        public  List<DeviceInfoViewModel> Devices
+        public List<DeviceInfoViewModel> Devices
         {
             get
             {
@@ -186,6 +217,8 @@ namespace HideezClient.ViewModels
         private MenuItemViewModel menuSettings;
         private MenuItemViewModel menuAboutDevice;
         private MenuItemViewModel menuDefaultPage;
+        private MenuItemViewModel menuHardwareKeyPage;
+        private MenuItemViewModel menuSoftwareKeyPage;
 
         public MenuItemViewModel MenuPasswordManager
         {
@@ -217,6 +250,18 @@ namespace HideezClient.ViewModels
             set { Set(ref menuDefaultPage, value); }
         }
 
+        public MenuItemViewModel MenuHardwareKeyPage
+        {
+            get { return menuHardwareKeyPage; }
+            set { Set(ref menuHardwareKeyPage, value); }
+        }
+
+        public MenuItemViewModel MenuSoftwareKeyPage
+        {
+            get { return menuSoftwareKeyPage; }
+            set { Set(ref menuSoftwareKeyPage, value); }
+        }
+
         #endregion
 
         #region Command
@@ -231,17 +276,6 @@ namespace HideezClient.ViewModels
                     {
                         OnOpenPasswordManager();
                     }
-                };
-            }
-        }
-
-        public ICommand OpenHelpPageCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CommandAction = x => OnOpenHelp(),
                 };
             }
         }
@@ -285,6 +319,33 @@ namespace HideezClient.ViewModels
             }
         }
 
+        public ICommand OpenHardwareKeyPageCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        OnOpenHardwareKeyPage();
+                    },
+                };
+            }
+        }
+
+        public ICommand OpenSoftwareKeyPageCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        OnOpenSoftwareKeyPage();
+                    },
+                };
+            }
+        }
         #endregion Command
 
         #region Navigation
@@ -303,11 +364,6 @@ namespace HideezClient.ViewModels
             ProcessNavRequest("SettingsPage");
         }
 
-        private void OnOpenHelp()
-        {
-            ProcessNavRequest("HelpPage");
-        }
-
         private void OnOpenPasswordManager()
         {
             ProcessNavRequest("PasswordManagerPage");
@@ -321,6 +377,19 @@ namespace HideezClient.ViewModels
         private void OnOpenDeviceSettingsPage()
         {
             ProcessNavRequest("DeviceSettingsPage");
+        }
+
+        private void OnOpenHardwareKeyPage()
+        {
+            ProcessNavRequest("HardwareKeyPage");
+        }
+
+        private void OnOpenSoftwareKeyPage()
+        {
+            ProcessNavRequest("SoftwareKeyPage");
+
+            // Todo: Temporary for Try&Buy
+            _softwareUnlock.IsChecked = true;
         }
 
         #endregion

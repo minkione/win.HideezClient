@@ -365,18 +365,18 @@ Device is not connected</value>
     <value>Enter PIN code for {0} 
 to access stored credentials</value>
   </data>
-  <data name="Pin.InavalidPin" xml:space="preserve">
+  <data name="Pin.InvalidPin" xml:space="preserve">
     <value>Invalid PIN!
-{0} attempts left</value>
+{0} attempts left.</value>
   </data>
   <data name="Pin.ReqBtnConfirm" xml:space="preserve">
-    <value>Press the button on your device to confirm connection</value>
+    <value>Press the button on your device to confirm authorization</value>
   </data>
   <data name="Pin.VerifyingPIN" xml:space="preserve">
     <value>Verifying PIN code</value>
   </data>
   <data name="CredentialsLoad.Loaded" xml:space="preserve">
-    <value>Credentials loading finished {0}</value>
+    <value>Credentials loading completed {0}</value>
   </data>
   <data name="CredentialsLoad.Loading" xml:space="preserve">
     <value>Loading credentials {0}</value>
@@ -406,19 +406,19 @@ to access stored credentials</value>
     <value>New PIN</value>
   </data>
   <data name="Pin.Old" xml:space="preserve">
-    <value>Old PIN</value>
+    <value>Current PIN</value>
   </data>
   <data name="Pin.ChangedPIN" xml:space="preserve">
     <value>PIN changed successfully</value>
   </data>
   <data name="Pin.SavedPIN" xml:space="preserve">
-    <value>PIN saved successfully</value>
+    <value>PIN saved successfully.</value>
   </data>
   <data name="Pin.ErrorChangePIN" xml:space="preserve">
-    <value>Error changing PIN code</value>
+    <value>Error while changing PIN code</value>
   </data>
   <data name="Pin.ErrorSavedPIN" xml:space="preserve">
-    <value>Error saving PIN code</value>
+    <value>Error while saving the PIN code.</value>
   </data>
   <data name="Pin.Error.ConfirmNotMatch" xml:space="preserve">
     <value>Confirmation PIN code does not match.</value>
@@ -476,24 +476,6 @@ to access stored credentials</value>
   </data>
   <data name="PM.Label.Account" xml:space="preserve">
     <value>ACCOUNT</value>
-  </data>
-  <data name="DP.2F.Description" xml:space="preserve">
-    <value>Enable two-factor authentication to ensure the highest security.</value>
-  </data>
-  <data name="DP.2F.Header" xml:space="preserve">
-    <value>Two-factor authentication</value>
-  </data>
-  <data name="DP.PM.Description" xml:space="preserve">
-    <value>Insert your credentials fast with the hotkeys. No need to memorize passwords.</value>
-  </data>
-  <data name="DP.PM.Header" xml:space="preserve">
-    <value>Secure password management</value>
-  </data>
-  <data name="DP.Proximity.Description" xml:space="preserve">
-    <value>The computer is locked automatically and instantly once you walk away.</value>
-  </data>
-  <data name="DP.Proximity.Header" xml:space="preserve">
-    <value>Proximity-based computer lock</value>
   </data>
   <data name="EnableDevice.Header" xml:space="preserve">
     <value>Enable your device</value>
@@ -595,7 +577,7 @@ to access stored credentials</value>
     <value>Credentials loading failed {0}</value>
   </data>
   <data name="UserAction.DeviceIsNotActive" xml:space="preserve">
-    <value>Action cancelled. Device ({0}) is not selected as active.</value>
+    <value>Action cancelled. Device ({0}) is not selected as active device.</value>
   </data>
   <data name="Enum.ButtonPressCode.Double" xml:space="preserve">
     <value>twice</value>
@@ -662,5 +644,114 @@ to access stored credentials</value>
   </data>
   <data name="UserAction.ButtonDisabled.ToManyOtherConnections" xml:space="preserve">
     <value>Button actions are disabled because your device ({0}) is connected to {1} other workstations. Instead use hotkey {2} to {3}.</value>
+  </data>
+  <data name="Menu.Logs.OpenDeviceFolder" xml:space="preserve">
+    <value>Device Logs</value>
+  </data>
+  <data name="Exception.AuthEndedUnexpectedly" xml:space="preserve">
+    <value>Device authorization ended unexpectedly. Please, try again.</value>
+  </data>
+  <data name="Url.Help" xml:space="preserve">
+    <value>https://support.hideez.com</value>
+  </data>
+  <data name="Settings.Label.RequestAddressFromAdmin" xml:space="preserve">
+    <value>Contact your Administrator and ask the URL of Hideez Enterprise Server.</value>
+  </data>
+  <data name="Settings.Label.ServerAddress" xml:space="preserve">
+    <value>Hideez Enterprise Server</value>
+  </data>
+  <data name="Settings.Label.ServerUnavailable" xml:space="preserve">
+    <value>Hideez Enterprise Server is not available, or the address is incorrect.</value>
+  </data>
+  <data name="Settings.Watermark.ServerAddress" xml:space="preserve">
+    <value>Enter URL here</value>
+  </data>
+  <data name="Error.CantReachServer" xml:space="preserve">
+    <value>Failed to connect to the server</value>
+  </data>
+  <data name="Settings.Label.CheckingConnection" xml:space="preserve">
+    <value>Checking server...</value>
+  </data>
+  <data name="Settings.Label.ServiceOfflineTip" xml:space="preserve">
+    <value>Certain settings cannot be changed while Hideez Service is offline</value>
+  </data>
+  <data name="DP.Description" xml:space="preserve">
+    <value>Includes Hideez Enterprise Server, Hideez Client Application and two types of a security key:</value>
+  </data>
+  <data name="DP.Header" xml:space="preserve">
+    <value>Hideez Authentication Solution</value>
+  </data>
+  <data name="DP.HideezKey.Description" xml:space="preserve">
+    <value>Hardware token with Bluetooth connection</value>
+  </data>
+  <data name="DP.HideezKey.Header" xml:space="preserve">
+    <value>Hideez Key</value>
+  </data>
+  <data name="DP.MobileKey.Description" xml:space="preserve">
+    <value>Software Vault that can be installed on your smartphone</value>
+  </data>
+  <data name="DP.MobileKey.Header" xml:space="preserve">
+    <value>Hideez Mobile Authenticator</value>
+  </data>
+  <data name="HMK.ActivationCode.Header" xml:space="preserve">
+    <value>Activation Code</value>
+  </data>
+  <data name="HMK.Login.Description" xml:space="preserve">
+    <value>Turn your smartphone with a biometric sensor into mobile security key.</value>
+  </data>
+  <data name="HMK.Login.Header" xml:space="preserve">
+    <value>Login into Computer</value>
+  </data>
+  <data name="HMK.MobileKey.Description" xml:space="preserve">
+    <value>Install the application on your smartphone from the Google Play Market or Apple App Store.</value>
+  </data>
+  <data name="HMK.MobileKey.Header" xml:space="preserve">
+    <value>Hideez Mobile Key</value>
+  </data>
+  <data name="Menu.HardwareKeyPage.Header" xml:space="preserve">
+    <value>Hideez Key</value>
+  </data>
+  <data name="Menu.SoftwareKeyPage.Header" xml:space="preserve">
+    <value>Hideez Mobile Authenticator</value>
+  </data>
+  <data name="Settings.CheckBox.EnableSoftwareVaultUnlockModule" xml:space="preserve">
+    <value>Allow unlock with Hideez Mobile Authenticator</value>
+  </data>
+  <data name="Status.Network" xml:space="preserve">
+    <value>Network</value>
+  </data>
+  <data name="Status.Tooltip.NetworkAvailable" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="Status.Tooltip.NetworkUnavailable" xml:space="preserve">
+    <value>Please check your internet connection</value>
+  </data>
+  <data name="Menu.HardwareKeyPage.Description" xml:space="preserve">
+    <value>Hardware Vault</value>
+  </data>
+  <data name="Menu.SoftwareKeyPage.Description" xml:space="preserve">
+    <value>Software Vault</value>
+  </data>
+  <data name="HKP.Description1" xml:space="preserve">
+    <value>Make sure that all the indicators in the bottom left corner are green.</value>
+  </data>
+  <data name="HKP.Description2" xml:space="preserve">
+    <value>Long tap the dongle with the device until the initiation process launches.</value>
+  </data>
+  <data name="HKP.Description3" xml:space="preserve">
+    <value>Follow the screen notifications.</value>
+  </data>
+  <data name="HMK.ActivationCode.Description1" xml:space="preserve">
+    <value>Scan this Activation code by your smartphone.</value>
+  </data>
+  <data name="HMK.ActivationCode.Description2" xml:space="preserve">
+    <value>Follow the instructions on your smartphone.</value>
+  </data>
+  <data name="Menu.SecurityType.Header" xml:space="preserve">
+    <value>Please choose your type of Security Vault</value>
+  </data>
+  <data name="Pin.InvalidPin.LastAttempt" xml:space="preserve">
+    <value>Invalid PIN!
+Only 1 attempt left.</value>
   </data>
 </root>

@@ -1153,6 +1153,35 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetCurrentProximitySettings", ReplyAction="http://tempuri.org/IHideezService/GetCurrentProximitySettingsResponse")]
         System.Threading.Tasks.Task<HideezServiceHost.HideezServiceReference.ProximitySettingsDTO> GetCurrentProximitySettingsAsync(string mac);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetServerAddress", ReplyAction="http://tempuri.org/IHideezService/GetServerAddressResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/GetServerAddressHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        string GetServerAddress();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/GetServerAddress", ReplyAction="http://tempuri.org/IHideezService/GetServerAddressResponse")]
+        System.Threading.Tasks.Task<string> GetServerAddressAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/ChangeServerAddress", ReplyAction="http://tempuri.org/IHideezService/ChangeServerAddressResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/ChangeServerAddressHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        bool ChangeServerAddress(string address);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/ChangeServerAddress", ReplyAction="http://tempuri.org/IHideezService/ChangeServerAddressResponse")]
+        System.Threading.Tasks.Task<bool> ChangeServerAddressAsync(string address);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabled", ReplyAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabledResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabledHideezServiceFaultF" +
+            "ault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        bool IsSoftwareVaultUnlockEnabled();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabled", ReplyAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabledResponse")]
+        System.Threading.Tasks.Task<bool> IsSoftwareVaultUnlockEnabledAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetSoftwareUnlockState", ReplyAction="http://tempuri.org/IHideezService/SetSoftwareUnlockStateResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/SetSoftwareUnlockStateHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void SetSoftwareUnlockState(bool enabled);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetSoftwareUnlockState", ReplyAction="http://tempuri.org/IHideezService/SetSoftwareUnlockStateResponse")]
+        System.Threading.Tasks.Task SetSoftwareUnlockStateAsync(bool enabled);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1168,7 +1197,7 @@ namespace HideezServiceHost.HideezServiceReference {
         void ActivateWorkstationScreenRequest();
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceComponentsStateChanged")]
-        void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected);
+        void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected, bool tbHesConnected);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceNotificationReceived")]
         void ServiceNotificationReceived(string message, string notificationId);
@@ -1375,6 +1404,38 @@ namespace HideezServiceHost.HideezServiceReference {
         
         public System.Threading.Tasks.Task<HideezServiceHost.HideezServiceReference.ProximitySettingsDTO> GetCurrentProximitySettingsAsync(string mac) {
             return base.Channel.GetCurrentProximitySettingsAsync(mac);
+        }
+        
+        public string GetServerAddress() {
+            return base.Channel.GetServerAddress();
+        }
+        
+        public System.Threading.Tasks.Task<string> GetServerAddressAsync() {
+            return base.Channel.GetServerAddressAsync();
+        }
+        
+        public bool ChangeServerAddress(string address) {
+            return base.Channel.ChangeServerAddress(address);
+        }
+        
+        public System.Threading.Tasks.Task<bool> ChangeServerAddressAsync(string address) {
+            return base.Channel.ChangeServerAddressAsync(address);
+        }
+        
+        public bool IsSoftwareVaultUnlockEnabled() {
+            return base.Channel.IsSoftwareVaultUnlockEnabled();
+        }
+        
+        public System.Threading.Tasks.Task<bool> IsSoftwareVaultUnlockEnabledAsync() {
+            return base.Channel.IsSoftwareVaultUnlockEnabledAsync();
+        }
+        
+        public void SetSoftwareUnlockState(bool enabled) {
+            base.Channel.SetSoftwareUnlockState(enabled);
+        }
+        
+        public System.Threading.Tasks.Task SetSoftwareUnlockStateAsync(bool enabled) {
+            return base.Channel.SetSoftwareUnlockStateAsync(enabled);
         }
     }
 }

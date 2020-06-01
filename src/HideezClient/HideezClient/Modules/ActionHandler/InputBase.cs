@@ -94,7 +94,7 @@ namespace HideezClient.Modules.ActionHandler
 
                 if (await BeforeCondition(devicesId))
                 {
-                    Account[] accounts = await GetAccountsByAppInfoAsync(currentAppInfo, devicesId);
+                    Account[] accounts = GetAccountsByAppInfoAsync(currentAppInfo, devicesId);
                     accounts = FilterAccounts(accounts, devicesId);
 
                     if (!accounts.Any()) // No accounts for current application
@@ -106,7 +106,15 @@ namespace HideezClient.Modules.ActionHandler
                     }
                     else if (accounts.Length == 1) // Single account for current application
                     {
-                        await InputAsync(accounts.First());
+                        try
+                        {
+                            await InputAsync(accounts.First());
+                        }
+                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ChannelNotAuthorized)
+                        {
+                            log.WriteLine(ex, LogErrorSeverity.Warning);
+                            throw new AuthEndedUnexpectedlyException();
+                        }
                     }
                     else // Multiple accounts for current application
                     {
@@ -123,6 +131,16 @@ namespace HideezClient.Modules.ActionHandler
                             {
                                 log.WriteLine("Account was not selected.");
                             }
+                        }
+                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ChannelNotAuthorized)
+                        {
+                            log.WriteLine(ex, LogErrorSeverity.Warning);
+                            if (inputCache.HasCache())
+                            {
+                                await inputCache.SetFocusAsync();
+                            }
+
+                            throw new AuthEndedUnexpectedlyException();
                         }
                         catch (SystemException ex) when (ex is OperationCanceledException || ex is TimeoutException)
                         {
@@ -147,18 +165,19 @@ namespace HideezClient.Modules.ActionHandler
             }
         }
 
-        private Task<Account[]> GetAccountsByAppInfoAsync(AppInfo appInfo, string[] devicesId)
+        private Account[] GetAccountsByAppInfoAsync(AppInfo appInfo, string[] devicesId)
         {
-            return Task.Run(() =>
-            {
-                List<Account> accounts = new List<Account>();
-                foreach (var device in deviceManager.Devices.Where(d => d.IsConnected && d.IsAuthorized && d.IsStorageLoaded && devicesId.Contains(d.Id)))
-                {
-                    accounts.AddRange(device.FindAccountsByApp(appInfo));
-                }
+            List<Account> accounts = new List<Account>();
 
-                return accounts.ToArray();
-            });
+            var devices = deviceManager.Devices.Where(d => d.IsConnected && d.IsAuthorized && d.IsStorageLoaded && devicesId.Contains(d.Id));
+
+            if (devices.Count() == 0)
+                throw new AuthEndedUnexpectedlyException();
+
+            foreach (var device in devices)
+                accounts.AddRange(device.FindAccountsByApp(appInfo));
+
+            return accounts.ToArray();
         }
 
         /// <summary>

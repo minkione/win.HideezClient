@@ -19,6 +19,7 @@ namespace HideezClient.Models.Settings
             LimitPasswordEntry = false;
             UseSimplifiedUI = false;
             AutoCreateAccountIfNotFound = false;
+            AddMainDomain = true;
         }
 
         /// <summary>
@@ -39,6 +40,7 @@ namespace HideezClient.Models.Settings
             LimitPasswordEntry = copy.LimitPasswordEntry;
             UseSimplifiedUI = copy.UseSimplifiedUI;
             AutoCreateAccountIfNotFound = copy.AutoCreateAccountIfNotFound;
+            AddMainDomain = copy.AddMainDomain;
         }
 
         [Setting]
@@ -64,6 +66,9 @@ namespace HideezClient.Models.Settings
 
         [Setting]
         public bool AutoCreateAccountIfNotFound { get; set; }
+
+        [Setting]
+        public bool AddMainDomain { get; set; }
 
         public override object Clone()
         {

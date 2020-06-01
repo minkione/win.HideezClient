@@ -1,9 +1,7 @@
-﻿using GalaSoft.MvvmLight.Messaging;
-using Hideez.SDK.Communication;
+﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Remote;
 using HideezClient.HideezServiceReference;
-using HideezClient.Messages;
 using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using System;
@@ -16,12 +14,10 @@ namespace HideezClient.Modules.Remote
     {
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(RemoteDeviceCommands));
         readonly IServiceProxy _serviceProxy;
-        readonly IMessenger _messenger;
 
-        public RemoteDeviceCommands(IServiceProxy serviceProxy, IMessenger messenger)
+        public RemoteDeviceCommands(IServiceProxy serviceProxy)
         {
             _serviceProxy = serviceProxy;
-            _messenger = messenger;
         }
 
         // Todo: fix cyclic dependency between RemoteDevice and RemoteCommands/RemoteEvents
@@ -52,7 +48,6 @@ namespace HideezClient.Modules.Remote
             {
                 error = ex.Message;
                 _log.WriteLine(ex);
-                _messenger.Send(new ShowErrorNotificationMessage(error));
             }
             catch (Exception ex)
             {
@@ -69,7 +64,6 @@ namespace HideezClient.Modules.Remote
                 catch (Exception ex)
                 {
                     _log.WriteLine(ex);
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
                 }
             }
 
@@ -88,7 +82,6 @@ namespace HideezClient.Modules.Remote
             {
                 error = ex.Message;
                 _log.WriteLine(ex);
-                _messenger.Send(new ShowErrorNotificationMessage(error));
             }
             catch (Exception ex)
             {
@@ -105,7 +98,6 @@ namespace HideezClient.Modules.Remote
                 catch (Exception ex)
                 {
                     _log.WriteLine(ex);
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
                 }
             }
         }

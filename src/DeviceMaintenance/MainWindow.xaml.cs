@@ -1,23 +1,25 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
+using DeviceMaintenance.Messages;
 using DeviceMaintenance.ViewModel;
 using MahApps.Metro.Controls;
+using Meta.Lib.Modules.PubSub;
 
 namespace DeviceMaintenance
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        private readonly MetaPubSub _hub;
+
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainWindowViewModel();
+            _hub = new MetaPubSub();
+            DataContext = new MainWindowViewModel(_hub);
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override async void OnClosing(CancelEventArgs e)
         {
             var vm = (MainWindowViewModel)DataContext;
 
@@ -31,20 +33,25 @@ namespace DeviceMaintenance
                     MessageBoxButton.YesNoCancel, 
                     MessageBoxImage.Exclamation);
 
-                if (mb == MessageBoxResult.Yes)
+                if (mb != MessageBoxResult.Yes)
                 {
-                    vm.OnClosing();
-                    base.OnClosing(e);
-                }
-                else
                     e.Cancel = true;
-            }
-            else
-            {
-                vm.OnClosing();
-                base.OnClosing(e);
+                    return;
+                }
             }
 
+            try
+            {
+                await _hub.Publish(new ClosingEvent());
+                base.OnClosing(e);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+
+                e.Cancel = true;
+            }
         }
 
     }

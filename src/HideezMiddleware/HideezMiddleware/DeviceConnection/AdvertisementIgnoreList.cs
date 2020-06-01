@@ -11,7 +11,7 @@ namespace HideezMiddleware.DeviceConnection
     public class AdvertisementIgnoreList : Logger, IDisposable
     {
         readonly IBleConnectionManager _bleConnectionManager;
-        readonly ISettingsManager<ProximitySettings> _proximitySettingsManager;
+        readonly ISettingsManager<WorkstationSettings> _workstationSettingsManager;
 
         readonly List<string> _ignoreList = new List<string>();
         readonly Dictionary<string, DateTime> _lastAdvRecTime = new Dictionary<string, DateTime>();
@@ -19,12 +19,12 @@ namespace HideezMiddleware.DeviceConnection
 
         public AdvertisementIgnoreList(
             IBleConnectionManager bleConnectionManager,
-            ISettingsManager<ProximitySettings> proximitySettingsManager,
+            ISettingsManager<WorkstationSettings> workstationSettingsManager,
             ILog log)
             : base(nameof(AdvertisementIgnoreList), log)
         {
             _bleConnectionManager = bleConnectionManager;
-            _proximitySettingsManager = proximitySettingsManager;
+            _workstationSettingsManager = workstationSettingsManager;
 
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
             _bleConnectionManager.AdapterStateChanged += BleConnectionManager_AdapterStateChanged;
@@ -100,8 +100,7 @@ namespace HideezMiddleware.DeviceConnection
                 {
                     var proximity = BleUtils.RssiToProximity(e.Rssi);
 
-                    var settings = _proximitySettingsManager.Settings.GetProximitySettings(shortMac);
-                    if (proximity > settings.LockProximity)
+                    if (proximity > _workstationSettingsManager.Settings.LockProximity)
                         _lastAdvRecTime[shortMac] = DateTime.UtcNow;
                 }
             }

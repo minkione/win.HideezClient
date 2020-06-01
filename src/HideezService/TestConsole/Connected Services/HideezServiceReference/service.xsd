@@ -218,6 +218,56 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="GetServerAddress">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetServerAddressResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="GetServerAddressResult" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangeServerAddress">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="address" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangeServerAddressResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ChangeServerAddressResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="IsSoftwareVaultUnlockModuleEnabled">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="IsSoftwareVaultUnlockModuleEnabledResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="IsSoftwareVaultUnlockModuleEnabledResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetSoftwareVaultUnlockModuleState">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="enabled" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetSoftwareVaultUnlockModuleStateResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
   <xs:element name="ProximitySettingsChanged">
     <xs:complexType>
       <xs:sequence />
@@ -241,6 +291,7 @@
         <xs:element minOccurs="0" name="rfidConnected" type="xs:boolean" />
         <xs:element minOccurs="0" name="showRfidStatus" type="xs:boolean" />
         <xs:element minOccurs="0" name="bleConnected" type="xs:boolean" />
+        <xs:element minOccurs="0" name="tbHesConnected" type="xs:boolean" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

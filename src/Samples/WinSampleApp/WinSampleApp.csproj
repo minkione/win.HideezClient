@@ -178,7 +178,6 @@
       <DependentUpon>StorageWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utils\DelegateCommand.cs" />
-    <Compile Include="Utils\DeviceLogParser.cs" />
     <Compile Include="ViewModel\DeviceViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\StorageViewModel.cs" />

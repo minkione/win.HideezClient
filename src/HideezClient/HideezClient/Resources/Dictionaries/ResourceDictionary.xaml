@@ -96,6 +96,10 @@
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="border" Property="Background" Value="#CCEBF4" />
                         </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Background" Value="#ffC0C0C0" />
+                            <Setter Property="Foreground" Value="{StaticResource LightForeground}" />
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -140,6 +144,7 @@
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="InnerBorder" Property="Background" Value="#ffC0C0C0" />
+                            <Setter TargetName="OuterBorder" Property="Background" Value="#ffC0C0C0" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -408,12 +413,38 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
-                            <RowDefinition Height="45" />
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <ContentPresenter />
+                        <ContentPresenter >
+                            <ContentPresenter.Triggers>
+                                <EventTrigger RoutedEvent="UIElement.GotFocus">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="PasswordSeparator"
+                                                Storyboard.TargetProperty="(RenderTransform).(ScaleTransform.ScaleX)"
+                                                To="1"
+                                                Duration="0:00:0.2" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="UIElement.LostFocus">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="PasswordSeparator"
+                                                Storyboard.TargetProperty="(RenderTransform).(ScaleTransform.ScaleX)"
+                                                To="0"
+                                                Duration="0:00:0.2" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </ContentPresenter.Triggers>
+                        </ContentPresenter>
                         <Rectangle
                             x:Name="PasswordSeparator"
                             Grid.Row="1"
+                            VerticalAlignment="Top"
                             Height="2"
                             Fill="{TemplateBinding Background}"
                             Opacity="1">
@@ -440,38 +471,22 @@
                             </Grid.Style>
                             <Rectangle
                                 x:Name="ErrorLine"
+                                VerticalAlignment="Top"
                                 Height="2"
                                 Fill="{DynamicResource ErrorBrush}" />
                             <TextBlock
-                                Margin="0,25,0,0"
+                                Margin="0,4,0,0"
+                                VerticalAlignment="Top"
                                 FontSize="10"
+                                FontWeight="Bold"
                                 Foreground="{StaticResource ErrorBrush}"
                                 Text="{TemplateBinding Tag}" />
                         </Grid>
-                        <Separator Grid.Row="1" Style="{StaticResource SeparatorOfAccountInfo}" />
+                        <Separator 
+                            Grid.Row="1"
+                            VerticalAlignment="Top"
+                            Style="{StaticResource SeparatorOfAccountInfo}" />
                     </Grid>
-                    <ControlTemplate.Triggers>
-                        <EventTrigger RoutedEvent="UIElement.GotFocus">
-                            <BeginStoryboard>
-                                <Storyboard Storyboard.Target="{Binding ElementName=PasswordSeparator}">
-                                    <DoubleAnimation
-                                        Storyboard.TargetProperty="(RenderTransform).(ScaleTransform.ScaleX)"
-                                        To="1"
-                                        Duration="0:00:0.5" />
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                        <EventTrigger RoutedEvent="UIElement.LostFocus">
-                            <BeginStoryboard>
-                                <Storyboard Storyboard.Target="{Binding ElementName=PasswordSeparator}">
-                                    <DoubleAnimation
-                                        Storyboard.TargetProperty="(RenderTransform).(ScaleTransform.ScaleX)"
-                                        To="0"
-                                        Duration="0:00:0.2" />
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -544,5 +559,96 @@
         <Setter Property="MaxHeight" Value="34" />
         <Setter Property="Padding" Value="0" />
     </Style>
+
+    <!-- Style for blue area around settings -->
+    <Style
+        x:Key="SettingsBorderStyle"
+        TargetType="{x:Type Border}">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="#66E1F3F8" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Width" Value="650" />
+        <Setter Property="Margin" Value="16" />
+        <Setter Property="Padding" Value="24" />
+    </Style>
+
+    <!--  Checkbox style  -->
+    <Style
+        x:Key="CheckboxStyle"
+        BasedOn="{StaticResource BaseButtonStyle}"
+        TargetType="{x:Type CheckBox}">
+        <Setter Property="Background" Value="#F4FEFF" />
+        <Setter Property="Foreground" Value="{StaticResource DarkForeground}" />
+        <Setter Property="BorderBrush" Value="#CC1BA2DC" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type CheckBox}">
+                    <Grid x:Name="main">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border
+                            x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            Width="24"
+                            Height="24"
+                            CornerRadius="3.5" />
+                        <Path
+                            x:Name="check"
+                            Data="M5.50001 9.47511L2.02501 6.00011L0.841675 7.17511L5.50001 11.8334L15.5 1.83345L14.325 0.658447L5.50001 9.47511Z"
+                            Opacity="0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                            <Path.Fill>
+                                <LinearGradientBrush MappingMode="Absolute" StartPoint="16,1" EndPoint="-1,5">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStopCollection>
+                                            <GradientStop Color="#43C7D9"/>
+                                            <GradientStop Color="#0E5F93" Offset="1"/>
+                                        </GradientStopCollection>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                        <ContentPresenter Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#E1F3F8" />
+                            <Setter Property="Cursor" Value="Hand" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#CCEBF4" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="main" Property="Opacity" Value="0.3" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="check" Property="Opacity" Value="1" />
+                            <Setter TargetName="border" Property="BorderBrush">
+                                <Setter.Value>
+                                    <LinearGradientBrush MappingMode="Absolute" StartPoint="24,0" EndPoint="-4,5">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStopCollection>
+                                                <GradientStop Color="#43C7D9"/>
+                                                <GradientStop Color="#0E5F93" Offset="1"/>
+                                            </GradientStopCollection>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 
 </ResourceDictionary>

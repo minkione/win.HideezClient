@@ -23,6 +23,7 @@
   <?define CsrWin8_x86_SourceDir=$(var.DPInst_SourceDir)win8\win32\ ?>
   
   <?define TemplateFactory_TargetDir=$(var.TemplateFactory.TargetDir)?>
+  <?define DeviceMaintenance_TargetDir=$(var.DeviceMaintenance.TargetDir)?>
   
   <!-- Architecture specific path detection -->
   <?if $(var.Platform) = x64 ?>
@@ -415,10 +416,10 @@
 	      <File Id="HideezService.System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.HideezServiceHost_TargetDir)System.Threading.Tasks.Extensions.dll" />
       </Component>
 
-      <Component Id="HideezService.AsyncEnumerable.dll" Guid="{439A1245-4CD6-4279-94E6-4A9D9A5822C2}" Win64="$(var.Win64)">
-        <File Id="HideezService.AsyncEnumerable.dll" Name="AsyncEnumerable.dll" Source="$(var.HideezServiceHost_TargetDir)AsyncEnumerable.dll" />
+      <Component Id="HideezService.zxing.dll" Guid="{D00AA5C7-3653-4010-9749-BD81612B579D}" Win64="$(var.Win64)">
+        <File Id="HideezService.zxing.dll" Name="zxing.dll" Source="$(var.HideezServiceHost_TargetDir)zxing.dll" />
       </Component>
-      
+
     </ComponentGroup>
   </Fragment>
   
@@ -721,10 +722,6 @@
       <Component Id="Interop.UIAutomationClient.dll" Guid="{7C31EDD4-126A-4B7F-9D4D-43E0E0DC603C}" Win64="$(var.Win64)">
         <File Id="Interop.UIAutomationClient.dll" Name="Interop.UIAutomationClient.dll" Source="$(var.HideezClient_TargetDir)Interop.UIAutomationClient.dll" />
       </Component>
-      
-      <Component Id="AsyncEnumerable.dll" Guid="{4D4E952C-EE19-46C9-B8A4-2FFB3993D084}" Win64="$(var.Win64)">
-        <File Id="AsyncEnumerable.dll" Name="AsyncEnumerable.dll" Source="$(var.HideezClient_TargetDir)AsyncEnumerable.dll" />
-      </Component>
 
       <Component Id="HideezMiddleware.dll" Guid="{FFFE2825-97AE-41B1-98FB-B9F7B03F00B7}" Win64="$(var.Win64)">
         <File Id="HideezMiddleware.dll" Name="HideezMiddleware.dll" Source="$(var.HideezServiceHost_TargetDir)HideezMiddleware.dll" />
@@ -732,6 +729,10 @@
     
       <Component Id="TemplateFactory.exe" Guid="{B6F59702-3133-428F-A3EF-2C03A4C3FE02}" Win64="$(var.Win64)">
         <File Id="TemplateFactory.exe" Name="TemplateFactory.exe" Source="$(var.TemplateFactory_TargetDir)TemplateFactory.exe" />
+      </Component>
+
+      <Component Id="DeviceMaintenanceApplication.exe" Guid="{75B827C4-632A-4137-9405-F0563E6FEC63}" Win64="$(var.Win64)">
+        <File Id="DeviceMaintenanceApplication.exe" Name="Hideez Device Maintenance Application.exe" Source="$(var.DeviceMaintenance_TargetDir)Hideez Device Maintenance Application.exe" />
       </Component>
     </ComponentGroup>
   </Fragment>

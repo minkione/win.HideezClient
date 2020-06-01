@@ -3,7 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="FirmwareFileName" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c:\\</Value>
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="AutomaticallyUpload" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

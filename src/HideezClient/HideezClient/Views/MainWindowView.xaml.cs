@@ -26,6 +26,7 @@ namespace HideezClient.Views
 
         private void DeviceInfo_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
+            // Subscribe to active device change
             bindingRaiseEventSelectedDevice = new WeakPropertyObserver(e.NewValue, nameof(MainViewModel.ActiveDevice));
             bindingRaiseEventSelectedDevice.ValueChanged += (name, device) =>
             {
@@ -33,15 +34,20 @@ namespace HideezClient.Views
 
                 bindings.Clear();
 
-                // To subscribe to all properties, uncomment next line and remote the rest of weak property bindings
-                // bindings.Add(new WeakPropertyObserver(device, string.Empty));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsConnected)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.FinishedMainFlow)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorized)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorizingRemoteDevice)));
-                bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsCreatingRemoteDevice)));
+                if (device != null)
+                {
+                    // To subscribe to all properties, uncomment next line and remote the rest of weak property bindings
+                    // bindings.Add(new WeakPropertyObserver(device, string.Empty));
+                    bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsConnected)));
+                    bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.FinishedMainFlow)));
+                    bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorized)));
+                    bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsAuthorizingRemoteDevice)));
+                    bindings.Add(new WeakPropertyObserver(device, nameof(DeviceViewModel.IsCreatingRemoteDevice)));
 
-                bindings.ForEach(b => b.ValueChanged += DeviceValueChanged);
+                    bindings.ForEach(b => b.ValueChanged += DeviceValueChanged);
+                }
+
+                UpdateSoftwareKeyMenuItemPosition(device);
             };
         }
 
@@ -54,6 +60,25 @@ namespace HideezClient.Views
         {
             this.Visibility = Visibility.Collapsed;
             e.Cancel = true;
+        }
+
+        void UpdateSoftwareKeyMenuItemPosition(object device)
+        {
+            // if no device is active, software key menu item should be displayed in the upper menu
+            // If active device is selected, software key menu item should be displayed in the bottom menu
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                if (device == null && SoftwareKeyMenuItem.Parent == BottomMenuStackPanel)
+                {
+                    BottomMenuStackPanel.Children.Remove(SoftwareKeyMenuItem);
+                    SecurityTypeStackPanel.Children.Add(SoftwareKeyMenuItem);
+                }
+                else if (SoftwareKeyMenuItem.Parent == SecurityTypeStackPanel)
+                {
+                    SecurityTypeStackPanel.Children.Remove(SoftwareKeyMenuItem);
+                    BottomMenuStackPanel.Children.Insert(1, SoftwareKeyMenuItem);
+                }
+            });
         }
     }
 }

@@ -113,7 +113,7 @@ namespace HideezMiddleware
 
         public async Task<string> GetPin(string deviceId, int timeout, CancellationToken ct, bool withConfirm = false, bool askOldPin = false)
         {
-            WriteLine($"SendGetPin: {deviceId}");
+            WriteDebugLine($"SendGetPin: {deviceId}");
 
             var ui = GetCurrentClientUi() ?? throw new HideezException(HideezErrorCode.NoConnectedUI);
 
@@ -154,22 +154,22 @@ namespace HideezMiddleware
             }
         }
 
-        public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
+        public async Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
         {
-            WriteLine($"SendStatus: hes:{hesStatus}; rfid:{rfidStatus}; ble:{bluetoothStatus};");
+            WriteDebugLine($"SendStatus: hes:{hesStatus}; tb_hes: {tbHesStatus}; rfid:{rfidStatus}; ble:{bluetoothStatus};");
 
             var uiList = GetClientUiList();
 
             foreach (var ui in uiList)
             {
                 if (ui != null)
-                    await ui.SendStatus(hesStatus, rfidStatus, bluetoothStatus);
+                    await ui.SendStatus(hesStatus, tbHesStatus, rfidStatus, bluetoothStatus);
             }
         }
 
         public async Task SendNotification(string notification, string notificationId = null)
         {
-            WriteLine($"SendNotification: {notification}");
+            WriteDebugLine($"SendNotification: {notification}");
 
             var ui = GetCurrentClientUi();
 
@@ -182,7 +182,7 @@ namespace HideezMiddleware
 
         public async Task SendError(string error, string notificationId = null)
         {
-            WriteLine($"SendError: {error}");
+            WriteDebugLine($"SendError: {error}");
 
             var ui = GetCurrentClientUi();
 

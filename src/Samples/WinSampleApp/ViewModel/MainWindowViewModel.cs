@@ -1406,15 +1406,14 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                const UInt32 EVENTLOG_MAGIC = 0x9dcae500;
-                UInt32 current_magic;
-                var reply = await device.Device.FetchLog();
-                byte[] log_device = reply.Result;
-
-                current_magic = DeviceLogParser.BinToUint32(log_device, 0);
-                if ((current_magic & ~0xffUL )== EVENTLOG_MAGIC)
+                var deviceLog = await device.Device.FetchLog();
+                if (deviceLog.Length > 0)
                 {
-                    string str = DeviceLogParser.Parser(log_device);
+                    var logEntries = DeviceLogParser.ParseLog(deviceLog);
+                    var sb = new StringBuilder();
+                    foreach (var entry in logEntries)
+                        sb.Append(entry.ToString() + Environment.NewLine);
+                    var str = sb.ToString();
                     Clipboard.SetText(str);
                     MessageBox.Show($"Log copied into clipboard ({str.Length} chars)");
                 }

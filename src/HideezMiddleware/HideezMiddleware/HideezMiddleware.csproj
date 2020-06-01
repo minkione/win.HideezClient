@@ -61,6 +61,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Serialization" />
@@ -72,6 +73,12 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="zxing, Version=0.16.5.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ZXing.Net.0.16.5\lib\net47\zxing.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing.presentation, Version=0.16.5.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ZXing.Net.0.16.5\lib\net47\zxing.presentation.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Version.cs">
@@ -83,6 +90,9 @@
     <Compile Include="Audit\SessionInfoProvider.cs" />
     <Compile Include="Audit\SessionSwitchLogger.cs" />
     <Compile Include="Audit\SessionTimestampLogger.cs" />
+    <Compile Include="DeviceLogging\DeviceLogManager.cs" />
+    <Compile Include="DeviceLogging\DeviceLogWriter.cs" />
+    <Compile Include="DeviceLogging\IDeviceLogWriter.cs" />
     <Compile Include="HideezClientRegistryRoot.cs" />
     <Compile Include="ConnectionManagerRestarter.cs" />
     <Compile Include="CredentialProviderProxy.cs" />
@@ -91,12 +101,22 @@
     <Compile Include="DeviceConnection\ProximityConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\RfidConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\TapConnectionProcessor.cs" />
+    <Compile Include="Settings\Manager\WatchingSettingsManager.cs" />
+    <Compile Include="Settings\WorkstationSettings.cs" />
+    <Compile Include="Workstation\IWorkstationIdProvider.cs" />
     <Compile Include="Local\LocalDeviceInfo.cs" />
     <Compile Include="Local\LocalDeviceInfoCache.cs" />
     <Compile Include="Local\ILocalDeviceInfoCache.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="HideezExceptionLocalization.cs" />
     <Compile Include="IClientUiProxy.cs" />
+    <Compile Include="ReconnectManager\DeviceReconnectManager.cs" />
+    <Compile Include="ReconnectManager\ReconnectProc.cs" />
+    <Compile Include="SoftwareVault\QrFactories\ActivationQrBitmapFactory.cs" />
+    <Compile Include="SoftwareVault\QrFactories\SimpleQrBitmapFactory.cs" />
+    <Compile Include="SoftwareVault\QrFactories\UnlockQrBitmapFactory.cs" />
+    <Compile Include="SoftwareVault\UnlockToken\UnlockTokenGenerator.cs" />
+    <Compile Include="SoftwareVault\UnlockToken\UnlockTokenProvider.cs" />
     <Compile Include="ScreenActivation\IScreenActivator.cs" />
     <Compile Include="IWorkstationLocker.cs" />
     <Compile Include="NLogWrapper.cs" />
@@ -107,8 +127,10 @@
     <Compile Include="Settings\DeviceProximitySettingsHelper.cs" />
     <Compile Include="Settings\FileSerializer\IFileSerializer.cs" />
     <Compile Include="Settings\Manager\ISettingsManager.cs" />
+    <Compile Include="Settings\Manager\VirtualSettingsManager.cs" />
     <Compile Include="Settings\RfidSettings.cs" />
     <Compile Include="Settings\SdkSettings.cs" />
+    <Compile Include="Settings\ServiceSettings.cs" />
     <Compile Include="Settings\SettingAttribute.cs" />
     <Compile Include="Settings\Manager\SettingsManager.cs" />
     <Compile Include="Settings\FileSerializer\XmlFileSerializer.cs" />
@@ -122,6 +144,7 @@
     <Compile Include="Tasks\WaitWorkstationUnlockerConnectProc.cs" />
     <Compile Include="Threading\SemaphoreQueue.cs" />
     <Compile Include="UiProxyManager.cs" />
+    <Compile Include="Utils\QrBitmapFactory.cs" />
     <Compile Include="Utils\LocalToMSAccountConverter.cs" />
     <Compile Include="Utils\WorkstationHelper.cs" />
     <Compile Include="Utils\WorkstationHelper_UnlockCheck.cs" />
@@ -131,6 +154,7 @@
     <Compile Include="WorkstationLockProcessor.cs" />
     <Compile Include="WorkstationLockingReason.cs" />
     <Compile Include="WorkstationUnlockResult.cs" />
+    <Compile Include="Workstation\WorkstationIdProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\ErrorCode.resx">

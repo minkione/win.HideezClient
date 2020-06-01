@@ -25,17 +25,15 @@ namespace HideezClient.Utilities
         {
             fileFromResource = AppDomain.CurrentDomain.BaseDirectory + @"\Resources\Data\" + fileWithSuffixName;
             fileFromLocal = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\Hideez\Data\" + fileWithSuffixName;
-            ThreadPool.QueueUserWorkItem(obj =>
+
+            try
             {
-                try
-                {
-                    ParseSuffixListIntoTree();
-                }
-                catch (Exception ex)
-                {
-                    Error(ex);
-                }
-            });
+                ParseSuffixListIntoTree();
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
         }
 
         /// <summary>

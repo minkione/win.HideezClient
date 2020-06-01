@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
+using System.Diagnostics.Eventing.Reader;
 using System.ServiceModel;
 using System.Threading.Tasks;
 
@@ -75,6 +76,22 @@ namespace ServiceLibrary
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
         ProximitySettingsDTO GetCurrentProximitySettings(string mac);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        string GetServerAddress();
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        Task<bool> ChangeServerAddress(string address);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        bool IsSoftwareVaultUnlockModuleEnabled();
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void SetSoftwareVaultUnlockModuleState(bool enabled);
     }
 
     public interface ICallbacks
@@ -90,7 +107,7 @@ namespace ServiceLibrary
 
 
         [OperationContract(IsOneWay = true)]
-        void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected);
+        void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected, bool tbHesConnected);
 
         [OperationContract(IsOneWay = true)]
         void ServiceNotificationReceived(string message, string notificationId);
@@ -135,7 +152,6 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void HidePinUi();
-
     }
 
     public enum Adapter

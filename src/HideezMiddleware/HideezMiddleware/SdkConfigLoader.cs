@@ -19,6 +19,7 @@ namespace HideezMiddleware
             SdkConfig.TapProximityUnlockThreshold = settings.TapProximityUnlockThreshold;
             SdkConfig.DelayAfterMainWorkflow = settings.DelayAfterMainWorkflow;
             SdkConfig.WorkstationUnlockerConnectTimeout = settings.WorkstationUnlockerConnectTimeout;
+            SdkConfig.ReconnectDelay = settings.ReconnectDelay;
 
             SdkConfig.DefaultCommandTimeout = settings.DefaultCommandTimeout;
             SdkConfig.DefaultRemoteCommandTimeout = settings.DefaultRemoteCommandTimeout;

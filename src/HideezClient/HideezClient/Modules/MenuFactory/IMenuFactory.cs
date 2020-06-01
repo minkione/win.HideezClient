@@ -17,10 +17,11 @@ namespace HideezClient.Modules
         VideoTutorial,
         LogOff,
         Exit,
-        Lenguage,
+        Language,
         Separator,
         LaunchOnStartup,
         GetLogsSubmenu,
+        Help,
 
         // For device
         DisconnectDevice,

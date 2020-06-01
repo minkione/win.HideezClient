@@ -60,49 +60,33 @@
 
             <StackPanel>
                 <StackPanel
-                    Margin="24,34"
+                    x:Name="SecurityTypeStackPanel"
                     Orientation="Vertical"
                     Visibility="{Binding ActiveDevice, Converter={StaticResource NullToVisibilityCollapsedConverter}}">
+
                     <TextBlock
+                        Margin="18,36,108,28"
                         FontSize="18"
                         FontWeight="DemiBold"
-                        Text="{l:Localization EnableDevice.Header}" />
-                    <Rectangle Height="24" />
-                    <Grid TextBlock.FontSize="16">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="16" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="16" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="8" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Row="0" Text="1." />
-                        <TextBlock
-                            Grid.Row="0"
-                            Grid.Column="2"
-                            Opacity="0.5"
-                            Text="{l:Localization EnableDevice.Step1}"
-                            TextWrapping="Wrap" />
-                        <TextBlock Grid.Row="2" Text="2." />
-                        <TextBlock
-                            Grid.Row="2"
-                            Grid.Column="2"
-                            Opacity="0.5"
-                            Text="{l:Localization EnableDevice.Step2}"
-                            TextWrapping="Wrap" />
-                        <TextBlock Grid.Row="4" Text="3." />
-                        <TextBlock
-                            Grid.Row="4"
-                            Grid.Column="2"
-                            Opacity="0.5"
-                            Text="{l:Localization EnableDevice.Step3}"
-                            TextWrapping="Wrap" />
-                    </Grid>
+                        TextWrapping="Wrap"
+                        Text="{l:Localization Menu.SecurityType.Header}" />
+
+                    <controls:LeftMenuItemControl 
+                        DataContext="{Binding MenuHardwareKeyPage}" 
+                        Height="54">
+                        <controls:LeftMenuItemControl.Tag>
+                            <ContentPresenter Content="{StaticResource HideezKeySimpleIMG}" />
+                        </controls:LeftMenuItemControl.Tag>
+                    </controls:LeftMenuItemControl>
+
+                    <controls:LeftMenuItemControl 
+                        x:Name="SoftwareKeyMenuItem"
+                        DataContext="{Binding MenuSoftwareKeyPage}"
+                        Height="54">
+                        <controls:LeftMenuItemControl.Tag>
+                            <ContentPresenter Content="{StaticResource HideezMobileKeySimpleIMG}" Margin="-1.5,0,-1.5,-3"/>
+                        </controls:LeftMenuItemControl.Tag>
+                    </controls:LeftMenuItemControl>
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding ActiveDevice, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
@@ -167,23 +151,22 @@
             </ScrollViewer>
             
             <!--  Menu  -->
-            <StackPanel Grid.Row="3">
+            <StackPanel 
+                x:Name="BottomMenuStackPanel"
+                Grid.Row="3">
                 <controls:LeftMenuItemControl DataContext="{Binding MenuDefaultPage}" Visibility="Hidden" />
 
-                <!-- Hidden until implemented -->
-                <!--
-                <controls:LeftMenuItemControl DataContext="{Binding MenuHelp}" IsEnabled="False">
-                    <controls:LeftMenuItemControl.Tag>
-                        <iconPacks:PackIconFontAwesome Kind="QuestionCircleSolid" />
-                    </controls:LeftMenuItemControl.Tag>
-                </controls:LeftMenuItemControl>
-
-                <controls:LeftMenuItemControl DataContext="{Binding MenuSettings}" IsEnabled="False">
+                <controls:LeftMenuItemControl DataContext="{Binding MenuSettings}">
                     <controls:LeftMenuItemControl.Tag>
                         <iconPacks:PackIconFontAwesome Kind="CogSolid" />
                     </controls:LeftMenuItemControl.Tag>
                 </controls:LeftMenuItemControl>
-                -->
+
+                <controls:LeftMenuButtonControl DataContext="{Binding MenuHelp}">
+                    <controls:LeftMenuButtonControl.Tag>
+                        <iconPacks:PackIconFontAwesome Kind="QuestionCircleSolid" />
+                    </controls:LeftMenuButtonControl.Tag>
+                </controls:LeftMenuButtonControl>
             </StackPanel>
 
             <Rectangle
@@ -193,12 +176,27 @@
                 Fill="{DynamicResource WindowBackground}"
                 Opacity="0.05" />
 
-            <controls:ConnectivityIndicators
+            <Grid 
                 Grid.Row="7"
-                Padding="0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
-                Focusable="False" />
+                Visibility="{Binding Path=MenuSoftwareKeyPage.IsChecked, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+                <controls:ConnectivityIndicators
+                    Padding="0"
+                    Focusable="False" 
+                    />
+            </Grid>
+
+            <Grid
+                Grid.Row="7"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Bottom"
+                Visibility="{Binding Path=MenuSoftwareKeyPage.IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <controls:TBConnectivityIndicator
+                    Padding="0"
+                    Focusable="False" 
+                    />
+            </Grid>
         </Grid>
 
         <!--  page content  -->

@@ -31,6 +31,8 @@ using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
 using HideezClient.Modules.Log;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.Settings;
+using HideezClient.Models.Settings;
 
 namespace HideezClient.PageViewModels
 {
@@ -42,12 +44,15 @@ namespace HideezClient.PageViewModels
         readonly IQrScannerHelper qrScannerHelper;
         readonly IWindowsManager windowsManager;
         readonly IMessenger _messenger;
+        readonly ISettingsManager<ApplicationSettings> _settingsManager;
 
-        public PasswordManagerViewModel(IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger, IActiveDevice activeDevice)
+        public PasswordManagerViewModel(IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, 
+            IMessenger messenger, IActiveDevice activeDevice, ISettingsManager<ApplicationSettings> settingsManager)
         {
             this.windowsManager = windowsManager;
             this.qrScannerHelper = qrScannerHelper;
             _messenger = messenger;
+            _settingsManager = settingsManager;
 
             _messenger.Register<ActiveDeviceChangedMessage>(this, OnActiveDeviceChanged);
             _messenger.Register<AddAccountForAppMessage>(this, OnAddAccountForApp);
@@ -188,6 +193,15 @@ namespace HideezClient.PageViewModels
                 };
                 vm.Name = obj.AppInfo.Title;
                 vm.AppsAndUrls.Add(new AppViewModel(obj.AppInfo.Title, !string.IsNullOrWhiteSpace(obj.AppInfo.Domain)));
+
+                if (_settingsManager.Settings.AddMainDomain && !string.IsNullOrWhiteSpace(obj.AppInfo.Domain))
+                {
+                    // Extract main domain from url that has subdomain
+                    string mainDomain = URLHelper.GetRegistrableDomain(obj.AppInfo.Domain);
+                    if (!string.IsNullOrWhiteSpace(mainDomain) && obj.AppInfo.Domain != mainDomain)
+                        vm.AppsAndUrls.Add(new AppViewModel(mainDomain, true));
+                }
+
                 EditAccount = vm;
             });
         }

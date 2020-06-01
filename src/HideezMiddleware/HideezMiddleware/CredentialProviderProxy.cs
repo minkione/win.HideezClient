@@ -169,7 +169,7 @@ namespace HideezMiddleware
         public async Task<bool> SendLogonRequest(string login, string password, string prevPassword)
         {
             login = NormalizeLogin(login);
-            WriteLine($"SendLogonRequest: {login}");
+            WriteDebugLine($"SendLogonRequest: {login}");
 
             await SendMessageAsync(CredentialProviderCommandCode.Logon, true, $"{login}\n{password}\n{prevPassword}");
 
@@ -208,7 +208,7 @@ namespace HideezMiddleware
 
         public async Task ShowPinUi(string deviceId, bool withConfirm, bool askOldPin)
         {
-            WriteLine($"SendGetPin: {deviceId}, withConfirm: {withConfirm}, askOldPin: {askOldPin}");
+            WriteDebugLine($"SendGetPin: {deviceId}, withConfirm: {withConfirm}, askOldPin: {askOldPin}");
 
             var code = CredentialProviderCommandCode.GetPin;
             if (withConfirm)
@@ -228,7 +228,7 @@ namespace HideezMiddleware
 
         public async Task HidePinUi()
         {
-            WriteLine($"HidePinUi");
+            WriteDebugLine($"HidePinUi");
             await SendMessageAsync(CredentialProviderCommandCode.HidePinUi, true, $"");
             await SendNotification("");
             await SendError("");
@@ -236,7 +236,7 @@ namespace HideezMiddleware
 
         public async Task SendError(string message, string notificationId = null)
         {
-            WriteLine($"SendError: {message}");
+            WriteDebugLine($"SendError: {message}");
             
             string formattedMessage = "";
             if (!string.IsNullOrEmpty(message))
@@ -247,7 +247,7 @@ namespace HideezMiddleware
 
         public async Task SendNotification(string message, string notificationId = null)
         {
-            WriteLine($"SendNotification: {message}");
+            WriteDebugLine($"SendNotification: {message}");
 
             string formattedMessage = "";
             if (!string.IsNullOrEmpty(message))
@@ -258,7 +258,7 @@ namespace HideezMiddleware
 
         public async Task SendStatus(string statusMessage)
         {
-            WriteLine($"SendStatus: {statusMessage}");
+            WriteDebugLine($"SendStatus: {statusMessage}");
             await SendMessageAsync(CredentialProviderCommandCode.Status, true, statusMessage);
         }
         #endregion Commands to CP
@@ -311,7 +311,7 @@ namespace HideezMiddleware
         #endregion Utils
 
 
-        public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
+        public async Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
         {
             var statuses = new List<string>();
 

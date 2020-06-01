@@ -98,7 +98,7 @@ namespace HideezMiddleware
                 try
                 {
                     _cts = new CancellationTokenSource();
-                    await MainWorkflow(mac, onSuccessfulUnlock, _cts.Token);
+                    await MainWorkflow(mac, true, true, onSuccessfulUnlock, _cts.Token);
                 }
                 finally
                 {
@@ -110,7 +110,26 @@ namespace HideezMiddleware
             }
         }
 
-        async Task MainWorkflow(string mac, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
+        public async Task Connect(string mac)
+        {
+            if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
+            {
+                try
+                {
+                    _cts = new CancellationTokenSource();
+                    await MainWorkflow(mac, false, false, null, _cts.Token);
+                }
+                finally
+                {
+                    _cts.Dispose();
+                    _cts = null;
+
+                    Interlocked.Exchange(ref _isConnecting, 0);
+                }
+            }
+        }
+
+        async Task MainWorkflow(string mac, bool rebondOnConnectionFail, bool tryUnlock, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
         {
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
@@ -152,7 +171,7 @@ namespace HideezMiddleware
                         .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct);
                 }
 
-                device = await ConnectDevice(mac, ct);
+                device = await ConnectDevice(mac, rebondOnConnectionFail, ct);
 
                 device.Disconnected += OnDeviceDisconnectedDuringFlow;
                 device.OperationCancelled += OnUserCancelledByButton;
@@ -162,7 +181,15 @@ namespace HideezMiddleware
                 if (device.IsBoot)
                     throw new HideezException(HideezErrorCode.DeviceInBootloaderMode);
 
-                var deviceInfo = await deviceInfoProcTask;
+                DeviceInfoDto deviceInfo = null;
+                try
+                {
+                    deviceInfo = await deviceInfoProcTask;
+                }
+                catch (Exception ex)
+                {
+                    WriteLine("Non-fatal error occured while loading device info from HES", ex);
+                }
 
                 WriteLine($"Check if device is locked: {device.AccessLevel.IsLocked}");
                 if (device.AccessLevel.IsLocked)
@@ -212,7 +239,7 @@ namespace HideezMiddleware
                 if (device.AccessLevel.IsLinkRequired)
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
 
-                if (deviceInfo.NeedUpdate)
+                if (deviceInfoProc.IsSuccessful && deviceInfo.NeedUpdate)
                 {
                     // request HES to update this device
                     await _ui.SendNotification("Uploading new credentials to the device...", _infNid);
@@ -224,7 +251,7 @@ namespace HideezMiddleware
 
                 await MasterKeyWorkflow(device, ct);
 
-                if (_workstationUnlocker.IsConnected && WorkstationHelper.IsActiveSessionLocked())
+                if (_workstationUnlocker.IsConnected && WorkstationHelper.IsActiveSessionLocked() && tryUnlock)
                 {
                     if (await ButtonWorkflow(device, timeout, ct) && await PinWorkflow(device, timeout, ct))
                     {
@@ -493,7 +520,10 @@ namespace HideezMiddleware
                     }
                     else
                     {
-                        await _ui.SendError($"Wrong PIN ({attemptsLeft} attempts left)", _errNid);
+                        if (attemptsLeft > 1)
+                            await _ui.SendError($"Invalid PIN! {attemptsLeft} attempts left.", _errNid);
+                        else
+                            await _ui.SendError($"Invalid PIN! 1 attempt left.", _errNid);
                         await device.RefreshDeviceInfo(); // Remaining pin attempts update is not quick enough 
                     }
                 }
@@ -502,7 +532,7 @@ namespace HideezMiddleware
             return res;
         }
 
-        async Task<IDevice> ConnectDevice(string mac, CancellationToken ct)
+        async Task<IDevice> ConnectDevice(string mac, bool rebondOnFail, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
             await _ui.SendNotification("Connecting to the device...", _infNid);
@@ -516,7 +546,7 @@ namespace HideezMiddleware
 
                 device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
 
-                if (device == null)
+                if (device == null && rebondOnFail)
                 {
                     ct.ThrowIfCancellationRequested();
 
@@ -524,11 +554,11 @@ namespace HideezMiddleware
                     await _deviceManager.RemoveByMac(mac);
                     await _ui.SendNotification("Connection failed. Trying re-bond the device...", _infNid);
                     device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
-
-                    if (device == null)
-                        throw new Exception($"Failed to connect device '{mac}'.");
                 }
             }
+
+            if (device == null)
+                throw new Exception($"Failed to connect device '{mac}'.");
 
             return device;
         }
