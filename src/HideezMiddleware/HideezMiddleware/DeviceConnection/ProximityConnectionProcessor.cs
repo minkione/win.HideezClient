@@ -22,6 +22,7 @@ namespace HideezMiddleware.DeviceConnection
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly IBleConnectionManager _bleConnectionManager;
         readonly ISettingsManager<ProximitySettings> _proximitySettingsManager;
+        readonly ISettingsManager<WorkstationSettings> _workstationSettingsManager;
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly BleDeviceManager _bleDeviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
@@ -39,6 +40,7 @@ namespace HideezMiddleware.DeviceConnection
             ConnectionFlowProcessor connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
             ISettingsManager<ProximitySettings> proximitySettingsManager,
+            ISettingsManager<WorkstationSettings> workstationSettingsManager,
             AdvertisementIgnoreList advIgnoreListMonitor,
             BleDeviceManager bleDeviceManager,
             IWorkstationUnlocker workstationUnlocker,
@@ -48,6 +50,7 @@ namespace HideezMiddleware.DeviceConnection
             _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));
             _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
             _proximitySettingsManager = proximitySettingsManager ?? throw new ArgumentNullException(nameof(proximitySettingsManager));
+            _workstationSettingsManager = workstationSettingsManager ?? throw new ArgumentNullException(nameof(workstationSettingsManager));
             _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
             _bleDeviceManager = bleDeviceManager ?? throw new ArgumentNullException(nameof(bleDeviceManager));
             _workstationUnlocker = workstationUnlocker ?? throw new ArgumentNullException(nameof(workstationUnlocker));
@@ -144,7 +147,7 @@ namespace HideezMiddleware.DeviceConnection
                 return;
 
             var proximity = BleUtils.RssiToProximity(adv.Rssi);
-            var settings = _proximitySettings.GetProximitySettings(mac);
+            var settings = _workstationSettingsManager.Settings;
             if (proximity < settings.UnlockProximity)
                 return;
 

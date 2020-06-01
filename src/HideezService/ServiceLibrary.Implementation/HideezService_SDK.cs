@@ -290,6 +290,7 @@ namespace ServiceLibrary.Implementation
                 _connectionFlowProcessor,
                 _connectionManager,
                 _proximitySettingsManager,
+                _workstationSettingsManager,
                 _advIgnoreList,
                 _deviceManager,
                 _credentialProviderProxy,
