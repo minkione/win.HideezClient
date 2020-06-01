@@ -31,13 +31,13 @@ namespace HideezMiddleware.Settings.Manager
 
         public event EventHandler<SettingsChangedEventArgs<T>> SettingsChanged;
 
+        public void InitializeFileStruct()
+        {
+        }
+
         public Task<T> GetSettingsAsync()
         {
             return Task.FromResult(Settings);
-        }
-
-        public void InitializeFileStruct()
-        {
         }
 
         public Task<T> LoadSettingsAsync()
@@ -48,6 +48,11 @@ namespace HideezMiddleware.Settings.Manager
         public T SaveSettings(T settings)
         {
             Settings = settings;
+            return Settings;
+        }
+
+        public T LoadSettings()
+        {
             return Settings;
         }
     }

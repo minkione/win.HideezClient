@@ -101,6 +101,8 @@
     <Compile Include="DeviceConnection\ProximityConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\RfidConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\TapConnectionProcessor.cs" />
+    <Compile Include="Settings\Manager\WatchingSettingsManager.cs" />
+    <Compile Include="Settings\WorkstationSettings.cs" />
     <Compile Include="Workstation\IWorkstationIdProvider.cs" />
     <Compile Include="Local\LocalDeviceInfo.cs" />
     <Compile Include="Local\LocalDeviceInfoCache.cs" />

@@ -143,7 +143,7 @@ namespace HideezMiddleware.Settings
         /// Synchronously load program settings from file
         /// </summary>
         /// <returns>Returns program settings loaded from file</returns>
-        private T LoadSettings()
+        public T LoadSettings()
         {
             var loadedModel = fileSerializer.Deserialize<T>(SettingsFilePath);
 
