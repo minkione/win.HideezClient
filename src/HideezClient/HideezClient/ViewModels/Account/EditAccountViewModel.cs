@@ -263,7 +263,7 @@ namespace HideezClient.ViewModels
         public IEnumerable<string> Apps { get { return AppsAndUrls.Where(x => !x.IsUrl).Select(x => x.Title); } }
         public IEnumerable<string> Urls { get { return AppsAndUrls.Where(x => x.IsUrl).Select(x => x.Title); } }
         public ObservableCollection<AppViewModel> AppsAndUrls { get; } = new ObservableCollection<AppViewModel>();
-        public IEnumerable<string> Logins { get { return _device?.AccountsRecords.Select(a => a.Value.Login).Distinct(); } }
+        public IEnumerable<string> Logins { get { return _device?.AccountsRecords.Select(a => a.Login).Distinct(); } }
         public ObservableCollection<AppInfo> OpenedApps { get; } = new ObservableCollection<AppInfo>();
         public ObservableCollection<AppInfo> OpenedForegroundUrls { get; } = new ObservableCollection<AppInfo>();
 
@@ -480,11 +480,11 @@ namespace HideezClient.ViewModels
                 ErrorAccountName = "Account name cannot be empty";
                 ErrorAccountLogin = null;
             }
-            else if (_device.AccountsRecords.Select(a => a.Value)
+            else if (_device.AccountsRecords
                 .Where(a => a.Flags.IsUserAccount)
                 .Any(a => a.Name.Trim() == AccountRecord.Name.Trim() && 
                 (a.Login == AccountRecord.Login || string.IsNullOrWhiteSpace(a.Login) && string.IsNullOrWhiteSpace(AccountRecord.Login)) && 
-                a.Key != AccountRecord.Key)) // Strasse != Straße in default/ordinal comparison
+                a.StorageId != AccountRecord.StorageId)) // Strasse != Straße in default/ordinal comparison
             {
                 ErrorAccountName = "Account with the same name and login already exists";
                 ErrorAccountLogin = ErrorAccountName;

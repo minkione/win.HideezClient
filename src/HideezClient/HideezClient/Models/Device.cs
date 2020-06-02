@@ -751,7 +751,7 @@ namespace HideezClient.Models
 
                 _log.WriteLine($"({serialNo}) Loading storage");
                 await PasswordManager.Load();
-                _log.WriteLine($"({serialNo}) Loaded {PasswordManager.Accounts.Count} entries from storage");
+                _log.WriteLine($"({serialNo}) Loaded {PasswordManager.Accounts.Count()} entries from storage");
                 
                 IsStorageLoaded = true;
             }

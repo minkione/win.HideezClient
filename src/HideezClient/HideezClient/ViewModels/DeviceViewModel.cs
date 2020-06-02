@@ -50,14 +50,14 @@ namespace HideezClient.ViewModels
         public byte StorageFreePercent => (byte)(((double)StorageFreeSize / StorageTotalSize) * 100);
 
         [DependsOn(nameof(IsStorageLoaded))]
-        public IDictionary<ushort, AccountRecord> AccountsRecords 
+        public IEnumerable<AccountRecord> AccountsRecords 
         { 
             get 
             {
                 if (device?.PasswordManager != null)
                     return device.PasswordManager.Accounts;
                 else
-                    return new Dictionary<ushort, AccountRecord>();
+                    return new List<AccountRecord>();
             } 
         }
 

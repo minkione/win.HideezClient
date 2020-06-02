@@ -16,7 +16,7 @@ namespace HideezClient.Modules
         {
             List<Account> accounts = new List<Account>();
 
-            foreach (var accountRecord in device.PasswordManager?.Accounts.Values)
+            foreach (var accountRecord in device.PasswordManager?.Accounts)
             {
                 // login must be the same
                 if (!string.IsNullOrEmpty(appInfo.Login))
