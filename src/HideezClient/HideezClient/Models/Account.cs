@@ -19,7 +19,7 @@ namespace HideezClient.Models
             this.accountRecord = accountRecord;
         }
 
-        public string Id => $"{device.Id}:{accountRecord.Key}";
+        public string Id => $"{device.Id}:{accountRecord.StorageId}";
         public Device Device => device;
         public string Name => accountRecord.Name;
 

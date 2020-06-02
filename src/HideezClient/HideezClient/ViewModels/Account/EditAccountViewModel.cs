@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using ControlzEx.Standard;
 using DynamicData;
 using GalaSoft.MvvmLight.Messaging;
 using Hideez.ARM;
@@ -72,6 +73,8 @@ namespace HideezClient.ViewModels
                 AccountRecord = new AccountRecord
                 {
                     Key = accountRecord.Key,
+                    StorageId = accountRecord.StorageId,
+                    Timestamp = accountRecord.Timestamp,
                     Flags = accountRecord.Flags,
                     Name = accountRecord.Name,
                     Login = accountRecord.Login,

@@ -1,22 +1,12 @@
-﻿using DynamicData;
-using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.PasswordManager;
-using HideezClient.Controls;
-using HideezClient.Extension;
+﻿using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.BLE;
-
 using HideezClient.Models;
-using HideezClient.Modules.Localize;
 using HideezClient.Mvvm;
 using MvvmExtensions.Attributes;
-using MvvmExtensions.Commands;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
+using Hideez.SDK.Communication.Utils;
 
 namespace HideezClient.ViewModels
 {
@@ -73,27 +63,34 @@ namespace HideezClient.ViewModels
 
         public bool CanLockByProximity => device.CanLockByProximity;
 
-        public Task<ushort> SaveOrUpdateAccountAsync(AccountRecord account)
+        public async Task SaveOrUpdateAccountAsync(AccountRecord account)
         {
             var flags = new AccountFlagsOptions
             {
                 IsUserAccount = true,
             };
-            return device.PasswordManager.SaveOrUpdateAccount(
-                account.Key, 
-                account.Name, 
-                account.Password, 
-                account.Login, 
-                account.OtpSecret, 
-                account.Apps, 
-                account.Urls, 
-                account.IsPrimary, 
-                flags);
+
+            if (account.StorageId == null)
+                account.StorageId = new StorageId();
+            
+            account.Timestamp = ConvertUtils.ConvertToUnixTime(DateTime.Now);
+
+           await device.PasswordManager.SaveOrUpdateAccount(
+               account.StorageId, 
+               account.Timestamp,
+               account.Name, 
+               account.Password, 
+               account.Login, 
+               account.OtpSecret, 
+               account.Apps, 
+               account.Urls, 
+               account.IsPrimary, 
+               flags);
         }
 
         public Task DeleteAccountAsync(AccountRecord account)
         {
-            return device.PasswordManager.DeleteAccount(account.Key, account.IsPrimary);
+            return device.PasswordManager.DeleteAccount(account.StorageId, account.IsPrimary);
         }
         public bool FinishedMainFlow => device.FinishedMainFlow;
         public bool IsCreatingRemoteDevice => device.IsCreatingRemoteDevice;

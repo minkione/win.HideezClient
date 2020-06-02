@@ -214,10 +214,10 @@ namespace HideezClient.PageViewModels
                 IsAvailable = false;
                 account.AccountRecord.Name = account.AccountRecord.Name.Trim();
                 account.AccountRecord.Password = password.GetAsString();
-                var key = await Device.SaveOrUpdateAccountAsync(account.AccountRecord);
+                await Device.SaveOrUpdateAccountAsync(account.AccountRecord);
                 EditAccount = null;
                 OnFilterAccount();
-                SelectedAccount = Accounts.FirstOrDefault(a => a.AccountRecord.Key == key);
+                SelectedAccount = Accounts.FirstOrDefault(a => a.AccountRecord.StorageId == account.AccountRecord.StorageId);
             }
             catch (Exception ex)
             {
