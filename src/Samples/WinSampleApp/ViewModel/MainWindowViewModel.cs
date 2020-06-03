@@ -20,6 +20,7 @@ using Hideez.SDK.Communication.Utils;
 using HideezMiddleware;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.Settings;
+using HideezMiddleware.Workstation;
 using Microsoft.Win32;
 
 namespace WinSampleApp.ViewModel
@@ -1053,7 +1054,9 @@ namespace WinSampleApp.ViewModel
                 _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
 
                 // WorkstationInfoProvider ==================================
-                var workstationInfoProvider = new WorkstationInfoProvider(HesAddress, _log); //todo - HesAddress?
+                var clientRegistryRoot = HideezClientRegistryRoot.GetRootRegistryKey(true);
+                var workstationIdProvider = new WorkstationIdProvider(clientRegistryRoot, _log);
+                var workstationInfoProvider = new WorkstationInfoProvider(workstationIdProvider, _log); //todo - HesAddress?
 
                 // HES Connection ==================================
 
@@ -1110,7 +1113,7 @@ namespace WinSampleApp.ViewModel
                 _tapProcessor.Start();
 
                 // StatusManager =============================
-                var statusManager = new StatusManager(_hesConnection, _rfidService, _connectionManager, uiProxyManager, rfidSettingsManager, _log);
+                var statusManager = new StatusManager(_hesConnection, null, _rfidService, _connectionManager, uiProxyManager, rfidSettingsManager, null, _log);
 
                 _connectionManager.StartDiscovery();
 
@@ -1315,7 +1318,7 @@ namespace WinSampleApp.ViewModel
                 var account = new AccountRecord
                 {
                     Key = 1,
-                    StorageId = 0,
+                    StorageId = new StorageId(new byte[] { 0 }),
                     Timestamp = 0,
                     Name = "My Primary Account",
                     Login = PrimaryAccountLogin,
@@ -1498,6 +1501,10 @@ namespace WinSampleApp.ViewModel
 
         async Task UpdateFw(DeviceViewModel device)
         {
+            // Todo: UpdateFw method must be updated due to new FirmwareImageUploader implementation
+            MessageBox.Show("Firmware upload method must be updated due to new FirmwareImageUploader implementation");
+
+            /*
             try
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog
@@ -1525,6 +1532,7 @@ namespace WinSampleApp.ViewModel
                 MessageBox.Show(ex.Message);
                 device.UpdateFwProgress = 0;
             }
+            */
         }
 
         async Task CheckPassphrase(DeviceViewModel device)
@@ -1923,7 +1931,7 @@ namespace WinSampleApp.ViewModel
             return Task.CompletedTask;
         }
 
-        public Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
+        public Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
         {
             ClientUiStatus = $"{DateTime.Now:T} BLE: {bluetoothStatus}, RFID: {rfidStatus}, HES: {hesStatus}";
             return Task.CompletedTask;

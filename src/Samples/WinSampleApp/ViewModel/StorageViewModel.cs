@@ -431,7 +431,7 @@ namespace WinSampleApp.ViewModel
                 // single record
                 var account = new AccountRecord()
                 {
-                    StorageId = ConvertUtils.ConvertToUnixTime(DateTime.Now),
+                    StorageId = new StorageId(),
                     Timestamp = ConvertUtils.ConvertToUnixTime(DateTime.Now),
                     Name = $"{Data} My Google Account {_counter}",
                     Login = $"{Data} admin_0@hideez.com {_counter}",
@@ -474,9 +474,9 @@ namespace WinSampleApp.ViewModel
                     _pm = new DevicePasswordManager(Device, _log);
                 await _pm.Load();
 
-                foreach (var a in _pm.Accounts.Values)
+                foreach (var a in _pm.Accounts)
                 {
-                    _log.WriteLine("PM", $"Account {a.Key},\t {a.Flags:X},\t {a.IsPrimary},\t {a.Name},\t {a.Login},\t {a.Apps},\t {a.Urls}");
+                    _log.WriteLine("PM", $"Account {a.Key},\t {a.StorageId},\t {a.Flags:X},\t {a.IsPrimary},\t {a.Name},\t {a.Login},\t {a.Apps},\t {a.Urls}");
                 }
             }
             catch (Exception ex)
