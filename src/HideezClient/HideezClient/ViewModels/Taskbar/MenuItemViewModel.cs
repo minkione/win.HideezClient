@@ -1,7 +1,9 @@
 ﻿using HideezClient.Modules;
 using HideezClient.Modules.Localize;
 using HideezClient.Mvvm;
+using NLog.LayoutRenderers;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace HideezClient.ViewModels
@@ -62,6 +64,11 @@ namespace HideezClient.ViewModels
         {
             get { return isVisible; }
             set { Set(ref isVisible, value); }
+        }
+
+        public bool HasMenuItems 
+        {
+            get => MenuItems != null && MenuItems.Count > 0; 
         }
 
         public ICommand Command
