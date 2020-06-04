@@ -31,6 +31,7 @@ namespace HideezMiddleware
         readonly UiProxyManager _ui;
         readonly HesAppConnection _hesConnection;
         readonly ILocalDeviceInfoCache _localDeviceInfoCache;
+        readonly IHesAccessManager _hesAccessManager;
 
         int _isConnecting = 0;
         string _infNid = string.Empty; // Notification Id, which must be the same for the entire duration of MainWorkflow
@@ -51,6 +52,7 @@ namespace HideezMiddleware
             IScreenActivator screenActivator,
             UiProxyManager ui,
             ILocalDeviceInfoCache localDeviceInfoCache,
+            IHesAccessManager hesAccessManager,
             ILog log)
             : base(nameof(ConnectionFlowProcessor), log)
         {
@@ -61,32 +63,38 @@ namespace HideezMiddleware
             _ui = ui;
             _hesConnection = hesConnection;
             _localDeviceInfoCache = localDeviceInfoCache;
+            _hesAccessManager = hesAccessManager;
 
+            _hesAccessManager.AccessRetractedEvent += HesAccessManager_AccessRetractedEvent;
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
+        }
+
+        void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
+        {
+            Cancel("Workstation access retracted");
         }
 
         void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
             // TODO: MainFlow can cancel itself after successful unlock
-            Cancel();
+            Cancel("Session switched");
         }
 
         void OnDeviceDisconnectedDuringFlow(object sender, EventArgs e)
         {
-            WriteLine("Canceling because disconnect");
             // cancel the workflow if the device disconnects
-            Cancel();
+            Cancel("Device unexpectedly disconnected");
         }
 
         void OnUserCancelledByButton(object sender, EventArgs e)
         {
-            WriteLine("Canceling because the user pressed the cancel button");
             // cancel the workflow if the user have pressed the cancel (long button press)
-            Cancel();
+            Cancel("User pressed the cancel button");
         }
 
-        public void Cancel()
+        public void Cancel(string reason)
         {
+            WriteLine($"Canceling; {reason}");
             _cts?.Cancel();
         }
 
@@ -157,6 +165,9 @@ namespace HideezMiddleware
             {
                 await _ui.SendNotification("", _infNid);
                 await _ui.SendError("", _errNid);
+
+                if (!_hesAccessManager.HasAccessKey())
+                    throw new HideezException(HideezErrorCode.HesWorkstationNotApproved);
 
                 // start fetching the device info in the background
                 var deviceInfoProc = new GetDeviceInfoFromHesProc(_hesConnection, mac, ct);

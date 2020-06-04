@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
+using HideezMiddleware;
 using System.Diagnostics.Eventing.Reader;
 using System.ServiceModel;
 using System.Threading.Tasks;
@@ -105,10 +106,9 @@ namespace ServiceLibrary
         [OperationContract(IsOneWay = true)]
         void ActivateWorkstationScreenRequest();
 
-
         [OperationContract(IsOneWay = true)]
-        void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected, bool tbHesConnected);
-
+        void ServiceComponentsStateChanged(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus);
+        
         [OperationContract(IsOneWay = true)]
         void ServiceNotificationReceived(string message, string notificationId);
 

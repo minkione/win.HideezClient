@@ -195,6 +195,9 @@
     <None Include="Connected Services\HideezServiceReference\Hideez.SDK.Communication.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Connected Services\HideezServiceReference\HideezMiddleware.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Connected Services\HideezServiceReference\HideezServiceHost.HideezServiceReference.DeviceDTO.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>

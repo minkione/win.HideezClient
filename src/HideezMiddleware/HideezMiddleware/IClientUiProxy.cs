@@ -27,6 +27,7 @@ namespace HideezMiddleware
         Ok,
         HesNotConnected,
         Disabled,
+        NotApproved,
     }
 
     public class PinReceivedEventArgs : EventArgs

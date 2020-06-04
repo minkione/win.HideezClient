@@ -719,6 +719,63 @@ namespace TestConsole.HideezServiceReference {
         }
     }
     
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="HesStatus", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware")]
+    public enum HesStatus : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Ok = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        HesNotConnected = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Disabled = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        NotApproved = 3,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="RfidStatus", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware")]
+    public enum RfidStatus : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Ok = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        RfidServiceNotConnected = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        RfidReaderNotConnected = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Disabled = 3,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BluetoothStatus", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware")]
+    public enum BluetoothStatus : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Ok = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Unknown = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Resetting = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Unsupported = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Unauthorized = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PoweredOff = 5,
+    }
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="DeviceStateDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
@@ -1198,7 +1255,7 @@ namespace TestConsole.HideezServiceReference {
         void ActivateWorkstationScreenRequest();
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceComponentsStateChanged")]
-        void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected, bool tbHesConnected);
+        void ServiceComponentsStateChanged(TestConsole.HideezServiceReference.HesStatus hesStatus, TestConsole.HideezServiceReference.RfidStatus rfidStatus, TestConsole.HideezServiceReference.BluetoothStatus bluetoothStatus, TestConsole.HideezServiceReference.HesStatus tbHesStatus);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceNotificationReceived")]
         void ServiceNotificationReceived(string message, string notificationId);

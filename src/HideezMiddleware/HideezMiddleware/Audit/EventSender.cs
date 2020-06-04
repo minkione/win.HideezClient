@@ -265,6 +265,9 @@ namespace HideezMiddleware.Audit
 
         async Task BreakIntoSetsAndSendToServer(IEnumerable<WorkstationEvent> events)
         {
+            if (_hesAppConnection?.State != HesConnectionState.Connected)
+                return;
+
             var sets = events.ToSets(EVENTS_PER_SET).ToList();
 
             if (sets.Count > 1)

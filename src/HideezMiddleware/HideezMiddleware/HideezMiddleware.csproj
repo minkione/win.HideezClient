@@ -93,6 +93,7 @@
     <Compile Include="DeviceLogging\DeviceLogManager.cs" />
     <Compile Include="DeviceLogging\DeviceLogWriter.cs" />
     <Compile Include="DeviceLogging\IDeviceLogWriter.cs" />
+    <Compile Include="HesAccessManager.cs" />
     <Compile Include="HideezClientRegistryRoot.cs" />
     <Compile Include="ConnectionManagerRestarter.cs" />
     <Compile Include="CredentialProviderProxy.cs" />

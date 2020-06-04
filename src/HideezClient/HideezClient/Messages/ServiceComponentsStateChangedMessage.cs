@@ -1,27 +1,23 @@
-﻿namespace HideezClient.Messages
+﻿using HideezClient.HideezServiceReference;
+
+namespace HideezClient.Messages
 {
     class ServiceComponentsStateChangedMessage
     {
-        public bool HesConnected { get; set; }
+        public HesStatus HesStatus { get; set; }
 
-        public bool ShowHesStatus { get; set; }
+        public RfidStatus RfidStatus { get; set; }
 
-        public bool RfidConnected { get; set; }
+        public BluetoothStatus BluetoothStatus { get; set; }
 
-        public bool ShowRfidStatus { get; set; }
+        public HesStatus TbHesStatus { get; set; }
 
-        public bool BleConnected { get; set; }
-
-        public bool TBHesConnected { get; set; }
-
-        public ServiceComponentsStateChangedMessage(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected, bool tbHesConnected)
+        public ServiceComponentsStateChangedMessage(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus)
         {
-            HesConnected = hesConnected;
-            ShowHesStatus = showHesStatus;
-            RfidConnected = rfidConnected;
-            ShowRfidStatus = showRfidStatus;
-            BleConnected = bleConnected;
-            TBHesConnected = tbHesConnected;
+            HesStatus = hesStatus;
+            RfidStatus = rfidStatus;
+            BluetoothStatus = bluetoothStatus;
+            TbHesStatus = tbHesStatus;
         }
     }
 }

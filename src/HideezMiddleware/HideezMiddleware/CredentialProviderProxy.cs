@@ -327,8 +327,12 @@ namespace HideezMiddleware
             }
 
             if (hesStatus != HesStatus.Ok)
-                statuses.Add("HES not connected");
-
+            {
+                if (hesStatus == HesStatus.NotApproved)
+                    statuses.Add("Workstation not approved on HES");
+                else
+                    statuses.Add("HES not connected");
+            }
 
             if (statuses.Count > 0)
                 await SendStatus($"ERROR: {string.Join("; ", statuses)}");

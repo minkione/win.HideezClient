@@ -719,6 +719,63 @@ namespace HideezServiceHost.HideezServiceReference {
         }
     }
     
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="HesStatus", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware")]
+    public enum HesStatus : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Ok = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        HesNotConnected = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Disabled = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        NotApproved = 3,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="RfidStatus", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware")]
+    public enum RfidStatus : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Ok = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        RfidServiceNotConnected = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        RfidReaderNotConnected = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Disabled = 3,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BluetoothStatus", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware")]
+    public enum BluetoothStatus : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Ok = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Unknown = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Resetting = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Unsupported = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Unauthorized = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PoweredOff = 5,
+    }
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="DeviceStateDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
@@ -1168,20 +1225,21 @@ namespace HideezServiceHost.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/ChangeServerAddress", ReplyAction="http://tempuri.org/IHideezService/ChangeServerAddressResponse")]
         System.Threading.Tasks.Task<bool> ChangeServerAddressAsync(string address);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabled", ReplyAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabledResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabledHideezServiceFaultF" +
-            "ault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        bool IsSoftwareVaultUnlockEnabled();
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabled", ReplyAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabledResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabledHideezService" +
+            "FaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        bool IsSoftwareVaultUnlockModuleEnabled();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabled", ReplyAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabledResponse")]
-        System.Threading.Tasks.Task<bool> IsSoftwareVaultUnlockEnabledAsync();
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabled", ReplyAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabledResponse")]
+        System.Threading.Tasks.Task<bool> IsSoftwareVaultUnlockModuleEnabledAsync();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetSoftwareUnlockState", ReplyAction="http://tempuri.org/IHideezService/SetSoftwareUnlockStateResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/SetSoftwareUnlockStateHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        void SetSoftwareUnlockState(bool enabled);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleState", ReplyAction="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleStateResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleStateHideezServiceF" +
+            "aultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void SetSoftwareVaultUnlockModuleState(bool enabled);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetSoftwareUnlockState", ReplyAction="http://tempuri.org/IHideezService/SetSoftwareUnlockStateResponse")]
-        System.Threading.Tasks.Task SetSoftwareUnlockStateAsync(bool enabled);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleState", ReplyAction="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleStateResponse")]
+        System.Threading.Tasks.Task SetSoftwareVaultUnlockModuleStateAsync(bool enabled);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1197,7 +1255,7 @@ namespace HideezServiceHost.HideezServiceReference {
         void ActivateWorkstationScreenRequest();
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceComponentsStateChanged")]
-        void ServiceComponentsStateChanged(bool hesConnected, bool showHesStatus, bool rfidConnected, bool showRfidStatus, bool bleConnected, bool tbHesConnected);
+        void ServiceComponentsStateChanged(HideezServiceHost.HideezServiceReference.HesStatus hesStatus, HideezServiceHost.HideezServiceReference.RfidStatus rfidStatus, HideezServiceHost.HideezServiceReference.BluetoothStatus bluetoothStatus, HideezServiceHost.HideezServiceReference.HesStatus tbHesStatus);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceNotificationReceived")]
         void ServiceNotificationReceived(string message, string notificationId);
@@ -1422,20 +1480,20 @@ namespace HideezServiceHost.HideezServiceReference {
             return base.Channel.ChangeServerAddressAsync(address);
         }
         
-        public bool IsSoftwareVaultUnlockEnabled() {
-            return base.Channel.IsSoftwareVaultUnlockEnabled();
+        public bool IsSoftwareVaultUnlockModuleEnabled() {
+            return base.Channel.IsSoftwareVaultUnlockModuleEnabled();
         }
         
-        public System.Threading.Tasks.Task<bool> IsSoftwareVaultUnlockEnabledAsync() {
-            return base.Channel.IsSoftwareVaultUnlockEnabledAsync();
+        public System.Threading.Tasks.Task<bool> IsSoftwareVaultUnlockModuleEnabledAsync() {
+            return base.Channel.IsSoftwareVaultUnlockModuleEnabledAsync();
         }
         
-        public void SetSoftwareUnlockState(bool enabled) {
-            base.Channel.SetSoftwareUnlockState(enabled);
+        public void SetSoftwareVaultUnlockModuleState(bool enabled) {
+            base.Channel.SetSoftwareVaultUnlockModuleState(enabled);
         }
         
-        public System.Threading.Tasks.Task SetSoftwareUnlockStateAsync(bool enabled) {
-            return base.Channel.SetSoftwareUnlockStateAsync(enabled);
+        public System.Threading.Tasks.Task SetSoftwareVaultUnlockModuleStateAsync(bool enabled) {
+            return base.Channel.SetSoftwareVaultUnlockModuleStateAsync(enabled);
         }
     }
 }

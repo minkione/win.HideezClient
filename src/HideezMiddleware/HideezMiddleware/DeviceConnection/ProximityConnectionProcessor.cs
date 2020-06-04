@@ -106,7 +106,6 @@ namespace HideezMiddleware.DeviceConnection
                 isRunning = false;
                 _bleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
                 _proximitySettingsManager.SettingsChanged -= UnlockerSettingsManager_SettingsChanged;
-                _connectionFlowProcessor.Cancel();
                 WriteLine("Stopped");
             }
         }
