@@ -28,21 +28,8 @@ namespace HideezClient.ViewModels
 
             InitIndicators();
 
-            messenger.Register<ConnectionServiceChangedMessage>(this, c => ResetIndicators(c.IsConnected), true);
-            messenger.Register<ServiceComponentsStateChangedMessage>(this, message =>
-            {
-                log.WriteLine("Updating components state indicators");
-                Server.State = message.HesConnected;
-                Server.Visible = message.ShowHesStatus;
-
-                RFID.State = message.RfidConnected;
-                RFID.Visible = message.ShowRfidStatus;
-
-                Dongle.State = message.BleConnected;
-
-                TBServer.State = message.TBHesConnected;
-            }
-            , true);
+            messenger.Register<ConnectionServiceChangedMessage>(this, c => ResetIndicators(c.IsConnected));
+            messenger.Register<ServiceComponentsStateChangedMessage>(this, OnComponentsStateChangedMessage);
         }
 
         #region Properties
@@ -81,6 +68,20 @@ namespace HideezClient.ViewModels
 
         #endregion
         
+        void OnComponentsStateChangedMessage(ServiceComponentsStateChangedMessage msg)
+        {
+            log.WriteLine("Updating components state indicators");
+            Server.State = msg.HesStatus == HideezServiceReference.HesStatus.Ok;
+            Server.Visible = msg.HesStatus != HideezServiceReference.HesStatus.Disabled;
+
+            RFID.State = msg.RfidStatus == HideezServiceReference.RfidStatus.Ok;
+            RFID.Visible = msg.RfidStatus != HideezServiceReference.RfidStatus.Disabled;
+
+            Dongle.State = msg.BluetoothStatus == HideezServiceReference.BluetoothStatus.Ok;
+
+            TBServer.State = msg.TbHesStatus == HideezServiceReference.HesStatus.Ok;
+        }
+
         private void InitIndicators()
         {
             Service = new ConnectionIndicatorViewModel

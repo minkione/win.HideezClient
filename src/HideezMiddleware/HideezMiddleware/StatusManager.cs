@@ -190,18 +190,30 @@ namespace HideezMiddleware
 
         HesStatus GetHesStatus()
         {
-            if (_hesConnection == null || _hesConnection.State != HesConnectionState.Connected)
-                return HesStatus.HesNotConnected;
-            else
-                return HesStatus.Ok;
+            if (_hesConnection != null)
+            {
+                if (_hesConnection.State == HesConnectionState.Connected)
+                    return HesStatus.Ok;
+
+                if (_hesConnection.State == HesConnectionState.NotApproved)
+                    return HesStatus.NotApproved;
+            }
+            
+            return HesStatus.HesNotConnected;
         }
 
         HesStatus GetTBHesStatus()
         {
-            if (_tbHesConnection == null || _tbHesConnection.State != HesConnectionState.Connected)
-                return HesStatus.HesNotConnected;
-            else
-                return HesStatus.Ok;
+            if (_tbHesConnection != null)
+            {
+                if (_tbHesConnection.State == HesConnectionState.Connected)
+                    return HesStatus.Ok;
+
+                if (_tbHesConnection.State == HesConnectionState.NotApproved)
+                    return HesStatus.NotApproved;
+            }
+
+            return HesStatus.HesNotConnected;
         }
     }
 }

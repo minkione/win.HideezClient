@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/HideezMiddleware" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/HideezMiddleware" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="HesStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ok" />
+      <xs:enumeration value="HesNotConnected" />
+      <xs:enumeration value="Disabled" />
+      <xs:enumeration value="NotApproved" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="HesStatus" nillable="true" type="tns:HesStatus" />
+  <xs:simpleType name="RfidStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ok" />
+      <xs:enumeration value="RfidServiceNotConnected" />
+      <xs:enumeration value="RfidReaderNotConnected" />
+      <xs:enumeration value="Disabled" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="RfidStatus" nillable="true" type="tns:RfidStatus" />
+  <xs:simpleType name="BluetoothStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ok" />
+      <xs:enumeration value="Unknown" />
+      <xs:enumeration value="Resetting" />
+      <xs:enumeration value="Unsupported" />
+      <xs:enumeration value="Unauthorized" />
+      <xs:enumeration value="PoweredOff" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="BluetoothStatus" nillable="true" type="tns:BluetoothStatus" />
+</xs:schema>

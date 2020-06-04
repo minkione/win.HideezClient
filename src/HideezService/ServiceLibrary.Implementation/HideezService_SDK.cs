@@ -81,6 +81,7 @@ namespace ServiceLibrary.Implementation
 
         static HesAppConnection _tbHesConnection;
         static IWorkstationIdProvider _workstationIdProvider;
+        static IHesAccessManager _hesAccessManager;
 
         #region Initialization
 
@@ -222,10 +223,12 @@ namespace ServiceLibrary.Implementation
             WorkstationHelper.Log = _sdkLogger;
             var workstationInfoProvider = new WorkstationInfoProvider(_workstationIdProvider, _sdkLogger);
 
-
+            // HesAccessManager ==================================
+            _hesAccessManager = new HesAccessManager(clientRootRegistryKey, _sdkLogger);
+             
             // TB & HES Connections ==================================
             await pipeInitTask.ConfigureAwait(false); 
-            await CreateHubs(_deviceManager, workstationInfoProvider, _proximitySettingsManager, _rfidSettingsManager, _sdkLogger).ConfigureAwait(false);
+            await CreateHubs(_deviceManager, workstationInfoProvider, _proximitySettingsManager, _rfidSettingsManager, _hesAccessManager, _sdkLogger).ConfigureAwait(false);
 
             serviceInitializationTasks.Add(StartHubs(hesAddress));
 
@@ -348,12 +351,13 @@ namespace ServiceLibrary.Implementation
         Task<HesAppConnection> CreateHesHub(BleDeviceManager deviceManager, 
             WorkstationInfoProvider workstationInfoProvider, 
             ISettingsManager<ProximitySettings> proximitySettingsManager, 
-            ISettingsManager<RfidSettings> rfidSettingsManager, 
+            ISettingsManager<RfidSettings> rfidSettingsManager,
+            IHesAccessManager hesAccessManager,
             ILog log)
         {
             return Task.Run(() =>
             {
-                var hesConnection = new HesAppConnection(deviceManager, workstationInfoProvider, log);
+                var hesConnection = new HesAppConnection(deviceManager, workstationInfoProvider, hesAccessManager, log);
 
                 hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
                 {
@@ -373,11 +377,11 @@ namespace ServiceLibrary.Implementation
             });
         }
 
-        Task<HesAppConnection> CreateTbHesHub(WorkstationInfoProvider workstationInfoProvider, ILog log)
+        Task<HesAppConnection> CreateTbHesHub(WorkstationInfoProvider workstationInfoProvider, IHesAccessManager hesAccessManager, ILog log)
         {
             return Task.Run(() =>
             {
-                return new HesAppConnection(workstationInfoProvider, _sdkLogger);
+                return new HesAppConnection(workstationInfoProvider, hesAccessManager, _sdkLogger);
             });
         }
 
@@ -385,12 +389,13 @@ namespace ServiceLibrary.Implementation
             WorkstationInfoProvider workstationInfoProvider,
             ISettingsManager<ProximitySettings> proximitySettingsManager,
             ISettingsManager<RfidSettings> rfidSettingsManager,
+            IHesAccessManager hesAccessManager,
             ILog log)
         {
             return Task.Run(async () =>
             {
-                var hubTask = CreateHesHub(deviceManager, workstationInfoProvider, proximitySettingsManager, rfidSettingsManager, log);
-                var tbHubTask = CreateTbHesHub(workstationInfoProvider, log);
+                var hubTask = CreateHesHub(deviceManager, workstationInfoProvider, proximitySettingsManager, rfidSettingsManager, hesAccessManager, log);
+                var tbHubTask = CreateTbHesHub(workstationInfoProvider, hesAccessManager, log);
 
                 await Task.WhenAll(hubTask, tbHubTask).ConfigureAwait(false);
 

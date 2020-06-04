@@ -27,6 +27,7 @@
     <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="3da2e06a-3b6e-4653-96d1-470645bb691e" SourceId="1" SourceUrl="net.pipe://localhost/HideezService/mex" />
     <MetadataFile FileName="ServiceLibrary.xsd" MetadataType="Schema" ID="a9828365-32cf-4bc5-a727-aad120d39d8e" SourceId="1" SourceUrl="net.pipe://localhost/HideezService/mex" />
     <MetadataFile FileName="System.xsd" MetadataType="Schema" ID="13e1989f-e6e7-4458-89f3-9c5ceac4b4ad" SourceId="1" SourceUrl="net.pipe://localhost/HideezService/mex" />
+    <MetadataFile FileName="HideezMiddleware.xsd" MetadataType="Schema" ID="cbaf5f79-eb97-40ba-9daf-62f28fb28e39" SourceId="1" SourceUrl="net.pipe://localhost/HideezService/mex" />
     <MetadataFile FileName="Hideez.SDK.Communication.xsd" MetadataType="Schema" ID="f3088dc4-bb5a-4fee-a65d-8a962f81e350" SourceId="1" SourceUrl="net.pipe://localhost/HideezService/mex" />
   </Metadata>
   <Extensions>

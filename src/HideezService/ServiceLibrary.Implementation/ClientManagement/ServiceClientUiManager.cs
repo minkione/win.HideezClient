@@ -172,23 +172,11 @@ namespace ServiceLibrary.Implementation.ClientManagement
         {
             await Task.Run(() =>
             {
-                var isHesOk = hesStatus == HesStatus.Ok;
-
-                var showHesStatus = true; // Placeholder for the future. HES indicator will be hidden in a consumer version
-
-                var isRfidOk = rfidStatus == RfidStatus.Ok;
-
-                var showRfidStatus = rfidStatus != RfidStatus.Disabled;
-
-                var isBleOk = bluetoothStatus == BluetoothStatus.Ok;
-
-                var isTbHesOk = tbHesStatus == HesStatus.Ok;
-
                 foreach (var session in _clientSessionManager.Sessions)
                 {
                     try
                     {
-                        session.Callbacks.ServiceComponentsStateChanged(isHesOk, showHesStatus, isRfidOk, showRfidStatus, isBleOk, isTbHesOk);
+                        session.Callbacks.ServiceComponentsStateChanged(hesStatus, rfidStatus, bluetoothStatus, tbHesStatus);
                     }
                     catch (Exception ex)
                     {
