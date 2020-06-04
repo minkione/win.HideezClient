@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
@@ -26,6 +27,7 @@ namespace HideezMiddleware.DeviceConnection
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly BleDeviceManager _bleDeviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
+        readonly IHesAccessManager _hesAccessManager;
         readonly object _lock = new object();
 
         List<string> _macListToConnect;
@@ -44,6 +46,7 @@ namespace HideezMiddleware.DeviceConnection
             AdvertisementIgnoreList advIgnoreListMonitor,
             BleDeviceManager bleDeviceManager,
             IWorkstationUnlocker workstationUnlocker,
+            IHesAccessManager hesAccessManager,
             ILog log) 
             : base(nameof(ProximityConnectionProcessor), log)
         {
@@ -54,6 +57,7 @@ namespace HideezMiddleware.DeviceConnection
             _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
             _bleDeviceManager = bleDeviceManager ?? throw new ArgumentNullException(nameof(bleDeviceManager));
             _workstationUnlocker = workstationUnlocker ?? throw new ArgumentNullException(nameof(workstationUnlocker));
+            _hesAccessManager = hesAccessManager ?? throw new ArgumentNullException(nameof(hesAccessManager));
         }
 
         #region IDisposable
@@ -151,6 +155,9 @@ namespace HideezMiddleware.DeviceConnection
                 return;
 
             if (_advIgnoreListMonitor.IsIgnored(mac))
+                return;
+
+            if (!_hesAccessManager.HasAccessKey())
                 return;
 
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
