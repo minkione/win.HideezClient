@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,14 +32,33 @@ namespace HideezClient.Modules
         {
             this.viewModel = viewModel;
             taskbarIcon.DataContext = viewModel;
+            taskbarIcon.ContextMenu.Opened += ContextMenu_Opened;
 
             InitializeAnimator();
         }
-
+        
         /// <summary>
         /// Array of image Sources for current icon state.
         /// </summary>
         private ImageSource[] FrameArray { get; set; }
+
+        /// <summary>
+        /// The method that determine position of TaskbarIcon's context menu 
+        /// </summary>
+        /// <param name="sender">The object where the method is attached</param>
+        /// <param name="e">The event data</param>
+        private void ContextMenu_Opened(object sender, RoutedEventArgs e)
+        {
+            var g = Graphics.FromHwnd(IntPtr.Zero);
+            var scaleX = g.DpiX / 96.0;
+            var scaleY = g.DpiY / 96.0;
+
+            System.Windows.Controls.ContextMenu contextMenu = sender as System.Windows.Controls.ContextMenu;
+
+            contextMenu.HorizontalOffset = System.Windows.Forms.Cursor.Position.X / scaleX;
+            contextMenu.VerticalOffset = System.Windows.Forms.Cursor.Position.Y / scaleY;
+            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
+        }
 
         /// <summary>
         /// Prepare data for animation and start animation if need.
