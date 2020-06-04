@@ -57,7 +57,7 @@ namespace HideezClient.Modules
 
             contextMenu.HorizontalOffset = System.Windows.Forms.Cursor.Position.X / scaleX;
             contextMenu.VerticalOffset = System.Windows.Forms.Cursor.Position.Y / scaleY;
-            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Left;
+            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
         }
 
         /// <summary>
