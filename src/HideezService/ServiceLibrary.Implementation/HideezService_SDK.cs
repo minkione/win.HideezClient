@@ -299,6 +299,7 @@ namespace ServiceLibrary.Implementation
                 _advIgnoreList,
                 _deviceManager,
                 _credentialProviderProxy,
+                _hesAccessManager,
                 _sdkLogger);
 
             serviceInitializationTasks.Add(Task.Run(() =>
