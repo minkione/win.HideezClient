@@ -225,7 +225,8 @@ namespace ServiceLibrary.Implementation
 
             // HesAccessManager ==================================
             _hesAccessManager = new HesAccessManager(clientRootRegistryKey, _sdkLogger);
-             
+            _hesAccessManager.AccessRetractedEvent += HesAccessManager_AccessRetractedEvent; 
+
             // TB & HES Connections ==================================
             await pipeInitTask.ConfigureAwait(false); 
             await CreateHubs(_deviceManager, workstationInfoProvider, _proximitySettingsManager, _rfidSettingsManager, _hesAccessManager, _sdkLogger).ConfigureAwait(false);
@@ -270,6 +271,7 @@ namespace ServiceLibrary.Implementation
                 _screenActivator,
                 _uiProxy,
                 _localDeviceInfoCache,
+                _hesAccessManager,
                 _sdkLogger);
             _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
@@ -348,6 +350,13 @@ namespace ServiceLibrary.Implementation
             await Task.WhenAll(serviceInitializationTasks).ConfigureAwait(false);
         }
 
+        async void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
+        {
+            // Disconnect all connected devices
+            _deviceReconnectManager.DisableAllDevicesReconnect();
+            await _deviceManager.DisconnectAllDevices().ConfigureAwait(false);
+        }
+
         Task<HesAppConnection> CreateHesHub(BleDeviceManager deviceManager, 
             WorkstationInfoProvider workstationInfoProvider, 
             ISettingsManager<ProximitySettings> proximitySettingsManager, 
@@ -377,11 +386,11 @@ namespace ServiceLibrary.Implementation
             });
         }
 
-        Task<HesAppConnection> CreateTbHesHub(WorkstationInfoProvider workstationInfoProvider, IHesAccessManager hesAccessManager, ILog log)
+        Task<HesAppConnection> CreateTbHesHub(WorkstationInfoProvider workstationInfoProvider, ILog log)
         {
             return Task.Run(() =>
             {
-                return new HesAppConnection(workstationInfoProvider, hesAccessManager, _sdkLogger);
+                return new HesAppConnection(workstationInfoProvider, _sdkLogger);
             });
         }
 
@@ -395,7 +404,7 @@ namespace ServiceLibrary.Implementation
             return Task.Run(async () =>
             {
                 var hubTask = CreateHesHub(deviceManager, workstationInfoProvider, proximitySettingsManager, rfidSettingsManager, hesAccessManager, log);
-                var tbHubTask = CreateTbHesHub(workstationInfoProvider, hesAccessManager, log);
+                var tbHubTask = CreateTbHesHub(workstationInfoProvider, log);
 
                 await Task.WhenAll(hubTask, tbHubTask).ConfigureAwait(false);
 

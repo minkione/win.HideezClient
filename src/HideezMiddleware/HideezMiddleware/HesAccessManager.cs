@@ -24,14 +24,17 @@ namespace HideezMiddleware
         {
             var value = _rootKey.GetValue(ACCESS_VALUE_NAME);
 
-            return value == null;
+            return value != null;
         }
         
         public void ClearAccessKey()
         {
-            _rootKey.DeleteValue(ACCESS_VALUE_NAME);
-            WriteLine("Access key cleared");
-            AccessRetractedEvent?.Invoke(this, EventArgs.Empty);
+            if (HasAccessKey())
+            {
+                _rootKey.DeleteValue(ACCESS_VALUE_NAME);
+                WriteLine("Access key cleared");
+                AccessRetractedEvent?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         public void SaveAccessKey()
