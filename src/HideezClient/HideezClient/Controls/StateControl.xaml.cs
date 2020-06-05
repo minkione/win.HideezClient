@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace HideezClient.Controls
 {
+    public enum StateControlState
+    {
+        Green,
+        Orange,
+        Red,
+    }
+
     /// <summary>
     /// Interaction logic for StateControl.xaml
     /// </summary>
@@ -26,25 +22,45 @@ namespace HideezClient.Controls
             InitializeComponent();
         }
 
-        private void UpdateState()
+        static void PropertyHeaderChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (State)
+            if (d is StateControl stateControl)
             {
-                elipse.Fill = HasConnectionBackground;
-                elipse.Effect = EffectConnected;
-                if (!string.IsNullOrWhiteSpace(HasConnectionText))
-                {
-                    ToolTip = HasConnectionText;
-                }
+                stateControl.header.Text = e.NewValue.ToString();
             }
-            else
+        }
+
+        static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is StateControl stateControl)
             {
-                elipse.Fill = NoConnectionBackground;
-                elipse.Effect = EffectDisconnected;
-                if (!string.IsNullOrWhiteSpace(NoConnectionText))
-                {
-                    ToolTip = NoConnectionText;
-                }
+                stateControl.UpdateState();
+            }
+        }
+
+        void UpdateState()
+        {
+            switch (State)
+            {
+                case StateControlState.Green:
+                    elipse.Fill = GreenBackground;
+                    elipse.Effect = GreenEffect;
+                    if (!string.IsNullOrWhiteSpace(GreenTooltip))
+                        ToolTip = GreenTooltip;
+                    break;
+                case StateControlState.Orange:
+                    elipse.Fill = OrangeBackground;
+                    elipse.Effect = OrangeEffect;
+                    if (!string.IsNullOrWhiteSpace(OrangeTooltip))
+                        ToolTip = OrangeTooltip;
+                    break;
+                case StateControlState.Red:
+                    elipse.Fill = RedBackground;
+                    elipse.Effect = RedEffect;
+                    if (!string.IsNullOrWhiteSpace(RedTooltip))
+                        ToolTip = RedTooltip;
+                    break;
+
             }
         }
 
@@ -54,93 +70,73 @@ namespace HideezClient.Controls
             set { SetValue(HeaderProperty, value); }
         }
 
-        public static readonly DependencyProperty HeaderProperty =
-            DependencyProperty.Register(nameof(Header), typeof(string), typeof(StateControl)
-                , new PropertyMetadata("", PropertyHeaderChangedCallback));
-
-        private static void PropertyHeaderChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        public StateControlState State
         {
-            if (d is StateControl stateControl)
-            {
-                stateControl.header.Text = e.NewValue.ToString();
-            }
-        }
-
-        private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is StateControl stateControl)
-            {
-                stateControl.UpdateState();
-            }
-        }
-
-        public bool State
-        {
-            get { return (bool)GetValue(StateProperty); }
+            get { return (StateControlState)GetValue(StateProperty); }
             set { SetValue(StateProperty, value); }
         }
 
-        public static readonly DependencyProperty StateProperty =
-            DependencyProperty.Register(nameof(State), typeof(bool), typeof(StateControl)
-                , new PropertyMetadata(false, PropertyChangedCallback));
-        
-        public Brush HasConnectionBackground
+        public Brush GreenBackground
         {
-            get { return (Brush)GetValue(HasConnectionBackgroundProperty); }
-            set { SetValue(HasConnectionBackgroundProperty, value); }
+            get { return (Brush)GetValue(GreenBackgroundProperty); }
+            set { SetValue(GreenBackgroundProperty, value); }
+        }
+        public string GreenTooltip
+        {
+            get { return (string)GetValue(GreenTooltipProperty); }
+            set { SetValue(GreenTooltipProperty, value); }
+        }
+        public Effect GreenEffect
+        {
+            get { return (Effect)GetValue(GreenEffectProperty); }
+            set { SetValue(GreenEffectProperty, value); }
         }
 
-        public static readonly DependencyProperty HasConnectionBackgroundProperty =
-            DependencyProperty.Register(nameof(HasConnectionBackground), typeof(Brush), typeof(StateControl)
-                , new PropertyMetadata(Brushes.Green, PropertyChangedCallback));
-
-        public Brush NoConnectionBackground
+        public Brush OrangeBackground
         {
-            get { return (Brush)GetValue(NoConnectionBackgroundProperty); }
-            set { SetValue(NoConnectionBackgroundProperty, value); }
+            get { return (Brush)GetValue(OrangeBackgroundProperty); }
+            set { SetValue(OrangeBackgroundProperty, value); }
+        }
+        public string OrangeTooltip
+        {
+            get { return (string)GetValue(OrangeTooltipProperty); }
+            set { SetValue(OrangeTooltipProperty, value); }
+        }
+        public Effect OrangeEffect
+        {
+            get { return (Effect)GetValue(OrangeEffectProperty); }
+            set { SetValue(OrangeEffectProperty, value); }
         }
 
-        public static readonly DependencyProperty NoConnectionBackgroundProperty =
-            DependencyProperty.Register(nameof(NoConnectionBackground), typeof(Brush), typeof(StateControl)
-                , new PropertyMetadata(Brushes.Red, PropertyChangedCallback));
-
-        public string HasConnectionText
+        public Brush RedBackground
         {
-            get { return (string)GetValue(HasConnectionTextProperty); }
-            set { SetValue(HasConnectionTextProperty, value); }
+            get { return (Brush)GetValue(RedBackgroundProperty); }
+            set { SetValue(RedBackgroundProperty, value); }
+        }
+        public string RedTooltip
+        {
+            get { return (string)GetValue(RedTooltipProperty); }
+            set { SetValue(RedTooltipProperty, value); }
+        }
+        public Effect RedEffect
+        {
+            get { return (Effect)GetValue(RedEffectProperty); }
+            set { SetValue(RedEffectProperty, value); }
         }
 
-        public static readonly DependencyProperty HasConnectionTextProperty =
-            DependencyProperty.Register(nameof(HasConnectionText), typeof(string), typeof(StateControl)
-                , new PropertyMetadata("", PropertyChangedCallback));
+        public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register(nameof(Header), typeof(string), typeof(StateControl), new PropertyMetadata("", PropertyHeaderChangedCallback));
+        public static readonly DependencyProperty StateProperty = DependencyProperty.Register(nameof(State), typeof(StateControlState), typeof(StateControl), new PropertyMetadata(StateControlState.Red, PropertyChangedCallback));
 
-        public string NoConnectionText
-        {
-            get { return (string)GetValue(NoConnectionTextProperty); }
-            set { SetValue(NoConnectionTextProperty, value); }
-        }
+        public static readonly DependencyProperty GreenBackgroundProperty = DependencyProperty.Register(nameof(GreenBackground), typeof(Brush), typeof(StateControl), new PropertyMetadata(Brushes.Green, PropertyChangedCallback));
+        public static readonly DependencyProperty GreenTooltipProperty = DependencyProperty.Register(nameof(GreenTooltip), typeof(string), typeof(StateControl), new PropertyMetadata("", PropertyChangedCallback));
+        public static readonly DependencyProperty GreenEffectProperty = DependencyProperty.Register(nameof(GreenEffect), typeof(Effect), typeof(StateControl), new PropertyMetadata(null, PropertyChangedCallback));
 
-        public static readonly DependencyProperty NoConnectionTextProperty =
-            DependencyProperty.Register(nameof(NoConnectionText), typeof(string), typeof(StateControl)
-                , new PropertyMetadata("", PropertyChangedCallback));
+        public static readonly DependencyProperty OrangeBackgroundProperty = DependencyProperty.Register(nameof(OrangeBackground), typeof(Brush), typeof(StateControl), new PropertyMetadata(Brushes.Green, PropertyChangedCallback));
+        public static readonly DependencyProperty OrangeTooltipProperty = DependencyProperty.Register(nameof(OrangeTooltip), typeof(string), typeof(StateControl), new PropertyMetadata("", PropertyChangedCallback));
+        public static readonly DependencyProperty OrangeEffectProperty = DependencyProperty.Register(nameof(OrangeEffect), typeof(Effect), typeof(StateControl), new PropertyMetadata(null, PropertyChangedCallback));
 
-        public Effect EffectConnected
-        {
-            get { return (Effect)GetValue(EffectConnectedProperty); }
-            set { SetValue(EffectConnectedProperty, value); }
-        }
-
-        public static readonly DependencyProperty EffectConnectedProperty =
-            DependencyProperty.Register(nameof(EffectConnected), typeof(Effect), typeof(StateControl), new PropertyMetadata(null, PropertyChangedCallback));
-
-        public Effect EffectDisconnected
-        {
-            get { return (Effect)GetValue(EffectDisconnectedProperty); }
-            set { SetValue(EffectDisconnectedProperty, value); }
-        }
-
-        public static readonly DependencyProperty EffectDisconnectedProperty =
-            DependencyProperty.Register(nameof(EffectDisconnected), typeof(Effect), typeof(StateControl), new PropertyMetadata(null, PropertyChangedCallback));
-
+        public static readonly DependencyProperty RedBackgroundProperty = DependencyProperty.Register(nameof(RedBackground), typeof(Brush), typeof(StateControl), new PropertyMetadata(Brushes.Green, PropertyChangedCallback));
+        public static readonly DependencyProperty RedTooltipProperty = DependencyProperty.Register(nameof(RedTooltip), typeof(string), typeof(StateControl), new PropertyMetadata("", PropertyChangedCallback));
+        public static readonly DependencyProperty RedEffectProperty = DependencyProperty.Register(nameof(RedEffect), typeof(Effect), typeof(StateControl), new PropertyMetadata(null, PropertyChangedCallback));
     }
 }

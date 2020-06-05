@@ -1,30 +1,32 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Hideez.SDK.Communication.Log;
+using HideezClient.Controls;
 using HideezClient.Messages;
 using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using System;
 using System.Collections.ObjectModel;
+using System.ServiceModel;
 
 namespace HideezClient.ViewModels
 {
     class IndicatorsViewModel : ObservableObject
     {
-        private readonly Logger log = LogManager.GetCurrentClassLogger(nameof(IndicatorsViewModel));
-        private readonly IMessenger messenger;
-        private readonly IServiceProxy serviceProxy;
+        private readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(IndicatorsViewModel));
+        private readonly IMessenger _messenger;
+        private readonly IServiceProxy _serviceProxy;
 
-        private ConnectionIndicatorViewModel service;
-        private ConnectionIndicatorViewModel server;
-        private ConnectionIndicatorViewModel rfid;
-        private ConnectionIndicatorViewModel dongle;
-        private ConnectionIndicatorViewModel tbServer;
+        private StateControlViewModel service;
+        private StateControlViewModel server;
+        private StateControlViewModel rfid;
+        private StateControlViewModel dongle;
+        private StateControlViewModel tbServer;
 
         public IndicatorsViewModel(IMessenger messenger, IServiceProxy serviceProxy)
         {
-            this.messenger = messenger;
-            this.serviceProxy = serviceProxy;
+            _messenger = messenger;
+            _serviceProxy = serviceProxy;
 
             InitIndicators();
 
@@ -34,33 +36,33 @@ namespace HideezClient.ViewModels
 
         #region Properties
 
-        public ObservableCollection<ConnectionIndicatorViewModel> Indicators { get; } = new ObservableCollection<ConnectionIndicatorViewModel>();
+        public ObservableCollection<StateControlViewModel> Indicators { get; } = new ObservableCollection<StateControlViewModel>();
 
-        public ConnectionIndicatorViewModel Service
+        public StateControlViewModel Service
         {
             get { return service; }
             set { Set(ref service, value); }
         }
 
-        public ConnectionIndicatorViewModel Server
+        public StateControlViewModel Server
         {
             get { return server; }
             set { Set(ref server, value); }
         }
 
-        public ConnectionIndicatorViewModel RFID
+        public StateControlViewModel RFID
         {
             get { return rfid; }
             set { Set(ref rfid, value); }
         }
 
-        public ConnectionIndicatorViewModel Dongle
+        public StateControlViewModel Dongle
         {
             get { return dongle; }
             set { Set(ref dongle, value); }
         }
 
-        public ConnectionIndicatorViewModel TBServer
+        public StateControlViewModel TBServer
         {
             get { return tbServer; }
             set { Set(ref tbServer, value); }
@@ -70,53 +72,75 @@ namespace HideezClient.ViewModels
         
         void OnComponentsStateChangedMessage(ServiceComponentsStateChangedMessage msg)
         {
-            log.WriteLine("Updating components state indicators");
-            Server.State = msg.HesStatus == HideezServiceReference.HesStatus.Ok;
-            Server.Visible = msg.HesStatus != HideezServiceReference.HesStatus.Disabled;
+            _log.WriteLine("Updating components state indicators");
+            // Service
+            Service.Visible = !_serviceProxy.IsConnected;
 
-            RFID.State = msg.RfidStatus == HideezServiceReference.RfidStatus.Ok;
-            RFID.Visible = msg.RfidStatus != HideezServiceReference.RfidStatus.Disabled;
+            // HES
+            switch (msg.HesStatus)
+            {
+                case HideezServiceReference.HesStatus.Ok:
+                    Server.State = StateControlState.Green;
+                    break;
+                case HideezServiceReference.HesStatus.NotApproved:
+                    Server.State = StateControlState.Orange;
+                    break;
+                default:
+                    Server.State = StateControlState.Red;
+                    break;
+            }
+            Server.Visible = _serviceProxy.IsConnected;
 
-            Dongle.State = msg.BluetoothStatus == HideezServiceReference.BluetoothStatus.Ok;
+            // RFID
+            RFID.State = StateControlViewModel.BoolToState(msg.RfidStatus == HideezServiceReference.RfidStatus.Ok);
+            RFID.Visible = msg.RfidStatus != HideezServiceReference.RfidStatus.Disabled && _serviceProxy.IsConnected;
 
-            TBServer.State = msg.TbHesStatus == HideezServiceReference.HesStatus.Ok;
+            // Bluetooth
+            Dongle.State = StateControlViewModel.BoolToState(msg.BluetoothStatus == HideezServiceReference.BluetoothStatus.Ok);
+            Dongle.Visible = _serviceProxy.IsConnected;
+
+            // Try&Buy Server
+            TBServer.State = StateControlViewModel.BoolToState(msg.TbHesStatus == HideezServiceReference.HesStatus.Ok);
+            TBServer.Visible = _serviceProxy.IsConnected;
         }
 
         private void InitIndicators()
         {
-            Service = new ConnectionIndicatorViewModel
+            Service = new StateControlViewModel
             {
                 Name = "Status.Service",
-                HasConnectionText = "Status.Tooltip.ConectedService",
-                NoConnectionText = "Status.Tooltip.DisconectedService",
+                GreenTooltip = "Status.Tooltip.ConectedService",
+                RedTooltip = "Status.Tooltip.DisconectedService",
+                Visible = true,
             };
 
-            Server = new ConnectionIndicatorViewModel
+            Server = new StateControlViewModel
             {
                 Name = "Status.Server",
-                HasConnectionText = "Status.Tooltip.ConectedServer",
-                NoConnectionText = "Status.Tooltip.DisconectedServer",
+                GreenTooltip = "Status.Tooltip.ConectedServer",
+                OrangeTooltip = "Status.Tooltip.NotApprovedServer",
+                RedTooltip = "Status.Tooltip.DisconectedServer",
             };
 
-            RFID = new ConnectionIndicatorViewModel
+            RFID = new StateControlViewModel
             {
                 Name = "Status.RFID",
-                HasConnectionText = "Status.Tooltip.ConectedRFID",
-                NoConnectionText = "Status.Tooltip.DisconectedRFID",
+                GreenTooltip = "Status.Tooltip.ConectedRFID",
+                RedTooltip = "Status.Tooltip.DisconectedRFID",
             };
 
-            Dongle = new ConnectionIndicatorViewModel
+            Dongle = new StateControlViewModel
             {
                 Name = "Status.Dongle",
-                HasConnectionText = "Status.Tooltip.ConectedDongle",
-                NoConnectionText = "Status.Tooltip.DisconectedDongle",
+                GreenTooltip = "Status.Tooltip.ConectedDongle",
+                RedTooltip = "Status.Tooltip.DisconectedDongle",
             };
 
-            TBServer = new ConnectionIndicatorViewModel
+            TBServer = new StateControlViewModel
             {
                 Name = "Status.Network",
-                HasConnectionText = "Status.Tooltip.NetworkAvailable",
-                NoConnectionText = "Status.Tooltip.NetworkUnavailable",
+                GreenTooltip = "Status.Tooltip.NetworkAvailable",
+                RedTooltip = "Status.Tooltip.NetworkUnavailable",
             };
 
             Indicators.Add(Server);
@@ -126,19 +150,32 @@ namespace HideezClient.ViewModels
 
         private void ResetIndicators(bool isServiceConnected)
         {
-            log.WriteLine("Resetting components state indicators");
-            try
+            if (isServiceConnected)
             {
-                Service.State = isServiceConnected;
-                Dongle.State = false;
-                RFID.State = false;
+                Service.State = StateControlState.Green;
+                Service.Visible = false;
+
+                Server.Visible = true;
+                Dongle.Visible = true;
+
+                TBServer.Visible = true;
+            }   
+            else
+            {
+                Service.State = StateControlState.Red;
+                Service.Visible = true;
+
+                Server.State = StateControlState.Red;
+                Server.Visible = false;
+
+                Dongle.State = StateControlState.Red;
+                Dongle.Visible = false;
+
+                RFID.State = StateControlState.Red;
                 RFID.Visible = false;
-                Server.State = false;
-                TBServer.State = false;
-            }
-            catch (Exception ex)
-            {
-                log.WriteLine(ex.Message);
+
+                TBServer.State = StateControlState.Red;
+                TBServer.Visible = false;
             }
         }
     }

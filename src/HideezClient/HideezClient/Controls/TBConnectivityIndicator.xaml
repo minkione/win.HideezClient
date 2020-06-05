@@ -12,14 +12,11 @@
         <local:StateControl
             HorizontalAlignment="Stretch"
             DataContext="{Binding Service}"
-            Style="{DynamicResource StateControlStyle}"
-            Visibility="{Binding State, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+            Style="{DynamicResource StateControlStyle}"/>
 
-        <Grid Visibility="{Binding Service.State, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <local:StateControl
-                HorizontalAlignment="Stretch"
-                DataContext="{Binding TBServer}"
-                Style="{DynamicResource StateControlStyle}" />
+        <local:StateControl
+            HorizontalAlignment="Stretch"
+            DataContext="{Binding TBServer}"
+            Style="{DynamicResource StateControlStyle}" />
         </Grid>
-    </Grid>
 </UserControl>

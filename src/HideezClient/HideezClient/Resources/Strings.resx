@@ -754,4 +754,7 @@ to access stored credentials</value>
     <value>Invalid PIN!
 Only 1 attempt left.</value>
   </data>
+  <data name="Status.Tooltip.NotApprovedServer" xml:space="preserve">
+    <value>Workstation not approved on the server</value>
+  </data>
 </root>

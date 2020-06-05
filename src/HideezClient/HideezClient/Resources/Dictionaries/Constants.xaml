@@ -65,14 +65,21 @@
     </LinearGradientBrush>
     
     <!--  Connection indicators  -->
-    <SolidColorBrush x:Key="ConnectedBrush" Color="#0EFFB7" />
+    <SolidColorBrush x:Key="IndicatorGreenBrush" Color="#0EFFB7" />
+    <SolidColorBrush x:Key="IndicatorOrangeBrush" Color="#ffb62e" />
+    <SolidColorBrush x:Key="IndicatorRedBrush" Color="#F6346B" />
+
     <DropShadowEffect
-        x:Key="EffectConnected"
+        x:Key="IndicatorGreenEffect"
         BlurRadius="10"
         ShadowDepth="0"
         Color="#CEF2E7" />
-    <SolidColorBrush x:Key="DisconnectedBrush" Color="#F6346B" />
-    <x:Null x:Key="EffectDisconnected" />
+    <DropShadowEffect
+        x:Key="IndicatorOrangeEffect"
+        BlurRadius="10"
+        ShadowDepth="0"
+        Color="#EDDDC7" />
+    <x:Null x:Key="IndicatorRedEffect" />
 
     <!--  Main font  -->
     <FontFamily x:Key="MainFontFamily">Segoe UI</FontFamily>

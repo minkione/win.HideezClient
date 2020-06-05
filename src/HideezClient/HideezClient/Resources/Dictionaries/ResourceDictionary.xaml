@@ -27,13 +27,19 @@
     <!--  State Control Style  -->
     <Style x:Key="StateControlStyle" TargetType="{x:Type controls:StateControl}">
         <Setter Property="Margin" Value="18,22" />
-        <Setter Property="NoConnectionBackground" Value="{DynamicResource DisconnectedBrush}" />
-        <Setter Property="HasConnectionBackground" Value="{DynamicResource ConnectedBrush}" />
-        <Setter Property="EffectConnected" Value="{DynamicResource EffectConnected}" />
-        <Setter Property="EffectDisconnected" Value="{DynamicResource EffectDisconnected}" />
 
-        <Setter Property="HasConnectionText" Value="{Binding HasConnectionText}" />
-        <Setter Property="NoConnectionText" Value="{Binding NoConnectionText}" />
+        <Setter Property="GreenBackground" Value="{DynamicResource IndicatorGreenBrush}" />
+        <Setter Property="OrangeBackground" Value="{DynamicResource IndicatorOrangeBrush}" />
+        <Setter Property="RedBackground" Value="{DynamicResource IndicatorRedBrush}" />
+
+        <Setter Property="GreenTooltip" Value="{Binding GreenTooltip}" />
+        <Setter Property="OrangeTooltip" Value="{Binding OrangeTooltip}" />
+        <Setter Property="RedTooltip" Value="{Binding RedTooltip}" />
+
+        <Setter Property="GreenEffect" Value="{DynamicResource IndicatorGreenEffect}" />
+        <Setter Property="OrangeEffect" Value="{DynamicResource IndicatorOrangeEffect}" />
+        <Setter Property="RedEffect" Value="{DynamicResource IndicatorRedEffect}" />
+        
         <Setter Property="Header" Value="{Binding Name}" />
         <Setter Property="State" Value="{Binding State}" />
         <Setter Property="Visibility" Value="{Binding Visible, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />

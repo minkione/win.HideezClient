@@ -16,14 +16,12 @@
         <local:StateControl
             HorizontalAlignment="Stretch"
             DataContext="{Binding Service}"
-            Style="{DynamicResource StateControlStyle}"
-            Visibility="{Binding State, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+            Style="{DynamicResource StateControlStyle}"/>
 
         <ItemsControl
             HorizontalAlignment="Center"
             Focusable="False"
-            ItemsSource="{Binding Indicators}"
-            Visibility="{Binding Service.State, Converter={StaticResource BooleanToVisibilityConverter}}">
+            ItemsSource="{Binding Indicators}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" />

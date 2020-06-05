@@ -474,7 +474,7 @@
     <Compile Include="Utilities\LocalToMSAccountConverter.cs" />
     <Compile Include="Utilities\LogManagement.cs" />
     <Compile Include="Utilities\TemporaryCache.cs" />
-    <Compile Include="ViewModels\Controls\ConnectionIndicatorViewModel.cs" />
+    <Compile Include="ViewModels\Controls\StateControlViewModel.cs" />
     <Compile Include="ViewModels\Controls\IndicatorsViewModel.cs" />
     <Compile Include="Views\PinView.xaml.cs" />
     <Compile Include="Views\SimpleMainView.xaml.cs">

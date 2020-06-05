@@ -42,29 +42,21 @@ namespace HideezClient.PageViewModels
             _messenger.Register<DeviceProximitySettingsChangedMessage>(this, OnDeviceProximitySettingsChanged);
             _messenger.Register<ActiveDeviceChangedMessage>(this, OnActiveDeviceChanged);
 
-            Сonnected = new ConnectionIndicatorViewModel
+            Сonnected = new StateControlViewModel
             {
                 Name = "Status.Device.Сonnected",
-                HasConnectionText = "",
-                NoConnectionText = "",
             };
-            Initialized = new ConnectionIndicatorViewModel
+            Initialized = new StateControlViewModel
             {
                 Name = "Status.Device.Initialized",
-                HasConnectionText = "",
-                NoConnectionText = "",
             };
-            Authorized = new ConnectionIndicatorViewModel
+            Authorized = new StateControlViewModel
             {
                 Name = "Status.Device.Authorized",
-                HasConnectionText = "",
-                NoConnectionText = "",
             };
-            StorageLoaded = new ConnectionIndicatorViewModel
+            StorageLoaded = new StateControlViewModel
             {
                 Name = "Status.Device.StorageLoaded",
-                HasConnectionText = "",
-                NoConnectionText = "",
             };
 
             Indicators.Add(Сonnected);
@@ -79,10 +71,10 @@ namespace HideezClient.PageViewModels
                 PropertyChangedEventManager.AddListener(Device, this, nameof(Device.IsAuthorized));
                 PropertyChangedEventManager.AddListener(Device, this, nameof(Device.IsStorageLoaded));
 
-                Сonnected.State = Device.IsConnected;
-                Initialized.State = Device.IsInitialized;
-                Authorized.State = Device.IsAuthorized;
-                StorageLoaded.State = Device.IsStorageLoaded;
+                Сonnected.State = StateControlViewModel.BoolToState(Device.IsConnected);
+                Initialized.State = StateControlViewModel.BoolToState(Device.IsInitialized);
+                Authorized.State = StateControlViewModel.BoolToState(Device.IsAuthorized);
+                StorageLoaded.State = StateControlViewModel.BoolToState(Device.IsStorageLoaded);
             });
 
             this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Where(t => t.Item1 != 0 && t.Item2 != 0).Subscribe(o => ProximityHasChanges = true);
@@ -92,17 +84,17 @@ namespace HideezClient.PageViewModels
         }
 
         [Reactive] public DeviceViewModel Device { get; set; }
-        [Reactive] public ConnectionIndicatorViewModel Сonnected { get; set; }
-        [Reactive] public ConnectionIndicatorViewModel Initialized { get; set; }
-        [Reactive] public ConnectionIndicatorViewModel Authorized { get; set; }
-        [Reactive] public ConnectionIndicatorViewModel StorageLoaded { get; set; }
+        [Reactive] public StateControlViewModel Сonnected { get; set; }
+        [Reactive] public StateControlViewModel Initialized { get; set; }
+        [Reactive] public StateControlViewModel Authorized { get; set; }
+        [Reactive] public StateControlViewModel StorageLoaded { get; set; }
         [Reactive] public int LockProximity { get; set; }
         [Reactive] public int UnlockProximity { get; set; }
         [Reactive] public bool ProximityHasChanges { get; set; }
         [Reactive] public bool AllowEditProximitySettings { get; set; }
 
 
-        public ObservableCollection<ConnectionIndicatorViewModel> Indicators { get; } = new ObservableCollection<ConnectionIndicatorViewModel>();
+        public ObservableCollection<StateControlViewModel> Indicators { get; } = new ObservableCollection<StateControlViewModel>();
 
         #region Command
 
@@ -206,10 +198,10 @@ namespace HideezClient.PageViewModels
             // to filter events from device relevant/selected device only
             if (Device != null && Device == sender as DeviceViewModel)
             {
-                Сonnected.State = Device.IsConnected;
-                Initialized.State = Device.IsInitialized;
-                Authorized.State = Device.IsAuthorized;
-                StorageLoaded.State = Device.IsStorageLoaded;
+                Сonnected.State = StateControlViewModel.BoolToState(Device.IsConnected);
+                Initialized.State = StateControlViewModel.BoolToState(Device.IsInitialized);
+                Authorized.State = StateControlViewModel.BoolToState(Device.IsAuthorized);
+                StorageLoaded.State = StateControlViewModel.BoolToState(Device.IsStorageLoaded);
             }
             return true;
         }
