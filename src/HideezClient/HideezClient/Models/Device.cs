@@ -572,6 +572,7 @@ namespace HideezClient.Models
                         tempRemoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
                         await tempRemoteDevice.Shutdown(code);
                         await _serviceProxy.GetService().RemoveDeviceAsync(tempRemoteDevice.Id);
+                        tempRemoteDevice.Dispose();
                     }
                 }
             }
