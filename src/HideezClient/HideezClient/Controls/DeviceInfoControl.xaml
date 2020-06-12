@@ -97,18 +97,6 @@
                 FontSize="18"
                 Text="{Binding Name}" />
 
-            <!--
-            <iconPacks:PackIconModern
-                x:Name="noConnectionIco"
-                Width="16"
-                Height="22"
-                Margin="8,0,0,0"
-                Foreground="{DynamicResource DisconnectedBrush}"
-                Kind="Connect"
-                VerticalAlignment="Center"
-                Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
-            -->
-            
             <StackPanel
                 x:Name="IconsContainer"
                 VerticalAlignment="Center"
@@ -235,7 +223,7 @@
                     Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}">
                     <iconPacks:PackIconMaterial
                         Margin="3"
-                        Foreground="{DynamicResource DisconnectedBrush}"
+                        Foreground="{DynamicResource DisconnectButtonBrush}"
                         Kind="Delete" />
                 </Button>
             </StackPanel>

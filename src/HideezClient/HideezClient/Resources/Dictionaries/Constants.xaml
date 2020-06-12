@@ -14,7 +14,8 @@
     <Color x:Key="IcoButtonColor">#1BA2DC</Color>
     <SolidColorBrush x:Key="IcoButtonBrush" Color="{StaticResource IcoButtonColor}" />
     <SolidColorBrush x:Key="DeleteIconButtonBrush" Color="#FC3085" />
-
+    <SolidColorBrush x:Key="DisconnectButtonBrush" Color="#F6346B" />
+    
     <!--  Foregraund  -->
     <SolidColorBrush x:Key="DarkForeground" Color="#22446D" />
     <SolidColorBrush x:Key="Foreground" Color="#6E89A4" />
