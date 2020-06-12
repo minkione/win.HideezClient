@@ -237,7 +237,7 @@
                             Width="13"
                             Height="13"
                             Foreground="{StaticResource HighlighBrush}"
-                            Kind="Power" />
+                            Kind="ArrowUpBoldCircleOutline" />
                 </Button>
             </Border>
         </StackPanel>
