@@ -31,7 +31,7 @@ namespace DeviceMaintenance.ViewModel
         readonly ConcurrentDictionary<string, DeviceViewModel> _devices =
             new ConcurrentDictionary<string, DeviceViewModel>();
 
-        public IEnumerable<DeviceViewModel> Devices => _devices.Values;
+        public IEnumerable<DeviceViewModel> Devices => _devices.Values.OrderByDescending(x => x.CreatedAt);
         public HideezServiceController HideezServiceController { get; }
         public ConnectionManagerViewModel ConnectionManager { get; }
 
@@ -162,7 +162,8 @@ namespace DeviceMaintenance.ViewModel
                 deviceViewModel = _devices.GetOrAdd(arg.DeviceId, (id) =>
                 {
                     added = true;
-                    return new DeviceViewModel(BleUtils.ConnectionIdToMac(id), _hub, FirmwareFilePath);
+                    bool isBonded = ConnectionManager.IsBonded(id);
+                    return new DeviceViewModel(BleUtils.ConnectionIdToMac(id), isBonded, _hub);
                 });
 
                 if (added)
@@ -182,7 +183,7 @@ namespace DeviceMaintenance.ViewModel
         Task OnDeviceConnected(DeviceConnectedEvent arg)
         {
             if (AutomaticallyUploadFirmware || arg.DeviceViewModel.IsBoot)
-                return arg.DeviceViewModel.StartFirmwareUpdate();
+                return arg.DeviceViewModel.StartFirmwareUpdate(FirmwareFilePath);
 
             return Task.CompletedTask;
         }

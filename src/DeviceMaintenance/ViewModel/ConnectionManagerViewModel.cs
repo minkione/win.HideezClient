@@ -78,5 +78,10 @@ namespace DeviceMaintenance.ViewModel
             await imageUploader.EnterBoot();
             await _hub.Publish(new EnterBootResponse(imageUploader));
         }
+
+        public bool IsBonded(string id)
+        {
+            return _connectionManager.IsBonded(id);
+        }
     }
 }
