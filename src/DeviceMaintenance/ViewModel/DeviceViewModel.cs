@@ -7,13 +7,14 @@ using MvvmExtensions.Attributes;
 using MvvmExtensions.PropertyChangedMonitoring;
 using System;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace DeviceMaintenance.ViewModel
 {
     public class DeviceViewModel : PropertyChangedImplementation
     {
-        //  None -> Bonding|Connecting -> Connected -> EnteringBoot -> Updating -> Success
+        //  None -> Bonding|Connecting -> Connected -> EnteringBoot -> Updating|Wiping -> Success|Error
         public enum State
         {
             None,
@@ -22,6 +23,7 @@ namespace DeviceMaintenance.ViewModel
             Connected,
             EnteringBoot,
             Updating,
+            Wiping,
             Success,
             Error
         }
@@ -37,6 +39,7 @@ namespace DeviceMaintenance.ViewModel
         State _state;
 
 
+        public IDevice Device => _device;
         public DateTime CreatedAt = DateTime.Now;
         public bool IsConnected => _device?.IsConnected ?? false;
         public bool IsBoot => _device?.IsBoot ?? false;
@@ -92,6 +95,9 @@ namespace DeviceMaintenance.ViewModel
         public bool UpdatingState => CurrentState == State.Updating;
 
         [DependsOn(nameof(CurrentState))]
+        public bool WipingState => CurrentState == State.Wiping;
+
+        [DependsOn(nameof(CurrentState))]
         public bool SuccessState => CurrentState == State.Success;
 
         [DependsOn(nameof(CurrentState))]
@@ -111,6 +117,21 @@ namespace DeviceMaintenance.ViewModel
                 };
             }
         }
+
+        public ICommand WipeDevice
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = async (x) =>
+                    {
+                        await OnWipeDevice();
+                    }
+                };
+            }
+        }
+
 
         public DeviceViewModel(string mac, bool isBonded, MetaPubSub hub)
         {
@@ -133,7 +154,20 @@ namespace DeviceMaintenance.ViewModel
 
             _device.ConnectionStateChanged += (object sender, EventArgs e) =>
             {
-                NotifyPropertyChanged(nameof(IsConnected));
+                try
+                {
+                    if (!IsConnected && CurrentState == State.Wiping)
+                    {
+                        CurrentState = State.Success;
+                        _hub.Publish(new DeviceWipedEvent(this));
+                    }
+
+                    NotifyPropertyChanged(nameof(IsConnected));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
             };
 
             _device.PropertyChanged += (object sender, string e) =>
@@ -196,5 +230,39 @@ namespace DeviceMaintenance.ViewModel
                 CurrentState = State.Error;
             }
         }
+
+        async Task OnWipeDevice()
+        {
+            try
+            {
+                var mb = MessageBox.Show(
+                    "WARNING! ALL DATA WILL BE LOST!" +
+                    Environment.NewLine +
+                    "To wipe the device, press OK, wait for the green light on the device then press and hold the button for 15 seconds.",
+                    "Wipe the device",
+                    MessageBoxButton.OKCancel,
+                    MessageBoxImage.Exclamation);
+
+                if (mb == MessageBoxResult.OK)
+                {
+                    await _device.Wipe(Array.Empty<byte>());
+                    CurrentState = State.Wiping;
+                    await Task.Delay(30_000);
+                    if (CurrentState != State.Success)
+                    {
+                        if (IsConnected)
+                            CurrentState = State.Connected;
+                        else
+                            CurrentState = State.Error;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
     }
 }

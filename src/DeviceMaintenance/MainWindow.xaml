@@ -138,16 +138,27 @@
                                     Visibility="{Binding BondingState, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     />
 
-                                    <Button
-                                    Content="Update"
-                                    FontWeight="Bold"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center"
-                                    Margin="10,4"
-                                    Command="{Binding UpdateDevice}" CommandParameter="{Binding DataContext.FirmwareFilePath, RelativeSource={RelativeSource FindAncestor, AncestorType=Metro:MetroWindow}}"
-                                    Style="{StaticResource MetroAccentButton}"
-                                    Visibility="{Binding ReadyToUpdateState, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    />
+                                    <StackPanel Orientation="Horizontal" Margin="10,4" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                        <Button
+                                        Content="Wipe"
+                                        FontWeight="Bold"
+                                        Background="Red"
+                                        Command="{Binding WipeDevice}"
+                                        Style="{StaticResource MetroAccentButton}"
+                                        Visibility="{Binding ReadyToUpdateState, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        />
+                                        
+                                        <Button
+                                        Content="Update"
+                                        FontWeight="Bold"
+                                        Margin="10,0,0,0"
+                                        Command="{Binding UpdateDevice}" CommandParameter="{Binding DataContext.FirmwareFilePath, RelativeSource={RelativeSource FindAncestor, AncestorType=Metro:MetroWindow}}"
+                                        Style="{StaticResource MetroAccentButton}"
+                                        Visibility="{Binding ReadyToUpdateState, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        />
+                                        
+                                    </StackPanel>
+
 
                                     <TextBlock
                                     Text="Entering boot mode..."
@@ -158,6 +169,15 @@
                                     Visibility="{Binding EnteringBootModeState, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     />
 
+                                    <TextBlock
+                                    Text="Wiping the device..."
+                                    FontWeight="Bold"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Margin="10,0"
+                                    Visibility="{Binding WipingState, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    />
+                                    
                                     <StackPanel 
                                     Orientation="Horizontal"
                                     HorizontalAlignment="Right"
