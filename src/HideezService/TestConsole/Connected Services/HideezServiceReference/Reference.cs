@@ -1241,6 +1241,9 @@ namespace TestConsole.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HidePinUi")]
         void HidePinUi();
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/WorkstationUnlocked")]
+        void WorkstationUnlocked(bool isNonHideezMethod);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]

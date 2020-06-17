@@ -17,9 +17,12 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(ServiceCallbackMessanger));
         readonly SemaphoreQueue _sendMessageSemaphore = new SemaphoreQueue(1, 1);
 
+        public static event EventHandler<bool> OnWorkstationUnlocked;
+
         public ServiceCallbackMessanger(IMessenger messenger)
         {
             _messenger = messenger;
+            //this.taskbarIconManager = taskbarIconManager;
         }
 
         public void ActivateWorkstationScreenRequest()
@@ -123,6 +126,17 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
         {
             _log.WriteLine($"({device.Id}) Device marked as valid for workstation lock");
             SendMessage(new DeviceProximityLockEnabledMessage(device));
+        }
+
+        public void WorkstationUnlocked(bool isNonHideezMethod)
+        {
+            if (isNonHideezMethod)
+            {
+                SendMessage(new ShowWarningNotificationMessage(message: "Auto Lock is disabled"));
+                _log.WriteLine($"Workstation unlocked by NonHideez method");
+            }
+
+            OnWorkstationUnlocked?.Invoke(this, isNonHideezMethod);
         }
 
         /// <summary>

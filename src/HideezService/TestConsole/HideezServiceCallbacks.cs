@@ -79,5 +79,9 @@ namespace TestConsole
         public void DeviceProximityLockEnabled(DeviceDTO device)
         {
         }
+
+        public void WorkstationUnlocked(bool isNonHideezMethod)
+        {
+        }
     }
 }

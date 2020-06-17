@@ -1,6 +1,4 @@
-﻿using Hideez.SDK.Communication.Interfaces;
-using System.Diagnostics.Eventing.Reader;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary
@@ -152,6 +150,9 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void HidePinUi();
+
+        [OperationContract(IsOneWay = true)]
+        void WorkstationUnlocked(bool isNonHideezMethod);
     }
 
     public enum Adapter

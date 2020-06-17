@@ -213,22 +213,22 @@
   <wsdl:message name="IHideezService_ChangeServerAddress_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q19="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q19:HideezServiceFault" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_IsSoftwareVaultUnlockEnabled_InputMessage">
-    <wsdl:part name="parameters" element="tns:IsSoftwareVaultUnlockEnabled" />
+  <wsdl:message name="IHideezService_IsSoftwareVaultUnlockModuleEnabled_InputMessage">
+    <wsdl:part name="parameters" element="tns:IsSoftwareVaultUnlockModuleEnabled" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_IsSoftwareVaultUnlockEnabled_OutputMessage">
-    <wsdl:part name="parameters" element="tns:IsSoftwareVaultUnlockEnabledResponse" />
+  <wsdl:message name="IHideezService_IsSoftwareVaultUnlockModuleEnabled_OutputMessage">
+    <wsdl:part name="parameters" element="tns:IsSoftwareVaultUnlockModuleEnabledResponse" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_IsSoftwareVaultUnlockEnabled_HideezServiceFaultFault_FaultMessage">
+  <wsdl:message name="IHideezService_IsSoftwareVaultUnlockModuleEnabled_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q20="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q20:HideezServiceFault" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_SetSoftwareUnlockState_InputMessage">
-    <wsdl:part name="parameters" element="tns:SetSoftwareUnlockState" />
+  <wsdl:message name="IHideezService_SetSoftwareVaultUnlockModuleState_InputMessage">
+    <wsdl:part name="parameters" element="tns:SetSoftwareVaultUnlockModuleState" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_SetSoftwareUnlockState_OutputMessage">
-    <wsdl:part name="parameters" element="tns:SetSoftwareUnlockStateResponse" />
+  <wsdl:message name="IHideezService_SetSoftwareVaultUnlockModuleState_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SetSoftwareVaultUnlockModuleStateResponse" />
   </wsdl:message>
-  <wsdl:message name="IHideezService_SetSoftwareUnlockState_HideezServiceFaultFault_FaultMessage">
+  <wsdl:message name="IHideezService_SetSoftwareVaultUnlockModuleState_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q21="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q21:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_ProximitySettingsChanged_OutputCallbackMessage">
@@ -284,6 +284,9 @@
   </wsdl:message>
   <wsdl:message name="IHideezService_HidePinUi_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:HidePinUi" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_WorkstationUnlocked_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:WorkstationUnlocked" />
   </wsdl:message>
   <wsdl:portType msc:usingSession="true" name="IHideezService">
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AttachClient">
@@ -381,15 +384,15 @@
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ChangeServerAddressResponse" message="tns:IHideezService_ChangeServerAddress_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/ChangeServerAddressHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_ChangeServerAddress_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="IsSoftwareVaultUnlockEnabled">
-      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabled" message="tns:IHideezService_IsSoftwareVaultUnlockEnabled_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabledResponse" message="tns:IHideezService_IsSoftwareVaultUnlockEnabled_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabledHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_IsSoftwareVaultUnlockEnabled_HideezServiceFaultFault_FaultMessage" />
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="IsSoftwareVaultUnlockModuleEnabled">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabled" message="tns:IHideezService_IsSoftwareVaultUnlockModuleEnabled_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabledResponse" message="tns:IHideezService_IsSoftwareVaultUnlockModuleEnabled_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabledHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_IsSoftwareVaultUnlockModuleEnabled_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SetSoftwareUnlockState">
-      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/SetSoftwareUnlockState" message="tns:IHideezService_SetSoftwareUnlockState_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/SetSoftwareUnlockStateResponse" message="tns:IHideezService_SetSoftwareUnlockState_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/SetSoftwareUnlockStateHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_SetSoftwareUnlockState_HideezServiceFaultFault_FaultMessage" />
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SetSoftwareVaultUnlockModuleState">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleState" message="tns:IHideezService_SetSoftwareVaultUnlockModuleState_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleStateResponse" message="tns:IHideezService_SetSoftwareVaultUnlockModuleState_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleStateHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_SetSoftwareVaultUnlockModuleState_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ProximitySettingsChanged">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ProximitySettingsChanged" message="tns:IHideezService_ProximitySettingsChanged_OutputCallbackMessage" />
@@ -444,6 +447,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="HidePinUi">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/HidePinUi" message="tns:IHideezService_HidePinUi_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="WorkstationUnlocked">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/WorkstationUnlocked" message="tns:IHideezService_WorkstationUnlocked_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetNamedPipeBinding_IHideezService" type="tns:IHideezService">
@@ -678,8 +684,8 @@
         <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
-    <wsdl:operation name="IsSoftwareVaultUnlockEnabled">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabled" style="document" />
+    <wsdl:operation name="IsSoftwareVaultUnlockModuleEnabled">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabled" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -690,8 +696,8 @@
         <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
-    <wsdl:operation name="SetSoftwareUnlockState">
-      <soap12:operation soapAction="http://tempuri.org/IHideezService/SetSoftwareUnlockState" style="document" />
+    <wsdl:operation name="SetSoftwareVaultUnlockModuleState">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleState" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -806,6 +812,12 @@
     </wsdl:operation>
     <wsdl:operation name="HidePinUi">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/HidePinUi" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="WorkstationUnlocked">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/WorkstationUnlocked" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

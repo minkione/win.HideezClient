@@ -285,6 +285,9 @@
   <wsdl:message name="IHideezService_HidePinUi_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:HidePinUi" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_WorkstationUnlocked_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:WorkstationUnlocked" />
+  </wsdl:message>
   <wsdl:portType msc:usingSession="true" name="IHideezService">
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AttachClient">
       <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/AttachClient" message="tns:IHideezService_AttachClient_InputMessage" />
@@ -444,6 +447,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="HidePinUi">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/HidePinUi" message="tns:IHideezService_HidePinUi_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="WorkstationUnlocked">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/WorkstationUnlocked" message="tns:IHideezService_WorkstationUnlocked_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetNamedPipeBinding_IHideezService" type="tns:IHideezService">
@@ -806,6 +812,12 @@
     </wsdl:operation>
     <wsdl:operation name="HidePinUi">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/HidePinUi" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="WorkstationUnlocked">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/WorkstationUnlocked" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

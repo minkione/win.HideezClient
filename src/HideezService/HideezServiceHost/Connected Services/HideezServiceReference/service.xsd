@@ -244,26 +244,26 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="IsSoftwareVaultUnlockEnabled">
+  <xs:element name="IsSoftwareVaultUnlockModuleEnabled">
     <xs:complexType>
       <xs:sequence />
     </xs:complexType>
   </xs:element>
-  <xs:element name="IsSoftwareVaultUnlockEnabledResponse">
+  <xs:element name="IsSoftwareVaultUnlockModuleEnabledResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="IsSoftwareVaultUnlockEnabledResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="IsSoftwareVaultUnlockModuleEnabledResult" type="xs:boolean" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="SetSoftwareUnlockState">
+  <xs:element name="SetSoftwareVaultUnlockModuleState">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="enabled" type="xs:boolean" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="SetSoftwareUnlockStateResponse">
+  <xs:element name="SetSoftwareVaultUnlockModuleStateResponse">
     <xs:complexType>
       <xs:sequence />
     </xs:complexType>
@@ -396,6 +396,13 @@
   <xs:element name="HidePinUi">
     <xs:complexType>
       <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="WorkstationUnlocked">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="isNonHideezMethod" type="xs:boolean" />
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 </xs:schema>

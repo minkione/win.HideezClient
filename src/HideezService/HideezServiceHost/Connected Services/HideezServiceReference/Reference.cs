@@ -1168,20 +1168,21 @@ namespace HideezServiceHost.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/ChangeServerAddress", ReplyAction="http://tempuri.org/IHideezService/ChangeServerAddressResponse")]
         System.Threading.Tasks.Task<bool> ChangeServerAddressAsync(string address);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabled", ReplyAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabledResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabledHideezServiceFaultF" +
-            "ault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        bool IsSoftwareVaultUnlockEnabled();
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabled", ReplyAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabledResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabledHideezService" +
+            "FaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        bool IsSoftwareVaultUnlockModuleEnabled();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabled", ReplyAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockEnabledResponse")]
-        System.Threading.Tasks.Task<bool> IsSoftwareVaultUnlockEnabledAsync();
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabled", ReplyAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabledResponse")]
+        System.Threading.Tasks.Task<bool> IsSoftwareVaultUnlockModuleEnabledAsync();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetSoftwareUnlockState", ReplyAction="http://tempuri.org/IHideezService/SetSoftwareUnlockStateResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/SetSoftwareUnlockStateHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        void SetSoftwareUnlockState(bool enabled);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleState", ReplyAction="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleStateResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleStateHideezServiceF" +
+            "aultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void SetSoftwareVaultUnlockModuleState(bool enabled);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetSoftwareUnlockState", ReplyAction="http://tempuri.org/IHideezService/SetSoftwareUnlockStateResponse")]
-        System.Threading.Tasks.Task SetSoftwareUnlockStateAsync(bool enabled);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleState", ReplyAction="http://tempuri.org/IHideezService/SetSoftwareVaultUnlockModuleStateResponse")]
+        System.Threading.Tasks.Task SetSoftwareVaultUnlockModuleStateAsync(bool enabled);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1240,6 +1241,9 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HidePinUi")]
         void HidePinUi();
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/WorkstationUnlocked")]
+        void WorkstationUnlocked(bool isNonHideezMethod);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1422,20 +1426,20 @@ namespace HideezServiceHost.HideezServiceReference {
             return base.Channel.ChangeServerAddressAsync(address);
         }
         
-        public bool IsSoftwareVaultUnlockEnabled() {
-            return base.Channel.IsSoftwareVaultUnlockEnabled();
+        public bool IsSoftwareVaultUnlockModuleEnabled() {
+            return base.Channel.IsSoftwareVaultUnlockModuleEnabled();
         }
         
-        public System.Threading.Tasks.Task<bool> IsSoftwareVaultUnlockEnabledAsync() {
-            return base.Channel.IsSoftwareVaultUnlockEnabledAsync();
+        public System.Threading.Tasks.Task<bool> IsSoftwareVaultUnlockModuleEnabledAsync() {
+            return base.Channel.IsSoftwareVaultUnlockModuleEnabledAsync();
         }
         
-        public void SetSoftwareUnlockState(bool enabled) {
-            base.Channel.SetSoftwareUnlockState(enabled);
+        public void SetSoftwareVaultUnlockModuleState(bool enabled) {
+            base.Channel.SetSoftwareVaultUnlockModuleState(enabled);
         }
         
-        public System.Threading.Tasks.Task SetSoftwareUnlockStateAsync(bool enabled) {
-            return base.Channel.SetSoftwareUnlockStateAsync(enabled);
+        public System.Threading.Tasks.Task SetSoftwareVaultUnlockModuleStateAsync(bool enabled) {
+            return base.Channel.SetSoftwareVaultUnlockModuleStateAsync(enabled);
         }
     }
 }
