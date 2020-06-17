@@ -22,7 +22,6 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
         public ServiceCallbackMessanger(IMessenger messenger)
         {
             _messenger = messenger;
-            //this.taskbarIconManager = taskbarIconManager;
         }
 
         public void ActivateWorkstationScreenRequest()
