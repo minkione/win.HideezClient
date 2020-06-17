@@ -1196,6 +1196,20 @@ namespace HideezServiceHost.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/CancelPin", ReplyAction="http://tempuri.org/IHideezService/CancelPinResponse")]
         System.Threading.Tasks.Task CancelPinAsync();
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SendActivationCode", ReplyAction="http://tempuri.org/IHideezService/SendActivationCodeResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/SendActivationCodeHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void SendActivationCode(string deviceId, byte[] activationCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SendActivationCode", ReplyAction="http://tempuri.org/IHideezService/SendActivationCodeResponse")]
+        System.Threading.Tasks.Task SendActivationCodeAsync(string deviceId, byte[] activationCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/CancelActivationCode", ReplyAction="http://tempuri.org/IHideezService/CancelActivationCodeResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/CancelActivationCodeHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+        void CancelActivationCode();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/CancelActivationCode", ReplyAction="http://tempuri.org/IHideezService/CancelActivationCodeResponse")]
+        System.Threading.Tasks.Task CancelActivationCodeAsync();
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/SetProximitySettings", ReplyAction="http://tempuri.org/IHideezService/SetProximitySettingsResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezServiceHost.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/SetProximitySettingsHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
         void SetProximitySettings(string mac, int lockProximity, int unlockProximity);
@@ -1298,6 +1312,12 @@ namespace HideezServiceHost.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HidePinUi")]
         void HidePinUi();
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ShowActivationCodeUi")]
+        void ShowActivationCodeUi(string deviceId);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HideActivationCodeUi")]
+        void HideActivationCodeUi();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1446,6 +1466,22 @@ namespace HideezServiceHost.HideezServiceReference {
         
         public System.Threading.Tasks.Task CancelPinAsync() {
             return base.Channel.CancelPinAsync();
+        }
+        
+        public void SendActivationCode(string deviceId, byte[] activationCode) {
+            base.Channel.SendActivationCode(deviceId, activationCode);
+        }
+        
+        public System.Threading.Tasks.Task SendActivationCodeAsync(string deviceId, byte[] activationCode) {
+            return base.Channel.SendActivationCodeAsync(deviceId, activationCode);
+        }
+        
+        public void CancelActivationCode() {
+            base.Channel.CancelActivationCode();
+        }
+        
+        public System.Threading.Tasks.Task CancelActivationCodeAsync() {
+            return base.Channel.CancelActivationCodeAsync();
         }
         
         public void SetProximitySettings(string mac, int lockProximity, int unlockProximity) {

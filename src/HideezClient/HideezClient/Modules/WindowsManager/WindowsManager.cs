@@ -36,8 +36,11 @@ namespace HideezClient.Modules
         private bool isMainWindowVisible;
         private readonly ISettingsManager<ApplicationSettings> _settingsManager;
 
-        object pinWindowLock = new object();
+        object pinDialogLock = new object();
         PinDialog pinView = null;
+
+        object activationDialogLock = new object();
+        ActivationDialog activationView = null;
 
         public event EventHandler<bool> MainWindowVisibleChanged;
 
@@ -60,6 +63,8 @@ namespace HideezClient.Modules
             messenger.Register<ShowButtonConfirmUiMessage>(this, ShowButtonConfirmAsync);
             messenger.Register<ShowPinUiMessage>(this, ShowPinAsync);
             messenger.Register<HidePinUiMessage>(this, HidePinAsync);
+            messenger.Register<ShowActivationCodeUiMessage>(this, ShowActivationDialogAsync);
+            messenger.Register<HideActivationCodeUiMessage>(this, HideActivationDialogAsync);
 
             messenger.Register<ShowActivateMainWindowMessage>(this, (p) => ActivateMainWindow());
         }
@@ -290,7 +295,7 @@ namespace HideezClient.Modules
 
         void ShowButtonConfirmAsync(ShowButtonConfirmUiMessage obj)
         {
-            lock (pinWindowLock)
+            lock (pinDialogLock)
             {
                 if (pinView == null)
                 {
@@ -320,7 +325,7 @@ namespace HideezClient.Modules
 
         void ShowPinAsync(ShowPinUiMessage obj)
         {
-            lock (pinWindowLock)
+            lock (pinDialogLock)
             {
                 if (pinView == null)
                 {
@@ -365,14 +370,73 @@ namespace HideezClient.Modules
             catch { }
         }
 
+        void ShowActivationDialogAsync(ShowActivationCodeUiMessage obj)
+        {
+            lock (activationDialogLock)
+            {
+                if (activationView == null)
+                {
+                    UIDispatcher.Invoke(() =>
+                    {
+                        if (MainWindow is MetroWindow metroWindow)
+                        {
+                            var vm = _viewModelLocator.ActivationViewModel;
+                            vm.Initialize(obj.DeviceId);
+                            activationView = new ActivationDialog(vm);
+                            activationView.Closed += ActivationView_Closed;
+                            OnActivateMainWindow();
+                            metroWindow.ShowMetroDialogAsync(activationView);
+                        }
+                    });
+                }
+
+                if (activationView != null)
+                {
+                    UIDispatcher.Invoke(() =>
+                    {
+                        ((ActivationViewModel)activationView.DataContext).UpdateViewModel(obj.DeviceId);
+                    });
+                }
+            }
+        }
+
+        void HideActivationDialogAsync(HideActivationCodeUiMessage obj)
+        {
+            try
+            {
+                UIDispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        activationView?.Close();
+                        activationView = null;
+                    }
+                    catch { }
+                });
+            }
+            catch { }
+        }
+
         void PinView_Closed(object sender, EventArgs e)
         {
-            lock (pinWindowLock)
+            lock (pinDialogLock)
             {
                 if (pinView != null)
                 {
                     pinView.Closed -= PinView_Closed;
                     pinView = null;
+                }
+            }
+        }
+
+        void ActivationView_Closed(object sender, EventArgs e)
+        {
+            lock (activationDialogLock)
+            {
+                if (activationView != null)
+                {
+                    activationView.Closed -= ActivationView_Closed;
+                    activationView = null;
                 }
             }
         }

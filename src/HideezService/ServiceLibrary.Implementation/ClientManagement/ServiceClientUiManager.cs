@@ -14,7 +14,8 @@ namespace ServiceLibrary.Implementation.ClientManagement
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
         public event EventHandler<EventArgs> PinCancelled;
-
+        public event EventHandler<ActivationCodeReceivedEventArgs> ActivationCodeReceived;
+        public event EventHandler<EventArgs> ActivationCodeCancelled;
         public bool IsConnected
         {
             get
@@ -105,6 +106,34 @@ namespace ServiceLibrary.Implementation.ClientManagement
             return Task.CompletedTask;
         }
 
+        public Task ShowActivationCodeUi(string deviceId)
+        {
+            foreach (var session in _clientSessionManager.Sessions)
+            {
+                try
+                {
+                    session.Callbacks.ShowActivationCodeUi(deviceId);
+                }
+                catch (Exception) { }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task HideActivationCodeUi()
+        {
+            foreach (var session in _clientSessionManager.Sessions)
+            {
+                try
+                {
+                    session.Callbacks.HideActivationCodeUi();
+                }
+                catch (Exception) { }
+            }
+
+            return Task.CompletedTask;
+        }
+
         public void EnterPin(string deviceId, string pin, string oldPin = "")
         {
             try
@@ -130,6 +159,29 @@ namespace ServiceLibrary.Implementation.ClientManagement
             catch (Exception) { }
         }
 
+        public void EnterActivationCode(string deviceId, byte[] code) // Todo:
+        {
+            try
+            {
+                var args = new ActivationCodeReceivedEventArgs()
+                {
+                    DeviceId = deviceId,
+                    Code = code,
+                };
+
+                ActivationCodeReceived?.Invoke(this, args);
+            }
+            catch (Exception) { }
+        }
+
+        public void CancelActivationCode() // Todo:
+        {
+            try
+            {
+                ActivationCodeCancelled?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception) { }
+        }
 
         public async Task SendError(string message, string notificationId)
         {

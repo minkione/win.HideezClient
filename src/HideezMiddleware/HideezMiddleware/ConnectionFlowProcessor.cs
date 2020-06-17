@@ -201,16 +201,27 @@ namespace HideezMiddleware
                 {
                     WriteLine("Non-fatal error occured while loading device info from HES", ex);
                 }
-
-                WriteLine($"Check if device is locked: {device.AccessLevel.IsLocked}");
-                if (device.AccessLevel.IsLocked)
+                
+                WriteLine($"Check if device is locked: {device.IsLocked}");
+                if (device.IsLocked)
                 {
-                    // request HES to update this device
-                    await _hesConnection.FixDevice(device, ct);
-                    await device.RefreshDeviceInfo();
+                    WriteLine($"Check if device can be unlocked: {device.IsCanUnlock}");
+                    if (device.IsCanUnlock)
+                    {
+                        await ActivationCodeWorkflow(device, 30_000, ct); // Todo: Replace magic number in timeout duration with some variable or constant
+                    }
+                    else
+                    {
+                        // request HES to update this device
+                        await _hesConnection.FixDevice(device, ct);
+                        await device.RefreshDeviceInfo();
+
+                        if (device.IsLocked)
+                            throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                    }
                 }
 
-                if (device.AccessLevel.IsLocked)
+                if (device.IsLocked) // Todo: This check may be redundant
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);
 
                 if (deviceInfoProc.IsSuccessful)
@@ -660,6 +671,39 @@ namespace HideezMiddleware
                 await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
                 WriteLine($"Loaded license ({license.Id}) into device ({device.SerialNo})");
                 await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
+            }
+        }
+
+        async Task ActivationCodeWorkflow(IDevice device, int timeout, CancellationToken ct)
+        {
+            while (device.IsLocked)
+            {
+                if (ct.IsCancellationRequested)
+                    return;
+
+                if (device.UnlockAttemptsRemain == 0)
+                    throw new Exception("This is supposed to be an exception about to many incorrect activation attempts");
+
+                var code = await _ui.GetActivationCode(device.Id, timeout, ct);
+
+                if (ct.IsCancellationRequested)
+                    return;
+
+                await device.UnlockDeviceCode(code);
+
+                if (ct.IsCancellationRequested)
+                    return;
+
+                await device.RefreshDeviceInfo();
+
+                if (ct.IsCancellationRequested)
+                    return;
+
+                if (!device.IsLocked)
+                {
+                    WriteLine($"({device.SerialNo}) unlocked with activation code");
+                    return;
+                }
             }
         }
 

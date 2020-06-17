@@ -191,6 +191,29 @@
       <xs:sequence />
     </xs:complexType>
   </xs:element>
+  <xs:element name="SendActivationCode">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="activationCode" nillable="true" type="xs:base64Binary" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SendActivationCodeResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CancelActivationCode">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CancelActivationCodeResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
   <xs:element name="SetProximitySettings">
     <xs:complexType>
       <xs:sequence>
@@ -393,6 +416,18 @@
     </xs:complexType>
   </xs:element>
   <xs:element name="HidePinUi">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ShowActivationCodeUi">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="deviceId" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="HideActivationCodeUi">
     <xs:complexType>
       <xs:sequence />
     </xs:complexType>

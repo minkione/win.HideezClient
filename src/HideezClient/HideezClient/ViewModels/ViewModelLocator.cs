@@ -16,6 +16,7 @@ using CommonServiceLocator;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 using HideezClient.Controls;
+using HideezClient.Dialogs;
 using HideezClient.PageViewModels;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -96,6 +97,11 @@ namespace HideezClient.ViewModels
         public DeviceNotAuthorizedNotificationViewModel PinNotVerifiedNotificationViewModel
         {
             get { return DIContainer.Resolve<DeviceNotAuthorizedNotificationViewModel>(); }
+        }
+
+        public ActivationViewModel ActivationViewModel
+        {
+            get { return DIContainer.Resolve<ActivationViewModel>(); }
         }
 
         #endregion

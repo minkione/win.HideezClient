@@ -318,6 +318,9 @@
     <Compile Include="Dialogs\MessageDialog.xaml.cs">
       <DependentUpon>MessageDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\ActivationDialog.xaml.cs">
+      <DependentUpon>ActivationDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\PinDialog.xaml.cs">
       <DependentUpon>PinDialog.xaml</DependentUpon>
     </Compile>
@@ -345,6 +348,7 @@
     <Compile Include="Messages\DeviceProximityChangedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
+    <Compile Include="Messages\HideActivationCodeUiMessage.cs" />
     <Compile Include="Messages\HidePinUiMessage.cs" />
     <Compile Include="Messages\HotkeyPressedMessage.cs" />
     <Compile Include="Messages\HotkeyStateChangedMessage.cs" />
@@ -361,6 +365,7 @@
     <Compile Include="Messages\SessionSwitchMessage.cs" />
     <Compile Include="Messages\SettingsChangedMessage.cs" />
     <Compile Include="Messages\ShowActivateMainWindowMessage.cs" />
+    <Compile Include="Messages\ShowActivationCodeUiMessage.cs" />
     <Compile Include="Messages\ShowButtonConfirmUiMessage.cs" />
     <Compile Include="Messages\ShowDeviceLockedNotificationMessage.cs" />
     <Compile Include="Messages\ShowErrorNotificationMessage.cs" />
@@ -458,6 +463,7 @@
     <Compile Include="ViewModels\Controls\ServerAddressEditControlViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
+    <Compile Include="ViewModels\Dialog\ActivationViewModel.cs" />
     <Compile Include="ViewModels\MessageViewModel.cs" />
     <Compile Include="ViewModels\NotificationsContainerViewModel.cs" />
     <Compile Include="PageViewModels\PasswordManagerViewModel.cs" />
@@ -534,6 +540,10 @@
     <Page Include="Dialogs\MessageDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ActivationDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\PinDialog.xaml">
       <SubType>Designer</SubType>

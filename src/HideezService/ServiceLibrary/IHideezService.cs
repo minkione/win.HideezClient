@@ -72,6 +72,14 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
+        void SendActivationCode(string deviceId, byte[] activationCode);
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
+        void CancelActivationCode();
+
+        [OperationContract]
+        [FaultContract(typeof(HideezServiceFault))]
         void SetProximitySettings(string mac, int lockProximity, int unlockProximity);
 
         [OperationContract]
@@ -144,6 +152,8 @@ namespace ServiceLibrary
         [OperationContract(IsOneWay = true)]
         void RemoteConnection_DeviceStateChanged(string deviceId, DeviceStateDTO stateDto);
 
+        // Todo: Simplify the whole back and forth messaging.
+        // Maybe change the detailed interface to a more generalized one with just two methods, send receive
         [OperationContract(IsOneWay = true)]
         void ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);
 
@@ -152,6 +162,12 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void HidePinUi();
+
+        [OperationContract(IsOneWay = true)]
+        void ShowActivationCodeUi(string deviceId);
+
+        [OperationContract(IsOneWay = true)]
+        void HideActivationCodeUi();
     }
 
     public enum Adapter

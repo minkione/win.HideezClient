@@ -118,6 +118,18 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             SendMessage(new HidePinUiMessage());
         }
 
+        public void ShowActivationCodeUi(string deviceId)
+        {
+            _log.WriteLine($"Show activation code ui message for ({deviceId})");
+            SendMessage(new ShowActivationCodeUiMessage(deviceId));
+        }
+
+        public void HideActivationCodeUi()
+        {
+            _log.WriteLine($"Hide activation code ui message");
+            SendMessage(new HideActivationCodeUiMessage());
+        }
+
         public void DeviceProximityLockEnabled(DeviceDTO device)
         {
             _log.WriteLine($"({device.Id}) Device marked as valid for workstation lock");

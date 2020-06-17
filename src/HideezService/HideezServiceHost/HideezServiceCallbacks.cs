@@ -85,5 +85,13 @@ namespace HideezServiceHost
         public void DeviceProximityLockEnabled(DeviceDTO device)
         {
         }
+
+        public void ShowActivationCodeUi(string deviceId)
+        {
+        }
+
+        public void HideActivationCodeUi()
+        {
+        }
     }
 }

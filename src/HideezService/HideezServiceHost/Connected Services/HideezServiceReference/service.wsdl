@@ -178,6 +178,24 @@
   <wsdl:message name="IHideezService_CancelPin_HideezServiceFaultFault_FaultMessage">
     <wsdl:part xmlns:q15="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q15:HideezServiceFault" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_SendActivationCode_InputMessage">
+    <wsdl:part name="parameters" element="tns:SendActivationCode" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_SendActivationCode_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SendActivationCodeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_SendActivationCode_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q16="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q16:HideezServiceFault" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_CancelActivationCode_InputMessage">
+    <wsdl:part name="parameters" element="tns:CancelActivationCode" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_CancelActivationCode_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CancelActivationCodeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_CancelActivationCode_HideezServiceFaultFault_FaultMessage">
+    <wsdl:part xmlns:q17="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q17:HideezServiceFault" />
+  </wsdl:message>
   <wsdl:message name="IHideezService_SetProximitySettings_InputMessage">
     <wsdl:part name="parameters" element="tns:SetProximitySettings" />
   </wsdl:message>
@@ -185,7 +203,7 @@
     <wsdl:part name="parameters" element="tns:SetProximitySettingsResponse" />
   </wsdl:message>
   <wsdl:message name="IHideezService_SetProximitySettings_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q16="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q16:HideezServiceFault" />
+    <wsdl:part xmlns:q18="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q18:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_GetCurrentProximitySettings_InputMessage">
     <wsdl:part name="parameters" element="tns:GetCurrentProximitySettings" />
@@ -194,7 +212,7 @@
     <wsdl:part name="parameters" element="tns:GetCurrentProximitySettingsResponse" />
   </wsdl:message>
   <wsdl:message name="IHideezService_GetCurrentProximitySettings_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q17="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q17:HideezServiceFault" />
+    <wsdl:part xmlns:q19="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q19:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_GetServerAddress_InputMessage">
     <wsdl:part name="parameters" element="tns:GetServerAddress" />
@@ -203,7 +221,7 @@
     <wsdl:part name="parameters" element="tns:GetServerAddressResponse" />
   </wsdl:message>
   <wsdl:message name="IHideezService_GetServerAddress_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q18="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q18:HideezServiceFault" />
+    <wsdl:part xmlns:q20="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q20:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_ChangeServerAddress_InputMessage">
     <wsdl:part name="parameters" element="tns:ChangeServerAddress" />
@@ -212,7 +230,7 @@
     <wsdl:part name="parameters" element="tns:ChangeServerAddressResponse" />
   </wsdl:message>
   <wsdl:message name="IHideezService_ChangeServerAddress_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q19="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q19:HideezServiceFault" />
+    <wsdl:part xmlns:q21="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q21:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_IsSoftwareVaultUnlockModuleEnabled_InputMessage">
     <wsdl:part name="parameters" element="tns:IsSoftwareVaultUnlockModuleEnabled" />
@@ -221,7 +239,7 @@
     <wsdl:part name="parameters" element="tns:IsSoftwareVaultUnlockModuleEnabledResponse" />
   </wsdl:message>
   <wsdl:message name="IHideezService_IsSoftwareVaultUnlockModuleEnabled_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q20="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q20:HideezServiceFault" />
+    <wsdl:part xmlns:q22="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q22:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_SetSoftwareVaultUnlockModuleState_InputMessage">
     <wsdl:part name="parameters" element="tns:SetSoftwareVaultUnlockModuleState" />
@@ -230,7 +248,7 @@
     <wsdl:part name="parameters" element="tns:SetSoftwareVaultUnlockModuleStateResponse" />
   </wsdl:message>
   <wsdl:message name="IHideezService_SetSoftwareVaultUnlockModuleState_HideezServiceFaultFault_FaultMessage">
-    <wsdl:part xmlns:q21="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q21:HideezServiceFault" />
+    <wsdl:part xmlns:q23="http://schemas.datacontract.org/2004/07/ServiceLibrary" name="detail" element="q23:HideezServiceFault" />
   </wsdl:message>
   <wsdl:message name="IHideezService_ProximitySettingsChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:ProximitySettingsChanged" />
@@ -285,6 +303,12 @@
   </wsdl:message>
   <wsdl:message name="IHideezService_HidePinUi_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:HidePinUi" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_ShowActivationCodeUi_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ShowActivationCodeUi" />
+  </wsdl:message>
+  <wsdl:message name="IHideezService_HideActivationCodeUi_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:HideActivationCodeUi" />
   </wsdl:message>
   <wsdl:portType msc:usingSession="true" name="IHideezService">
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AttachClient">
@@ -361,6 +385,16 @@
       <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/CancelPin" message="tns:IHideezService_CancelPin_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/CancelPinResponse" message="tns:IHideezService_CancelPin_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/CancelPinHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_CancelPin_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SendActivationCode">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/SendActivationCode" message="tns:IHideezService_SendActivationCode_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/SendActivationCodeResponse" message="tns:IHideezService_SendActivationCode_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/SendActivationCodeHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_SendActivationCode_HideezServiceFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="CancelActivationCode">
+      <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/CancelActivationCode" message="tns:IHideezService_CancelActivationCode_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/CancelActivationCodeResponse" message="tns:IHideezService_CancelActivationCode_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IHideezService/CancelActivationCodeHideezServiceFaultFault" name="HideezServiceFaultFault" message="tns:IHideezService_CancelActivationCode_HideezServiceFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SetProximitySettings">
       <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/SetProximitySettings" message="tns:IHideezService_SetProximitySettings_InputMessage" />
@@ -445,6 +479,12 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="HidePinUi">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/HidePinUi" message="tns:IHideezService_HidePinUi_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ShowActivationCodeUi">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ShowActivationCodeUi" message="tns:IHideezService_ShowActivationCodeUi_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="HideActivationCodeUi">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/HideActivationCodeUi" message="tns:IHideezService_HideActivationCodeUi_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetNamedPipeBinding_IHideezService" type="tns:IHideezService">
@@ -631,6 +671,30 @@
         <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
+    <wsdl:operation name="SendActivationCode">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/SendActivationCode" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="CancelActivationCode">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/CancelActivationCode" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="HideezServiceFaultFault">
+        <soap12:fault use="literal" name="HideezServiceFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
     <wsdl:operation name="SetProximitySettings">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/SetProximitySettings" style="document" />
       <wsdl:input>
@@ -807,6 +871,18 @@
     </wsdl:operation>
     <wsdl:operation name="HidePinUi">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/HidePinUi" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ShowActivationCodeUi">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/ShowActivationCodeUi" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HideActivationCodeUi">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/HideActivationCodeUi" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

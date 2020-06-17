@@ -123,5 +123,15 @@ namespace ServiceLibrary
         {
             throw new NotImplementedException();
         }
+
+        public void SendActivationCode(string deviceId, byte[] activationCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CancelActivationCode()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

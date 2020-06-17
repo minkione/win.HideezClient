@@ -1169,6 +1169,32 @@ namespace ServiceLibrary.Implementation
         }
         #endregion
 
+        #region Activation Code
+        public void SendActivationCode(string deviceId, byte[] activationCode)
+        {
+            try
+            {
+                _clientProxy.EnterActivationCode(deviceId, activationCode);
+            }
+            catch (Exception ex)
+            {
+                _log.WriteDebugLine(ex);
+            }
+        }
+
+        public void CancelActivationCode()
+        {
+            try
+            {
+                _clientProxy.CancelActivationCode();
+            }
+            catch (Exception ex)
+            {
+                _log.WriteDebugLine(ex);
+            }
+        }
+        #endregion
+
         #region Host only
 
         static bool _restoringFromSleep = false;

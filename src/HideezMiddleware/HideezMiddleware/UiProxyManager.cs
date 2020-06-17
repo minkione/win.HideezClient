@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Utils;
@@ -15,6 +16,8 @@ namespace HideezMiddleware
         readonly IClientUiProxy _clientUi;
         readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _pendingGetPinRequests
             = new ConcurrentDictionary<string, TaskCompletionSource<string>>();
+        readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetActivationCodeRequests
+            = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
 
         public event EventHandler<EventArgs> ClientConnected;
 
@@ -22,7 +25,7 @@ namespace HideezMiddleware
 
 
         public UiProxyManager(IClientUiProxy credentialProviderUi, IClientUiProxy clientUi, ILog log)
-            :base(nameof(UiProxyManager), log)
+            : base(nameof(UiProxyManager), log)
         {
             _credentialProviderUi = credentialProviderUi;
             _clientUi = clientUi;
@@ -31,15 +34,16 @@ namespace HideezMiddleware
             {
                 _credentialProviderUi.ClientConnected += ClientUi_ClientUiConnected;
                 _credentialProviderUi.PinReceived += ClientUi_PinReceived;
+                _credentialProviderUi.ActivationCodeReceived += ClientUi_ActivationCodeReceived;
             }
 
             if (_clientUi != null)
             {
                 _clientUi.ClientConnected += ClientUi_ClientUiConnected;
                 _clientUi.PinReceived += ClientUi_PinReceived;
+                _clientUi.ActivationCodeReceived += ClientUi_ActivationCodeReceived;
             }
         }
-
 
         #region IDisposable
         public void Dispose()
@@ -83,6 +87,11 @@ namespace HideezMiddleware
             if (_pendingGetPinRequests.TryGetValue(e.DeviceId, out TaskCompletionSource<string> tcs))
                 tcs.TrySetResult(e.Pin);
         }
+        void ClientUi_ActivationCodeReceived(object sender, ActivationCodeReceivedEventArgs e)
+        {
+            if (_pendingGetActivationCodeRequests.TryGetValue(e.DeviceId, out TaskCompletionSource<byte[]> tcs))
+                tcs.TrySetResult(e.Code);
+        }
 
         IClientUiProxy GetCurrentClientUi()
         {
@@ -100,15 +109,6 @@ namespace HideezMiddleware
                 _credentialProviderUi,
                 _clientUi,
             };
-        }
-
-        public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
-        {
-            return Task.CompletedTask;
-
-            // Intentionally not impelented
-            //var ui = GetCurrentClientUi() ?? throw new HideezException(HideezErrorCode.NoConnectedUI);
-            //return ui.ShowPinUi(deviceId, withConfirm, askOldPin);
         }
 
         public async Task<string> GetPin(string deviceId, int timeout, CancellationToken ct, bool withConfirm = false, bool askOldPin = false)
@@ -151,6 +151,41 @@ namespace HideezMiddleware
             {
                 if (ui != null)
                     await ui.HidePinUi();
+            }
+        }
+
+        public async Task<byte[]> GetActivationCode(string deviceId, int timeout, CancellationToken ct)
+        {
+            var ui = GetCurrentClientUi() ?? throw new HideezException(HideezErrorCode.NoConnectedUI);
+
+            await ui.ShowActivationCodeUi(deviceId);
+
+            var tcs = _pendingGetActivationCodeRequests.GetOrAdd(deviceId, (x) =>
+            {
+                return new TaskCompletionSource<byte[]>();
+            });
+
+            try
+            {
+                return await tcs.Task.TimeoutAfter(timeout, ct);
+            }
+            catch (TimeoutException)
+            {
+                throw new HideezException(HideezErrorCode.GetActivationCodeTimeout);
+            }
+            finally
+            {
+                _pendingGetActivationCodeRequests.TryRemove(deviceId, out TaskCompletionSource<byte[]> _);
+            }
+        }
+
+        public async Task HideActivationCodeUi()
+        {
+            var uiList = GetClientUiList();
+            foreach (var ui in uiList)
+            {
+                if (ui != null)
+                    await ui.HideActivationCodeUi();
             }
         }
 

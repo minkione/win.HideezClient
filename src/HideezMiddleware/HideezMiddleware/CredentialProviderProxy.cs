@@ -27,6 +27,8 @@ namespace HideezMiddleware
         HidePinUi = 9,
         GetConfirmedPin = 10,
         GetOldAndConfirmedPin = 11,
+        GetActivationCode = 12,
+        HideActivationCodeUi = 13,
     }
 
     // Events from the Credential Provider
@@ -39,6 +41,7 @@ namespace HideezMiddleware
         EndPasswordChangeRequest = 104,
         CheckPin = 105,
         LogonResult = 106,
+        CheckActivationCode = 107,
     }
 
     public class CredentialProviderProxy : Logger, IWorkstationUnlocker, IClientUiProxy
@@ -51,6 +54,10 @@ namespace HideezMiddleware
         public event EventHandler<PinReceivedEventArgs> PinReceived;
 
         public event EventHandler<EventArgs> PinCancelled { add { } remove { } }
+
+        public event EventHandler<ActivationCodeReceivedEventArgs> ActivationCodeReceived; // Todo:
+
+        public event EventHandler<EventArgs> ActivationCodeCancelled { add { } remove { } }
 
         public bool IsConnected => _pipeServer.IsConnected;
 
@@ -115,6 +122,11 @@ namespace HideezMiddleware
                     var strings = ParseParams(buf, readBytes, expectedParamCount: 2);
                     OnCheckPin(strings[0], strings[1]);
                 }
+                else if (code == CredentialProviderEventCode.CheckActivationCode)
+                {
+                    var strings = ParseParams(buf, readBytes, expectedParamCount: 2);
+                    OnCheckActivationCode(strings[0], strings[1]);
+                }
             }
             catch(Exception ex)
             {
@@ -161,6 +173,17 @@ namespace HideezMiddleware
             {
                 DeviceId = deviceId,
                 Pin = pin
+            });
+        }
+
+        void OnCheckActivationCode(string deviceId, string code)
+        {
+            WriteLine($"OnCheckActivationCode: {deviceId}");
+
+            SafeInvoke(ActivationCodeReceived, new ActivationCodeReceivedEventArgs()
+            {
+                DeviceId = deviceId,
+                Code = Encoding.UTF8.GetBytes(code)
             });
         }
         #endregion CP Message handlers 
@@ -230,6 +253,21 @@ namespace HideezMiddleware
         {
             WriteDebugLine($"HidePinUi");
             await SendMessageAsync(CredentialProviderCommandCode.HidePinUi, true, $"");
+            await SendNotification("");
+            await SendError("");
+        }
+
+        public async Task ShowActivationCodeUi(string deviceId)
+        {
+            WriteDebugLine($"SendGetActivationCode: {deviceId}");
+            var code = CredentialProviderCommandCode.GetActivationCode;
+            await SendMessageAsync(code, true, $"{deviceId}");
+        }
+
+        public async Task HideActivationCodeUi()
+        {
+            WriteDebugLine($"HidePinUi");
+            await SendMessageAsync(CredentialProviderCommandCode.HideActivationCodeUi, true, $"");
             await SendNotification("");
             await SendError("");
         }
