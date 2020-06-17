@@ -170,6 +170,9 @@ namespace HideezClient.HideezServiceReference {
         private bool IsBootField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsCanUnlockField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsConnectedField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -198,6 +201,9 @@ namespace HideezClient.HideezServiceReference {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private uint StorageTotalSizeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int UnlockAttemptsRemainField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -309,6 +315,19 @@ namespace HideezClient.HideezServiceReference {
                 if ((this.IsBootField.Equals(value) != true)) {
                     this.IsBootField = value;
                     this.RaisePropertyChanged("IsBoot");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsCanUnlock {
+            get {
+                return this.IsCanUnlockField;
+            }
+            set {
+                if ((this.IsCanUnlockField.Equals(value) != true)) {
+                    this.IsCanUnlockField = value;
+                    this.RaisePropertyChanged("IsCanUnlock");
                 }
             }
         }
@@ -439,6 +458,19 @@ namespace HideezClient.HideezServiceReference {
                 if ((this.StorageTotalSizeField.Equals(value) != true)) {
                     this.StorageTotalSizeField = value;
                     this.RaisePropertyChanged("StorageTotalSize");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int UnlockAttemptsRemain {
+            get {
+                return this.UnlockAttemptsRemainField;
+            }
+            set {
+                if ((this.UnlockAttemptsRemainField.Equals(value) != true)) {
+                    this.UnlockAttemptsRemainField = value;
+                    this.RaisePropertyChanged("UnlockAttemptsRemain");
                 }
             }
         }

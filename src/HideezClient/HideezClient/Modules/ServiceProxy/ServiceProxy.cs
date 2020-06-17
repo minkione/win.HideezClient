@@ -28,6 +28,7 @@ namespace HideezClient.Modules.ServiceProxy
             this.messenger = messenger;
 
             messenger.Register<SendPinMessage>(this, OnSendPinMessage);
+            messenger.Register<SendActivationCodeMessage>(this, OnSendActivationCodeMessage);
 
             this.Connected += ServiceProxy_ConnectionChanged;
             this.Disconnected += ServiceProxy_ConnectionChanged;
@@ -45,6 +46,21 @@ namespace HideezClient.Modules.ServiceProxy
                 if (IsConnected)
                 {
                     await service.SendPinAsync(obj.DeviceId, obj.Pin ?? new byte[0], obj.OldPin ?? new byte[0]);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.WriteLine(ex);
+            }
+        }
+
+        private async void OnSendActivationCodeMessage(SendActivationCodeMessage obj)
+        {
+            try
+            {
+                if (IsConnected)
+                {
+                    await service.SendActivationCodeAsync(obj.DeviceId, obj.Code ?? new byte[0]);
                 }
             }
             catch (Exception ex)

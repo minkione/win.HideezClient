@@ -23,6 +23,8 @@ namespace ServiceLibrary
             StorageFreeSize = device.StorageFreeSize;
             IsAuthorized = device.IsAuthorized;
             PinAttemptsRemain = device.PinAttemptsRemain;
+            IsCanUnlock = device.IsCanUnlock;
+            UnlockAttemptsRemain = device.UnlockAttemptsRemain;
             FinishedMainFlow = device.GetUserProperty<bool>(ConnectionFlowProcessor.FLOW_FINISHED_PROP);
             Proximity = device.Proximity;
             CanLockPyProximity = device.GetUserProperty<bool>(WorkstationLockProcessor.PROX_LOCK_ENABLED_PROP);
@@ -74,6 +76,12 @@ namespace ServiceLibrary
 
         [DataMember]
         public int PinAttemptsRemain { get; private set; }
+
+        [DataMember]
+        public bool IsCanUnlock { get; private set; }
+
+        [DataMember]
+        public int UnlockAttemptsRemain { get; private set; }
 
         [DataMember]
         public bool FinishedMainFlow { get; private set; }

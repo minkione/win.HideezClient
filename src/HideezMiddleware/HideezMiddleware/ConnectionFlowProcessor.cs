@@ -676,34 +676,49 @@ namespace HideezMiddleware
 
         async Task ActivationCodeWorkflow(IDevice device, int timeout, CancellationToken ct)
         {
-            while (device.IsLocked)
+            try
             {
-                if (ct.IsCancellationRequested)
-                    return;
-
-                if (device.UnlockAttemptsRemain == 0)
-                    throw new Exception("This is supposed to be an exception about to many incorrect activation attempts");
-
-                var code = await _ui.GetActivationCode(device.Id, timeout, ct);
-
-                if (ct.IsCancellationRequested)
-                    return;
-
-                await device.UnlockDeviceCode(code);
-
-                if (ct.IsCancellationRequested)
-                    return;
-
-                await device.RefreshDeviceInfo();
-
-                if (ct.IsCancellationRequested)
-                    return;
-
-                if (!device.IsLocked)
+                while (device.IsLocked)
                 {
-                    WriteLine($"({device.SerialNo}) unlocked with activation code");
-                    return;
+                    if (ct.IsCancellationRequested)
+                        return;
+
+                    if (device.UnlockAttemptsRemain == 0)
+                        throw new Exception("This is supposed to be an exception about to many incorrect activation attempts");
+
+                    var code = await _ui.GetActivationCode(device.Id, timeout, ct);
+
+                    if (ct.IsCancellationRequested)
+                        return;
+
+                    await device.UnlockDeviceCode(code);
+
+                    if (ct.IsCancellationRequested)
+                        return;
+
+                    await device.RefreshDeviceInfo();
+
+                    if (ct.IsCancellationRequested)
+                        return;
+
+                    if (!device.IsLocked)
+                    {
+                        WriteLine($"({device.SerialNo}) unlocked with activation code");
+                        return;
+                    }
+                    else if (device.UnlockAttemptsRemain > 0)
+                    {
+                        await _ui.SendNotification($"Invalid activation code. {device.UnlockAttemptsRemain} attempts left");
+                    }
+                    else
+                    {
+                        throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                    }
                 }
+            }
+            finally
+            {
+                await _ui.HideActivationCodeUi();
             }
         }
 

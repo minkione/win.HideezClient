@@ -358,6 +358,7 @@
     <Compile Include="Messages\OpenPasswordManagerMessage.cs" />
     <Compile Include="Messages\Remote\Remote_BaseMessage.cs" />
     <Compile Include="Messages\Remote\Remote_DeviceStateChangedMessage.cs" />
+    <Compile Include="Messages\SendActivationCodeMessage.cs" />
     <Compile Include="Messages\SendPinMessage.cs" />
     <Compile Include="Messages\ServiceComponentsStateChangedMessage.cs" />
     <Compile Include="Messages\ServiceErrorReceivedMessage.cs" />

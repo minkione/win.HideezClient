@@ -25,16 +25,6 @@ namespace HideezClient.Dialogs
             DataContext = vm;
         }
 
-        private void PinView_PasswordsCleared(object sender, System.EventArgs e)
-        {
-            if (DataContext != null)
-            {
-                CurrentPinPasswordBox.Clear();
-                NewPinPasswordBox.Clear();
-                ConfirmPinPasswordBox.Clear();
-            }
-        }
-
         public event EventHandler Closed;
 
         public void Close()
@@ -43,6 +33,16 @@ namespace HideezClient.Dialogs
             {
                 metroWindow.HideMetroDialogAsync(this);
                 Closed?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private void PinView_PasswordsCleared(object sender, System.EventArgs e)
+        {
+            if (DataContext != null)
+            {
+                CurrentPinPasswordBox.Clear();
+                NewPinPasswordBox.Clear();
+                ConfirmPinPasswordBox.Clear();
             }
         }
 

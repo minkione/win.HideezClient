@@ -278,6 +278,7 @@ namespace HideezClient
             Container.RegisterType<HardwareKeyPageViewModel>();
             Container.RegisterType<SoftwareKeyPageViewModel>();
             Container.RegisterType<SoftwareUnlockSettingViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ActivationViewModel>();
 
             #endregion ViewModels
 

@@ -16,46 +16,6 @@
     Background="Transparent"
     FontSize="16"
     mc:Ignorable="d">
-    <maDialog:BaseMetroDialog.Resources>
-        <Converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <Converters:InvertBooleanToVisibilityConverter x:Key="InvertBooleanToVisibilityConverter" />
-        <!--<Behaviors:TabOnEnterBehavior x:Key="TabOnEnterBehavior" />-->
-
-        <Style x:Key="TitleTextBlockStyle" TargetType="{x:Type TextBlock}">
-            <Setter Property="Foreground" Value="{StaticResource DarkForeground}" />
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="TextWrapping" Value="Wrap" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="HorizontalAlignment" Value="Left" />
-            <Setter Property="TextAlignment" Value="Left" />
-            <Setter Property="Margin" Value="0,0,0,32" />
-        </Style>
-
-        <Style x:Key="LabelTextBlockStyle" TargetType="{x:Type TextBlock}">
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="Foreground" Value="{StaticResource Foreground}" />
-            <Setter Property="HorizontalAlignment" Value="Right" />
-            <Setter Property="TextAlignment" Value="Right" />
-        </Style>
-
-        <Style x:Key="PinPasswordBoxStyle" TargetType="{x:Type PasswordBox}">
-            <Setter Property="Foreground" Value="{StaticResource DarkForeground}" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="CaretBrush" Value="{StaticResource DarkForeground}" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-        </Style>
-
-        <!--  Watermark Text Style  -->
-        <Style x:Key="WatermarkTextStyle" TargetType="{x:Type TextBlock}">
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="FontStyle" Value="Normal" />
-            <Setter Property="Opacity" Value="0.5" />
-            <Setter Property="Foreground" Value="{StaticResource Foreground}" />
-        </Style>
-    </maDialog:BaseMetroDialog.Resources>
     <Border
         MinWidth="385"
         HorizontalAlignment="Center"
@@ -89,7 +49,7 @@
                     <TextBlock
                         Grid.Row="0"
                         Grid.Column="2"
-                        Style="{StaticResource TitleTextBlockStyle}"
+                        Style="{StaticResource DialogTitleTextBlockStyle}"
                         Text="Press the button on your device to confirm authorization" />
                     <StackPanel
                         Grid.Row="2"
@@ -122,15 +82,15 @@
                     <StackPanel Visibility="{Binding InProgress, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
                         <Grid>
                             <TextBlock
-                                Style="{StaticResource TitleTextBlockStyle}"
+                                Style="{StaticResource DialogTitleTextBlockStyle}"
                                 Text="{Binding MinLenghtPin, StringFormat=Set up new PIN for device (minimum {0})}"
                                 Visibility="{Binding IsNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <TextBlock
-                                Style="{StaticResource TitleTextBlockStyle}"
+                                Style="{StaticResource DialogTitleTextBlockStyle}"
                                 Text="Enter device PIN"
                                 Visibility="{Binding IsEnterPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <TextBlock
-                                Style="{StaticResource TitleTextBlockStyle}"
+                                Style="{StaticResource DialogTitleTextBlockStyle}"
                                 Text="{Binding MinLenghtPin, StringFormat=Change device PIN (minimum {0})}"
                                 Visibility="{Binding IsChangePin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         </Grid>
@@ -145,20 +105,20 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock
                                         Grid.Column="0"
-                                        Style="{StaticResource LabelTextBlockStyle}"
+                                        Style="{StaticResource DialogLabelTextBlockStyle}"
                                         Text="Current PIN" />
                                     <PasswordBox
                                         x:Name="CurrentPinPasswordBox"
                                         Grid.Column="2"
                                         adorners:Watermark.Text="●●●●●●●●"
-                                        adorners:Watermark.TextStyle="{StaticResource WatermarkTextStyle}"
+                                        adorners:Watermark.TextStyle="{StaticResource DialogWatermarkTextStyle}"
                                         adorners:Watermark.VisibleWhen="EmptyAndNotKeyboardFocused"
                                         IsTabStop="True"
                                         IsVisibleChanged="PasswordBox_IsVisibleChanged"
                                         MaxLength="{Binding MaxLenghtPin}"
                                         PasswordChanged="CurrentPinPasswordBox_PasswordChanged"
                                         PreviewTextInput="PasswordBox_PreviewTextInput"
-                                        Style="{StaticResource PinPasswordBoxStyle}" />
+                                        Style="{StaticResource DialogPasswordBoxStyle}" />
                                 </Grid>
                             </ContentControl>
 
@@ -170,19 +130,19 @@
                                         <ColumnDefinition Width="24" />
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Style="{StaticResource LabelTextBlockStyle}" Text="New PIN" />
+                                    <TextBlock Style="{StaticResource DialogLabelTextBlockStyle}" Text="New PIN" />
                                     <PasswordBox
                                         x:Name="NewPinPasswordBox"
                                         Grid.Column="2"
                                         adorners:Watermark.Text="●●●●●●●●"
-                                        adorners:Watermark.TextStyle="{StaticResource WatermarkTextStyle}"
+                                        adorners:Watermark.TextStyle="{StaticResource DialogWatermarkTextStyle}"
                                         adorners:Watermark.VisibleWhen="EmptyAndNotKeyboardFocused"
                                         IsTabStop="True"
                                         IsVisibleChanged="PasswordBox_IsVisibleChanged"
                                         MaxLength="{Binding MaxLenghtPin}"
                                         PasswordChanged="NewPinPasswordBox_PasswordChanged"
                                         PreviewTextInput="PasswordBox_PreviewTextInput"
-                                        Style="{StaticResource PinPasswordBoxStyle}" />
+                                        Style="{StaticResource DialogPasswordBoxStyle}" />
                                 </Grid>
                             </ContentControl>
 
@@ -193,19 +153,19 @@
                                         <ColumnDefinition Width="24" />
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Style="{StaticResource LabelTextBlockStyle}" Text="Confirm PIN" />
+                                    <TextBlock Style="{StaticResource DialogLabelTextBlockStyle}" Text="Confirm PIN" />
                                     <PasswordBox
                                         x:Name="ConfirmPinPasswordBox"
                                         Grid.Column="2"
                                         adorners:Watermark.Text="●●●●●●●●"
-                                        adorners:Watermark.TextStyle="{StaticResource WatermarkTextStyle}"
+                                        adorners:Watermark.TextStyle="{StaticResource DialogWatermarkTextStyle}"
                                         adorners:Watermark.VisibleWhen="EmptyAndNotKeyboardFocused"
                                         IsTabStop="True"
                                         IsVisibleChanged="PasswordBox_IsVisibleChanged"
                                         MaxLength="{Binding MaxLenghtPin}"
                                         PasswordChanged="ConfirmPinPasswordBox_PasswordChanged"
                                         PreviewTextInput="PasswordBox_PreviewTextInput"
-                                        Style="{StaticResource PinPasswordBoxStyle}" />
+                                        Style="{StaticResource DialogPasswordBoxStyle}" />
                                 </Grid>
                             </ContentControl>
                         </StackPanel>
@@ -213,7 +173,7 @@
 
                     <!--  Operation in progress  -->
                     <StackPanel Visibility="{Binding InProgress, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Processing" />
+                        <TextBlock Style="{StaticResource DialogTitleTextBlockStyle}" Text="Processing" />
                         <Metro:ProgressRing
                             Width="64"
                             Height="64"

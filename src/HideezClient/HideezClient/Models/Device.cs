@@ -58,6 +58,8 @@ namespace HideezClient.Models
         Version firmwareVersion;
         Version bootloaderVersion;
         int pinAttemptsRemain;
+        bool isCanUnlock;
+        int unlockAttemptsRemain;
         double proximity = 0;
         int battery = 0;
         bool finishedMainFlow;
@@ -270,6 +272,18 @@ namespace HideezClient.Models
         {
             get { return _remoteDevice != null ? (int)_remoteDevice?.OtherConnections : 0; }
         }
+
+        public bool IsCanUnlock
+        {
+            get { return isCanUnlock; }
+            private set { Set(ref isCanUnlock, value); }
+        }
+
+        public int UnlockAttemptsRemain
+        {
+            get { return unlockAttemptsRemain; }
+            private set { Set(ref unlockAttemptsRemain, value); }
+        }
         #endregion
 
         #region Messege & Event handlers
@@ -434,6 +448,8 @@ namespace HideezClient.Models
             Battery = dto.Battery;
             FinishedMainFlow = dto.FinishedMainFlow;
             CanLockByProximity = dto.CanLockPyProximity;
+            IsCanUnlock = dto.IsCanUnlock;
+            UnlockAttemptsRemain = dto.UnlockAttemptsRemain;
         }
 
         async void TryInitRemoteAsync()
