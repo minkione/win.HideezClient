@@ -104,23 +104,23 @@
                 ItemsSource="{Binding Devices}" 
                 Focusable="False"
                 >
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border 
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border 
                             BorderThickness="0,0,0,1"
                             BorderBrush="#54B9E5"
                             Background="Transparent"
                             Height="36"
                             >
-                            <Grid HorizontalAlignment="Stretch">
-                                <TextBlock
+                                <Grid HorizontalAlignment="Stretch">
+                                    <TextBlock
                                     Text="{Binding SerialNo}" 
                                     FontWeight="Bold" 
                                     VerticalAlignment="Center"
                                     Margin="10,0,0,0"
                                     />
 
-                                <TextBlock
+                                    <TextBlock
                                     Text="Connecting..."
                                     FontWeight="Bold"
                                     HorizontalAlignment="Right"
@@ -129,18 +129,38 @@
                                     Visibility="{Binding ConnectingState, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     />
 
-                                <Button
-                                    Content="Update"
+                                    <TextBlock
+                                    Text="PRESS THE BUTTON, Connecting..."
                                     FontWeight="Bold"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center"
-                                    Margin="10,4"
-                                    Command="{Binding UpdateDevice}"
-                                    Style="{StaticResource MetroAccentButton}"
-                                    Visibility="{Binding ReadyToUpdateState, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    Margin="10,0"
+                                    Visibility="{Binding BondingState, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     />
 
-                                <TextBlock
+                                    <StackPanel Orientation="Horizontal" Margin="10,4" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                        <Button
+                                        Content="Wipe"
+                                        FontWeight="Bold"
+                                        Background="Red"
+                                        Command="{Binding WipeDevice}"
+                                        Style="{StaticResource MetroAccentButton}"
+                                        Visibility="{Binding ReadyToUpdateState, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        />
+                                        
+                                        <Button
+                                        Content="Update"
+                                        FontWeight="Bold"
+                                        Margin="10,0,0,0"
+                                        Command="{Binding UpdateDevice}" CommandParameter="{Binding DataContext.FirmwareFilePath, RelativeSource={RelativeSource FindAncestor, AncestorType=Metro:MetroWindow}}"
+                                        Style="{StaticResource MetroAccentButton}"
+                                        Visibility="{Binding ReadyToUpdateState, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        />
+                                        
+                                    </StackPanel>
+
+
+                                    <TextBlock
                                     Text="Entering boot mode..."
                                     FontWeight="Bold"
                                     HorizontalAlignment="Right"
@@ -149,19 +169,28 @@
                                     Visibility="{Binding EnteringBootModeState, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     />
 
-                                <StackPanel 
+                                    <TextBlock
+                                    Text="Wiping the device..."
+                                    FontWeight="Bold"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Margin="10,0"
+                                    Visibility="{Binding WipingState, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    />
+                                    
+                                    <StackPanel 
                                     Orientation="Horizontal"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center"
                                     Visibility="{Binding UpdatingState, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <TextBlock
+                                        <TextBlock
                                         Text="uploading firmware... "
                                         />
-                                    <TextBlock 
+                                        <TextBlock 
                                         FontWeight="Bold"
                                         Text="{Binding Progress, Mode=OneWay, StringFormat=\{0:#0.00\'%\'\}}"
                                         />
-                                    <Metro:MetroProgressBar 
+                                        <Metro:MetroProgressBar 
                                         Minimum="0" 
                                         Maximum="100" 
                                         Value="{Binding Progress, Mode=OneWay}" 
@@ -170,9 +199,9 @@
                                         Margin="10,0"
                                         Width="150"
                                         />
-                                </StackPanel>
+                                    </StackPanel>
 
-                                <iconPacks:PackIconMaterial
+                                    <iconPacks:PackIconMaterial
                                     Kind="CheckboxMarkedOutline"
                                     Foreground="#32d400"
                                     HorizontalAlignment="Right"
@@ -186,7 +215,7 @@
                                     Padding="2"
                                     />
 
-                                <iconPacks:PackIconMaterial
+                                    <iconPacks:PackIconMaterial
                                     Kind="Cancel"
                                     Foreground="Red"
                                     HorizontalAlignment="Right"
@@ -199,11 +228,11 @@
                                     Background="Transparent"
                                     Padding="2"
                                     />
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
         </Grid>
 

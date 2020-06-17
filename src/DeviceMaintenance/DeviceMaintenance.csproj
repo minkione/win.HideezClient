@@ -154,6 +154,7 @@
     <Compile Include="Messages\ConnectDeviceCommand.cs" />
     <Compile Include="Messages\ConnectDeviceResponse.cs" />
     <Compile Include="Messages\DeviceConnectedEvent.cs" />
+    <Compile Include="Messages\DeviceWipedEvent.cs" />
     <Compile Include="Messages\EnterBootCommand.cs" />
     <Compile Include="Messages\EnterBootResponse.cs" />
     <Compile Include="Messages\MessageBase.cs" />

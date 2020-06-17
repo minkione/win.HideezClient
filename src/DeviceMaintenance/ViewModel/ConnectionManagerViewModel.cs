@@ -28,6 +28,7 @@ namespace DeviceMaintenance.ViewModel
             _hub.Subscribe<ConnectDeviceCommand>(OnConnectDeviceCommand);
             _hub.Subscribe<StartDiscoveryCommand>(OnStartDiscoveryCommand);
             _hub.Subscribe<EnterBootCommand>(OnEnterBootCommand);
+            _hub.Subscribe<DeviceWipedEvent>(OnDeviceWipedEvent);
 
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             var bondsFilePath = Path.Combine(commonAppData, @"Hideez\bonds");
@@ -77,6 +78,16 @@ namespace DeviceMaintenance.ViewModel
                 cmd.FirmwareFilePath, _deviceManager, cmd.Device, cmd.LongOperation, _log);
             await imageUploader.EnterBoot();
             await _hub.Publish(new EnterBootResponse(imageUploader));
+        }
+
+        async Task OnDeviceWipedEvent(DeviceWipedEvent arg)
+        {
+            await _deviceManager.Remove(arg.DeviceViewModel.Device);
+        }
+
+        public bool IsBonded(string id)
+        {
+            return _connectionManager.IsBonded(id);
         }
     }
 }
