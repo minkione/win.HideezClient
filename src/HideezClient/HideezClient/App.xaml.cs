@@ -43,6 +43,7 @@ using ZXing;
 using HideezClient.Modules.Log;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware.Workstation;
+using HideezClient.Modules.ProximityLockManager;
 
 namespace HideezClient
 {
@@ -187,6 +188,7 @@ namespace HideezClient
             _buttonManager = Container.Resolve<IButtonManager>();
             _buttonManager.Enabled = true;
             _messageWindow = Container.Resolve<MessageWindow>();
+            Container.Resolve<IProximityLockManager>();
 
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
 
@@ -299,6 +301,7 @@ namespace HideezClient
             Container.RegisterType<IWorkstationIdProvider, WorkstationIdProvider>(new ContainerControlledLifetimeManager(),
                 new InjectionConstructor(HideezClientRegistryRoot.GetRootRegistryKey(false), typeof(ILog)));
             Container.RegisterType<IWorkstationInfoProvider, WorkstationInfoProvider>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IProximityLockManager, ProximityLockManager>(new ContainerControlledLifetimeManager());
 
             // Settings
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()

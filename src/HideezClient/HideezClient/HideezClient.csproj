@@ -344,6 +344,7 @@
     <Compile Include="Messages\DeviceProximitySettingsChangedMessage.cs" />
     <Compile Include="Messages\DeviceProximityChangedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
+    <Compile Include="Messages\ProximityLockMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
     <Compile Include="Messages\HidePinUiMessage.cs" />
     <Compile Include="Messages\HotkeyPressedMessage.cs" />
@@ -399,6 +400,8 @@
     <Compile Include="Modules\Notify\NotificationOptions.cs" />
     <Compile Include="Modules\Notify\NotificationPosition.cs" />
     <Compile Include="Modules\Notify\Notifier.cs" />
+    <Compile Include="Modules\ProximityLockManager\IProximityLockManager.cs" />
+    <Compile Include="Modules\ProximityLockManager\ProximityLockManager.cs" />
     <Compile Include="Modules\Remote\IRemoteDeviceFactory.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceCommands.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceEvents.cs" />

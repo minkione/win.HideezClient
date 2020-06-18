@@ -32,7 +32,6 @@ namespace HideezClient.Modules
             this.viewModel = viewModel;
             taskbarIcon.DataContext = viewModel;
 
-            ServiceCallbackMessanger.ServiceCallbackMessanger.OnWorkstationUnlocked += ServiceCallbackMessanger_OnWorkstationUnlocked;
 
             InitializeAnimator();
         }
@@ -41,19 +40,6 @@ namespace HideezClient.Modules
         /// Array of image Sources for current icon state.
         /// </summary>
         private ImageSource[] FrameArray { get; set; }
-
-        /// <summary>
-        /// EventHandler which determine icon state when unlocking the workstation
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="isNonHideezMethod">True - if workstation was unlocked by not Hideez method,
-        /// False - if workstation was unlocked by Dongle, RFID or Proximity</param>
-        private void ServiceCallbackMessanger_OnWorkstationUnlocked(object sender, bool isNonHideezMethod)
-        {
-            if (isNonHideezMethod)
-                IconState = IconState.IdleAlert;
-            else IconState = IconState.Idle;
-        }
 
         /// <summary>
         /// Prepare data for animation and start animation if need.
