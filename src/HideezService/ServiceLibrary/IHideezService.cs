@@ -68,7 +68,7 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void CancelPin();
+        void CancelPin(string deviceId);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
@@ -76,7 +76,7 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void CancelActivationCode();
+        void CancelActivationCode(string deviceId);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]

@@ -84,7 +84,7 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public void CancelPin()
+        public void CancelPin(string deviceId)
         {
             throw new NotImplementedException();
         }
@@ -129,7 +129,7 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public void CancelActivationCode()
+        public void CancelActivationCode(string deviceId)
         {
             throw new NotImplementedException();
         }

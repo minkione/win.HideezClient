@@ -37,7 +37,7 @@ namespace HideezMiddleware
         public string OldPin { get; set; }
     }
 
-    public class ActivationCodeReceivedEventArgs : EventArgs
+    public class ActivationCodeEventArgs : EventArgs
     {
         public string DeviceId { get; set; }
         public byte[] Code { get; set; }
@@ -48,8 +48,8 @@ namespace HideezMiddleware
         event EventHandler<EventArgs> ClientConnected;
         event EventHandler<PinReceivedEventArgs> PinReceived;
         event EventHandler<EventArgs> PinCancelled;
-        event EventHandler<ActivationCodeReceivedEventArgs> ActivationCodeReceived;
-        event EventHandler<EventArgs> ActivationCodeCancelled;
+        event EventHandler<ActivationCodeEventArgs> ActivationCodeReceived;
+        event EventHandler<ActivationCodeEventArgs> ActivationCodeCancelled;
 
         bool IsConnected { get; }
 

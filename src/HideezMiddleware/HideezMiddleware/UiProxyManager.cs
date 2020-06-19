@@ -35,6 +35,7 @@ namespace HideezMiddleware
                 _credentialProviderUi.ClientConnected += ClientUi_ClientUiConnected;
                 _credentialProviderUi.PinReceived += ClientUi_PinReceived;
                 _credentialProviderUi.ActivationCodeReceived += ClientUi_ActivationCodeReceived;
+                _credentialProviderUi.ActivationCodeCancelled += ClientUi_ActivationCodeCancelled;
             }
 
             if (_clientUi != null)
@@ -42,6 +43,7 @@ namespace HideezMiddleware
                 _clientUi.ClientConnected += ClientUi_ClientUiConnected;
                 _clientUi.PinReceived += ClientUi_PinReceived;
                 _clientUi.ActivationCodeReceived += ClientUi_ActivationCodeReceived;
+                _clientUi.ActivationCodeCancelled += ClientUi_ActivationCodeCancelled;
             }
         }
 
@@ -87,10 +89,16 @@ namespace HideezMiddleware
             if (_pendingGetPinRequests.TryGetValue(e.DeviceId, out TaskCompletionSource<string> tcs))
                 tcs.TrySetResult(e.Pin);
         }
-        void ClientUi_ActivationCodeReceived(object sender, ActivationCodeReceivedEventArgs e)
+        void ClientUi_ActivationCodeReceived(object sender, ActivationCodeEventArgs e)
         {
             if (_pendingGetActivationCodeRequests.TryGetValue(e.DeviceId, out TaskCompletionSource<byte[]> tcs))
                 tcs.TrySetResult(e.Code);
+        }
+
+        void ClientUi_ActivationCodeCancelled(object sender, ActivationCodeEventArgs e)
+        {
+            if (_pendingGetActivationCodeRequests.TryGetValue(e.DeviceId, out TaskCompletionSource<byte[]> tcs))
+                tcs.TrySetCanceled();
         }
 
         IClientUiProxy GetCurrentClientUi()

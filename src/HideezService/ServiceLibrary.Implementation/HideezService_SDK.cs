@@ -1156,7 +1156,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public void CancelPin()
+        public void CancelPin(string deviceId)
         {
             try
             {
@@ -1182,11 +1182,11 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public void CancelActivationCode()
+        public void CancelActivationCode(string deviceId)
         {
             try
             {
-                _clientProxy.CancelActivationCode();
+                _clientProxy.CancelActivationCode(deviceId);
             }
             catch (Exception ex)
             {

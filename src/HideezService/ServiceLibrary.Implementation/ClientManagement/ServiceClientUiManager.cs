@@ -14,8 +14,8 @@ namespace ServiceLibrary.Implementation.ClientManagement
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
         public event EventHandler<EventArgs> PinCancelled;
-        public event EventHandler<ActivationCodeReceivedEventArgs> ActivationCodeReceived;
-        public event EventHandler<EventArgs> ActivationCodeCancelled;
+        public event EventHandler<ActivationCodeEventArgs> ActivationCodeReceived;
+        public event EventHandler<ActivationCodeEventArgs> ActivationCodeCancelled;
         public bool IsConnected
         {
             get
@@ -163,7 +163,7 @@ namespace ServiceLibrary.Implementation.ClientManagement
         {
             try
             {
-                var args = new ActivationCodeReceivedEventArgs()
+                var args = new ActivationCodeEventArgs()
                 {
                     DeviceId = deviceId,
                     Code = code,
@@ -174,11 +174,12 @@ namespace ServiceLibrary.Implementation.ClientManagement
             catch (Exception) { }
         }
 
-        public void CancelActivationCode() // Todo:
+        public void CancelActivationCode(string deviceId) // Todo:
         {
             try
             {
-                ActivationCodeCancelled?.Invoke(this, EventArgs.Empty);
+                var args = new ActivationCodeEventArgs() { DeviceId = deviceId };
+                ActivationCodeCancelled?.Invoke(this, args);
             }
             catch (Exception) { }
         }

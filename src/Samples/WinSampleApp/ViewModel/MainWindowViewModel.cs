@@ -1074,7 +1074,7 @@ namespace WinSampleApp.ViewModel
                 //};
 
                 string workstationId = Guid.NewGuid().ToString();
-                _hesConnection = new HesAppConnection(_deviceManager, workstationInfoProvider, _log);
+                _hesConnection = new HesAppConnection(workstationInfoProvider, _log);
                 _hesConnection.HubConnectionStateChanged += (sender, e) => NotifyPropertyChanged(nameof(HesState));
                 //_hesConnection.Start(HesAddress);
 
@@ -1096,6 +1096,7 @@ namespace WinSampleApp.ViewModel
                 var uiProxyManager = new UiProxyManager(_credentialProviderProxy, this, _log);
 
                 // ConnectionFlowProcessor ==================================
+                var hesAccessManager = new HesAccessManager(clientRegistryRoot, _log);
                 _connectionFlowProcessor = new ConnectionFlowProcessor(
                     _connectionManager,
                     _deviceManager,
@@ -1104,6 +1105,7 @@ namespace WinSampleApp.ViewModel
                     null,
                     uiProxyManager,
                     null,
+                    hesAccessManager,
                     _log);
 
                 _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, rfidSettingsManager, null, uiProxyManager, _log);
@@ -1850,7 +1852,7 @@ namespace WinSampleApp.ViewModel
 
         void CancelConnectionFlow(DeviceViewModel currentDevice)
         {
-            _connectionFlowProcessor.Cancel();
+            _connectionFlowProcessor.Cancel("reason");
         }
 
         async void SyncDevices()
@@ -1884,6 +1886,9 @@ namespace WinSampleApp.ViewModel
         #region IClientUiProxy
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
+        public event EventHandler<ActivationCodeReceivedEventArgs> ActivationCodeReceived;
+        public event EventHandler<EventArgs> ActivationCodeCancelled;
+
         public event EventHandler<EventArgs> Connected { add { } remove { } }
 
         public event EventHandler<EventArgs> PinCancelled { add { } remove { } }
@@ -1965,5 +1970,16 @@ namespace WinSampleApp.ViewModel
             return Task.FromResult(true);
         }
         #endregion IWorkstationUnlocker
+
+
+        public Task ShowActivationCodeUi(string deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task HideActivationCodeUi()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

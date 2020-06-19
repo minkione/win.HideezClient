@@ -171,6 +171,7 @@ namespace HideezClient.ViewModels
 
         void OnCancel()
         {
+            _messenger.Send(new CancelActivationCodeEntryMessage(Device.Id));
             _messenger.Send(new HideActivationCodeUiMessage());
             Device.CancelDeviceAuthorization();
         }

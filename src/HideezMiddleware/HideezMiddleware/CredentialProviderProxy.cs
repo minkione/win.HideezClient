@@ -55,9 +55,9 @@ namespace HideezMiddleware
 
         public event EventHandler<EventArgs> PinCancelled { add { } remove { } }
 
-        public event EventHandler<ActivationCodeReceivedEventArgs> ActivationCodeReceived; // Todo:
+        public event EventHandler<ActivationCodeEventArgs> ActivationCodeReceived; // Todo:
 
-        public event EventHandler<EventArgs> ActivationCodeCancelled { add { } remove { } }
+        public event EventHandler<ActivationCodeEventArgs> ActivationCodeCancelled { add { } remove { } }
 
         public bool IsConnected => _pipeServer.IsConnected;
 
@@ -180,7 +180,7 @@ namespace HideezMiddleware
         {
             WriteLine($"OnCheckActivationCode: {deviceId}");
 
-            SafeInvoke(ActivationCodeReceived, new ActivationCodeReceivedEventArgs()
+            SafeInvoke(ActivationCodeReceived, new ActivationCodeEventArgs()
             {
                 DeviceId = deviceId,
                 Code = Encoding.UTF8.GetBytes(code)

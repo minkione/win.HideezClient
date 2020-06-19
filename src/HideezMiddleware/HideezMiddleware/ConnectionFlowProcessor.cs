@@ -137,6 +137,7 @@ namespace HideezMiddleware
             }
         }
 
+        // Todo: Break down concrete steps of mainworkflow into methods
         async Task MainWorkflow(string mac, bool rebondOnConnectionFail, bool tryUnlock, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
         {
             // Ignore MainFlow requests for devices that are already connected
@@ -201,7 +202,41 @@ namespace HideezMiddleware
                 {
                     WriteLine("Non-fatal error occured while loading device info from HES", ex);
                 }
+
+                // Handle licenses
+                if (deviceInfoProc.IsSuccessful)
+                {
+                    CacheAndUpdateDeviceOwner(device, deviceInfo);
+
+                    WriteLine($"Device info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}");
+                    if (deviceInfo.HasNewLicense)
+                    {
+                        // License upload has the highest priority in connection flow. Without license other actions are impossible
+                        await _ui.SendNotification("Updating device licenses...", _infNid);
+                        await LicenseWorkflow(device, ct);
+                        await device.RefreshDeviceInfo();
+                    }
+                }
+                else
+                {
+                    WriteLine("Couldn't retrieve device info from HES. Using local device info.");
+                    LoadLocalDeviceOwner(device);
+                }
                 
+                // Currently we cannot operate with devices that have no license
+                if (device.LicenseInfo == 0)
+                    throw new HideezException(HideezErrorCode.ERR_NO_LICENSE);
+                // ...
+
+                // Handle device link
+                WriteLine($"Check if link is required: {device.AccessLevel.IsLinkRequired}");
+                if (device.AccessLevel.IsLinkRequired)
+                {
+                    // request HES to update this device
+                    await _hesConnection.FixDevice(device, ct);
+                    await device.RefreshDeviceInfo();
+                }
+
                 WriteLine($"Check if device is locked: {device.IsLocked}");
                 if (device.IsLocked)
                 {
@@ -221,40 +256,6 @@ namespace HideezMiddleware
                     }
                 }
 
-                if (device.IsLocked) // Todo: This check may be redundant
-                    throw new HideezException(HideezErrorCode.DeviceIsLocked);
-
-                if (deviceInfoProc.IsSuccessful)
-                {
-                    CacheAndUpdateDeviceOwner(device, deviceInfo);
-
-                    WriteLine($"Device info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}");
-                    if (deviceInfo.HasNewLicense)
-                    {
-                        // License upload has the highest priority in connection flow. Without license other actions are impossible
-                        await _ui.SendNotification("Updating device licenses...", _infNid);
-                        await LicenseWorkflow(device, ct);
-                    }
-                }
-                else
-                {
-                    WriteLine("Couldn't retrieve device info from HES. Using local device info.");
-                    LoadLocalDeviceOwner(device);
-                }
-
-                WriteLine("Query licenses");
-                var activeLicense = await device.QueryActiveLicense(SdkConfig.DefaultCommandTimeout);
-                if (activeLicense.IsEmpty)
-                    throw new HideezException(HideezErrorCode.ERR_NO_LICENSE);
-
-                WriteLine($"Check if link is required: {device.AccessLevel.IsLinkRequired}");
-                if (device.AccessLevel.IsLinkRequired)
-                {
-                    // request HES to update this device
-                    await _hesConnection.FixDevice(device, ct);
-                    await device.RefreshDeviceInfo();
-                }
-
                 if (device.AccessLevel.IsLocked)
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);
 
@@ -268,6 +269,7 @@ namespace HideezMiddleware
                     await _hesConnection.FixDevice(device, ct);
                     await device.RefreshDeviceInfo();
                 }
+                //...
 
                 int timeout = SdkConfig.MainWorkflowTimeout;
 
@@ -683,21 +685,28 @@ namespace HideezMiddleware
                     if (ct.IsCancellationRequested)
                         return;
 
-                    if (device.UnlockAttemptsRemain == 0)
-                        throw new Exception("This is supposed to be an exception about to many incorrect activation attempts");
-
                     var code = await _ui.GetActivationCode(device.Id, timeout, ct);
 
                     if (ct.IsCancellationRequested)
                         return;
 
-                    await device.UnlockDeviceCode(code);
+                    try
+                    {
+                        await device.UnlockDeviceCode(code);
+                    }
+                    catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_PIN_WRONG) // Entered invalid activation code
+                    { 
+                    }
+                    catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_DEVICE_LOCKED) // Unlock attempts == 0
+                    {
+                        throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                    }
 
                     if (ct.IsCancellationRequested)
                         return;
 
                     await device.RefreshDeviceInfo();
-
+                    
                     if (ct.IsCancellationRequested)
                         return;
 
@@ -708,10 +717,11 @@ namespace HideezMiddleware
                     }
                     else if (device.UnlockAttemptsRemain > 0)
                     {
-                        await _ui.SendNotification($"Invalid activation code. {device.UnlockAttemptsRemain} attempts left");
+                        await _ui.SendNotification($"Invalid activation code. {device.UnlockAttemptsRemain} attempts left", _infNid);
                     }
                     else
-                    {
+                    { 
+                        // We won't reach this line, but will leave it just in case
                         throw new HideezException(HideezErrorCode.DeviceIsLocked);
                     }
                 }
