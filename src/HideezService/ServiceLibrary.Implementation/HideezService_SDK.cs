@@ -80,7 +80,6 @@ namespace ServiceLibrary.Implementation
         static RemoteWorkstationUnlocker _remoteWorkstationUnlocker;
 
         static HesAppConnection _tbHesConnection;
-        static IWorkstationIdProvider _workstationIdProvider;
         static IHesAccessManager _hesAccessManager;
 
         #region Initialization
@@ -210,14 +209,6 @@ namespace ServiceLibrary.Implementation
                     return error == SslPolicyErrors.None;
                 };
             }
-
-            // Hideez Client root registry key ============================
-            RegistryKey clientRootRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
-
-            // Workstation Id ============================
-            _workstationIdProvider = new WorkstationIdProvider(clientRootRegistryKey, _sdkLogger);
-            if (string.IsNullOrWhiteSpace(_workstationIdProvider.GetWorkstationId()))
-                _workstationIdProvider.SaveWorkstationId(Guid.NewGuid().ToString());
 
             // WorkstationInfoProvider ==================================
             WorkstationHelper.Log = _sdkLogger;

@@ -8,6 +8,8 @@ using Hideez.SDK.Communication.Log;
 using System.Reflection;
 using System.Threading.Tasks;
 using HideezMiddleware.Audit;
+using Microsoft.Win32;
+using HideezMiddleware.Workstation;
 
 namespace ServiceLibrary.Implementation
 {
@@ -22,6 +24,8 @@ namespace ServiceLibrary.Implementation
         static ServiceClientSessionManager sessionManager = new ServiceClientSessionManager();
         static SessionInfoProvider _sessionInfoProvider;
         static SessionTimestampLogger _sessionTimestampLogger;
+        static RegistryKey clientRootRegistryKey;
+        static IWorkstationIdProvider _workstationIdProvider;
 
         ServiceClientSession _client;
 
@@ -54,13 +58,21 @@ namespace ServiceLibrary.Implementation
                 _log.WriteLine($"OS: {Environment.OSVersion}");
                 _log.WriteLine($"Command: {Environment.CommandLine}");
 
+                _log.WriteLine(">>>>>> Get registry settings key");
+                clientRootRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
+
                 _log.WriteLine(">>>>>> Initialize session monitor");
                 _sessionInfoProvider = new SessionInfoProvider(_sdkLogger);
+
+                _log.WriteLine(">>>>>> Initialize workstation id provider");
+                _workstationIdProvider = new WorkstationIdProvider(clientRootRegistryKey, _sdkLogger);
+                if (string.IsNullOrWhiteSpace(_workstationIdProvider.GetWorkstationId()))
+                    _workstationIdProvider.SaveWorkstationId(Guid.NewGuid().ToString());
 
                 _log.WriteLine(">>>>>> Initilize audit");
                 var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
                 string auditEventsDirectoryPath = $@"{commonAppData}\Hideez\Service\WorkstationEvents\";
-                _eventSaver = new EventSaver(_sessionInfoProvider, auditEventsDirectoryPath, _sdkLogger);
+                _eventSaver = new EventSaver(_sessionInfoProvider, _workstationIdProvider, auditEventsDirectoryPath, _sdkLogger);
 
                 _log.WriteLine(">>>>>> Initialize session timestamp monitor");
                 var sessionTimestampPath = $@"{commonAppData}\Hideez\Service\Timestamp\timestamp.dat";
