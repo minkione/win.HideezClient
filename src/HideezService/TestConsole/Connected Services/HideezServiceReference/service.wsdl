@@ -310,6 +310,9 @@
   <wsdl:message name="IHideezService_HideActivationCodeUi_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:HideActivationCodeUi" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_LockDeviceStorage_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:LockDeviceStorage" />
+  </wsdl:message>
   <wsdl:portType msc:usingSession="true" name="IHideezService">
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AttachClient">
       <wsdl:input wsaw:Action="http://tempuri.org/IHideezService/AttachClient" message="tns:IHideezService_AttachClient_InputMessage" />
@@ -485,6 +488,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="HideActivationCodeUi">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/HideActivationCodeUi" message="tns:IHideezService_HideActivationCodeUi_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="LockDeviceStorage">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/LockDeviceStorage" message="tns:IHideezService_LockDeviceStorage_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetNamedPipeBinding_IHideezService" type="tns:IHideezService">
@@ -883,6 +889,12 @@
     </wsdl:operation>
     <wsdl:operation name="HideActivationCodeUi">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/HideActivationCodeUi" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LockDeviceStorage">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/LockDeviceStorage" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

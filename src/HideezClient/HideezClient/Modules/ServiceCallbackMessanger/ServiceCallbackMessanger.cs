@@ -172,5 +172,20 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
                 _log.WriteLine(ex);
             }
         }
+
+        public void LockDeviceStorage(string serialNo)
+        {
+            try
+            {
+                _log.WriteLine($"Lock device storage ({serialNo})");
+                _messenger.Send(new LockDeviceStorageMessage(serialNo));
+                _messenger.Send(new ShowInfoNotificationMessage($"Synchronizing credetials in {serialNo} with your other device, please wait" 
+                    + Environment.NewLine + "Password manager is temporarily unavailable", notificationId:serialNo));
+            }
+            catch (Exception ex)
+            {
+                _log.WriteLine(ex);
+            }
+        }
     }
 }

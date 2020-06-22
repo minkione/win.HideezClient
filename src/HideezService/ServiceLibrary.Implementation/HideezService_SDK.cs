@@ -373,6 +373,7 @@ namespace ServiceLibrary.Implementation
                     rfidSettingsManager.SaveSettings(settings);
                 };
                 hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
+                hesConnection.LockDeviceStorageRequest += HES_LockDeviceStorageRequest;
 
                 return hesConnection;
             });
@@ -607,6 +608,18 @@ namespace ServiceLibrary.Implementation
             }
         }
 
+        void HES_LockDeviceStorageRequest(object sender, string seriaLNo)
+        {
+            try
+            {
+                foreach (var client in sessionManager.Sessions)
+                    client.Callbacks.LockDeviceStorage(seriaLNo);
+            }
+            catch (Exception) 
+            {
+                // Silent handling
+            }
+        }
         void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
         {
             foreach (var client in sessionManager.Sessions)

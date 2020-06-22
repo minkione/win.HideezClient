@@ -1350,6 +1350,9 @@ namespace HideezClient.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HideActivationCodeUi")]
         void HideActivationCodeUi();
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/LockDeviceStorage")]
+        void LockDeviceStorage(string serialNo);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]

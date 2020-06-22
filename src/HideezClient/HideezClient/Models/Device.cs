@@ -75,6 +75,8 @@ namespace HideezClient.Models
         int _interlockedRemote = 0;
         CancellationTokenSource remoteCancellationTokenSource;
 
+        bool _isStorageLocked = false;
+
         public Device(
             IServiceProxy serviceProxy,
             IRemoteDeviceFactory remoteDeviceFactory,
@@ -96,6 +98,7 @@ namespace HideezClient.Models
             _messenger.Register<DeviceBatteryChangedMessage>(this, OnDeviceBatteryChanged);
             _messenger.Register<SessionSwitchMessage>(this, OnSessionSwitch);
             _messenger.Register<DeviceProximityLockEnabledMessage>(this, OnDeviceProximityLockEnabled);
+            _messenger.Register<LockDeviceStorageMessage>(this, OnLockDeviceStorage);
 
             RegisterDependencies();
 
@@ -284,6 +287,12 @@ namespace HideezClient.Models
             get { return unlockAttemptsRemain; }
             private set { Set(ref unlockAttemptsRemain, value); }
         }
+
+        public bool IsStorageLocked
+        {
+            get { return _isStorageLocked; }
+            private set { Set(ref _isStorageLocked, value); }
+        }
         #endregion
 
         #region Messege & Event handlers
@@ -419,6 +428,14 @@ namespace HideezClient.Models
         {
             if (obj.Device.Id == Id)
                 LoadFrom(obj.Device);
+        }
+
+        void OnLockDeviceStorage(LockDeviceStorageMessage obj)
+        {
+            if (obj.SerialNo == SerialNo)
+            {
+                IsStorageLocked = true;
+            }
         }
 
         void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -790,6 +807,7 @@ namespace HideezClient.Models
             finally
             {
                 IsLoadingStorage = false;
+                IsStorageLocked = false;
             }
         }
 

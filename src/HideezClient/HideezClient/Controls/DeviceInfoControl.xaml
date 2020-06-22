@@ -185,6 +185,15 @@
                         </MultiBinding>
                     </iconPacks:PackIconModern.Visibility>
                 </iconPacks:PackIconModern>
+                <iconPacks:PackIconMaterial
+                    Width="18"
+                    Height="18"
+                    Margin="8,0,0,2"
+                    VerticalAlignment="Center"
+                    Foreground="{DynamicResource InitializingBrush}"
+                    Kind="ProgressDownload"
+                    ToolTip="Synchronizing storage with other device"
+                    Visibility="{Binding IsStorageLocked, Converter={StaticResource BooleanToVisibilityConverter}}" />
             </StackPanel>
         </StackPanel>
 

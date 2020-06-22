@@ -37,8 +37,8 @@ namespace HideezClient.ViewModels
         public bool IsAuthorized => device.IsAuthorized;
         public bool IsLoadingStorage => device.IsLoadingStorage;
         public bool IsStorageLoaded => device.IsStorageLoaded;
-        [DependsOn(nameof(IsConnected), nameof(IsInitialized), nameof(IsAuthorized), nameof(IsStorageLoaded))]
-        public bool CanShowPasswordManager { get { return IsConnected && IsInitialized && IsAuthorized && IsStorageLoaded; } }
+        [DependsOn(nameof(IsConnected), nameof(IsInitialized), nameof(IsAuthorized), nameof(IsStorageLoaded), nameof(IsStorageLocked))]
+        public bool CanShowPasswordManager { get { return IsConnected && IsInitialized && IsAuthorized && IsStorageLoaded && !IsStorageLocked; } }
         public Version FirmwareVersion => device.FirmwareVersion;
         public Version BootloaderVersion => device.BootloaderVersion;
         public uint StorageTotalSize => device.StorageTotalSize;
@@ -62,6 +62,8 @@ namespace HideezClient.ViewModels
         }
 
         public bool CanLockByProximity => device.CanLockByProximity;
+
+        public bool IsStorageLocked => device.IsStorageLocked;
 
         public async Task SaveOrUpdateAccountAsync(AccountRecord account)
         {

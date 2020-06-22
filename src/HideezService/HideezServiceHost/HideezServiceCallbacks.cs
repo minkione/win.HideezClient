@@ -93,5 +93,9 @@ namespace HideezServiceHost
         public void HideActivationCodeUi()
         {
         }
+
+        public void LockDeviceStorage(string serialNo)
+        {
+        }
     }
 }

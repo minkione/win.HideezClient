@@ -353,6 +353,7 @@
     <Compile Include="Messages\HidePinUiMessage.cs" />
     <Compile Include="Messages\HotkeyPressedMessage.cs" />
     <Compile Include="Messages\HotkeyStateChangedMessage.cs" />
+    <Compile Include="Messages\LockDeviceStorageMessage.cs" />
     <Compile Include="Messages\LockWorkstationMessage.cs" />
     <Compile Include="Messages\OpenHideezKeyPageMessage.cs" />
     <Compile Include="Messages\OpenMobileAuthenticatorPageMessage.cs" />

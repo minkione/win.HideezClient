@@ -168,6 +168,9 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void HideActivationCodeUi();
+
+        [OperationContract(IsOneWay = true)]
+        void LockDeviceStorage(string serialNo);
     }
 
     public enum Adapter
