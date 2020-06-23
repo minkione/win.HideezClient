@@ -45,18 +45,22 @@ namespace HideezClient.PageViewModels
             Сonnected = new StateControlViewModel
             {
                 Name = "Status.Device.Сonnected",
+                Visible = true,
             };
             Initialized = new StateControlViewModel
             {
                 Name = "Status.Device.Initialized",
+                Visible = true,
             };
             Authorized = new StateControlViewModel
             {
                 Name = "Status.Device.Authorized",
+                Visible = true,
             };
             StorageLoaded = new StateControlViewModel
             {
                 Name = "Status.Device.StorageLoaded",
+                Visible = true,
             };
 
             Indicators.Add(Сonnected);
