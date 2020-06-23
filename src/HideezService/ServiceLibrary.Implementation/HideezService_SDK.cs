@@ -374,6 +374,7 @@ namespace ServiceLibrary.Implementation
                 };
                 hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
                 hesConnection.LockDeviceStorageRequest += HES_LockDeviceStorageRequest;
+                hesConnection.LiftDeviceStorageLockRequest += HES_LiftDeviceStorageLockRequest;
 
                 return hesConnection;
             });
@@ -602,24 +603,42 @@ namespace ServiceLibrary.Implementation
                 {
                     we.EventId = WorkstationEventType.HESDisconnected;
                     we.Severity = WorkstationEventSeverity.Warning;
+
+                    // Clear all devices on disconnect
+                    foreach (var client in sessionManager.Sessions)
+                        client.Callbacks.LiftDeviceStorageLock(string.Empty);
                 }
 
                 await _eventSaver.AddNewAsync(we, sendImmediately);
             }
         }
 
-        void HES_LockDeviceStorageRequest(object sender, string seriaLNo)
+        void HES_LockDeviceStorageRequest(object sender, string serialNo)
         {
             try
             {
                 foreach (var client in sessionManager.Sessions)
-                    client.Callbacks.LockDeviceStorage(seriaLNo);
+                    client.Callbacks.LockDeviceStorage(serialNo);
             }
             catch (Exception) 
             {
                 // Silent handling
             }
         }
+
+        void HES_LiftDeviceStorageLockRequest(object sender, string serialNo)
+        {
+            try
+            {
+                foreach (var client in sessionManager.Sessions)
+                    client.Callbacks.LiftDeviceStorageLock(serialNo);
+            }
+            catch (Exception)
+            {
+                // Silent handling
+            }
+        }
+
         void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
         {
             foreach (var client in sessionManager.Sessions)

@@ -91,5 +91,9 @@ namespace TestConsole
         public void LockDeviceStorage(string serialNo)
         {
         }
+
+        public void LiftDeviceStorageLock(string serialNo)
+        {
+        }
     }
 }

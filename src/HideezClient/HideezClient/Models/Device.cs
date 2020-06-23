@@ -99,6 +99,7 @@ namespace HideezClient.Models
             _messenger.Register<SessionSwitchMessage>(this, OnSessionSwitch);
             _messenger.Register<DeviceProximityLockEnabledMessage>(this, OnDeviceProximityLockEnabled);
             _messenger.Register<LockDeviceStorageMessage>(this, OnLockDeviceStorage);
+            _messenger.Register<LiftDeviceStorageLockMessage>(this, OnLiftDeviceStorageLock);
 
             RegisterDependencies();
 
@@ -433,9 +434,13 @@ namespace HideezClient.Models
         void OnLockDeviceStorage(LockDeviceStorageMessage obj)
         {
             if (obj.SerialNo == SerialNo)
-            {
                 IsStorageLocked = true;
-            }
+        }
+
+        void OnLiftDeviceStorageLock(LiftDeviceStorageLockMessage obj)
+        {
+            if (obj.SerialNo == SerialNo || string.IsNullOrWhiteSpace(obj.SerialNo))
+                IsStorageLocked = false;
         }
 
         void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -807,7 +812,6 @@ namespace HideezClient.Models
             finally
             {
                 IsLoadingStorage = false;
-                IsStorageLocked = false;
             }
         }
 

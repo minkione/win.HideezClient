@@ -171,6 +171,9 @@ namespace ServiceLibrary
 
         [OperationContract(IsOneWay = true)]
         void LockDeviceStorage(string serialNo);
+
+        [OperationContract(IsOneWay = true)]
+        void LiftDeviceStorageLock(string serialNo);
     }
 
     public enum Adapter

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Linq;
 using HideezClient.Messages;
 using System.Threading.Tasks;
 using HideezClient.Modules.Localize;
-using HideezClient.Modules.DeviceManager;
 using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Models;
-using System.Diagnostics;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication;
 using System.Threading;
@@ -255,6 +252,9 @@ namespace HideezClient.Modules.ActionHandler
 
             if (appInfo.ProcessName == "HideezClient")
                 throw new HideezWindowSelectedException();
+
+            if (_activeDevice.Device.IsStorageLoaded)
+                return;
 
             if (!_activeDevice.Device.IsAuthorized || !_activeDevice.Device.IsStorageLoaded)
             {

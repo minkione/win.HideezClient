@@ -187,5 +187,18 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
                 _log.WriteLine(ex);
             }
         }
+
+        public void LiftDeviceStorageLock(string serialNo)
+        {
+            try
+            {
+                _log.WriteLine($"Lift device storage lock ({serialNo})");
+                _messenger.Send(new LiftDeviceStorageLockMessage(serialNo));
+            }
+            catch (Exception ex)
+            {
+                _log.WriteLine(ex);
+            }
+        }
     }
 }
