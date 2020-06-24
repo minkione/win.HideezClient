@@ -139,7 +139,7 @@ namespace HideezClient.Modules.ActionHandler
             }
             catch (HideezWindowSelectedException)
             {
-                var localizedAction = $"press device button {TranslationSource.Instance[$"Enum.ButtonPressCode.{code.ToString()}"]}";
+                var localizedAction = $"press vault button {TranslationSource.Instance[$"Enum.ButtonPressCode.{code.ToString()}"]}";
                 var message = TranslationSource.Instance[$"UserAction.HideezWindowSelected.{action.ToString()}"];
                 message = string.Format(message, Environment.NewLine, localizedAction);
                 var msgOptions = new NotificationOptions { CloseTimeout = NotificationOptions.LongTimeout };

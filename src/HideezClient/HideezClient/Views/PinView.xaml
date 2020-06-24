@@ -70,7 +70,7 @@
                 Style="{StaticResource TitleTextBlockStyle}"
                 Margin="20,15,20,0"
                 VerticalAlignment="Center"
-                Text="Press the button on your device to confirm authorization" />
+                Text="Press the button on your vault to confirm authorization" />
             <Grid >
                 <ContentPresenter
                     Width="40"
@@ -119,15 +119,15 @@
                     <Grid>
                         <TextBlock
                             Style="{StaticResource TitleTextBlockStyle}"
-                            Text="Set up new PIN for device"
+                            Text="Set up new PIN for vault"
                             Visibility="{Binding IsNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <TextBlock
                             Style="{StaticResource TitleTextBlockStyle}"
-                            Text="Enter device PIN"
+                            Text="Enter vault PIN"
                             Visibility="{Binding IsEnterPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <TextBlock
                             Style="{StaticResource TitleTextBlockStyle}"
-                            Text="Change device PIN"
+                            Text="Change vault PIN"
                             Visibility="{Binding IsChangePin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     </Grid>
 

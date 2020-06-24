@@ -83,7 +83,7 @@ namespace HideezMiddleware
         void OnDeviceDisconnectedDuringFlow(object sender, EventArgs e)
         {
             // cancel the workflow if the device disconnects
-            Cancel("Device unexpectedly disconnected");
+            Cancel("Vault unexpectedly disconnected");
         }
 
         void OnUserCancelledByButton(object sender, EventArgs e)
@@ -200,7 +200,7 @@ namespace HideezMiddleware
                 }
                 catch (Exception ex)
                 {
-                    WriteLine("Non-fatal error occured while loading device info from HES", ex);
+                    WriteLine("Non-fatal error occured while loading vault info from HES", ex);
                 }
 
                 // Handle licenses
@@ -208,18 +208,18 @@ namespace HideezMiddleware
                 {
                     CacheAndUpdateDeviceOwner(device, deviceInfo);
 
-                    WriteLine($"Device info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}");
+                    WriteLine($"Vault info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}");
                     if (deviceInfo.HasNewLicense)
                     {
                         // License upload has the highest priority in connection flow. Without license other actions are impossible
-                        await _ui.SendNotification("Updating device licenses...", _infNid);
+                        await _ui.SendNotification("Updating vault licenses...", _infNid);
                         await LicenseWorkflow(device, ct);
                         await device.RefreshDeviceInfo();
                     }
                 }
                 else
                 {
-                    WriteLine("Couldn't retrieve device info from HES. Using local device info.");
+                    WriteLine("Couldn't retrieve vault info from HES. Using local vault info.");
                     LoadLocalDeviceOwner(device);
                 }
                 
@@ -237,10 +237,10 @@ namespace HideezMiddleware
                     await device.RefreshDeviceInfo();
                 }
 
-                WriteLine($"Check if device is locked: {device.IsLocked}");
+                WriteLine($"Check if vault is locked: {device.IsLocked}");
                 if (device.IsLocked)
                 {
-                    WriteLine($"Check if device can be unlocked: {device.IsCanUnlock}");
+                    WriteLine($"Check if vault can be unlocked: {device.IsCanUnlock}");
                     if (device.IsCanUnlock)
                     {
                         await ActivationCodeWorkflow(device, 30_000, ct); // Todo: Replace magic number in timeout duration with some variable or constant
@@ -540,7 +540,7 @@ namespace HideezMiddleware
                     if (device.AccessLevel.IsLocked)
                     {
                         await _ui.SendNotification("", _infNid);
-                        await _ui.SendError($"Device is locked", _errNid);
+                        await _ui.SendError($"Vault is locked", _errNid);
                     }
                     else
                     {
@@ -582,22 +582,22 @@ namespace HideezMiddleware
             }
 
             if (device == null)
-                throw new Exception($"Failed to connect device '{mac}'.");
+                throw new Exception($"Failed to connect vault '{mac}'.");
 
             return device;
         }
 
         async Task WaitDeviceInitialization(string mac, IDevice device, CancellationToken ct)
         {
-            await _ui.SendNotification("Waiting for the device initialization...", _infNid);
+            await _ui.SendNotification("Waiting for the vault initialization...", _infNid);
 
             if (!await device.WaitInitialization(SdkConfig.DeviceInitializationTimeout, ct))
-                throw new Exception($"Failed to initialize device connection '{mac}'. Please try again.");
+                throw new Exception($"Failed to initialize vault connection '{mac}'. Please try again.");
 
             if (device.IsErrorState)
             {
                 await _deviceManager.Remove(device);
-                throw new Exception($"Failed to initialize device connection '{mac}' ({device.ErrorMessage}). Please try again.");
+                throw new Exception($"Failed to initialize vault connection '{mac}' ({device.ErrorMessage}). Please try again.");
             }
         }
 
@@ -633,7 +633,7 @@ namespace HideezMiddleware
                 }
 
                 if (credentials.IsEmpty)
-                    throw new Exception($"Device '{device.SerialNo}' doesn't have any stored windows accounts");
+                    throw new Exception($"Vault '{device.SerialNo}' doesn't have any stored windows accounts");
             }
             else
             {
@@ -644,7 +644,7 @@ namespace HideezMiddleware
                 credentials.PreviousPassword = ""; //todo
 
                 if (credentials.IsEmpty)
-                    throw new Exception($"Cannot read login or password from the device '{device.SerialNo}'");
+                    throw new Exception($"Cannot read login or password from the vault '{device.SerialNo}'");
             }
 
             return credentials;
@@ -671,7 +671,7 @@ namespace HideezMiddleware
                     throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_ID). Please, contact your administrator.");
 
                 await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
-                WriteLine($"Loaded license ({license.Id}) into device ({device.SerialNo})");
+                WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo})");
                 await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
             }
         }

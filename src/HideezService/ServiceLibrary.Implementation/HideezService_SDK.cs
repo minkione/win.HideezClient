@@ -1310,7 +1310,7 @@ namespace ServiceLibrary.Implementation
                 _tapProcessor.Stop();
                 _rfidProcessor.Stop();
 
-                _log.WriteLine("Disconnecting all connected devices");
+                _log.WriteLine("Disconnecting all connected vaults");
                 await _deviceManager.DisconnectAllDevices();
 
                 _log.WriteLine("Sending all events");

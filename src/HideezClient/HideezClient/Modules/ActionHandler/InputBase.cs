@@ -70,7 +70,7 @@ namespace HideezClient.Modules.ActionHandler
 
             if (!devicesId.Any())
             {
-                string message = "Devices id can not be empty.";
+                string message = "Vaults id can not be empty.";
                 log.WriteLine(message, LogErrorSeverity.Error);
                 Debug.Assert(false, message);
                 return;

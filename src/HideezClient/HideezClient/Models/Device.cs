@@ -299,7 +299,7 @@ namespace HideezClient.Models
         #region Messege & Event handlers
         void RemoteDevice_ButtonPressed(object sender, Hideez.SDK.Communication.ButtonPressCode e)
         {
-            _log.WriteLine($"({SerialNo}) Device button pressed, code: {e}");
+            _log.WriteLine($"({SerialNo}) Vault button pressed, code: {e}");
 
             Task.Run(() =>
             {
@@ -309,7 +309,7 @@ namespace HideezClient.Models
 
         void RemoteDevice_StorageModified(object sender, EventArgs e)
         {
-            _log.WriteLine($"({SerialNo}) Device storage modified");
+            _log.WriteLine($"({SerialNo}) Vault storage modified");
 
             Task.Run(() =>
             {
@@ -523,13 +523,13 @@ namespace HideezClient.Models
 
                             if (remoteCancellationTokenSource.IsCancellationRequested)
                             {
-                                _log.WriteLine($"({SerialNo}) Remove device creation cancelled");
+                                _log.WriteLine($"({SerialNo}) Remote vault creation cancelled");
                                 return;
                             }
 
                             if (_remoteDevice != null)
                             {
-                                _log.WriteLine($"({_remoteDevice.SerialNo}) Remote device created");
+                                _log.WriteLine($"({_remoteDevice.SerialNo}) Remote vault created");
                                 if (_remoteDevice?.AccessLevel != null)
                                 {
                                     _log.WriteLine($"({_remoteDevice.SerialNo}) access profile (allOk:{_remoteDevice.AccessLevel.IsAllOk}; " +
@@ -556,7 +556,7 @@ namespace HideezClient.Models
                         }
                         catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceDisconnected)
                         {
-                            _log.WriteLine("Remote device creation aborted, device disconnected", LogErrorSeverity.Warning);
+                            _log.WriteLine("Remote vault creation aborted, vault disconnected", LogErrorSeverity.Warning);
                         }
                         catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked)
                         {
@@ -637,7 +637,7 @@ namespace HideezClient.Models
 
             try
             {
-                _log.WriteLine($"({SerialNo}) Establishing remote device connection");
+                _log.WriteLine($"({SerialNo}) Establishing remote vault connection");
 
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -648,7 +648,7 @@ namespace HideezClient.Models
                 _log.WriteLine("Checking for available channels");
                 var channels = await _serviceProxy.GetService().GetAvailableChannelsAsync(SerialNo);
                 if (channels.Length == 0)
-                    throw new Exception($"No available channels on device ({SerialNo})"); // Todo: separate exception type
+                    throw new Exception($"No available channels on vault ({SerialNo})"); // Todo: separate exception type
                 var channelNo = channels.FirstOrDefault();
                 _log.WriteLine($"{channels.Length} channels available");
 
@@ -658,7 +658,7 @@ namespace HideezClient.Models
                     return;
                 }
 
-                ShowInfo($"Preparing for device {SerialNo} authorization", _infNid);
+                ShowInfo($"Preparing for vault {SerialNo} authorization", _infNid);
                 IsCreatingRemoteDevice = true;
                 _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
@@ -678,14 +678,14 @@ namespace HideezClient.Models
                 }
 
                 if (_remoteDevice.SerialNo != SerialNo)
-                    throw new Exception("Remote device serial number does not match the enumerated serial");
+                    throw new Exception("Remote vault serial number does not match the enumerated serial");
 
                 _log.WriteLine($"({SerialNo}) Creating password manager");
                 PasswordManager = new DevicePasswordManager(_remoteDevice, null);
                 _remoteDevice.StorageModified += RemoteDevice_StorageModified;
                 _remoteDevice.ButtonPressed += RemoteDevice_ButtonPressed;
 
-                _log.WriteLine($"({SerialNo}) Remote device connection established");
+                _log.WriteLine($"({SerialNo}) Remote vault connection established");
             }
             catch (FaultException<HideezServiceFault> ex)
             {
@@ -739,7 +739,7 @@ namespace HideezClient.Models
                 if (ct.IsCancellationRequested)
                     ShowError($"({SerialNo}) Authorization cancelled", _errNid);
                 else if (IsAuthorized)
-                    _log.WriteLine($"({_remoteDevice.Id}) Remote device authorized");
+                    _log.WriteLine($"({_remoteDevice.Id}) Remote vault authorized");
                 else
                     ShowError($"({SerialNo}) Authorization failed", _errNid);
             }
@@ -750,7 +750,7 @@ namespace HideezClient.Models
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked)
             {
-                _log.WriteLine($"({SerialNo}) Auth failed. Device is locked due to too many incorrect PIN entries");
+                _log.WriteLine($"({SerialNo}) Auth failed. Vault is locked due to too many incorrect PIN entries");
                 ShowDeviceLocked();
             }
             catch (HideezException ex)
@@ -926,7 +926,7 @@ namespace HideezClient.Models
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({attemptsLeft} attempts left)");
                     if (AccessLevel.IsLocked)
-                        ShowError($"Device is locked", _errNid);
+                        ShowError($"Vault is locked", _errNid);
                     else
                     {
                         ShowError($"Wrong PIN ({attemptsLeft} attempts left)", _errNid);

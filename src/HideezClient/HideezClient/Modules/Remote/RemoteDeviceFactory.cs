@@ -24,7 +24,7 @@ namespace HideezClient.Modules
 
         public async Task<RemoteDevice> CreateRemoteDeviceAsync(string serialNo, byte channelNo)
         {
-            _log.WriteLine($"({serialNo}) Creating remote device on channel:{channelNo}");
+            _log.WriteLine($"({serialNo}) Creating remote vault on channel:{channelNo}");
             var connectionId = await _serviceProxy.GetService().EstablishRemoteDeviceConnectionAsync(serialNo, channelNo);
 
             var remoteCommands = new RemoteDeviceCommands(_serviceProxy);
@@ -35,7 +35,7 @@ namespace HideezClient.Modules
             remoteCommands.RemoteDevice = device;
             remoteEvents.RemoteDevice = device;
 
-            _log.WriteLine($"({serialNo}) Created remote device with id: ({device.Id})");
+            _log.WriteLine($"({serialNo}) Created remote vault with id: ({device.Id})");
 
             return device;
         }

@@ -98,7 +98,7 @@ namespace HideezClient.Modules
         {
             if (device == null)
             {
-                Debug.Assert(false, "Device can not be null.");
+                Debug.Assert(false, "Vault can not be null.");
             }
 
             switch (type)
@@ -175,7 +175,7 @@ namespace HideezClient.Modules
         {
             return new MenuItemViewModel
             {
-                Header = "Set device as active",
+                Header = "Set vault as active",
                 Command = new DelegateCommand
                 {
                     CommandAction = (x) =>

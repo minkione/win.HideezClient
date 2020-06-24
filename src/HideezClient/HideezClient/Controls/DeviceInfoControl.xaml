@@ -145,7 +145,7 @@
                         FontSize="18"
                         Text="{Binding Proximity, StringFormat='{}{0,3}%'}"
                         TextAlignment="Right"
-                        ToolTip="Device proximity level"
+                        ToolTip="Vault proximity level"
                         Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </StackPanel>
 
@@ -157,7 +157,7 @@
                     VerticalAlignment="Center"
                     Foreground="{DynamicResource InitializingBrush}"
                     Kind="Disconnect"
-                    ToolTip="Connecting device"
+                    ToolTip="Connecting vault"
                     Visibility="{Binding IsInitializing, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 <iconPacks:PackIconOcticons
                     x:Name="Sync"
@@ -192,7 +192,7 @@
                     VerticalAlignment="Center"
                     Foreground="{DynamicResource InitializingBrush}"
                     Kind="ProgressDownload"
-                    ToolTip="Synchronizing storage with other device"
+                    ToolTip="Synchronizing storage with other vaults"
                     Visibility="{Binding IsStorageLocked, Converter={StaticResource BooleanToVisibilityConverter}}" />
             </StackPanel>
         </StackPanel>

@@ -42,37 +42,37 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
 
         public void DeviceConnectionStateChanged(DeviceDTO device)
         {
-            _log.WriteLine($"({device.Id}) Device connection state changed to: {device.IsConnected}");
+            _log.WriteLine($"({device.Id}) Vault connection state changed to: {device.IsConnected}");
             SendMessage(new DeviceConnectionStateChangedMessage(device));
         }
 
         public void DeviceInitialized(DeviceDTO device)
         {
-            _log.WriteLine($"({device.Id}) Device is initialized");
+            _log.WriteLine($"({device.Id}) Vault is initialized");
             SendMessage(new DeviceInitializedMessage(device));
         }
 
         public void DeviceFinishedMainFlow(DeviceDTO device)
         {
-            _log.WriteLine($"({device.Id}) Device has finished main flow");
+            _log.WriteLine($"({device.Id}) Vault has finished main flow");
             SendMessage(new DeviceFinishedMainFlowMessage(device));
         }
 
         public void DeviceOperationCancelled(DeviceDTO device)
         {
-            _log.WriteLine($"({device.Id}) Device operation cancelled");
+            _log.WriteLine($"({device.Id}) Vault operation cancelled");
             SendMessage(new DeviceOperationCancelledMessage(device));
         }
 
         public void DeviceProximityChanged(string deviceId, double proximity)
         {
-            _log.WriteLine($"({deviceId}) Device proximity changed to {proximity}");
+            _log.WriteLine($"({deviceId}) DevVaultice proximity changed to {proximity}");
             SendMessage(new DeviceProximityChangedMessage(deviceId, proximity));
         }
 
         public void DeviceBatteryChanged(string deviceId, int battery)
         {
-            _log.WriteLine($"({deviceId}) Device battery changed to {battery}");
+            _log.WriteLine($"({deviceId}) Vault battery changed to {battery}");
             SendMessage(new DeviceBatteryChangedMessage(deviceId, battery));
         }
 
@@ -132,7 +132,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
 
         public void DeviceProximityLockEnabled(DeviceDTO device)
         {
-            _log.WriteLine($"({device.Id}) Device marked as valid for workstation lock");
+            _log.WriteLine($"({device.Id}) Vault marked as valid for workstation lock");
             SendMessage(new DeviceProximityLockEnabledMessage(device));
         }
 
@@ -169,7 +169,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
         {
             try
             {
-                _log.WriteLine($"Device proximity settings changed");
+                _log.WriteLine($"Vault proximity settings changed");
                 _messenger.Send(new DeviceProximitySettingsChangedMessage());
             }
             catch (Exception ex)
@@ -182,9 +182,9 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
         {
             try
             {
-                _log.WriteLine($"Lock device storage ({serialNo})");
+                _log.WriteLine($"Lock vault storage ({serialNo})");
                 _messenger.Send(new LockDeviceStorageMessage(serialNo));
-                _messenger.Send(new ShowInfoNotificationMessage($"Synchronizing credetials in {serialNo} with your other device, please wait" 
+                _messenger.Send(new ShowInfoNotificationMessage($"Synchronizing credetials in {serialNo} with your other vault, please wait" 
                     + Environment.NewLine + "Password manager is temporarily unavailable", notificationId:serialNo));
             }
             catch (Exception ex)
@@ -197,7 +197,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
         {
             try
             {
-                _log.WriteLine($"Lift device storage lock ({serialNo})");
+                _log.WriteLine($"Lift vault storage lock ({serialNo})");
                 _messenger.Send(new LiftDeviceStorageLockMessage(serialNo));
             }
             catch (Exception ex)

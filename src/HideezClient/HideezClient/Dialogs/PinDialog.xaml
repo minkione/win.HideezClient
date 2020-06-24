@@ -50,7 +50,7 @@
                         Grid.Row="0"
                         Grid.Column="2"
                         Style="{StaticResource DialogTitleTextBlockStyle}"
-                        Text="Press the button on your device to confirm authorization" />
+                        Text="Press the button on your vault to confirm authorization" />
                     <StackPanel
                         Grid.Row="2"
                         Grid.Column="2"
@@ -83,15 +83,15 @@
                         <Grid>
                             <TextBlock
                                 Style="{StaticResource DialogTitleTextBlockStyle}"
-                                Text="{Binding MinLenghtPin, StringFormat=Set up new PIN for device (minimum {0})}"
+                                Text="{Binding MinLenghtPin, StringFormat=Set up new PIN for vault (minimum {0})}"
                                 Visibility="{Binding IsNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <TextBlock
                                 Style="{StaticResource DialogTitleTextBlockStyle}"
-                                Text="Enter device PIN"
+                                Text="Enter vault PIN"
                                 Visibility="{Binding IsEnterPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <TextBlock
                                 Style="{StaticResource DialogTitleTextBlockStyle}"
-                                Text="{Binding MinLenghtPin, StringFormat=Change device PIN (minimum {0})}"
+                                Text="{Binding MinLenghtPin, StringFormat=Change vault PIN (minimum {0})}"
                                 Visibility="{Binding IsChangePin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         </Grid>
 

@@ -64,7 +64,7 @@ namespace HideezMiddleware
                     }
                     else
                     {
-                        WriteLine($"Device ({device.Id}) added as valid to trigger workstation lock");
+                        WriteLine($"Vault ({device.Id}) added as valid to trigger workstation lock");
                         device.SetUserProperty(PROX_LOCK_ENABLED_PROP, true);
                         SafeInvoke(DeviceProxLockEnabled, device);
                     }
@@ -121,7 +121,7 @@ namespace HideezMiddleware
             {
                 if (CanLock(device))
                 {
-                    WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Device ID: {device.Id}");
+                    WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Vault ID: {device.Id}");
                     WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceBelowThreshold));
                     _workstationLocker.LockWorkstation();
                 }
@@ -134,7 +134,7 @@ namespace HideezMiddleware
             {
                 if (CanLock(device))
                 {
-                    WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Device ID: {device.Id}");
+                    WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Vault ID: {device.Id}");
                     WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.ProximityTimeout));
                     _workstationLocker.LockWorkstation();
                 }
@@ -147,7 +147,7 @@ namespace HideezMiddleware
             {
                 if (!_deviceReconnectManager.IsEnabled && CanLock(device))
                 {
-                    WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Device ID: {device.Id}");
+                    WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Vault ID: {device.Id}");
                     WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceConnectionLost));
                     _workstationLocker.LockWorkstation();
                 }
@@ -160,7 +160,7 @@ namespace HideezMiddleware
             {
                 if (_deviceReconnectManager.IsEnabled && CanLock(device))
                 {
-                    WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Device ID: {device.Id}");
+                    WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Vault ID: {device.Id}");
                     WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceConnectionLost));
                     _workstationLocker.LockWorkstation();
                 }

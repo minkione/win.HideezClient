@@ -183,7 +183,7 @@
             <Border Padding="24" Style="{StaticResource SettingsSectionBorderStyle}">
                 <StackPanel>
                     <Border Style="{StaticResource ContainerStyle}">
-                        <TextBlock Text="Select the device you want to work with. Please note that the password manager will only display entries from the key you have selected." TextWrapping="Wrap" />
+                        <TextBlock Text="Select the vault you want to work with. Please note that the password manager will only display entries from the key you have selected." TextWrapping="Wrap" />
                     </Border>
                     <Grid>
                         <ProgressBar

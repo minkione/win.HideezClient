@@ -157,10 +157,10 @@
     <value>Error save credential.</value>
   </data>
   <data name="Info.NoDevice" xml:space="preserve">
-    <value>No device</value>
+    <value>No vault</value>
   </data>
   <data name="Icon.DeviceNotConnected" xml:space="preserve">
-    <value>Device is not connected</value>
+    <value>Vault is not connected</value>
   </data>
   <data name="Icon.FailedConnectHideezService" xml:space="preserve">
     <value>Cannot connect to Hideez service</value>
@@ -173,7 +173,7 @@
   </data>
   <data name="Icon.NoKeyConnectionAlert" xml:space="preserve">
     <value>New notifications are available
-Device is not connected</value>
+Vault is not connected</value>
   </data>
   <data name="Icon.SynchronizationInProgress" xml:space="preserve">
     <value>Synchronization in progress</value>
@@ -206,7 +206,7 @@ Device is not connected</value>
     <value>Unlock distance: </value>
   </data>
   <data name="Menu.AddDevice" xml:space="preserve">
-    <value>Add new device ...</value>
+    <value>Add new vault ...</value>
   </data>
   <data name="Menu.ChangePassword" xml:space="preserve">
     <value>Change account password</value>
@@ -215,7 +215,7 @@ Device is not connected</value>
     <value>Check for updates</value>
   </data>
   <data name="Menu.DisconnectDevice" xml:space="preserve">
-    <value>Disconnect device</value>
+    <value>Disconnect vault</value>
   </data>
   <data name="Menu.Exit" xml:space="preserve">
     <value>Exit</value>
@@ -236,7 +236,7 @@ Device is not connected</value>
     <value>Log off</value>
   </data>
   <data name="Menu.RemoveDevice" xml:space="preserve">
-    <value>Remove device</value>
+    <value>Remove vault</value>
   </data>
   <data name="Menu.RFIDUsage" xml:space="preserve">
     <value>RFID usage</value>
@@ -344,10 +344,10 @@ Device is not connected</value>
     <value>Account not found for {0}</value>
   </data>
   <data name="NoConnectedDevices" xml:space="preserve">
-    <value>No connected devices</value>
+    <value>No connected vault</value>
   </data>
   <data name="Menu.DeviceSettings" xml:space="preserve">
-    <value>Device settings</value>
+    <value>Vault settings</value>
   </data>
   <data name="Button.Confirm" xml:space="preserve">
     <value>Confirm</value>
@@ -373,7 +373,7 @@ to access stored credentials</value>
 {0} attempts left.</value>
   </data>
   <data name="Pin.ReqBtnConfirm" xml:space="preserve">
-    <value>Press the button on your device to confirm authorization</value>
+    <value>Press the button on your vault to confirm authorization</value>
   </data>
   <data name="Pin.VerifyingPIN" xml:space="preserve">
     <value>Verifying PIN code</value>
@@ -385,10 +385,10 @@ to access stored credentials</value>
     <value>Loading credentials {0}</value>
   </data>
   <data name="DeviceLocked.Body.Head" xml:space="preserve">
-    <value>This device is locked</value>
+    <value>This vault is locked</value>
   </data>
   <data name="PinNotVerified.Description" xml:space="preserve">
-    <value>Pin for {0} was not verified. You cannot use the credentials from this device until you verify the PIN code</value>
+    <value>Pin for {0} was not verified. You cannot use the credentials from this vault until you verify the PIN code</value>
   </data>
   <data name="PinNotVerified.LinkText" xml:space="preserve">
     <value>Click to enter PIN now</value>
@@ -481,13 +481,13 @@ to access stored credentials</value>
     <value>ACCOUNT</value>
   </data>
   <data name="EnableDevice.Header" xml:space="preserve">
-    <value>Enable your device</value>
+    <value>Enable your vault</value>
   </data>
   <data name="EnableDevice.Step1" xml:space="preserve">
     <value>Make sure that all indicators below are green.</value>
   </data>
   <data name="EnableDevice.Step2" xml:space="preserve">
-    <value>Long touch the dongle with the device until initication process launches.</value>
+    <value>Long touch the dongle with the vault until initication process launches.</value>
   </data>
   <data name="EnableDevice.Step3" xml:space="preserve">
     <value>Follow the screen notifications.</value>
@@ -502,7 +502,7 @@ to access stored credentials</value>
     <value>Bootloader Version: </value>
   </data>
   <data name="DS.Label.DeviceName" xml:space="preserve">
-    <value>Device name: </value>
+    <value>Vault name: </value>
   </data>
   <data name="DS.Label.FirmwareVersion" xml:space="preserve">
     <value>Firmware Version: </value>
@@ -556,10 +556,10 @@ to access stored credentials</value>
     <value>Are you sure you want to delete this account?</value>
   </data>
   <data name="Notification.DeviceLocked.Caption" xml:space="preserve">
-    <value>Device is locked</value>
+    <value>Vault is locked</value>
   </data>
   <data name="Notification.DeviceLocked.Message" xml:space="preserve">
-    <value>To many incorrect PIN entries. To unlock the device, contact your system administrator.</value>
+    <value>To many incorrect PIN entries. To unlock the vault, contact your system administrator.</value>
   </data>
   <data name="Button.No" xml:space="preserve">
     <value>No</value>
@@ -580,7 +580,7 @@ to access stored credentials</value>
     <value>Credentials loading failed {0}</value>
   </data>
   <data name="UserAction.DeviceIsNotActive" xml:space="preserve">
-    <value>Action cancelled. Device ({0}) is not selected as active device.</value>
+    <value>Action cancelled. Vault ({0}) is not selected as active vault.</value>
   </data>
   <data name="Enum.ButtonPressCode.Double" xml:space="preserve">
     <value>twice</value>
@@ -631,28 +631,28 @@ to access stored credentials</value>
     <value>Did you try to enter password into an app or browser?{0}{0}Select password field in app or browser{0}then {1}</value>
   </data>
   <data name="Menu.Authorize" xml:space="preserve">
-    <value>Authorize device access</value>
+    <value>Authorize vault access</value>
   </data>
   <data name="Menu.Authorize.Tooltip" xml:space="preserve">
-    <value>Launch authorization to access device storage</value>
+    <value>Launch authorization to access vault storage</value>
   </data>
   <data name="Menu.DisconnectDevice.Tooltip" xml:space="preserve">
-    <value>Disconnect device</value>
+    <value>Disconnect vault</value>
   </data>
   <data name="Menu.RemoveDevice.Tooltip" xml:space="preserve">
-    <value>Disconnect device and delete bluetooth bond</value>
+    <value>Disconnect vault and delete bluetooth bond</value>
   </data>
   <data name="SearchPasswords" xml:space="preserve">
     <value>Search passwords</value>
   </data>
   <data name="UserAction.ButtonDisabled.ToManyOtherConnections" xml:space="preserve">
-    <value>Button actions are disabled because your device ({0}) is connected to {1} other workstations. Instead use hotkey {2} to {3}.</value>
+    <value>Button actions are disabled because your vault ({0}) is connected to {1} other workstations. Instead use hotkey {2} to {3}.</value>
   </data>
   <data name="Menu.Logs.OpenDeviceFolder" xml:space="preserve">
-    <value>Device Logs</value>
+    <value>Vault Logs</value>
   </data>
   <data name="Exception.AuthEndedUnexpectedly" xml:space="preserve">
-    <value>Device authorization ended unexpectedly. Please, try again.</value>
+    <value>Vault authorization ended unexpectedly. Please, try again.</value>
   </data>
   <data name="Url.Help" xml:space="preserve">
     <value>https://support.hideez.com</value>
@@ -739,7 +739,7 @@ to access stored credentials</value>
     <value>Make sure that all the indicators in the bottom left corner are green.</value>
   </data>
   <data name="HKP.Description2" xml:space="preserve">
-    <value>Long tap the dongle with the device until the initiation process launches.</value>
+    <value>Long tap the dongle with the vault until the initiation process launches.</value>
   </data>
   <data name="HKP.Description3" xml:space="preserve">
     <value>Follow the screen notifications.</value>
