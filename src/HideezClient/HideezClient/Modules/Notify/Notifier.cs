@@ -63,7 +63,7 @@ namespace HideezClient.Modules
             Dispose(false);
         }
         #endregion
-        
+
         public void ShowInfo(string title, string message, NotificationOptions options = null)
         {
             ShowInfo(string.Empty, title, message, options);
@@ -94,6 +94,15 @@ namespace HideezClient.Modules
         public void ShowError(string notificationId, string title, string message, NotificationOptions options = null)
         {
             ShowSimpleNotification(notificationId, title, message, options, NotificationIconType.Error);
+        }
+
+        public void ClearNotifications()
+        {
+            var notifications = GetNotifications();
+            foreach (NotificationBase notification in notifications)
+            {
+                notification.Close();
+            }
         }
 
 
