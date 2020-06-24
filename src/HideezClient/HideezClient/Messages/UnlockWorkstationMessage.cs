@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace HideezClient.Messages
 {
-    class ProximityLockMessage
+    class UnlockWorkstationMessage
     {
         public bool IsDisabledLock { get; }
 
-        public ProximityLockMessage(bool isDisabledLock)
+        public UnlockWorkstationMessage(bool isDisabledLock)
         {
             IsDisabledLock = isDisabledLock;
         }

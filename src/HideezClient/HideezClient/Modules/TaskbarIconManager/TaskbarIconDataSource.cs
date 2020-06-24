@@ -37,7 +37,7 @@ namespace HideezClient.Modules
         public IDictionary<IconState, string> IconToolTipKeyLocalize { get; } = new Dictionary<IconState, string>
         {
             { IconState.Idle, "" },
-            { IconState.IdleAlert, "Icon.NewNotificationsAvailable" }
+            { IconState.IdleAlert, "Icon.LockByProximityDisabled" }
         };
 
         /// <summary>

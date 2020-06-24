@@ -127,7 +127,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
 
         public void WorkstationUnlocked(bool isNonHideezMethod)
         {
-            SendMessage(new ProximityLockMessage(isNonHideezMethod));
+            SendMessage(new UnlockWorkstationMessage(isNonHideezMethod));
         }
 
         /// <summary>

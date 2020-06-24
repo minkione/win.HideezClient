@@ -14,11 +14,11 @@ namespace HideezClient.Modules.ProximityLockManager
             _taskbarIconManager = taskbarIconManager;
             _messenger = messenger;
 
-            _messenger.Register<ProximityLockMessage>(this, OnWorkstationUnlocked);
+            _messenger.Register<UnlockWorkstationMessage>(this, OnWorkstationUnlocked);
             _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
         }
 
-        void OnWorkstationUnlocked(ProximityLockMessage obj)
+        void OnWorkstationUnlocked(UnlockWorkstationMessage obj)
         {
             if (obj.IsDisabledLock)
                 _messenger.Send(new ShowWarningNotificationMessage(message: "Lock by proximity is disabled"));
