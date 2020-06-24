@@ -2,5 +2,6 @@
 {
     interface ITaskbarIconManager
     {
+        IconState IconState { get; set; }
     }
 }

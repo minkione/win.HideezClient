@@ -37,11 +37,7 @@ namespace HideezClient.Modules
         public IDictionary<IconState, string> IconToolTipKeyLocalize { get; } = new Dictionary<IconState, string>
         {
             { IconState.Idle, "" },
-            { IconState.IdleAlert, "Icon.NewNotificationsAvailable" },
-            { IconState.Synchronizing, "Icon.SynchronizationInProgress" },
-            { IconState.NoServiceConnection, "Icon.FailedConnectHideezService" },
-            { IconState.NoKeyConnection, "Icon.DeviceNotConnected" },
-            { IconState.NoKeyConnectionAlert, "Icon.NoKeyConnectionAlert" },
+            { IconState.IdleAlert, "Icon.LockByProximityDisabled" }
         };
 
         /// <summary>
@@ -53,7 +49,7 @@ namespace HideezClient.Modules
             const string folder = "pack://application:,,,/Resources/Icon/";
 
             Icons[IconState.Idle] = LoadImagesArray($"{folder}Idle/", "Idle1.ico");
-            //Icons[IconState.IdleAlert] = LoadImagesArray($"{folder}Alert/", "Alert1.ico");
+            Icons[IconState.IdleAlert] = LoadImagesArray($"{folder}Alert/", "Alert1.ico");
             //Icons[IconState.Synchronizing] = LoadImagesArray($"{folder}Sync/", "Sync1.ico", "Sync2.ico", "Sync3.ico", "Sync4.ico", "Sync5.ico", "Sync6.ico", "Sync7.ico", "Sync8.ico");
             //Icons[IconState.NoServiceConnection] = LoadImagesArray($"{folder}NoCon/", "NoCon1.ico");
             //Icons[IconState.NoKeyConnection] = LoadImagesArray($"{folder}NoKey/", "NoKey1.ico");

@@ -168,6 +168,9 @@
   <data name="Icon.NewNotificationsAvailable" xml:space="preserve">
     <value>New notifications are available</value>
   </data>
+  <data name="Icon.LockByProximityDisabled" xml:space="preserve">
+    <value>Lock by proximity is disabled</value>
+  </data>
   <data name="Icon.NoKeyConnectionAlert" xml:space="preserve">
     <value>New notifications are available
 Device is not connected</value>

@@ -1345,6 +1345,9 @@ namespace HideezClient.HideezServiceReference {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HidePinUi")]
         void HidePinUi();
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/WorkstationUnlocked")]
+        void WorkstationUnlocked(bool isNonHideezMethod);
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ShowActivationCodeUi")]
         void ShowActivationCodeUi(string deviceId);
         

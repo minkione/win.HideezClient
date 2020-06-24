@@ -17,6 +17,8 @@ namespace HideezClient.Modules
         void ShowError(string title, string message, NotificationOptions options = null);
         void ShowError(string notificationId, string title, string message, NotificationOptions options = null);
 
+        void ClearNotifications();
+
         void ShowStorageLoadingNotification(CredentialsLoadNotificationViewModel viewModel);
         void ShowDeviceNotAuthorizedNotification(Device device);
         void ShowDeviceIsLockedNotification(Device device);

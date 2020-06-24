@@ -304,6 +304,9 @@
   <wsdl:message name="IHideezService_HidePinUi_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:HidePinUi" />
   </wsdl:message>
+  <wsdl:message name="IHideezService_WorkstationUnlocked_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:WorkstationUnlocked" />
+  </wsdl:message>
   <wsdl:message name="IHideezService_ShowActivationCodeUi_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:ShowActivationCodeUi" />
   </wsdl:message>
@@ -485,6 +488,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="HidePinUi">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/HidePinUi" message="tns:IHideezService_HidePinUi_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="WorkstationUnlocked">
+      <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/WorkstationUnlocked" message="tns:IHideezService_WorkstationUnlocked_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ShowActivationCodeUi">
       <wsdl:output wsaw:Action="http://tempuri.org/IHideezService/ShowActivationCodeUi" message="tns:IHideezService_ShowActivationCodeUi_OutputCallbackMessage" />
@@ -883,6 +889,12 @@
     </wsdl:operation>
     <wsdl:operation name="HidePinUi">
       <soap12:operation soapAction="http://tempuri.org/IHideezService/HidePinUi" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="WorkstationUnlocked">
+      <soap12:operation soapAction="http://tempuri.org/IHideezService/WorkstationUnlocked" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

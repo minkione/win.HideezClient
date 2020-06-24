@@ -80,6 +80,10 @@ namespace TestConsole
         {
         }
 
+	public void WorkstationUnlocked(bool isNonHideezMethod)
+        {
+        }
+
         public void ShowActivationCodeUi(string deviceId)
         {
         }

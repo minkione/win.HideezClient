@@ -32,6 +32,7 @@ using HideezMiddleware.ReconnectManager;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using HideezMiddleware.SoftwareVault.UnlockToken;
+using HideezMiddleware.Tasks;
 using HideezMiddleware.Workstation;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ClientManagement;
@@ -68,6 +69,7 @@ namespace ServiceLibrary.Implementation
         static RfidConnectionProcessor _rfidProcessor;
         static TapConnectionProcessor _tapProcessor;
         static ProximityConnectionProcessor _proximityProcessor;
+        static SessionUnlockMethodMonitor _sessionUnlockMethodMonitor;
         static SessionSwitchLogger _sessionSwitchLogger;
         static ConnectionManagerRestarter _connectionManagerRestarter;
         static ILocalDeviceInfoCache _localDeviceInfoCache;
@@ -264,6 +266,7 @@ namespace ServiceLibrary.Implementation
                 _localDeviceInfoCache,
                 _hesAccessManager,
                 _sdkLogger);
+
             _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreList = new AdvertisementIgnoreList(
@@ -320,9 +323,12 @@ namespace ServiceLibrary.Implementation
                 _sdkLogger);
             _workstationLockProcessor.DeviceProxLockEnabled += WorkstationLockProcessor_DeviceProxLockEnabled;
 
+            //SessionUnlockMethodMonitor ==================================
+            _sessionUnlockMethodMonitor = new SessionUnlockMethodMonitor(_connectionFlowProcessor,
+                 _tapProcessor, _rfidProcessor, _proximityProcessor, _sdkLogger);
+
             // SessionSwitchLogger ==================================
-            _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver, _connectionFlowProcessor,
-                _tapProcessor, _rfidProcessor, _proximityProcessor,
+            _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver, _sessionUnlockMethodMonitor,
                 _workstationLockProcessor, _deviceManager, _sdkLogger);
 
             // SDK initialization finished, start essential components
@@ -823,6 +829,10 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
+                if (reason == SessionSwitchReason.SessionUnlock || reason== SessionSwitchReason.SessionLogon)
+                    foreach (var client in sessionManager.Sessions)
+                        client.Callbacks.WorkstationUnlocked(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez);
+
                 if (reason == SessionSwitchReason.SessionLogoff || reason == SessionSwitchReason.SessionLock)
                 {
                     // Disconnect all connected devices

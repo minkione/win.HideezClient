@@ -51,6 +51,8 @@ namespace HideezClient.Modules
             _viewModelLocator = viewModelLocator;
             _settingsManager = settingsManager;
 
+            messenger.Register<UnlockWorkstationMessage>(this, ClearNotifications);
+
             messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message, notificationId: p.Id));
             messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message, notificationId: p.Id));
 
@@ -68,7 +70,7 @@ namespace HideezClient.Modules
 
             messenger.Register<ShowActivateMainWindowMessage>(this, (p) => ActivateMainWindow());
         }
-
+        
         public void ActivateMainWindow()
         {
             UIDispatcher.Invoke(OnActivateMainWindow);
@@ -233,6 +235,10 @@ namespace HideezClient.Modules
         private void ShowLocked(Device device)
         {
             UIDispatcher.Invoke(() => _notifier.ShowDeviceIsLockedNotification(device));
+        }
+        private void ClearNotifications(UnlockWorkstationMessage obj)
+        {
+            UIDispatcher.Invoke(() => _notifier.ClearNotifications());
         }
 
         public Task<bool> ShowAccountNotFoundAsync(string message, string title = null)

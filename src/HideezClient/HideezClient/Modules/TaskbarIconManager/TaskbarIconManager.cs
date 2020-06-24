@@ -34,6 +34,7 @@ namespace HideezClient.Modules
             taskbarIcon.DataContext = viewModel;
             taskbarIcon.ContextMenu.Opened += ContextMenu_Opened;
 
+
             InitializeAnimator();
         }
         

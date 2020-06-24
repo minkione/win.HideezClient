@@ -164,6 +164,9 @@ namespace ServiceLibrary
         void HidePinUi();
 
         [OperationContract(IsOneWay = true)]
+        void WorkstationUnlocked(bool isNonHideezMethod);
+
+	[OperationContract(IsOneWay = true)]
         void ShowActivationCodeUi(string deviceId);
 
         [OperationContract(IsOneWay = true)]

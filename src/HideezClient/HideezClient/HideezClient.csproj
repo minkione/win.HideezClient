@@ -348,6 +348,7 @@
     <Compile Include="Messages\DeviceProximitySettingsChangedMessage.cs" />
     <Compile Include="Messages\DeviceProximityChangedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
+    <Compile Include="Messages\UnlockWorkstationMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
     <Compile Include="Messages\HideActivationCodeUiMessage.cs" />
     <Compile Include="Messages\HidePinUiMessage.cs" />
@@ -408,6 +409,8 @@
     <Compile Include="Modules\Notify\NotificationOptions.cs" />
     <Compile Include="Modules\Notify\NotificationPosition.cs" />
     <Compile Include="Modules\Notify\Notifier.cs" />
+    <Compile Include="Modules\ProximityLockManager\IProximityLockManager.cs" />
+    <Compile Include="Modules\ProximityLockManager\ProximityLockManager.cs" />
     <Compile Include="Modules\Remote\IRemoteDeviceFactory.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceCommands.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceEvents.cs" />
@@ -731,6 +734,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Resource Include="Resources\Icon\Alert\Alert1.ico" />
     <Resource Include="Resources\Icon\Idle\Idle1.ico" />
     <Resource Include="128x128.ico" />
     <None Include="Connected Services\HideezServiceReference\HideezClient.HideezServiceReference.ProximitySettingsDTO.datasource">
@@ -804,7 +808,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataTypes\" />
-    <Folder Include="Resources\Icon\Alert\" />
     <Folder Include="Resources\Icon\NoCon\" />
     <Folder Include="Resources\Icon\NoKeyAlert\" />
     <Folder Include="Resources\Icon\NoKey\" />

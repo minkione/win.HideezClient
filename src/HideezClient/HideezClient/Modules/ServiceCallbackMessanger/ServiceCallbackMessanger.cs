@@ -136,6 +136,11 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             SendMessage(new DeviceProximityLockEnabledMessage(device));
         }
 
+        public void WorkstationUnlocked(bool isNonHideezMethod)
+        {
+            SendMessage(new UnlockWorkstationMessage(isNonHideezMethod));
+        }
+
         /// <summary>
         /// Send message without blocking current thread using IMessenger
         /// </summary>

@@ -24,39 +24,25 @@ namespace HideezMiddleware.Audit
         }
 
         readonly EventSaver _eventSaver;
-        readonly ConnectionFlowProcessor _connectionFlowProcessor;
-        readonly TapConnectionProcessor _tapProcessor;
-        readonly RfidConnectionProcessor _rfidProcessor;
-        readonly ProximityConnectionProcessor _proximityProcessor;
+        readonly SessionUnlockMethodMonitor _sessionUnlockMethodMonitor;
         readonly WorkstationLockProcessor _workstationLockProcessor;
         readonly BleDeviceManager _bleDeviceManager;
 
         LockProcedure _lockProcedure = null;
         readonly object _lpLock = new object();
 
-        UnlockSessionSwitchProc _unlockProcedure = null;
-        readonly object _upLock = new object();
-
-
         public SessionSwitchLogger(EventSaver eventSaver,
-            ConnectionFlowProcessor connectionFlowProcessor,
-            TapConnectionProcessor tapProcessor,
-            RfidConnectionProcessor rfidProcessor,
-            ProximityConnectionProcessor proximityProcessor,
+            SessionUnlockMethodMonitor sessionUnlockMethodMonitor,
             WorkstationLockProcessor workstationLockProcessor,
             BleDeviceManager bleDeviceManager,
             ILog log)
             : base(nameof(SessionSwitchLogger), log)
         {
             _eventSaver = eventSaver;
-            _connectionFlowProcessor = connectionFlowProcessor;
-            _tapProcessor = tapProcessor;
-            _rfidProcessor = rfidProcessor;
-            _proximityProcessor = proximityProcessor;
+            _sessionUnlockMethodMonitor = sessionUnlockMethodMonitor;
             _workstationLockProcessor = workstationLockProcessor;
             _bleDeviceManager = bleDeviceManager;
 
-            _connectionFlowProcessor.Started += ConnectionFlowProcessor_Started;
             _workstationLockProcessor.WorkstationLocking += WorkstationLockProcessor_WorkstationLocking;
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
         }
@@ -76,7 +62,6 @@ namespace HideezMiddleware.Audit
             {
                 if (disposing)
                 {
-                    _connectionFlowProcessor.Started -= ConnectionFlowProcessor_Started;
                     _workstationLockProcessor.WorkstationLocking -= WorkstationLockProcessor_WorkstationLocking;
                     SessionSwitchMonitor.SessionSwitch -= SessionSwitchMonitor_SessionSwitch;
                 }
@@ -105,17 +90,7 @@ namespace HideezMiddleware.Audit
             }
         }
 
-        void ConnectionFlowProcessor_Started(object sender, string e)
-        {
-            lock (_upLock)
-            {
-                if (_unlockProcedure != null)
-                    _unlockProcedure.Dispose();
-
-                _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor);
-                WriteLine("Started unlock procedure");
-            }
-        }
+       
 
         async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
@@ -191,7 +166,7 @@ namespace HideezMiddleware.Audit
 
             var time = DateTime.UtcNow;
             
-            var procedure = _unlockProcedure;
+            var procedure = _sessionUnlockMethodMonitor.UnlockProcedure;
             if (procedure != null)
             {
                 WriteLine("Wait for unlock procedure");
@@ -208,14 +183,14 @@ namespace HideezMiddleware.Audit
                 procedure.FlowUnlockResult != null && 
                 procedure.FlowUnlockResult.IsSuccessful)
             {
-                we.Note = procedure.UnlockMethod.ToString();
+                we.Note = _sessionUnlockMethodMonitor.GetUnlockMethod().ToString();
                 we.DeviceId = _bleDeviceManager.Find(procedure.FlowUnlockResult.DeviceMac, 1)?.SerialNo;
                 we.AccountLogin = procedure.FlowUnlockResult.AccountLogin;
                 we.AccountName = procedure.FlowUnlockResult.AccountName;
                 WriteLine($"Procedure successful ({we.DeviceId}, method: {we.Note})");
             }
 
-            _unlockProcedure = null;
+            //_unlockProcedure = null;
 
             await _eventSaver.AddNewAsync(we, true);
 
