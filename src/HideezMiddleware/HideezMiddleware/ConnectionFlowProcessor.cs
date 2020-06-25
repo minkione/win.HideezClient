@@ -690,6 +690,18 @@ namespace HideezMiddleware
                     if (ct.IsCancellationRequested)
                         return;
 
+                    if (code.Length < 6)
+                    {
+                        await _ui.SendError("Activation code is to short");
+                        continue;
+                    }
+
+                    if (code.Length > 8)
+                    {
+                        await _ui.SendError("Activation code is to long");
+                        continue;
+                    }
+
                     try
                     {
                         await device.UnlockDeviceCode(code);
