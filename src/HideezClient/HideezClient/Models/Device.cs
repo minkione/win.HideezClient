@@ -918,7 +918,7 @@ namespace HideezClient.Models
                     pinOk = true;
                     break;
                 }
-                else if (pinResult == HideezErrorCode.ERR_DEVICE_LOCKED)
+                else if (pinResult == HideezErrorCode.ERR_DEVICE_LOCKED_BY_PIN)
                 {
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);
                 }

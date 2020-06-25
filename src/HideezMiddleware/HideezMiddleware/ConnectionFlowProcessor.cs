@@ -530,7 +530,7 @@ namespace HideezMiddleware
                     res = true;
                     break;
                 }
-                else if (pinResult == HideezErrorCode.ERR_DEVICE_LOCKED)
+                else if (pinResult == HideezErrorCode.ERR_DEVICE_LOCKED_BY_PIN)
                 {
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);
                 }
@@ -697,7 +697,7 @@ namespace HideezMiddleware
                     catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_PIN_WRONG) // Entered invalid activation code
                     { 
                     }
-                    catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_DEVICE_LOCKED) // Unlock attempts == 0
+                    catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_DEVICE_LOCKED_BY_CODE) // Unlock attempts == 0
                     {
                         throw new HideezException(HideezErrorCode.DeviceIsLocked);
                     }
