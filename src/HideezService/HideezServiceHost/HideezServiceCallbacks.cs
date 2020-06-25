@@ -101,5 +101,9 @@ namespace HideezServiceHost
         public void LiftDeviceStorageLock(string serialNo)
         {
         }
+
+        public void WorkstationUnlocked(bool isNonHideezMethod)
+        {
+        }
     }
 }
