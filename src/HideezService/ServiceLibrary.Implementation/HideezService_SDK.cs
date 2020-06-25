@@ -504,6 +504,7 @@ namespace ServiceLibrary.Implementation
                 device.OperationCancelled += Device_OperationCancelled;
                 device.ProximityChanged += Device_ProximityChanged;
                 device.BatteryChanged += Device_BatteryChanged;
+                device.WipeFinished += Device_WipeFinished;
             }
         }
 
@@ -519,6 +520,7 @@ namespace ServiceLibrary.Implementation
                 device.OperationCancelled -= Device_OperationCancelled;
                 device.ProximityChanged -= Device_ProximityChanged;
                 device.BatteryChanged -= Device_BatteryChanged;
+                device.WipeFinished -= Device_WipeFinished;
 
                 if (device is IWcfDevice wcfDevice)
                     UnsubscribeFromWcfDeviceEvents(wcfDevice);
@@ -780,6 +782,15 @@ namespace ServiceLibrary.Implementation
                 }
             }
             
+        }
+
+        void Device_WipeFinished(object sender, WipeFinishedEventtArgs e)
+        {
+            if (e.Status == FwWipeStatus.WIPE_OK)
+            {
+                _log?.WriteLine($"(somedevice) Wipe finished. Disabling automatic reconnect");
+                _deviceReconnectManager.DisableDeviceReconnect((IDevice)sender);
+            }
         }
 
         void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
