@@ -212,9 +212,12 @@ namespace HideezMiddleware
                     if (deviceInfo.HasNewLicense)
                     {
                         // License upload has the highest priority in connection flow. Without license other actions are impossible
-                        await _ui.SendNotification("Updating vault licenses...", _infNid);
                         await LicenseWorkflow(device, ct);
-                        await device.RefreshDeviceInfo();
+                    }
+                    else if (device.LicenseInfo == 0) 
+                    {
+                        // Device has no uploaded licenses and no new licenses, but may still have valid licenses that can be reuploaded
+                        await RestoreLicenseWorkflow(device, ct);
                     }
                 }
                 else
@@ -652,27 +655,65 @@ namespace HideezMiddleware
 
         async Task LicenseWorkflow(IDevice device, CancellationToken ct)
         {
+            await _ui.SendNotification("Updating vault licenses...", _infNid);
             var licenses = await _hesConnection.GetNewDeviceLicenses(device.SerialNo);
 
-            WriteLine($"Received {licenses.Count} licenses from HES");
+            WriteLine($"Received {licenses.Count} new licenses from HES");
 
             if (ct.IsCancellationRequested)
                 return;
 
-            foreach (var license in licenses)
+            if (licenses.Count > 0)
             {
-                if (ct.IsCancellationRequested)
-                    return;
+                foreach (var license in licenses)
+                {
+                    if (ct.IsCancellationRequested)
+                        return;
 
-                if (license.Data == null)
-                    throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_DATA). Please, contact your administrator.");
+                    if (license.Data == null)
+                        throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_DATA). Please, contact your administrator.");
 
-                if (license.Id == null)
-                    throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_ID). Please, contact your administrator.");
+                    if (license.Id == null)
+                        throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_ID). Please, contact your administrator.");
 
-                await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
-                WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo})");
-                await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
+                    await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
+                    WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo})");
+                    await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
+                }
+
+                await device.RefreshDeviceInfo();
+            }
+        }
+
+        async Task RestoreLicenseWorkflow(IDevice device, CancellationToken ct)
+        {
+            await _ui.SendNotification("Updating vault licenses...", _infNid);
+            var licenses = await _hesConnection.GetDeviceLicenses(device.SerialNo);
+
+            WriteLine($"Received {licenses.Count} active licenses from HES");
+
+            if (ct.IsCancellationRequested)
+                return;
+
+            if (licenses.Count > 0)
+            {
+                foreach (var license in licenses)
+                {
+                    if (ct.IsCancellationRequested)
+                        return;
+
+                    if (license.Data == null)
+                        throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_DATA). Please, contact your administrator.");
+
+                    if (license.Id == null)
+                        throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_ID). Please, contact your administrator.");
+
+                    await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
+                    WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo})");
+                    await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
+                }
+
+                await device.RefreshDeviceInfo();
             }
         }
 
