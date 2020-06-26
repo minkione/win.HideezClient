@@ -13,6 +13,7 @@
     DataContext="{Binding PinNotVerifiedNotificationViewModel, Source={StaticResource Locator}}"
     FontSize="16"
     Foreground="{DynamicResource LightForeground}"
+    Style="{StaticResource NotificationStyle}"
     mc:Ignorable="d">
     <Grid Margin="24">
         <Grid.ColumnDefinitions>

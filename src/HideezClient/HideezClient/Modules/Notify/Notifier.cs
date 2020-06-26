@@ -229,23 +229,32 @@ namespace HideezClient.Modules
             if (string.IsNullOrWhiteSpace(notificationId))
                 notificationId = Guid.NewGuid().ToString();
 
-            // If notification with matching ID and content is found, extend its duration
-            // If ID matches but content is different, close old notification and display a new one
-            // If no copy is found, show new notification
-            var matchingNotificationView = GetNotifications().FirstOrDefault(n => (n.DataContext as SimpleNotificationViewModel)?.ObservableId == notificationId);
-            if (matchingNotificationView?.DataContext is SimpleNotificationViewModel matchingNotificationViewModel)
+            // Check if there are any notifications with same id
+            bool foundMatchingContent = false;
+            var matchingNotificationViews = GetNotifications().Where(n => (n.DataContext as SimpleNotificationViewModel)?.ObservableId == notificationId);
+            foreach (var notificationView in matchingNotificationViews)
             {
-                if (matchingNotificationViewModel.Message == message &&
-                matchingNotificationViewModel.Title == title)
+                if (notificationView.DataContext is SimpleNotificationViewModel matchingNotificationViewModel)
                 {
-                    matchingNotificationView.ResetCloseTimer();
-                    return;
-                }
-                else
-                {
-                    matchingNotificationView.Close();
+                    // If notification with matching ID and content is found, extend its duration
+                    // If ID matches but content is different, close old notification and display a new one
+                    // TODO: Change notification content comparison from using string to using hash
+                    if (matchingNotificationViewModel.Message == message &&
+                    matchingNotificationViewModel.Title == title)
+                    {
+                        notificationView.ResetCloseTimer();
+                        foundMatchingContent = true;
+                    }
+                    else
+                    {
+                        notificationView.Close();
+                    }
                 }
             }
+
+            // No need to create duplicate notifications
+            if (foundMatchingContent)
+                return;
 
             // Do not create notifications without content
             if (string.IsNullOrWhiteSpace(message))

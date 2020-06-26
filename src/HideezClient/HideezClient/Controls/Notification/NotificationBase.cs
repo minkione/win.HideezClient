@@ -14,13 +14,20 @@ namespace HideezClient.Controls
 {
     public abstract class NotificationBase : UserControl
     {
-        private readonly object lockObj = new object();
+        readonly object lockObj = new object();
+        readonly Storyboard ScaleInAnimation;
+        readonly Storyboard ScaleOutAnimation;
         private int _closing = 0;
         private DispatcherTimer timer;
+
 
         protected NotificationBase(NotificationOptions options)
         {
             Options = options;
+            
+            ScaleInAnimation = (Storyboard)FindResource("ShowNotificationAnimation");
+            ScaleOutAnimation = (Storyboard)FindResource("HideNotificationAnimation");
+
             Loaded += OnLoaded;
         }
 
@@ -57,7 +64,10 @@ namespace HideezClient.Controls
                     // TODO: Find out, why 'Cannot resolve all property references' occurs for RenderTransform.ScaleX
                     // Maybe, its somehow related to lock screen or resolution change when leaving suspended mode
                     // Maybe there was an attempt to close/animate it before its style was set.
-                    Application.Current.Invoke(() => BeginAnimation("HideNotificationAnimation"));
+                    Application.Current.Invoke(() => {
+                        ScaleInAnimation.Stop(this);
+                        ScaleOutAnimation.Begin(this, true);
+                    });
                 }
                 catch (Exception) 
                 {
@@ -79,18 +89,9 @@ namespace HideezClient.Controls
             }
         }
 
-        private void BeginAnimation(string storyboardName)
-        {
-            if (TryFindResource(storyboardName) is Storyboard storyboard)
-            {
-                storyboard.Begin(this);
-            }
-        }
-
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
         {
-            Style = (Style)FindResource("NotificationStyle");
-            BeginAnimation("ShowNotificationAnimation");
+            ScaleInAnimation.Begin(this, true);
 
             if (Options.SetFocus)
             {
