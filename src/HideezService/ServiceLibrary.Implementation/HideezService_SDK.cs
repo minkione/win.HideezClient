@@ -788,8 +788,9 @@ namespace ServiceLibrary.Implementation
         {
             if (e.Status == FwWipeStatus.WIPE_OK)
             {
-                _log?.WriteLine($"(somedevice) Wipe finished. Disabling automatic reconnect");
-                _deviceReconnectManager.DisableDeviceReconnect((IDevice)sender);
+                var device = (IDevice)sender;
+                _log?.WriteLine($"({device.SerialNo}) Wipe finished. Disabling automatic reconnect");
+                _deviceReconnectManager.DisableDeviceReconnect(device);
             }
         }
 
