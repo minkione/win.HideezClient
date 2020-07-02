@@ -1886,8 +1886,8 @@ namespace WinSampleApp.ViewModel
         #region IClientUiProxy
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
-        public event EventHandler<ActivationCodeReceivedEventArgs> ActivationCodeReceived;
-        public event EventHandler<EventArgs> ActivationCodeCancelled;
+        public event EventHandler<ActivationCodeEventArgs> ActivationCodeReceived;
+        public event EventHandler<ActivationCodeEventArgs> ActivationCodeCancelled;
 
         public event EventHandler<EventArgs> Connected { add { } remove { } }
 

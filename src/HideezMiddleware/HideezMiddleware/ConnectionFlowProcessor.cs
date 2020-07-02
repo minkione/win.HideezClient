@@ -240,23 +240,32 @@ namespace HideezMiddleware
                     await device.RefreshDeviceInfo();
                 }
 
+                /* 
+                 * This info refresh is required because after device was connected, the server may have
+                 * locked it by code. This info refresh must stay to ensure that activation code is entered during connection
+                */
+                await device.RefreshDeviceInfo(); 
+                
                 WriteLine($"Check if vault is locked: {device.IsLocked}");
                 if (device.IsLocked)
                 {
                     WriteLine($"Check if vault can be unlocked: {device.IsCanUnlock}");
                     if (device.IsCanUnlock)
-                    {
                         await ActivationCodeWorkflow(device, 30_000, ct); // Todo: Replace magic number in timeout duration with some variable or constant
-                    }
-                    else
-                    {
-                        // request HES to update this device
-                        await _hesConnection.FixDevice(device, ct);
-                        await device.RefreshDeviceInfo();
 
-                        if (device.IsLocked)
-                            throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                    try
+                    {
+                        // Note: AL's recomendation to invoke FixDevice after successful activation
+                        await _hesConnection.FixDevice(device, ct);
                     }
+                    catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.HesNotConnected)
+                    {
+                        // silent handlin
+                    }
+                    await device.RefreshDeviceInfo();
+
+                    if (device.IsLocked)
+                        throw new HideezException(HideezErrorCode.DeviceIsLocked);
                 }
 
                 if (device.AccessLevel.IsLocked)
@@ -305,7 +314,7 @@ namespace HideezMiddleware
                     success = true;
                 }
             }
-            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceNotAssignedToUser)
+            catch (HideezException ex)  when (ex.ErrorCode == HideezErrorCode.DeviceNotAssignedToUser)
             {
                 fatalError = true;
                 errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
