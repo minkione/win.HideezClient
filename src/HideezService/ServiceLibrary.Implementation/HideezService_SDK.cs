@@ -791,7 +791,18 @@ namespace ServiceLibrary.Implementation
                 var device = (IDevice)sender;
                 _log?.WriteLine($"({device.SerialNo}) Wipe finished. Disabling automatic reconnect");
                 _deviceReconnectManager.DisableDeviceReconnect(device);
-                // TODO: Remove bond of wiped device
+                device.Disconnected += async (s, a) => 
+                {
+                    try
+                    {
+                        await _deviceManager.Remove(device);
+                    }
+                    catch (Exception ex)
+                    {
+                        Error(ex);
+                    }
+                };
+                    
             }
         }
 
