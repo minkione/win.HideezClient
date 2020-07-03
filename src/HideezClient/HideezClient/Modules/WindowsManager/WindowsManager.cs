@@ -36,11 +36,15 @@ namespace HideezClient.Modules
         private bool isMainWindowVisible;
         private readonly ISettingsManager<ApplicationSettings> _settingsManager;
 
-        object pinDialogLock = new object();
+
+        readonly object pinDialogLock = new object();
         PinDialog pinView = null;
 
-        object activationDialogLock = new object();
+        readonly object activationDialogLock = new object();
         ActivationDialog activationView = null;
+
+        bool _initialized = false;
+        int _mainWindowActivationInterlock = 0;
 
         public event EventHandler<bool> MainWindowVisibleChanged;
 
@@ -120,31 +124,38 @@ namespace HideezClient.Modules
 
         private void OnActivateMainWindow()
         {
-            if (MainWindow == null) return;
-
-            // event is only subscribed to once
-            UnsubscribeToMainWindowEvent();
-            SubscribeToMainWindowEvent();
-
-            if (!MainWindow.IsVisible)
+            if (Interlocked.CompareExchange(ref _mainWindowActivationInterlock, 1, 0) == 0)
             {
-                MainWindow.Show();
-            }
+                try
+                {
+                    if (MainWindow == null || !_initialized) return;
 
-            if (MainWindow.WindowState == WindowState.Minimized)
-            {
-                MainWindow.WindowState = WindowState.Normal;
-            }
+                    // event is only subscribed to once
+                    UnsubscribeToMainWindowEvent();
+                    SubscribeToMainWindowEvent();
 
-            MainWindow.Activate();
-            MainWindow.Topmost = true;
-            MainWindow.Topmost = false;
-            MainWindow.Focus();
+                    MainWindow.Show();
+
+                    if (MainWindow.WindowState == WindowState.Minimized)
+                    {
+                        MainWindow.WindowState = WindowState.Normal;
+                    }
+
+                    MainWindow.Activate();
+                    MainWindow.Topmost = true;
+                    MainWindow.Topmost = false;
+                    MainWindow.Focus();
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref _mainWindowActivationInterlock, 0);
+                }
+            }
         }
 
         private void OnHideMainWindow()
         {
-            if (MainWindow == null) return;
+            if (MainWindow == null || !_initialized) return;
 
             // event is only subscribed to once
             UnsubscribeToMainWindowEvent();
@@ -177,6 +188,8 @@ namespace HideezClient.Modules
                 Application.Current.MainWindow = new SimpleMainView();
             else
                 Application.Current.MainWindow = new MainWindowView();
+
+            _initialized = true;
         }
 
         private void SubscribeToMainWindowEvent()

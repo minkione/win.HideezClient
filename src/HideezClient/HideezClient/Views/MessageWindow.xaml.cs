@@ -20,6 +20,7 @@ namespace HideezClient.Views
             _appHelper = appHelper;
 
             InitializeComponent();
+            Top = SystemParameters.VirtualScreenTop + 1000;
             ShowInTaskbar = false;
             ShowActivated = false;
             Show();

@@ -172,12 +172,13 @@ namespace HideezClient
             }
 
             _messenger = Container.Resolve<IMessenger>();
+            
+            // Due to implementation constraints, taskbar icon must be instantiated as late as possible
+            Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
             Container.Resolve<ITaskbarIconManager>();
-
             _log.WriteLine("Resolve DI container");
             _startupHelper = Container.Resolve<IStartupHelper>();
             _workstationManager = Container.Resolve<IWorkstationManager>();
-            _windowsManager = Container.Resolve<IWindowsManager>();
             Container.Resolve<IHideezServiceCallback>();
             _serviceWatchdog = Container.Resolve<IServiceWatchdog>();
             _serviceWatchdog.Start();
@@ -192,15 +193,6 @@ namespace HideezClient
 
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
 
-            if (settings.IsFirstLaunch)
-            {
-                OnFirstLaunch();
-
-                settings.IsFirstLaunch = false;
-                appSettingsManager.SaveSettings(settings);
-            }
-
-            await _windowsManager.InitializeMainWindowAsync();
 
             // This will create an instance of password manager view model and allow handling of "Add new account" user action
             // It is required for subscribtion of PasswordManagerViewModel to the "AddAccountForApp" message
@@ -210,7 +202,18 @@ namespace HideezClient
             // Public Suffix list loading and updating may take some time (more than 8000 entries)
             // Better to load it before its required (for main domain extraction)
             await Task.Run(URLHelper.PreloadPublicSuffixAsync);
-            
+
+            // Handle first launch
+            if (settings.IsFirstLaunch)
+            {
+                OnFirstLaunch();
+
+                settings.IsFirstLaunch = false;
+                appSettingsManager.SaveSettings(settings);
+            }
+
+            _windowsManager = Container.Resolve<IWindowsManager>();
+            await _windowsManager.InitializeMainWindowAsync();
         }
 
         private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
@@ -317,7 +320,6 @@ namespace HideezClient
             Container.RegisterType<IRemoteDeviceFactory, RemoteDeviceFactory>(new ContainerControlledLifetimeManager());
 
             // Taskbar icon
-            Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
             Container.RegisterType<IBalloonTipNotifyManager, BalloonTipNotifyManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IMenuFactory, MenuFactory>(new ContainerControlledLifetimeManager());
             Container.RegisterType<TaskbarIconViewModel>(new ContainerControlledLifetimeManager());
