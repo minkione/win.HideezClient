@@ -492,7 +492,8 @@ namespace HideezClient.Models
                             if (_remoteDevice != null)
                             {
                                 _log.WriteLine($"({_remoteDevice.SerialNo}) Remote device created");
-                                if (_remoteDevice?.AccessLevel != null)
+                                await _remoteDevice.RefreshDeviceInfo();
+                                if (_remoteDevice.AccessLevel != null)
                                 {
                                     _log.WriteLine($"({_remoteDevice.SerialNo}) access profile (allOk:{_remoteDevice.AccessLevel.IsAllOk}; " +
                                         $"pin:{_remoteDevice.AccessLevel.IsPinRequired}; " +
