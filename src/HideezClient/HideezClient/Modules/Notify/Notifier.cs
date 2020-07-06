@@ -180,13 +180,24 @@ namespace HideezClient.Modules
             }
         }
 
-        public void ShowDeviceIsLockedNotification(Device device)
+        public void ShowDeviceIsLockedByPinNotification(Device device)
         {
             var options = new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout };
 
             ShowSimpleNotification(device.SerialNo + "_Locked",
-                TranslationSource.Instance["Notification.DeviceLocked.Caption"],
-                TranslationSource.Instance["Notification.DeviceLocked.Message"],
+                TranslationSource.Instance["Notification.DeviceLockedByPin.Caption"],
+                TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
+                options,
+                NotificationIconType.Lock);
+        }
+
+        public void ShowDeviceIsLockedByCodeNotification(Device device)
+        {
+            var options = new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout };
+
+            ShowSimpleNotification(device.SerialNo + "_Locked",
+                TranslationSource.Instance["Notification.DeviceLockedByCode.Caption"],
+                TranslationSource.Instance["Notification.DeviceLockedByCode.Message"],
                 options,
                 NotificationIconType.Lock);
         }

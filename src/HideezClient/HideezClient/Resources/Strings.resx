@@ -555,10 +555,10 @@ to access stored credentials</value>
   <data name="MessageBox.DeleteCredentials.Message" xml:space="preserve">
     <value>Are you sure you want to delete this account?</value>
   </data>
-  <data name="Notification.DeviceLocked.Caption" xml:space="preserve">
+  <data name="Notification.DeviceLockedByPin.Caption" xml:space="preserve">
     <value>Vault is locked</value>
   </data>
-  <data name="Notification.DeviceLocked.Message" xml:space="preserve">
+  <data name="Notification.DeviceLockedByPin.Message" xml:space="preserve">
     <value>To many incorrect PIN entries. To unlock the vault, contact your system administrator.</value>
   </data>
   <data name="Button.No" xml:space="preserve">
@@ -759,5 +759,11 @@ Only 1 attempt left.</value>
   </data>
   <data name="Status.Tooltip.NotApprovedServer" xml:space="preserve">
     <value>Workstation not approved on the server</value>
+  </data>
+  <data name="Notification.DeviceLockedByCode.Caption" xml:space="preserve">
+    <value>Vault is locked</value>
+  </data>
+  <data name="Notification.DeviceLockedByCode.Message" xml:space="preserve">
+    <value>To unlock the vault, contact your system administrator for activation code and then reconnect the vault.</value>
   </data>
 </root>

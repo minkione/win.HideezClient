@@ -545,7 +545,9 @@ namespace HideezClient.Models
                                     _log.WriteLine($"({_remoteDevice.SerialNo}) access level is null");
                             }
 
-                            if (authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && !_remoteDevice.AccessLevel.IsAllOk)
+                            if (_remoteDevice.IsLockedByCode)
+                                throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                            else if (authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && !_remoteDevice.AccessLevel.IsAllOk)
                                 await AuthorizeRemoteDevice(ct);
                             else if (!authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsAllOk)
                                 await AuthorizeRemoteDevice(ct);
@@ -561,7 +563,24 @@ namespace HideezClient.Models
                         }
                         catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked)
                         {
-                            _messenger.Send(new ShowDeviceLockedNotificationMessage(this));
+                            if (_remoteDevice.IsLockedByCode)
+                            {
+                                _messenger.Send(new ShowDeviceLockedByCodeNotificationMessage(this));
+                            }
+                            else if (_remoteDevice.IsLockedByPin)
+                            {
+                                _messenger.Send(new ShowDeviceLockedByPinNotificationMessage(this));
+                            }
+                            else
+                            {
+                                _log.WriteLine(ex);
+                            }
+                        }
+                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
+                        {
+                        }
+                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLockedByCode)
+                        {
                         }
                         catch (Exception ex)
                         {
@@ -749,10 +768,10 @@ namespace HideezClient.Models
                 _log.WriteLine(ex.FormattedMessage());
                 ShowError(ex.FormattedMessage(), _errNid);
             }
-            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked)
+            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked || ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
             {
                 _log.WriteLine($"({SerialNo}) Auth failed. Vault is locked due to too many incorrect PIN entries");
-                ShowDeviceLocked();
+                _messenger.Send(new ShowDeviceLockedByPinNotificationMessage(this));
             }
             catch (HideezException ex)
             {
@@ -977,11 +996,6 @@ namespace HideezClient.Models
         void ShowWarn(string message, string notificationId)
         {
             _messenger?.Send(new ShowWarningNotificationMessage(message, notificationId: notificationId));
-        }
-
-        void ShowDeviceLocked()
-        {
-            _messenger.Send(new ShowDeviceLockedNotificationMessage(this));
         }
         #endregion
 

@@ -64,7 +64,8 @@ namespace HideezClient.Modules
             messenger.Register<ShowWarningNotificationMessage>(this, (p) => ShowWarn(p.Message, p.Title, notificationId: p.NotificationId));
             messenger.Register<ShowErrorNotificationMessage>(this, (p) => ShowError(p.Message, p.Title, notificationId: p.NotificationId));
 
-            messenger.Register<ShowDeviceLockedNotificationMessage>(this, (p) => ShowLocked(p.Device));
+            messenger.Register<ShowDeviceLockedByPinNotificationMessage>(this, (p) => ShowLockedByPin(p.Device));
+            messenger.Register<ShowDeviceLockedByCodeNotificationMessage>(this, (p) => ShowLockedByCode(p.Device));
 
             messenger.Register<ShowButtonConfirmUiMessage>(this, ShowButtonConfirmAsync);
             messenger.Register<ShowPinUiMessage>(this, ShowPinAsync);
@@ -245,10 +246,16 @@ namespace HideezClient.Modules
             UIDispatcher.Invoke(() => _notifier.ShowInfo(notificationId, title ?? GetTitle(), message, options));
         }
 
-        private void ShowLocked(Device device)
+        private void ShowLockedByPin(Device device)
         {
-            UIDispatcher.Invoke(() => _notifier.ShowDeviceIsLockedNotification(device));
+            UIDispatcher.Invoke(() => _notifier.ShowDeviceIsLockedByPinNotification(device));
         }
+
+        private void ShowLockedByCode(Device device)
+        {
+            UIDispatcher.Invoke(() => _notifier.ShowDeviceIsLockedByCodeNotification(device));
+        }
+
         private void ClearNotifications(UnlockWorkstationMessage obj)
         {
             UIDispatcher.Invoke(() => _notifier.ClearNotifications());
