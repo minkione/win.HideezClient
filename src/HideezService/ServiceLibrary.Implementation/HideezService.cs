@@ -181,6 +181,12 @@ namespace ServiceLibrary.Implementation
             OperationContext.Current.Channel.Faulted += Channel_Faulted;
             sessionManager.SessionClosed += SessionManager_SessionClosed;
 
+            // Client may have only been launched after we already sent an event about workstation unlock
+            // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
+            // To avoid the confusion, we resend the event about latest unlock method to every client that connects to service
+            if (_deviceManager.Devices.Count() == 0)
+                _client.Callbacks.WorkstationUnlocked(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez);
+
             return true;
         }
 
