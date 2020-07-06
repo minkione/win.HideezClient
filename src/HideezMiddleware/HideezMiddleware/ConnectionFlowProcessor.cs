@@ -208,8 +208,8 @@ namespace HideezMiddleware
                 {
                     CacheAndUpdateDeviceOwner(device, deviceInfo);
 
-                    WriteLine($"Vault info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}");
-                    if (deviceInfo.HasNewLicense)
+                    WriteLine($"Vault info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}, IsDeviceLocked: {device.IsLocked}");
+                    if (deviceInfo.HasNewLicense && !device.IsLocked)
                     {
                         // License upload has the highest priority in connection flow. Without license other actions are impossible
                         await LicenseWorkflow(device, ct);
