@@ -124,6 +124,7 @@ namespace HideezMiddleware
                     WriteLine($"Going to lock the workstation by 'DeviceBelowLockForToLong' reason. Vault ID: {device.Id}");
                     WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceBelowThreshold));
                     _workstationLocker.LockWorkstation();
+                    device.SetUserProperty(PROX_LOCK_ENABLED_PROP, false);
                 }
             }
         }
@@ -137,6 +138,7 @@ namespace HideezMiddleware
                     WriteLine($"Going to lock the workstation by 'DeviceProximityTimeout' reason. Vault ID: {device.Id}");
                     WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.ProximityTimeout));
                     _workstationLocker.LockWorkstation();
+                    device.SetUserProperty(PROX_LOCK_ENABLED_PROP, false);
                 }
             }
         }
@@ -150,6 +152,7 @@ namespace HideezMiddleware
                     WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Vault ID: {device.Id}");
                     WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceConnectionLost));
                     _workstationLocker.LockWorkstation();
+                    device.SetUserProperty(PROX_LOCK_ENABLED_PROP, false);
                 }
             }
         }
@@ -163,6 +166,7 @@ namespace HideezMiddleware
                     WriteLine($"Going to lock the workstation by 'DeviceConnectionLost' reason. Vault ID: {device.Id}");
                     WorkstationLocking?.Invoke(this, new WorkstationLockingEventArgs(device, WorkstationLockingReason.DeviceConnectionLost));
                     _workstationLocker.LockWorkstation();
+                    device.SetUserProperty(PROX_LOCK_ENABLED_PROP, false);
                 }
             }
         }
