@@ -250,25 +250,38 @@ namespace HideezMiddleware
                 if (device.IsLocked)
                 {
                     WriteLine($"Check if vault can be unlocked: {device.IsCanUnlock}");
+                    if (!device.IsCanUnlock)
+                    {
+                        try
+                        {
+                            await _hesConnection.FixDevice(device, ct);
+                            await device.RefreshDeviceInfo();
+                            WriteLine($"Performed fix device ({device.SerialNo})");
+                        }
+                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.HesNotConnected)
+                        {
+                            // silent handling
+                        }
+                    }
+
+                    WriteLine($"Check again if vault can be unlocked: {device.IsCanUnlock}");
                     if (device.IsCanUnlock)
+                    {
                         await ActivationCodeWorkflow(device, 30_000, ct); // Todo: Replace magic number in timeout duration with some variable or constant
-
-                    try
-                    {
-                        // Note: AL's recomendation to invoke FixDevice after successful activation
-                        await _hesConnection.FixDevice(device, ct);
+                        try
+                        {
+                            // Note: AL's recomendation to invoke FixDevice after successful activation
+                            await _hesConnection.FixDevice(device, ct);
+                        }
+                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.HesNotConnected)
+                        {
+                            // silent handling
+                        }
+                        await device.RefreshDeviceInfo();
                     }
-                    catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.HesNotConnected)
-                    {
-                        // silent handlin
-                    }
-                    await device.RefreshDeviceInfo();
-
-                    if (device.IsLocked)
-                        throw new HideezException(HideezErrorCode.DeviceIsLocked);
                 }
 
-                if (device.AccessLevel.IsLocked)
+                if (device.IsLocked)
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);
 
                 if (device.AccessLevel.IsLinkRequired)
