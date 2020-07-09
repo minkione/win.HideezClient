@@ -266,7 +266,7 @@ namespace HideezMiddleware
 
         public async Task HideActivationCodeUi()
         {
-            WriteDebugLine($"HidePinUi");
+            WriteDebugLine($"HideActivationCodeUi");
             await SendMessageAsync(CredentialProviderCommandCode.HideActivationCodeUi, true, $"");
             await SendNotification("");
             await SendError("");
