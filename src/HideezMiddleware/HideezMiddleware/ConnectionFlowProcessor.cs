@@ -584,14 +584,14 @@ namespace HideezMiddleware
         async Task<IDevice> ConnectDevice(string mac, bool rebondOnFail, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
-            await _ui.SendNotification("Connecting to the device...", _infNid);
+            await _ui.SendNotification($"Connecting vault. Press the vault button to confirm.", _infNid);
 
             var device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
 
             if (device == null)
             {
                 ct.ThrowIfCancellationRequested();
-                await _ui.SendNotification("Connection failed. Retrying...", _infNid);
+                await _ui.SendNotification($"Retrying. Press the vault button to confirm.", _infNid);
 
                 device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
 
@@ -601,13 +601,13 @@ namespace HideezMiddleware
 
                     // remove the bond and try one more time
                     await _deviceManager.RemoveByMac(mac);
-                    await _ui.SendNotification("Connection failed. Trying re-bond the device...", _infNid);
+                    await _ui.SendNotification($"Re-bonding. Press the vault button to confirm.", _infNid);
                     device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
                 }
             }
 
             if (device == null)
-                throw new Exception($"Failed to connect vault '{mac}'.");
+                throw new Exception($"Connection failed. Make sure to confirm vault connection by pressing the vault button when you see a green light.  ({mac})");
 
             return device;
         }
