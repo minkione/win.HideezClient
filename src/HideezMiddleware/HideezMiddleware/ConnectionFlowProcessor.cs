@@ -203,11 +203,19 @@ namespace HideezMiddleware
                     WriteLine("Non-fatal error occured while loading vault info from HES", ex);
                 }
 
-                // Handle licenses
                 if (deviceInfoProc.IsSuccessful)
                 {
+                    // Check if HES considers this device as compromised
+                    if (deviceInfo.DeviceCompromised)
+                    {
+                        WriteLine("Device reported as comprosimed");
+                        throw new HideezException(HideezErrorCode.HesDeviceCompromised);
+                    }
+
+                    // Save retrieved 
                     CacheAndUpdateDeviceOwner(device, deviceInfo);
 
+                    // Handle licenses
                     WriteLine($"Vault info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}, IsDeviceLocked: {device.IsLocked}");
                     if (deviceInfo.HasNewLicense && !device.IsLocked)
                     {
@@ -326,6 +334,13 @@ namespace HideezMiddleware
                 {
                     success = true;
                 }
+            }
+            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.HesDeviceCompromised)
+            {
+                // Bond of compromised devices should be removed
+                fatalError = true;
+                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
+                await _deviceManager.RemoveByMac(mac);
             }
             catch (HideezException ex)  when (ex.ErrorCode == HideezErrorCode.DeviceNotAssignedToUser)
             {
