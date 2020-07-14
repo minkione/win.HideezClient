@@ -59,6 +59,7 @@ namespace HideezClient.Models
         Version bootloaderVersion;
         int pinAttemptsRemain;
         bool isCanUnlock;
+        int minPinLength;
         int unlockAttemptsRemain;
         double proximity = 0;
         int battery = 0;
@@ -283,6 +284,12 @@ namespace HideezClient.Models
             private set { Set(ref isCanUnlock, value); }
         }
 
+        public int MinPinLength
+        {
+            get { return minPinLength; }
+            private set { Set(ref minPinLength, value); }
+        }
+
         public int UnlockAttemptsRemain
         {
             get { return unlockAttemptsRemain; }
@@ -471,6 +478,7 @@ namespace HideezClient.Models
             FinishedMainFlow = dto.FinishedMainFlow;
             CanLockByProximity = dto.CanLockPyProximity;
             IsCanUnlock = dto.IsCanUnlock;
+            MinPinLength = dto.MinPinLength;
             UnlockAttemptsRemain = dto.UnlockAttemptsRemain;
         }
 

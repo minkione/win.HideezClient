@@ -184,7 +184,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             {
                 _log.WriteLine($"Lock vault storage ({serialNo})");
                 _messenger.Send(new LockDeviceStorageMessage(serialNo));
-                _messenger.Send(new ShowInfoNotificationMessage($"Synchronizing credetials in {serialNo} with your other vault, please wait" 
+                _messenger.Send(new ShowInfoNotificationMessage($"Synchronizing credentials in {serialNo} with your other vault, please wait" 
                     + Environment.NewLine + "Password manager is temporarily unavailable", notificationId:serialNo));
             }
             catch (Exception ex)

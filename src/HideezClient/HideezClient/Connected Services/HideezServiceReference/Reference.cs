@@ -179,6 +179,9 @@ namespace HideezClient.HideezServiceReference {
         private bool IsInitializedField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int MinPinLengthField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -354,6 +357,19 @@ namespace HideezClient.HideezServiceReference {
                 if ((this.IsInitializedField.Equals(value) != true)) {
                     this.IsInitializedField = value;
                     this.RaisePropertyChanged("IsInitialized");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int MinPinLength {
+            get {
+                return this.MinPinLengthField;
+            }
+            set {
+                if ((this.MinPinLengthField.Equals(value) != true)) {
+                    this.MinPinLengthField = value;
+                    this.RaisePropertyChanged("MinPinLength");
                 }
             }
         }

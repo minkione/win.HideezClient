@@ -156,7 +156,6 @@ namespace HideezClient.ViewModels
             set { Set(ref _errorMessage, value); }
         }
 
-        // Todo: Retrieve Max Pin Length from the device
         public int MaxLenghtPin
         {
             get { return 8; }
@@ -166,10 +165,7 @@ namespace HideezClient.ViewModels
         {
             get 
             {
-                if (Device != null && Device.AccessLevel != null && Device.AccessLevel.IsNewPinRequired)
-                    return Device.PinAttemptsRemain;
-                else
-                    return 1;
+                return Device.MinPinLength;
             }
         }
 
