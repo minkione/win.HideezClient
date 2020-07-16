@@ -673,7 +673,7 @@ namespace HideezMiddleware
                 }
 
                 if (credentials.IsEmpty)
-                    throw new Exception($"Vault '{device.SerialNo}' doesn't have any stored windows accounts");
+                    throw new Exception($"Vault '{device.SerialNo}' doesn't have any stored primary accounts");
             }
             else
             {
