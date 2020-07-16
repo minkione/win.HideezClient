@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
+using Meta.Lib.Modules.PubSub;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ClientManagement;
 using System;
@@ -92,11 +93,11 @@ namespace ServiceLibrary.Implementation.WorkstationLock
         readonly WcfWorkstationLocker _wcfLocker;
         readonly WtsapiWorkstationLocker _wtsapiLocker;
 
-        public UniversalWorkstationLocker(int lockTimeout, ServiceClientSessionManager sessionManager, ILog log)
+        public UniversalWorkstationLocker(int lockTimeout, ServiceClientSessionManager sessionManager, IMetaPubSub messenger, ILog log)
             : base(nameof(UniversalWorkstationLocker), log)
         {
             _lockTimeout = lockTimeout;
-            _wcfLocker = new WcfWorkstationLocker(sessionManager, log);
+            _wcfLocker = new WcfWorkstationLocker(sessionManager, messenger, log);
             _wtsapiLocker = new WtsapiWorkstationLocker(log);
         }
 

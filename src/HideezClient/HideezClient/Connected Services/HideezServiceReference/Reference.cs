@@ -138,7 +138,7 @@ namespace HideezClient.HideezServiceReference {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="DeviceDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="DeviceDTO", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware.IPC.DTO")]
     [System.SerializableAttribute()]
     public partial class DeviceDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
@@ -503,7 +503,7 @@ namespace HideezClient.HideezServiceReference {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="WorkstationEventDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="WorkstationEventDTO", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware.IPC.DTO")]
     [System.SerializableAttribute()]
     public partial class WorkstationEventDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
@@ -660,7 +660,7 @@ namespace HideezClient.HideezServiceReference {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ProximitySettingsDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ProximitySettingsDTO", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware.IPC.DTO")]
     [System.SerializableAttribute()]
     public partial class ProximitySettingsDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
@@ -767,372 +767,8 @@ namespace HideezClient.HideezServiceReference {
         }
     }
     
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="HesStatus", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware")]
-    public enum HesStatus : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Ok = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        HesNotConnected = 1,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Disabled = 2,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        NotApproved = 3,
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="RfidStatus", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware")]
-    public enum RfidStatus : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Ok = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        RfidServiceNotConnected = 1,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        RfidReaderNotConnected = 2,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Disabled = 3,
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BluetoothStatus", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware")]
-    public enum BluetoothStatus : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Ok = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Unknown = 1,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Resetting = 2,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Unsupported = 3,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Unauthorized = 4,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        PoweredOff = 5,
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="DeviceStateDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-    [System.SerializableAttribute()]
-    public partial class DeviceStateDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private HideezClient.HideezServiceReference.AccessLevelDTO AccessLevelField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private sbyte BatteryField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private HideezClient.HideezServiceReference.ButtonPressCode ButtonField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private sbyte OtherConnectionsField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private byte PinAttemptsRemainField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private sbyte RssiField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private byte StorageUpdateCounterField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public HideezClient.HideezServiceReference.AccessLevelDTO AccessLevel {
-            get {
-                return this.AccessLevelField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.AccessLevelField, value) != true)) {
-                    this.AccessLevelField = value;
-                    this.RaisePropertyChanged("AccessLevel");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public sbyte Battery {
-            get {
-                return this.BatteryField;
-            }
-            set {
-                if ((this.BatteryField.Equals(value) != true)) {
-                    this.BatteryField = value;
-                    this.RaisePropertyChanged("Battery");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public HideezClient.HideezServiceReference.ButtonPressCode Button {
-            get {
-                return this.ButtonField;
-            }
-            set {
-                if ((this.ButtonField.Equals(value) != true)) {
-                    this.ButtonField = value;
-                    this.RaisePropertyChanged("Button");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public sbyte OtherConnections {
-            get {
-                return this.OtherConnectionsField;
-            }
-            set {
-                if ((this.OtherConnectionsField.Equals(value) != true)) {
-                    this.OtherConnectionsField = value;
-                    this.RaisePropertyChanged("OtherConnections");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public byte PinAttemptsRemain {
-            get {
-                return this.PinAttemptsRemainField;
-            }
-            set {
-                if ((this.PinAttemptsRemainField.Equals(value) != true)) {
-                    this.PinAttemptsRemainField = value;
-                    this.RaisePropertyChanged("PinAttemptsRemain");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public sbyte Rssi {
-            get {
-                return this.RssiField;
-            }
-            set {
-                if ((this.RssiField.Equals(value) != true)) {
-                    this.RssiField = value;
-                    this.RaisePropertyChanged("Rssi");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public byte StorageUpdateCounter {
-            get {
-                return this.StorageUpdateCounterField;
-            }
-            set {
-                if ((this.StorageUpdateCounterField.Equals(value) != true)) {
-                    this.StorageUpdateCounterField = value;
-                    this.RaisePropertyChanged("StorageUpdateCounter");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="AccessLevelDTO", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-    [System.SerializableAttribute()]
-    public partial class AccessLevelDTO : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool IsButtonRequiredField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool IsLinkRequiredField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool IsLockedField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool IsMasterKeyRequiredField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool IsNewPinRequiredField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool IsPinRequiredField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsButtonRequired {
-            get {
-                return this.IsButtonRequiredField;
-            }
-            set {
-                if ((this.IsButtonRequiredField.Equals(value) != true)) {
-                    this.IsButtonRequiredField = value;
-                    this.RaisePropertyChanged("IsButtonRequired");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsLinkRequired {
-            get {
-                return this.IsLinkRequiredField;
-            }
-            set {
-                if ((this.IsLinkRequiredField.Equals(value) != true)) {
-                    this.IsLinkRequiredField = value;
-                    this.RaisePropertyChanged("IsLinkRequired");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsLocked {
-            get {
-                return this.IsLockedField;
-            }
-            set {
-                if ((this.IsLockedField.Equals(value) != true)) {
-                    this.IsLockedField = value;
-                    this.RaisePropertyChanged("IsLocked");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsMasterKeyRequired {
-            get {
-                return this.IsMasterKeyRequiredField;
-            }
-            set {
-                if ((this.IsMasterKeyRequiredField.Equals(value) != true)) {
-                    this.IsMasterKeyRequiredField = value;
-                    this.RaisePropertyChanged("IsMasterKeyRequired");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsNewPinRequired {
-            get {
-                return this.IsNewPinRequiredField;
-            }
-            set {
-                if ((this.IsNewPinRequiredField.Equals(value) != true)) {
-                    this.IsNewPinRequiredField = value;
-                    this.RaisePropertyChanged("IsNewPinRequired");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsPinRequired {
-            get {
-                return this.IsPinRequiredField;
-            }
-            set {
-                if ((this.IsPinRequiredField.Equals(value) != true)) {
-                    this.IsPinRequiredField = value;
-                    this.RaisePropertyChanged("IsPinRequired");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ButtonPressCode", Namespace="http://schemas.datacontract.org/2004/07/Hideez.SDK.Communication")]
-    public enum ButtonPressCode : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        None = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Single = 1,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Double = 2,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Triple = 3,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Quad = 4,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Penta = 5,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Hexa = 6,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Hepta = 7,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Octa = 8,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Multi = 9,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Long = 16,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        SuperLong = 17,
-    }
-    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="HideezServiceReference.IHideezService", CallbackContract=typeof(HideezClient.HideezServiceReference.IHideezServiceCallback), SessionMode=System.ServiceModel.SessionMode.Required)]
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="HideezServiceReference.IHideezService", SessionMode=System.ServiceModel.SessionMode.Required)]
     public interface IHideezService {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/AttachClient", ReplyAction="http://tempuri.org/IHideezService/AttachClientResponse")]
@@ -1305,104 +941,30 @@ namespace HideezClient.HideezServiceReference {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IHideezServiceCallback {
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ProximitySettingsChanged")]
-        void ProximitySettingsChanged();
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/LockWorkstationRequest")]
-        void LockWorkstationRequest();
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ActivateWorkstationScreenRequest")]
-        void ActivateWorkstationScreenRequest();
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceComponentsStateChanged")]
-        void ServiceComponentsStateChanged(HideezClient.HideezServiceReference.HesStatus hesStatus, HideezClient.HideezServiceReference.RfidStatus rfidStatus, HideezClient.HideezServiceReference.BluetoothStatus bluetoothStatus, HideezClient.HideezServiceReference.HesStatus tbHesStatus);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceNotificationReceived")]
-        void ServiceNotificationReceived(string message, string notificationId);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ServiceErrorReceived")]
-        void ServiceErrorReceived(string error, string notificationId);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DevicesCollectionChanged")]
-        void DevicesCollectionChanged(HideezClient.HideezServiceReference.DeviceDTO[] devices);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceConnectionStateChanged")]
-        void DeviceConnectionStateChanged(HideezClient.HideezServiceReference.DeviceDTO device);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceInitialized")]
-        void DeviceInitialized(HideezClient.HideezServiceReference.DeviceDTO device);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceFinishedMainFlow")]
-        void DeviceFinishedMainFlow(HideezClient.HideezServiceReference.DeviceDTO device);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceOperationCancelled")]
-        void DeviceOperationCancelled(HideezClient.HideezServiceReference.DeviceDTO device);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceProximityChanged")]
-        void DeviceProximityChanged(string deviceId, double proximity);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceBatteryChanged")]
-        void DeviceBatteryChanged(string deviceId, int battery);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/DeviceProximityLockEnabled")]
-        void DeviceProximityLockEnabled(HideezClient.HideezServiceReference.DeviceDTO device);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/RemoteConnection_DeviceStateChanged")]
-        void RemoteConnection_DeviceStateChanged(string deviceId, HideezClient.HideezServiceReference.DeviceStateDTO stateDto);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ShowPinUi")]
-        void ShowPinUi(string deviceId, bool withConfirm, bool askOldPin);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ShowButtonConfirmUi")]
-        void ShowButtonConfirmUi(string deviceId);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HidePinUi")]
-        void HidePinUi();
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/WorkstationUnlocked")]
-        void WorkstationUnlocked(bool isNonHideezMethod);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/ShowActivationCodeUi")]
-        void ShowActivationCodeUi(string deviceId);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/HideActivationCodeUi")]
-        void HideActivationCodeUi();
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/LockDeviceStorage")]
-        void LockDeviceStorage(string serialNo);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IHideezService/LiftDeviceStorageLock")]
-        void LiftDeviceStorageLock(string serialNo);
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface IHideezServiceChannel : HideezClient.HideezServiceReference.IHideezService, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class HideezServiceClient : System.ServiceModel.DuplexClientBase<HideezClient.HideezServiceReference.IHideezService>, HideezClient.HideezServiceReference.IHideezService {
+    public partial class HideezServiceClient : System.ServiceModel.ClientBase<HideezClient.HideezServiceReference.IHideezService>, HideezClient.HideezServiceReference.IHideezService {
         
-        public HideezServiceClient(System.ServiceModel.InstanceContext callbackInstance) : 
-                base(callbackInstance) {
+        public HideezServiceClient() {
         }
         
-        public HideezServiceClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
-                base(callbackInstance, endpointConfigurationName) {
+        public HideezServiceClient(string endpointConfigurationName) : 
+                base(endpointConfigurationName) {
         }
         
-        public HideezServiceClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+        public HideezServiceClient(string endpointConfigurationName, string remoteAddress) : 
+                base(endpointConfigurationName, remoteAddress) {
         }
         
-        public HideezServiceClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+        public HideezServiceClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
+                base(endpointConfigurationName, remoteAddress) {
         }
         
-        public HideezServiceClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, binding, remoteAddress) {
+        public HideezServiceClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+                base(binding, remoteAddress) {
         }
         
         public bool AttachClient(HideezClient.HideezServiceReference.ServiceClientParameters parameters) {

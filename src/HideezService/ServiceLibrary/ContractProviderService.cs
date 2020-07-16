@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HideezMiddleware.IPC.DTO;
+using System;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary

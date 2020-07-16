@@ -1,13 +1,19 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
 using HideezMiddleware;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Runtime.Serialization;
 
-namespace ServiceLibrary
+namespace HideezMiddleware.IPC.DTO
 {
     [DataContract]
     public class DeviceDTO
     {
+        public DeviceDTO() 
+        { 
+        }
+
         public DeviceDTO(IDevice device)
         {
             Id = device.Id;
@@ -58,9 +64,11 @@ namespace ServiceLibrary
         public sbyte Battery { get; set; }
 
         [DataMember]
+        [JsonConverter(typeof(VersionConverter))] 
         public Version FirmwareVersion { get; private set; }
 
         [DataMember]
+        [JsonConverter(typeof(VersionConverter))] 
         public Version BootloaderVersion { get; private set; }
 
         [DataMember]

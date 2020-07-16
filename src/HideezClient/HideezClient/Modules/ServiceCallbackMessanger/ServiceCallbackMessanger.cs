@@ -1,6 +1,5 @@
 ﻿using HideezClient.Messages;
 using GalaSoft.MvvmLight.Messaging;
-using HideezClient.HideezServiceReference;
 using HideezClient.Messages.Remote;
 using HideezClient.Extension;
 using System;
@@ -8,137 +7,197 @@ using System.Threading.Tasks;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
 using HideezMiddleware.Threading;
+using Meta.Lib.Modules.PubSub;
+using HideezMiddleware.IPC.Messages;
 
 namespace HideezClient.Modules.ServiceCallbackMessanger
 {
-    class ServiceCallbackMessanger : IHideezServiceCallback
+    class ServiceCallbackMessanger
     {
         readonly IMessenger _messenger;
+        readonly IMetaPubSub _metaMessenger;
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(ServiceCallbackMessanger));
         readonly SemaphoreQueue _sendMessageSemaphore = new SemaphoreQueue(1, 1);
 
-        public ServiceCallbackMessanger(IMessenger messenger)
+        public ServiceCallbackMessanger(IMessenger messenger, IMetaPubSub metaMessenger)
         {
             _messenger = messenger;
+            _metaMessenger = metaMessenger;
+
+            do
+            {
+                try
+                {
+                    _metaMessenger.SubscribeOnServer<ActivateScreenRequestMessage>(ActivateScreenRequest);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.LockWorkstationMessage>(LockWorkstationRequest);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DevicesCollectionChangedMessage>(DevicesCollectionChanged);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage>(DeviceConnectionStateChanged);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceInitializedMessage>(DeviceInitialized);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceFinishedMainFlowMessage>(DeviceFinishedMainFlow);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage>(DeviceOperationCancelled);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityChangedMessage>(DeviceProximityChanged);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceBatteryChangedMessage>(DeviceBatteryChanged);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.RemoteConnection_DeviceStateChangedMessage>(RemoteConnection_DeviceStateChanged);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.ServiceComponentsStateChangedMessage>(ServiceComponentsStateChanged);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.UserNotificationMessage>(ServiceNotificationReceived);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.UserErrorMessage>(ServiceErrorReceived);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.ShowPinUiMessage>(ShowPinUi);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.ShowButtonConfirmUiMessage>(ShowButtonConfirmUi);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.HidePinUiMessage>(HidePinUi);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.ShowActivationCodeUiMessage>(ShowActivationCodeUi);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.HideActivationCodeUi>(HideActivationCodeUi);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityLockEnabledMessage>(DeviceProximityLockEnabled);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.WorkstationUnlockedMessage>(WorkstationUnlocked);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.ProximitySettingsChangedMessage>(ProximitySettingsChanged);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(LockDeviceStorage);
+                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(LiftDeviceStorageLock);
+                    break;
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            while (true);
         }
 
-        public void ActivateWorkstationScreenRequest()
+        public Task ActivateScreenRequest(ActivateScreenRequestMessage message)
         {
             _log.WriteLine($"Activate screen request");
             SendMessage(new ActivateScreenMessage());
+            return Task.CompletedTask;
         }
 
-        public void LockWorkstationRequest()
+        public Task LockWorkstationRequest(HideezMiddleware.IPC.Messages.LockWorkstationMessage message)
         {
             _log.WriteLine($"Lock workstation request");
-            SendMessage(new LockWorkstationMessage());
+            SendMessage(new Messages.LockWorkstationMessage());
+            return Task.CompletedTask;
         }
 
-        public void DevicesCollectionChanged(DeviceDTO[] devices)
+        public Task DevicesCollectionChanged(HideezMiddleware.IPC.Messages.DevicesCollectionChangedMessage message)
         {
-            _log.WriteLine($"Paired devices collection changed. Count: {devices.Length}");
-            SendMessage(new DevicesCollectionChangedMessage(devices));
+            _log.WriteLine($"Paired devices collection changed. Count: {message.Devices.Length}");
+            SendMessage(new Messages.DevicesCollectionChangedMessage(message.Devices));
+            return Task.CompletedTask;
         }
 
-        public void DeviceConnectionStateChanged(DeviceDTO device)
+        public Task DeviceConnectionStateChanged(HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage message)
         {
-            _log.WriteLine($"({device.Id}) Vault connection state changed to: {device.IsConnected}");
-            SendMessage(new DeviceConnectionStateChangedMessage(device));
+            _log.WriteLine($"({message.Device.Id}) Vault connection state changed to: {message.Device.IsConnected}");
+            SendMessage(new Messages.DeviceConnectionStateChangedMessage(message.Device));
+            return Task.CompletedTask;
         }
 
-        public void DeviceInitialized(DeviceDTO device)
+        public Task DeviceInitialized(HideezMiddleware.IPC.Messages.DeviceInitializedMessage message)
         {
-            _log.WriteLine($"({device.Id}) Vault is initialized");
-            SendMessage(new DeviceInitializedMessage(device));
+            _log.WriteLine($"({message.Device.Id}) Vault is initialized");
+            SendMessage(new Messages.DeviceInitializedMessage(message.Device));
+            return Task.CompletedTask;
         }
 
-        public void DeviceFinishedMainFlow(DeviceDTO device)
+        public Task DeviceFinishedMainFlow(HideezMiddleware.IPC.Messages.DeviceFinishedMainFlowMessage message)
         {
-            _log.WriteLine($"({device.Id}) Vault has finished main flow");
-            SendMessage(new DeviceFinishedMainFlowMessage(device));
+            _log.WriteLine($"({message.Device.Id}) Vault has finished main flow");
+            SendMessage(new Messages.DeviceFinishedMainFlowMessage(message.Device));
+            return Task.CompletedTask;
         }
 
-        public void DeviceOperationCancelled(DeviceDTO device)
+        public Task DeviceOperationCancelled(HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage message)
         {
-            _log.WriteLine($"({device.Id}) Vault operation cancelled");
-            SendMessage(new DeviceOperationCancelledMessage(device));
+            _log.WriteLine($"({message.Device.Id}) Vault operation cancelled");
+            SendMessage(new Messages.DeviceOperationCancelledMessage(message.Device));
+            return Task.CompletedTask;
         }
 
-        public void DeviceProximityChanged(string deviceId, double proximity)
+        public Task DeviceProximityChanged(HideezMiddleware.IPC.Messages.DeviceProximityChangedMessage message)
         {
-            _log.WriteLine($"({deviceId}) DevVaultice proximity changed to {proximity}");
-            SendMessage(new DeviceProximityChangedMessage(deviceId, proximity));
+            _log.WriteLine($"({message.DeviceId}) DevVaultice proximity changed to {message.Proximity}");
+            SendMessage(new Messages.DeviceProximityChangedMessage(message.DeviceId, message.Proximity));
+            return Task.CompletedTask;
         }
 
-        public void DeviceBatteryChanged(string deviceId, int battery)
+        public Task DeviceBatteryChanged(HideezMiddleware.IPC.Messages.DeviceBatteryChangedMessage message)
         {
-            _log.WriteLine($"({deviceId}) Vault battery changed to {battery}");
-            SendMessage(new DeviceBatteryChangedMessage(deviceId, battery));
+            _log.WriteLine($"({message.DeviceId}) Vault battery changed to {message.Battery}");
+            SendMessage(new Messages.DeviceBatteryChangedMessage(message.DeviceId, message.Battery));
+            return Task.CompletedTask;
         }
 
-        public void RemoteConnection_DeviceStateChanged(string deviceId, DeviceStateDTO stateDto)
+        public Task RemoteConnection_DeviceStateChanged(RemoteConnection_DeviceStateChangedMessage message)
         {
             //_log.WriteLine($"({deviceId}) Remote system state received");
-            SendMessage(new Remote_DeviceStateChangedMessage(deviceId, stateDto.ToDeviceState()));
+            SendMessage(new Remote_DeviceStateChangedMessage(message.DeviceId, message.State.ToDeviceState()));
+            return Task.CompletedTask;
         }
 
-        public void ServiceComponentsStateChanged(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus)
+        public Task ServiceComponentsStateChanged(HideezMiddleware.IPC.Messages.ServiceComponentsStateChangedMessage message)
         {
-            _log.WriteLine($"Service components state changed (hes:{hesStatus}; rfid:{rfidStatus}; ble:{bluetoothStatus}; tbHes:{tbHesStatus};)");
-            SendMessage(new ServiceComponentsStateChangedMessage(hesStatus, rfidStatus, bluetoothStatus, tbHesStatus));
+            _log.WriteLine($"Service components state changed (hes:{message.HesStatus}; rfid:{message.RfidStatus}; ble:{message.BluetoothStatus}; tbHes:{message.TbHesStatus};)");
+            SendMessage(new Messages.ServiceComponentsStateChangedMessage(message.HesStatus, message.RfidStatus, message.BluetoothStatus, message.TbHesStatus));
+            return Task.CompletedTask;
         }
 
-        public void ServiceNotificationReceived(string message, string notificationId)
+        public Task ServiceNotificationReceived(UserNotificationMessage message)
         {
-            _log.WriteLine($"Notification message from service: {message} ({notificationId})");
-            SendMessage(new ServiceNotificationReceivedMessage(notificationId, message));
+            _log.WriteLine($"Notification message from service: {message.Message} ({message.NotificationId})");
+            SendMessage(new ServiceNotificationReceivedMessage(message.NotificationId, message.Message));
+            return Task.CompletedTask;
         }
 
-        public void ServiceErrorReceived(string error, string notificationId)
+        public Task ServiceErrorReceived(UserErrorMessage message)
         {
-            _log.WriteLine($"Error message from service: {error} ({notificationId})");
-            SendMessage(new ServiceErrorReceivedMessage(notificationId, error));
+            _log.WriteLine($"Error message from service: {message.Message} ({message.NotificationId})");
+            SendMessage(new ServiceErrorReceivedMessage(message.NotificationId, message.Message));
+            return Task.CompletedTask;
         }
 
-        public void ShowPinUi(string deviceId, bool withConfirm, bool askOldPin)
+        public Task ShowPinUi(HideezMiddleware.IPC.Messages.ShowPinUiMessage message)
         {
-            _log.WriteLine($"Show pin ui message for ({deviceId}; confirm: {withConfirm}; old pin: {askOldPin})");
-            SendMessage(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
+            _log.WriteLine($"Show pin ui message for ({message.DeviceId}; confirm: {message.WithConfirm}; old pin: {message.AskOldPin})");
+            SendMessage(new Messages.ShowPinUiMessage(message.DeviceId, message.WithConfirm, message.AskOldPin));
+            return Task.CompletedTask;
         }
 
-        public void ShowButtonConfirmUi(string deviceId)
+        public Task ShowButtonConfirmUi(HideezMiddleware.IPC.Messages.ShowButtonConfirmUiMessage message)
         {
-            _log.WriteLine($"Show button ui message for ({deviceId})");
-            SendMessage(new ShowButtonConfirmUiMessage(deviceId));
+            _log.WriteLine($"Show button ui message for ({message.DeviceId})");
+            SendMessage(new Messages.ShowButtonConfirmUiMessage(message.DeviceId));
+            return Task.CompletedTask;
         }
 
-        public void HidePinUi()
+        public Task HidePinUi(HideezMiddleware.IPC.Messages.HidePinUiMessage message)
         {
             _log.WriteLine($"Hide pin ui message");
-            SendMessage(new HidePinUiMessage());
+            SendMessage(new Messages.HidePinUiMessage());
+            return Task.CompletedTask;
         }
 
-        public void ShowActivationCodeUi(string deviceId)
+        public Task ShowActivationCodeUi(HideezMiddleware.IPC.Messages.ShowActivationCodeUiMessage message)
         {
-            _log.WriteLine($"Show activation code ui message for ({deviceId})");
-            SendMessage(new ShowActivationCodeUiMessage(deviceId));
+            _log.WriteLine($"Show activation code ui message for ({message.DeviceId})");
+            SendMessage(new Messages.ShowActivationCodeUiMessage(message.DeviceId));
+            return Task.CompletedTask;
         }
 
-        public void HideActivationCodeUi()
+        public Task HideActivationCodeUi(HideActivationCodeUi message)
         {
             _log.WriteLine($"Hide activation code ui message");
             SendMessage(new HideActivationCodeUiMessage());
+            return Task.CompletedTask;
         }
 
-        public void DeviceProximityLockEnabled(DeviceDTO device)
+        public Task DeviceProximityLockEnabled(HideezMiddleware.IPC.Messages.DeviceProximityLockEnabledMessage message)
         {
-            _log.WriteLine($"({device.Id}) Vault marked as valid for workstation lock");
-            SendMessage(new DeviceProximityLockEnabledMessage(device));
+            _log.WriteLine($"({message.Device.Id}) Vault marked as valid for workstation lock");
+            SendMessage(new Messages.DeviceProximityLockEnabledMessage(message.Device));
+            return Task.CompletedTask;
         }
 
-        public void WorkstationUnlocked(bool isNonHideezMethod)
+        public Task WorkstationUnlocked(HideezMiddleware.IPC.Messages.WorkstationUnlockedMessage message)
         {
-            SendMessage(new UnlockWorkstationMessage(isNonHideezMethod));
+            SendMessage(new UnlockWorkstationMessage(message.IsNotHideezMethod));
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -165,7 +224,7 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             });
         }
 
-        public void ProximitySettingsChanged()
+        public Task ProximitySettingsChanged(HideezMiddleware.IPC.Messages.ProximitySettingsChangedMessage message)
         {
             try
             {
@@ -176,34 +235,40 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             {
                 _log.WriteLine(ex);
             }
+
+            return Task.CompletedTask;
         }
 
-        public void LockDeviceStorage(string serialNo)
+        public Task LockDeviceStorage(HideezMiddleware.IPC.Messages.LockDeviceStorageMessage message)
         {
             try
             {
-                _log.WriteLine($"Lock vault storage ({serialNo})");
-                _messenger.Send(new LockDeviceStorageMessage(serialNo));
-                _messenger.Send(new ShowInfoNotificationMessage($"Synchronizing credentials in {serialNo} with your other vault, please wait" 
-                    + Environment.NewLine + "Password manager is temporarily unavailable", notificationId:serialNo));
+                _log.WriteLine($"Lock vault storage ({message.SerialNo})");
+                _messenger.Send(new Messages.LockDeviceStorageMessage(message.SerialNo));
+                _messenger.Send(new ShowInfoNotificationMessage($"Synchronizing credentials in {message.SerialNo} with your other vault, please wait" 
+                    + Environment.NewLine + "Password manager is temporarily unavailable", notificationId:message.SerialNo));
             }
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
             }
+
+            return Task.CompletedTask;
         }
 
-        public void LiftDeviceStorageLock(string serialNo)
+        public Task LiftDeviceStorageLock(HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage message)
         {
             try
             {
-                _log.WriteLine($"Lift vault storage lock ({serialNo})");
-                _messenger.Send(new LiftDeviceStorageLockMessage(serialNo));
+                _log.WriteLine($"Lift vault storage lock ({message.SerialNo})");
+                _messenger.Send(new Messages.LiftDeviceStorageLockMessage(message.SerialNo));
             }
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
             }
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -28,7 +28,7 @@ namespace HideezClient.Modules.ProximityLockManager
 
         void OnDevicesCollectionChanged(DevicesCollectionChangedMessage obj)
         {
-            foreach(DeviceDTO device in obj.Devices)
+            foreach(HideezMiddleware.IPC.DTO.DeviceDTO device in obj.Devices)
             {
                 if(device.CanLockPyProximity)
                 {

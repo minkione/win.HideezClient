@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServiceLibrary
+namespace HideezMiddleware.IPC.DTO
 {
     [DataContract]
     public class ProximitySettingsDTO

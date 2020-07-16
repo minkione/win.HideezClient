@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace ServiceLibrary
+namespace HideezMiddleware.IPC.DTO
 {
     [DataContract]
     public class WorkstationEventDTO

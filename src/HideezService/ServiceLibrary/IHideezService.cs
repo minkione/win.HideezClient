@@ -1,6 +1,5 @@
-﻿using Hideez.SDK.Communication.Interfaces;
-using HideezMiddleware;
-using System.Diagnostics.Eventing.Reader;
+﻿using HideezMiddleware;
+using HideezMiddleware.IPC.DTO;
 using System.ServiceModel;
 using System.Threading.Tasks;
 
@@ -105,78 +104,6 @@ namespace ServiceLibrary
 
     public interface ICallbacks
     {
-        [OperationContract(IsOneWay = true)]
-        void ProximitySettingsChanged();
-
-        [OperationContract(IsOneWay = true)]
-        void LockWorkstationRequest();
-
-        [OperationContract(IsOneWay = true)]
-        void ActivateWorkstationScreenRequest();
-
-        [OperationContract(IsOneWay = true)]
-        void ServiceComponentsStateChanged(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus);
-        
-        [OperationContract(IsOneWay = true)]
-        void ServiceNotificationReceived(string message, string notificationId);
-
-        [OperationContract(IsOneWay = true)]
-        void ServiceErrorReceived(string error, string notificationId);
-
-
-
-        [OperationContract(IsOneWay = true)]
-        void DevicesCollectionChanged(DeviceDTO[] devices);
-
-        [OperationContract(IsOneWay = true)]
-        void DeviceConnectionStateChanged(DeviceDTO device);
-
-        [OperationContract(IsOneWay = true)]
-        void DeviceInitialized(DeviceDTO device);
-
-        [OperationContract(IsOneWay = true)]
-        void DeviceFinishedMainFlow(DeviceDTO device);
-
-        [OperationContract(IsOneWay = true)]
-        void DeviceOperationCancelled(DeviceDTO device);
-
-        [OperationContract(IsOneWay = true)]
-        void DeviceProximityChanged(string deviceId, double proximity);
-
-        [OperationContract(IsOneWay = true)]
-        void DeviceBatteryChanged(string deviceId, int battery);
-
-        [OperationContract(IsOneWay = true)]
-        void DeviceProximityLockEnabled(DeviceDTO device);
-
-        [OperationContract(IsOneWay = true)]
-        void RemoteConnection_DeviceStateChanged(string deviceId, DeviceStateDTO stateDto);
-
-        // Todo: Simplify the whole back and forth messaging.
-        // Maybe change the detailed interface to a more generalized one with just two methods, send receive
-        [OperationContract(IsOneWay = true)]
-        void ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);
-
-        [OperationContract(IsOneWay = true)]
-        void ShowButtonConfirmUi(string deviceId);
-
-        [OperationContract(IsOneWay = true)]
-        void HidePinUi();
-
-        [OperationContract(IsOneWay = true)]
-        void WorkstationUnlocked(bool isNonHideezMethod);
-
-	[OperationContract(IsOneWay = true)]
-        void ShowActivationCodeUi(string deviceId);
-
-        [OperationContract(IsOneWay = true)]
-        void HideActivationCodeUi();
-
-        [OperationContract(IsOneWay = true)]
-        void LockDeviceStorage(string serialNo);
-
-        [OperationContract(IsOneWay = true)]
-        void LiftDeviceStorageLock(string serialNo);
     }
 
     public enum Adapter

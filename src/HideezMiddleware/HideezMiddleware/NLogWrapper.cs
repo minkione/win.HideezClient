@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.Log;
+using Meta.Lib.Modules.Logger;
 using NLog;
 using System;
 

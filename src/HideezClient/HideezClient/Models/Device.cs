@@ -6,7 +6,6 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
 using Hideez.SDK.Communication.Utils;
-using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
 using HideezClient.Modules;
 using HideezClient.Modules.ServiceProxy;
@@ -25,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
+using HideezMiddleware.IPC.DTO;
 
 namespace HideezClient.Models
 {
@@ -715,7 +715,7 @@ namespace HideezClient.Models
 
                 _log.WriteLine($"({SerialNo}) Remote vault connection established");
             }
-            catch (FaultException<HideezServiceFault> ex)
+            catch (FaultException<HideezServiceReference.HideezServiceFault> ex)
             {
                 _log.WriteLine(ex.FormattedMessage());
                 ShowError(ex.FormattedMessage(), _errNid);
@@ -771,7 +771,7 @@ namespace HideezClient.Models
                 else
                     ShowError($"({SerialNo}) Authorization failed", _errNid);
             }
-            catch (FaultException<HideezServiceFault> ex)
+            catch (FaultException<HideezServiceReference.HideezServiceFault> ex)
             {
                 _log.WriteLine(ex.FormattedMessage());
                 ShowError(ex.FormattedMessage(), _errNid);
@@ -823,7 +823,7 @@ namespace HideezClient.Models
                 
                 IsStorageLoaded = true;
             }
-            catch (FaultException<HideezServiceFault> ex)
+            catch (FaultException<HideezServiceReference.HideezServiceFault> ex)
             {
                 _log.WriteLine(ex);
                 ShowError(ex.Message, _errNid);

@@ -2,7 +2,7 @@
 using Hideez.SDK.Communication.Device;
 using System.Runtime.Serialization;
 
-namespace ServiceLibrary
+namespace HideezMiddleware.IPC.DTO
 {
     [DataContract]
     public class DeviceStateDTO

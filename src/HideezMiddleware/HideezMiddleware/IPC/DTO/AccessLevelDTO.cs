@@ -1,11 +1,16 @@
 ﻿using Hideez.SDK.Communication.Device;
+using System;
 using System.Runtime.Serialization;
 
-namespace ServiceLibrary
+namespace HideezMiddleware.IPC.DTO
 {
     [DataContract]
     public class AccessLevelDTO
     {
+        public AccessLevelDTO()
+        {
+        }
+
         public AccessLevelDTO(AccessLevel accessLevel)
         {
             IsLinkRequired = accessLevel.IsLinkRequired;

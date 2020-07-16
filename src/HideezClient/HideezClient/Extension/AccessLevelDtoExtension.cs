@@ -1,5 +1,5 @@
 ﻿using Hideez.SDK.Communication.Device;
-using HideezClient.HideezServiceReference;
+using HideezMiddleware.IPC.DTO;
 
 namespace HideezClient.Extension
 {

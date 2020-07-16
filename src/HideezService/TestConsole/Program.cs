@@ -31,10 +31,10 @@ namespace TestConsole
                         HideezService.OnServiceStopped();
 
                         // connect and ask the service to finish all works and close all connections
-                        var callback = new HideezServiceCallbacks();
-                        var instanceContext = new InstanceContext(callback);
+                        //var callback = new HideezServiceCallbacks();
+                        //var instanceContext = new InstanceContext(callback);
 
-                        service = new HideezServiceClient(instanceContext);
+                        service = new HideezServiceClient();
                         service.ShutdownAsync().Wait();
 
                         if (serviceHost.State == CommunicationState.Faulted)
@@ -99,12 +99,12 @@ namespace TestConsole
                 }
 
                 // подключаемся к серверу, чтобы он стартовал
-                var callback = new HideezServiceCallbacks();
-                var instanceContext = new InstanceContext(callback);
+                //var callback = new HideezServiceCallbacks();
+                //var instanceContext = new InstanceContext(callback);
 
                 // NOTE: If an ambiguous reference error occurs, check that TestConsole DOES NOT have 
                 // a reference to 'ServiceLibrary'. There should be only 'ServiceLibrary.Implementation' ref
-                service = new HideezServiceClient(instanceContext);
+                service = new HideezServiceClient();
                 try
                 {
                     await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.TestConsole });

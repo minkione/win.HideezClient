@@ -44,6 +44,7 @@ using HideezClient.Modules.Log;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware.Workstation;
 using HideezClient.Modules.ProximityLockManager;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient
 {
@@ -179,7 +180,12 @@ namespace HideezClient
             _log.WriteLine("Resolve DI container");
             _startupHelper = Container.Resolve<IStartupHelper>();
             _workstationManager = Container.Resolve<IWorkstationManager>();
-            Container.Resolve<IHideezServiceCallback>();
+
+            var metaMessenger = Container.Resolve<IMetaPubSub>();
+            await metaMessenger.ConnectToServer("HideezServicePipe");
+            
+            Container.Resolve<ServiceCallbackMessanger>();
+
             _serviceWatchdog = Container.Resolve<IServiceWatchdog>();
             _serviceWatchdog.Start();
             _deviceManager = Container.Resolve<IDeviceManager>();
@@ -315,7 +321,8 @@ namespace HideezClient
 
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<IHideezServiceCallback, ServiceCallbackMessanger>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ServiceCallbackMessanger>(new ContainerControlledLifetimeManager());
+            Container.RegisterInstance<IMetaPubSub>(new MetaPubSub(new MetaPubSubLogger(Container.Resolve<ILog>()))); // Todo: fix this idiocity
             Container.RegisterType<IServiceWatchdog, ServiceWatchdog>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IRemoteDeviceFactory, RemoteDeviceFactory>(new ContainerControlledLifetimeManager());
 

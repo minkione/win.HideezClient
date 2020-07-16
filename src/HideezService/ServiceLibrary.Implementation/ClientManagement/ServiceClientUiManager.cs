@@ -1,5 +1,7 @@
 ﻿using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
+using HideezMiddleware.IPC.Messages;
+using Meta.Lib.Modules.PubSub;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -10,6 +12,7 @@ namespace ServiceLibrary.Implementation.ClientManagement
     class ServiceClientUiManager : IClientUiProxy, IDisposable
     {
         readonly ServiceClientSessionManager _clientSessionManager;
+        readonly IMetaPubSub _messenger;
 
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
@@ -25,8 +28,9 @@ namespace ServiceLibrary.Implementation.ClientManagement
             }
         }
 
-        public ServiceClientUiManager(ServiceClientSessionManager clientSessionManager)
+        public ServiceClientUiManager(ServiceClientSessionManager clientSessionManager, IMetaPubSub messenger)
         {
+            _messenger = messenger;
             _clientSessionManager = clientSessionManager;
 
             _clientSessionManager.SessionAdded += ClientSessionManager_SessionAdded;
@@ -64,74 +68,33 @@ namespace ServiceLibrary.Implementation.ClientManagement
             ClientConnected?.Invoke(this, EventArgs.Empty);
         }
 
-        public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
+        public async Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
         {
-            foreach(var session in _clientSessionManager.Sessions)
+            try
             {
-                try
-                {
-                    session.Callbacks.ShowPinUi(deviceId, withConfirm, askOldPin);
-                }
-                catch (Exception) { }
+                await _messenger.Publish(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
             }
-
-            return Task.CompletedTask;
+            catch (Exception) { }
         }
 
-        public Task ShowButtonConfirmUi(string deviceId)
+        public async Task ShowButtonConfirmUi(string deviceId)
         {
-            foreach (var session in _clientSessionManager.Sessions)
-            {
-                try
-                {
-                    session.Callbacks.ShowButtonConfirmUi(deviceId);
-                }
-                catch (Exception) { }
-            }
-
-            return Task.CompletedTask;
+            await _messenger.Publish(new ShowButtonConfirmUiMessage(deviceId));
         }
 
-        public Task HidePinUi()
+        public async Task HidePinUi()
         {
-            foreach(var session in _clientSessionManager.Sessions)
-            {
-                try
-                {
-                    session.Callbacks.HidePinUi();
-                }
-                catch (Exception) { }
-            }
-
-            return Task.CompletedTask;
+            await _messenger.Publish(new HidePinUiMessage());
         }
 
-        public Task ShowActivationCodeUi(string deviceId)
+        public async Task ShowActivationCodeUi(string deviceId)
         {
-            foreach (var session in _clientSessionManager.Sessions)
-            {
-                try
-                {
-                    session.Callbacks.ShowActivationCodeUi(deviceId);
-                }
-                catch (Exception) { }
-            }
-
-            return Task.CompletedTask;
+            await _messenger.Publish(new ShowActivationCodeUiMessage(deviceId));
         }
 
-        public Task HideActivationCodeUi()
+        public async Task HideActivationCodeUi()
         {
-            foreach (var session in _clientSessionManager.Sessions)
-            {
-                try
-                {
-                    session.Callbacks.HideActivationCodeUi();
-                }
-                catch (Exception) { }
-            }
-
-            return Task.CompletedTask;
+            await _messenger.Publish(new HideActivationCodeUi());
         }
 
         public void EnterPin(string deviceId, string pin, string oldPin = "")
@@ -186,57 +149,17 @@ namespace ServiceLibrary.Implementation.ClientManagement
 
         public async Task SendError(string message, string notificationId)
         {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    foreach (var session in _clientSessionManager.Sessions)
-                    {
-                        session.Callbacks.ServiceErrorReceived(message, notificationId);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex);
-                }
-            });
+            await _messenger.Publish(new UserErrorMessage(notificationId, message));
         }
 
         public async Task SendNotification(string message, string notificationId)
         {
-            await Task.Run(() =>
-            {
-
-                foreach (var session in _clientSessionManager.Sessions)
-                {
-                    try
-                    {
-                        session.Callbacks.ServiceNotificationReceived(message, notificationId);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex);
-                    }
-                }
-            });
+            await _messenger.Publish(new UserNotificationMessage(notificationId, message));
         }
 
         public async Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
         {
-            await Task.Run(() =>
-            {
-                foreach (var session in _clientSessionManager.Sessions)
-                {
-                    try
-                    {
-                        session.Callbacks.ServiceComponentsStateChanged(hesStatus, rfidStatus, bluetoothStatus, tbHesStatus);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex);
-                    }
-                }
-            });
+            await _messenger.Publish(new ServiceComponentsStateChangedMessage(hesStatus, rfidStatus, bluetoothStatus, tbHesStatus));
         }
 
     }

@@ -1,5 +1,5 @@
 ﻿using Hideez.SDK.Communication.Device;
-using HideezClient.HideezServiceReference;
+using HideezMiddleware.IPC.DTO;
 
 namespace HideezClient.Extension
 {
@@ -13,7 +13,7 @@ namespace HideezClient.Extension
                 Rssi = dto.Rssi,
                 PinAttemptsRemain = dto.PinAttemptsRemain,
                 StorageUpdateCounter = dto.StorageUpdateCounter,
-                Button = (Hideez.SDK.Communication.ButtonPressCode)dto.Button,
+                Button = dto.Button,
                 AccessLevel = dto.AccessLevel.ToAccessLevel(),
                 OtherConnections = dto.OtherConnections,
             };

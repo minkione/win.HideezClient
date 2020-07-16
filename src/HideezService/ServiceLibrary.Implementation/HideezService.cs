@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using HideezMiddleware.Audit;
 using Microsoft.Win32;
 using HideezMiddleware.Workstation;
+using Meta.Lib.Modules.PubSub;
+using HideezMiddleware.IPC.Messages;
 
 namespace ServiceLibrary.Implementation
 {
@@ -26,6 +28,7 @@ namespace ServiceLibrary.Implementation
         static SessionTimestampLogger _sessionTimestampLogger;
         static RegistryKey clientRootRegistryKey;
         static IWorkstationIdProvider _workstationIdProvider;
+        static IMetaPubSub _messenger;
 
         ServiceClientSession _client;
 
@@ -58,6 +61,10 @@ namespace ServiceLibrary.Implementation
                 _log.WriteLine($"OS: {Environment.OSVersion}");
                 _log.WriteLine($"Command: {Environment.CommandLine}");
 
+                _log.WriteLine($">>>>> Starting messaging hub");
+                var pubSubLogger = new MetaPubSubLogger(_sdkLogger);
+                _messenger = new MetaPubSub(pubSubLogger);
+
                 _log.WriteLine(">>>>>> Get registry settings key");
                 clientRootRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
 
@@ -82,6 +89,8 @@ namespace ServiceLibrary.Implementation
 
                 _log.WriteLine(">>>>>> Initialize SDK");
                 InitializeSDK().Wait();
+
+                _messenger.StartServer("HideezServicePipe");
 
                 _log.WriteLine(">>>>>> Service started");
             }
@@ -185,7 +194,7 @@ namespace ServiceLibrary.Implementation
             // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
             // To avoid the confusion, we resend the event about latest unlock method to every client that connects to service
             if (_deviceManager.Devices.Count() == 0)
-                _client.Callbacks.WorkstationUnlocked(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez);
+                Task.Run(async () => { await _messenger.Publish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez)); });
 
             return true;
         }

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Messaging;
-using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
 using HideezClient.Modules.ServiceProxy;
 using System.Linq;
@@ -17,6 +16,7 @@ using Hideez.SDK.Communication;
 using HideezMiddleware.Threading;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
+using HideezMiddleware.IPC.DTO;
 
 namespace HideezClient.Modules.DeviceManager
 {
@@ -128,10 +128,11 @@ namespace HideezClient.Modules.DeviceManager
         {
             try
             {
-                var serviceDevices = await _serviceProxy.GetService().GetDevicesAsync();
-                await EnumerateDevices(serviceDevices);
+                // TODO: FIX THIS LINE
+                //var serviceDevices = await _serviceProxy.GetService().GetDevicesAsync();
+                //await EnumerateDevices(serviceDevices);
             }
-            catch (FaultException<HideezServiceFault> ex)
+            catch (FaultException<HideezServiceReference.HideezServiceFault> ex)
             {
                 _log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
             }
@@ -156,7 +157,7 @@ namespace HideezClient.Modules.DeviceManager
                 Device[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
                 await RemoveDevices(missingDevices);
             }
-            catch (FaultException<HideezServiceFault> ex)
+            catch (FaultException<HideezServiceReference.HideezServiceFault> ex)
             {
                 _log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
             }

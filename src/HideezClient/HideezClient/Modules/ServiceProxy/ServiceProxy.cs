@@ -14,7 +14,6 @@ namespace HideezClient.Modules.ServiceProxy
     class ServiceProxy : IServiceProxy, IDisposable
     {
         private readonly Logger log = LogManager.GetCurrentClassLogger(nameof(ServiceProxy));
-        private readonly IHideezServiceCallback callback;
         private readonly IMessenger messenger;
 
         private HideezServiceClient service;
@@ -22,9 +21,8 @@ namespace HideezClient.Modules.ServiceProxy
         public event EventHandler Connected;
         public event EventHandler Disconnected;
 
-        public ServiceProxy(IHideezServiceCallback callback, IMessenger messenger)
+        public ServiceProxy(IMessenger messenger)
         {
-            this.callback = callback;
             this.messenger = messenger;
 
             messenger.Register<SendPinMessage>(this, OnSendPinMessage);
@@ -115,8 +113,7 @@ namespace HideezClient.Modules.ServiceProxy
                 if (service != null)
                     await DisconnectAsync();
 
-                var instanceContext = new InstanceContext(callback);
-                service = new HideezServiceClient(instanceContext);
+                service = new HideezServiceClient();
 
                 SubscriveToServiceEvents(service);
 
@@ -190,7 +187,7 @@ namespace HideezClient.Modules.ServiceProxy
             if (service == null)
                 return;
 
-            var clientChannel = service.InnerDuplexChannel;
+            var clientChannel = service.InnerChannel;
             clientChannel.Opened += Connected;
             clientChannel.Closed += Disconnected;
             clientChannel.Faulted += Disconnected;
@@ -201,7 +198,7 @@ namespace HideezClient.Modules.ServiceProxy
             if (service == null)
                 return;
 
-            var clientChannel = service.InnerDuplexChannel;
+            var clientChannel = service.InnerChannel;
             clientChannel.Opened -= Connected;
             clientChannel.Closed -= Disconnected;
             clientChannel.Faulted -= Disconnected;
