@@ -679,7 +679,7 @@ namespace HideezMiddleware
                 }
 
                 if (credentials.IsEmpty)
-                    throw new Exception($"Vault '{device.SerialNo}' doesn't have any stored primary accounts");
+                    throw new Exception($"Vault '{device.SerialNo}' doesn't have any stored Primary accounts");
             }
             else
             {
@@ -689,8 +689,11 @@ namespace HideezMiddleware
                 credentials.Password = await device.ReadStorageAsString((byte)StorageTable.Passwords, key);
                 credentials.PreviousPassword = ""; //todo
 
+                // Todo: Uncomment old message when primary account key sync is fixed
+                //if (credentials.IsEmpty)
+                //    throw new Exception($"Cannot read login or password from the vault '{device.SerialNo}'");
                 if (credentials.IsEmpty)
-                    throw new Exception($"Cannot read login or password from the vault '{device.SerialNo}'");
+                    throw new Exception($"Vault '{device.SerialNo}' doesn't have any stored Primary accounts");
             }
 
             return credentials;
