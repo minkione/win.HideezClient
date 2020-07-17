@@ -381,6 +381,12 @@ namespace HideezMiddleware
             catch (Exception ex)
             {
                 errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
+
+                // Todo: Temporary to track, where from does generic System.Exception w/o message comes from
+                if (ex.Message == new Exception().Message)
+                {
+                    WriteLine(ex, LogErrorSeverity.Information);
+                }
             }
             finally
             {
