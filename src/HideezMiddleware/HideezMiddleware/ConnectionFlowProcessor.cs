@@ -217,7 +217,7 @@ namespace HideezMiddleware
 
                     // Handle licenses
                     WriteLine($"Vault info retrieved. HasNewLicense: {deviceInfo.HasNewLicense}, IsDeviceLocked: {device.IsLocked}");
-                    if (deviceInfo.HasNewLicense && !device.IsLocked)
+                    if (deviceInfo.HasNewLicense)
                     {
                         // License upload has the highest priority in connection flow. Without license other actions are impossible
                         await LicenseWorkflow(device, ct);
@@ -708,8 +708,10 @@ namespace HideezMiddleware
 
             if (licenses.Count > 0)
             {
-                foreach (var license in licenses)
+                for (int i = 0; i < licenses.Count; i++)
                 {
+                    var license = licenses[i];
+
                     if (ct.IsCancellationRequested)
                         return;
 
@@ -719,8 +721,17 @@ namespace HideezMiddleware
                     if (license.Id == null)
                         throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_ID). Please, contact your administrator.");
 
-                    await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
-                    WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo})");
+                    try
+                    {
+                        await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
+                        WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo}) in available slot");
+                    }
+                    catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLockedByCode || ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
+                    {
+                        await device.LoadLicense(i, license.Data, SdkConfig.DefaultCommandTimeout);
+                        WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo}) into slot {i}");
+                    }
+
                     await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
                 }
 
@@ -740,8 +751,10 @@ namespace HideezMiddleware
 
             if (licenses.Count > 0)
             {
-                foreach (var license in licenses)
+                for (int i = 0; i < licenses.Count; i++)
                 {
+                    var license = licenses[i];
+
                     if (ct.IsCancellationRequested)
                         return;
 
@@ -751,8 +764,17 @@ namespace HideezMiddleware
                     if (license.Id == null)
                         throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_ID). Please, contact your administrator.");
 
-                    await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
-                    WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo})");
+                    try
+                    {
+                        await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
+                        WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo}) in available slot");
+                    }
+                    catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLockedByCode || ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
+                    {
+                        await device.LoadLicense(i, license.Data, SdkConfig.DefaultCommandTimeout);
+                        WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo}) into slot {i}");
+                    }
+
                     await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
                 }
 
