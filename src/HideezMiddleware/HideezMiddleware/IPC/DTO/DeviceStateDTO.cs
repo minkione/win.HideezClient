@@ -7,6 +7,10 @@ namespace HideezMiddleware.IPC.DTO
     [DataContract]
     public class DeviceStateDTO
     {
+        public DeviceStateDTO()
+        {
+        }
+
         public DeviceStateDTO(DeviceState state)
         {
             Battery = state.Battery;

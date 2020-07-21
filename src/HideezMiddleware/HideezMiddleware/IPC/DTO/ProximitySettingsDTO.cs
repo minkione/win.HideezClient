@@ -10,6 +10,10 @@ namespace HideezMiddleware.IPC.DTO
     [DataContract]
     public class ProximitySettingsDTO
     {
+        public ProximitySettingsDTO()
+        {
+        }
+
         [DataMember]
         public string SerialNo { get; set; }
         [DataMember]

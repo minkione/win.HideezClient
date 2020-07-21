@@ -6,6 +6,10 @@ namespace HideezMiddleware.IPC.DTO
     [DataContract]
     public class WorkstationEventDTO
     {
+        public WorkstationEventDTO()
+        {
+        }
+
         [DataMember]
         public string Id { get; set; }
         [DataMember]
