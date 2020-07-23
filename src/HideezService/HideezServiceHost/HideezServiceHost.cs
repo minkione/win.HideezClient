@@ -4,14 +4,15 @@ using System.ServiceProcess;
 using HideezMiddleware;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using ServiceLibrary.Implementation;
 
 namespace HideezServiceHost
 {
-    public partial class HideezService : ServiceBase
+    public partial class HideezServiceHost : ServiceBase
     {
-        ServiceLibrary.Implementation.HideezService _serviceLibrary;
+        HideezService _service;
 
-        public HideezService()
+        public HideezServiceHost()
         {
             CanHandlePowerEvent = true;
             CanHandleSessionChangeEvent = true;
@@ -23,7 +24,7 @@ namespace HideezServiceHost
         {
             try
             {
-                _serviceLibrary = new ServiceLibrary.Implementation.HideezService();
+                _service = new HideezService();
             }
             catch (Exception ex)
             {
@@ -34,28 +35,13 @@ namespace HideezServiceHost
 
         protected override void OnStop()
         {
-            try
-            {
-                ServiceLibrary.Implementation.HideezService.OnServiceStopped();
-                _serviceLibrary.Shutdown();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
+            _service.Shutdown();
         }
 
         // https://stackoverflow.com/questions/44980/programmatically-determine-a-duration-of-a-locked-workstation
         protected override void OnSessionChange(SessionChangeDescription sessionChangeDescription)
         {
-            try
-            {
-                SessionSwitchMonitor.SystemSessionSwitch(sessionChangeDescription.SessionId, (SessionSwitchReason)sessionChangeDescription.Reason);
-            }
-            catch (Exception ex)
-            {
-                ServiceLibrary.Implementation.HideezService.Error(ex);
-            }
+            SessionSwitchMonitor.SystemSessionSwitch(sessionChangeDescription.SessionId, (SessionSwitchReason)sessionChangeDescription.Reason);
         }
 
         protected override bool OnPowerEvent(PowerBroadcastStatus powerStatus)
@@ -120,38 +106,17 @@ namespace HideezServiceHost
 
         async Task OnSystemQuerySuspend()
         {
-            try
-            {
-                await ServiceLibrary.Implementation.HideezService.OnPreparingToSuspend();
-            }
-            catch (Exception ex)
-            {
-                ServiceLibrary.Implementation.HideezService.Error(ex);
-            }
+            await _service.OnPreparingToSuspend();
         }
 
         async Task OnSystemLeftSuspendedMode()
         {
-            try
-            {
-                await ServiceLibrary.Implementation.HideezService.OnLaunchFromSuspend();
-            }
-            catch (Exception ex)
-            {
-                ServiceLibrary.Implementation.HideezService.Error(ex);
-            }
+            await _service.OnLaunchFromSuspend();
         }
 
         async Task OnSystemSuspending()
         {
-            try
-            {
-                await ServiceLibrary.Implementation.HideezService.OnSuspending();
-            }
-            catch (Exception ex)
-            {
-                ServiceLibrary.Implementation.HideezService.Error(ex);
-            }
+            await _service.OnSuspending();
         }
     }
 }

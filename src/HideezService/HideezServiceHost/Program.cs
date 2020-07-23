@@ -16,7 +16,7 @@ namespace HideezServiceHost
                 ServiceBase[] ServicesToRun;
                 ServicesToRun = new ServiceBase[]
                 {
-                    new HideezService()
+                    new HideezServiceHost()
                 };
                 ServiceBase.Run(ServicesToRun);
             }

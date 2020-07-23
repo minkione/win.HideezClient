@@ -1,6 +1,6 @@
 ﻿namespace HideezServiceHost
 {
-    partial class HideezService
+    partial class HideezServiceHost
     {
         /// <summary> 
         /// Required designer variable.

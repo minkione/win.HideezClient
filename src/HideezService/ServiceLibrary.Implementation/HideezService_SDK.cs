@@ -884,9 +884,7 @@ namespace ServiceLibrary.Implementation
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
-
-                return Array.Empty<DeviceDTO>(); // We will never reach this line
+                throw;
             }
         }
 
@@ -914,7 +912,7 @@ namespace ServiceLibrary.Implementation
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
+                throw;
             }
         }
 
@@ -928,7 +926,7 @@ namespace ServiceLibrary.Implementation
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
+                throw;
             }
         }
 
@@ -946,7 +944,7 @@ namespace ServiceLibrary.Implementation
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
+                throw;
             }
         }
 
@@ -1082,7 +1080,7 @@ namespace ServiceLibrary.Implementation
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
+                throw;
             }
         }
 
@@ -1132,7 +1130,7 @@ namespace ServiceLibrary.Implementation
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
+                throw;
             }
         }
 
@@ -1152,7 +1150,7 @@ namespace ServiceLibrary.Implementation
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
+                throw;
             }
         }
 
@@ -1170,7 +1168,7 @@ namespace ServiceLibrary.Implementation
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
+                throw;
             }
         }
         #endregion
@@ -1241,7 +1239,7 @@ namespace ServiceLibrary.Implementation
          * within a short frame of each other due to inconsistent behavior caused by SystemPowerEvent implementation
          */
         static bool _alreadyRestored = false; 
-        public static async Task OnLaunchFromSuspend()
+        public async Task OnLaunchFromSuspend()
         {
             _log.WriteLine("System left suspended mode");
             if (!_restoringFromSleep && !_alreadyRestored)
@@ -1290,7 +1288,7 @@ namespace ServiceLibrary.Implementation
         }
 
         // It looks like windows never sends this particular event
-        public static async Task OnPreparingToSuspend()
+        public async Task OnPreparingToSuspend()
         {
             try
             {
@@ -1304,7 +1302,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public static async Task OnSuspending()
+        public async Task OnSuspending()
         {
             try
             {

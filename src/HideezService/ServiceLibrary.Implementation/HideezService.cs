@@ -101,18 +101,12 @@ namespace ServiceLibrary.Implementation
         }
 
         #region Utils
-        // Todo: Placeholder. We may no longer need to process exceptions before throwing them. May remove later
-        void ThrowException(Exception ex) 
-        {
-            throw ex;
-        }
-
-        public static void Error(Exception ex, string message = "")
+        public void Error(Exception ex, string message = "")
         {
             _log?.WriteLine(message, ex);
         }
 
-        public static void Error(string message)
+        public void Error(string message)
         {
             _log?.WriteLine(message, LogErrorSeverity.Error);
         }
@@ -121,11 +115,12 @@ namespace ServiceLibrary.Implementation
         public void Shutdown()
         {
             _log.WriteLine(">>>>>> Shutdown service", LogErrorSeverity.Debug);
+            OnServiceStopped();
             // Todo: shutdown service in a clean way
         }
 
         #region Host Only
-        public static void OnServiceStarted()
+        void OnServiceStarted()
         {
             // Generate event for audit
             var workstationEvent = _eventSaver.GetWorkstationEvent();
@@ -133,7 +128,7 @@ namespace ServiceLibrary.Implementation
             Task.Run(() => _eventSaver.AddNewAsync(workstationEvent));
         }
 
-        public static void OnServiceStopped()
+        void OnServiceStopped()
         {
             // Generate event for audit
             var workstationEvent = _eventSaver.GetWorkstationEvent();

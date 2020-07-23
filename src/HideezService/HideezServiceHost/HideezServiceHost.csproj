@@ -164,11 +164,11 @@
     <Compile Include="..\..\Version.cs">
       <Link>Version.cs</Link>
     </Compile>
-    <Compile Include="HideezService.cs">
+    <Compile Include="HideezServiceHost.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="HideezService.Designer.cs">
-      <DependentUpon>HideezService.cs</DependentUpon>
+    <Compile Include="HideezServiceHost.Designer.cs">
+      <DependentUpon>HideezServiceHost.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="ProjectInstaller.cs">

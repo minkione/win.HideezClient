@@ -12,7 +12,7 @@ namespace TestConsole
             try
             {
                 SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
-                var _serviceLibrary = new HideezService();
+                var service = new HideezService();
 
                 while (true)
                 {
@@ -20,7 +20,7 @@ namespace TestConsole
                     if (line == "q" || line == "exit")
                     {
                         Console.WriteLine("exiting...");
-                        HideezService.OnServiceStopped();
+                        service.Shutdown();
                         break;
                     }
                 }
@@ -34,14 +34,7 @@ namespace TestConsole
         protected static void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
             // This is a direct copy of HideezServiceHost.HideezService.OnSessionChange
-            try
-            {
-                SessionSwitchMonitor.SystemSessionSwitch(System.Diagnostics.Process.GetCurrentProcess().SessionId, e.Reason);
-            }
-            catch (Exception ex)
-            {
-                HideezService.Error(ex);
-            }
+            SessionSwitchMonitor.SystemSessionSwitch(System.Diagnostics.Process.GetCurrentProcess().SessionId, e.Reason);
         }
     }
 }

@@ -117,10 +117,6 @@
       <Project>{2a5abf59-55ee-461b-8c6f-2a294481129b}</Project>
       <Name>HideezMiddleware</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ServiceLibrary\ServiceLibrary.csproj">
-      <Project>{149c7fac-00ed-4e7d-aac2-d7fd91d969e2}</Project>
-      <Name>ServiceLibrary</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HideezService_SDK.cs" />
