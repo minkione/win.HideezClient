@@ -4,6 +4,9 @@ using HideezClient.Messages;
 using HideezClient.Modules.Localize;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
+using HideezMiddleware.IPC.IncommingMessages;
+using Meta.Lib.Modules.PubSub;
+using Meta.Lib.Modules.PubSub.Messages;
 using MvvmExtensions.Commands;
 using System;
 using System.Threading;
@@ -12,11 +15,12 @@ using System.Windows.Input;
 
 namespace HideezClient.ViewModels
 {
-    class ServerAddressEditControlViewModel : ObservableObject, IDisposable
+    class ServerAddressEditControlViewModel : ObservableObject
     {
         readonly IServiceProxy _serviceProxy;
-        private readonly IMessenger _messenger;
-        private readonly ILog _log;
+        readonly IMessenger _messenger;
+        readonly IMetaPubSub _metaMessenger;
+        readonly ILog _log;
 
         string _savedServerAddress;
 
@@ -110,18 +114,19 @@ namespace HideezClient.ViewModels
 
         // TODO: Add re-initialization if service is reconnected
         // TODO: Add error handling if service is offline
-        public ServerAddressEditControlViewModel(IServiceProxy serviceProxy, IMessenger messenger, ILog log)
+        public ServerAddressEditControlViewModel(IServiceProxy serviceProxy, IMessenger messenger, IMetaPubSub metaMessenger, ILog log)
         {
             _serviceProxy = serviceProxy;
             _messenger = messenger;
+            _metaMessenger = metaMessenger;
             _log = log;
 
-            _serviceProxy.Connected += ServiceProxy_Connected;
+            _metaMessenger.Subscribe<ConnectedToServerEvent>(OnConnectedToServer, null);
 
             Task.Run(InitializeViewModel).ConfigureAwait(false);
         }
 
-        async void ServiceProxy_Connected(object sender, EventArgs e)
+        async Task OnConnectedToServer(ConnectedToServerEvent args)
         {
             await InitializeViewModel();
         }
@@ -139,9 +144,9 @@ namespace HideezClient.ViewModels
                 ErrorServerAddress = null;
                 try
                 {
-                    var success = await _serviceProxy.GetService().ChangeServerAddressAsync(ServerAddress).ConfigureAwait(false);
+                    var reply = await _metaMessenger.ProcessOnServer<ChangeServerAddressMessageReply>(new ChangeServerAddressMessage(ServerAddress), 0);
 
-                    if (success)
+                    if (reply.ChangedSuccessfully)
                     {
                         ResetViewModel(ServerAddress);
                     }
@@ -169,8 +174,9 @@ namespace HideezClient.ViewModels
             {
                 if (_serviceProxy.IsConnected)
                 {
-                    var address = await _serviceProxy.GetService().GetServerAddressAsync();
-                    ResetViewModel(address);
+                    var reply = await _metaMessenger.ProcessOnServer<GetServerAddressMessageReply>(new GetServerAddressMessage(), 0);
+
+                    ResetViewModel(reply.ServerAddress);
                 }
             }
             catch (Exception) { }
@@ -202,27 +208,5 @@ namespace HideezClient.ViewModels
             ShowError = true;
             ShowInfo = false;
         }
-
-        #region IDisposable Support
-        bool disposed = false;
-
-        protected virtual void Dispose(bool dispose)
-        {
-            if (!disposed)
-            {
-                if (dispose)
-                {
-                    _serviceProxy.Connected -= ServiceProxy_Connected;
-                }
-
-                disposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-        #endregion
     }
 }

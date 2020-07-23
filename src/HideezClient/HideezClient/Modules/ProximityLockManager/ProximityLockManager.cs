@@ -1,5 +1,4 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
-using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
 
 namespace HideezClient.Modules.ProximityLockManager

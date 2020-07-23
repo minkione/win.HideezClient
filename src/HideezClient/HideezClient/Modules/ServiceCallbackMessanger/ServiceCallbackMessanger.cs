@@ -24,41 +24,29 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             _messenger = messenger;
             _metaMessenger = metaMessenger;
 
-            do
-            {
-                try
-                {
-                    _metaMessenger.SubscribeOnServer<ActivateScreenRequestMessage>(ActivateScreenRequest);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.LockWorkstationMessage>(LockWorkstationRequest);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DevicesCollectionChangedMessage>(DevicesCollectionChanged);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage>(DeviceConnectionStateChanged);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceInitializedMessage>(DeviceInitialized);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceFinishedMainFlowMessage>(DeviceFinishedMainFlow);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage>(DeviceOperationCancelled);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityChangedMessage>(DeviceProximityChanged);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceBatteryChangedMessage>(DeviceBatteryChanged);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.RemoteConnection_DeviceStateChangedMessage>(RemoteConnection_DeviceStateChanged);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.ServiceComponentsStateChangedMessage>(ServiceComponentsStateChanged);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.UserNotificationMessage>(ServiceNotificationReceived);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.UserErrorMessage>(ServiceErrorReceived);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.ShowPinUiMessage>(ShowPinUi);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.ShowButtonConfirmUiMessage>(ShowButtonConfirmUi);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.HidePinUiMessage>(HidePinUi);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.ShowActivationCodeUiMessage>(ShowActivationCodeUi);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.HideActivationCodeUi>(HideActivationCodeUi);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityLockEnabledMessage>(DeviceProximityLockEnabled);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.WorkstationUnlockedMessage>(WorkstationUnlocked);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.ProximitySettingsChangedMessage>(ProximitySettingsChanged);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(LockDeviceStorage);
-                    _metaMessenger.SubscribeOnServer<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(LiftDeviceStorageLock);
-                    break;
-                }
-                catch (Exception ex)
-                {
-
-                }
-            }
-            while (true);
+            _metaMessenger.TrySubscribeOnServer<ActivateScreenRequestMessage>(ActivateScreenRequest);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LockWorkstationMessage>(LockWorkstationRequest);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DevicesCollectionChangedMessage>(DevicesCollectionChanged);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage>(DeviceConnectionStateChanged);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceInitializedMessage>(DeviceInitialized);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceFinishedMainFlowMessage>(DeviceFinishedMainFlow);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage>(DeviceOperationCancelled);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityChangedMessage>(DeviceProximityChanged);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceBatteryChangedMessage>(DeviceBatteryChanged);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.RemoteConnection_DeviceStateChangedMessage>(RemoteConnection_DeviceStateChanged);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ServiceComponentsStateChangedMessage>(ServiceComponentsStateChanged);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.UserNotificationMessage>(ServiceNotificationReceived);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.UserErrorMessage>(ServiceErrorReceived);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ShowPinUiMessage>(ShowPinUi);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ShowButtonConfirmUiMessage>(ShowButtonConfirmUi);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.HidePinUiMessage>(HidePinUi);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ShowActivationCodeUiMessage>(ShowActivationCodeUi);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.HideActivationCodeUi>(HideActivationCodeUi);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityLockEnabledMessage>(DeviceProximityLockEnabled);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.WorkstationUnlockedMessage>(WorkstationUnlocked);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ProximitySettingsChangedMessage>(ProximitySettingsChanged);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(LockDeviceStorage);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(LiftDeviceStorageLock);
         }
 
         public Task ActivateScreenRequest(ActivateScreenRequestMessage message)

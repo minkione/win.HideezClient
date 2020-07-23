@@ -1,6 +1,9 @@
 ﻿using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using HideezClient.ViewModels;
+using HideezMiddleware.IPC.IncommingMessages;
+using Meta.Lib.Modules.PubSub;
+using Meta.Lib.Modules.PubSub.Messages;
 using System;
 using System.Threading.Tasks;
 
@@ -9,6 +12,7 @@ namespace HideezClient.PageViewModels
     class HardwareKeyPageViewModel : LocalizedObject
     {
         readonly IServiceProxy _serviceProxy;
+        readonly IMetaPubSub _metaMessenger;
         bool _showServiceAddressEdit = false;
 
         public bool ShowServiceAddressEdit
@@ -20,17 +24,18 @@ namespace HideezClient.PageViewModels
         public ServiceViewModel Service { get; }
 
 
-        public HardwareKeyPageViewModel(IServiceProxy serviceProxy, ServiceViewModel serviceViewModel)
+        public HardwareKeyPageViewModel(IServiceProxy serviceProxy, IMetaPubSub metaMessenger, ServiceViewModel serviceViewModel)
         {
             _serviceProxy = serviceProxy;
+            _metaMessenger = metaMessenger;
             Service = serviceViewModel;
 
-            _serviceProxy.Connected += ServiceProxy_Connected;
+            _metaMessenger.Subscribe<ConnectedToServerEvent>(OnConnectedToServer, null);
 
             Task.Run(TryShowServerAddressEdit);
         }
 
-        async void ServiceProxy_Connected(object sender, EventArgs e)
+        async Task OnConnectedToServer(ConnectedToServerEvent args)
         {
             await TryShowServerAddressEdit();
         }
@@ -44,9 +49,9 @@ namespace HideezClient.PageViewModels
             {
                 if (_serviceProxy.IsConnected)
                 {
-                    var address = await _serviceProxy.GetService().GetServerAddressAsync();
-                    
-                    if (string.IsNullOrWhiteSpace(address))
+                    var reply = await _metaMessenger.ProcessOnServer<GetServerAddressMessageReply>(new GetServerAddressMessage(), 0);
+
+                    if (string.IsNullOrWhiteSpace(reply.ServerAddress))
                         ShowServiceAddressEdit = true;
                 }
             }

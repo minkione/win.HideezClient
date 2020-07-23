@@ -10,96 +10,27 @@ namespace ServiceLibrary
     {
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        bool AttachClient(ServiceClientParameters parameters); // +
+        bool AttachClient(ServiceClientParameters parameters);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void DetachClient(); // --
+        void DetachClient();
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        int Ping(); // --
+        int Ping();
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        void Shutdown(); // --
+        void Shutdown();
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        DeviceDTO[] GetDevices(); // +
+        DeviceDTO[] GetDevices();
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        byte[] GetAvailableChannels(string serialNo); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        Task DisconnectDevice(string id); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        Task RemoveDeviceAsync(string id); // +
-
-        // Remote device connection
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        Task<string> EstablishRemoteDeviceConnection(string serialNo, byte channelNo); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        Task<byte[]> RemoteConnection_VerifyCommandAsync(string connectionId, byte[] data); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        Task<byte[]> RemoteConnection_RemoteCommandAsync(string connectionId, byte[] data); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        Task RemoteConnection_ResetChannelAsync(string connectionId); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        void PublishEvent(WorkstationEventDTO workstationEvent); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        void SendPin(string deviceId, byte[] pin, byte[] oldPin); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        void CancelPin(string deviceId); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        void SendActivationCode(string deviceId, byte[] activationCode); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        void CancelActivationCode(string deviceId); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        void SetProximitySettings(string mac, int lockProximity, int unlockProximity); // --
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        ProximitySettingsDTO GetCurrentProximitySettings(string mac); // --
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        string GetServerAddress(); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        Task<bool> ChangeServerAddress(string address); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        bool IsSoftwareVaultUnlockModuleEnabled(); // +
-
-        [OperationContract]
-        [FaultContract(typeof(HideezServiceFault))]
-        void SetSoftwareVaultUnlockModuleState(bool enabled); // +
+        void SetProximitySettings(string mac, int lockProximity, int unlockProximity);
     }
 
     public interface ICallbacks

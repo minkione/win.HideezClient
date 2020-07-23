@@ -14,7 +14,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.ServiceModel;
-using HideezClient.HideezServiceReference;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
 

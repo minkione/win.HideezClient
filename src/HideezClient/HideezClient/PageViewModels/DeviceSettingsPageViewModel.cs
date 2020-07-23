@@ -1,6 +1,5 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Hideez.SDK.Communication.Log;
-using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
 using HideezClient.Models;
 using HideezClient.Modules;
@@ -8,6 +7,7 @@ using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using HideezClient.ViewModels;
+using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Commands;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -32,14 +32,15 @@ namespace HideezClient.PageViewModels
         readonly IWindowsManager windowsManager;
         readonly IMessenger _messenger;
         readonly Logger log = LogManager.GetCurrentClassLogger(nameof(DeviceSettingsPageViewModel));
+        readonly IMetaPubSub _metaMessenger;
 
-        public DeviceSettingsPageViewModel(IServiceProxy serviceProxy, IWindowsManager windowsManager, IMessenger messenger, IActiveDevice activeDevice)
+        public DeviceSettingsPageViewModel(IServiceProxy serviceProxy, IWindowsManager windowsManager, IMessenger messenger, IActiveDevice activeDevice, IMetaPubSub metaMessenger)
         {
             this.serviceProxy = serviceProxy;
             this.windowsManager = windowsManager;
             _messenger = messenger;
+            _metaMessenger = metaMessenger;
 
-            _messenger.Register<DeviceProximitySettingsChangedMessage>(this, OnDeviceProximitySettingsChanged);
             _messenger.Register<ActiveDeviceChangedMessage>(this, OnActiveDeviceChanged);
 
             Сonnected = new StateControlViewModel
@@ -82,7 +83,6 @@ namespace HideezClient.PageViewModels
             });
 
             this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Where(t => t.Item1 != 0 && t.Item2 != 0).Subscribe(o => ProximityHasChanges = true);
-            this.WhenAnyValue(x => x.Device).Where(d => d != null).Subscribe(o => Task.Run(LoadCurrentProximitySettings));
 
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
         }
@@ -130,70 +130,12 @@ namespace HideezClient.PageViewModels
             }
         }
 
-        public ICommand CancelEditProximityCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CommandAction = x =>
-                    {
-                        Task.Run(LoadCurrentProximitySettings);
-                    }
-                };
-            }
-        }
-
-        public ICommand SaveProximityCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CommandAction = x =>
-                    {
-                        Task.Run(async () =>
-                       {
-                           try
-                           {
-                               await serviceProxy.GetService().SetProximitySettingsAsync(Device.Mac, LockProximity, UnlockProximity);
-                               ProximityHasChanges = false;
-                           }
-                           catch (Exception ex)
-                           {
-                               _messenger.Send(new ShowErrorNotificationMessage("An error occured while updating proximity settings"));
-                               log.WriteLine(ex);
-                           }
-                       });
-                    }
-                };
-            }
-        }
-
         #endregion
 
         private void OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
         {
             // Todo: ViewModel should be reused instead of being recreated each time active device is changed
             Device = obj.NewDevice != null ? new DeviceViewModel(obj.NewDevice) : null;
-        }
-
-        private void OnDeviceProximitySettingsChanged(DeviceProximitySettingsChangedMessage obj)
-        {
-            Task.Run(LoadCurrentProximitySettings);
-        }
-
-        private async Task LoadCurrentProximitySettings()
-        {
-            // TODO: Race condition and potential NullReferenceException at Device.Mac
-            if (Device != null)
-            {
-                var dto = await this.serviceProxy.GetService().GetCurrentProximitySettingsAsync(Device.Mac);
-                AllowEditProximitySettings = dto.AllowEditProximitySettings;
-                LockProximity = dto.LockProximity;
-                UnlockProximity = dto.UnlockProximity;
-                ProximityHasChanges = false;
-            }
         }
 
         public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)

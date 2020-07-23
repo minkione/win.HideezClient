@@ -145,8 +145,8 @@
     <Reference Include="MahApps.Metro.IconPacks, Version=2.3.0.4, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\MahApps.Metro.IconPacks.2.3.0\lib\net46\MahApps.Metro.IconPacks.dll</HintPath>
     </Reference>
-    <Reference Include="Meta.Lib, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Meta.Lib.1.1.0\lib\netstandard2.0\Meta.Lib.dll</HintPath>
+    <Reference Include="Meta.Lib, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Meta.Lib.1.1.1\lib\netstandard2.0\Meta.Lib.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="MvvmExtensions, Version=1.2.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -503,7 +503,6 @@
     </Compile>
     <Compile Include="Modules\SupportMailContentGenerator\ISupportMailContentGenerator.cs" />
     <Compile Include="Modules\SupportMailContentGenerator\SupportMailContentGenerator.cs" />
-    <Compile Include="Utilities\FaultExceptionExtension.cs" />
     <Compile Include="Utilities\LocalToMSAccountConverter.cs" />
     <Compile Include="Utilities\LogManagement.cs" />
     <Compile Include="Utilities\TemporaryCache.cs" />
@@ -668,11 +667,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Connected Services\HideezServiceReference\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="Controls\StateControl.xaml.cs">
       <DependentUpon>StateControl.xaml</DependentUpon>
     </Compile>
@@ -757,12 +751,6 @@
     <Resource Include="Resources\Icon\Alert\Alert1.ico" />
     <Resource Include="Resources\Icon\Idle\Idle1.ico" />
     <Resource Include="128x128.ico" />
-    <None Include="Connected Services\HideezServiceReference\HideezClient.HideezServiceReference.ProximitySettingsDTO.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\HideezMiddleware.IPC.DTO.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Resources\Data\public_suffix_list.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -779,33 +767,11 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Strings.uk.resx" />
     <None Include="app.manifest" />
-    <None Include="Connected Services\HideezServiceReference\configuration91.svcinfo" />
-    <None Include="Connected Services\HideezServiceReference\configuration.svcinfo" />
-    <None Include="Connected Services\HideezServiceReference\HideezClient.HideezServiceReference.DeviceDTO.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
     <Content Include="Browsers.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\service.wsdl" />
-    <None Include="Connected Services\HideezServiceReference\service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\ServiceLibrary.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\System.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="NLog.xsd">
@@ -844,9 +810,6 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadataStorage Include="Connected Services\HideezServiceReference\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Computer.png" />

@@ -1,6 +1,8 @@
-﻿namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
+﻿using Meta.Lib.Modules.PubSub;
+
+namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
 {
-    public sealed class RemoteConnection_VerifyCommandMessageReply
+    public sealed class RemoteConnection_VerifyCommandMessageReply : PubSubMessageBase
     {
         public byte[] Data { get; set; }
 

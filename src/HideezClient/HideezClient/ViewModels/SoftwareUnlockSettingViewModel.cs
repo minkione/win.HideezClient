@@ -1,13 +1,17 @@
 ﻿using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
+using HideezMiddleware.IPC.IncommingMessages;
+using Meta.Lib.Modules.PubSub;
+using Meta.Lib.Modules.PubSub.Messages;
 using System;
 using System.Threading.Tasks;
 
 namespace HideezClient.ViewModels
 {
-    class SoftwareUnlockSettingViewModel : LocalizedObject, IDisposable
+    class SoftwareUnlockSettingViewModel : LocalizedObject
     {
         readonly IServiceProxy _serviceProxy;
+        readonly IMetaPubSub _metaMessenger;
 
         bool _isChecked;
 
@@ -25,16 +29,17 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public SoftwareUnlockSettingViewModel(IServiceProxy serviceProxy)
+        public SoftwareUnlockSettingViewModel(IServiceProxy serviceProxy, IMetaPubSub metaMessenger)
         {
             _serviceProxy = serviceProxy;
+            _metaMessenger = metaMessenger;
 
-            _serviceProxy.Connected += ServiceProxy_Connected;
+            _metaMessenger.Subscribe<ConnectedToServerEvent>(OnConnectedToServer, null);
 
             Task.Run(InitializeViewModel).ConfigureAwait(false);
         }
 
-        async void ServiceProxy_Connected(object sender, EventArgs e)
+        async Task OnConnectedToServer(ConnectedToServerEvent args)
         {
             await InitializeViewModel();
         }
@@ -45,7 +50,8 @@ namespace HideezClient.ViewModels
             {
                 if (_serviceProxy.IsConnected)
                 {
-                    _isChecked = await _serviceProxy.GetService().IsSoftwareVaultUnlockModuleEnabledAsync();
+                    var reply = await _metaMessenger.ProcessOnServer<IsSoftwareVaultUnlockModuleEnabledReply>(new IsSoftwareVaultUnlockModuleEnabledMessage(), 500);
+                    _isChecked = reply.IsEnabled;
                 }
             }
             catch (Exception) { }
@@ -55,31 +61,9 @@ namespace HideezClient.ViewModels
         {
             try
             {
-                await _serviceProxy.GetService().SetSoftwareVaultUnlockModuleStateAsync(newValue);
+                await _metaMessenger.PublishOnServer(new SetSoftwareVaultUnlockModuleStateMessage(newValue));
             }
             catch (Exception) { }
         }
-
-        #region IDisposable Support
-        bool disposed = false;
-
-        protected virtual void Dispose(bool dispose)
-        {
-            if (!disposed)
-            {
-                if (dispose)
-                {
-                    _serviceProxy.Connected -= ServiceProxy_Connected;
-                }
-
-                disposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-        #endregion
     }
 }

@@ -17,7 +17,6 @@ using System.Threading;
 using System.IO;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Modules.Localize;
-using HideezClient.HideezServiceReference;
 using HideezClient.Modules.ServiceCallbackMessanger;
 using HideezClient.Modules.ServiceWatchdog;
 using HideezClient.Modules.DeviceManager;
@@ -182,7 +181,6 @@ namespace HideezClient
             _workstationManager = Container.Resolve<IWorkstationManager>();
 
             var metaMessenger = Container.Resolve<IMetaPubSub>();
-            await metaMessenger.ConnectToServer("HideezServicePipe");
             
             Container.Resolve<ServiceCallbackMessanger>();
 
@@ -220,6 +218,7 @@ namespace HideezClient
 
             _windowsManager = Container.Resolve<IWindowsManager>();
             await _windowsManager.InitializeMainWindowAsync();
+            await metaMessenger.TryConnectToServer("HideezServicePipe");
         }
 
         private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)

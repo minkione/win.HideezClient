@@ -7,7 +7,6 @@ using HideezClient.Messages;
 using HideezClient.Modules.ServiceProxy;
 using System.Linq;
 using HideezClient.Models;
-using System.ServiceModel;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -17,15 +16,18 @@ using HideezMiddleware.Threading;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
 using HideezMiddleware.IPC.DTO;
+using Meta.Lib.Modules.PubSub;
+using Meta.Lib.Modules.PubSub.Messages;
 
 namespace HideezClient.Modules.DeviceManager
 {
     class DeviceManager : IDeviceManager
     {
-        private readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(DeviceManager));
-        private readonly IMessenger _messenger;
-        private readonly IServiceProxy _serviceProxy;
-        private readonly IWindowsManager _windowsManager;
+        readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(DeviceManager));
+        readonly IMessenger _messenger;
+        readonly IServiceProxy _serviceProxy;
+        readonly IWindowsManager _windowsManager;
+        readonly IMetaPubSub _metaMessenger;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         readonly SemaphoreQueue _semaphoreQueue = new SemaphoreQueue(1, 1);
         ConcurrentDictionary<string, Device> _devices { get; } = new ConcurrentDictionary<string, Device>();
@@ -48,31 +50,46 @@ namespace HideezClient.Modules.DeviceManager
         public event NotifyCollectionChangedEventHandler DevicesCollectionChanged;
 
         public DeviceManager(IMessenger messenger, IServiceProxy serviceProxy,
-            IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory)
+            IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory, IMetaPubSub metaMessenger)
         {
             _messenger = messenger;
             _serviceProxy = serviceProxy;
             _windowsManager = windowsManager;
             _remoteDeviceFactory = remoteDeviceFactory;
+            _metaMessenger = metaMessenger;
 
             _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
             _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
 
-            _serviceProxy.Disconnected += OnServiceProxyConnectionStateChanged;
-            _serviceProxy.Connected += OnServiceProxyConnectionStateChanged;
+            _metaMessenger.Subscribe<ConnectedToServerEvent>(OnConnectedToService, null);
+            _metaMessenger.Subscribe<DisconnectedFromServerEvent>(OnDisconnectedFromService, null);
         }
 
         public IEnumerable<Device> Devices => _devices.Values;
 
-        async void OnServiceProxyConnectionStateChanged(object sender, EventArgs e)
+        async Task OnDisconnectedFromService(DisconnectedFromServerEvent arg)
         {
             await _semaphoreQueue.WaitAsync();
             try
             {
-                if (!_serviceProxy.IsConnected)
-                    await ClearDevicesCollection();
-                else
-                    await EnumerateDevices();
+                await ClearDevicesCollection();
+            }
+            catch (Exception ex)
+            {
+                _log.WriteLine(ex);
+            }
+            finally
+            {
+                _semaphoreQueue.Release();
+            }
+        }
+
+        async Task OnConnectedToService(ConnectedToServerEvent arg)
+        {
+            await _semaphoreQueue.WaitAsync();
+            try
+            {
+                await EnumerateDevices();
             }
             catch (Exception ex)
             {
@@ -132,10 +149,6 @@ namespace HideezClient.Modules.DeviceManager
                 //var serviceDevices = await _serviceProxy.GetService().GetDevicesAsync();
                 //await EnumerateDevices(serviceDevices);
             }
-            catch (FaultException<HideezServiceReference.HideezServiceFault> ex)
-            {
-                _log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
-            }
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
@@ -157,10 +170,6 @@ namespace HideezClient.Modules.DeviceManager
                 Device[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
                 await RemoveDevices(missingDevices);
             }
-            catch (FaultException<HideezServiceReference.HideezServiceFault> ex)
-            {
-                _log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
-            }
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
@@ -171,7 +180,7 @@ namespace HideezClient.Modules.DeviceManager
         {
             if (!_devices.ContainsKey(dto.Id))
             {
-                var device = new Device(_serviceProxy, _remoteDeviceFactory, _messenger, dto);
+                var device = new Device(_serviceProxy, _remoteDeviceFactory, _messenger, _metaMessenger, dto);
                 device.PropertyChanged += Device_PropertyChanged;
 
                 if (_devices.TryAdd(device.Id, device))

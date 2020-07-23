@@ -52,8 +52,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Meta.Lib, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Meta.Lib.1.1.0\lib\netstandard2.0\Meta.Lib.dll</HintPath>
+    <Reference Include="Meta.Lib, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Meta.Lib.1.1.2\lib\netstandard2.0\Meta.Lib.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -127,6 +127,10 @@
     <Compile Include="IPC\DTO\ProximitySettingsDTO.cs" />
     <Compile Include="IPC\DTO\WorkstationEventDTO.cs" />
     <Compile Include="IPC\IncommingMessages\AttachClientMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\CancelActivationCodeMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\CancelPinMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\ChangeServerAddressMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\ChangeServerAddressMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\DisconnectDeviceMessage.cs" />
     <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessage.cs" />
     <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessageReply.cs" />
@@ -134,11 +138,20 @@
     <Compile Include="IPC\IncommingMessages\GetAvailableChannelsMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\GetDevicesMessage.cs" />
     <Compile Include="IPC\IncommingMessages\GetDevicesMessageReply.cs" />
-    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_RemoteCommand.cs" />
-    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_RemoteCommandReply.cs" />
+    <Compile Include="IPC\IncommingMessages\GetServerAddressMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\GetServerAddressMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\IsSoftwareVaultUnlockModuleEnabledMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\IsSoftwareVaultUnlockModuleEnabledReply.cs" />
+    <Compile Include="IPC\IncommingMessages\PublishEventMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_RemoteCommandMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_RemoteCommandMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_ResetChannelMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_VerifyCommandMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_VerifyCommandMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\RemoveDeviceMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\SendActivationCodeMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\SendPinMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\SetSoftwareVaultUnlockModuleStateMessage.cs" />
     <Compile Include="IPC\Messages\ActivateScreenRequestMessage.cs" />
     <Compile Include="IPC\Messages\DeviceBatteryChangedMessage.cs" />
     <Compile Include="IPC\Messages\DeviceConnectionStateChangedMessage.cs" />
