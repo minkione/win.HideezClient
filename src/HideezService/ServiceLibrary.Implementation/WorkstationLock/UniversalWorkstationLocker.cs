@@ -93,11 +93,11 @@ namespace ServiceLibrary.Implementation.WorkstationLock
         readonly WcfWorkstationLocker _wcfLocker;
         readonly WtsapiWorkstationLocker _wtsapiLocker;
 
-        public UniversalWorkstationLocker(int lockTimeout, ServiceClientSessionManager sessionManager, IMetaPubSub messenger, ILog log)
+        public UniversalWorkstationLocker(int lockTimeout, IMetaPubSub messenger, ILog log)
             : base(nameof(UniversalWorkstationLocker), log)
         {
             _lockTimeout = lockTimeout;
-            _wcfLocker = new WcfWorkstationLocker(sessionManager, messenger, log);
+            _wcfLocker = new WcfWorkstationLocker(messenger, log);
             _wtsapiLocker = new WtsapiWorkstationLocker(log);
         }
 

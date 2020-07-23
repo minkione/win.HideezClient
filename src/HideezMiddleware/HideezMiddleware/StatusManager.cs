@@ -6,6 +6,8 @@ using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
+using Meta.Lib.Modules.PubSub;
+using Meta.Lib.Modules.PubSub.Messages;
 
 namespace HideezMiddleware
 {
@@ -18,6 +20,7 @@ namespace HideezMiddleware
         readonly IClientUiManager _uiClientManager;
         readonly ISettingsManager<RfidSettings> _rfidSettingsManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
+        readonly IMetaPubSub _metaMessenger;
 
         public StatusManager(HesAppConnection hesConnection,
             HesAppConnection tbHesConnection,
@@ -26,6 +29,7 @@ namespace HideezMiddleware
             IClientUiManager clientUiManager,
             ISettingsManager<RfidSettings> rfidSettingsManager,
             IWorkstationUnlocker workstationUnlocker,
+            IMetaPubSub metaMessenger,
             ILog log)
             : base(nameof(StatusManager), log)
         {
@@ -36,8 +40,10 @@ namespace HideezMiddleware
             _uiClientManager = clientUiManager;
             _rfidSettingsManager = rfidSettingsManager;
             _workstationUnlocker = workstationUnlocker;
+            _metaMessenger = metaMessenger;
 
-            _uiClientManager.ClientConnected += Ui_ClientUiConnected;
+            _metaMessenger.Subscribe<RemoteClientConnectedEvent>(OnClientConnected);
+
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
@@ -69,7 +75,7 @@ namespace HideezMiddleware
             if (disposing)
             {
                 // Release managed resources here
-                _uiClientManager.ClientConnected -= Ui_ClientUiConnected;
+                _metaMessenger.Unsubscribe<RemoteClientConnectedEvent>(OnClientConnected);
                 _rfidService.RfidServiceStateChanged -= RfidService_RfidServiceStateChanged;
                 _rfidService.RfidReaderStateChanged -= RfidService_RfidReaderStateChanged;
                 _connectionManager.AdapterStateChanged -= ConnectionManager_AdapterStateChanged;
@@ -93,9 +99,10 @@ namespace HideezMiddleware
         }
         #endregion
 
-        void Ui_ClientUiConnected(object sender, EventArgs e)
+        Task OnClientConnected(RemoteClientConnectedEvent args)
         {
             SendStatusToUI();
+            return Task.CompletedTask;
         }
 
         void HesConnection_HubConnectionStateChanged(object sender, EventArgs e)

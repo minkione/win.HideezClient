@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.ServiceProcess;
-using System.ServiceModel;
-using HideezServiceHost.HideezServiceReference;
 using HideezMiddleware;
 using System.Threading.Tasks;
 using Microsoft.Win32;
@@ -11,8 +9,7 @@ namespace HideezServiceHost
 {
     public partial class HideezService : ServiceBase
     {
-        ServiceHost serviceHost = null;
-        HideezServiceClient service = null;
+        ServiceLibrary.Implementation.HideezService _serviceLibrary;
 
         public HideezService()
         {
@@ -22,39 +19,11 @@ namespace HideezServiceHost
             InitializeComponent();
         }
 
-        protected override async void OnStart(string[] args)
+        protected override void OnStart(string[] args)
         {
             try
             {
-                serviceHost = new ServiceHost(typeof(ServiceLibrary.Implementation.HideezService), new Uri("net.pipe://localhost/HideezService/"))
-                {
-                    CloseTimeout = new TimeSpan(0, 0, 20),
-                };
-
-                serviceHost.Open();
-
-                // Connect to service to initialize it
-                var callback = new HideezServiceCallbacks();
-                var instanceContext = new InstanceContext(callback);
-
-                var service = new HideezServiceClient(instanceContext);
-                try
-                {
-                    await service.AttachClientAsync(new ServiceClientParameters() { ClientType = ClientType.ServiceHost });
-
-                    // Disconnect from service
-                    service.Close();
-                }
-                catch (System.ServiceProcess.TimeoutException)
-                {
-                    // Handle the timeout exception
-                    service.Abort();
-                }
-                catch (CommunicationException)
-                {
-                    // Handle the communication exception
-                    service.Abort();
-                }
+                _serviceLibrary = new ServiceLibrary.Implementation.HideezService();
             }
             catch (Exception ex)
             {
@@ -68,25 +37,7 @@ namespace HideezServiceHost
             try
             {
                 ServiceLibrary.Implementation.HideezService.OnServiceStopped();
-
-                // connect and ask the service to finish all works and close all connections
-                var callback = new HideezServiceCallbacks();
-                var instanceContext = new InstanceContext(callback);
-
-                service = new HideezServiceClient(instanceContext);
-                var shutdowntask = service.ShutdownAsync();
-                shutdowntask.Start();
-                shutdowntask.Wait();
-
-                // close the host
-                if (serviceHost.State == CommunicationState.Faulted)
-                {
-                    serviceHost.Abort();
-                }
-                else
-                {
-                    serviceHost.Close();
-                }
+                _serviceLibrary.Shutdown();
             }
             catch (Exception ex)
             {

@@ -2,6 +2,7 @@
 using HideezMiddleware;
 using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
+using Meta.Lib.Modules.PubSub.Messages;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -9,92 +10,47 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation.ClientManagement
 {
-    class ServiceClientUiManager : IClientUiProxy, IDisposable
+    class ServiceClientUiManager : IClientUiProxy
     {
-        readonly ServiceClientSessionManager _clientSessionManager;
-        readonly IMetaPubSub _messenger;
+        readonly IMetaPubSub _metaMessenger;
 
-        public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
         public event EventHandler<EventArgs> PinCancelled;
         public event EventHandler<ActivationCodeEventArgs> ActivationCodeReceived;
         public event EventHandler<ActivationCodeEventArgs> ActivationCodeCancelled;
-        public bool IsConnected
+
+        public ServiceClientUiManager(IMetaPubSub metaMessenger)
         {
-            get
-            {
-                // Every other connection type does not have or utilize UI
-                return _clientSessionManager.Sessions.Any(s => s.ClientType == ClientType.DesktopClient);
-            }
-        }
-
-        public ServiceClientUiManager(ServiceClientSessionManager clientSessionManager, IMetaPubSub messenger)
-        {
-            _messenger = messenger;
-            _clientSessionManager = clientSessionManager;
-
-            _clientSessionManager.SessionAdded += ClientSessionManager_SessionAdded;
-        }
-
-        #region IDisposable
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        bool disposed = false;
-        void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
-
-            if (disposing)
-            {
-                _clientSessionManager.SessionAdded -= ClientSessionManager_SessionAdded;
-            }
-
-            disposed = true;
-        }
-
-        ~ServiceClientUiManager()
-        {
-            Dispose(false);
-        }
-        #endregion
-
-        void ClientSessionManager_SessionAdded(object sender, ServiceClientSession e)
-        {
-            ClientConnected?.Invoke(this, EventArgs.Empty);
+            _metaMessenger = metaMessenger;
         }
 
         public async Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
         {
             try
             {
-                await _messenger.Publish(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
+                await _metaMessenger.Publish(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
             }
             catch (Exception) { }
         }
 
         public async Task ShowButtonConfirmUi(string deviceId)
         {
-            await _messenger.Publish(new ShowButtonConfirmUiMessage(deviceId));
+            await _metaMessenger.Publish(new ShowButtonConfirmUiMessage(deviceId));
         }
 
         public async Task HidePinUi()
         {
-            await _messenger.Publish(new HidePinUiMessage());
+            await _metaMessenger.Publish(new HidePinUiMessage());
         }
 
         public async Task ShowActivationCodeUi(string deviceId)
         {
-            await _messenger.Publish(new ShowActivationCodeUiMessage(deviceId));
+            await _metaMessenger.Publish(new ShowActivationCodeUiMessage(deviceId));
         }
 
         public async Task HideActivationCodeUi()
         {
-            await _messenger.Publish(new HideActivationCodeUi());
+            await _metaMessenger.Publish(new HideActivationCodeUi());
         }
 
         public void EnterPin(string deviceId, string pin, string oldPin = "")
@@ -149,17 +105,17 @@ namespace ServiceLibrary.Implementation.ClientManagement
 
         public async Task SendError(string message, string notificationId)
         {
-            await _messenger.Publish(new UserErrorMessage(notificationId, message));
+            await _metaMessenger.Publish(new UserErrorMessage(notificationId, message));
         }
 
         public async Task SendNotification(string message, string notificationId)
         {
-            await _messenger.Publish(new UserNotificationMessage(notificationId, message));
+            await _metaMessenger.Publish(new UserNotificationMessage(notificationId, message));
         }
 
         public async Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
         {
-            await _messenger.Publish(new ServiceComponentsStateChangedMessage(hesStatus, rfidStatus, bluetoothStatus, tbHesStatus));
+            await _metaMessenger.Publish(new ServiceComponentsStateChangedMessage(hesStatus, rfidStatus, bluetoothStatus, tbHesStatus));
         }
 
     }

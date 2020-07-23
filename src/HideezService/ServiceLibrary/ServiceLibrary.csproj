@@ -103,9 +103,6 @@
     <Compile Include="..\..\Version.cs">
       <Link>Version.cs</Link>
     </Compile>
-    <Compile Include="ContractProviderService.cs" />
-    <Compile Include="HideezServiceFault.cs" />
-    <Compile Include="IHideezService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceClientParameters.cs" />
   </ItemGroup>

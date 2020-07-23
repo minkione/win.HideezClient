@@ -1,9 +1,6 @@
 ﻿using System;
-using System.ServiceModel;
-using System.Linq;
 using HideezMiddleware;
 using Hideez.SDK.Communication;
-using ServiceLibrary.Implementation.ClientManagement;
 using Hideez.SDK.Communication.Log;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -11,11 +8,10 @@ using HideezMiddleware.Audit;
 using Microsoft.Win32;
 using HideezMiddleware.Workstation;
 using Meta.Lib.Modules.PubSub;
-using HideezMiddleware.IPC.Messages;
 
 namespace ServiceLibrary.Implementation
 {
-    public partial class HideezService : IHideezService
+    public partial class HideezService
     {
         static ILog _sdkLogger;
         static Logger _log;
@@ -23,14 +19,11 @@ namespace ServiceLibrary.Implementation
 
         static bool _initialized = false;
         static object _initializationLock = new object();
-        static ServiceClientSessionManager sessionManager = new ServiceClientSessionManager();
         static SessionInfoProvider _sessionInfoProvider;
         static SessionTimestampLogger _sessionTimestampLogger;
         static RegistryKey clientRootRegistryKey;
         static IWorkstationIdProvider _workstationIdProvider;
         static IMetaPubSub _messenger;
-
-        ServiceClientSession _client;
 
         public HideezService()
         {
@@ -107,41 +100,11 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void InitializeSessionTimeStampMonitor(string sessionTimestampPath)
-        {
-            
-        }
-
         #region Utils
-        void ThrowException(Exception ex)
+        // Todo: Placeholder. We may no longer need to process exceptions before throwing them. May remove later
+        void ThrowException(Exception ex) 
         {
-            if (ex is AggregateException agg)
-            {
-                var baseEx = agg.GetBaseException();
-                if (baseEx is HideezException hideezEx)
-                {
-                    throw new FaultException<HideezServiceFault>(
-                        new HideezServiceFault(HideezExceptionLocalization.GetErrorAsString(hideezEx), (int)hideezEx.ErrorCode), hideezEx.Message);
-                }
-                else
-                {
-                    throw new FaultException<HideezServiceFault>(
-                        new HideezServiceFault(baseEx.Message, (int)HideezErrorCode.NonHideezException), baseEx.Message);
-                }
-            }
-            else
-            {
-                if (ex is HideezException hideezEx)
-                {
-                    throw new FaultException<HideezServiceFault>(
-                        new HideezServiceFault(HideezExceptionLocalization.GetErrorAsString(hideezEx), (int)hideezEx.ErrorCode), hideezEx.Message);
-                }
-                else
-                {
-                    throw new FaultException<HideezServiceFault>(
-                        new HideezServiceFault(ex.Message, (int)HideezErrorCode.NonHideezException), ex.Message);
-                }
-            }
+            throw ex;
         }
 
         public static void Error(Exception ex, string message = "")
@@ -154,62 +117,6 @@ namespace ServiceLibrary.Implementation
             _log?.WriteLine(message, LogErrorSeverity.Error);
         }
         #endregion
-
-        void Channel_Faulted(object sender, EventArgs e)
-        {
-            _log.WriteLine(">>>>>> Channel_Faulted", LogErrorSeverity.Debug);
-            DetachClient();
-        }
-
-        void Channel_Closed(object sender, EventArgs e)
-        {
-            _log.WriteLine(">>>>>> Channel_Closed", LogErrorSeverity.Debug);
-            DetachClient();
-        }
-
-        public bool AttachClient(ServiceClientParameters prm)
-        {
-            _log.WriteLine(">>>>>> AttachClient " + prm.ClientType.ToString(), LogErrorSeverity.Debug);
-
-            // Limit to one ServiceHost / TestConsole connection
-            if (prm.ClientType == ClientType.TestConsole ||
-                prm.ClientType == ClientType.ServiceHost)
-            {
-                if (sessionManager.Sessions.Any(s =>
-                s.ClientType == ClientType.ServiceHost ||
-                s.ClientType == ClientType.TestConsole))
-                {
-                    throw new Exception("Service does not support more than one connected ServiceHost or TestConsole client");
-                }
-            }
-
-            var callback = OperationContext.Current.GetCallbackChannel<ICallbacks>();
-            _client = sessionManager.Add(prm.ClientType, callback);
-
-            OperationContext.Current.Channel.Closed += Channel_Closed;
-            OperationContext.Current.Channel.Faulted += Channel_Faulted;
-            sessionManager.SessionClosed += SessionManager_SessionClosed;
-
-            // Client may have only been launched after we already sent an event about workstation unlock
-            // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
-            // To avoid the confusion, we resend the event about latest unlock method to every client that connects to service
-            if (_deviceManager.Devices.Count() == 0)
-                Task.Run(async () => { await _messenger.Publish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez)); });
-
-            return true;
-        }
-
-        public void DetachClient()
-        {
-            _log.WriteLine($">>>>>> DetachClient {_client?.ClientType}", LogErrorSeverity.Debug);
-            sessionManager.Remove(_client);
-            sessionManager.SessionClosed -= SessionManager_SessionClosed;
-        }
-
-        public int Ping()
-        {
-            return 0;
-        }
 
         public void Shutdown()
         {

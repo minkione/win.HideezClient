@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
-using System.Runtime.Remoting.Messaging;
-using System.Security;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication;
@@ -36,9 +32,7 @@ using HideezMiddleware.ReconnectManager;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using HideezMiddleware.SoftwareVault.UnlockToken;
-using HideezMiddleware.Tasks;
-using HideezMiddleware.Workstation;
-using Meta.Lib.Modules.PubSub;
+using Meta.Lib.Modules.PubSub.Messages;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ClientManagement;
 using ServiceLibrary.Implementation.ScreenActivation;
@@ -46,7 +40,7 @@ using ServiceLibrary.Implementation.WorkstationLock;
 
 namespace ServiceLibrary.Implementation
 {
-    public partial class HideezService : IHideezService
+    public partial class HideezService
     {
         static BleConnectionManager _connectionManager;
         static BleDeviceManager _deviceManager;
@@ -245,17 +239,17 @@ namespace ServiceLibrary.Implementation
             _eventSender = new EventSender(_hesConnection, _eventSaver, _sdkLogger);
 
             // ScreenActivator ==================================
-            _screenActivator = new WcfScreenActivator(sessionManager, _messenger);
+            _screenActivator = new WcfScreenActivator(_messenger);
 
             // Client Proxy =============================
-            _clientProxy = new ServiceClientUiManager(sessionManager, _messenger);
+            _clientProxy = new ServiceClientUiManager(_messenger);
 
             // UI Proxy =============================
             _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, _sdkLogger);
 
             // StatusManager =============================
             _statusManager = new StatusManager(_hesConnection, _tbHesConnection, _rfidService, 
-                _connectionManager, _uiProxy, _rfidSettingsManager, _credentialProviderProxy, _sdkLogger);
+                _connectionManager, _uiProxy, _rfidSettingsManager, _credentialProviderProxy, _messenger, _sdkLogger);
 
             // Local device info cache
             _localDeviceInfoCache = new LocalDeviceInfoCache(clientRootRegistryKey, _sdkLogger);
@@ -317,7 +311,7 @@ namespace ServiceLibrary.Implementation
             _deviceReconnectManager.DeviceReconnected += (s, a) => _log.WriteLine($"Device {a.SerialNo} reconnected successfully");
 
             // WorkstationLocker ==================================
-            _workstationLocker = new UniversalWorkstationLocker(SdkConfig.DefaultLockTimeout * 1000, sessionManager, _messenger, _sdkLogger);
+            _workstationLocker = new UniversalWorkstationLocker(SdkConfig.DefaultLockTimeout * 1000, _messenger, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, 
@@ -350,6 +344,9 @@ namespace ServiceLibrary.Implementation
 
             _deviceReconnectManager.Start();
 
+            _messenger.Subscribe<RemoteClientConnectedEvent>(OnClientConnected);
+            _messenger.Subscribe<RemoteClientDisconnectedEvent>(OnClientDisconnected);
+
             _messenger.Subscribe<GetAvailableChannelsMessage>(GetAvailableChannels);
             _messenger.Subscribe<RemoteConnection_RemoteCommandMessage>(RemoteConnection_RemoteCommandAsync);
             _messenger.Subscribe<RemoteConnection_VerifyCommandMessage>(RemoteConnection_VerifyCommandAsync);
@@ -368,6 +365,25 @@ namespace ServiceLibrary.Implementation
             _messenger.Subscribe<SendPinMessage>(SendPin);
 
             await Task.WhenAll(serviceInitializationTasks).ConfigureAwait(false);
+        }
+
+        Task OnClientDisconnected(RemoteClientDisconnectedEvent arg)
+        {
+            _log.WriteLine($">>>>>> DetachClient, {arg.TotalClientsCount} remaining clients", LogErrorSeverity.Debug);
+            return Task.CompletedTask;
+        }
+
+        Task OnClientConnected(RemoteClientConnectedEvent arg)
+        {
+            _log.WriteLine($">>>>>> AttachClient, {arg.TotalClientsCount} remaining clients", LogErrorSeverity.Debug);
+
+            // Client may have only been launched after we already sent an event about workstation unlock
+            // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
+            // To avoid the confusion, we resend the event about latest unlock method to every client that connects to service
+            if (_deviceManager.Devices.Count() == 0)
+                Task.Run(async () => { await _messenger.Publish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez)); });
+
+            return Task.CompletedTask;
         }
 
         async void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
@@ -823,30 +839,19 @@ namespace ServiceLibrary.Implementation
 
         async void WorkstationLockProcessor_DeviceProxLockEnabled(object sender, IDevice device)
         {
-            foreach (var session in sessionManager.Sessions)
+            try
             {
-                try
-                {
-                    await _messenger.Publish(new DeviceProximityLockEnabledMessage(new DeviceDTO(device)));
-                }
-                catch (Exception ex)
-                {
-                    Error(ex);
-                }
+                await _messenger.Publish(new DeviceProximityLockEnabledMessage(new DeviceDTO(device)));
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
             }
         }
 
-        async void SessionManager_SessionClosed(object sender, ServiceClientSession e)
+        async void SessionManager_SessionClosed()
         {
-            if (_client.Id == e.Id)
-            {
-                foreach (var wcfDevice in RemoteWcfDevices.ToArray())
-                {
-                    await _deviceManager.Remove(wcfDevice);
-                    UnsubscribeFromWcfDeviceEvents(wcfDevice);
-                }
-            }
-
+            // TODO: Disconnect remote devices when client disconnects
         }
 
         async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
@@ -869,31 +874,6 @@ namespace ServiceLibrary.Implementation
             }
         }
         #endregion
-
-        public bool GetAdapterState(Adapter adapter)
-        {
-            try
-            {
-                switch (adapter)
-                {
-                    case Adapter.Dongle:
-                        return _connectionManager?.State == BluetoothAdapterState.PoweredOn || _connectionManager?.State == BluetoothAdapterState.Resetting;
-                    case Adapter.HES:
-                        return _hesConnection?.State == HesConnectionState.Connected;
-                    case Adapter.RFID:
-                        return _rfidService != null ? _rfidService.ServiceConnected && _rfidService.ReaderConnected : false;
-                    default:
-                        return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-                ThrowException(ex);
-
-                return false; // We will never reach this line
-            }
-        }
 
         public DeviceDTO[] GetDevices()
         {

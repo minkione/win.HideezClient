@@ -98,8 +98,6 @@
     <Compile Include="ClientManagement\ServiceClientUiManager.cs" />
     <Compile Include="HideezService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ClientManagement\ServiceClientSession.cs" />
-    <Compile Include="ClientManagement\ServiceClientSessionManager.cs" />
     <Compile Include="RegistrySettings.cs" />
     <Compile Include="ScreenActivation\WcfScreenActivator.cs" />
     <Compile Include="WorkstationLock\UniversalWorkstationLocker.cs" />
