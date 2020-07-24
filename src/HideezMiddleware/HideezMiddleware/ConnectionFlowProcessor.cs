@@ -310,7 +310,8 @@ namespace HideezMiddleware
 
                 if (_workstationUnlocker.IsConnected && WorkstationHelper.IsActiveSessionLocked() && tryUnlock)
                 {
-                    if (await ButtonWorkflow(device, timeout, ct) && await PinWorkflow(device, timeout, ct))
+                    // Second button workflow is required for case when button times out due to very long pin workflow
+                    if (await ButtonWorkflow(device, timeout, ct) && await PinWorkflow(device, timeout, ct) && await ButtonWorkflow(device, timeout, ct))
                     {
                         if (!device.AccessLevel.IsLocked &&
                             !device.AccessLevel.IsButtonRequired &&
@@ -323,6 +324,8 @@ namespace HideezMiddleware
                             success = unlockResult.IsSuccessful;
                             onUnlockAttempt?.Invoke(unlockResult);
                         }
+                        else
+                            WriteLine($"Device ({device.SerialNo}) still locked or requires authorization after button/pin workflow");
                     }
                 }
                 else if (WorkstationHelper.IsActiveSessionLocked())
