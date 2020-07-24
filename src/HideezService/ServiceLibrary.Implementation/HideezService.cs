@@ -8,6 +8,9 @@ using HideezMiddleware.Audit;
 using Microsoft.Win32;
 using HideezMiddleware.Workstation;
 using Meta.Lib.Modules.PubSub;
+using System.IO.Pipes;
+using System.Security.Principal;
+using System.Security.AccessControl;
 
 namespace ServiceLibrary.Implementation
 {
@@ -83,7 +86,19 @@ namespace ServiceLibrary.Implementation
                 _log.WriteLine(">>>>>> Initialize SDK");
                 InitializeSDK().Wait();
 
-                _messenger.StartServer("HideezServicePipe");
+                _messenger.StartServer("HideezServicePipe", () =>
+                {
+                    var pipeSecurity = new PipeSecurity();
+                    pipeSecurity.AddAccessRule(new PipeAccessRule(
+                        new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
+                        PipeAccessRights.FullControl,
+                        AccessControlType.Allow));
+
+                    var pipe = new NamedPipeServerStream("HideezServicePipe", PipeDirection.InOut, 32,
+                        PipeTransmissionMode.Message, PipeOptions.Asynchronous, 4096, 4096, pipeSecurity);
+
+                    return pipe;
+                });
 
                 _log.WriteLine(">>>>>> Service started");
             }
