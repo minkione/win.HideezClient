@@ -253,7 +253,7 @@ namespace HideezClient.Modules.ActionHandler
             if (appInfo.ProcessName == "HideezClient")
                 throw new HideezWindowSelectedException();
 
-            if (_activeDevice.Device.IsStorageLoaded)
+            if (_activeDevice.Device.IsLoadingStorage)
                 return;
 
             if (!_activeDevice.Device.IsAuthorized || !_activeDevice.Device.IsStorageLoaded)
