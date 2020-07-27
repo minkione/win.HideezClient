@@ -6,9 +6,12 @@
     xmlns:local="clr-namespace:HideezClient.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    MinWidth="545"
     MinHeight="60"
     Background="{DynamicResource NotificationBackground}"
     FontSize="14"
+    Foreground="{DynamicResource LightForeground}"
+    Style="{StaticResource NotificationStyle}"
     mc:Ignorable="d">
     <StackPanel Orientation="Vertical">
         <!--  Description textblock  -->

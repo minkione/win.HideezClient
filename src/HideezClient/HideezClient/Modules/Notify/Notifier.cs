@@ -118,6 +118,7 @@ namespace HideezClient.Modules
                 CloseWhenDeactivate = true,
                 Position = NotificationPosition.Bottom,
                 TaskCompletionSource = taskCompletionSourceForDialog,
+                CloseTimeout = NotificationOptions.LongTimeout,
             };
 
             var viewModel = new AccountSelectorViewModel(accounts);
