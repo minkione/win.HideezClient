@@ -16,6 +16,10 @@ namespace HideezClient.Modules
         /// </summary>
         public bool CloseWhenDeactivate { get; set; }
         public bool SetFocus { get; set; }
+        /// <summary>
+        /// Replace notification with same Id
+        /// </summary>
+        public bool IsReplace { get; set; } = true;
         public TimeSpan CloseTimeout { get; set; } = DefaultTimeout;
         public TaskCompletionSource<bool> TaskCompletionSource { get; set; }
 

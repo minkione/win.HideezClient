@@ -44,6 +44,7 @@ using HideezClient.Modules.Log;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware.Workstation;
 using HideezClient.Modules.ProximityLockManager;
+using HideezClient.Modules.NotificationsManager;
 
 namespace HideezClient
 {
@@ -346,6 +347,7 @@ namespace HideezClient
             Container.RegisterType<IQrScannerHelper, QrScannerHelper>();
 
             Container.RegisterType<INotifier, Notifier>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<INotificationsManager, NotificationsManager>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<IEventPublisher, EventPublisher>(new ContainerControlledLifetimeManager());
 

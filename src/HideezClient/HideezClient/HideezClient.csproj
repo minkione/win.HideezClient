@@ -70,6 +70,8 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -406,6 +408,8 @@
     <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
     <Compile Include="Controls\Notification\NotificationBase.cs" />
     <Compile Include="Modules\Log\LogManager.cs" />
+    <Compile Include="Modules\NotificationsManager\INotificationsManager.cs" />
+    <Compile Include="Modules\NotificationsManager\NotificationsManager.cs" />
     <Compile Include="Modules\Notify\INotifier.cs" />
     <Compile Include="Modules\Notify\NotificationOptions.cs" />
     <Compile Include="Modules\Notify\NotificationPosition.cs" />

@@ -24,6 +24,7 @@ using HideezClient.Models.Settings;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
 using Hideez.ARM;
+using HideezClient.Modules.NotificationsManager;
 
 namespace HideezClient.Modules
 {
@@ -35,6 +36,7 @@ namespace HideezClient.Modules
         private readonly Logger log = LogManager.GetCurrentClassLogger(nameof(WindowsManager));
         private bool isMainWindowVisible;
         private readonly ISettingsManager<ApplicationSettings> _settingsManager;
+        readonly INotificationsManager _notificationsManager;
 
 
         readonly object pinDialogLock = new object();
@@ -48,12 +50,13 @@ namespace HideezClient.Modules
 
         public event EventHandler<bool> MainWindowVisibleChanged;
 
-        public WindowsManager(INotifier notifier, ViewModelLocator viewModelLocator, 
+        public WindowsManager(INotifier notifier, ViewModelLocator viewModelLocator, INotificationsManager notificationsManager,
             IMessenger messenger, ISettingsManager<ApplicationSettings> settingsManager)
         {
             _notifier = notifier;
             _viewModelLocator = viewModelLocator;
             _settingsManager = settingsManager;
+            _notificationsManager = notificationsManager;
 
             messenger.Register<UnlockWorkstationMessage>(this, ClearNotifications);
 
@@ -238,7 +241,12 @@ namespace HideezClient.Modules
 
         private void ShowWarn(string message, string title = null, NotificationOptions options = null, string notificationId = "")
         {
-            UIDispatcher.Invoke(() => _notifier.ShowWarn(notificationId, title ?? GetTitle(), message, options));
+            UIDispatcher.Invoke(async() =>
+            {
+                _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message, NotificationIconType.Warn);
+                await Task.Delay(2000);
+                _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message, NotificationIconType.Warn);
+            });
         }
 
         private void ShowInfo(string message, string title = null, NotificationOptions options = null, string notificationId = "")

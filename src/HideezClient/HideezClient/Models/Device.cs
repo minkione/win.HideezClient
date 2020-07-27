@@ -53,6 +53,7 @@ namespace HideezClient.Models
         bool isConnected;
         bool isInitialized;
         string serialNo;
+        string macAddress;
         uint storageTotalSize;
         uint storageFreeSize;
         Version firmwareVersion;
@@ -162,6 +163,13 @@ namespace HideezClient.Models
         {
             get { return serialNo; }
             private set { Set(ref serialNo, value); }
+        }
+
+        //Todo: Add this property in contract on service
+        public string MacAddress
+        {
+            get { return MacAddress; }
+            private set { Set(ref macAddress, value); }
         }
 
         public Version FirmwareVersion
