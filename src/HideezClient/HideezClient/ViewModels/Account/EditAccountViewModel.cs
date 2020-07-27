@@ -2,18 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Security;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using ControlzEx.Standard;
 using DynamicData;
 using GalaSoft.MvvmLight.Messaging;
 using Hideez.ARM;
@@ -28,7 +22,6 @@ using HideezClient.Utilities.QrCode;
 using MvvmExtensions.Commands;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
-using Unity;
 
 namespace HideezClient.ViewModels
 {
@@ -94,10 +87,16 @@ namespace HideezClient.ViewModels
         {
             Application.Current.MainWindow.Activated += WeakEventHandler.Create(this, (@this, o, args) => Task.Run(@this.UpdateAppsAndUrls));
 
-            this.WhenAnyValue(vm => vm.OtpSecret).Where(x => !string.IsNullOrWhiteSpace(x)).Subscribe(o => ErrorOtpSecret = (ValidateBase32String(OtpSecret) ? null : "Not valid OTP secret"));
-            this.WhenAnyValue(vm => vm.ErrorAccountName, vm => vm.ErrorAccountLogin, vm => vm.ErrorOtpSecret).Subscribe(observer => HasError = !(ErrorAccountName == null && ErrorAccountLogin == null && ErrorOtpSecret == null));
+            this.WhenAnyValue(vm => vm.OtpSecret).Where(x => !string.IsNullOrWhiteSpace(x))
+                .Subscribe(o => ErrorOtpSecret = (ValidateBase32String(OtpSecret) ? null : "Not valid OTP secret"));
+
+            this.WhenAnyValue(vm => vm.ErrorAccountName, vm => vm.ErrorAccountLogin, vm => vm.ErrorOtpSecret)
+                .Subscribe(observer => HasError = !(ErrorAccountName == null && ErrorAccountLogin == null && ErrorOtpSecret == null));
+
             this.WhenAnyValue(vm => vm.Name, vm => vm.Login, vm => vm.IsPasswordChanged, vm => vm.OtpSecret, vm => vm.HasOpt, vm => vm.Apps, vm => vm.Urls)
                 .Subscribe(o => VerifyHasChanged());
+            // Some issues arise when using WhenAnyValue is 8 or more arguments
+            this.WhenAnyValue(vm => vm.EditOtp).Subscribe(o => VerifyHasChanged());
 
             this.WhenAnyValue(vm => vm.SelectedApp).Subscribe(OnAppSelected);
             this.WhenAnyValue(vm => vm.SelectedUrl).Subscribe(OnUrlSelected);
