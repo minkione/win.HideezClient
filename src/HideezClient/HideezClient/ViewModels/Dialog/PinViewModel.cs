@@ -302,7 +302,7 @@ namespace HideezClient.ViewModels
             {
                 if (!IsConfirmPinCorrect(pin, confirmPin))
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage("The new PIN and confirmation PIN does not match"));
+                    _messenger.Send(new ShowErrorNotificationMessage("The new PIN and confirmation PIN does not match", notificationId: Device.Mac));
                     InProgress = false;
                     return;
                 }

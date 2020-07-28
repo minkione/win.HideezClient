@@ -199,11 +199,11 @@ namespace HideezClient.Modules
                 }
                 catch (FaultException<HideezServiceFault> ex)
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
                 }
                 catch (Exception ex)
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
                 }
             }
         }
@@ -221,11 +221,11 @@ namespace HideezClient.Modules
                 }
                 catch (FaultException<HideezServiceFault> ex)
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
                 }
                 catch (Exception ex)
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
                 }
             }
         }

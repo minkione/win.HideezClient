@@ -164,8 +164,8 @@ namespace HideezMiddleware
 
             try
             {
-                await _ui.SendNotification("", _infNid);
-                await _ui.SendError("", _errNid);
+                //await _ui.SendNotification("", _infNid);
+                //await _ui.SendError("", _errNid);
 
                 if (!_hesAccessManager.HasAccessKey())
                     throw new HideezException(HideezErrorCode.HesWorkstationNotApproved);
@@ -298,7 +298,7 @@ namespace HideezMiddleware
                 if (deviceInfoProc.IsSuccessful && deviceInfo.NeedUpdate)
                 {
                     // request HES to update this device
-                    await _ui.SendNotification("Uploading new credentials to the device...", _infNid);
+                    await _ui.SendNotification("Uploading new credentials to the device...", mac);
                     await _hesConnection.FixDevice(device, ct);
                     await device.RefreshDeviceInfo();
                 }
@@ -316,8 +316,8 @@ namespace HideezMiddleware
                             !device.AccessLevel.IsButtonRequired &&
                             !device.AccessLevel.IsPinRequired)
                         {
-                            await _ui.SendNotification("", _infNid);
-                            await _ui.SendError("", _errNid);
+                            //await _ui.SendNotification("", _infNid);
+                            //await _ui.SendError("", _errNid);
 
                             var unlockResult = await TryUnlockWorkstation(device);
                             success = unlockResult.IsSuccessful;
@@ -396,12 +396,12 @@ namespace HideezMiddleware
             try
             {
                 await _ui.HidePinUi();
-                await _ui.SendNotification("", _infNid);
+                //await _ui.SendNotification("", _infNid);
 
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
                     WriteLine(errorMessage);
-                    await _ui.SendError(errorMessage, _errNid);
+                    await _ui.SendError(errorMessage, mac);
                 }
 
                 if (device != null)
@@ -445,13 +445,13 @@ namespace HideezMiddleware
         {
             var result = new WorkstationUnlockResult();
 
-            await _ui.SendNotification("Reading credentials from the device...", _infNid);
-            await _ui.SendError("", _errNid);
+            await _ui.SendNotification("Reading credentials from the device...", device.Mac);
+            //await _ui.SendError("", _errNid);
             var credentials = await GetCredentials(device);
 
             // send credentials to the Credential Provider to unlock the PC
-            await _ui.SendNotification("Unlocking the PC...", _infNid);
-            await _ui.SendError("", _errNid); 
+            await _ui.SendNotification("Unlocking the PC...", device.Mac);
+            //await _ui.SendError("", _errNid); 
             result.IsSuccessful = await _workstationUnlocker
                 .SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
 
@@ -470,13 +470,13 @@ namespace HideezMiddleware
 
             ct.ThrowIfCancellationRequested();
 
-            await _ui.SendNotification("Waiting for HES authorization...", _infNid);
+            await _ui.SendNotification("Waiting for HES authorization...", device.Mac);
 
             await _hesConnection.FixDevice(device, ct);
 
             await new WaitMasterKeyProc(device).Run(SdkConfig.SystemStateEventWaitTimeout, ct);
 
-            await _ui.SendNotification("", _infNid);
+            //await _ui.SendNotification("", _infNid);
         }
 
         async Task<bool> ButtonWorkflow(IDevice device, int timeout, CancellationToken ct)
@@ -484,7 +484,7 @@ namespace HideezMiddleware
             if (!device.AccessLevel.IsButtonRequired)
                 return true;
 
-            await _ui.SendNotification("Please press the Button on your Hideez Key", _infNid);
+            await _ui.SendNotification("Please press the Button on your Hideez Key", device.Mac);
             await _ui.ShowButtonConfirmUi(device.Id);
             var res = await device.WaitButtonConfirmation(timeout, ct);
             return res;
@@ -511,7 +511,7 @@ namespace HideezMiddleware
             bool res = false;
             while (device.AccessLevel.IsNewPinRequired)
             {
-                await _ui.SendNotification($"Please create new PIN code for your Hideez Key (minimum {device.MinPinLength})", _infNid);
+                await _ui.SendNotification($"Please create new PIN code for your Hideez Key (minimum {device.MinPinLength})", device.Mac);
                 string pin = await _ui.GetPin(device.Id, timeout, ct, withConfirm: true);
 
                 if (string.IsNullOrWhiteSpace(pin))
@@ -530,11 +530,11 @@ namespace HideezMiddleware
                 }
                 else if (pinResult == HideezErrorCode.ERR_PIN_TOO_SHORT)
                 {
-                    await _ui.SendError($"PIN too short", _errNid);
+                    await _ui.SendError($"PIN too short", device.Mac);
                 }
                 else if (pinResult == HideezErrorCode.ERR_PIN_WRONG)
                 {
-                    await _ui.SendError($"Invalid PIN", _errNid);
+                    await _ui.SendError($"Invalid PIN", device.Mac);
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow ---------------------------------------");
@@ -548,7 +548,7 @@ namespace HideezMiddleware
             bool res = false;
             while (!device.AccessLevel.IsLocked)
             {
-                await _ui.SendNotification("Please enter the PIN code for your Hideez Key", _infNid);
+                await _ui.SendNotification("Please enter the PIN code for your Hideez Key", device.Mac);
                 string pin = await _ui.GetPin(device.Id, timeout, ct);
 
                 Debug.WriteLine($">>>>>>>>>>>>>>> PIN: {pin}");
@@ -579,15 +579,15 @@ namespace HideezMiddleware
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({attemptsLeft} attempts left)");
                     if (device.AccessLevel.IsLocked)
                     {
-                        await _ui.SendNotification("", _infNid);
-                        await _ui.SendError($"Vault is locked", _errNid);
+                        //await _ui.SendNotification("", _infNid);
+                        await _ui.SendError($"Vault is locked", device.Mac);
                     }
                     else
                     {
                         if (attemptsLeft > 1)
-                            await _ui.SendError($"Invalid PIN! {attemptsLeft} attempts left.", _errNid);
+                            await _ui.SendError($"Invalid PIN! {attemptsLeft} attempts left.", device.Mac);
                         else
-                            await _ui.SendError($"Invalid PIN! 1 attempt left.", _errNid);
+                            await _ui.SendError($"Invalid PIN! 1 attempt left.", device.Mac);
                         await device.RefreshDeviceInfo(); // Remaining pin attempts update is not quick enough 
                     }
                 }
@@ -599,14 +599,14 @@ namespace HideezMiddleware
         async Task<IDevice> ConnectDevice(string mac, bool rebondOnFail, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
-            await _ui.SendNotification($"Connecting vault. Press the vault button to confirm.", _infNid);
+            await _ui.SendNotification($"Connecting vault. Press the vault button to confirm.", mac);
 
             var device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
 
             if (device == null)
             {
                 ct.ThrowIfCancellationRequested();
-                await _ui.SendNotification($"Retrying. Press the vault button to confirm.", _infNid);
+                await _ui.SendNotification($"Retrying. Press the vault button to confirm.", mac);
 
                 device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
 
@@ -616,7 +616,7 @@ namespace HideezMiddleware
 
                     // remove the bond and try one more time
                     await _deviceManager.RemoveByMac(mac);
-                    await _ui.SendNotification($"Re-bonding. Press the vault button to confirm.", _infNid);
+                    await _ui.SendNotification($"Re-bonding. Press the vault button to confirm.", mac);
                     device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
                 }
             }
@@ -629,7 +629,7 @@ namespace HideezMiddleware
 
         async Task WaitDeviceInitialization(string mac, IDevice device, CancellationToken ct)
         {
-            await _ui.SendNotification("Waiting for the vault initialization...", _infNid);
+            await _ui.SendNotification("Waiting for the vault initialization...", mac);
 
             if (!await device.WaitInitialization(SdkConfig.DeviceInitializationTimeout, ct))
                 throw new Exception($"Failed to initialize vault connection '{mac}'. Please try again.");
@@ -692,7 +692,7 @@ namespace HideezMiddleware
 
         async Task LicenseWorkflow(IDevice device, CancellationToken ct)
         {
-            await _ui.SendNotification("Updating vault licenses...", _infNid);
+            await _ui.SendNotification("Updating vault licenses...", device.Mac);
             var licenses = await _hesConnection.GetNewDeviceLicenses(device.SerialNo);
 
             WriteLine($"Received {licenses.Count} new licenses from HES");
@@ -724,7 +724,7 @@ namespace HideezMiddleware
 
         async Task RestoreLicenseWorkflow(IDevice device, CancellationToken ct)
         {
-            await _ui.SendNotification("Updating vault licenses...", _infNid);
+            await _ui.SendNotification("Updating vault licenses...", device.Mac);
             var licenses = await _hesConnection.GetDeviceLicenses(device.SerialNo);
 
             WriteLine($"Received {licenses.Count} active licenses from HES");
@@ -770,13 +770,13 @@ namespace HideezMiddleware
 
                     if (code.Length < 6)
                     {
-                        await _ui.SendError("Activation code is to short");
+                        await _ui.SendError("Activation code is to short", device.Mac);
                         continue;
                     }
 
                     if (code.Length > 8)
                     {
-                        await _ui.SendError("Activation code is to long");
+                        await _ui.SendError("Activation code is to long", device.Mac);
                         continue;
                     }
 
@@ -807,7 +807,7 @@ namespace HideezMiddleware
                     }
                     else if (device.UnlockAttemptsRemain > 0)
                     {
-                        await _ui.SendNotification($"Invalid activation code. {device.UnlockAttemptsRemain} attempts left", _infNid);
+                        await _ui.SendNotification($"Invalid activation code. {device.UnlockAttemptsRemain} attempts left", device.Mac);
                     }
                     else
                     { 

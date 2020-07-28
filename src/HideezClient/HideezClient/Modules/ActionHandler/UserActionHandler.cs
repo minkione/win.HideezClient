@@ -73,7 +73,7 @@ namespace HideezClient.Modules.ActionHandler
                         var localizedAction = TranslationSource.Instance[$"Enum.UserAction.{message.Action.ToString()}"].ToLowerInvariant();
                         info = string.Format(info, deviceName, otherConnections, hotkey, localizedAction);
                         var msgOptions = new NotificationOptions { CloseTimeout = NotificationOptions.LongTimeout };
-                        _messenger.Send(new ShowInfoNotificationMessage(info, options: msgOptions));
+                        _messenger.Send(new ShowInfoNotificationMessage(info, options: msgOptions, notificationId: _activeDevice.Device.Mac));
                     }
                     else if (!_activeDevice.Device.IsLoadingStorage)
                         await HandleButtonActionAsync(message.DeviceId, message.Action, message.Code);
@@ -81,7 +81,7 @@ namespace HideezClient.Modules.ActionHandler
                 else
                 {
                     string warn = string.Format(TranslationSource.Instance["UserAction.DeviceIsNotActive"], message.DeviceId);
-                    _messenger.Send(new ShowWarningNotificationMessage(warn));
+                    _messenger.Send(new ShowWarningNotificationMessage(warn, notificationId: _activeDevice.Device?.Mac));
                     WriteLine(warn, LogErrorSeverity.Warning);
                 }
             });
@@ -117,16 +117,16 @@ namespace HideezClient.Modules.ActionHandler
                 var message = TranslationSource.Instance[$"UserAction.HideezWindowSelected.{action.ToString()}"];
                 message = string.Format(message, Environment.NewLine, localizedAction);
                 var msgOptions = new NotificationOptions { CloseTimeout = NotificationOptions.LongTimeout };
-                _messenger.Send(new ShowInfoNotificationMessage(message, options: msgOptions));
+                _messenger.Send(new ShowInfoNotificationMessage(message, options: msgOptions, notificationId: _activeDevice.Device?.Mac));
             }
             catch (ActionNotSupportedException)
             {
                 var localizedAction = TranslationSource.Instance[$"Enum.UserAction.{action.ToString()}"].ToLowerInvariant();
-                _messenger.Send(new ShowInfoNotificationMessage($"Unable to {localizedAction}{Environment.NewLine}Action not supported"));
+                _messenger.Send(new ShowInfoNotificationMessage($"Unable to {localizedAction}{Environment.NewLine}Action not supported", notificationId: _activeDevice.Device?.Mac));
             }
             catch (Exception ex)
             {
-                _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                _messenger.Send(new ShowErrorNotificationMessage(ex.Message, notificationId: _activeDevice.Device?.Mac));
                 WriteLine(ex, LogErrorSeverity.Error);
             }
         }
@@ -143,16 +143,16 @@ namespace HideezClient.Modules.ActionHandler
                 var message = TranslationSource.Instance[$"UserAction.HideezWindowSelected.{action.ToString()}"];
                 message = string.Format(message, Environment.NewLine, localizedAction);
                 var msgOptions = new NotificationOptions { CloseTimeout = NotificationOptions.LongTimeout };
-                _messenger.Send(new ShowInfoNotificationMessage(message, options: msgOptions));
+                _messenger.Send(new ShowInfoNotificationMessage(message, options: msgOptions, notificationId: _activeDevice.Device?.Mac));
             }
             catch (ActionNotSupportedException)
             {
                 var localizedAction = TranslationSource.Instance[$"Enum.UserAction.{action.ToString()}"].ToLowerInvariant();
-                _messenger.Send(new ShowInfoNotificationMessage($"Unable to {localizedAction}{Environment.NewLine}Action not supported"));
+                _messenger.Send(new ShowInfoNotificationMessage($"Unable to {localizedAction}{Environment.NewLine}Action not supported", notificationId: _activeDevice.Device?.Mac));
             }
             catch (Exception ex)
             {
-                _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                _messenger.Send(new ShowErrorNotificationMessage(ex.Message, notificationId: _activeDevice.Device?.Mac));
                 WriteLine(ex, LogErrorSeverity.Error);
             }
         }
@@ -204,14 +204,14 @@ namespace HideezClient.Modules.ActionHandler
             }
             catch (OtpNotFoundException ex)
             {
-                _messenger.Send(new ShowWarningNotificationMessage(ex.Message));
+                _messenger.Send(new ShowWarningNotificationMessage(ex.Message, notificationId: _activeDevice.Device?.Mac));
                 WriteLine(ex.Message, LogErrorSeverity.Warning);
             }
             catch (AccountException ex) when (ex is LoginNotFoundException || ex is PasswordNotFoundException)
             {
                 if (_appSettingsManager.Settings.UseSimplifiedUI)
                 {
-                    _messenger.Send(new ShowWarningNotificationMessage(ex.Message));
+                    _messenger.Send(new ShowWarningNotificationMessage(ex.Message, notificationId: _activeDevice.Device?.Mac));
                     WriteLine(ex.Message, LogErrorSeverity.Warning);
                 }
                 else if (_appSettingsManager.Settings.AutoCreateAccountIfNotFound)
@@ -231,13 +231,13 @@ namespace HideezClient.Modules.ActionHandler
             catch (FieldNotSecureException) // Assume that precondition failed because field is not secure
             {
                 string message = TranslationSource.Instance["Exception.FieldNotSecure"];
-                _messenger.Send(new ShowWarningNotificationMessage(message));
+                _messenger.Send(new ShowWarningNotificationMessage(message, notificationId: _activeDevice.Device?.Mac));
                 WriteLine(message, LogErrorSeverity.Warning);
             }
             catch (AuthEndedUnexpectedlyException)
             {
                 var message = TranslationSource.Instance["Exception.AuthEndedUnexpectedly"];
-                _messenger.Send(new ShowWarningNotificationMessage(message));
+                _messenger.Send(new ShowWarningNotificationMessage(message, notificationId: _activeDevice.Device?.Mac));
                 WriteLine(message, LogErrorSeverity.Warning);
             }
         }
@@ -263,7 +263,7 @@ namespace HideezClient.Modules.ActionHandler
             
             if (_activeDevice.Device.IsAuthorized && _activeDevice.Device.IsStorageLoaded)
             {
-                _messenger.Send(new ShowInfoNotificationMessage($"Creating new account for {appInfo.Title}"));
+                _messenger.Send(new ShowInfoNotificationMessage($"Creating new account for {appInfo.Title}", notificationId: _activeDevice.Device?.Mac));
                 _messenger.Send(new ShowActivateMainWindowMessage());
                 _messenger.Send(new OpenPasswordManagerMessage(deviceId));
                 _messenger.Send(new AddAccountForAppMessage(deviceId, appInfo));

@@ -161,7 +161,7 @@ namespace HideezClient.PageViewModels
                            }
                            catch (Exception ex)
                            {
-                               _messenger.Send(new ShowErrorNotificationMessage("An error occured while updating proximity settings"));
+                               _messenger.Send(new ShowErrorNotificationMessage("An error occured while updating proximity settings", notificationId: Device.Mac));
                                log.WriteLine(ex);
                            }
                        });

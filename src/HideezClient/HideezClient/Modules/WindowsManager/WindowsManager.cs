@@ -241,12 +241,7 @@ namespace HideezClient.Modules
 
         private void ShowWarn(string message, string title = null, NotificationOptions options = null, string notificationId = "")
         {
-            UIDispatcher.Invoke(async() =>
-            {
-                _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message, NotificationIconType.Warn);
-                await Task.Delay(2000);
-                _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message, NotificationIconType.Warn);
-            });
+            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message, NotificationIconType.Warn));
         }
 
         private void ShowInfo(string message, string title = null, NotificationOptions options = null, string notificationId = "")

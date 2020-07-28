@@ -533,7 +533,7 @@ namespace HideezClient.ViewModels
 
             if (!isScanedQr)
             {
-                _messenger.Send(new ShowWarningNotificationMessage(LocalizedObject.L("Notify.NotScanQr")));
+                _messenger.Send(new ShowWarningNotificationMessage(LocalizedObject.L("Notify.NotScanQr"), notificationId: _device.Mac));
             }
 
             canScanOtpSecretQrCode = true;
