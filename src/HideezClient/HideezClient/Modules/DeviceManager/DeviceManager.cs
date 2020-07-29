@@ -18,6 +18,7 @@ using HideezClient.Modules.Log;
 using HideezMiddleware.IPC.DTO;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
+using Hideez.SDK.Communication.Remote;
 
 namespace HideezClient.Modules.DeviceManager
 {
@@ -61,7 +62,6 @@ namespace HideezClient.Modules.DeviceManager
             _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
             _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
 
-            _metaMessenger.Subscribe<ConnectedToServerEvent>(OnConnectedToService, null);
             _metaMessenger.Subscribe<DisconnectedFromServerEvent>(OnDisconnectedFromService, null);
         }
 
@@ -84,29 +84,21 @@ namespace HideezClient.Modules.DeviceManager
             }
         }
 
-        async Task OnConnectedToService(ConnectedToServerEvent arg)
-        {
-            await _semaphoreQueue.WaitAsync();
-            try
-            {
-                await EnumerateDevices();
-            }
-            catch (Exception ex)
-            {
-                _log.WriteLine(ex);
-            }
-            finally
-            {
-                _semaphoreQueue.Release();
-            }
-        }
-
         async void OnDevicesCollectionChanged(DevicesCollectionChangedMessage message)
         {
             await _semaphoreQueue.WaitAsync();
             try
             {
-                await EnumerateDevices(message.Devices);
+                // Ignore devices that are not connected
+                var serviceDevices = message.Devices.Where(d => d.IsConnected).ToArray();
+
+                // Create device if it does not exist in UI
+                foreach (var deviceDto in serviceDevices)
+                    AddDevice(deviceDto);
+
+                // delete device from UI if its deleted from service
+                Device[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
+                await RemoveDevices(missingDevices);
             }
             catch (Exception ex)
             {
@@ -123,7 +115,18 @@ namespace HideezClient.Modules.DeviceManager
             await _semaphoreQueue.WaitAsync();
             try
             {
-                await EnumerateDevices();
+                if (message.Device.IsConnected)
+                {
+                    // Add device if its connected and is missing from devices collection
+                    AddDevice(message.Device);
+                }
+                else
+                {
+                    // Remove device from collection if its not connected
+                    var device = _devices.Values.FirstOrDefault(d => d.SerialNo == message.Device.SerialNo);
+                    if (device != null)
+                        await RemoveDevice(device);
+                }
             }
             catch (Exception ex)
             {
@@ -139,41 +142,6 @@ namespace HideezClient.Modules.DeviceManager
         {
             foreach (var dvm in Devices.ToArray())
                 await RemoveDevice(dvm);
-        }
-
-        async Task EnumerateDevices()
-        {
-            try
-            {
-                // TODO: FIX THIS LINE
-                //var serviceDevices = await _serviceProxy.GetService().GetDevicesAsync();
-                //await EnumerateDevices(serviceDevices);
-            }
-            catch (Exception ex)
-            {
-                _log.WriteLine(ex);
-            }
-        }
-
-        async Task EnumerateDevices(DeviceDTO[] serviceDevices)
-        {
-            try
-            {
-                // Ignore devices that are not connected
-                serviceDevices = serviceDevices.Where(d => d.IsConnected).ToArray();
-
-                // Create device if it does not exist in UI
-                foreach (var deviceDto in serviceDevices)
-                    AddDevice(deviceDto);
-
-                // delete device from UI if its deleted from service
-                Device[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
-                await RemoveDevices(missingDevices);
-            }
-            catch (Exception ex)
-            {
-                _log.WriteLine(ex);
-            }
         }
 
         void AddDevice(DeviceDTO dto)

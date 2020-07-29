@@ -5,6 +5,7 @@ using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Settings;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
@@ -20,7 +21,6 @@ namespace HideezMiddleware
         readonly IClientUiManager _uiClientManager;
         readonly ISettingsManager<RfidSettings> _rfidSettingsManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
-        readonly IMetaPubSub _metaMessenger;
 
         public StatusManager(HesAppConnection hesConnection,
             HesAppConnection tbHesConnection,
@@ -29,7 +29,6 @@ namespace HideezMiddleware
             IClientUiManager clientUiManager,
             ISettingsManager<RfidSettings> rfidSettingsManager,
             IWorkstationUnlocker workstationUnlocker,
-            IMetaPubSub metaMessenger,
             ILog log)
             : base(nameof(StatusManager), log)
         {
@@ -40,9 +39,6 @@ namespace HideezMiddleware
             _uiClientManager = clientUiManager;
             _rfidSettingsManager = rfidSettingsManager;
             _workstationUnlocker = workstationUnlocker;
-            _metaMessenger = metaMessenger;
-
-            _metaMessenger.Subscribe<RemoteClientConnectedEvent>(OnClientConnected);
 
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
@@ -75,7 +71,6 @@ namespace HideezMiddleware
             if (disposing)
             {
                 // Release managed resources here
-                _metaMessenger.Unsubscribe<RemoteClientConnectedEvent>(OnClientConnected);
                 _rfidService.RfidServiceStateChanged -= RfidService_RfidServiceStateChanged;
                 _rfidService.RfidReaderStateChanged -= RfidService_RfidReaderStateChanged;
                 _connectionManager.AdapterStateChanged -= ConnectionManager_AdapterStateChanged;
@@ -99,49 +94,43 @@ namespace HideezMiddleware
         }
         #endregion
 
-        Task OnClientConnected(RemoteClientConnectedEvent args)
+        async void HesConnection_HubConnectionStateChanged(object sender, EventArgs e)
         {
-            SendStatusToUI();
-            return Task.CompletedTask;
+            await SendStatusToUI();
         }
 
-        void HesConnection_HubConnectionStateChanged(object sender, EventArgs e)
+        async void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
+        async void RfidService_RfidReaderStateChanged(object sender, EventArgs e)
         {
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        void RfidService_RfidReaderStateChanged(object sender, EventArgs e)
+        async void RfidService_RfidServiceStateChanged(object sender, EventArgs e)
         {
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        void RfidService_RfidServiceStateChanged(object sender, EventArgs e)
+        async void TryAndBuyHesConnection_HubConnectionStateChanged(object sender, EventArgs e)
         {
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        private void TryAndBuyHesConnection_HubConnectionStateChanged(object sender, EventArgs e)
+        async void RfidSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<RfidSettings> e)
         {
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        private void RfidSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<RfidSettings> e)
-        {
-            SendStatusToUI();
-        }
-
-        private async void WorkstationUnlocker_Connected(object sender, EventArgs e)
+        async void WorkstationUnlocker_Connected(object sender, EventArgs e)
         {
             await Task.Delay(200);
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        async void SendStatusToUI()
+        public async Task SendStatusToUI()
         {
             try
             {

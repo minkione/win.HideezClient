@@ -166,6 +166,7 @@
     <Compile Include="IPC\Messages\LiftDeviceStorageLockMessage.cs" />
     <Compile Include="IPC\Messages\LockDeviceStorageMessage.cs" />
     <Compile Include="IPC\Messages\LockWorkstationMessage.cs" />
+    <Compile Include="IPC\Messages\LoginClientRequestMessage.cs" />
     <Compile Include="IPC\Messages\ProximitySettingsChangedMessage.cs" />
     <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_DeviceStateChangedMessage.cs" />
     <Compile Include="IPC\Messages\ServiceComponentsStateChangedMessage.cs" />

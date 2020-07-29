@@ -30,7 +30,7 @@ namespace HideezClient.Modules
         {
             _log.WriteLine($"({serialNo}) Creating remote vault on channel:{channelNo}");
             var reply = await _metaMessenger.ProcessOnServer<EstablishRemoteDeviceConnectionMessageReply>(new EstablishRemoteDeviceConnectionMessage(serialNo, channelNo), 0);
-            var connectionId = reply.RemoteConnectionId;
+            var connectionId = reply.RemoveDeviceId;
 
             var remoteCommands = new RemoteDeviceCommands(_serviceProxy, _metaMessenger);
             var remoteEvents = new RemoteDeviceEvents(_messenger);

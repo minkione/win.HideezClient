@@ -9,6 +9,7 @@ using HideezClient.Modules.Log;
 using HideezMiddleware.Threading;
 using Meta.Lib.Modules.PubSub;
 using HideezMiddleware.IPC.Messages;
+using Meta.Lib.Modules.PubSub.Messages;
 
 namespace HideezClient.Modules.ServiceCallbackMessanger
 {
@@ -47,6 +48,13 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ProximitySettingsChangedMessage>(ProximitySettingsChanged);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(LockDeviceStorage);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(LiftDeviceStorageLock);
+
+            _metaMessenger.Subscribe<ConnectedToServerEvent>(OnConnectedToServer);
+        }
+
+        async Task OnConnectedToServer(ConnectedToServerEvent arg)
+        {
+            await _metaMessenger.PublishOnServer(new LoginClientRequestMessage());
         }
 
         public Task ActivateScreenRequest(ActivateScreenRequestMessage message)

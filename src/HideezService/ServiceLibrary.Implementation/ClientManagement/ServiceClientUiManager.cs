@@ -1,11 +1,7 @@
-﻿using Hideez.SDK.Communication.Log;
-using HideezMiddleware;
+﻿using HideezMiddleware;
 using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
-using Meta.Lib.Modules.PubSub.Messages;
 using System;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation.ClientManagement

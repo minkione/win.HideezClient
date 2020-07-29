@@ -249,7 +249,7 @@ namespace ServiceLibrary.Implementation
 
             // StatusManager =============================
             _statusManager = new StatusManager(_hesConnection, _tbHesConnection, _rfidService, 
-                _connectionManager, _uiProxy, _rfidSettingsManager, _credentialProviderProxy, _messenger, _sdkLogger);
+                _connectionManager, _uiProxy, _rfidSettingsManager, _credentialProviderProxy, _sdkLogger);
 
             // Local device info cache
             _localDeviceInfoCache = new LocalDeviceInfoCache(clientRootRegistryKey, _sdkLogger);
@@ -350,47 +350,26 @@ namespace ServiceLibrary.Implementation
             _messenger.Subscribe<GetAvailableChannelsMessage>(GetAvailableChannels);
             _messenger.Subscribe<RemoteConnection_RemoteCommandMessage>(RemoteConnection_RemoteCommandAsync);
             _messenger.Subscribe<RemoteConnection_VerifyCommandMessage>(RemoteConnection_VerifyCommandAsync);
+            _messenger.Subscribe<RemoteConnection_ResetChannelMessage>(RemoteConnection_ResetChannelAsync);
             _messenger.Subscribe<EstablishRemoteDeviceConnectionMessage>(EstablishRemoteDeviceConnection);
+            
             _messenger.Subscribe<GetServerAddressMessage>(GetServerAddress);
-            _messenger.Subscribe<ChangeServerAddressMessage>(ChangeServerAddress);
             _messenger.Subscribe<IsSoftwareVaultUnlockModuleEnabledMessage>(IsSoftwareVaultUnlockModuleEnabled);
-
+            
             _messenger.Subscribe<PublishEventMessage>(PublishEvent);
             _messenger.Subscribe<DisconnectDeviceMessage>(DisconnectDevice);
             _messenger.Subscribe<RemoveDeviceMessage>(RemoveDeviceAsync);
-            _messenger.Subscribe<RemoteConnection_ResetChannelMessage>(RemoteConnection_ResetChannelAsync);
+            
+            _messenger.Subscribe<ChangeServerAddressMessage>(ChangeServerAddress);
             _messenger.Subscribe<SetSoftwareVaultUnlockModuleStateMessage>(SetSoftwareVaultUnlockModuleState);
+
             _messenger.Subscribe<CancelActivationCodeMessage>(CancelActivationCode);
             _messenger.Subscribe<SendActivationCodeMessage>(SendActivationCode);
             _messenger.Subscribe<SendPinMessage>(SendPin);
 
+            _messenger.Subscribe<LoginClientRequestMessage>(OnClientLogin);
+
             await Task.WhenAll(serviceInitializationTasks).ConfigureAwait(false);
-        }
-
-        Task OnClientDisconnected(RemoteClientDisconnectedEvent arg)
-        {
-            _log.WriteLine($">>>>>> DetachClient, {arg.TotalClientsCount} remaining clients", LogErrorSeverity.Debug);
-            return Task.CompletedTask;
-        }
-
-        Task OnClientConnected(RemoteClientConnectedEvent arg)
-        {
-            _log.WriteLine($">>>>>> AttachClient, {arg.TotalClientsCount} remaining clients", LogErrorSeverity.Debug);
-
-            // Client may have only been launched after we already sent an event about workstation unlock
-            // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
-            // To avoid the confusion, we resend the event about latest unlock method to every client that connects to service
-            if (_deviceManager.Devices.Count() == 0)
-                Task.Run(async () => { await _messenger.Publish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez)); });
-
-            return Task.CompletedTask;
-        }
-
-        async void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
-        {
-            // Disconnect all connected devices
-            _deviceReconnectManager.DisableAllDevicesReconnect();
-            await _deviceManager.DisconnectAllDevices().ConfigureAwait(false);
         }
 
         Task<HesAppConnection> CreateHesHub(BleDeviceManager deviceManager, 
@@ -513,6 +492,46 @@ namespace ServiceLibrary.Implementation
         #endregion
 
         #region Event Handlers
+
+        Task OnClientConnected(RemoteClientConnectedEvent arg)
+        {
+            _log.WriteLine($">>>>>> AttachClient, {arg.TotalClientsCount} remaining clients", LogErrorSeverity.Debug);
+            return Task.CompletedTask;
+        }
+
+        Task OnClientDisconnected(RemoteClientDisconnectedEvent arg)
+        {
+            _log.WriteLine($">>>>>> DetachClient, {arg.TotalClientsCount} remaining clients", LogErrorSeverity.Debug);
+            return Task.CompletedTask;
+        }
+
+        // This message is sent by client when its ready to receive messages from server
+        // Upon receiving LoginClientRequestMessage we sent to the client all currently available information
+        // Previously the client had to ask for each bit separatelly. Now we instead send it upon connection establishment
+        // The updates in sent information are sent separatelly
+        async Task OnClientLogin(LoginClientRequestMessage arg)
+        {
+            _log.WriteLine($"Service client login");
+
+            await _statusManager.SendStatusToUI();
+
+            await _messenger.Publish(new DevicesCollectionChangedMessage(GetDevices()));
+
+            // Client may have only been launched after we already sent an event about workstation unlock
+            // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
+            // To avoid the confusion, we resend the event about latest unlock method to every client that connects to service
+            if (_deviceManager.Devices.Count() == 0)
+                await _messenger.Publish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+
+            await Task.CompletedTask;
+        }
+
+        async void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
+        {
+            // Disconnect all connected devices
+            _deviceReconnectManager.DisableAllDevicesReconnect();
+            await _deviceManager.DisconnectAllDevices().ConfigureAwait(false);
+        }
 
         void WorkstationProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<WorkstationSettings> e)
         {
@@ -875,6 +894,7 @@ namespace ServiceLibrary.Implementation
         }
         #endregion
 
+        #region  Incomming Messages Handlers
         public DeviceDTO[] GetDevices()
         {
             try
@@ -1053,6 +1073,7 @@ namespace ServiceLibrary.Implementation
             }
             return Task.CompletedTask;
         }
+        #endregion
 
         #region Remote device management
         // This collection is unique for each client
