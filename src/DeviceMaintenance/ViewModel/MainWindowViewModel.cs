@@ -26,7 +26,7 @@ namespace DeviceMaintenance.ViewModel
         readonly MetaPubSub _hub;
 
         bool _automaticallyUploadFirmware = Properties.Settings.Default.AutomaticallyUpload;
-        string _fileName = Properties.Settings.Default.FirmwareFileName;
+        string _fileName;
 
         readonly ConcurrentDictionary<string, DeviceViewModel> _devices =
             new ConcurrentDictionary<string, DeviceViewModel>();
@@ -51,6 +51,8 @@ namespace DeviceMaintenance.ViewModel
         {
             get
             {
+                if (string.IsNullOrWhiteSpace(_fileName) || !_fileName.EndsWith($".{FW_FILE_EXTENSION}"))
+                    FirmwareFilePath = GetLastFilePath();
                 return _fileName;
             }
             set
@@ -212,6 +214,28 @@ namespace DeviceMaintenance.ViewModel
 
             if (IsFirmwareSelected)
                 _hub.Publish(new StartDiscoveryCommand());
+        }
+
+        string GetLastFilePath()
+        {
+            var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+            var directoryPath = Path.Combine(commonAppData, @"Hideez\FW");
+            string[] files = new string[0];
+            if(Directory.Exists(directoryPath))
+                files = Directory.GetFiles(directoryPath).Where((path) => path.EndsWith(($".{FW_FILE_EXTENSION}"))).ToArray();
+            if (files.Length > 0)
+            {
+                int lastAccessTimeIndex = 0;
+                DateTime lastAccessTime = File.GetLastWriteTime(files[0]);
+                for (int i = 1; i < files.Length; i++)
+                {
+                    var dateTime = File.GetLastWriteTime(files[i]);
+                    if (dateTime > lastAccessTime)
+                        lastAccessTimeIndex = i;
+                }
+                return files[lastAccessTimeIndex];
+            }
+            else return string.Empty;
         }
 
     }
