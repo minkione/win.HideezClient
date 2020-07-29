@@ -610,14 +610,38 @@ namespace HideezMiddleware
             ct.ThrowIfCancellationRequested();
             await _ui.SendNotification($"Connecting vault. Press the vault button to confirm.", _infNid);
 
-            var device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
+            bool ltkErrorOccured = false;
+            IDevice device = null;
+            try
+            {
+                device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
+            }
+            catch (Exception ex) // Thrown when LTK error occurs in csr
+            {
+                WriteLine(ex);
+                ltkErrorOccured = true;
+            }
 
             if (device == null)
             {
                 ct.ThrowIfCancellationRequested();
-                await _ui.SendNotification($"Retrying. Press the vault button to confirm.", _infNid);
+                if (ltkErrorOccured)
+                {
+                    await _ui.SendNotification($"LTK error. Retrying. Press the vault button to confirm.", _infNid); // TODO: Fix LTK error in CSR
+                    ltkErrorOccured = false;
+                }
+                else
+                    await _ui.SendNotification($"Retrying. Press the vault button to confirm.", _infNid);
 
-                device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
+                try
+                {
+                    device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
+                }
+                catch (Exception ex) // Thrown when LTK error occurs in csr
+                {
+                    WriteLine(ex);
+                    ltkErrorOccured = true;
+                }
 
                 if (device == null && rebondOnFail)
                 {
@@ -625,7 +649,12 @@ namespace HideezMiddleware
 
                     // remove the bond and try one more time
                     await _deviceManager.RemoveByMac(mac);
-                    await _ui.SendNotification($"Re-bonding. Press the vault button to confirm.", _infNid);
+
+                    if (ltkErrorOccured)
+                        await _ui.SendNotification($"LTK error. Re-bonding. Press the vault button to confirm.", _infNid); // TODO: Fix LTK error in CSR
+                    else
+                        await _ui.SendNotification($"Re-bonding. Press the vault button to confirm.", _infNid);
+
                     device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
                 }
             }
