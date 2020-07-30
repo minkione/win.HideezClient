@@ -1,8 +1,8 @@
 ﻿using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using HideezMiddleware.IPC.IncommingMessages;
+using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
-using Meta.Lib.Modules.PubSub.Messages;
 using System;
 using System.Threading.Tasks;
 
@@ -10,7 +10,6 @@ namespace HideezClient.ViewModels
 {
     class SoftwareUnlockSettingViewModel : LocalizedObject
     {
-        readonly IServiceProxy _serviceProxy;
         readonly IMetaPubSub _metaMessenger;
 
         bool _isChecked;
@@ -29,32 +28,22 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public SoftwareUnlockSettingViewModel(IServiceProxy serviceProxy, IMetaPubSub metaMessenger)
+        public SoftwareUnlockSettingViewModel(IMetaPubSub metaMessenger)
         {
-            _serviceProxy = serviceProxy;
             _metaMessenger = metaMessenger;
 
-            _metaMessenger.Subscribe<ConnectedToServerEvent>(OnConnectedToServer, null);
-
-            Task.Run(InitializeViewModel).ConfigureAwait(false);
-        }
-
-        async Task OnConnectedToServer(ConnectedToServerEvent args)
-        {
-            await InitializeViewModel();
-        }
-
-        async Task InitializeViewModel()
-        {
+            _metaMessenger.TrySubscribeOnServer<ServiceSettingsChangedMessage>(OnServiceSettingsChanged);
             try
             {
-                if (_serviceProxy.IsConnected)
-                {
-                    var reply = await _metaMessenger.ProcessOnServer<IsSoftwareVaultUnlockModuleEnabledReply>(new IsSoftwareVaultUnlockModuleEnabledMessage(), 500);
-                    _isChecked = reply.IsEnabled;
-                }
+                _metaMessenger.PublishOnServer(new RefreshServiceInfoMessage());
             }
-            catch (Exception) { }
+            catch (Exception) { } // Handle error in case we are not connected to server
+        }
+
+        Task OnServiceSettingsChanged(ServiceSettingsChangedMessage arg)
+        {
+            _isChecked = arg.SoftwareVaultUnlockEnabled;
+            return Task.CompletedTask;
         }
 
         async Task ApplyChangesInService(bool newValue)

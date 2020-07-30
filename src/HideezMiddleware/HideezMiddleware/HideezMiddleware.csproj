@@ -136,13 +136,8 @@
     <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\GetAvailableChannelsMessage.cs" />
     <Compile Include="IPC\IncommingMessages\GetAvailableChannelsMessageReply.cs" />
-    <Compile Include="IPC\IncommingMessages\GetDevicesMessage.cs" />
-    <Compile Include="IPC\IncommingMessages\GetDevicesMessageReply.cs" />
-    <Compile Include="IPC\IncommingMessages\GetServerAddressMessage.cs" />
-    <Compile Include="IPC\IncommingMessages\GetServerAddressMessageReply.cs" />
-    <Compile Include="IPC\IncommingMessages\IsSoftwareVaultUnlockModuleEnabledMessage.cs" />
-    <Compile Include="IPC\IncommingMessages\IsSoftwareVaultUnlockModuleEnabledReply.cs" />
     <Compile Include="IPC\IncommingMessages\PublishEventMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RefreshServiceInfoMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_RemoteCommandMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_RemoteCommandMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_ResetChannelMessage.cs" />
@@ -150,7 +145,6 @@
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_VerifyCommandMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\RemoveDeviceMessage.cs" />
     <Compile Include="IPC\IncommingMessages\SendActivationCodeMessage.cs" />
-    <Compile Include="IPC\IncommingMessages\SendPinMessage.cs" />
     <Compile Include="IPC\IncommingMessages\SetSoftwareVaultUnlockModuleStateMessage.cs" />
     <Compile Include="IPC\Messages\ActivateScreenRequestMessage.cs" />
     <Compile Include="IPC\Messages\DeviceBatteryChangedMessage.cs" />
@@ -162,7 +156,6 @@
     <Compile Include="IPC\Messages\DeviceProximityLockEnabledMessage.cs" />
     <Compile Include="IPC\Messages\DevicesCollectionChangedMessage.cs" />
     <Compile Include="IPC\Messages\HideActivationCodeUi.cs" />
-    <Compile Include="IPC\Messages\HidePinUiMessage.cs" />
     <Compile Include="IPC\Messages\LiftDeviceStorageLockMessage.cs" />
     <Compile Include="IPC\Messages\LockDeviceStorageMessage.cs" />
     <Compile Include="IPC\Messages\LockWorkstationMessage.cs" />
@@ -170,9 +163,8 @@
     <Compile Include="IPC\Messages\ProximitySettingsChangedMessage.cs" />
     <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_DeviceStateChangedMessage.cs" />
     <Compile Include="IPC\Messages\ServiceComponentsStateChangedMessage.cs" />
+    <Compile Include="IPC\Messages\ServiceSettingsChangedMessage.cs" />
     <Compile Include="IPC\Messages\ShowActivationCodeUiMessage.cs" />
-    <Compile Include="IPC\Messages\ShowButtonConfirmUiMessage.cs" />
-    <Compile Include="IPC\Messages\ShowPinUiMessage.cs" />
     <Compile Include="IPC\Messages\UserErrorMessage.cs" />
     <Compile Include="IPC\Messages\UserNotificationMessage.cs" />
     <Compile Include="IPC\Messages\WorkstationUnlockedMessage.cs" />

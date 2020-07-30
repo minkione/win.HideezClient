@@ -38,9 +38,6 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ServiceComponentsStateChangedMessage>(ServiceComponentsStateChanged);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.UserNotificationMessage>(ServiceNotificationReceived);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.UserErrorMessage>(ServiceErrorReceived);
-            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ShowPinUiMessage>(ShowPinUi);
-            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ShowButtonConfirmUiMessage>(ShowButtonConfirmUi);
-            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.HidePinUiMessage>(HidePinUi);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ShowActivationCodeUiMessage>(ShowActivationCodeUi);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.HideActivationCodeUi>(HideActivationCodeUi);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityLockEnabledMessage>(DeviceProximityLockEnabled);
@@ -145,27 +142,6 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
         {
             _log.WriteLine($"Error message from service: {message.Message} ({message.NotificationId})");
             SendMessage(new ServiceErrorReceivedMessage(message.NotificationId, message.Message));
-            return Task.CompletedTask;
-        }
-
-        public Task ShowPinUi(HideezMiddleware.IPC.Messages.ShowPinUiMessage message)
-        {
-            _log.WriteLine($"Show pin ui message for ({message.DeviceId}; confirm: {message.WithConfirm}; old pin: {message.AskOldPin})");
-            SendMessage(new Messages.ShowPinUiMessage(message.DeviceId, message.WithConfirm, message.AskOldPin));
-            return Task.CompletedTask;
-        }
-
-        public Task ShowButtonConfirmUi(HideezMiddleware.IPC.Messages.ShowButtonConfirmUiMessage message)
-        {
-            _log.WriteLine($"Show button ui message for ({message.DeviceId})");
-            SendMessage(new Messages.ShowButtonConfirmUiMessage(message.DeviceId));
-            return Task.CompletedTask;
-        }
-
-        public Task HidePinUi(HideezMiddleware.IPC.Messages.HidePinUiMessage message)
-        {
-            _log.WriteLine($"Hide pin ui message");
-            SendMessage(new Messages.HidePinUiMessage());
             return Task.CompletedTask;
         }
 

@@ -99,7 +99,7 @@ namespace HideezClient.Models
             _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
             _messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
             _messenger.Register<DeviceFinishedMainFlowMessage>(this, OnDeviceFinishedMainFlow);
-            _messenger.Register<Messages.SendPinMessage>(this, OnPinReceived);
+            _messenger.Register<SendPinMessage>(this, OnPinReceived);
             _messenger.Register<DeviceOperationCancelledMessage>(this, OnOperationCancelled);
             _messenger.Register<DeviceProximityChangedMessage>(this, OnDeviceProximityChanged);
             _messenger.Register<DeviceBatteryChangedMessage>(this, OnDeviceBatteryChanged);
@@ -310,7 +310,7 @@ namespace HideezClient.Models
         #endregion
 
         #region Messege & Event handlers
-        void RemoteDevice_ButtonPressed(object sender, Hideez.SDK.Communication.ButtonPressCode e)
+        void RemoteDevice_ButtonPressed(object sender, ButtonPressCode e)
         {
             _log.WriteLine($"({SerialNo}) Vault button pressed, code: {e}");
 

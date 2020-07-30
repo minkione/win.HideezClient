@@ -353,9 +353,6 @@ namespace ServiceLibrary.Implementation
             _messenger.Subscribe<RemoteConnection_ResetChannelMessage>(RemoteConnection_ResetChannelAsync);
             _messenger.Subscribe<EstablishRemoteDeviceConnectionMessage>(EstablishRemoteDeviceConnection);
             
-            _messenger.Subscribe<GetServerAddressMessage>(GetServerAddress);
-            _messenger.Subscribe<IsSoftwareVaultUnlockModuleEnabledMessage>(IsSoftwareVaultUnlockModuleEnabled);
-            
             _messenger.Subscribe<PublishEventMessage>(PublishEvent);
             _messenger.Subscribe<DisconnectDeviceMessage>(DisconnectDevice);
             _messenger.Subscribe<RemoveDeviceMessage>(RemoveDeviceAsync);
@@ -365,9 +362,9 @@ namespace ServiceLibrary.Implementation
 
             _messenger.Subscribe<CancelActivationCodeMessage>(CancelActivationCode);
             _messenger.Subscribe<SendActivationCodeMessage>(SendActivationCode);
-            _messenger.Subscribe<SendPinMessage>(SendPin);
 
             _messenger.Subscribe<LoginClientRequestMessage>(OnClientLogin);
+            _messenger.Subscribe<RefreshServiceInfoMessage>(OnRefreshServiceInfo);
 
             await Task.WhenAll(serviceInitializationTasks).ConfigureAwait(false);
         }
@@ -513,9 +510,7 @@ namespace ServiceLibrary.Implementation
         {
             _log.WriteLine($"Service client login");
 
-            await _statusManager.SendStatusToUI();
-
-            await _messenger.Publish(new DevicesCollectionChangedMessage(GetDevices()));
+            await RefreshServiceInfo();
 
             // Client may have only been launched after we already sent an event about workstation unlock
             // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
@@ -523,7 +518,11 @@ namespace ServiceLibrary.Implementation
             if (_deviceManager.Devices.Count() == 0)
                 await _messenger.Publish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
 
-            await Task.CompletedTask;
+        }
+
+        async Task OnRefreshServiceInfo(RefreshServiceInfoMessage arg)
+        {
+            await RefreshServiceInfo();
         }
 
         async void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
@@ -895,7 +894,7 @@ namespace ServiceLibrary.Implementation
         #endregion
 
         #region  Incomming Messages Handlers
-        public DeviceDTO[] GetDevices()
+        DeviceDTO[] GetDevices()
         {
             try
             {
@@ -908,7 +907,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public async Task GetAvailableChannels(GetAvailableChannelsMessage args)
+        async Task GetAvailableChannels(GetAvailableChannelsMessage args)
         {
             try
             {
@@ -936,7 +935,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public async Task DisconnectDevice(DisconnectDeviceMessage args)
+        async Task DisconnectDevice(DisconnectDeviceMessage args)
         {
             try
             {
@@ -950,7 +949,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public async Task RemoveDeviceAsync(RemoveDeviceMessage args)
+        async Task RemoveDeviceAsync(RemoveDeviceMessage args)
         {
             try
             {
@@ -968,7 +967,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public async Task PublishEvent(PublishEventMessage args)
+        async Task PublishEvent(PublishEventMessage args)
         {
             var workstationEvent = args.WorkstationEvent;
             var we = _eventSaver.GetWorkstationEvent();
@@ -984,30 +983,7 @@ namespace ServiceLibrary.Implementation
             await _eventSaver.AddNewAsync(we);
         }
 
-        public void SetProximitySettings(string mac, int lockProximity, int unlockProximity)
-        {
-            _deviceProximitySettingsHelper?.SetClientProximity(mac, lockProximity, unlockProximity);
-        }
-
-        public ProximitySettingsDTO GetCurrentProximitySettings(string mac)
-        {
-            return new ProximitySettingsDTO
-            {
-                Mac = mac,
-                SerialNo = string.Empty,
-                LockProximity = _workstationSettingsManager.Settings.LockProximity,
-                UnlockProximity = _workstationSettingsManager.Settings.UnlockProximity,
-                AllowEditProximitySettings = _deviceProximitySettingsHelper?.GetAllowEditProximity(mac) ?? false,
-            };
-        }
-
-        public async Task GetServerAddress(GetServerAddressMessage args)
-        {
-            var address = RegistrySettings.GetHesAddress(_log);
-            await _messenger.Publish(new GetServerAddressMessageReply(address));
-        }
-
-        public async Task ChangeServerAddress(ChangeServerAddressMessage args)
+        async Task ChangeServerAddress(ChangeServerAddressMessage args)
         {
             try
             {
@@ -1019,6 +995,7 @@ namespace ServiceLibrary.Implementation
                     RegistrySettings.SetHesAddress(_log, args.ServerAddress);
                     await _hesConnection.Stop();
                     await _messenger.Publish(new ChangeServerAddressMessageReply(true));
+                    await RefreshServiceInfo();
                 }
                 else
                 {
@@ -1031,6 +1008,7 @@ namespace ServiceLibrary.Implementation
                         _hesConnection.Start(args.ServerAddress);
 
                         await _messenger.Publish(new ChangeServerAddressMessageReply(true));
+                        await RefreshServiceInfo();
                     }
                     else
                     {
@@ -1045,12 +1023,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public async Task IsSoftwareVaultUnlockModuleEnabled(IsSoftwareVaultUnlockModuleEnabledMessage args)
-        {
-            await _messenger.Publish(new IsSoftwareVaultUnlockModuleEnabledReply(_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock));
-        }
-
-        public Task SetSoftwareVaultUnlockModuleState(SetSoftwareVaultUnlockModuleStateMessage args)
+        async Task SetSoftwareVaultUnlockModuleState(SetSoftwareVaultUnlockModuleStateMessage args)
         {
             var settings = _serviceSettingsManager.Settings;
             if (settings.EnableSoftwareVaultUnlock != args.Enabled)
@@ -1063,15 +1036,26 @@ namespace ServiceLibrary.Implementation
                 {
                     _unlockTokenGenerator.Start();
                     _remoteWorkstationUnlocker.Start();
+                    await RefreshServiceInfo();
                 }
                 else
                 {
                     _unlockTokenGenerator.Stop();
                     _remoteWorkstationUnlocker.Stop();
                     _unlockTokenGenerator.DeleteSavedToken();
+                    await RefreshServiceInfo();
                 }
             }
-            return Task.CompletedTask;
+        }
+
+        async Task RefreshServiceInfo() // Todo: error handling
+        {
+            await _statusManager.SendStatusToUI();
+
+            await _messenger.Publish(new DevicesCollectionChangedMessage(GetDevices()));
+
+            await _messenger.Publish(new ServiceSettingsChangedMessage(_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock, RegistrySettings.GetHesAddress(_log)));
+
         }
         #endregion
 
@@ -1191,37 +1175,6 @@ namespace ServiceLibrary.Implementation
                 Error(ex);
                 throw;
             }
-        }
-        #endregion
-
-        #region PIN
-        public Task SendPin(SendPinMessage args)
-        {
-            try
-            {
-                var s_pin = Encoding.UTF8.GetString(args.Pin);
-                var s_oldPin = Encoding.UTF8.GetString(args.OldPin);
-
-                _clientProxy.EnterPin(args.DeviceId, s_pin, s_oldPin);
-            }
-            catch (Exception ex)
-            {
-                _log.WriteDebugLine(ex);
-            }
-            return Task.CompletedTask;
-        }
-
-        public Task CancelPin(CancelPinMessage args)
-        {
-            try
-            {
-                _clientProxy.CancelPin();
-            }
-            catch (Exception ex)
-            {
-                _log.WriteDebugLine(ex);
-            }
-            return Task.CompletedTask;
         }
         #endregion
 

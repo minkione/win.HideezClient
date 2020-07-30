@@ -20,23 +20,19 @@ namespace ServiceLibrary.Implementation.ClientManagement
             _metaMessenger = metaMessenger;
         }
 
-        public async Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
+        public Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false)
         {
-            try
-            {
-                await _metaMessenger.Publish(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
-            }
-            catch (Exception) { }
+            return Task.CompletedTask; // Not implemented for client UI
         }
 
-        public async Task ShowButtonConfirmUi(string deviceId)
+        public Task ShowButtonConfirmUi(string deviceId)
         {
-            await _metaMessenger.Publish(new ShowButtonConfirmUiMessage(deviceId));
+            return Task.CompletedTask; // Not implemented for client UI
         }
 
-        public async Task HidePinUi()
+        public Task HidePinUi()
         {
-            await _metaMessenger.Publish(new HidePinUiMessage());
+            return Task.CompletedTask; // Not implemented for client UI
         }
 
         public async Task ShowActivationCodeUi(string deviceId)
@@ -47,31 +43,6 @@ namespace ServiceLibrary.Implementation.ClientManagement
         public async Task HideActivationCodeUi()
         {
             await _metaMessenger.Publish(new HideActivationCodeUi());
-        }
-
-        public void EnterPin(string deviceId, string pin, string oldPin = "")
-        {
-            try
-            {
-                var args = new PinReceivedEventArgs()
-                {
-                    DeviceId = deviceId,
-                    Pin = pin,
-                    OldPin = oldPin,
-                };
-
-                PinReceived?.Invoke(this, args);
-            }
-            catch (Exception) { }
-        }
-
-        public void CancelPin()
-        {
-            try
-            {
-                PinCancelled?.Invoke(this, EventArgs.Empty);
-            }
-            catch (Exception) { }
         }
 
         public void EnterActivationCode(string deviceId, byte[] code) // Todo:

@@ -5,6 +5,7 @@ using HideezClient.Modules.Localize;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using HideezMiddleware.IPC.IncommingMessages;
+using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
 using MvvmExtensions.Commands;
@@ -17,7 +18,6 @@ namespace HideezClient.ViewModels
 {
     class ServerAddressEditControlViewModel : ObservableObject
     {
-        readonly IServiceProxy _serviceProxy;
         readonly IMessenger _messenger;
         readonly IMetaPubSub _metaMessenger;
         readonly ILog _log;
@@ -112,23 +112,19 @@ namespace HideezClient.ViewModels
         }
         #endregion
 
-        // TODO: Add re-initialization if service is reconnected
         // TODO: Add error handling if service is offline
-        public ServerAddressEditControlViewModel(IServiceProxy serviceProxy, IMessenger messenger, IMetaPubSub metaMessenger, ILog log)
+        public ServerAddressEditControlViewModel(IMessenger messenger, IMetaPubSub metaMessenger, ILog log)
         {
-            _serviceProxy = serviceProxy;
             _messenger = messenger;
             _metaMessenger = metaMessenger;
             _log = log;
 
-            _metaMessenger.Subscribe<ConnectedToServerEvent>(OnConnectedToServer, null);
-
-            Task.Run(InitializeViewModel).ConfigureAwait(false);
-        }
-
-        async Task OnConnectedToServer(ConnectedToServerEvent args)
-        {
-            await InitializeViewModel();
+            _metaMessenger.TrySubscribeOnServer<ServiceSettingsChangedMessage>(OnServiceSettingsChanged);
+            try
+            {
+                _metaMessenger.PublishOnServer(new RefreshServiceInfoMessage());
+            }
+            catch (Exception) { } // Handle error in case we are not connected to server
         }
 
         void OnCancel()
@@ -148,7 +144,8 @@ namespace HideezClient.ViewModels
 
                     if (reply.ChangedSuccessfully)
                     {
-                        ResetViewModel(ServerAddress);
+                        // Reset will be carried out when we receive OnServiceSettingsChanged message
+                        // ResetViewModel(ServerAddress);
                     }
                     else
                     {
@@ -168,18 +165,10 @@ namespace HideezClient.ViewModels
             }
         }
 
-        async Task InitializeViewModel()
+        Task OnServiceSettingsChanged(ServiceSettingsChangedMessage arg)
         {
-            try
-            {
-                if (_serviceProxy.IsConnected)
-                {
-                    var reply = await _metaMessenger.ProcessOnServer<GetServerAddressMessageReply>(new GetServerAddressMessage(), 0);
-
-                    ResetViewModel(reply.ServerAddress);
-                }
-            }
-            catch (Exception) { }
+            ResetViewModel(arg.ServerAddress);
+            return Task.CompletedTask;
         }
 
         void ResetViewModel(string address)
