@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
+using HideezClient.Modules.Localize;
 
 namespace HideezClient.Models
 {
@@ -585,11 +586,17 @@ namespace HideezClient.Models
                         {
                             if (_remoteDevice.IsLockedByCode)
                             {
-                                _messenger.Send(new ShowDeviceLockedByCodeNotificationMessage(this));
+                                _messenger.Send(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByCode.Message"],
+                                    TranslationSource.Instance["Notification.DeviceLockedByCode.Caption"],
+                                    new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
+                                    Mac));
                             }
                             else if (_remoteDevice.IsLockedByPin)
                             {
-                                _messenger.Send(new ShowDeviceLockedByPinNotificationMessage(this));
+                                _messenger.Send(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
+                                    TranslationSource.Instance["Notification.DeviceLockedByPin.Caption"],
+                                    new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
+                                    Mac));
                             }
                             else
                             {
@@ -747,7 +754,6 @@ namespace HideezClient.Models
             }
             finally
             {
-                //ShowInfo("", Mac);
                 _messenger.Send(new HidePinUiMessage());
 
                 if (initErrorCode != HideezErrorCode.Ok)
@@ -790,8 +796,11 @@ namespace HideezClient.Models
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked || ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
             {
-                _log.WriteLine($"({SerialNo}) Auth failed. Vault is locked due to too many incorrect PIN entries");
-                _messenger.Send(new ShowDeviceLockedByPinNotificationMessage(this));
+                _log.WriteLine($"({Mac}) Auth failed. Vault is locked due to too many incorrect PIN entries");
+                _messenger.Send(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
+                                    TranslationSource.Instance["Notification.DeviceLockedByPin.Caption"],
+                                    new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
+                                    Mac));
             }
             catch (HideezException ex)
             {
@@ -809,11 +818,7 @@ namespace HideezClient.Models
             }
             finally
             {
-                //ShowInfo("", Mac);
                 _messenger.Send(new HidePinUiMessage());
-
-                //if (IsAuthorized)
-                //    ShowError("", _errNid);
 
                 IsAuthorizingRemoteDevice = false;
             }

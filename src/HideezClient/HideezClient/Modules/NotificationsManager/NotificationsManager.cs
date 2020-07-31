@@ -1,4 +1,5 @@
 ﻿using HideezClient.Controls;
+using HideezClient.Models;
 using HideezClient.Utilities;
 using HideezClient.ViewModels;
 using HideezClient.Views;
@@ -6,16 +7,19 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace HideezClient.Modules.NotificationsManager
 {
     class NotificationsManager: INotificationsManager
     {
-        const string DEFAULT_NOTIFICATION_ID = "DEFAULT_ID";
+        const string DEFAULT_NOTIFICATION_ID = "DEFAULT_NOTIFICATION_ID";
+
         readonly object lockObj = new object();
 
         Dictionary<string, NotificationsContainerWindow> windowsForNotifications = new Dictionary<string, NotificationsContainerWindow>();
+
         public NotificationsManager()
         {
             SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
@@ -27,20 +31,6 @@ namespace HideezClient.Modules.NotificationsManager
         }
 
         public void ShowNotification(string notificationId, string title, string message, NotificationIconType notificationType, NotificationOptions options)
-        {
-            CreateNotification(notificationId, title, message, options, notificationType);
-        }
-
-        public void ClearNotifications()
-        {
-            var notifications = GetNotifications();
-            foreach (NotificationBase notification in notifications)
-            {
-                notification.Close();
-            }
-        }
-
-        void CreateNotification(string notificationId, string title, string message, NotificationOptions options, NotificationIconType notificationType)
         {
             Screen screen = GetCurrentScreen();
 
@@ -69,17 +59,109 @@ namespace HideezClient.Modules.NotificationsManager
                         //2) Notification with default ID and matching content is found
                         if (matchingNotificationViewModel.ObservableId == notificationId)
                         {
-                            if(matchingNotificationViewModel.ObservableId != DEFAULT_NOTIFICATION_ID)
+                            if (matchingNotificationViewModel.ObservableId != DEFAULT_NOTIFICATION_ID)
                                 notificationView.Close();
-                            else 
+                            else
                             if (matchingNotificationViewModel.Message == message && matchingNotificationViewModel.Title == title)
-                            notificationView.Close();
+                                notificationView.Close();
                         }
                     }
                 }
             }
 
             AddNotification(screen, notification);
+        }
+
+        public void ClearNotifications()
+        {
+            var notifications = GetNotifications();
+            foreach (NotificationBase notification in notifications)
+            {
+                notification.Close();
+            }
+        }
+
+        public void ShowStorageLoadingNotification(CredentialsLoadNotificationViewModel viewModel)
+        {
+            Screen screen = GetCurrentScreen();
+
+            var options = new NotificationOptions { CloseTimeout = TimeSpan.Zero, };
+
+            CredentialsLoadNotification notification = new CredentialsLoadNotification(options)
+            {
+                DataContext = viewModel
+            };
+
+            if (notification.Options.IsReplace)
+            {
+                var matchingNotificationViews = GetNotifications().Where(n => (n.DataContext as CredentialsLoadNotificationViewModel)?.Device.Mac == viewModel.Device.Mac);
+                foreach (var notificationView in matchingNotificationViews)
+                {
+                    notificationView.Close();
+                }
+            }
+            AddNotification(screen, notification);
+        }
+
+        public async Task<bool> ShowAccountNotFoundNotification(string title, string message)
+        {
+            ClearContainers();
+
+            TaskCompletionSource<bool> taskCompletionSourceForDialog = new TaskCompletionSource<bool>();
+
+            var options = new NotificationOptions()
+            {
+                CloseTimeout = NotificationOptions.LongTimeout,
+                SetFocus = true,
+                CloseWhenDeactivate = true,
+                TaskCompletionSource = taskCompletionSourceForDialog,
+            };
+
+            var viewModel = new SimpleNotificationViewModel()
+            {
+                Title = title,
+                Message = message
+            };
+            AccountNotFoundNotification notification = new AccountNotFoundNotification(options)
+            {
+                DataContext = viewModel,
+            };
+
+            Screen screen = GetCurrentScreen();
+            AddNotification(screen, notification, true);
+            var result = await taskCompletionSourceForDialog.Task;
+            return result;
+        }
+
+        public async Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd)
+        {
+            ClearContainers();
+
+            TaskCompletionSource<bool> taskCompletionSourceForDialog = new TaskCompletionSource<bool>();
+
+            var options = new NotificationOptions
+            {
+                SetFocus = true,
+                CloseWhenDeactivate = true,
+                Position = NotificationPosition.Bottom,
+                TaskCompletionSource = taskCompletionSourceForDialog,
+            };
+
+            var viewModel = new AccountSelectorViewModel(accounts);
+            AccountSelector notification = new AccountSelector(options)
+            {
+                DataContext = viewModel,
+            };
+
+            Screen screen = Screen.FromHandle(hwnd);
+            AddNotification(screen, notification, true);
+            bool dialogResult = await taskCompletionSourceForDialog.Task;
+            if (dialogResult)
+            {
+                return viewModel.SelectedAccount.Account;
+            }
+
+            return null;
         }
 
         /// <summary>

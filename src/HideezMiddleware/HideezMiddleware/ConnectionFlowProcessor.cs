@@ -34,8 +34,6 @@ namespace HideezMiddleware
         readonly IHesAccessManager _hesAccessManager;
 
         int _isConnecting = 0;
-        string _infNid = string.Empty; // Notification Id, which must be the same for the entire duration of MainWorkflow
-        string _errNid = string.Empty; // Error Notification Id
         CancellationTokenSource _cts;
 
         string _flowId = string.Empty;
@@ -156,17 +154,9 @@ namespace HideezMiddleware
             bool fatalError = false;
             string errorMessage = null;
             IDevice device = null;
-            // Appending 'i' and 'e' allows us to differentiate between different notification kinds
-            // while still allowing to replace outdated notifications for target device with ones created by subsequent calls
-            // TODO: check if we need different ID's since we dont show more than one notification at a time anyway
-            _infNid = mac + "_i";
-            _errNid = mac + "_e";
 
             try
             {
-                //await _ui.SendNotification("", _infNid);
-                //await _ui.SendError("", _errNid);
-
                 if (!_hesAccessManager.HasAccessKey())
                     throw new HideezException(HideezErrorCode.HesWorkstationNotApproved);
 
@@ -316,9 +306,6 @@ namespace HideezMiddleware
                             !device.AccessLevel.IsButtonRequired &&
                             !device.AccessLevel.IsPinRequired)
                         {
-                            //await _ui.SendNotification("", _infNid);
-                            //await _ui.SendError("", _errNid);
-
                             var unlockResult = await TryUnlockWorkstation(device);
                             success = unlockResult.IsSuccessful;
                             onUnlockAttempt?.Invoke(unlockResult);
@@ -396,7 +383,6 @@ namespace HideezMiddleware
             try
             {
                 await _ui.HidePinUi();
-                //await _ui.SendNotification("", _infNid);
 
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
@@ -428,11 +414,6 @@ namespace HideezMiddleware
             {
                 WriteLine(ex, LogErrorSeverity.Fatal);
             }
-            finally
-            {
-                _infNid = string.Empty;
-                _errNid = string.Empty;
-            }
 
             Finished?.Invoke(this, _flowId);
             _flowId = string.Empty;
@@ -446,12 +427,10 @@ namespace HideezMiddleware
             var result = new WorkstationUnlockResult();
 
             await _ui.SendNotification("Reading credentials from the device...", device.Mac);
-            //await _ui.SendError("", _errNid);
             var credentials = await GetCredentials(device);
 
             // send credentials to the Credential Provider to unlock the PC
             await _ui.SendNotification("Unlocking the PC...", device.Mac);
-            //await _ui.SendError("", _errNid); 
             result.IsSuccessful = await _workstationUnlocker
                 .SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
 
@@ -475,8 +454,6 @@ namespace HideezMiddleware
             await _hesConnection.FixDevice(device, ct);
 
             await new WaitMasterKeyProc(device).Run(SdkConfig.SystemStateEventWaitTimeout, ct);
-
-            //await _ui.SendNotification("", _infNid);
         }
 
         async Task<bool> ButtonWorkflow(IDevice device, int timeout, CancellationToken ct)
@@ -579,7 +556,6 @@ namespace HideezMiddleware
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({attemptsLeft} attempts left)");
                     if (device.AccessLevel.IsLocked)
                     {
-                        //await _ui.SendNotification("", _infNid);
                         await _ui.SendError($"Vault is locked", device.Mac);
                     }
                     else

@@ -253,8 +253,6 @@ namespace HideezMiddleware
         {
             WriteDebugLine($"HidePinUi");
             await SendMessageAsync(CredentialProviderCommandCode.HidePinUi, true, $"");
-            //await SendNotification("");
-            //await SendError("");
         }
 
         public async Task ShowActivationCodeUi(string deviceId)
@@ -268,8 +266,6 @@ namespace HideezMiddleware
         {
             WriteDebugLine($"HideActivationCodeUi");
             await SendMessageAsync(CredentialProviderCommandCode.HideActivationCodeUi, true, $"");
-            //await SendNotification("");
-            //await SendError("");
         }
 
         public async Task SendError(string message, string notificationId = null)

@@ -216,9 +216,6 @@ namespace HideezMiddleware
 
             var ui = GetCurrentClientUi();
 
-            //if (string.IsNullOrWhiteSpace(notificationId))
-            //    notificationId = Guid.NewGuid().ToString();
-
             if (ui != null)
                 await ui.SendNotification(notification, notificationId);
         }
@@ -228,9 +225,6 @@ namespace HideezMiddleware
             WriteLine($"SendError: {error}");
 
             var ui = GetCurrentClientUi();
-
-            //if (string.IsNullOrWhiteSpace(notificationId))
-            //    notificationId = Guid.NewGuid().ToString();
 
             if (ui != null)
                 await ui.SendError(error, notificationId);

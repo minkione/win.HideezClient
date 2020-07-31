@@ -352,6 +352,7 @@
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
     <Compile Include="Messages\ShowDeviceLockedByCodeNotificationMessage.cs" />
     <Compile Include="Messages\ShowDeviceLockedByPinNotificationMessage.cs" />
+    <Compile Include="Messages\ShowLockNotificationMessage.cs" />
     <Compile Include="Messages\UnlockWorkstationMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
     <Compile Include="Messages\HideActivationCodeUiMessage.cs" />
@@ -410,10 +411,8 @@
     <Compile Include="Modules\Log\LogManager.cs" />
     <Compile Include="Modules\NotificationsManager\INotificationsManager.cs" />
     <Compile Include="Modules\NotificationsManager\NotificationsManager.cs" />
-    <Compile Include="Modules\Notify\INotifier.cs" />
-    <Compile Include="Modules\Notify\NotificationOptions.cs" />
-    <Compile Include="Modules\Notify\NotificationPosition.cs" />
-    <Compile Include="Modules\Notify\Notifier.cs" />
+    <Compile Include="Controls\Notification\NotificationOptions.cs" />
+    <Compile Include="Controls\Notification\NotificationPosition.cs" />
     <Compile Include="Modules\ProximityLockManager\IProximityLockManager.cs" />
     <Compile Include="Modules\ProximityLockManager\ProximityLockManager.cs" />
     <Compile Include="Modules\Remote\IRemoteDeviceFactory.cs" />

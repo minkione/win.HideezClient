@@ -1,5 +1,4 @@
-﻿using HideezClient.Modules.ActionHandler;
-using HideezClient.Mvvm;
+﻿using HideezClient.Mvvm;
 using HideezClient.ViewModels;
 using HideezClient.Views;
 using System;
@@ -23,7 +22,6 @@ using HideezMiddleware.Settings;
 using HideezClient.Models.Settings;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
-using Hideez.ARM;
 using HideezClient.Modules.NotificationsManager;
 
 namespace HideezClient.Modules
@@ -32,7 +30,6 @@ namespace HideezClient.Modules
     {
         private readonly ViewModelLocator _viewModelLocator;
         private string titleNotification;
-        private readonly INotifier _notifier;
         private readonly Logger log = LogManager.GetCurrentClassLogger(nameof(WindowsManager));
         private bool isMainWindowVisible;
         private readonly ISettingsManager<ApplicationSettings> _settingsManager;
@@ -50,10 +47,9 @@ namespace HideezClient.Modules
 
         public event EventHandler<bool> MainWindowVisibleChanged;
 
-        public WindowsManager(INotifier notifier, ViewModelLocator viewModelLocator, INotificationsManager notificationsManager,
+        public WindowsManager(ViewModelLocator viewModelLocator, INotificationsManager notificationsManager,
             IMessenger messenger, ISettingsManager<ApplicationSettings> settingsManager)
         {
-            _notifier = notifier;
             _viewModelLocator = viewModelLocator;
             _settingsManager = settingsManager;
             _notificationsManager = notificationsManager;
@@ -63,12 +59,10 @@ namespace HideezClient.Modules
             messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message, notificationId: p.Id));
             messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message, notificationId: p.Id));
 
+            messenger.Register<ShowLockNotificationMessage>(this, (p) => ShowLockNotification(p.Message, p.Title, p.Options, p.NotificationId));
             messenger.Register<ShowInfoNotificationMessage>(this, (p) => ShowInfo(p.Message, p.Title, p.Options, p.NotificationId));
             messenger.Register<ShowWarningNotificationMessage>(this, (p) => ShowWarn(p.Message, p.Title, notificationId: p.NotificationId));
             messenger.Register<ShowErrorNotificationMessage>(this, (p) => ShowError(p.Message, p.Title, notificationId: p.NotificationId));
-
-            messenger.Register<ShowDeviceLockedByPinNotificationMessage>(this, (p) => ShowLockedByPin(p.Device));
-            messenger.Register<ShowDeviceLockedByCodeNotificationMessage>(this, (p) => ShowLockedByCode(p.Device));
 
             messenger.Register<ShowButtonConfirmUiMessage>(this, ShowButtonConfirmAsync);
             messenger.Register<ShowPinUiMessage>(this, ShowPinAsync);
@@ -234,39 +228,34 @@ namespace HideezClient.Modules
             }
         }
 
+        private void ShowLockNotification(string message, string title = null, NotificationOptions options = null, string notificationId = "")
+        {
+            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message, NotificationIconType.Lock, options));
+        }
+
         private void ShowError(string message, string title = null, NotificationOptions options = null, string notificationId = "")
         {
-            UIDispatcher.Invoke(() => _notifier.ShowError(notificationId, title ?? GetTitle(), message, options));
+            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message,NotificationIconType.Error, options));
         }
 
         private void ShowWarn(string message, string title = null, NotificationOptions options = null, string notificationId = "")
         {
-            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message, NotificationIconType.Warn));
+            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message, NotificationIconType.Warn, options));
         }
 
         private void ShowInfo(string message, string title = null, NotificationOptions options = null, string notificationId = "")
         {
-            UIDispatcher.Invoke(() => _notifier.ShowInfo(notificationId, title ?? GetTitle(), message, options));
-        }
-
-        private void ShowLockedByPin(Device device)
-        {
-            UIDispatcher.Invoke(() => _notifier.ShowDeviceIsLockedByPinNotification(device));
-        }
-
-        private void ShowLockedByCode(Device device)
-        {
-            UIDispatcher.Invoke(() => _notifier.ShowDeviceIsLockedByCodeNotification(device));
+            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message, NotificationIconType.Info, options));
         }
 
         private void ClearNotifications(UnlockWorkstationMessage obj)
         {
-            UIDispatcher.Invoke(() => _notifier.ClearNotifications());
+            UIDispatcher.Invoke(() => _notificationsManager.ClearNotifications());
         }
 
         public Task<bool> ShowAccountNotFoundAsync(string message, string title = null)
         {
-            return UIDispatcher.Invoke(() => _notifier.ShowAccountNotFoundNotification(title ?? GetTitle(), message));
+            return UIDispatcher.Invoke(() => _notificationsManager.ShowAccountNotFoundNotification(title ?? GetTitle(), message));
         }
 
         private string GetTitle()
@@ -284,12 +273,12 @@ namespace HideezClient.Modules
 
         public Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd)
         {
-            return UIDispatcher.Invoke(() => _notifier.SelectAccountAsync(accounts, hwnd));
+            return UIDispatcher.Invoke(() => _notificationsManager.SelectAccountAsync(accounts, hwnd));
         }
 
         public void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel)
         {
-            UIDispatcher.Invoke(() => _notifier.ShowStorageLoadingNotification(viewModel));
+            UIDispatcher.Invoke(() => _notificationsManager.ShowStorageLoadingNotification(viewModel));
         }
 
         public void CloseWindow(string id)
@@ -469,12 +458,6 @@ namespace HideezClient.Modules
                 }
             }
         }
-
-        public void ShowDeviceNotAuthorized(Device device)
-        {
-            UIDispatcher.Invoke(() => _notifier.ShowDeviceNotAuthorizedNotification(device));
-        }
-
 
         public async Task<Bitmap> GetCurrentScreenImageAsync()
         {

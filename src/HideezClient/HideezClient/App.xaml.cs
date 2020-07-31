@@ -346,7 +346,6 @@ namespace HideezClient
             Container.RegisterType<IBarcodeReader, BarcodeReader>(new ContainerControlledLifetimeManager()); 
             Container.RegisterType<IQrScannerHelper, QrScannerHelper>();
 
-            Container.RegisterType<INotifier, Notifier>(new ContainerControlledLifetimeManager());
             Container.RegisterType<INotificationsManager, NotificationsManager>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<IEventPublisher, EventPublisher>(new ContainerControlledLifetimeManager());
