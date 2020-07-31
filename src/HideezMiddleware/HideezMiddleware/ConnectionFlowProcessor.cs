@@ -761,7 +761,7 @@ namespace HideezMiddleware
                         await device.LoadLicense(license.Data, SdkConfig.DefaultCommandTimeout);
                         WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo}) in available slot");
                     }
-                    catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLockedByCode || ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
+                    catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_DEVICE_LOCKED_BY_CODE || ex.ErrorCode == HideezErrorCode.ERR_DEVICE_LOCKED_BY_PIN)
                     {
                         await device.LoadLicense(i, license.Data, SdkConfig.DefaultCommandTimeout);
                         WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo}) into slot {i}");
