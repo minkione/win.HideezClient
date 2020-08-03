@@ -1,4 +1,4 @@
-﻿using HideezClient.HideezServiceReference;
+﻿using HideezMiddleware.IPC.DTO;
 
 namespace HideezClient.Messages
 {

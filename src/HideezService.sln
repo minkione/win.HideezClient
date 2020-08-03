@@ -1,19 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.421
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceLibrary", "HideezService\ServiceLibrary\ServiceLibrary.csproj", "{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HideezServiceHost", "HideezService\HideezServiceHost\HideezServiceHost.csproj", "{62E8A93B-25EC-4927-8E38-6E166FB06F9E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2} = {149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "HideezService\TestConsole\TestConsole.csproj", "{298A9CBA-1D90-44EC-A6A1-DCD0A6E7B2A0}"
-	ProjectSection(ProjectDependencies) = postProject
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2} = {149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceLibrary.Implementation", "HideezService\ServiceLibrary.Implementation\ServiceLibrary.Implementation.csproj", "{DA19D8C5-DAB6-4060-B393-BA18A4BE47BB}"
 EndProject
@@ -37,18 +29,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}.Debug|x64.ActiveCfg = Debug|x64
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}.Debug|x64.Build.0 = Debug|x64
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}.Debug|x86.Build.0 = Debug|Any CPU
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}.Release|x64.ActiveCfg = Debug|Any CPU
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}.Release|x64.Build.0 = Debug|Any CPU
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}.Release|x86.ActiveCfg = Debug|Any CPU
-		{149C7FAC-00ED-4E7D-AAC2-D7FD91D969E2}.Release|x86.Build.0 = Debug|Any CPU
 		{62E8A93B-25EC-4927-8E38-6E166FB06F9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{62E8A93B-25EC-4927-8E38-6E166FB06F9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62E8A93B-25EC-4927-8E38-6E166FB06F9E}.Debug|x64.ActiveCfg = Debug|x64

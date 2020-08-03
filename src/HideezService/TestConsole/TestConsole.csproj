@@ -150,12 +150,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Connected Services\HideezServiceReference\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Include="HideezServiceCallbacks.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -169,35 +163,7 @@
     </None>
     <None Include="App.config" />
     <None Include="app.manifest" />
-    <None Include="Connected Services\HideezServiceReference\Hideez.SDK.Communication.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\HideezMiddleware.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\service.wsdl" />
-    <None Include="Connected Services\HideezServiceReference\service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\ServiceLibrary.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\System.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\TestConsole.HideezServiceReference.DeviceDTO.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Connected Services\HideezServiceReference\TestConsole.HideezServiceReference.ProximitySettingsDTO.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\HideezMiddleware\HideezMiddleware\HideezMiddleware.csproj">
@@ -208,21 +174,6 @@
       <Project>{DA19D8C5-DAB6-4060-B393-BA18A4BE47BB}</Project>
       <Name>ServiceLibrary.Implementation</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadataStorage Include="Connected Services\HideezServiceReference\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\HideezServiceReference\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\HideezServiceReference\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\HideezServiceReference\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Crypto.dll">

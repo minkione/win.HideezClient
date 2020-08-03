@@ -3,12 +3,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Messaging;
-using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
 using HideezClient.Modules.ServiceProxy;
 using System.Linq;
 using HideezClient.Models;
-using System.ServiceModel;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -17,15 +15,20 @@ using Hideez.SDK.Communication;
 using HideezMiddleware.Threading;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
+using HideezMiddleware.IPC.DTO;
+using Meta.Lib.Modules.PubSub;
+using Meta.Lib.Modules.PubSub.Messages;
+using Hideez.SDK.Communication.Remote;
 
 namespace HideezClient.Modules.DeviceManager
 {
     class DeviceManager : IDeviceManager
     {
-        private readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(DeviceManager));
-        private readonly IMessenger _messenger;
-        private readonly IServiceProxy _serviceProxy;
-        private readonly IWindowsManager _windowsManager;
+        readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(DeviceManager));
+        readonly IMessenger _messenger;
+        readonly IServiceProxy _serviceProxy;
+        readonly IWindowsManager _windowsManager;
+        readonly IMetaPubSub _metaMessenger;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         readonly SemaphoreQueue _semaphoreQueue = new SemaphoreQueue(1, 1);
         ConcurrentDictionary<string, Device> _devices { get; } = new ConcurrentDictionary<string, Device>();
@@ -48,31 +51,28 @@ namespace HideezClient.Modules.DeviceManager
         public event NotifyCollectionChangedEventHandler DevicesCollectionChanged;
 
         public DeviceManager(IMessenger messenger, IServiceProxy serviceProxy,
-            IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory)
+            IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory, IMetaPubSub metaMessenger)
         {
             _messenger = messenger;
             _serviceProxy = serviceProxy;
             _windowsManager = windowsManager;
             _remoteDeviceFactory = remoteDeviceFactory;
+            _metaMessenger = metaMessenger;
 
             _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
             _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
 
-            _serviceProxy.Disconnected += OnServiceProxyConnectionStateChanged;
-            _serviceProxy.Connected += OnServiceProxyConnectionStateChanged;
+            _metaMessenger.Subscribe<DisconnectedFromServerEvent>(OnDisconnectedFromService, null);
         }
 
         public IEnumerable<Device> Devices => _devices.Values;
 
-        async void OnServiceProxyConnectionStateChanged(object sender, EventArgs e)
+        async Task OnDisconnectedFromService(DisconnectedFromServerEvent arg)
         {
             await _semaphoreQueue.WaitAsync();
             try
             {
-                if (!_serviceProxy.IsConnected)
-                    await ClearDevicesCollection();
-                else
-                    await EnumerateDevices();
+                await ClearDevicesCollection();
             }
             catch (Exception ex)
             {
@@ -89,7 +89,16 @@ namespace HideezClient.Modules.DeviceManager
             await _semaphoreQueue.WaitAsync();
             try
             {
-                await EnumerateDevices(message.Devices);
+                // Ignore devices that are not connected
+                var serviceDevices = message.Devices.Where(d => d.IsConnected).ToArray();
+
+                // Create device if it does not exist in UI
+                foreach (var deviceDto in serviceDevices)
+                    AddDevice(deviceDto);
+
+                // delete device from UI if its deleted from service
+                Device[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
+                await RemoveDevices(missingDevices);
             }
             catch (Exception ex)
             {
@@ -106,7 +115,18 @@ namespace HideezClient.Modules.DeviceManager
             await _semaphoreQueue.WaitAsync();
             try
             {
-                await EnumerateDevices();
+                if (message.Device.IsConnected)
+                {
+                    // Add device if its connected and is missing from devices collection
+                    AddDevice(message.Device);
+                }
+                else
+                {
+                    // Remove device from collection if its not connected
+                    var device = _devices.Values.FirstOrDefault(d => d.SerialNo == message.Device.SerialNo);
+                    if (device != null)
+                        await RemoveDevice(device);
+                }
             }
             catch (Exception ex)
             {
@@ -124,53 +144,11 @@ namespace HideezClient.Modules.DeviceManager
                 await RemoveDevice(dvm);
         }
 
-        async Task EnumerateDevices()
-        {
-            try
-            {
-                var serviceDevices = await _serviceProxy.GetService().GetDevicesAsync();
-                await EnumerateDevices(serviceDevices);
-            }
-            catch (FaultException<HideezServiceFault> ex)
-            {
-                _log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
-            }
-            catch (Exception ex)
-            {
-                _log.WriteLine(ex);
-            }
-        }
-
-        async Task EnumerateDevices(DeviceDTO[] serviceDevices)
-        {
-            try
-            {
-                // Ignore devices that are not connected
-                serviceDevices = serviceDevices.Where(d => d.IsConnected).ToArray();
-
-                // Create device if it does not exist in UI
-                foreach (var deviceDto in serviceDevices)
-                    AddDevice(deviceDto);
-
-                // delete device from UI if its deleted from service
-                Device[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
-                await RemoveDevices(missingDevices);
-            }
-            catch (FaultException<HideezServiceFault> ex)
-            {
-                _log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
-            }
-            catch (Exception ex)
-            {
-                _log.WriteLine(ex);
-            }
-        }
-
         void AddDevice(DeviceDTO dto)
         {
             if (!_devices.ContainsKey(dto.Id))
             {
-                var device = new Device(_serviceProxy, _remoteDeviceFactory, _messenger, dto);
+                var device = new Device(_serviceProxy, _remoteDeviceFactory, _messenger, _metaMessenger, dto);
                 device.PropertyChanged += Device_PropertyChanged;
 
                 if (_devices.TryAdd(device.Id, device))

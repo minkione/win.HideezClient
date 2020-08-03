@@ -45,13 +45,10 @@ namespace HideezMiddleware
 
     public interface IClientUiProxy
     {
-        event EventHandler<EventArgs> ClientConnected;
         event EventHandler<PinReceivedEventArgs> PinReceived;
         event EventHandler<EventArgs> PinCancelled;
         event EventHandler<ActivationCodeEventArgs> ActivationCodeReceived;
         event EventHandler<ActivationCodeEventArgs> ActivationCodeCancelled;
-
-        bool IsConnected { get; }
 
         Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);
         Task ShowButtonConfirmUi(string deviceId);
@@ -67,10 +64,6 @@ namespace HideezMiddleware
 
     public interface IClientUiManager
     {
-        event EventHandler<EventArgs> ClientConnected;
-
-        bool IsConnected { get; }
-
         Task<string> GetPin(string deviceId, int timeout, CancellationToken ct, bool withConfirm = false, bool askOldPin = false);
         Task ShowButtonConfirmUi(string deviceId);
         Task HidePinUi();

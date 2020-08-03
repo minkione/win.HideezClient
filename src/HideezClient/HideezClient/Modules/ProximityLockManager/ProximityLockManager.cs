@@ -1,5 +1,4 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
-using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
 
 namespace HideezClient.Modules.ProximityLockManager
@@ -28,7 +27,7 @@ namespace HideezClient.Modules.ProximityLockManager
 
         void OnDevicesCollectionChanged(DevicesCollectionChangedMessage obj)
         {
-            foreach(DeviceDTO device in obj.Devices)
+            foreach(HideezMiddleware.IPC.DTO.DeviceDTO device in obj.Devices)
             {
                 if(device.CanLockPyProximity)
                 {

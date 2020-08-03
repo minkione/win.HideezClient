@@ -5,6 +5,7 @@ using HideezClient.Messages;
 using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
+using HideezMiddleware;
 using System;
 using System.Collections.ObjectModel;
 using System.ServiceModel;
@@ -79,10 +80,10 @@ namespace HideezClient.ViewModels
             // HES
             switch (msg.HesStatus)
             {
-                case HideezServiceReference.HesStatus.Ok:
+                case HesStatus.Ok:
                     Server.State = StateControlState.Green;
                     break;
-                case HideezServiceReference.HesStatus.NotApproved:
+                case HesStatus.NotApproved:
                     Server.State = StateControlState.Orange;
                     break;
                 default:
@@ -92,15 +93,15 @@ namespace HideezClient.ViewModels
             Server.Visible = _serviceProxy.IsConnected;
 
             // RFID
-            RFID.State = StateControlViewModel.BoolToState(msg.RfidStatus == HideezServiceReference.RfidStatus.Ok);
-            RFID.Visible = msg.RfidStatus != HideezServiceReference.RfidStatus.Disabled && _serviceProxy.IsConnected;
+            RFID.State = StateControlViewModel.BoolToState(msg.RfidStatus == RfidStatus.Ok);
+            RFID.Visible = msg.RfidStatus != RfidStatus.Disabled && _serviceProxy.IsConnected;
 
             // Bluetooth
-            Dongle.State = StateControlViewModel.BoolToState(msg.BluetoothStatus == HideezServiceReference.BluetoothStatus.Ok);
+            Dongle.State = StateControlViewModel.BoolToState(msg.BluetoothStatus == BluetoothStatus.Ok);
             Dongle.Visible = _serviceProxy.IsConnected;
 
             // Try&Buy Server
-            TBServer.State = StateControlViewModel.BoolToState(msg.TbHesStatus == HideezServiceReference.HesStatus.Ok);
+            TBServer.State = StateControlViewModel.BoolToState(msg.TbHesStatus == HesStatus.Ok);
             TBServer.Visible = _serviceProxy.IsConnected;
         }
 

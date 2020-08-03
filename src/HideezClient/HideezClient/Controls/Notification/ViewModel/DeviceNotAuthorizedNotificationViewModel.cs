@@ -1,5 +1,4 @@
-﻿using HideezClient.HideezServiceReference;
-using HideezClient.Models;
+﻿using HideezClient.Models;
 using HideezClient.Modules;
 using HideezClient.Mvvm;
 using MvvmExtensions.Attributes;
