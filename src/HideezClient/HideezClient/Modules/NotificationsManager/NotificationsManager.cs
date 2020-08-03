@@ -106,6 +106,7 @@ namespace HideezClient.Modules.NotificationsManager
         public async Task<bool> ShowAccountNotFoundNotification(string title, string message)
         {
             ClearContainers();
+            Screen screen = GetCurrentScreen();
 
             TaskCompletionSource<bool> taskCompletionSourceForDialog = new TaskCompletionSource<bool>();
 
@@ -127,8 +128,18 @@ namespace HideezClient.Modules.NotificationsManager
                 DataContext = viewModel,
             };
 
-            Screen screen = GetCurrentScreen();
-            AddNotification(screen, notification, true);
+            if (notification.Options.IsReplace)
+            {
+                var matchingNotificationViews = GetNotifications().Where(n => n is AccountNotFoundNotification).ToList();
+                if (matchingNotificationViews.Count > 0)
+                    foreach (var notificationView in matchingNotificationViews)
+                    {
+                        notificationView.ResetCloseTimer();
+                    }
+                else AddNotification(screen, notification, true);
+            }
+
+            
             var result = await taskCompletionSourceForDialog.Task;
             return result;
         }
@@ -136,6 +147,8 @@ namespace HideezClient.Modules.NotificationsManager
         public async Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd)
         {
             ClearContainers();
+            
+            Screen screen = Screen.FromHandle(hwnd);
 
             TaskCompletionSource<bool> taskCompletionSourceForDialog = new TaskCompletionSource<bool>();
 
@@ -153,8 +166,17 @@ namespace HideezClient.Modules.NotificationsManager
                 DataContext = viewModel,
             };
 
-            Screen screen = Screen.FromHandle(hwnd);
-            AddNotification(screen, notification, true);
+            if (notification.Options.IsReplace)
+            {
+                var matchingNotificationViews = GetNotifications().Where(n => n is AccountSelector).ToList();
+                if (matchingNotificationViews.Count > 0)
+                    foreach (var notificationView in matchingNotificationViews)
+                    {
+                        notificationView.ResetCloseTimer();
+                    }
+                else AddNotification(screen, notification, true);
+            }
+
             bool dialogResult = await taskCompletionSourceForDialog.Task;
             if (dialogResult)
             {
