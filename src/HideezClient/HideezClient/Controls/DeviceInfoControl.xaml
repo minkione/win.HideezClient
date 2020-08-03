@@ -145,7 +145,7 @@
                         FontSize="18"
                         Text="{Binding Proximity, StringFormat='{}{0,3}%'}"
                         TextAlignment="Right"
-                        ToolTip="Vault proximity level"
+                        ToolTip="{l:Localization VaultControl.ProximityIcon.ToolTip}"
                         Visibility="{Binding IsInitialized, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </StackPanel>
 
@@ -157,7 +157,7 @@
                     VerticalAlignment="Center"
                     Foreground="{DynamicResource InitializingBrush}"
                     Kind="Disconnect"
-                    ToolTip="Connecting vault"
+                    ToolTip="{l:Localization VaultControl.ConnectingIcon.ToolTip}"
                     Visibility="{Binding IsInitializing, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 <iconPacks:PackIconOcticons
                     x:Name="Sync"
@@ -167,7 +167,7 @@
                     VerticalAlignment="Center"
                     Foreground="{DynamicResource InitializingBrush}"
                     Kind="Sync"
-                    ToolTip="Loading storage"
+                    ToolTip="{l:Localization VaultControl.LoadingStorageIcon.ToolTip}"
                     Visibility="{Binding IsLoadingStorage, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                 <iconPacks:PackIconModern
@@ -176,7 +176,8 @@
                     Margin="8,2,0,0"
                     VerticalAlignment="Center"
                     Foreground="{DynamicResource LowBatteryIndicatorBrush}"
-                    Kind="Battery1">
+                    Kind="Battery1"
+                    ToolTip="{l:Localization VaultControl.BatteryIcon.ToolTip}">
                     <iconPacks:PackIconModern.Visibility>
                         <MultiBinding Converter="{StaticResource LowBatteryIndicatorVisibilityConverter}">
                             <Binding Path="IsConnected" />
@@ -192,7 +193,7 @@
                     VerticalAlignment="Center"
                     Foreground="{DynamicResource InitializingBrush}"
                     Kind="ProgressDownload"
-                    ToolTip="Synchronizing storage with other vaults"
+                    ToolTip="{l:Localization VaultControl.VaultsSyncIcon.ToolTip}"
                     Visibility="{Binding IsStorageLocked, Converter={StaticResource BooleanToVisibilityConverter}}" />
             </StackPanel>
         </StackPanel>

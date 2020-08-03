@@ -13,6 +13,7 @@
     xmlns:ma="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:maDialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
     Background="Transparent"
     FontSize="16"
     mc:Ignorable="d">
@@ -50,7 +51,7 @@
                         Grid.Row="0"
                         Grid.Column="2"
                         Style="{StaticResource DialogTitleTextBlockStyle}"
-                        Text="Press the button on your vault to confirm authorization" />
+                        Text="{l:Localization ButtonWindow.Content}" />
                     <StackPanel
                         Grid.Row="2"
                         Grid.Column="2"
@@ -83,16 +84,28 @@
                         <Grid>
                             <TextBlock
                                 Style="{StaticResource DialogTitleTextBlockStyle}"
-                                Text="{Binding MinLenghtPin, StringFormat=Set up new PIN for vault (minimum {0})}"
-                                Visibility="{Binding IsNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                Visibility="{Binding IsNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource FormatStringConverter}">
+                                        <Binding Path="[Pin.Title]" Source="{x:Static l:TranslationSource.Instance}" />
+                                        <Binding Path="MinLenghtPin" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
                             <TextBlock
                                 Style="{StaticResource DialogTitleTextBlockStyle}"
-                                Text="Enter vault PIN"
+                                Text="{l:Localization Pin.EnterPin.Label}"
                                 Visibility="{Binding IsEnterPin, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <TextBlock
                                 Style="{StaticResource DialogTitleTextBlockStyle}"
-                                Text="{Binding MinLenghtPin, StringFormat=Change vault PIN (minimum {0})}"
-                                Visibility="{Binding IsChangePin, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                Visibility="{Binding IsChangePin, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource FormatStringConverter}">
+                                        <Binding Path="[Pin.ChangePin.Label]" Source="{x:Static l:TranslationSource.Instance}" />
+                                        <Binding Path="MinLenghtPin" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
                         </Grid>
 
                         <StackPanel>
@@ -106,7 +119,7 @@
                                     <TextBlock
                                         Grid.Column="0"
                                         Style="{StaticResource DialogLabelTextBlockStyle}"
-                                        Text="Current PIN" />
+                                        Text="{l:Localization Pin.CurrentPin.Label}" />
                                     <PasswordBox
                                         x:Name="CurrentPinPasswordBox"
                                         Grid.Column="2"
@@ -130,7 +143,9 @@
                                         <ColumnDefinition Width="24" />
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Style="{StaticResource DialogLabelTextBlockStyle}" Text="New PIN" />
+                                    <TextBlock 
+                                        Style="{StaticResource DialogLabelTextBlockStyle}" 
+                                        Text="{l:Localization Pin.NewPin.Label}" />
                                     <PasswordBox
                                         x:Name="NewPinPasswordBox"
                                         Grid.Column="2"
@@ -153,7 +168,7 @@
                                         <ColumnDefinition Width="24" />
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Style="{StaticResource DialogLabelTextBlockStyle}" Text="Confirm PIN" />
+                                    <TextBlock Style="{StaticResource DialogLabelTextBlockStyle}" Text="{l:Localization Pin.ConfirmPin.Label}" />
                                     <PasswordBox
                                         x:Name="ConfirmPinPasswordBox"
                                         Grid.Column="2"
@@ -173,7 +188,7 @@
 
                     <!--  Operation in progress  -->
                     <StackPanel Visibility="{Binding InProgress, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock Style="{StaticResource DialogTitleTextBlockStyle}" Text="Processing" />
+                        <TextBlock Style="{StaticResource DialogTitleTextBlockStyle}" Text="{l:Localization Pin.InProgress}" />
                         <Metro:ProgressRing
                             Width="64"
                             Height="64"

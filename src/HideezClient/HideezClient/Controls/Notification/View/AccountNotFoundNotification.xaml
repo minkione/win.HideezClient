@@ -5,6 +5,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:local="clr-namespace:HideezClient.Controls"
+    xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     MinWidth="545"
     Background="{DynamicResource NotificationBackground}"
     FontSize="16"
@@ -44,7 +45,7 @@
                 Margin="0,16,0,0"
                 Orientation="Horizontal">
                 <Button
-                    Content="Create new account"
+                    Content="{l:Localization NoAccountNotification.NewAccountButton}"
                     IsDefault="True"
                     Click="Confirm_Click"
                     Style="{DynamicResource ConfirmButtonStyle}"
@@ -52,7 +53,7 @@
 
                 <Button
                     Margin="16,0,0,0"
-                    Content="Close"
+                    Content="{l:Localization NoAccountNotification.CloseButton}"
                     Click="Close_Click"
                     Style="{DynamicResource CancelButtonStyle}"
                     />

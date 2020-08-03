@@ -766,4 +766,64 @@ Only 1 attempt left.</value>
   <data name="Notification.DeviceLockedByCode.Message" xml:space="preserve">
     <value>To unlock the vault, contact your system administrator for activation code and then reconnect the vault.</value>
   </data>
+  <data name="AccountSelectorNotification.Title" xml:space="preserve">
+    <value>There are few suitable accounts, select one of them, please.</value>
+  </data>
+  <data name="ActivationCode.Label" xml:space="preserve">
+    <value>Activation Code</value>
+  </data>
+  <data name="ActivationCode.Title" xml:space="preserve">
+    <value>Please enter Activation Code for {0}</value>
+  </data>
+  <data name="ButtonWindow.Content" xml:space="preserve">
+    <value>Press the button on your vault to confirm authorization</value>
+  </data>
+  <data name="NoAccountNotification.CloseButton" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="NoAccountNotification.NewAccountButton" xml:space="preserve">
+    <value>Create new account</value>
+  </data>
+  <data name="Pin.ChangePin.Label" xml:space="preserve">
+    <value>Change vault PIN (minimum {0})</value>
+  </data>
+  <data name="Pin.ConfirmPin.Label" xml:space="preserve">
+    <value>Confirm PIN</value>
+  </data>
+  <data name="Pin.CurrentPin.Label" xml:space="preserve">
+    <value>Current PIN</value>
+  </data>
+  <data name="Pin.EnterPin.Label" xml:space="preserve">
+    <value>Enter vault PIN</value>
+  </data>
+  <data name="Pin.InProgress" xml:space="preserve">
+    <value>Processing</value>
+  </data>
+  <data name="Pin.NewPin.Label" xml:space="preserve">
+    <value>New PIN</value>
+  </data>
+  <data name="Pin.Title" xml:space="preserve">
+    <value>Set up new PIN for vault (minimum {0})</value>
+  </data>
+  <data name="PM.CustomUrl.ToolTip" xml:space="preserve">
+    <value>Enter URL here</value>
+  </data>
+  <data name="PM.Label.AddTOTP" xml:space="preserve">
+    <value>Add TOTP</value>
+  </data>
+  <data name="VaultControl.BatteryIcon.ToolTip" xml:space="preserve">
+    <value>Low battery</value>
+  </data>
+  <data name="VaultControl.ConnectingIcon.ToolTip" xml:space="preserve">
+    <value>Connecting vault</value>
+  </data>
+  <data name="VaultControl.LoadingStorageIcon.ToolTip" xml:space="preserve">
+    <value>Loading storage</value>
+  </data>
+  <data name="VaultControl.ProximityIcon.ToolTip" xml:space="preserve">
+    <value>Vault proximity level</value>
+  </data>
+  <data name="VaultControl.VaultsSyncIcon.ToolTip" xml:space="preserve">
+    <value>Synchronizing storage with other vaults</value>
+  </data>
 </root>
