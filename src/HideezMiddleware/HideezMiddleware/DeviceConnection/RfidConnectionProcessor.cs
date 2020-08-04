@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
@@ -108,6 +109,7 @@ namespace HideezMiddleware.DeviceConnection
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 1) == 1)
                 return;
 
+            DeviceInfoDto info = null;
             try
             {
                 _screenActivator?.ActivateScreen();
@@ -115,10 +117,11 @@ namespace HideezMiddleware.DeviceConnection
                 if (_hesConnection == null)
                     throw new Exception("Cannot connect device. Not connected to the HES.");
 
-                await _clientUiManager.SendNotification("Connecting to the HES server...");
 
                 // get MAC address from the HES
-                var info = await _hesConnection.GetInfoByRfid(rfid);
+                info = await _hesConnection.GetInfoByRfid(rfid);
+
+                await _clientUiManager.SendNotification("Connecting to the HES server...", info.DeviceMac);
 
                 if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
                 {
@@ -143,8 +146,7 @@ namespace HideezMiddleware.DeviceConnection
             catch (Exception ex)
             {
                 WriteLine(ex);
-                await _clientUiManager.SendNotification("");
-                await _clientUiManager.SendError(HideezExceptionLocalization.GetErrorAsString(ex));
+                await _clientUiManager.SendError(HideezExceptionLocalization.GetErrorAsString(ex), info?.DeviceMac);
             }
         }
 

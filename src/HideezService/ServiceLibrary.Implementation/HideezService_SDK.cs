@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
-using System.Runtime.Remoting.Messaging;
-using System.Security;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication;
@@ -27,13 +23,16 @@ using HideezMiddleware;
 using HideezMiddleware.Audit;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.DeviceLogging;
+using HideezMiddleware.IPC.DTO;
+using HideezMiddleware.IPC.IncommingMessages;
+using HideezMiddleware.IPC.IncommingMessages.RemoteDevice;
+using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Local;
 using HideezMiddleware.ReconnectManager;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using HideezMiddleware.SoftwareVault.UnlockToken;
-using HideezMiddleware.Tasks;
-using HideezMiddleware.Workstation;
+using Meta.Lib.Modules.PubSub.Messages;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ClientManagement;
 using ServiceLibrary.Implementation.ScreenActivation;
@@ -41,7 +40,7 @@ using ServiceLibrary.Implementation.WorkstationLock;
 
 namespace ServiceLibrary.Implementation
 {
-    public partial class HideezService : IHideezService
+    public partial class HideezService
     {
         static BleConnectionManager _connectionManager;
         static BleDeviceManager _deviceManager;
@@ -240,10 +239,10 @@ namespace ServiceLibrary.Implementation
             _eventSender = new EventSender(_hesConnection, _eventSaver, _sdkLogger);
 
             // ScreenActivator ==================================
-            _screenActivator = new WcfScreenActivator(sessionManager);
+            _screenActivator = new WcfScreenActivator(_messenger);
 
             // Client Proxy =============================
-            _clientProxy = new ServiceClientUiManager(sessionManager);
+            _clientProxy = new ServiceClientUiManager(_messenger);
 
             // UI Proxy =============================
             _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, _sdkLogger);
@@ -312,7 +311,7 @@ namespace ServiceLibrary.Implementation
             _deviceReconnectManager.DeviceReconnected += (s, a) => _log.WriteLine($"Device {a.SerialNo} reconnected successfully");
 
             // WorkstationLocker ==================================
-            _workstationLocker = new UniversalWorkstationLocker(SdkConfig.DefaultLockTimeout * 1000, sessionManager, _sdkLogger);
+            _workstationLocker = new UniversalWorkstationLocker(SdkConfig.DefaultLockTimeout * 1000, _messenger, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, 
@@ -345,14 +344,29 @@ namespace ServiceLibrary.Implementation
 
             _deviceReconnectManager.Start();
 
-            await Task.WhenAll(serviceInitializationTasks).ConfigureAwait(false);
-        }
+            _messenger.Subscribe<RemoteClientConnectedEvent>(OnClientConnected);
+            _messenger.Subscribe<RemoteClientDisconnectedEvent>(OnClientDisconnected);
 
-        async void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
-        {
-            // Disconnect all connected devices
-            _deviceReconnectManager.DisableAllDevicesReconnect();
-            await _deviceManager.DisconnectAllDevices().ConfigureAwait(false);
+            _messenger.Subscribe<GetAvailableChannelsMessage>(GetAvailableChannels);
+            _messenger.Subscribe<RemoteConnection_RemoteCommandMessage>(RemoteConnection_RemoteCommandAsync);
+            _messenger.Subscribe<RemoteConnection_VerifyCommandMessage>(RemoteConnection_VerifyCommandAsync);
+            _messenger.Subscribe<RemoteConnection_ResetChannelMessage>(RemoteConnection_ResetChannelAsync);
+            _messenger.Subscribe<EstablishRemoteDeviceConnectionMessage>(EstablishRemoteDeviceConnection);
+            
+            _messenger.Subscribe<PublishEventMessage>(PublishEvent);
+            _messenger.Subscribe<DisconnectDeviceMessage>(DisconnectDevice);
+            _messenger.Subscribe<RemoveDeviceMessage>(RemoveDeviceAsync);
+            
+            _messenger.Subscribe<ChangeServerAddressMessage>(ChangeServerAddress);
+            _messenger.Subscribe<SetSoftwareVaultUnlockModuleStateMessage>(SetSoftwareVaultUnlockModuleState);
+
+            _messenger.Subscribe<CancelActivationCodeMessage>(CancelActivationCode);
+            _messenger.Subscribe<SendActivationCodeMessage>(SendActivationCode);
+
+            _messenger.Subscribe<LoginClientRequestMessage>(OnClientLogin);
+            _messenger.Subscribe<RefreshServiceInfoMessage>(OnRefreshServiceInfo);
+
+            await Task.WhenAll(serviceInitializationTasks).ConfigureAwait(false);
         }
 
         Task<HesAppConnection> CreateHesHub(BleDeviceManager deviceManager, 
@@ -475,6 +489,48 @@ namespace ServiceLibrary.Implementation
         #endregion
 
         #region Event Handlers
+
+        Task OnClientConnected(RemoteClientConnectedEvent arg)
+        {
+            _log.WriteLine($">>>>>> AttachClient, {arg.TotalClientsCount} remaining clients", LogErrorSeverity.Debug);
+            return Task.CompletedTask;
+        }
+
+        Task OnClientDisconnected(RemoteClientDisconnectedEvent arg)
+        {
+            _log.WriteLine($">>>>>> DetachClient, {arg.TotalClientsCount} remaining clients", LogErrorSeverity.Debug);
+            return Task.CompletedTask;
+        }
+
+        // This message is sent by client when its ready to receive messages from server
+        // Upon receiving LoginClientRequestMessage we sent to the client all currently available information
+        // Previously the client had to ask for each bit separatelly. Now we instead send it upon connection establishment
+        // The updates in sent information are sent separatelly
+        async Task OnClientLogin(LoginClientRequestMessage arg)
+        {
+            _log.WriteLine($"Service client login");
+
+            await RefreshServiceInfo();
+
+            // Client may have only been launched after we already sent an event about workstation unlock
+            // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
+            // To avoid the confusion, we resend the event about latest unlock method to every client that connects to service
+            if (_deviceManager.Devices.Count() == 0)
+                await _messenger.Publish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+
+        }
+
+        async Task OnRefreshServiceInfo(RefreshServiceInfoMessage arg)
+        {
+            await RefreshServiceInfo();
+        }
+
+        async void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
+        {
+            // Disconnect all connected devices
+            _deviceReconnectManager.DisableAllDevicesReconnect();
+            await _deviceManager.DisconnectAllDevices().ConfigureAwait(false);
+        }
 
         void WorkstationProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<WorkstationSettings> e)
         {
@@ -613,20 +669,18 @@ namespace ServiceLibrary.Implementation
                     we.Severity = WorkstationEventSeverity.Warning;
 
                     // Clear all devices on disconnect
-                    foreach (var client in sessionManager.Sessions)
-                        client.Callbacks.LiftDeviceStorageLock(string.Empty);
+                    await _messenger.Publish(new LiftDeviceStorageLockMessage(string.Empty));
                 }
 
                 await _eventSaver.AddNewAsync(we, sendImmediately);
             }
         }
 
-        void HES_LockDeviceStorageRequest(object sender, string serialNo)
+        async void HES_LockDeviceStorageRequest(object sender, string serialNo)
         {
             try
             {
-                foreach (var client in sessionManager.Sessions)
-                    client.Callbacks.LockDeviceStorage(serialNo);
+                await _messenger.Publish(new LockDeviceStorageMessage(serialNo));
             }
             catch (Exception) 
             {
@@ -634,12 +688,11 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void HES_LiftDeviceStorageLockRequest(object sender, string serialNo)
+        async void HES_LiftDeviceStorageLockRequest(object sender, string serialNo)
         {
             try
             {
-                foreach (var client in sessionManager.Sessions)
-                    client.Callbacks.LiftDeviceStorageLock(serialNo);
+                await _messenger.Publish(new LiftDeviceStorageLockMessage(serialNo));
             }
             catch (Exception)
             {
@@ -647,10 +700,9 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
+        async void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
         {
-            foreach (var client in sessionManager.Sessions)
-                client.Callbacks.DevicesCollectionChanged(GetDevices());
+            await _messenger.Publish(new DevicesCollectionChangedMessage(GetDevices()));
         }
 
         void ConnectionManager_DiscoveredDeviceAdded(object sender, DiscoveredDeviceAddedEventArgs e)
@@ -665,7 +717,7 @@ namespace ServiceLibrary.Implementation
         {
         }
 
-        void Device_ConnectionStateChanged(object sender, EventArgs e)
+        async void Device_ConnectionStateChanged(object sender, EventArgs e)
         {
             try
             {
@@ -674,10 +726,7 @@ namespace ServiceLibrary.Implementation
                     if (!device.IsConnected)
                         device.SetUserProperty(ConnectionFlowProcessor.FLOW_FINISHED_PROP, false);
 
-                    foreach (var client in sessionManager.Sessions)
-                    {
-                        client.Callbacks.DeviceConnectionStateChanged(new DeviceDTO(device));
-                    }
+                    await _messenger.Publish(new DeviceConnectionStateChangedMessage(new DeviceDTO(device)));
                 }
             }
             catch (Exception ex)
@@ -692,18 +741,15 @@ namespace ServiceLibrary.Implementation
             {
                 if (sender is IDevice device)
                 {
-                    foreach (var session in sessionManager.Sessions)
+                    // Separate error handling block for each callback ensures we try to notify 
+                    // every session, even if an error occurs
+                    try
                     {
-                        // Separate error handling block for each callback ensures we try to notify 
-                        // every session, even if an error occurs
-                        try
-                        {
-                            session.Callbacks.DeviceInitialized(new DeviceDTO(device));
-                        }
-                        catch (Exception ex)
-                        {
-                            Error(ex);
-                        }
+                        await _messenger.Publish(new DeviceInitializedMessage(new DeviceDTO(device)));
+                    }
+                    catch (Exception ex)
+                    {
+                        Error(ex);
                     }
 
                     if (!device.IsRemote || device.ChannelNo > 2)
@@ -729,16 +775,13 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void Device_OperationCancelled(object sender, EventArgs e)
+        async void Device_OperationCancelled(object sender, EventArgs e)
         {
             try
             {
                 if (sender is IDevice device)
                 {
-                    foreach (var client in sessionManager.Sessions)
-                    {
-                        client.Callbacks.DeviceOperationCancelled(new DeviceDTO(device));
-                    }
+                    await _messenger.Publish(new DeviceOperationCancelledMessage(new DeviceDTO(device)));
                 }
             }
             catch (Exception ex)
@@ -747,38 +790,32 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void Device_ProximityChanged(object sender, double e)
+        async void Device_ProximityChanged(object sender, double e)
         {
             if (sender is IDevice device)
             {
-                foreach (var client in sessionManager.Sessions)
+                try
                 {
-                    try
-                    {
-                        client.Callbacks.DeviceProximityChanged(device.Id, e);
-                    }
-                    catch (Exception ex)
-                    {
-                        Error(ex);
-                    }
+                    await _messenger.Publish(new DeviceProximityChangedMessage(device.Id, e));
+                }
+                catch (Exception ex)
+                {
+                    Error(ex);
                 }
             }
         }
 
-        void Device_BatteryChanged(object sender, sbyte e)
+        async void Device_BatteryChanged(object sender, sbyte e)
         {
             if (sender is IDevice device)
             {
-                foreach (var client in sessionManager.Sessions)
+                try
                 {
-                    try
-                    {
-                        client.Callbacks.DeviceBatteryChanged(device.Id, e);
-                    }
-                    catch (Exception ex)
-                    {
-                        Error(ex);
-                    }
+                    await _messenger.Publish(new DeviceBatteryChangedMessage(device.Id, e));
+                }
+                catch (Exception ex)
+                {
+                    Error(ex);
                 }
             }
             
@@ -806,56 +843,41 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
+        async void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
         {
-            foreach (var session in sessionManager.Sessions)
+            try
             {
-                try
-                {
-                    session.Callbacks.DeviceFinishedMainFlow(new DeviceDTO(device));
-                }
-                catch (Exception ex)
-                {
-                    Error(ex);
-                }
+                await _messenger.Publish(new DeviceFinishedMainFlowMessage(new DeviceDTO(device)));
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
             }
         }
 
-        void WorkstationLockProcessor_DeviceProxLockEnabled(object sender, IDevice device)
+        async void WorkstationLockProcessor_DeviceProxLockEnabled(object sender, IDevice device)
         {
-            foreach (var session in sessionManager.Sessions)
+            try
             {
-                try
-                {
-                    session.Callbacks.DeviceProximityLockEnabled(new DeviceDTO(device));
-                }
-                catch (Exception ex)
-                {
-                    Error(ex);
-                }
+                await _messenger.Publish(new DeviceProximityLockEnabledMessage(new DeviceDTO(device)));
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
             }
         }
 
-        async void SessionManager_SessionClosed(object sender, ServiceClientSession e)
+        async void SessionManager_SessionClosed()
         {
-            if (_client.Id == e.Id)
-            {
-                foreach (var wcfDevice in RemoteWcfDevices.ToArray())
-                {
-                    await _deviceManager.Remove(wcfDevice);
-                    UnsubscribeFromWcfDeviceEvents(wcfDevice);
-                }
-            }
-
+            // TODO: Disconnect remote devices when client disconnects
         }
 
         async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
             try
             {
-                if (reason == SessionSwitchReason.SessionUnlock || reason== SessionSwitchReason.SessionLogon)
-                    foreach (var client in sessionManager.Sessions)
-                        client.Callbacks.WorkstationUnlocked(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez);
+                if (reason == SessionSwitchReason.SessionUnlock || reason == SessionSwitchReason.SessionLogon)
+                    await _messenger.Publish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
 
                 if (reason == SessionSwitchReason.SessionLogoff || reason == SessionSwitchReason.SessionLock)
                 {
@@ -871,32 +893,8 @@ namespace ServiceLibrary.Implementation
         }
         #endregion
 
-        public bool GetAdapterState(Adapter adapter)
-        {
-            try
-            {
-                switch (adapter)
-                {
-                    case Adapter.Dongle:
-                        return _connectionManager?.State == BluetoothAdapterState.PoweredOn || _connectionManager?.State == BluetoothAdapterState.Resetting;
-                    case Adapter.HES:
-                        return _hesConnection?.State == HesConnectionState.Connected;
-                    case Adapter.RFID:
-                        return _rfidService != null ? _rfidService.ServiceConnected && _rfidService.ReaderConnected : false;
-                    default:
-                        return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-                ThrowException(ex);
-
-                return false; // We will never reach this line
-            }
-        }
-
-        public DeviceDTO[] GetDevices()
+        #region  Incomming Messages Handlers
+        DeviceDTO[] GetDevices()
         {
             try
             {
@@ -905,19 +903,17 @@ namespace ServiceLibrary.Implementation
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
-
-                return Array.Empty<DeviceDTO>(); // We will never reach this line
+                throw;
             }
         }
 
-        public byte[] GetAvailableChannels(string serialNo)
+        async Task GetAvailableChannels(GetAvailableChannelsMessage args)
         {
             try
             {
-                var devices = _deviceManager.Devices.Where(d => d.SerialNo == serialNo).ToList();
+                var devices = _deviceManager.Devices.Where(d => d.SerialNo == args.SerialNo).ToList();
                 if (devices.Count == 0)
-                    throw new HideezException(HideezErrorCode.DeviceNotFound, serialNo);
+                    throw new HideezException(HideezErrorCode.DeviceNotFound, args.SerialNo);
 
                 // Channels range from 1 to 6 
                 List<byte> freeChannels = new List<byte>() { 1, 2, 3, 4, 5, 6 };
@@ -930,35 +926,34 @@ namespace ServiceLibrary.Implementation
                 var channelsInUse = devices.Select(d => d.ChannelNo).ToList();
                 freeChannels.RemoveAll(c => channelsInUse.Contains(c));
 
-                return freeChannels.ToArray();
+                await _messenger.Publish(new GetAvailableChannelsMessageReply(freeChannels.ToArray()));
             }
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
-                return null; // this line is unreachable
+                throw;
             }
         }
 
-        public async Task DisconnectDevice(string id)
+        async Task DisconnectDevice(DisconnectDeviceMessage args)
         {
             try
             {
-                _deviceReconnectManager.DisableDeviceReconnect(id);
-                await _deviceManager.DisconnectDevice(id);
+                _deviceReconnectManager.DisableDeviceReconnect(args.DeviceId);
+                await _deviceManager.DisconnectDevice(args.DeviceId);
             }
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
+                throw;
             }
         }
 
-        public async Task RemoveDeviceAsync(string id)
+        async Task RemoveDeviceAsync(RemoveDeviceMessage args)
         {
             try
             {
-                var device = _deviceManager.Find(id);
+                var device = _deviceManager.Find(args.DeviceId);
                 if (device != null)
                 {
                     _deviceReconnectManager.DisableDeviceReconnect(device);
@@ -968,12 +963,13 @@ namespace ServiceLibrary.Implementation
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
+                throw;
             }
         }
 
-        public async void PublishEvent(WorkstationEventDTO workstationEvent)
+        async Task PublishEvent(PublishEventMessage args)
         {
+            var workstationEvent = args.WorkstationEvent;
             var we = _eventSaver.GetWorkstationEvent();
             we.Version = WorkstationEvent.ClassVersion;
             we.Id = workstationEvent.Id;
@@ -987,122 +983,109 @@ namespace ServiceLibrary.Implementation
             await _eventSaver.AddNewAsync(we);
         }
 
-        public void SetProximitySettings(string mac, int lockProximity, int unlockProximity)
-        {
-            _deviceProximitySettingsHelper?.SetClientProximity(mac, lockProximity, unlockProximity);
-        }
-
-        public ProximitySettingsDTO GetCurrentProximitySettings(string mac)
-        {
-            return new ProximitySettingsDTO
-            {
-                Mac = mac,
-                SerialNo = string.Empty,
-                LockProximity = _workstationSettingsManager.Settings.LockProximity,
-                UnlockProximity = _workstationSettingsManager.Settings.UnlockProximity,
-                AllowEditProximitySettings = _deviceProximitySettingsHelper?.GetAllowEditProximity(mac) ?? false,
-            };
-        }
-
-        public string GetServerAddress()
-        {
-            return RegistrySettings.GetHesAddress(_log);
-        }
-
-        public async Task<bool> ChangeServerAddress(string address)
+        async Task ChangeServerAddress(ChangeServerAddressMessage args)
         {
             try
             {
-                _log.WriteLine($"Client requested HES address change to \"{address}\"");
+                _log.WriteLine($"Client requested HES address change to \"{args.ServerAddress}\"");
 
-                if (string.IsNullOrWhiteSpace(address))
+                if (string.IsNullOrWhiteSpace(args.ServerAddress))
                 {
                     _log.WriteLine($"Clearing server address and shutting down connection");
-                    RegistrySettings.SetHesAddress(_log, address);
+                    RegistrySettings.SetHesAddress(_log, args.ServerAddress);
                     await _hesConnection.Stop();
-                    return true;
+                    await _messenger.Publish(new ChangeServerAddressMessageReply(true));
+                    await RefreshServiceInfo();
                 }
                 else
                 {
-                    var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(address, _sdkLogger).TimeoutAfter(5_000);
+                    var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(args.ServerAddress, _sdkLogger).TimeoutAfter(5_000);
                     if (connectedOnNewAddress)
                     {
-                        _log.WriteLine($"Passed connectivity check to {address}");
-                        RegistrySettings.SetHesAddress(_log, address);
+                        _log.WriteLine($"Passed connectivity check to {args.ServerAddress}");
+                        RegistrySettings.SetHesAddress(_log, args.ServerAddress);
                         await _hesConnection.Stop();
-                        _hesConnection.Start(address);
+                        _hesConnection.Start(args.ServerAddress);
 
-                        return true;
+                        await _messenger.Publish(new ChangeServerAddressMessageReply(true));
+                        await RefreshServiceInfo();
                     }
                     else
                     {
-                        _log.WriteLine($"Failed connectivity check to {address}");
-                        return false;
+                        _log.WriteLine($"Failed connectivity check to {args.ServerAddress}");
+                        await _messenger.Publish(new ChangeServerAddressMessageReply(false));
                     }
                 }
             }
             catch (TimeoutException)
             {
-                return false;
+                await _messenger.Publish(new ChangeServerAddressMessageReply(false));
             }
         }
 
-        public bool IsSoftwareVaultUnlockModuleEnabled()
-        {
-            return _serviceSettingsManager.Settings.EnableSoftwareVaultUnlock;
-        }
-
-        public void SetSoftwareVaultUnlockModuleState(bool enabled)
+        async Task SetSoftwareVaultUnlockModuleState(SetSoftwareVaultUnlockModuleStateMessage args)
         {
             var settings = _serviceSettingsManager.Settings;
-            if (settings.EnableSoftwareVaultUnlock != enabled)
+            if (settings.EnableSoftwareVaultUnlock != args.Enabled)
             {
-                _log.WriteLine($"Client requested to switch software unlock module. New value: {enabled}");
-                settings.EnableSoftwareVaultUnlock = enabled;
+                _log.WriteLine($"Client requested to switch software unlock module. New value: {args.Enabled}");
+                settings.EnableSoftwareVaultUnlock = args.Enabled;
                 _serviceSettingsManager.SaveSettings(settings);
 
-                if (enabled)
+                if (args.Enabled)
                 {
                     _unlockTokenGenerator.Start();
                     _remoteWorkstationUnlocker.Start();
+                    await RefreshServiceInfo();
                 }
                 else
                 {
                     _unlockTokenGenerator.Stop();
                     _remoteWorkstationUnlocker.Stop();
                     _unlockTokenGenerator.DeleteSavedToken();
+                    await RefreshServiceInfo();
                 }
             }
         }
+
+        async Task RefreshServiceInfo() // Todo: error handling
+        {
+            await _statusManager.SendStatusToUI();
+
+            await _messenger.Publish(new DevicesCollectionChangedMessage(GetDevices()));
+
+            await _messenger.Publish(new ServiceSettingsChangedMessage(_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock, RegistrySettings.GetHesAddress(_log)));
+
+        }
+        #endregion
 
         #region Remote device management
         // This collection is unique for each client
         readonly List<IWcfDevice> RemoteWcfDevices = new List<IWcfDevice>();
 
-        public async Task<string> EstablishRemoteDeviceConnection(string serialNo, byte channelNo)
+        public async Task EstablishRemoteDeviceConnection(EstablishRemoteDeviceConnectionMessage args)
         {
             try
             {
-                var wcfDevice = (IWcfDevice)_deviceManager.FindBySerialNo(serialNo, 2);
+                var wcfDevice = (IWcfDevice)_deviceManager.FindBySerialNo(args.SerialNo, 2);
                 if (wcfDevice == null)
                 {
-                    var device = _deviceManager.FindBySerialNo(serialNo, 1);
+                    var device = _deviceManager.FindBySerialNo(args.SerialNo, 1);
 
                     if (device == null)
-                        throw new HideezException(HideezErrorCode.DeviceNotFound, serialNo);
+                        throw new HideezException(HideezErrorCode.DeviceNotFound, args.SerialNo);
 
-                    wcfDevice = await _wcfDeviceFactory.EstablishRemoteDeviceConnection(device.Mac, channelNo);
+                    wcfDevice = await _wcfDeviceFactory.EstablishRemoteDeviceConnection(device.Mac, args.ChannelNo);
 
                     SubscribeToWcfDeviceEvents(wcfDevice);
                 }
 
-                return wcfDevice.Id;
+                await _messenger.Publish(new EstablishRemoteDeviceConnectionMessageReply(wcfDevice.Id));
             }
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
-                return null; // this line is unreachable
+                throw;
             }
         }
 
@@ -1118,7 +1101,7 @@ namespace ServiceLibrary.Implementation
             RemoteWcfDevices.Remove(wcfDevice);
         }
 
-        void RemoteConnection_DeviceStateChanged(object sender, DeviceStateEventArgs e)
+        async void RemoteConnection_DeviceStateChanged(object sender, DeviceStateEventArgs e)
         {
             try
             {
@@ -1126,7 +1109,7 @@ namespace ServiceLibrary.Implementation
                 {
                     if (sender is IWcfDevice wcfDevice)
                     {
-                        _client.Callbacks.RemoteConnection_DeviceStateChanged(wcfDevice.Id, new DeviceStateDTO(e.State));
+                        await _messenger.Publish(new RemoteConnection_DeviceStateChangedMessage(wcfDevice.Id, new DeviceStateDTO(e.State)));
                     }
                 }
             }
@@ -1136,119 +1119,90 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public async Task<byte[]> RemoteConnection_VerifyCommandAsync(string connectionId, byte[] data)
+        public async Task RemoteConnection_VerifyCommandAsync(RemoteConnection_VerifyCommandMessage args)
         {
             try
             {
-                var wcfDevice = _deviceManager.Find(connectionId) as IWcfDevice;
+                var wcfDevice = _deviceManager.Find(args.ConnectionId) as IWcfDevice;
 
                 if (wcfDevice == null)
-                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, connectionId);
+                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, args.ConnectionId);
 
-                var response = await wcfDevice.OnVerifyCommandAsync(data);
+                var response = await wcfDevice.OnVerifyCommandAsync(args.Data);
 
-                return response;
+                await _messenger.Publish(new RemoteConnection_VerifyCommandMessageReply(response));
             }
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
-                return null; // this line is unreachable
+                throw;
             }
         }
 
-        public async Task<byte[]> RemoteConnection_RemoteCommandAsync(string connectionId, byte[] data)
+        public async Task RemoteConnection_RemoteCommandAsync(RemoteConnection_RemoteCommandMessage args)
         {
             try
             {
-                var wcfDevice = _deviceManager.Find(connectionId) as IWcfDevice;
+                var wcfDevice = _deviceManager.Find(args.ConnectionId) as IWcfDevice;
 
                 if (wcfDevice == null)
-                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, connectionId);
+                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, args.ConnectionId);
 
-                var response = await wcfDevice.OnRemoteCommandAsync(data);
+                var response = await wcfDevice.OnRemoteCommandAsync(args.Data);
 
-                return response;
+                await _messenger.Publish(new RemoteConnection_RemoteCommandMessageReply(response));
             }
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
-                return null; // this line is unreachable
+                throw;
             }
         }
 
-        public async Task RemoteConnection_ResetChannelAsync(string connectionId)
+        public async Task RemoteConnection_ResetChannelAsync(RemoteConnection_ResetChannelMessage args)
         {
             try
             {
-                var wcfDevice = _deviceManager.Find(connectionId) as IWcfDevice;
+                var wcfDevice = _deviceManager.Find(args.ConnectionId) as IWcfDevice;
 
                 if (wcfDevice == null)
-                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, connectionId);
+                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, args.ConnectionId);
 
                 await wcfDevice.OnResetChannelAsync();
             }
             catch (Exception ex)
             {
                 Error(ex);
-                ThrowException(ex);
-            }
-        }
-        #endregion
-
-        #region PIN
-        public void SendPin(string deviceId, byte[] pin, byte[] oldPin)
-        {
-            try
-            {
-                var s_pin = Encoding.UTF8.GetString(pin);
-                var s_oldPin = Encoding.UTF8.GetString(oldPin);
-
-                _clientProxy.EnterPin(deviceId, s_pin, s_oldPin);
-            }
-            catch (Exception ex)
-            {
-                _log.WriteDebugLine(ex);
-            }
-        }
-
-        public void CancelPin(string deviceId)
-        {
-            try
-            {
-                _clientProxy.CancelPin();
-            }
-            catch (Exception ex)
-            {
-                _log.WriteDebugLine(ex);
+                throw;
             }
         }
         #endregion
 
         #region Activation Code
-        public void SendActivationCode(string deviceId, byte[] activationCode)
+        public Task SendActivationCode(SendActivationCodeMessage args)
         {
             try
             {
-                _clientProxy.EnterActivationCode(deviceId, activationCode);
+                _clientProxy.EnterActivationCode(args.DeviceId, args.ActivationCode);
             }
             catch (Exception ex)
             {
                 _log.WriteDebugLine(ex);
             }
+            return Task.CompletedTask;
         }
 
-        public void CancelActivationCode(string deviceId)
+        public Task CancelActivationCode(CancelActivationCodeMessage args)
         {
             try
             {
-                _clientProxy.CancelActivationCode(deviceId);
+                _clientProxy.CancelActivationCode(args.DeviceId);
             }
             catch (Exception ex)
             {
                 _log.WriteDebugLine(ex);
             }
+            return Task.CompletedTask;
         }
         #endregion
 
@@ -1259,7 +1213,7 @@ namespace ServiceLibrary.Implementation
          * within a short frame of each other due to inconsistent behavior caused by SystemPowerEvent implementation
          */
         static bool _alreadyRestored = false; 
-        public static async Task OnLaunchFromSuspend()
+        public async Task OnLaunchFromSuspend()
         {
             _log.WriteLine("System left suspended mode");
             if (!_restoringFromSleep && !_alreadyRestored)
@@ -1308,7 +1262,7 @@ namespace ServiceLibrary.Implementation
         }
 
         // It looks like windows never sends this particular event
-        public static async Task OnPreparingToSuspend()
+        public async Task OnPreparingToSuspend()
         {
             try
             {
@@ -1322,7 +1276,7 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        public static async Task OnSuspending()
+        public async Task OnSuspending()
         {
             try
             {

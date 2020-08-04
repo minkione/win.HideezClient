@@ -1,5 +1,4 @@
 ﻿using Hideez.SDK.Communication.Log;
-using HideezClient.HideezServiceReference;
 using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using System;
@@ -78,16 +77,12 @@ namespace HideezClient.Modules.ServiceWatchdog
 
         private async Task CheckServerConnection()
         {
+            /*
             if (!serviceProxy.IsConnected)
             {
                 try
                 {
                     await serviceProxy.ConnectAsync();
-                }
-                catch (FaultException<HideezServiceFault> ex)
-                {
-                    log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
-                    await serviceProxy.DisconnectAsync();
                 }
                 catch (Exception ex)
                 {
@@ -101,17 +96,13 @@ namespace HideezClient.Modules.ServiceWatchdog
                 {
                     var ping = await serviceProxy.GetService().PingAsync();
                 }
-                catch (FaultException<HideezServiceFault> ex)
-                {
-                    log.WriteLine(ex.FormattedMessage(), LogErrorSeverity.Error);
-                    await serviceProxy.DisconnectAsync();
-                }
                 catch (Exception ex)
                 {
                     log.WriteLine(ex);
                     await serviceProxy.DisconnectAsync();
                 }
             }
+            */
         }
     }
 }

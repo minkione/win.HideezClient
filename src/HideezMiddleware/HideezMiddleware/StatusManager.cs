@@ -5,7 +5,10 @@ using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Settings;
+using Meta.Lib.Modules.PubSub;
+using Meta.Lib.Modules.PubSub.Messages;
 
 namespace HideezMiddleware
 {
@@ -37,7 +40,6 @@ namespace HideezMiddleware
             _rfidSettingsManager = rfidSettingsManager;
             _workstationUnlocker = workstationUnlocker;
 
-            _uiClientManager.ClientConnected += Ui_ClientUiConnected;
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
@@ -69,7 +71,6 @@ namespace HideezMiddleware
             if (disposing)
             {
                 // Release managed resources here
-                _uiClientManager.ClientConnected -= Ui_ClientUiConnected;
                 _rfidService.RfidServiceStateChanged -= RfidService_RfidServiceStateChanged;
                 _rfidService.RfidReaderStateChanged -= RfidService_RfidReaderStateChanged;
                 _connectionManager.AdapterStateChanged -= ConnectionManager_AdapterStateChanged;
@@ -93,48 +94,43 @@ namespace HideezMiddleware
         }
         #endregion
 
-        void Ui_ClientUiConnected(object sender, EventArgs e)
+        async void HesConnection_HubConnectionStateChanged(object sender, EventArgs e)
         {
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        void HesConnection_HubConnectionStateChanged(object sender, EventArgs e)
+        async void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
+        async void RfidService_RfidReaderStateChanged(object sender, EventArgs e)
         {
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        void RfidService_RfidReaderStateChanged(object sender, EventArgs e)
+        async void RfidService_RfidServiceStateChanged(object sender, EventArgs e)
         {
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        void RfidService_RfidServiceStateChanged(object sender, EventArgs e)
+        async void TryAndBuyHesConnection_HubConnectionStateChanged(object sender, EventArgs e)
         {
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        private void TryAndBuyHesConnection_HubConnectionStateChanged(object sender, EventArgs e)
+        async void RfidSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<RfidSettings> e)
         {
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        private void RfidSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<RfidSettings> e)
-        {
-            SendStatusToUI();
-        }
-
-        private async void WorkstationUnlocker_Connected(object sender, EventArgs e)
+        async void WorkstationUnlocker_Connected(object sender, EventArgs e)
         {
             await Task.Delay(200);
-            SendStatusToUI();
+            await SendStatusToUI();
         }
 
-        async void SendStatusToUI()
+        public async Task SendStatusToUI()
         {
             try
             {

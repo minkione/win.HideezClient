@@ -1,20 +1,20 @@
 ﻿using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
-using ServiceLibrary.Implementation.ClientManagement;
+using HideezMiddleware.IPC.Messages;
+using Meta.Lib.Modules.PubSub;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation.WorkstationLock
 {
     class WcfWorkstationLocker : Logger, IWorkstationLocker
     {
-        readonly ServiceClientSessionManager _sessionManager;
+        readonly IMetaPubSub _messenger;
 
-        public WcfWorkstationLocker(ServiceClientSessionManager sessionManager, ILog log)
+        public WcfWorkstationLocker(IMetaPubSub messenger, ILog log)
             : base(nameof(WcfWorkstationLocker), log)
         {
-            _sessionManager = sessionManager;
+            _messenger = messenger;
         }
 
         public void LockWorkstation()
@@ -24,21 +24,18 @@ namespace ServiceLibrary.Implementation.WorkstationLock
 
         void LockWorkstationAsync()
         {
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 var lockState = WorkstationHelper.GetActiveSessionLockState();
                 if (lockState == WorkstationHelper.LockState.Unlocked)
                 {
-                    foreach (var client in _sessionManager.Sessions)
+                    try
                     {
-                        try
-                        {
-                            client.Callbacks.LockWorkstationRequest();
-                        }
-                        catch (Exception ex)
-                        {
-                            WriteLine(ex);
-                        }
+                        await _messenger.Publish(new LockWorkstationMessage());
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLine(ex);
                     }
                 }
             });

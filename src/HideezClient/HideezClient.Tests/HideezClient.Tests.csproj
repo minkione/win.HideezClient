@@ -127,6 +127,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\HideezMiddleware\HideezMiddleware\HideezMiddleware.csproj">
+      <Project>{2a5abf59-55ee-461b-8c6f-2a294481129b}</Project>
+      <Name>HideezMiddleware</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HideezClient\HideezClient.csproj">
       <Project>{EA300B43-B917-49D1-9D84-A13F43398246}</Project>
       <Name>HideezClient</Name>

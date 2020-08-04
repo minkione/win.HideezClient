@@ -1,12 +1,14 @@
-﻿using HideezClient.Modules.ServiceProxy;
+﻿using GalaSoft.MvvmLight.Messaging;
+using HideezClient.Messages;
+using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
-using System;
 
 namespace HideezClient.ViewModels
 {
-    class ServiceViewModel : ObservableObject, IDisposable
+    class ServiceViewModel : ObservableObject
     {
         readonly IServiceProxy _serviceProxy;
+        readonly IMessenger _messenger;
 
         public bool IsServiceConnected
         {
@@ -16,41 +18,17 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public ServiceViewModel(IServiceProxy serviceProxy)
+        public ServiceViewModel(IServiceProxy serviceProxy, IMessenger messenger)
         {
             _serviceProxy = serviceProxy;
+            _messenger = messenger;
 
-            _serviceProxy.Connected += ServiceProxy_ConnectionStateChanged;
-            _serviceProxy.Disconnected += ServiceProxy_ConnectionStateChanged;
-
+            _messenger.Register<ConnectionServiceChangedMessage>(this, OnServiceConnectionStateChanged);
         }
 
-        void ServiceProxy_ConnectionStateChanged(object sender, EventArgs e)
+        void OnServiceConnectionStateChanged(ConnectionServiceChangedMessage obj)
         {
             NotifyPropertyChanged(nameof(IsServiceConnected));
         }
-
-        #region IDisposable Support
-        bool disposed = false;
-
-        protected virtual void Dispose(bool dispose)
-        {
-            if (!disposed)
-            {
-                if (dispose)
-                {
-                    _serviceProxy.Connected -= ServiceProxy_ConnectionStateChanged;
-                    _serviceProxy.Disconnected -= ServiceProxy_ConnectionStateChanged;
-                }
-
-                disposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-        #endregion
     }
 }

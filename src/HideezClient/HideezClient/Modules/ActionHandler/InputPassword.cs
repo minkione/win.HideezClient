@@ -8,6 +8,7 @@ using Hideez.ARM;
 using HideezMiddleware.Settings;
 using Hideez.SDK.Communication;
 using System;
+using HideezMiddleware.IPC.DTO;
 
 namespace HideezClient.Modules.ActionHandler
 {
@@ -89,7 +90,7 @@ namespace HideezClient.Modules.ActionHandler
         {
             base.OnAccountEntered(appInfo, account);
 
-            await _eventPublisher.PublishEventAsync(new HideezServiceReference.WorkstationEventDTO
+            await _eventPublisher.PublishEventAsync(new WorkstationEventDTO
             {
                 Id = Guid.NewGuid().ToString(),
                 Date = DateTime.UtcNow,

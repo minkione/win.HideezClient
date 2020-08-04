@@ -321,16 +321,16 @@ namespace HideezClient.PageViewModels
                 {
                     if (hex.ErrorCode == HideezErrorCode.ERR_UNAUTHORIZED)
                     {
-                        _messenger.Send(new ShowErrorNotificationMessage("An error occured during operation: Unauthorizated"));
+                        _messenger.Send(new ShowErrorNotificationMessage("An error occured during operation: Unauthorizated", notificationId: Device.Mac));
                     }
                     else if (hex.ErrorCode == HideezErrorCode.PmPasswordNameCannotBeEmpty)
                     {
-                        _messenger.Send(new ShowErrorNotificationMessage("Account name cannot be empty"));
+                        _messenger.Send(new ShowErrorNotificationMessage("Account name cannot be empty", notificationId: Device.Mac));
                     }
                 }
                 else
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage($"{message}{Environment.NewLine}{ex.Message}"));
+                    _messenger.Send(new ShowErrorNotificationMessage($"{message}{Environment.NewLine}{ex.Message}", notificationId: Device.Mac));
                 }
             }
             catch (Exception ManagerEx)

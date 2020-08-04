@@ -6,7 +6,6 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
 using Hideez.SDK.Communication.Utils;
-using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
 using HideezClient.Modules;
 using HideezClient.Modules.ServiceProxy;
@@ -25,6 +24,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
+using HideezMiddleware.IPC.DTO;
+using Meta.Lib.Modules.PubSub;
+using HideezMiddleware.IPC.IncommingMessages;
+using HideezClient.Modules.Localize;
 
 namespace HideezClient.Models
 {
@@ -38,6 +41,8 @@ namespace HideezClient.Models
         readonly IServiceProxy _serviceProxy;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         readonly IMessenger _messenger;
+        readonly IMetaPubSub _metaMessenger;
+
         RemoteDevice _remoteDevice;
         DelayedMethodCaller dmc = new DelayedMethodCaller(2000);
         readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetPinRequests
@@ -53,6 +58,7 @@ namespace HideezClient.Models
         bool isConnected;
         bool isInitialized;
         string serialNo;
+        string mac;
         uint storageTotalSize;
         uint storageFreeSize;
         Version firmwareVersion;
@@ -82,11 +88,13 @@ namespace HideezClient.Models
             IServiceProxy serviceProxy,
             IRemoteDeviceFactory remoteDeviceFactory,
             IMessenger messenger,
+            IMetaPubSub metaMessenger,
             DeviceDTO dto)
         {
             _serviceProxy = serviceProxy;
             _remoteDeviceFactory = remoteDeviceFactory;
             _messenger = messenger;
+            _metaMessenger = metaMessenger;
 
             PropertyChanged += Device_PropertyChanged;
 
@@ -162,6 +170,13 @@ namespace HideezClient.Models
         {
             get { return serialNo; }
             private set { Set(ref serialNo, value); }
+        }
+
+        //Todo: Add this property in contract on service
+        public string Mac
+        {
+            get { return Mac; }
+            private set { Set(ref mac, value); }
         }
 
         public Version FirmwareVersion
@@ -304,7 +319,7 @@ namespace HideezClient.Models
         #endregion
 
         #region Messege & Event handlers
-        void RemoteDevice_ButtonPressed(object sender, Hideez.SDK.Communication.ButtonPressCode e)
+        void RemoteDevice_ButtonPressed(object sender, ButtonPressCode e)
         {
             _log.WriteLine($"({SerialNo}) Vault button pressed, code: {e}");
 
@@ -382,7 +397,7 @@ namespace HideezClient.Models
                 LoadFrom(obj.Device);
         }
 
-        void OnPinReceived(SendPinMessage obj)
+        void OnPinReceived(Messages.SendPinMessage obj)
         {
             if (_pendingGetPinRequests.TryGetValue(obj.DeviceId, out TaskCompletionSource<byte[]> tcs))
                 tcs.TrySetResult(obj.Pin);
@@ -441,7 +456,11 @@ namespace HideezClient.Models
         void OnLockDeviceStorage(LockDeviceStorageMessage obj)
         {
             if (obj.SerialNo == SerialNo)
+            {
                 IsStorageLocked = true;
+                _messenger.Send(new ShowInfoNotificationMessage($"Synchronizing credentials in {serialNo} with your other vault, please wait"
+                   + Environment.NewLine + "Password manager is temporarily unavailable", notificationId: Mac));
+            }
         }
 
         void OnLiftDeviceStorageLock(LiftDeviceStorageLockMessage obj)
@@ -573,11 +592,17 @@ namespace HideezClient.Models
                         {
                             if (_remoteDevice.IsLockedByCode)
                             {
-                                _messenger.Send(new ShowDeviceLockedByCodeNotificationMessage(this));
+                                _messenger.Send(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByCode.Message"],
+                                    TranslationSource.Instance["Notification.DeviceLockedByCode.Caption"],
+                                    new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
+                                    Mac));
                             }
                             else if (_remoteDevice.IsLockedByPin)
                             {
-                                _messenger.Send(new ShowDeviceLockedByPinNotificationMessage(this));
+                                _messenger.Send(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
+                                    TranslationSource.Instance["Notification.DeviceLockedByPin.Caption"],
+                                    new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
+                                    Mac));
                             }
                             else
                             {
@@ -637,7 +662,7 @@ namespace HideezClient.Models
                         tempRemoteDevice.StorageModified -= RemoteDevice_StorageModified;
                         tempRemoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
                         await tempRemoteDevice.Shutdown(code);
-                        await _serviceProxy.GetService().RemoveDeviceAsync(tempRemoteDevice.Id);
+                        await _metaMessenger.PublishOnServer(new RemoveDeviceMessage(tempRemoteDevice.Id));
                         await tempRemoteDevice.DeleteContext();
                         tempRemoteDevice.Dispose();
                     }
@@ -674,7 +699,8 @@ namespace HideezClient.Models
                 }
 
                 _log.WriteLine("Checking for available channels");
-                var channels = await _serviceProxy.GetService().GetAvailableChannelsAsync(SerialNo);
+                var channelsReply = await _metaMessenger.ProcessOnServer<GetAvailableChannelsMessageReply>(new GetAvailableChannelsMessage(SerialNo), 0);
+                var channels = channelsReply.FreeChannels;
                 if (channels.Length == 0)
                     throw new Exception($"No available channels on vault ({SerialNo})"); // Todo: separate exception type
                 var channelNo = channels.FirstOrDefault();
@@ -686,7 +712,7 @@ namespace HideezClient.Models
                     return;
                 }
 
-                ShowInfo($"Preparing for vault {SerialNo} authorization", _infNid);
+                ShowInfo($"Preparing for vault {SerialNo} authorization", Mac);
                 IsCreatingRemoteDevice = true;
                 _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
@@ -715,27 +741,20 @@ namespace HideezClient.Models
 
                 _log.WriteLine($"({SerialNo}) Remote vault connection established");
             }
-            catch (FaultException<HideezServiceFault> ex)
-            {
-                _log.WriteLine(ex.FormattedMessage());
-                ShowError(ex.FormattedMessage(), _errNid);
-                initErrorCode = (HideezErrorCode)ex.Detail.ErrorCode;
-            }
             catch (HideezException ex)
             {
                 _log.WriteLine(ex);
-                ShowError(ex.Message, _errNid);
+                ShowError(ex.Message, Mac);
                 initErrorCode = ex.ErrorCode;
             }
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
-                ShowError(ex.Message, _errNid);
+                ShowError(ex.Message, Mac);
                 initErrorCode = HideezErrorCode.UnknownError;
             }
             finally
             {
-                ShowInfo("", _infNid);
                 _messenger.Send(new HidePinUiMessage());
 
                 if (initErrorCode != HideezErrorCode.Ok)
@@ -765,26 +784,24 @@ namespace HideezClient.Models
                 await PinWorkflow(ct);
 
                 if (ct.IsCancellationRequested)
-                    ShowError($"({SerialNo}) Authorization cancelled", _errNid);
+                    ShowError($"({SerialNo}) Authorization cancelled", Mac);
                 else if (IsAuthorized)
                     _log.WriteLine($"({_remoteDevice.Id}) Remote vault authorized");
                 else
-                    ShowError($"({SerialNo}) Authorization failed", _errNid);
-            }
-            catch (FaultException<HideezServiceFault> ex)
-            {
-                _log.WriteLine(ex.FormattedMessage());
-                ShowError(ex.FormattedMessage(), _errNid);
+                    ShowError($"({SerialNo}) Authorization failed", Mac);
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked || ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
             {
-                _log.WriteLine($"({SerialNo}) Auth failed. Vault is locked due to too many incorrect PIN entries");
-                _messenger.Send(new ShowDeviceLockedByPinNotificationMessage(this));
+                _log.WriteLine($"({Mac}) Auth failed. Vault is locked due to too many incorrect PIN entries");
+                _messenger.Send(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
+                                    TranslationSource.Instance["Notification.DeviceLockedByPin.Caption"],
+                                    new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
+                                    Mac));
             }
             catch (HideezException ex)
             {
                 _log.WriteLine(ex);
-                ShowError(ex.Message, _errNid);
+                ShowError(ex.Message, Mac);
             }
             catch (OperationCanceledException ex)
             {
@@ -793,15 +810,11 @@ namespace HideezClient.Models
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
-                ShowError(ex.Message, _errNid);
+                ShowError(ex.Message, Mac);
             }
             finally
             {
-                ShowInfo("", _infNid);
                 _messenger.Send(new HidePinUiMessage());
-
-                if (IsAuthorized)
-                    ShowError("", _errNid);
 
                 IsAuthorizingRemoteDevice = false;
             }
@@ -823,17 +836,10 @@ namespace HideezClient.Models
                 
                 IsStorageLoaded = true;
             }
-            catch (FaultException<HideezServiceFault> ex)
-            {
-                _log.WriteLine(ex);
-                ShowError(ex.Message, _errNid);
-
-                await ShutdownRemoteDeviceAsync(HideezErrorCode.UnknownError);
-            }
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
-                ShowError(ex.Message, _errNid);
+                ShowError(ex.Message, Mac);
 
                 await ShutdownRemoteDeviceAsync(HideezErrorCode.UnknownError);
             }
@@ -849,7 +855,7 @@ namespace HideezClient.Models
             if (!_remoteDevice.AccessLevel.IsButtonRequired)
                 return true;
 
-            ShowInfo("Please press the Button on your Hideez Key", _infNid);
+            ShowInfo("Please press the Button on your Hideez Key", Mac);
             _messenger.Send(new ShowButtonConfirmUiMessage(Id));
             var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT, ct);
             return res;
@@ -876,7 +882,7 @@ namespace HideezClient.Models
             bool pinOk = false;
             while (AccessLevel.IsNewPinRequired)
             {
-                ShowInfo("Please create new PIN code for your Hideez Key", _infNid);
+                ShowInfo("Please create new PIN code for your Hideez Key", Mac);
                 var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, ct, withConfirm: true);
 
                 if (pin == null)
@@ -899,11 +905,11 @@ namespace HideezClient.Models
                 }
                 else if (pinResult == HideezErrorCode.ERR_PIN_TOO_SHORT)
                 {
-                    ShowError("PIN is too short", _errNid);
+                    ShowError("PIN is too short", Mac);
                 }
                 else if (pinResult == HideezErrorCode.ERR_PIN_WRONG)
                 {
-                    ShowError("Invalid PIN", _errNid);
+                    ShowError("Invalid PIN", Mac);
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow ---------------------------------------");
@@ -922,7 +928,7 @@ namespace HideezClient.Models
             bool pinOk = false;
             while (!AccessLevel.IsLocked)
             {
-                ShowInfo("Please enter the PIN code for your Hideez Key", _infNid);
+                ShowInfo("Please enter the PIN code for your Hideez Key", Mac);
                 var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, ct);
 
                 if (pin == null)
@@ -954,10 +960,10 @@ namespace HideezClient.Models
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({attemptsLeft} attempts left)");
                     if (AccessLevel.IsLocked)
-                        ShowError($"Vault is locked", _errNid);
+                        ShowError($"Vault is locked", Mac);
                     else
                     {
-                        ShowError($"Wrong PIN ({attemptsLeft} attempts left)", _errNid);
+                        ShowError($"Wrong PIN ({attemptsLeft} attempts left)", Mac);
                         await _remoteDevice.RefreshDeviceInfo(); // Remaining pin attempts update is not quick enough 
                     }
                 }

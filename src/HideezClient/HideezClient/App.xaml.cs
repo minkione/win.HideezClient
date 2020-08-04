@@ -17,7 +17,6 @@ using System.Threading;
 using System.IO;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Modules.Localize;
-using HideezClient.HideezServiceReference;
 using HideezClient.Modules.ServiceCallbackMessanger;
 using HideezClient.Modules.ServiceWatchdog;
 using HideezClient.Modules.DeviceManager;
@@ -44,6 +43,8 @@ using HideezClient.Modules.Log;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware.Workstation;
 using HideezClient.Modules.ProximityLockManager;
+using Meta.Lib.Modules.PubSub;
+using HideezClient.Modules.NotificationsManager;
 
 namespace HideezClient
 {
@@ -179,7 +180,11 @@ namespace HideezClient
             _log.WriteLine("Resolve DI container");
             _startupHelper = Container.Resolve<IStartupHelper>();
             _workstationManager = Container.Resolve<IWorkstationManager>();
-            Container.Resolve<IHideezServiceCallback>();
+
+            var metaMessenger = Container.Resolve<IMetaPubSub>();
+            
+            Container.Resolve<ServiceCallbackMessanger>();
+
             _serviceWatchdog = Container.Resolve<IServiceWatchdog>();
             _serviceWatchdog.Start();
             _deviceManager = Container.Resolve<IDeviceManager>();
@@ -214,6 +219,7 @@ namespace HideezClient
 
             _windowsManager = Container.Resolve<IWindowsManager>();
             await _windowsManager.InitializeMainWindowAsync();
+            await metaMessenger.TryConnectToServer("HideezServicePipe");
         }
 
         private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
@@ -315,7 +321,8 @@ namespace HideezClient
 
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<IHideezServiceCallback, ServiceCallbackMessanger>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ServiceCallbackMessanger>(new ContainerControlledLifetimeManager());
+            Container.RegisterInstance<IMetaPubSub>(new MetaPubSub(new MetaPubSubLogger(Container.Resolve<ILog>()))); // Todo: fix this idiocity
             Container.RegisterType<IServiceWatchdog, ServiceWatchdog>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IRemoteDeviceFactory, RemoteDeviceFactory>(new ContainerControlledLifetimeManager());
 
@@ -345,7 +352,7 @@ namespace HideezClient
             Container.RegisterType<IBarcodeReader, BarcodeReader>(new ContainerControlledLifetimeManager()); 
             Container.RegisterType<IQrScannerHelper, QrScannerHelper>();
 
-            Container.RegisterType<INotifier, Notifier>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<INotificationsManager, NotificationsManager>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<IEventPublisher, EventPublisher>(new ContainerControlledLifetimeManager());
 

@@ -19,11 +19,6 @@ namespace HideezMiddleware
         readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetActivationCodeRequests
             = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
 
-        public event EventHandler<EventArgs> ClientConnected;
-
-        public bool IsConnected => _credentialProviderUi.IsConnected || _clientUi.IsConnected;
-
-
         public UiProxyManager(IClientUiProxy credentialProviderUi, IClientUiProxy clientUi, ILog log)
             : base(nameof(UiProxyManager), log)
         {
@@ -32,7 +27,6 @@ namespace HideezMiddleware
 
             if (_credentialProviderUi != null)
             {
-                _credentialProviderUi.ClientConnected += ClientUi_ClientUiConnected;
                 _credentialProviderUi.PinReceived += ClientUi_PinReceived;
                 _credentialProviderUi.ActivationCodeReceived += ClientUi_ActivationCodeReceived;
                 _credentialProviderUi.ActivationCodeCancelled += ClientUi_ActivationCodeCancelled;
@@ -40,7 +34,6 @@ namespace HideezMiddleware
 
             if (_clientUi != null)
             {
-                _clientUi.ClientConnected += ClientUi_ClientUiConnected;
                 _clientUi.PinReceived += ClientUi_PinReceived;
                 _clientUi.ActivationCodeReceived += ClientUi_ActivationCodeReceived;
                 _clientUi.ActivationCodeCancelled += ClientUi_ActivationCodeCancelled;
@@ -63,9 +56,6 @@ namespace HideezMiddleware
 
             if (disposing)
             {
-                _credentialProviderUi.ClientConnected -= ClientUi_ClientUiConnected;
-                _clientUi.ClientConnected -= ClientUi_ClientUiConnected;
-
                 _credentialProviderUi.PinReceived -= ClientUi_PinReceived;
                 _clientUi.PinReceived -= ClientUi_PinReceived;
             }
@@ -78,11 +68,6 @@ namespace HideezMiddleware
             Dispose(false);
         }
         #endregion
-
-        void ClientUi_ClientUiConnected(object sender, EventArgs e)
-        {
-            ClientConnected?.Invoke(this, EventArgs.Empty);
-        }
 
         void ClientUi_PinReceived(object sender, PinReceivedEventArgs e)
         {
@@ -103,10 +88,7 @@ namespace HideezMiddleware
 
         IClientUiProxy GetCurrentClientUi()
         {
-            if (_credentialProviderUi?.IsConnected ?? false)
-                return _credentialProviderUi;
-            else if (_clientUi?.IsConnected ?? false)
-                return _clientUi;
+            // TODO:
             return null;
         }
 
@@ -216,9 +198,6 @@ namespace HideezMiddleware
 
             var ui = GetCurrentClientUi();
 
-            if (string.IsNullOrWhiteSpace(notificationId))
-                notificationId = Guid.NewGuid().ToString();
-
             if (ui != null)
                 await ui.SendNotification(notification, notificationId);
         }
@@ -228,9 +207,6 @@ namespace HideezMiddleware
             WriteLine($"SendError: {error}");
 
             var ui = GetCurrentClientUi();
-
-            if (string.IsNullOrWhiteSpace(notificationId))
-                notificationId = Guid.NewGuid().ToString();
 
             if (ui != null)
                 await ui.SendError(error, notificationId);

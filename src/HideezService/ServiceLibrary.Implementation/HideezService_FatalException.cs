@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation
 {
-    public partial class HideezService : IHideezService
+    public partial class HideezService
     {
         void SetupExceptionHandling()
         {

@@ -16,11 +16,12 @@ using NLog.Layouts;
 using System.Threading.Tasks;
 using HideezClient.Models;
 using HideezClient.Modules.ServiceProxy;
-using HideezClient.HideezServiceReference;
 using System.ServiceModel;
 using HideezMiddleware.Settings;
 using HideezClient.Mvvm;
 using HideezClient.Messages;
+using Meta.Lib.Modules.PubSub;
+using HideezMiddleware.IPC.IncommingMessages;
 
 namespace HideezClient.Modules
 {
@@ -34,11 +35,12 @@ namespace HideezClient.Modules
         readonly ISupportMailContentGenerator _supportMailContentGenerator;
         readonly IServiceProxy _serviceProxy;
         readonly IActiveDevice _activeDevice;
+        readonly IMetaPubSub _metaMessenger;
 
         public MenuFactory(IMessenger messenger, IStartupHelper startupHelper
             , IWindowsManager windowsManager, IAppHelper appHelper,
             ISettingsManager<ApplicationSettings> settingsManager, ISupportMailContentGenerator supportMailContentGenerator,
-            IServiceProxy serviceProxy, IActiveDevice activeDevice)
+            IServiceProxy serviceProxy, IActiveDevice activeDevice, IMetaPubSub metaMessenger)
         {
             _messenger = messenger;
             _startupHelper = startupHelper;
@@ -48,6 +50,7 @@ namespace HideezClient.Modules
             _supportMailContentGenerator = supportMailContentGenerator;
             _serviceProxy = serviceProxy;
             _activeDevice = activeDevice;
+            _metaMessenger = metaMessenger;
         }
 
         public MenuItemViewModel GetMenuItem(MenuItemType type)
@@ -195,15 +198,11 @@ namespace HideezClient.Modules
                     var result = await _windowsManager.ShowDisconnectDevicePromptAsync(device.Name);
 
                     if (result)
-                        await _serviceProxy.GetService().DisconnectDeviceAsync(device.Id);
-                }
-                catch (FaultException<HideezServiceFault> ex)
-                {
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                        await _metaMessenger.PublishOnServer(new DisconnectDeviceMessage(device.Id));
                 }
                 catch (Exception ex)
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
                 }
             }
         }
@@ -217,15 +216,11 @@ namespace HideezClient.Modules
                     var result = await _windowsManager.ShowRemoveDevicePromptAsync(device.Name);
 
                     if (result)
-                        await _serviceProxy.GetService().RemoveDeviceAsync(device.Id);
-                }
-                catch (FaultException<HideezServiceFault> ex)
-                {
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                        await _metaMessenger.PublishOnServer(new RemoveDeviceMessage(device.Id));
                 }
                 catch (Exception ex)
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
                 }
             }
         }
