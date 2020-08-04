@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
+using HideezClient.Modules.Localize;
 
 namespace HideezClient.Modules.ProximityLockManager
 {
@@ -20,7 +21,7 @@ namespace HideezClient.Modules.ProximityLockManager
         void OnWorkstationUnlocked(UnlockWorkstationMessage obj)
         {
             if (obj.IsDisabledLock)
-                _messenger.Send(new ShowWarningNotificationMessage(message: "Lock by proximity is disabled"));
+                _messenger.Send(new ShowWarningNotificationMessage(message: TranslationSource.Instance["Notification.ProximityLockDisabled"]));
 
             ChangeIconState(obj.IsDisabledLock);
         }

@@ -15,6 +15,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using HideezClient.Messages;
 using HideezClient.Modules;
+using HideezClient.Modules.Localize;
 using HideezClient.Modules.Log;
 using HideezClient.Mvvm;
 using HideezClient.Utilities;
@@ -34,8 +35,8 @@ namespace HideezClient.ViewModels
         bool isUpdateAppsUrls;
         DeviceViewModel _device;
         int generatePasswordLength = 16;
-        readonly AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
-        readonly AppInfo addUrlAppInfo = new AppInfo { Domain = "<Enter Url>" };
+        readonly AppInfo loadingAppInfo = new AppInfo { Description = TranslationSource.Instance["PasswordManager.AppList.Loading"], Domain = TranslationSource.Instance["PasswordManager.AppList.Loading"] };
+        readonly AppInfo addUrlAppInfo = new AppInfo { Domain = TranslationSource.Instance["PasswordManager.AppList.CustomUrl"] };
         bool canScanOtpSecretQrCode = true;
         readonly AccountRecord cache;
 
@@ -88,7 +89,7 @@ namespace HideezClient.ViewModels
             Application.Current.MainWindow.Activated += WeakEventHandler.Create(this, (@this, o, args) => Task.Run(@this.UpdateAppsAndUrls));
 
             this.WhenAnyValue(vm => vm.OtpSecret).Where(x => !string.IsNullOrWhiteSpace(x))
-                .Subscribe(o => ErrorOtpSecret = (ValidateBase32String(OtpSecret) ? null : "Not valid OTP secret"));
+                .Subscribe(o => ErrorOtpSecret = (ValidateBase32String(OtpSecret) ? null : TranslationSource.Instance["PasswordManager.Error.OtpSecretInvalid"]));
 
             this.WhenAnyValue(vm => vm.ErrorAccountName, vm => vm.ErrorAccountLogin, vm => vm.ErrorOtpSecret)
                 .Subscribe(observer => HasError = !(ErrorAccountName == null && ErrorAccountLogin == null && ErrorOtpSecret == null));
@@ -129,7 +130,7 @@ namespace HideezClient.ViewModels
         public bool CanSave()
         {
             ValidateNameAndLogin();
-            ErrorPassword = IsNewAccount && !IsPasswordChanged ? "Password cannot be empty." : null;
+            ErrorPassword = IsNewAccount && !IsPasswordChanged ? TranslationSource.Instance["PasswordManager.Error.PasswordEmpty"] : null;
             return ErrorAccountName == null && ErrorOtpSecret == null && ErrorPassword == null;
         }
 
@@ -476,7 +477,7 @@ namespace HideezClient.ViewModels
         {
             if (string.IsNullOrWhiteSpace(AccountRecord.Name))
             {
-                ErrorAccountName = "Account name cannot be empty";
+                ErrorAccountName = TranslationSource.Instance["PasswordManager.Error.NameEmpty"];
                 ErrorAccountLogin = null;
             }
             else if (_device.AccountsRecords
@@ -485,7 +486,7 @@ namespace HideezClient.ViewModels
                 (a.Login == AccountRecord.Login || string.IsNullOrWhiteSpace(a.Login) && string.IsNullOrWhiteSpace(AccountRecord.Login)) && 
                 a.StorageId != AccountRecord.StorageId)) // Strasse != Straße in default/ordinal comparison
             {
-                ErrorAccountName = "Account with the same name and login already exists";
+                ErrorAccountName = TranslationSource.Instance["PasswordManager.Error.NameTaken"];
                 ErrorAccountLogin = ErrorAccountName;
             }
             else

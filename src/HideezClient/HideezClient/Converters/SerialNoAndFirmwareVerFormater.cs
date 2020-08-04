@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HideezClient.Modules.Localize;
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -41,7 +42,7 @@ namespace HideezClient.Converters
 
             if(sb.Length == 0)
             {
-                sb.Append("unknown");
+                sb.Append(TranslationSource.Instance["FirmwareVersion.Unknown"]);
             }
 
             return sb.ToString();

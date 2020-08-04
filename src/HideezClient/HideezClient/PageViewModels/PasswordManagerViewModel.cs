@@ -33,6 +33,7 @@ using HideezClient.Modules.Log;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
 using HideezClient.Models.Settings;
+using HideezClient.Modules.Localize;
 
 namespace HideezClient.PageViewModels
 {
@@ -222,7 +223,7 @@ namespace HideezClient.PageViewModels
             catch (Exception ex)
             {
                 IsAvailable = true;
-                HandleError(ex, "An error occured while saving account");
+                HandleError(ex, TranslationSource.Instance["PasswordManager.Error.FailedToSave"]);
             }
         }
 
@@ -256,7 +257,7 @@ namespace HideezClient.PageViewModels
                 catch (Exception ex)
                 {
                     IsAvailable = true;
-                    HandleError(ex, "An error occured while deleting account");
+                    HandleError(ex, TranslationSource.Instance["PasswordManager.Error.FailedToDelete"]);
                 }
             }
         }
@@ -321,11 +322,11 @@ namespace HideezClient.PageViewModels
                 {
                     if (hex.ErrorCode == HideezErrorCode.ERR_UNAUTHORIZED)
                     {
-                        _messenger.Send(new ShowErrorNotificationMessage("An error occured during operation: Unauthorizated", notificationId: Device.Mac));
+                        _messenger.Send(new ShowErrorNotificationMessage(TranslationSource.Instance["PasswordManager.Error.Unauthorized"], notificationId: Device.Mac));
                     }
                     else if (hex.ErrorCode == HideezErrorCode.PmPasswordNameCannotBeEmpty)
                     {
-                        _messenger.Send(new ShowErrorNotificationMessage("Account name cannot be empty", notificationId: Device.Mac));
+                        _messenger.Send(new ShowErrorNotificationMessage(TranslationSource.Instance["PasswordManager.Error.NameEmpty"], notificationId: Device.Mac));
                     }
                 }
                 else

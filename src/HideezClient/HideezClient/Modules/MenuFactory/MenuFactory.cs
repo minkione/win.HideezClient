@@ -178,7 +178,7 @@ namespace HideezClient.Modules
         {
             return new MenuItemViewModel
             {
-                Header = "Set vault as active",
+                Header = "Menu.SetAsActive.ToolTip",
                 Command = new DelegateCommand
                 {
                     CommandAction = (x) =>
