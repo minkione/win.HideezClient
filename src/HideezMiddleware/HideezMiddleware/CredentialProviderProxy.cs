@@ -9,6 +9,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.NamedPipes;
 using Hideez.SDK.Communication.Utils;
+using HideezMiddleware.Localize;
 
 namespace HideezMiddleware
 {
@@ -350,26 +351,26 @@ namespace HideezMiddleware
             var statuses = new List<string>();
 
             if (bluetoothStatus != BluetoothStatus.Ok)
-                statuses.Add($"Bluetooth not available (state: {bluetoothStatus})");
+                statuses.Add(TranslationSource.Instance.Format("ServiceComponentStatus.Bluetooth.NotAvailable", bluetoothStatus));
 
             if (rfidStatus != RfidStatus.Disabled && rfidStatus != RfidStatus.Ok)
             {
                 if (rfidStatus == RfidStatus.RfidServiceNotConnected)
-                    statuses.Add("RFID service not connected");
+                    statuses.Add(TranslationSource.Instance["ServiceComponentStatus.RFID.ServiceNotConnected"]);
                 else if (rfidStatus == RfidStatus.RfidReaderNotConnected)
-                    statuses.Add("RFID reader not connected");
+                    statuses.Add(TranslationSource.Instance["ServiceComponentStatus.RFID.ReaderNotConnected"]);
             }
 
             if (hesStatus != HesStatus.Ok)
             {
                 if (hesStatus == HesStatus.NotApproved)
-                    statuses.Add("Workstation not approved on HES");
+                    statuses.Add(TranslationSource.Instance["ServiceComponentStatus.HES.WorkstationNotApproved"]);
                 else
-                    statuses.Add("HES not connected");
+                    statuses.Add(TranslationSource.Instance["ServiceComponentStatus.HES.NotConnected"]);
             }
 
             if (statuses.Count > 0)
-                await SendStatus($"ERROR: {string.Join("; ", statuses)}");
+                await SendStatus(TranslationSource.Instance.Format("ServiceComponentStatus.Message.Base", string.Join("; ", statuses)));
             else
                 await SendStatus(string.Empty);
         }

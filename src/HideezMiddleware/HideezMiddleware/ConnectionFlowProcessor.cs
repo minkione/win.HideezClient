@@ -12,6 +12,7 @@ using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Tasks;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.Local;
+using HideezMiddleware.Localize;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Tasks;
 using Microsoft.Win32;
@@ -288,7 +289,7 @@ namespace HideezMiddleware
                 if (deviceInfoProc.IsSuccessful && deviceInfo.NeedUpdate)
                 {
                     // request HES to update this device
-                    await _ui.SendNotification("Uploading new credentials to the device...", mac);
+                    await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Update.UploadingCredentials"], mac);
                     await _hesConnection.FixDevice(device, ct);
                     await device.RefreshDeviceInfo();
                 }
@@ -435,11 +436,11 @@ namespace HideezMiddleware
         {
             var result = new WorkstationUnlockResult();
 
-            await _ui.SendNotification("Reading credentials from the device...", device.Mac);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Unlock.ReadingCredentials"], device.Mac);
             var credentials = await GetCredentials(device);
 
             // send credentials to the Credential Provider to unlock the PC
-            await _ui.SendNotification("Unlocking the PC...", device.Mac);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Unlock.Unlocking"], device.Mac);
             result.IsSuccessful = await _workstationUnlocker
                 .SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
 
@@ -458,7 +459,7 @@ namespace HideezMiddleware
 
             ct.ThrowIfCancellationRequested();
 
-            await _ui.SendNotification("Waiting for HES authorization...", device.Mac);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.MasterKey.AwaitingHESAuth"], device.Mac);
 
             await _hesConnection.FixDevice(device, ct);
 
@@ -470,7 +471,7 @@ namespace HideezMiddleware
             if (!device.AccessLevel.IsButtonRequired)
                 return true;
 
-            await _ui.SendNotification("Please press the Button on your Hideez Key", device.Mac);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Button.PressButtonMessage"], device.Mac);
             await _ui.ShowButtonConfirmUi(device.Id);
             var res = await device.WaitButtonConfirmation(timeout, ct);
             return res;
@@ -497,7 +498,7 @@ namespace HideezMiddleware
             bool res = false;
             while (device.AccessLevel.IsNewPinRequired)
             {
-                await _ui.SendNotification($"Please create new PIN code for your Hideez Key (minimum {device.MinPinLength})", device.Mac);
+                await _ui.SendNotification(TranslationSource.Instance.Format("ConnectionFlow.Pin.NewPinMessage", device.MinPinLength), device.Mac);
                 string pin = await _ui.GetPin(device.Id, timeout, ct, withConfirm: true);
 
                 if (string.IsNullOrWhiteSpace(pin))
@@ -516,11 +517,11 @@ namespace HideezMiddleware
                 }
                 else if (pinResult == HideezErrorCode.ERR_PIN_TOO_SHORT)
                 {
-                    await _ui.SendError($"PIN too short", device.Mac);
+                    await _ui.SendError(TranslationSource.Instance["ConnectionFlow.Pin.Error.PinToShort"], device.Mac);
                 }
                 else if (pinResult == HideezErrorCode.ERR_PIN_WRONG)
                 {
-                    await _ui.SendError($"Invalid PIN", device.Mac);
+                    await _ui.SendError(TranslationSource.Instance["ConnectionFlow.Pin.Error.WrongPin"], device.Mac);
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow ---------------------------------------");
@@ -534,7 +535,7 @@ namespace HideezMiddleware
             bool res = false;
             while (!device.AccessLevel.IsLocked)
             {
-                await _ui.SendNotification("Please enter the PIN code for your Hideez Key", device.Mac);
+                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Pin.EnterPinMessage"], device.Mac);
                 string pin = await _ui.GetPin(device.Id, timeout, ct);
 
                 Debug.WriteLine($">>>>>>>>>>>>>>> PIN: {pin}");
@@ -565,14 +566,14 @@ namespace HideezMiddleware
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({attemptsLeft} attempts left)");
                     if (device.AccessLevel.IsLocked)
                     {
-                        await _ui.SendError($"Vault is locked", device.Mac);
+                        await _ui.SendError(TranslationSource.Instance["ConnectionFlow.Error.VaultIsLocked"], device.Mac);
                     }
                     else
                     {
                         if (attemptsLeft > 1)
-                            await _ui.SendError($"Invalid PIN! {attemptsLeft} attempts left.", device.Mac);
+                            await _ui.SendError(TranslationSource.Instance.Format("ConnectionFlow.Pin.Error.InvalidPin.ManyAttemptsLeft", attemptsLeft), device.Mac);
                         else
-                            await _ui.SendError($"Invalid PIN! 1 attempt left.", device.Mac);
+                            await _ui.SendError(TranslationSource.Instance["ConnectionFlow.Pin.Error.InvalidPin.OneAttemptLeft"], device.Mac);
                         await device.RefreshDeviceInfo(); // Remaining pin attempts update is not quick enough 
                     }
                 }
@@ -584,7 +585,7 @@ namespace HideezMiddleware
         async Task<IDevice> ConnectDevice(string mac, bool rebondOnFail, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
-            await _ui.SendNotification($"Connecting vault. Press the vault button to confirm.", mac);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1.PressButton"], mac);
 
             bool ltkErrorOccured = false;
             IDevice device = null;
@@ -603,11 +604,11 @@ namespace HideezMiddleware
                 ct.ThrowIfCancellationRequested();
                 if (ltkErrorOccured)
                 {
-                    await _ui.SendNotification($"LTK error. Retrying. Press the vault button to confirm.", mac); // TODO: Fix LTK error in CSR
+                    await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage2.LtkError.PressButton"], mac); // TODO: Fix LTK error in CSR
                     ltkErrorOccured = false;
                 }
                 else
-                    await _ui.SendNotification($"Retrying. Press the vault button to confirm.", mac);
+                    await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage2.PressButton"], mac);
 
                 try
                 {
@@ -627,31 +628,31 @@ namespace HideezMiddleware
                     await _deviceManager.RemoveByMac(mac);
 
                     if (ltkErrorOccured)
-                        await _ui.SendNotification($"LTK error. Re-bonding. Press the vault button to confirm.", mac); // TODO: Fix LTK error in CSR
+                        await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage3.LtkError.PressButton"], mac); // TODO: Fix LTK error in CSR
                     else
-                        await _ui.SendNotification($"Re-bonding. Press the vault button to confirm.", mac);
+                        await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage3.PressButton"], mac);
 
                     device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
                 }
             }
 
             if (device == null)
-                throw new Exception($"Connection failed. Make sure to confirm vault connection by pressing the vault button when you see a green light.  ({mac})");
+                throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed", mac));
 
             return device;
         }
 
         async Task WaitDeviceInitialization(string mac, IDevice device, CancellationToken ct)
         {
-            await _ui.SendNotification("Waiting for the vault initialization...", mac);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Initialization.WaitingInitializationMessage"], mac);
 
             if (!await device.WaitInitialization(SdkConfig.DeviceInitializationTimeout, ct))
-                throw new Exception($"Failed to initialize vault connection '{mac}'. Please try again.");
+                throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Initialization.InitializationFailed", mac));
 
             if (device.IsErrorState)
             {
                 await _deviceManager.Remove(device);
-                throw new Exception($"Failed to initialize vault connection '{mac}' ({device.ErrorMessage}). Please try again.");
+                throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Initialization.DeviceInitializationError", mac, device.ErrorMessage));
             }
         }
 
@@ -687,7 +688,7 @@ namespace HideezMiddleware
                 }
 
                 if (credentials.IsEmpty)
-                    throw new Exception($"Vault '{device.SerialNo}' doesn't have any stored Primary accounts");
+                    throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Unlock.Error.NoCredentials", device.SerialNo));
             }
             else
             {
@@ -701,7 +702,7 @@ namespace HideezMiddleware
                 //if (credentials.IsEmpty)
                 //    throw new Exception($"Cannot read login or password from the vault '{device.SerialNo}'");
                 if (credentials.IsEmpty)
-                    throw new Exception($"Vault '{device.SerialNo}' doesn't have any stored Primary accounts");
+                    throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Unlock.Error.NoCredentials", device.SerialNo));
             }
 
             return credentials;
@@ -709,7 +710,7 @@ namespace HideezMiddleware
 
         async Task LicenseWorkflow(IDevice device, CancellationToken ct)
         {
-            await _ui.SendNotification("Updating vault licenses...", device.Mac);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.License.UpdatingLicenseMessage"], device.Mac);
             var licenses = await _hesConnection.GetNewDeviceLicenses(device.SerialNo);
 
             WriteLine($"Received {licenses.Count} new licenses from HES");
@@ -727,10 +728,10 @@ namespace HideezMiddleware
                         return;
 
                     if (license.Data == null)
-                        throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_DATA). Please, contact your administrator.");
+                        throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.License.Error.EmptyLicenseData", device.SerialNo));
 
                     if (license.Id == null)
-                        throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_ID). Please, contact your administrator.");
+                        throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.License.Error.EmptyLicenseId", device.SerialNo));
 
                     try
                     {
@@ -752,7 +753,7 @@ namespace HideezMiddleware
 
         async Task RestoreLicenseWorkflow(IDevice device, CancellationToken ct)
         {
-            await _ui.SendNotification("Updating vault licenses...", device.Mac);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.License.UpdatingLicenseMessage"], device.Mac);
             var licenses = await _hesConnection.GetDeviceLicenses(device.SerialNo);
 
             WriteLine($"Received {licenses.Count} active licenses from HES");
@@ -770,10 +771,10 @@ namespace HideezMiddleware
                         return;
 
                     if (license.Data == null)
-                        throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_DATA). Please, contact your administrator.");
+                        throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.License.Error.EmptyLicenseData", device.SerialNo));
 
                     if (license.Id == null)
-                        throw new Exception($"Invalid license received from HES for {device.SerialNo}, (EMPTY_ID). Please, contact your administrator.");
+                        throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.License.Error.EmptyLicenseId", device.SerialNo));
 
                     try
                     {
@@ -809,13 +810,13 @@ namespace HideezMiddleware
 
                     if (code.Length < 6)
                     {
-                        await _ui.SendError("Activation code is to short", device.Mac);
+                        await _ui.SendError(TranslationSource.Instance["ConnectionFlow.ActivationCode.Error.CodeToShort"], device.Mac);
                         continue;
                     }
 
                     if (code.Length > 8)
                     {
-                        await _ui.SendError("Activation code is to long", device.Mac);
+                        await _ui.SendError(TranslationSource.Instance["ConnectionFlow.ActivationCode.Error.CodeToLong"], device.Mac);
                         continue;
                     }
 
@@ -846,7 +847,7 @@ namespace HideezMiddleware
                     }
                     else if (device.UnlockAttemptsRemain > 0)
                     {
-                        await _ui.SendNotification($"Invalid activation code. {device.UnlockAttemptsRemain} attempts left", device.Mac);
+                        await _ui.SendNotification(TranslationSource.Instance.Format("ConnectionFlow.ActivationCode.Error.InvalidCode", device.UnlockAttemptsRemain), device.Mac);
                     }
                     else
                     { 
