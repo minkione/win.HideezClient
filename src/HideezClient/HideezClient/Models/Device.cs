@@ -175,7 +175,7 @@ namespace HideezClient.Models
         //Todo: Add this property in contract on service
         public string Mac
         {
-            get { return Mac; }
+            get { return mac; }
             private set { Set(ref mac, value); }
         }
 
