@@ -41,7 +41,6 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ShowActivationCodeUiMessage>(ShowActivationCodeUi);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.HideActivationCodeUi>(HideActivationCodeUi);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityLockEnabledMessage>(DeviceProximityLockEnabled);
-            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.WorkstationUnlockedMessage>(WorkstationUnlocked);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ProximitySettingsChangedMessage>(ProximitySettingsChanged);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(LockDeviceStorage);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(LiftDeviceStorageLock);
@@ -166,12 +165,6 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
             return Task.CompletedTask;
         }
 
-        public Task WorkstationUnlocked(HideezMiddleware.IPC.Messages.WorkstationUnlockedMessage message)
-        {
-            SendMessage(new UnlockWorkstationMessage(message.IsNotHideezMethod));
-            return Task.CompletedTask;
-        }
-
         /// <summary>
         /// Send message without blocking current thread using IMessenger
         /// </summary>
@@ -215,8 +208,8 @@ namespace HideezClient.Modules.ServiceCallbackMessanger
         {
             try
             {
-                _log.WriteLine($"Lock vault storage ({serialNo})");
-                _messenger.Send(new LockDeviceStorageMessage(serialNo));
+                _log.WriteLine($"Lock vault storage ({message.SerialNo})");
+                _messenger.Send(new HideezMiddleware.IPC.Messages.LockDeviceStorageMessage(message.SerialNo));
             }
             catch (Exception ex)
             {

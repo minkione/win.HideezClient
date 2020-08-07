@@ -27,6 +27,7 @@ using HideezClient.Modules.Log;
 using HideezMiddleware.IPC.DTO;
 using Meta.Lib.Modules.PubSub;
 using HideezMiddleware.IPC.IncommingMessages;
+using HideezClient.Modules.Localize;
 
 namespace HideezClient.Models
 {
@@ -457,7 +458,7 @@ namespace HideezClient.Models
             if (obj.SerialNo == SerialNo)
             {
                 IsStorageLocked = true;
-                _messenger.Send(new ShowInfoNotificationMessage($"Synchronizing credentials in {serialNo} with your other vault, please wait"
+                _metaMessenger.Publish(new ShowInfoNotificationMessage($"Synchronizing credentials in {serialNo} with your other vault, please wait"
                    + Environment.NewLine + "Password manager is temporarily unavailable", notificationId: Mac));
             }
         }
@@ -591,14 +592,14 @@ namespace HideezClient.Models
                         {
                             if (_remoteDevice.IsLockedByCode)
                             {
-                                _messenger.Send(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByCode.Message"],
+                                await _metaMessenger.Publish(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByCode.Message"],
                                     TranslationSource.Instance["Notification.DeviceLockedByCode.Caption"],
                                     new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
                                     Mac));
                             }
                             else if (_remoteDevice.IsLockedByPin)
                             {
-                                _messenger.Send(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
+                                await _metaMessenger.Publish(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
                                     TranslationSource.Instance["Notification.DeviceLockedByPin.Caption"],
                                     new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
                                     Mac));
@@ -754,7 +755,7 @@ namespace HideezClient.Models
             }
             finally
             {
-                _messenger.Send(new HidePinUiMessage());
+                await _metaMessenger.Publish(new HidePinUiMessage());
 
                 if (initErrorCode != HideezErrorCode.Ok)
                     await ShutdownRemoteDeviceAsync(initErrorCode);
@@ -792,7 +793,7 @@ namespace HideezClient.Models
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked || ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
             {
                 _log.WriteLine($"({Mac}) Auth failed. Vault is locked due to too many incorrect PIN entries");
-                _messenger.Send(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
+                await _metaMessenger.Publish(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
                                     TranslationSource.Instance["Notification.DeviceLockedByPin.Caption"],
                                     new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
                                     Mac));
@@ -813,7 +814,7 @@ namespace HideezClient.Models
             }
             finally
             {
-                _messenger.Send(new HidePinUiMessage());
+                await _metaMessenger.Publish(new HidePinUiMessage());
 
                 IsAuthorizingRemoteDevice = false;
             }
@@ -855,7 +856,7 @@ namespace HideezClient.Models
                 return true;
 
             ShowInfo("Please press the Button on your Hideez Key", Mac);
-            _messenger.Send(new ShowButtonConfirmUiMessage(Id));
+            await _metaMessenger.Publish(new ShowButtonConfirmUiMessage(Id));
             var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT, ct);
             return res;
         }
@@ -973,7 +974,7 @@ namespace HideezClient.Models
 
         async Task<byte[]> GetPin(string deviceId, int timeout, CancellationToken ct, bool withConfirm = false, bool askOldPin = false)
         {
-            _messenger.Send(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
+            await _metaMessenger.Publish(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
 
             var tcs = _pendingGetPinRequests.GetOrAdd(deviceId, (x) =>
             {
@@ -998,17 +999,17 @@ namespace HideezClient.Models
         #region Notifications display
         void ShowInfo(string message, string notificationId)
         {
-            _messenger?.Send(new ShowInfoNotificationMessage(message, notificationId: notificationId));
+            _metaMessenger?.Publish(new ShowInfoNotificationMessage(message, notificationId: notificationId));
         }
 
         void ShowError(string message, string notificationId)
         {
-            _messenger?.Send(new ShowErrorNotificationMessage(message, notificationId: notificationId));
+            _metaMessenger?.Publish(new ShowErrorNotificationMessage(message, notificationId: notificationId));
         }
 
         void ShowWarn(string message, string notificationId)
         {
-            _messenger?.Send(new ShowWarningNotificationMessage(message, notificationId: notificationId));
+            _metaMessenger?.Publish(new ShowWarningNotificationMessage(message, notificationId: notificationId));
         }
         #endregion
 

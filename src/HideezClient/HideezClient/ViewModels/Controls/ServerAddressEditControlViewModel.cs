@@ -155,7 +155,7 @@ namespace HideezClient.ViewModels
                 catch (Exception ex)
                 {
                     _log.WriteLine(nameof(ServerAddressEditControlViewModel), ex);
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message));
+                    await _metaMessenger.Publish(new ShowErrorNotificationMessage(ex.Message));
                 }
                 finally
                 {

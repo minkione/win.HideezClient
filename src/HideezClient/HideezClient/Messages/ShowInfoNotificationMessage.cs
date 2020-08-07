@@ -1,8 +1,9 @@
 ﻿using HideezClient.Modules;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.Messages
 {
-    class ShowInfoNotificationMessage
+    public class ShowInfoNotificationMessage: PubSubMessageBase
     {
         public string NotificationId { get; }
 

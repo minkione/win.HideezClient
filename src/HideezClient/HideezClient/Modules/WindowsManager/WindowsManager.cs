@@ -23,6 +23,8 @@ using HideezClient.Models.Settings;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
 using HideezClient.Modules.NotificationsManager;
+using Meta.Lib.Modules.PubSub;
+using HideezMiddleware.IPC.Messages;
 
 namespace HideezClient.Modules
 {
@@ -34,7 +36,6 @@ namespace HideezClient.Modules
         private bool isMainWindowVisible;
         private readonly ISettingsManager<ApplicationSettings> _settingsManager;
         readonly INotificationsManager _notificationsManager;
-
 
         readonly object pinDialogLock = new object();
         PinDialog pinView = null;
@@ -48,34 +49,35 @@ namespace HideezClient.Modules
         public event EventHandler<bool> MainWindowVisibleChanged;
 
         public WindowsManager(ViewModelLocator viewModelLocator, INotificationsManager notificationsManager,
-            IMessenger messenger, ISettingsManager<ApplicationSettings> settingsManager)
+             ISettingsManager<ApplicationSettings> settingsManager, IMetaPubSub metaMessenger)
         {
             _viewModelLocator = viewModelLocator;
             _settingsManager = settingsManager;
             _notificationsManager = notificationsManager;
 
-            messenger.Register<UnlockWorkstationMessage>(this, ClearNotifications);
+            metaMessenger.Subscribe<ShowWarningNotificationMessage>(ShowWarn);
+            metaMessenger.Subscribe<ShowInfoNotificationMessage>(ShowInfo);
+            metaMessenger.Subscribe<ShowErrorNotificationMessage>(ShowError);
+            metaMessenger.Subscribe<ShowLockNotificationMessage>(ShowLockNotification);
 
-            messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message, notificationId: p.Id));
-            messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message, notificationId: p.Id));
+            metaMessenger.TrySubscribeOnServer<WorkstationUnlockedMessage>(ClearNotifications);
 
-            messenger.Register<ShowLockNotificationMessage>(this, (p) => ShowLockNotification(p.Message, p.Title, p.Options, p.NotificationId));
-            messenger.Register<ShowInfoNotificationMessage>(this, (p) => ShowInfo(p.Message, p.Title, p.Options, p.NotificationId));
-            messenger.Register<ShowWarningNotificationMessage>(this, (p) => ShowWarn(p.Message, p.Title, notificationId: p.NotificationId));
-            messenger.Register<ShowErrorNotificationMessage>(this, (p) => ShowError(p.Message, p.Title, notificationId: p.NotificationId));
+            //messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message, notificationId: p.Id));
+            //messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message, notificationId: p.Id));
 
-            messenger.Register<ShowButtonConfirmUiMessage>(this, ShowButtonConfirmAsync);
-            messenger.Register<ShowPinUiMessage>(this, ShowPinAsync);
-            messenger.Register<HidePinUiMessage>(this, HidePinAsync);
-            messenger.Register<ShowActivationCodeUiMessage>(this, ShowActivationDialogAsync);
-            messenger.Register<HideActivationCodeUiMessage>(this, HideActivationDialogAsync);
+            metaMessenger.Subscribe<ShowButtonConfirmUiMessage>(ShowButtonConfirmAsync);
+            metaMessenger.Subscribe<ShowPinUiMessage>(ShowPinAsync);
+            metaMessenger.Subscribe<HidePinUiMessage>(HidePinAsync);
+            //messenger.Register<ShowActivationCodeUiMessage>(this, ShowActivationDialogAsync);
+            metaMessenger.TrySubscribeOnServer<HideActivationCodeUi>(HideActivationDialogAsync);
 
-            messenger.Register<ShowActivateMainWindowMessage>(this, (p) => ActivateMainWindow());
+            metaMessenger.Subscribe<ShowActivateMainWindowMessage>((p) => ActivateMainWindow());
         }
         
-        public void ActivateMainWindow()
+        public Task ActivateMainWindow()
         {
             UIDispatcher.Invoke(OnActivateMainWindow);
+            return Task.CompletedTask;
         }
 
         public void HideMainWindow()
@@ -228,29 +230,34 @@ namespace HideezClient.Modules
             }
         }
 
-        private void ShowLockNotification(string message, string title = null, NotificationOptions options = null, string notificationId = "")
+        private Task ShowLockNotification(ShowLockNotificationMessage message)
         {
-            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message, NotificationIconType.Lock, options));
+            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(message.NotificationId, message.Title ?? GetTitle(), message.Message, NotificationIconType.Lock, message.Options));
+            return Task.CompletedTask;
         }
 
-        private void ShowError(string message, string title = null, NotificationOptions options = null, string notificationId = "")
+        private Task ShowError(ShowErrorNotificationMessage message)
         {
-            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message,NotificationIconType.Error, options));
+            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(message.NotificationId, message.Title ?? GetTitle(), message.Message, NotificationIconType.Error, message.Options));
+            return Task.CompletedTask;
         }
 
-        private void ShowWarn(string message, string title = null, NotificationOptions options = null, string notificationId = "")
+        private Task ShowWarn(ShowWarningNotificationMessage message)
         {
-            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message, NotificationIconType.Warn, options));
+            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(message.NotificationId, message.Title ?? GetTitle(), message.Message, NotificationIconType.Warn, message.Options));
+            return Task.CompletedTask;
         }
 
-        private void ShowInfo(string message, string title = null, NotificationOptions options = null, string notificationId = "")
+        private Task ShowInfo(ShowInfoNotificationMessage message)
         {
-            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(notificationId, title ?? GetTitle(), message, NotificationIconType.Info, options));
+            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(message.NotificationId, message.Title ?? GetTitle(), message.Message, NotificationIconType.Info, message.Options));
+            return Task.CompletedTask;
         }
 
-        private void ClearNotifications(UnlockWorkstationMessage obj)
+        private Task ClearNotifications(WorkstationUnlockedMessage message)
         {
             UIDispatcher.Invoke(() => _notificationsManager.ClearNotifications());
+            return Task.CompletedTask;
         }
 
         public Task<bool> ShowAccountNotFoundAsync(string message, string title = null)
@@ -311,7 +318,7 @@ namespace HideezClient.Modules
             }
         }
 
-        void ShowButtonConfirmAsync(ShowButtonConfirmUiMessage obj)
+        Task ShowButtonConfirmAsync(ShowButtonConfirmUiMessage message)
         {
             lock (pinDialogLock)
             {
@@ -322,7 +329,7 @@ namespace HideezClient.Modules
                         if (MainWindow is MetroWindow metroWindow)
                         {
                             var vm = _viewModelLocator.PinViewModel;
-                            vm.Initialize(obj.DeviceId);
+                            vm.Initialize(message.DeviceId);
                             pinView = new PinDialog(vm);
                             pinView.Closed += PinView_Closed;
                             OnActivateMainWindow();
@@ -335,13 +342,15 @@ namespace HideezClient.Modules
                 {
                     UIDispatcher.Invoke(() =>
                     {
-                        ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, true, false, false);
+                        ((PinViewModel)pinView.DataContext).UpdateViewModel(message.DeviceId, true, false, false);
                     });
                 }
             }
+
+            return Task.CompletedTask;
         }
 
-        void ShowPinAsync(ShowPinUiMessage obj)
+        Task ShowPinAsync(ShowPinUiMessage message)
         {
             lock (pinDialogLock)
             {
@@ -352,7 +361,7 @@ namespace HideezClient.Modules
                         if (MainWindow is MetroWindow metroWindow)
                         {
                             var vm = _viewModelLocator.PinViewModel;
-                            vm.Initialize(obj.DeviceId);
+                            vm.Initialize(message.DeviceId);
                             pinView = new PinDialog(vm);
                             pinView.Closed += PinView_Closed;
                             OnActivateMainWindow();
@@ -365,13 +374,14 @@ namespace HideezClient.Modules
                 {
                     UIDispatcher.Invoke(() =>
                     {
-                        ((PinViewModel)pinView.DataContext).UpdateViewModel(obj.DeviceId, false, obj.OldPin, obj.ConfirmPin);
+                        ((PinViewModel)pinView.DataContext).UpdateViewModel(message.DeviceId, false, message.OldPin, message.ConfirmPin);
                     });
                 }
             }
+            return Task.CompletedTask;
         }
 
-        void HidePinAsync(HidePinUiMessage obj)
+        Task HidePinAsync(HidePinUiMessage message)
         {
             try
             {
@@ -386,9 +396,11 @@ namespace HideezClient.Modules
                 });
             }
             catch { }
+
+            return Task.CompletedTask;
         }
 
-        void ShowActivationDialogAsync(ShowActivationCodeUiMessage obj)
+        void ShowActivationDialogAsync(Messages.ShowActivationCodeUiMessage obj)
         {
             lock (activationDialogLock)
             {
@@ -418,7 +430,7 @@ namespace HideezClient.Modules
             }
         }
 
-        void HideActivationDialogAsync(HideActivationCodeUiMessage obj)
+        Task HideActivationDialogAsync(HideActivationCodeUi message)
         {
             try
             {
@@ -433,6 +445,8 @@ namespace HideezClient.Modules
                 });
             }
             catch { }
+
+            return Task.CompletedTask;
         }
 
         void PinView_Closed(object sender, EventArgs e)

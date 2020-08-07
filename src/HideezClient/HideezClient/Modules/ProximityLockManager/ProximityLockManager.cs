@@ -1,5 +1,9 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
+using HideezMiddleware.IPC.Messages;
+using Meta.Lib.Modules.PubSub;
+using System;
+using System.Threading.Tasks;
 
 namespace HideezClient.Modules.ProximityLockManager
 {
@@ -7,25 +11,29 @@ namespace HideezClient.Modules.ProximityLockManager
     {
         private readonly ITaskbarIconManager _taskbarIconManager;
         private readonly IMessenger _messenger;
+        readonly IMetaPubSub _metaMessenger;
 
-        public ProximityLockManager(ITaskbarIconManager taskbarIconManager, IMessenger messenger)
+        public ProximityLockManager(ITaskbarIconManager taskbarIconManager, IMessenger messenger, IMetaPubSub metaMessenger)
         {
             _taskbarIconManager = taskbarIconManager;
             _messenger = messenger;
+            _metaMessenger = metaMessenger;
 
-            _messenger.Register<UnlockWorkstationMessage>(this, OnWorkstationUnlocked);
-            _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
+            _metaMessenger.TrySubscribeOnServer<WorkstationUnlockedMessage>(OnWorkstationUnlocked);
+            _messenger.Register<Messages.DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
         }
 
-        void OnWorkstationUnlocked(UnlockWorkstationMessage obj)
+        Task OnWorkstationUnlocked(WorkstationUnlockedMessage message)
         {
-            if (obj.IsDisabledLock)
-                _messenger.Send(new ShowWarningNotificationMessage(message: "Lock by proximity is disabled"));
+            if (message.IsNotHideezMethod)
+                _metaMessenger.Publish(new ShowWarningNotificationMessage(message: "Lock by proximity is disabled"));
 
-            ChangeIconState(obj.IsDisabledLock);
+            ChangeIconState(message.IsNotHideezMethod);
+
+            return Task.CompletedTask;
         }
 
-        void OnDevicesCollectionChanged(DevicesCollectionChangedMessage obj)
+        void OnDevicesCollectionChanged(Messages.DevicesCollectionChangedMessage obj)
         {
             foreach(HideezMiddleware.IPC.DTO.DeviceDTO device in obj.Devices)
             {

@@ -11,12 +11,14 @@ using System.Windows.Input;
 using System.Linq;
 using Hideez.SDK.Communication.Interfaces;
 using System;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.ViewModels
 {
     public class PinViewModel : ObservableObject
     {
         readonly IMessenger _messenger;
+        readonly IMetaPubSub _metaMessenger;
         readonly IDeviceManager _deviceManager;
         readonly byte[] _emptyBytes = new byte[0];
 
@@ -37,9 +39,10 @@ namespace HideezClient.ViewModels
         public event EventHandler ViewModelUpdated;
         public event EventHandler PasswordsCleared;
 
-        public PinViewModel(IMessenger messenger, IDeviceManager deviceManager)
+        public PinViewModel(IMessenger messenger, IMetaPubSub metaMessenger, IDeviceManager deviceManager)
         {
             _messenger = messenger;
+            _metaMessenger = metaMessenger;
             _deviceManager = deviceManager;
 
             RegisterDependencies();
@@ -302,7 +305,7 @@ namespace HideezClient.ViewModels
             {
                 if (!IsConfirmPinCorrect(pin, confirmPin))
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage("The new PIN and confirmation PIN does not match", notificationId: Device.Mac));
+                    _metaMessenger.Publish(new ShowErrorNotificationMessage("The new PIN and confirmation PIN does not match", notificationId: Device.Mac));
                     InProgress = false;
                     return;
                 }

@@ -1,6 +1,8 @@
-﻿namespace HideezClient.Messages
+﻿using Meta.Lib.Modules.PubSub;
+
+namespace HideezClient.Messages
 {
-    class ShowButtonConfirmUiMessage
+    public class ShowButtonConfirmUiMessage: PubSubMessageBase
     {
         public string DeviceId { get; }
 

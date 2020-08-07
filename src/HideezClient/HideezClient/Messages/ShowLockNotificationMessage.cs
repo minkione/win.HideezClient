@@ -1,5 +1,6 @@
 ﻿using HideezClient.Controls;
 using HideezClient.Modules;
+using Meta.Lib.Modules.PubSub;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HideezClient.Messages
 {
-    class ShowLockNotificationMessage
+    public class ShowLockNotificationMessage: PubSubMessageBase
     {
         public string NotificationId { get; }
 

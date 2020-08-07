@@ -25,6 +25,7 @@ using HideezClient.Modules.Log;
 using HideezClient.Mvvm;
 using HideezClient.Utilities;
 using HideezClient.Utilities.QrCode;
+using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Commands;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -38,28 +39,33 @@ namespace HideezClient.ViewModels
         readonly IQrScannerHelper _qrScannerHelper;
         readonly IWindowsManager _windowsManager;
         readonly IMessenger _messenger;
+        readonly IMetaPubSub _metaMessenger;
+
+        readonly AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
+        readonly AppInfo addUrlAppInfo = new AppInfo { Domain = "<Enter Url>" };
+
         bool isUpdateAppsUrls;
         DeviceViewModel _device;
         int generatePasswordLength = 16;
-        readonly AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
-        readonly AppInfo addUrlAppInfo = new AppInfo { Domain = "<Enter Url>" };
         bool canScanOtpSecretQrCode = true;
         readonly AccountRecord cache;
 
-        public EditAccountViewModel(DeviceViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger)
-            : this(device, null, windowsManager, qrScannerHelper, messenger)
+        public EditAccountViewModel(DeviceViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger, IMetaPubSub metaMessenger)
+            : this(device, null, windowsManager, qrScannerHelper, messenger, metaMessenger)
         { }
 
         public EditAccountViewModel(DeviceViewModel device, 
             AccountRecord accountRecord, 
             IWindowsManager windowsManager, 
             IQrScannerHelper qrScannerHelper,
-            IMessenger messenger)
+            IMessenger messenger,
+            IMetaPubSub metaMessenger)
         {
             _windowsManager = windowsManager;
             _qrScannerHelper = qrScannerHelper;
             _device = device;
             _messenger = messenger;
+            _metaMessenger = metaMessenger;
 
             if (accountRecord == null)
             {
@@ -533,7 +539,7 @@ namespace HideezClient.ViewModels
 
             if (!isScanedQr)
             {
-                _messenger.Send(new ShowWarningNotificationMessage(LocalizedObject.L("Notify.NotScanQr"), notificationId: _device.Mac));
+                await _metaMessenger.Publish(new ShowWarningNotificationMessage(LocalizedObject.L("Notify.NotScanQr"), notificationId: _device.Mac));
             }
 
             canScanOtpSecretQrCode = true;

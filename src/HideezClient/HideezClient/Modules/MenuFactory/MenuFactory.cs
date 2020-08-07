@@ -202,7 +202,7 @@ namespace HideezClient.Modules
                 }
                 catch (Exception ex)
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
+                    await _metaMessenger.Publish(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
                 }
             }
         }
@@ -220,7 +220,7 @@ namespace HideezClient.Modules
                 }
                 catch (Exception ex)
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
+                    await _metaMessenger.Publish(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
                 }
             }
         }

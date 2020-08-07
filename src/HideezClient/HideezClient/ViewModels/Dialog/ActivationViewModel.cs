@@ -6,6 +6,8 @@ using HideezClient.Models;
 using HideezClient.Modules.DeviceManager;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
+using HideezMiddleware.IPC.Messages;
+using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.Commands;
 using System;
@@ -19,6 +21,7 @@ namespace HideezClient.ViewModels
     {
         readonly IMessenger _messenger;
         readonly IDeviceManager _deviceManager;
+        readonly IMetaPubSub _metaMessenger;
         readonly byte[] _emptyBytes = new byte[0];
         readonly object initLock = new object();
 
@@ -31,10 +34,11 @@ namespace HideezClient.ViewModels
         public event EventHandler ViewModelUpdated;
         public event EventHandler PasswordsCleared;
 
-        public ActivationViewModel(IMessenger messenger, IDeviceManager deviceManager)
+        public ActivationViewModel(IMessenger messenger, IMetaPubSub metaMessenger, IDeviceManager deviceManager)
         {
             _messenger = messenger;
             _deviceManager = deviceManager;
+            _metaMessenger = metaMessenger;
 
             RegisterDependencies();
         }
@@ -172,7 +176,7 @@ namespace HideezClient.ViewModels
         void OnCancel()
         {
             _messenger.Send(new CancelActivationCodeEntryMessage(Device.Id));
-            _messenger.Send(new HideActivationCodeUiMessage());
+            _metaMessenger.PublishOnServer(new HideActivationCodeUi());
             Device.CancelDeviceAuthorization();
         }
 

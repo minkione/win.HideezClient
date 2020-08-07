@@ -9,7 +9,7 @@ namespace HideezClient.Modules
 {
     public interface IWindowsManager
     {
-        void ActivateMainWindow();
+        Task ActivateMainWindow();
         void InitializeMainWindow();
         void HideMainWindow();
         Task ActivateMainWindowAsync();

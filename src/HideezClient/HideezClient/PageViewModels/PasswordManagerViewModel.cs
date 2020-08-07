@@ -33,6 +33,7 @@ using HideezClient.Modules.Log;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
 using HideezClient.Models.Settings;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.PageViewModels
 {
@@ -45,13 +46,15 @@ namespace HideezClient.PageViewModels
         readonly IWindowsManager windowsManager;
         readonly IMessenger _messenger;
         readonly ISettingsManager<ApplicationSettings> _settingsManager;
+        readonly IMetaPubSub _metaMessenger;
 
-        public PasswordManagerViewModel(IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, 
-            IMessenger messenger, IActiveDevice activeDevice, ISettingsManager<ApplicationSettings> settingsManager)
+        public PasswordManagerViewModel(IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger, 
+            IMetaPubSub metaMessenger, IActiveDevice activeDevice, ISettingsManager<ApplicationSettings> settingsManager)
         {
             this.windowsManager = windowsManager;
             this.qrScannerHelper = qrScannerHelper;
             _messenger = messenger;
+            _metaMessenger = metaMessenger;
             _settingsManager = settingsManager;
 
             _messenger.Register<ActiveDeviceChangedMessage>(this, OnActiveDeviceChanged);
@@ -185,7 +188,7 @@ namespace HideezClient.PageViewModels
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                var vm = new EditAccountViewModel(Device, windowsManager, qrScannerHelper, _messenger)
+                var vm = new EditAccountViewModel(Device, windowsManager, qrScannerHelper, _messenger, _metaMessenger)
                 {
                     DeleteAccountCommand = this.DeleteAccountCommand,
                     CancelCommand = this.CancelCommand,
@@ -234,7 +237,7 @@ namespace HideezClient.PageViewModels
 
         private void OnAddAccount()
         {
-            EditAccount = new EditAccountViewModel(Device, windowsManager, qrScannerHelper, _messenger)
+            EditAccount = new EditAccountViewModel(Device, windowsManager, qrScannerHelper, _messenger, _metaMessenger)
             {
                 DeleteAccountCommand = this.DeleteAccountCommand,
                 CancelCommand = this.CancelCommand,
@@ -266,7 +269,7 @@ namespace HideezClient.PageViewModels
             var record = Device.AccountsRecords.FirstOrDefault(r => r.StorageId == SelectedAccount.AccountRecord.StorageId);
             if (record != null)
             {
-                EditAccount = new EditAccountViewModel(Device, record, windowsManager, qrScannerHelper, _messenger)
+                EditAccount = new EditAccountViewModel(Device, record, windowsManager, qrScannerHelper, _messenger, _metaMessenger)
                 {
                     DeleteAccountCommand = this.DeleteAccountCommand,
                     CancelCommand = this.CancelCommand,
@@ -321,16 +324,16 @@ namespace HideezClient.PageViewModels
                 {
                     if (hex.ErrorCode == HideezErrorCode.ERR_UNAUTHORIZED)
                     {
-                        _messenger.Send(new ShowErrorNotificationMessage("An error occured during operation: Unauthorizated", notificationId: Device.Mac));
+                        _metaMessenger.Publish(new ShowErrorNotificationMessage("An error occured during operation: Unauthorizated", notificationId: Device.Mac));
                     }
                     else if (hex.ErrorCode == HideezErrorCode.PmPasswordNameCannotBeEmpty)
                     {
-                        _messenger.Send(new ShowErrorNotificationMessage("Account name cannot be empty", notificationId: Device.Mac));
+                        _metaMessenger.Publish(new ShowErrorNotificationMessage("Account name cannot be empty", notificationId: Device.Mac));
                     }
                 }
                 else
                 {
-                    _messenger.Send(new ShowErrorNotificationMessage($"{message}{Environment.NewLine}{ex.Message}", notificationId: Device.Mac));
+                    _metaMessenger.Publish(new ShowErrorNotificationMessage($"{message}{Environment.NewLine}{ex.Message}", notificationId: Device.Mac));
                 }
             }
             catch (Exception ManagerEx)

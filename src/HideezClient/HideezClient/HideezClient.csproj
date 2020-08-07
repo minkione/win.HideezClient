@@ -372,7 +372,6 @@
     <Compile Include="Messages\ShowDeviceLockedByCodeNotificationMessage.cs" />
     <Compile Include="Messages\ShowDeviceLockedByPinNotificationMessage.cs" />
     <Compile Include="Messages\ShowLockNotificationMessage.cs" />
-    <Compile Include="Messages\UnlockWorkstationMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
     <Compile Include="Messages\HideActivationCodeUiMessage.cs" />
     <Compile Include="Messages\HidePinUiMessage.cs" />
