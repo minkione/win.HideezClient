@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Messaging;
-using HideezClient.Messages;
 using HideezClient.Modules.ServiceProxy;
 using System.Linq;
 using HideezClient.Models;
@@ -19,6 +18,7 @@ using HideezMiddleware.IPC.DTO;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
 using Hideez.SDK.Communication.Remote;
+using HideezMiddleware.IPC.Messages;
 
 namespace HideezClient.Modules.DeviceManager
 {
@@ -59,8 +59,8 @@ namespace HideezClient.Modules.DeviceManager
             _remoteDeviceFactory = remoteDeviceFactory;
             _metaMessenger = metaMessenger;
 
-            _messenger.Register<DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
-            _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
+            _metaMessenger.TrySubscribeOnServer<DevicesCollectionChangedMessage>(OnDevicesCollectionChanged);
+            _metaMessenger.TrySubscribeOnServer<DeviceConnectionStateChangedMessage>(OnDeviceConnectionStateChanged);
 
             _metaMessenger.Subscribe<DisconnectedFromServerEvent>(OnDisconnectedFromService, null);
         }
@@ -84,7 +84,7 @@ namespace HideezClient.Modules.DeviceManager
             }
         }
 
-        async void OnDevicesCollectionChanged(DevicesCollectionChangedMessage message)
+        async Task OnDevicesCollectionChanged(DevicesCollectionChangedMessage message)
         {
             await _semaphoreQueue.WaitAsync();
             try
@@ -110,7 +110,7 @@ namespace HideezClient.Modules.DeviceManager
             }
         }
 
-        async void OnDeviceConnectionStateChanged(DeviceConnectionStateChangedMessage message)
+        async Task OnDeviceConnectionStateChanged(DeviceConnectionStateChangedMessage message)
         {
             await _semaphoreQueue.WaitAsync();
             try

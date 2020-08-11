@@ -17,7 +17,6 @@ using System.Threading;
 using System.IO;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Modules.Localize;
-using HideezClient.Modules.ServiceCallbackMessanger;
 using HideezClient.Modules.ServiceWatchdog;
 using HideezClient.Modules.DeviceManager;
 using HideezClient.Modules.ActionHandler;
@@ -45,6 +44,8 @@ using HideezMiddleware.Workstation;
 using HideezClient.Modules.ProximityLockManager;
 using Meta.Lib.Modules.PubSub;
 using HideezClient.Modules.NotificationsManager;
+using Meta.Lib.Modules.PubSub.Messages;
+using HideezMiddleware.IPC.Messages;
 
 namespace HideezClient
 {
@@ -64,6 +65,7 @@ namespace HideezClient
         private IHotkeyManager _hotkeyManager;
         private IButtonManager _buttonManager;
         private MessageWindow _messageWindow;
+        private IMetaPubSub _metaMessenger;
 
         public static IUnityContainer Container { get; private set; }
 
@@ -181,9 +183,9 @@ namespace HideezClient
             _startupHelper = Container.Resolve<IStartupHelper>();
             _workstationManager = Container.Resolve<IWorkstationManager>();
 
-            var metaMessenger = Container.Resolve<IMetaPubSub>();
-            
-            Container.Resolve<ServiceCallbackMessanger>();
+            _metaMessenger = Container.Resolve<IMetaPubSub>();
+
+            _metaMessenger.Subscribe<ConnectedToServerEvent>(OnConnectedToServer);
 
             _serviceWatchdog = Container.Resolve<IServiceWatchdog>();
             _serviceWatchdog.Start();
@@ -219,7 +221,7 @@ namespace HideezClient
 
             _windowsManager = Container.Resolve<IWindowsManager>();
             await _windowsManager.InitializeMainWindowAsync();
-            await metaMessenger.TryConnectToServer("HideezServicePipe");
+            await _metaMessenger.TryConnectToServer("HideezServicePipe");
         }
 
         private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
@@ -321,7 +323,6 @@ namespace HideezClient
 
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<ServiceCallbackMessanger>(new ContainerControlledLifetimeManager());
             Container.RegisterInstance<IMetaPubSub>(new MetaPubSub(new MetaPubSubLogger(Container.Resolve<ILog>()))); // Todo: fix this idiocity
             Container.RegisterType<IServiceWatchdog, ServiceWatchdog>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IRemoteDeviceFactory, RemoteDeviceFactory>(new ContainerControlledLifetimeManager());
@@ -388,6 +389,16 @@ namespace HideezClient
             Container.Dispose();
             LogManager.Flush();
             LogManager.Shutdown();
+        }
+
+        /// <summary>
+        /// Called when MetaPubSub was connected to a server on the service side
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        async Task OnConnectedToServer(ConnectedToServerEvent arg)
+        {
+            await _metaMessenger.PublishOnServer(new LoginClientRequestMessage());
         }
     }
 }

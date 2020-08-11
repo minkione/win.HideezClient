@@ -62,6 +62,8 @@ namespace HideezClient.Modules
 
             metaMessenger.TrySubscribeOnServer<WorkstationUnlockedMessage>(ClearNotifications);
 
+            metaMessenger.TrySubscribeOnServer<UserNotificationMessage>((m)=>ShowInfo(new ShowInfoNotificationMessage(m.Message, notificationId:m.NotificationId)));
+            metaMessenger.TrySubscribeOnServer<UserErrorMessage>((m) => ShowError(new ShowErrorNotificationMessage(m.Message, notificationId: m.NotificationId)));
             //messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message, notificationId: p.Id));
             //messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message, notificationId: p.Id));
 
@@ -400,7 +402,7 @@ namespace HideezClient.Modules
             return Task.CompletedTask;
         }
 
-        void ShowActivationDialogAsync(Messages.ShowActivationCodeUiMessage obj)
+        void ShowActivationDialogAsync(HideezMiddleware.IPC.Messages.ShowActivationCodeUiMessage obj)
         {
             lock (activationDialogLock)
             {

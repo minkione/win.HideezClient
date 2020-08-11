@@ -33,7 +33,7 @@ namespace HideezClient.Modules
             var connectionId = reply.RemoveDeviceId;
 
             var remoteCommands = new RemoteDeviceCommands(_serviceProxy, _metaMessenger);
-            var remoteEvents = new RemoteDeviceEvents(_messenger);
+            var remoteEvents = new RemoteDeviceEvents(_metaMessenger);
 
             var device = new RemoteDevice(connectionId, channelNo, remoteCommands, remoteEvents, SdkConfig.DefaultRemoteCommandTimeout, new NLogWrapper());
 

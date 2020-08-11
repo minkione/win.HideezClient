@@ -4,10 +4,13 @@ using HideezClient.Messages;
 using HideezClient.Modules.Log;
 using HideezClient.Utilities;
 using HideezMiddleware;
+using HideezMiddleware.IPC.Messages;
+using Meta.Lib.Modules.PubSub;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using WindowsInput;
 
 namespace HideezClient.Modules
@@ -17,12 +20,12 @@ namespace HideezClient.Modules
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(WorkstationManager));
         readonly IInputSimulator inputSimulator = new InputSimulator();
 
-        public WorkstationManager(IMessenger messanger)
+        public WorkstationManager(IMessenger messanger, IMetaPubSub metaMessenger)
         {
             // Start listening command messages
-            messanger.Register<LockWorkstationMessage>(this, LockPC);
+            metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LockWorkstationMessage>(LockPC);
             messanger.Register<ForceShutdownMessage>(this, ForceShutdown);
-            messanger.Register<ActivateScreenMessage>(this, ActivateScreen);
+            metaMessenger.TrySubscribeOnServer<ActivateScreenRequestMessage>(ActivateScreen);
         }
 
         public void LockPC()
@@ -75,7 +78,7 @@ namespace HideezClient.Modules
 
         #region Messages handlers
 
-        private void LockPC(LockWorkstationMessage command)
+        private Task LockPC(HideezMiddleware.IPC.Messages.LockWorkstationMessage command)
         {
             try
             {
@@ -85,6 +88,8 @@ namespace HideezClient.Modules
             {
                 _log.WriteLine(ex);
             }
+
+            return Task.CompletedTask;
         }
 
         private void ForceShutdown(ForceShutdownMessage command)
@@ -99,7 +104,7 @@ namespace HideezClient.Modules
             }
         }
 
-        private void ActivateScreen(ActivateScreenMessage command)
+        private Task ActivateScreen(ActivateScreenRequestMessage message)
         {
             try
             {
@@ -109,6 +114,8 @@ namespace HideezClient.Modules
             {
                 _log.WriteLine(ex);
             }
+
+            return Task.CompletedTask;
         }
         #endregion Messages handlers
     }

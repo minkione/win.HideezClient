@@ -352,7 +352,6 @@
     <Compile Include="Extension\SecureStringExtension.cs" />
     <Compile Include="Extension\TaskExtension.cs" />
     <Compile Include="Extension\VisualEx.cs" />
-    <Compile Include="Messages\ActivateScreenMessage.cs" />
     <Compile Include="Messages\ActiveDeviceChangedMessage.cs" />
     <Compile Include="Messages\AddAccountForAppMessage.cs" />
     <Compile Include="Messages\ButtonPressedMessage.cs" />
@@ -361,11 +360,6 @@
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
     <Compile Include="Messages\DeviceBatteryChangedMessage.cs" />
     <Compile Include="Messages\DeviceButtonPressedMessage.cs" />
-    <Compile Include="Messages\DeviceConnectionStateChangedMessage.cs" />
-    <Compile Include="Messages\DeviceFinishedMainFlowMessage.cs" />
-    <Compile Include="Messages\DeviceInitializedMessage.cs" />
-    <Compile Include="Messages\DeviceOperationCancelledMessage.cs" />
-    <Compile Include="Messages\DeviceProximityLockEnabledMessage.cs" />
     <Compile Include="Messages\DeviceProximitySettingsChangedMessage.cs" />
     <Compile Include="Messages\DeviceProximityChangedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
@@ -379,7 +373,6 @@
     <Compile Include="Messages\HotkeyStateChangedMessage.cs" />
     <Compile Include="Messages\LiftDeviceStorageLockMessage.cs" />
     <Compile Include="Messages\LockDeviceStorageMessage.cs" />
-    <Compile Include="Messages\LockWorkstationMessage.cs" />
     <Compile Include="Messages\OpenHideezKeyPageMessage.cs" />
     <Compile Include="Messages\OpenMobileAuthenticatorPageMessage.cs" />
     <Compile Include="Messages\OpenPasswordManagerMessage.cs" />
@@ -387,13 +380,11 @@
     <Compile Include="Messages\Remote\Remote_DeviceStateChangedMessage.cs" />
     <Compile Include="Messages\SendActivationCodeMessage.cs" />
     <Compile Include="Messages\SendPinMessage.cs" />
-    <Compile Include="Messages\ServiceComponentsStateChangedMessage.cs" />
     <Compile Include="Messages\ServiceErrorReceivedMessage.cs" />
     <Compile Include="Messages\ServiceNotificationReceivedMessage.cs" />
     <Compile Include="Messages\SessionSwitchMessage.cs" />
     <Compile Include="Messages\SettingsChangedMessage.cs" />
     <Compile Include="Messages\ShowActivateMainWindowMessage.cs" />
-    <Compile Include="Messages\ShowActivationCodeUiMessage.cs" />
     <Compile Include="Messages\ShowButtonConfirmUiMessage.cs" />
     <Compile Include="Messages\ShowErrorNotificationMessage.cs" />
     <Compile Include="Messages\ShowInfoNotificationMessage.cs" />
@@ -686,7 +677,6 @@
     <Compile Include="Modules\HotkeyManager\HotkeyManager.cs" />
     <Compile Include="Modules\HotkeyManager\HotkeyState.cs" />
     <Compile Include="Modules\HotkeyManager\IHotkeyManager.cs" />
-    <Compile Include="Modules\ServiceCallbackMessanger\ServiceCallbackMessanger.cs" />
     <Compile Include="Modules\ServiceProxy\IServiceProxy.cs" />
     <Compile Include="Modules\ServiceProxy\ServiceNotConnectedException.cs" />
     <Compile Include="Modules\ServiceProxy\ServiceProxy.cs" />

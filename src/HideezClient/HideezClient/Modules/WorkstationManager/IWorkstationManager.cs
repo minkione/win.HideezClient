@@ -1,4 +1,6 @@
-﻿namespace HideezClient.Modules
+﻿using System.Threading.Tasks;
+
+namespace HideezClient.Modules
 {
     interface IWorkstationManager
     {

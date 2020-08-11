@@ -183,7 +183,7 @@ namespace HideezClient.Modules.ActionHandler
                             await OnAddNewAccount(deviceId);
                             break;
                         case UserAction.LockWorkstation:
-                            _messenger.Send(new LockWorkstationMessage());
+                            await _metaMessenger.PublishOnServer(new HideezMiddleware.IPC.Messages.LockWorkstationMessage());
                             break;
                         default:
                             throw new NotImplementedException($"\"{action.ToString()}\" action is not implemented in UserActionHandler.");

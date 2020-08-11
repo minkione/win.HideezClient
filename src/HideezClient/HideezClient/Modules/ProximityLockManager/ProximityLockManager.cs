@@ -20,7 +20,7 @@ namespace HideezClient.Modules.ProximityLockManager
             _metaMessenger = metaMessenger;
 
             _metaMessenger.TrySubscribeOnServer<WorkstationUnlockedMessage>(OnWorkstationUnlocked);
-            _messenger.Register<Messages.DevicesCollectionChangedMessage>(this, OnDevicesCollectionChanged);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DevicesCollectionChangedMessage>(OnDevicesCollectionChanged);
         }
 
         Task OnWorkstationUnlocked(WorkstationUnlockedMessage message)
@@ -33,16 +33,18 @@ namespace HideezClient.Modules.ProximityLockManager
             return Task.CompletedTask;
         }
 
-        void OnDevicesCollectionChanged(Messages.DevicesCollectionChangedMessage obj)
+        Task OnDevicesCollectionChanged(HideezMiddleware.IPC.Messages.DevicesCollectionChangedMessage obj)
         {
             foreach(HideezMiddleware.IPC.DTO.DeviceDTO device in obj.Devices)
             {
                 if(device.CanLockPyProximity)
                 {
                     ChangeIconState(false);
-                    return;
+                    return Task.CompletedTask;
                 }
             }
+
+            return Task.CompletedTask;
         }
 
         void ChangeIconState(bool isDisabledLock)

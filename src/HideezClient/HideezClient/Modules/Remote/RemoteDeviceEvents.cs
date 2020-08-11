@@ -2,20 +2,24 @@
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Remote;
+using HideezClient.Extension;
 using HideezClient.Messages.Remote;
+using HideezMiddleware.IPC.Messages;
+using Meta.Lib.Modules.PubSub;
 using System;
+using System.Threading.Tasks;
 
 namespace HideezClient.Modules.Remote
 {
     class RemoteDeviceEvents : IRemoteEvents
     {
-        readonly IMessenger _messenger;
+        readonly IMetaPubSub _messenger;
 
-        public RemoteDeviceEvents(IMessenger messenger)
+        public RemoteDeviceEvents(IMetaPubSub messenger)
         {
             _messenger = messenger;
 
-            _messenger.Register<Remote_DeviceStateChangedMessage>(this, OnDeviceStateChanged);
+            _messenger.TrySubscribeOnServer<RemoteConnection_DeviceStateChangedMessage>(OnDeviceStateChanged);
         }
 
         public event EventHandler<DeviceState> DeviceStateChanged;
@@ -23,21 +27,23 @@ namespace HideezClient.Modules.Remote
         // Todo: fix cyclic dependency between RemoteDevice and RemoteCommands/RemoteEvents
         public RemoteDevice RemoteDevice { get; set; }
 
-        void OnDeviceStateChanged(Remote_DeviceStateChangedMessage msg)
+        Task OnDeviceStateChanged(RemoteConnection_DeviceStateChangedMessage msg)
         {
             if (IsMessageFromCurrentDevice(msg))
-                DeviceStateChanged?.Invoke(this, msg.State);
+                DeviceStateChanged?.Invoke(this, msg.State.ToDeviceState());
+
+            return Task.CompletedTask;
         }
 
-        bool IsMessageFromCurrentDevice(Remote_BaseMessage msg)
+        bool IsMessageFromCurrentDevice(RemoteConnection_DeviceStateChangedMessage msg)
         {
-            if (string.IsNullOrWhiteSpace(msg.Id))
+            if (string.IsNullOrWhiteSpace(msg.DeviceId))
                 return false;
 
             if (RemoteDevice == null)
                 return false;
 
-            return msg.Id == RemoteDevice.Id;
+            return msg.DeviceId== RemoteDevice.Id;
         }
     }
 }

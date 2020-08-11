@@ -98,17 +98,17 @@ namespace HideezClient.Models
 
             PropertyChanged += Device_PropertyChanged;
 
-            _messenger.Register<DeviceConnectionStateChangedMessage>(this, OnDeviceConnectionStateChanged);
-            _messenger.Register<DeviceInitializedMessage>(this, OnDeviceInitialized);
-            _messenger.Register<DeviceFinishedMainFlowMessage>(this, OnDeviceFinishedMainFlow);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage>(OnDeviceConnectionStateChanged);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceInitializedMessage>(OnDeviceInitialized);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceFinishedMainFlowMessage>(OnDeviceFinishedMainFlow);
             _messenger.Register<SendPinMessage>(this, OnPinReceived);
-            _messenger.Register<DeviceOperationCancelledMessage>(this, OnOperationCancelled);
-            _messenger.Register<DeviceProximityChangedMessage>(this, OnDeviceProximityChanged);
-            _messenger.Register<DeviceBatteryChangedMessage>(this, OnDeviceBatteryChanged);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage>(OnOperationCancelled);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityChangedMessage>(OnDeviceProximityChanged);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceBatteryChangedMessage>(OnDeviceBatteryChanged);
             _messenger.Register<SessionSwitchMessage>(this, OnSessionSwitch);
-            _messenger.Register<DeviceProximityLockEnabledMessage>(this, OnDeviceProximityLockEnabled);
-            _messenger.Register<LockDeviceStorageMessage>(this, OnLockDeviceStorage);
-            _messenger.Register<LiftDeviceStorageLockMessage>(this, OnLiftDeviceStorageLock);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityLockEnabledMessage>(OnDeviceProximityLockEnabled);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(OnLockDeviceStorage);
+            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(OnLiftDeviceStorageLock);
 
             RegisterDependencies();
 
@@ -374,7 +374,7 @@ namespace HideezClient.Models
             }
         }
 
-        async void OnDeviceConnectionStateChanged(DeviceConnectionStateChangedMessage obj)
+        async Task OnDeviceConnectionStateChanged(HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage obj)
         {
             if (obj.Device.Id == Id)
             {
@@ -385,16 +385,20 @@ namespace HideezClient.Models
             }
         }
 
-        void OnDeviceInitialized(DeviceInitializedMessage obj)
+        Task OnDeviceInitialized(HideezMiddleware.IPC.Messages.DeviceInitializedMessage obj)
         {
             if (obj.Device.Id == Id)
                 LoadFrom(obj.Device);
+            
+            return Task.CompletedTask;
         }
 
-        void OnDeviceFinishedMainFlow(DeviceFinishedMainFlowMessage obj)
+        Task OnDeviceFinishedMainFlow(HideezMiddleware.IPC.Messages.DeviceFinishedMainFlowMessage obj)
         {
             if (obj.Device.Id == Id)
                 LoadFrom(obj.Device);
+
+            return Task.CompletedTask;
         }
 
         void OnPinReceived(Messages.SendPinMessage obj)
@@ -422,51 +426,67 @@ namespace HideezClient.Models
             }
         }
 
-        void OnOperationCancelled(DeviceOperationCancelledMessage obj)
+        Task OnOperationCancelled(HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage obj)
         {
             if (obj.Device.Id == Id)
             {
                 CancelDeviceAuthorization();
             }
+
+            return Task.CompletedTask;
         }
 
-        void OnDeviceProximityChanged(DeviceProximityChangedMessage obj)
+        Task OnDeviceProximityChanged(HideezMiddleware.IPC.Messages.DeviceProximityChangedMessage obj)
         {
             // Todo: MAYBE it will be beneficial to add a check that device is connected
             if (Id != obj.DeviceId)
-                return;
+                return Task.CompletedTask;
 
             Proximity = obj.Proximity;
+
+            return Task.CompletedTask;
         }
 
-        void OnDeviceBatteryChanged(DeviceBatteryChangedMessage obj)
+        Task OnDeviceBatteryChanged(HideezMiddleware.IPC.Messages.DeviceBatteryChangedMessage obj)
         {
             if (Id != obj.DeviceId)
-                return;
+                return Task.CompletedTask;
 
             Battery = obj.Battery;
+
+            return Task.CompletedTask;
         }
 
-        void OnDeviceProximityLockEnabled(DeviceProximityLockEnabledMessage obj)
+        Task OnDeviceProximityLockEnabled(HideezMiddleware.IPC.Messages.DeviceProximityLockEnabledMessage obj)
         {
             if (obj.Device.Id == Id)
                 LoadFrom(obj.Device);
+
+            return Task.CompletedTask;
         }
 
-        void OnLockDeviceStorage(LockDeviceStorageMessage obj)
+        Task OnLockDeviceStorage(HideezMiddleware.IPC.Messages.LockDeviceStorageMessage obj)
         {
+            _log.WriteLine($"Lock vault storage ({obj.SerialNo})");
+
             if (obj.SerialNo == SerialNo)
             {
                 IsStorageLocked = true;
                 _metaMessenger.Publish(new ShowInfoNotificationMessage($"Synchronizing credentials in {serialNo} with your other vault, please wait"
                    + Environment.NewLine + "Password manager is temporarily unavailable", notificationId: Mac));
             }
+
+            return Task.CompletedTask;
         }
 
-        void OnLiftDeviceStorageLock(LiftDeviceStorageLockMessage obj)
+        Task OnLiftDeviceStorageLock(HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage obj)
         {
+            _log.WriteLine($"Lift vault storage lock ({obj.SerialNo})");
+
             if (obj.SerialNo == SerialNo || string.IsNullOrWhiteSpace(obj.SerialNo))
                 IsStorageLocked = false;
+
+            return Task.CompletedTask;
         }
 
         void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

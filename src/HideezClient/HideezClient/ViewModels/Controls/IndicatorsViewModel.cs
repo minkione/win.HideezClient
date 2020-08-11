@@ -6,9 +6,11 @@ using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using HideezMiddleware;
+using Meta.Lib.Modules.PubSub;
 using System;
 using System.Collections.ObjectModel;
 using System.ServiceModel;
+using System.Threading.Tasks;
 
 namespace HideezClient.ViewModels
 {
@@ -24,7 +26,7 @@ namespace HideezClient.ViewModels
         private StateControlViewModel dongle;
         private StateControlViewModel tbServer;
 
-        public IndicatorsViewModel(IMessenger messenger, IServiceProxy serviceProxy)
+        public IndicatorsViewModel(IMessenger messenger, IServiceProxy serviceProxy, IMetaPubSub metaMessenger)
         {
             _messenger = messenger;
             _serviceProxy = serviceProxy;
@@ -32,7 +34,7 @@ namespace HideezClient.ViewModels
             InitIndicators();
 
             messenger.Register<ConnectionServiceChangedMessage>(this, c => ResetIndicators(c.IsConnected));
-            messenger.Register<ServiceComponentsStateChangedMessage>(this, OnComponentsStateChangedMessage);
+            metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ServiceComponentsStateChangedMessage>(OnComponentsStateChangedMessage);
         }
 
         #region Properties
@@ -71,7 +73,7 @@ namespace HideezClient.ViewModels
 
         #endregion
         
-        void OnComponentsStateChangedMessage(ServiceComponentsStateChangedMessage msg)
+        Task OnComponentsStateChangedMessage(HideezMiddleware.IPC.Messages.ServiceComponentsStateChangedMessage msg)
         {
             _log.WriteLine("Updating components state indicators");
             // Service
@@ -103,6 +105,8 @@ namespace HideezClient.ViewModels
             // Try&Buy Server
             TBServer.State = StateControlViewModel.BoolToState(msg.TbHesStatus == HesStatus.Ok);
             TBServer.Visible = _serviceProxy.IsConnected;
+
+            return Task.CompletedTask;
         }
 
         private void InitIndicators()
