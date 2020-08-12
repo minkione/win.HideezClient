@@ -17,6 +17,7 @@ using HideezClient.Modules.Localize;
 using System.Windows.Controls;
 using HideezClient.Modules.ServiceProxy;
 using System.Threading.Tasks;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.ViewModels
 {
@@ -37,7 +38,7 @@ namespace HideezClient.ViewModels
         public MainViewModel(IDeviceManager deviceManager,
             IMenuFactory menuFactory,
             IActiveDevice activeDevice,
-            IMessenger messenger,
+            IMetaPubSub metaMessenger,
             ViewModelLocator viewModelLocator,
             IAppHelper appHelper,
             SoftwareUnlockSettingViewModel softwareUnlock)
@@ -54,9 +55,9 @@ namespace HideezClient.ViewModels
             _deviceManager.DevicesCollectionChanged += Devices_CollectionChanged;
             _activeDevice.ActiveDeviceChanged += ActiveDevice_ActiveDeviceChanged;
 
-            messenger.Register<OpenPasswordManagerMessage>(this, (p) => { MenuPasswordManager.IsChecked = true; });
-            messenger.Register<OpenHideezKeyPageMessage>(this, (p) => { MenuHardwareKeyPage.IsChecked = true; });
-            messenger.Register<OpenMobileAuthenticatorPageMessage>(this, (p) => { MenuSoftwareKeyPage.IsChecked = true; });
+            metaMessenger.Subscribe<OpenPasswordManagerMessage>((p) => { MenuPasswordManager.IsChecked = true; return Task.CompletedTask; });
+            metaMessenger.Subscribe<OpenHideezKeyPageMessage>((p) => { MenuHardwareKeyPage.IsChecked = true; return Task.CompletedTask; });
+            metaMessenger.Subscribe<OpenMobileAuthenticatorPageMessage>((p) => { MenuSoftwareKeyPage.IsChecked = true; return Task.CompletedTask; });
         }
 
         void InitMenu()

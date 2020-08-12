@@ -44,21 +44,19 @@ namespace HideezClient.PageViewModels
         readonly Logger log = LogManager.GetCurrentClassLogger(nameof(PasswordManagerViewModel));
         readonly IQrScannerHelper qrScannerHelper;
         readonly IWindowsManager windowsManager;
-        readonly IMessenger _messenger;
         readonly ISettingsManager<ApplicationSettings> _settingsManager;
         readonly IMetaPubSub _metaMessenger;
 
-        public PasswordManagerViewModel(IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger, 
+        public PasswordManagerViewModel(IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, 
             IMetaPubSub metaMessenger, IActiveDevice activeDevice, ISettingsManager<ApplicationSettings> settingsManager)
         {
             this.windowsManager = windowsManager;
             this.qrScannerHelper = qrScannerHelper;
-            _messenger = messenger;
             _metaMessenger = metaMessenger;
             _settingsManager = settingsManager;
 
-            _messenger.Register<ActiveDeviceChangedMessage>(this, OnActiveDeviceChanged);
-            _messenger.Register<AddAccountForAppMessage>(this, OnAddAccountForApp);
+            _metaMessenger.Subscribe<ActiveDeviceChangedMessage>(OnActiveDeviceChanged);
+            _metaMessenger.Subscribe<AddAccountForAppMessage>(OnAddAccountForApp);
 
             this.WhenAnyValue(x => x.SearchQuery)
                  .Throttle(TimeSpan.FromMilliseconds(100))
@@ -178,17 +176,19 @@ namespace HideezClient.PageViewModels
 
         #endregion
 
-        private void OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
+        private Task OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
         {
             // Todo: ViewModel should be reused instead of being recreated each time active device is changed
             Device = obj.NewDevice != null ? new DeviceViewModel(obj.NewDevice) : null;
+
+            return Task.CompletedTask;
         }
 
-        private void OnAddAccountForApp(AddAccountForAppMessage obj)
+        private Task OnAddAccountForApp(AddAccountForAppMessage obj)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                var vm = new EditAccountViewModel(Device, windowsManager, qrScannerHelper, _messenger, _metaMessenger)
+                var vm = new EditAccountViewModel(Device, windowsManager, qrScannerHelper, _metaMessenger)
                 {
                     DeleteAccountCommand = this.DeleteAccountCommand,
                     CancelCommand = this.CancelCommand,
@@ -207,6 +207,8 @@ namespace HideezClient.PageViewModels
 
                 EditAccount = vm;
             });
+
+            return Task.CompletedTask;
         }
 
         private async Task OnSaveAccountAsync(SecureString password)
@@ -237,7 +239,7 @@ namespace HideezClient.PageViewModels
 
         private void OnAddAccount()
         {
-            EditAccount = new EditAccountViewModel(Device, windowsManager, qrScannerHelper, _messenger, _metaMessenger)
+            EditAccount = new EditAccountViewModel(Device, windowsManager, qrScannerHelper, _metaMessenger)
             {
                 DeleteAccountCommand = this.DeleteAccountCommand,
                 CancelCommand = this.CancelCommand,
@@ -269,7 +271,7 @@ namespace HideezClient.PageViewModels
             var record = Device.AccountsRecords.FirstOrDefault(r => r.StorageId == SelectedAccount.AccountRecord.StorageId);
             if (record != null)
             {
-                EditAccount = new EditAccountViewModel(Device, record, windowsManager, qrScannerHelper, _messenger, _metaMessenger)
+                EditAccount = new EditAccountViewModel(Device, record, windowsManager, qrScannerHelper, _metaMessenger)
                 {
                     DeleteAccountCommand = this.DeleteAccountCommand,
                     CancelCommand = this.CancelCommand,

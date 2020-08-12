@@ -30,18 +30,16 @@ namespace HideezClient.PageViewModels
     {
         readonly IServiceProxy serviceProxy;
         readonly IWindowsManager windowsManager;
-        readonly IMessenger _messenger;
         readonly Logger log = LogManager.GetCurrentClassLogger(nameof(DeviceSettingsPageViewModel));
         readonly IMetaPubSub _metaMessenger;
 
-        public DeviceSettingsPageViewModel(IServiceProxy serviceProxy, IWindowsManager windowsManager, IMessenger messenger, IActiveDevice activeDevice, IMetaPubSub metaMessenger)
+        public DeviceSettingsPageViewModel(IServiceProxy serviceProxy, IWindowsManager windowsManager, IActiveDevice activeDevice, IMetaPubSub metaMessenger)
         {
             this.serviceProxy = serviceProxy;
             this.windowsManager = windowsManager;
-            _messenger = messenger;
             _metaMessenger = metaMessenger;
 
-            _messenger.Register<ActiveDeviceChangedMessage>(this, OnActiveDeviceChanged);
+            _metaMessenger.Subscribe<ActiveDeviceChangedMessage>(OnActiveDeviceChanged);
 
             Сonnected = new StateControlViewModel
             {
@@ -132,10 +130,12 @@ namespace HideezClient.PageViewModels
 
         #endregion
 
-        private void OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
+        private Task OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
         {
             // Todo: ViewModel should be reused instead of being recreated each time active device is changed
             Device = obj.NewDevice != null ? new DeviceViewModel(obj.NewDevice) : null;
+
+            return Task.CompletedTask;
         }
 
         public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)

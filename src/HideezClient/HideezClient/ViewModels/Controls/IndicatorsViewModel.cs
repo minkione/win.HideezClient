@@ -17,7 +17,6 @@ namespace HideezClient.ViewModels
     class IndicatorsViewModel : ObservableObject
     {
         private readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(IndicatorsViewModel));
-        private readonly IMessenger _messenger;
         private readonly IServiceProxy _serviceProxy;
 
         private StateControlViewModel service;
@@ -26,14 +25,13 @@ namespace HideezClient.ViewModels
         private StateControlViewModel dongle;
         private StateControlViewModel tbServer;
 
-        public IndicatorsViewModel(IMessenger messenger, IServiceProxy serviceProxy, IMetaPubSub metaMessenger)
+        public IndicatorsViewModel(IServiceProxy serviceProxy, IMetaPubSub metaMessenger)
         {
-            _messenger = messenger;
             _serviceProxy = serviceProxy;
 
             InitIndicators();
 
-            messenger.Register<ConnectionServiceChangedMessage>(this, c => ResetIndicators(c.IsConnected));
+            metaMessenger.Subscribe<ConnectionServiceChangedMessage>(c => ResetIndicators(c.IsConnected));
             metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ServiceComponentsStateChangedMessage>(OnComponentsStateChangedMessage);
         }
 
@@ -153,7 +151,7 @@ namespace HideezClient.ViewModels
             Indicators.Add(Dongle);
         }
 
-        private void ResetIndicators(bool isServiceConnected)
+        private Task ResetIndicators(bool isServiceConnected)
         {
             if (isServiceConnected)
             {
@@ -182,6 +180,8 @@ namespace HideezClient.ViewModels
                 TBServer.State = StateControlState.Red;
                 TBServer.Visible = false;
             }
+
+            return Task.CompletedTask;
         }
     }
 }

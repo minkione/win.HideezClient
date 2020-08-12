@@ -20,11 +20,11 @@ namespace HideezClient.Modules
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(WorkstationManager));
         readonly IInputSimulator inputSimulator = new InputSimulator();
 
-        public WorkstationManager(IMessenger messanger, IMetaPubSub metaMessenger)
+        public WorkstationManager(IMetaPubSub metaMessenger)
         {
             // Start listening command messages
             metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LockWorkstationMessage>(LockPC);
-            messanger.Register<ForceShutdownMessage>(this, ForceShutdown);
+            //metaMessenger.Subscribe<ForceShutdownMessage>(ForceShutdown);
             metaMessenger.TrySubscribeOnServer<ActivateScreenRequestMessage>(ActivateScreen);
         }
 

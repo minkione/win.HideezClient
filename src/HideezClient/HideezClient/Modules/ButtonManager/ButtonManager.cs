@@ -2,18 +2,19 @@
 using Hideez.SDK.Communication;
 using HideezClient.Messages;
 using HideezClient.Models;
+using Meta.Lib.Modules.PubSub;
 using System.Threading.Tasks;
 
 namespace HideezClient.Modules.ButtonManager
 {
     internal sealed class ButtonManager : IButtonManager
     {
-        readonly IMessenger _messenger;
+        readonly IMetaPubSub _metaMessenger;
         bool _enabled;
 
-        public ButtonManager(IMessenger messenger)
+        public ButtonManager(IMetaPubSub metaMessenger)
         {
-            _messenger = messenger;
+            _metaMessenger = metaMessenger;
         }
 
         public bool Enabled
@@ -38,16 +39,16 @@ namespace HideezClient.Modules.ButtonManager
             {
                 if (newValue)
                 {
-                    _messenger.Register<DeviceButtonPressedMessage>(this, OnDeviceButtonPressed);
+                    _metaMessenger.Subscribe<DeviceButtonPressedMessage>(OnDeviceButtonPressed);
                 }
                 else
                 {
-                    _messenger.Unregister<DeviceButtonPressedMessage>(this);
+                    _metaMessenger.Unsubscribe<DeviceButtonPressedMessage>(OnDeviceButtonPressed);
                 }
             });
         }
 
-        void OnDeviceButtonPressed(DeviceButtonPressedMessage msg)
+        async Task OnDeviceButtonPressed(DeviceButtonPressedMessage msg)
         {
             UserAction action;
             switch (msg.Button)
@@ -65,7 +66,7 @@ namespace HideezClient.Modules.ButtonManager
                     return;
             }
 
-            _messenger.Send(new ButtonPressedMessage(msg.DeviceId, action, msg.Button));
+            await _metaMessenger.Publish(new ButtonPressedMessage(msg.DeviceId, action, msg.Button));
         }
     }
 }

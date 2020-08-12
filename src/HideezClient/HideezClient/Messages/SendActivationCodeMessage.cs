@@ -1,6 +1,8 @@
-﻿namespace HideezClient.Messages
+﻿using Meta.Lib.Modules.PubSub;
+
+namespace HideezClient.Messages
 {
-    class SendActivationCodeMessage
+    public class SendActivationCodeMessage: PubSubMessageBase
     {
         public string DeviceId { get; }
 

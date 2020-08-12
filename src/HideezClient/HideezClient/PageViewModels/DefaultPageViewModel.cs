@@ -2,6 +2,7 @@
 using HideezClient.Messages;
 using HideezClient.Mvvm;
 using HideezClient.ViewModels;
+using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Commands;
 using System.Windows.Input;
 
@@ -9,7 +10,7 @@ namespace HideezClient.PageViewModels
 {
     class DefaultPageViewModel : LocalizedObject
     {
-        readonly IMessenger _messenger;
+        readonly IMetaPubSub _metaMessenger;
         readonly SoftwareUnlockSettingViewModel _softwareUnlock;
 
         public ICommand OpenHideezKeyPageCommand
@@ -34,20 +35,20 @@ namespace HideezClient.PageViewModels
             }
         }
 
-        public DefaultPageViewModel(IMessenger messenger, SoftwareUnlockSettingViewModel softwareUnlock)
+        public DefaultPageViewModel(IMetaPubSub metaMessenger, SoftwareUnlockSettingViewModel softwareUnlock)
         {
-            _messenger = messenger;
+            _metaMessenger = metaMessenger;
             _softwareUnlock = softwareUnlock;
         }
 
         void OnOpenHideezKeyPage()
         {
-            _messenger.Send(new OpenHideezKeyPageMessage());
+            _metaMessenger.Publish(new OpenHideezKeyPageMessage());
         }
 
         void OnOpenMobileAuthenticatorPage()
         {
-            _messenger.Send(new OpenMobileAuthenticatorPageMessage());
+            _metaMessenger.Publish(new OpenMobileAuthenticatorPageMessage());
 
             // Todo: Temporary for Try&Buy
             _softwareUnlock.IsChecked = true;

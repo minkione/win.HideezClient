@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HideezClient.Messages
 {
-    class ConnectionServiceChangedMessage : ConnectionChangedMessage
+    public class ConnectionServiceChangedMessage : ConnectionChangedMessage
     {
         public ConnectionServiceChangedMessage(bool isConnected)
             : base(isConnected)

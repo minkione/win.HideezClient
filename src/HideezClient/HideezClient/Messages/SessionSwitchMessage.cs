@@ -1,8 +1,9 @@
-﻿using Microsoft.Win32;
+﻿using Meta.Lib.Modules.PubSub;
+using Microsoft.Win32;
 
 namespace HideezClient.Messages
 {
-    class SessionSwitchMessage
+    public class SessionSwitchMessage: PubSubMessageBase
     {
         public SessionSwitchMessage(int sessionId, SessionSwitchReason reason)
         {

@@ -1,7 +1,8 @@
-﻿namespace HideezClient.Messages
-{
+﻿using Meta.Lib.Modules.PubSub;
 
-    class OpenPasswordManagerMessage
+namespace HideezClient.Messages
+{
+    public class OpenPasswordManagerMessage: PubSubMessageBase
     {
         public string DeviceId { get; }
 

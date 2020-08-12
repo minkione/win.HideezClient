@@ -25,8 +25,6 @@ namespace HideezClient.Modules.DeviceManager
     class DeviceManager : IDeviceManager
     {
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(DeviceManager));
-        readonly IMessenger _messenger;
-        readonly IServiceProxy _serviceProxy;
         readonly IWindowsManager _windowsManager;
         readonly IMetaPubSub _metaMessenger;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
@@ -50,11 +48,8 @@ namespace HideezClient.Modules.DeviceManager
 
         public event NotifyCollectionChangedEventHandler DevicesCollectionChanged;
 
-        public DeviceManager(IMessenger messenger, IServiceProxy serviceProxy,
-            IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory, IMetaPubSub metaMessenger)
+        public DeviceManager(IMetaPubSub metaMessenger, IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory)
         {
-            _messenger = messenger;
-            _serviceProxy = serviceProxy;
             _windowsManager = windowsManager;
             _remoteDeviceFactory = remoteDeviceFactory;
             _metaMessenger = metaMessenger;
@@ -148,7 +143,7 @@ namespace HideezClient.Modules.DeviceManager
         {
             if (!_devices.ContainsKey(dto.Id))
             {
-                var device = new Device(_serviceProxy, _remoteDeviceFactory, _messenger, _metaMessenger, dto);
+                var device = new Device(_remoteDeviceFactory, _metaMessenger, dto);
                 device.PropertyChanged += Device_PropertyChanged;
 
                 if (_devices.TryAdd(device.Id, device))

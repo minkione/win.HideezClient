@@ -1,6 +1,8 @@
-﻿namespace HideezClient.Messages
+﻿using Meta.Lib.Modules.PubSub;
+
+namespace HideezClient.Messages
 {
-    class SendPinMessage
+    public class SendPinMessage: PubSubMessageBase
     {
         public string DeviceId { get; }
 

@@ -12,6 +12,7 @@ using System.Windows.Input;
 using HideezMiddleware.Settings;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.Modules.HotkeyManager
 {
@@ -23,16 +24,15 @@ namespace HideezClient.Modules.HotkeyManager
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(HotkeyManager));
 		readonly KeyGestureConverter keyGestureConverter = new KeyGestureConverter();
 		readonly ISettingsManager<HotkeySettings> hotkeySettingsManager;
-        readonly IMessenger messenger;
+        readonly IMetaPubSub _metaMessenger;
         bool enabled = false;
 
-		public HotkeyManager(ISettingsManager<HotkeySettings> hotkeySettingsManager, IMessenger messenger)
+		public HotkeyManager(ISettingsManager<HotkeySettings> hotkeySettingsManager, IMetaPubSub metaMessenger)
 		{
 			this.hotkeySettingsManager = hotkeySettingsManager;
             hotkeySettingsManager.SettingsFilePath = Path.Combine(Constants.DefaultSettingsFolderPath, "hotkeys.xml"); ;
-            this.messenger = messenger;
-
-            this.messenger?.Register<SettingsChangedMessage<HotkeySettings>>(this, OnHotkeysSettingsChanged);
+            _metaMessenger = metaMessenger;
+            _metaMessenger.Subscribe<SettingsChangedMessage<HotkeySettings>>(OnHotkeysSettingsChanged);
 		}
 
         /// <summary>
@@ -55,11 +55,11 @@ namespace HideezClient.Modules.HotkeyManager
             }
         }
 
-        void OnHotkeysSettingsChanged(SettingsChangedMessage<HotkeySettings> message)
+        async Task OnHotkeysSettingsChanged(SettingsChangedMessage<HotkeySettings> message)
         {
             if (Enabled)
             {
-                Task.Run(async () =>
+                await Task.Run(async () =>
                 {
                     await UnsubscribeAllHotkeys();
                     await SubscribeAllHotkeys();
@@ -177,14 +177,14 @@ namespace HideezClient.Modules.HotkeyManager
 					KeyGesture kg = ConvertStringKeysToKeyGesture(hotkey);
                     RegisterOrUpdateHotkeyGesture(Enum.GetName(typeof(UserAction), action), kg.Key, kg.Modifiers, OnHotkeyInput);
 
-                    messenger?.Send(new HotkeyStateChangedMessage(action, hotkey, HotkeyState.Subscribed));
+                    _metaMessenger?.Publish(new HotkeyStateChangedMessage(action, hotkey, HotkeyState.Subscribed));
                 }
             }
 			catch (Exception ex)
 			{
                 _log.WriteLine(ex);
 
-                messenger?.Send(new HotkeyStateChangedMessage(action, hotkey, HotkeyState.Unavailable));
+                _metaMessenger?.Publish(new HotkeyStateChangedMessage(action, hotkey, HotkeyState.Unavailable));
 			}
 		}
 
@@ -193,7 +193,7 @@ namespace HideezClient.Modules.HotkeyManager
 			try
 			{
                 RemoveHotkeyGesture(Enum.GetName(typeof(UserAction), action));
-                messenger?.Send(new HotkeyStateChangedMessage(action, await GetHotkeyForAction(action), HotkeyState.Unsubscribed));
+                _metaMessenger?.Publish(new HotkeyStateChangedMessage(action, await GetHotkeyForAction(action), HotkeyState.Unsubscribed));
             }
             catch (Exception ex)
 			{
@@ -201,7 +201,7 @@ namespace HideezClient.Modules.HotkeyManager
                 {
                     _log.WriteLine(ex);
 
-                    messenger?.Send(new HotkeyStateChangedMessage(action, await GetHotkeyForAction(action), HotkeyState.Unavailable));
+                    _metaMessenger?.Publish(new HotkeyStateChangedMessage(action, await GetHotkeyForAction(action), HotkeyState.Unavailable));
                 }
                 catch (Exception exc)
                 {
@@ -229,7 +229,7 @@ namespace HideezClient.Modules.HotkeyManager
                 if (Enum.TryParse(e.Name, out UserAction action) 
                     && settings.Hotkeys.TryGetValue(action, out string hotkey))
 			    {
-                    messenger?.Send(new HotkeyPressedMessage(action, hotkey));
+                    _metaMessenger?.Publish(new HotkeyPressedMessage(action, hotkey));
 			    }
             });
         }

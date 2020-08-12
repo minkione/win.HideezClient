@@ -1,6 +1,6 @@
 ﻿namespace HideezClient.Modules.HotkeyManager
 {
-    enum HotkeyState
+    public enum HotkeyState
     {
         Unsubscribed,
         Subscribed,

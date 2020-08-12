@@ -1,8 +1,9 @@
 ﻿using HideezClient.Models;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.Messages
 {
-    class ActiveDeviceChangedMessage
+    public class ActiveDeviceChangedMessage: PubSubMessageBase
     {
         public Device PreviousDevice { get; }
         

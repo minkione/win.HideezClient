@@ -20,7 +20,6 @@ namespace HideezClient.Modules.ActionHandler
     /// </summary>
     class UserActionHandler : Logger
     {
-        private readonly IMessenger _messenger;
         private readonly IActiveDevice _activeDevice;
         private readonly InputLogin _inputLogin;
         private readonly InputPassword _inputPassword;
@@ -33,7 +32,6 @@ namespace HideezClient.Modules.ActionHandler
         private readonly IMetaPubSub _metaMessenger;
 
         public UserActionHandler(
-            IMessenger messenger,
             IMetaPubSub metaMessenger,
             IActiveDevice activeDevice,
             InputLogin inputLogin,
@@ -45,7 +43,6 @@ namespace HideezClient.Modules.ActionHandler
             ILog log)
             : base(nameof(UserActionHandler), log)
         {
-            _messenger = messenger;
             _metaMessenger = metaMessenger;
             _activeDevice = activeDevice;
             _inputLogin = inputLogin;
@@ -55,14 +52,14 @@ namespace HideezClient.Modules.ActionHandler
             _hotkeyManager = hotkeyManager;
             _windowsManager = windowsManager;
 
-            _messenger.Register<HotkeyPressedMessage>(this, HotkeyPressedMessageHandler);
-            _messenger.Register<ButtonPressedMessage>(this, ButtonPressedMessageHandler);
+            _metaMessenger.Subscribe<HotkeyPressedMessage>(HotkeyPressedMessageHandler);
+            _metaMessenger.Subscribe<ButtonPressedMessage>(ButtonPressedMessageHandler);
         }
 
         // Messages from Messenger are events. async void is fine in this case.
-        void ButtonPressedMessageHandler(ButtonPressedMessage message)
+        Task ButtonPressedMessageHandler(ButtonPressedMessage message)
         {
-            Task.Run(async () =>
+            return Task.Run(async () =>
             {
                 WriteLine($"Handling button pressed message ({message.Action.ToString()}, {message.Code.ToString()})");
 
@@ -91,9 +88,9 @@ namespace HideezClient.Modules.ActionHandler
             });
         }
 
-        void HotkeyPressedMessageHandler(HotkeyPressedMessage message)
+        Task HotkeyPressedMessageHandler(HotkeyPressedMessage message)
         {
-            Task.Run(async () =>
+            return Task.Run(async () =>
             {
                 WriteLine($"Handling hotkey pressed message ({message.Hotkey}, {message.Action.ToString()})");
 
@@ -269,8 +266,8 @@ namespace HideezClient.Modules.ActionHandler
             {
                 await _metaMessenger.Publish(new ShowInfoNotificationMessage($"Creating new account for {appInfo.Title}", notificationId: _activeDevice.Device?.Mac));
                 await _metaMessenger.Publish(new ShowActivateMainWindowMessage());
-                _messenger.Send(new OpenPasswordManagerMessage(deviceId));
-                _messenger.Send(new AddAccountForAppMessage(deviceId, appInfo));
+                await _metaMessenger.Publish(new OpenPasswordManagerMessage(deviceId));
+                await _metaMessenger.Publish(new AddAccountForAppMessage(deviceId, appInfo));
             }
         }
     }

@@ -38,7 +38,6 @@ namespace HideezClient.Models
         readonly int CREDENTIAL_TIMEOUT = SdkConfig.MainWorkflowTimeout;
 
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(Device));
-        readonly IServiceProxy _serviceProxy;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         readonly IMessenger _messenger;
         readonly IMetaPubSub _metaMessenger;
@@ -85,15 +84,11 @@ namespace HideezClient.Models
         bool _isStorageLocked = false;
 
         public Device(
-            IServiceProxy serviceProxy,
             IRemoteDeviceFactory remoteDeviceFactory,
-            IMessenger messenger,
             IMetaPubSub metaMessenger,
             DeviceDTO dto)
         {
-            _serviceProxy = serviceProxy;
             _remoteDeviceFactory = remoteDeviceFactory;
-            _messenger = messenger;
             _metaMessenger = metaMessenger;
 
             PropertyChanged += Device_PropertyChanged;
@@ -101,14 +96,14 @@ namespace HideezClient.Models
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage>(OnDeviceConnectionStateChanged);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceInitializedMessage>(OnDeviceInitialized);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceFinishedMainFlowMessage>(OnDeviceFinishedMainFlow);
-            _messenger.Register<SendPinMessage>(this, OnPinReceived);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage>(OnOperationCancelled);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityChangedMessage>(OnDeviceProximityChanged);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceBatteryChangedMessage>(OnDeviceBatteryChanged);
-            _messenger.Register<SessionSwitchMessage>(this, OnSessionSwitch);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityLockEnabledMessage>(OnDeviceProximityLockEnabled);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(OnLockDeviceStorage);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(OnLiftDeviceStorageLock);
+            _metaMessenger.Subscribe<SendPinMessage>(OnPinReceived);
+            _metaMessenger.Subscribe<SessionSwitchMessage>(OnSessionSwitch);
 
             RegisterDependencies();
 
@@ -325,7 +320,7 @@ namespace HideezClient.Models
 
             Task.Run(() =>
             {
-                _messenger.Send(new DeviceButtonPressedMessage(Id, e));
+                _metaMessenger.Publish(new DeviceButtonPressedMessage(Id, e));
             });
         }
 
@@ -401,13 +396,15 @@ namespace HideezClient.Models
             return Task.CompletedTask;
         }
 
-        void OnPinReceived(Messages.SendPinMessage obj)
+        Task OnPinReceived(SendPinMessage obj)
         {
             if (_pendingGetPinRequests.TryGetValue(obj.DeviceId, out TaskCompletionSource<byte[]> tcs))
                 tcs.TrySetResult(obj.Pin);
+
+            return Task.CompletedTask;
         }
 
-        void OnSessionSwitch(SessionSwitchMessage obj)
+        Task OnSessionSwitch(SessionSwitchMessage obj)
         {
             switch (obj.Reason)
             {
@@ -422,8 +419,10 @@ namespace HideezClient.Models
                     TryInitRemoteAsync();
                     break;
                 default:
-                    return;
+                    return Task.CompletedTask;
             }
+
+            return Task.CompletedTask;
         }
 
         Task OnOperationCancelled(HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage obj)

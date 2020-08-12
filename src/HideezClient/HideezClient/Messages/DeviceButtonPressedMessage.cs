@@ -1,8 +1,9 @@
 ﻿using Hideez.SDK.Communication;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.Messages
 {
-    class DeviceButtonPressedMessage
+    public class DeviceButtonPressedMessage: PubSubMessageBase
     {
         public DeviceButtonPressedMessage(string deviceId, ButtonPressCode button)
         {

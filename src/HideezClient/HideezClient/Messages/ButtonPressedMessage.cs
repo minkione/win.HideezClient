@@ -1,9 +1,10 @@
 ﻿using Hideez.SDK.Communication;
 using HideezClient.Models;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.Messages
 {
-    class ButtonPressedMessage
+    public class ButtonPressedMessage: PubSubMessageBase
     {
         public ButtonPressedMessage(string deviceId, UserAction action, ButtonPressCode code)
         {

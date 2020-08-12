@@ -27,7 +27,6 @@ namespace HideezClient.Modules
 {
     class MenuFactory : IMenuFactory
     {
-        readonly IMessenger _messenger;
         readonly IStartupHelper _startupHelper;
         readonly IWindowsManager _windowsManager;
         readonly IAppHelper _appHelper;
@@ -37,12 +36,11 @@ namespace HideezClient.Modules
         readonly IActiveDevice _activeDevice;
         readonly IMetaPubSub _metaMessenger;
 
-        public MenuFactory(IMessenger messenger, IStartupHelper startupHelper
+        public MenuFactory(IStartupHelper startupHelper
             , IWindowsManager windowsManager, IAppHelper appHelper,
             ISettingsManager<ApplicationSettings> settingsManager, ISupportMailContentGenerator supportMailContentGenerator,
             IServiceProxy serviceProxy, IActiveDevice activeDevice, IMetaPubSub metaMessenger)
         {
-            _messenger = messenger;
             _startupHelper = startupHelper;
             _windowsManager = windowsManager;
             _appHelper = appHelper;

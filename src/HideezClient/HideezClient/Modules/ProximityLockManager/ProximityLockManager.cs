@@ -10,13 +10,11 @@ namespace HideezClient.Modules.ProximityLockManager
     class ProximityLockManager: IProximityLockManager
     {
         private readonly ITaskbarIconManager _taskbarIconManager;
-        private readonly IMessenger _messenger;
         readonly IMetaPubSub _metaMessenger;
 
-        public ProximityLockManager(ITaskbarIconManager taskbarIconManager, IMessenger messenger, IMetaPubSub metaMessenger)
+        public ProximityLockManager(ITaskbarIconManager taskbarIconManager, IMetaPubSub metaMessenger)
         {
             _taskbarIconManager = taskbarIconManager;
-            _messenger = messenger;
             _metaMessenger = metaMessenger;
 
             _metaMessenger.TrySubscribeOnServer<WorkstationUnlockedMessage>(OnWorkstationUnlocked);

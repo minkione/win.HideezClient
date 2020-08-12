@@ -1,9 +1,10 @@
 ﻿using HideezMiddleware.Settings;
 using HideezClient.Models.Settings;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.Messages
 {
-    class SettingsChangedMessage<T> where T : BaseSettings, new()
+    public class SettingsChangedMessage<T>: PubSubMessageBase where T : BaseSettings, new()
     {
     }
 }

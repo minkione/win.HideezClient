@@ -16,13 +16,11 @@ namespace HideezClient.Modules
     {
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(RemoteDeviceFactory));
         readonly IServiceProxy _serviceProxy;
-        readonly IMessenger _messenger;
         readonly IMetaPubSub _metaMessenger;
 
-        public RemoteDeviceFactory(IServiceProxy serviceProxy, IMessenger messenger, IMetaPubSub metaMessenger)
+        public RemoteDeviceFactory(IServiceProxy serviceProxy, IMetaPubSub metaMessenger)
         {
             _serviceProxy = serviceProxy;
-            _messenger = messenger;
             _metaMessenger = metaMessenger;
         }
 

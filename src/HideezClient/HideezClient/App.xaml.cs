@@ -226,7 +226,7 @@ namespace HideezClient
 
         private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
-            _messenger.Send(new SessionSwitchMessage(Process.GetCurrentProcess().SessionId, e.Reason));
+            _metaMessenger.Publish(new SessionSwitchMessage(Process.GetCurrentProcess().SessionId, e.Reason));
         }
 
         /// <summary>

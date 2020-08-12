@@ -38,7 +38,6 @@ namespace HideezClient.ViewModels
         readonly Logger log = LogManager.GetCurrentClassLogger(nameof(EditAccountViewModel));
         readonly IQrScannerHelper _qrScannerHelper;
         readonly IWindowsManager _windowsManager;
-        readonly IMessenger _messenger;
         readonly IMetaPubSub _metaMessenger;
 
         readonly AppInfo loadingAppInfo = new AppInfo { Description = "Loading...", Domain = "Loading..." };
@@ -50,21 +49,19 @@ namespace HideezClient.ViewModels
         bool canScanOtpSecretQrCode = true;
         readonly AccountRecord cache;
 
-        public EditAccountViewModel(DeviceViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMessenger messenger, IMetaPubSub metaMessenger)
-            : this(device, null, windowsManager, qrScannerHelper, messenger, metaMessenger)
+        public EditAccountViewModel(DeviceViewModel device, IWindowsManager windowsManager, IQrScannerHelper qrScannerHelper, IMetaPubSub metaMessenger)
+            : this(device, null, windowsManager, qrScannerHelper, metaMessenger)
         { }
 
         public EditAccountViewModel(DeviceViewModel device, 
             AccountRecord accountRecord, 
             IWindowsManager windowsManager, 
             IQrScannerHelper qrScannerHelper,
-            IMessenger messenger,
             IMetaPubSub metaMessenger)
         {
             _windowsManager = windowsManager;
             _qrScannerHelper = qrScannerHelper;
             _device = device;
-            _messenger = messenger;
             _metaMessenger = metaMessenger;
 
             if (accountRecord == null)

@@ -1,8 +1,9 @@
 ﻿using Hideez.ARM;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.Messages
 {
-    class AddAccountForAppMessage
+    public class AddAccountForAppMessage: PubSubMessageBase
     {
         public string DeviceId { get; }
 

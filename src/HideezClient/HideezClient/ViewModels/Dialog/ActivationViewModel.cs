@@ -19,7 +19,6 @@ namespace HideezClient.ViewModels
 {
     public class ActivationViewModel : ObservableObject
     {
-        readonly IMessenger _messenger;
         readonly IDeviceManager _deviceManager;
         readonly IMetaPubSub _metaMessenger;
         readonly byte[] _emptyBytes = new byte[0];
@@ -34,9 +33,8 @@ namespace HideezClient.ViewModels
         public event EventHandler ViewModelUpdated;
         public event EventHandler PasswordsCleared;
 
-        public ActivationViewModel(IMessenger messenger, IMetaPubSub metaMessenger, IDeviceManager deviceManager)
+        public ActivationViewModel(IMetaPubSub metaMessenger, IDeviceManager deviceManager)
         {
-            _messenger = messenger;
             _deviceManager = deviceManager;
             _metaMessenger = metaMessenger;
 
@@ -168,14 +166,14 @@ namespace HideezClient.ViewModels
 
             var codeBytes = code != null ? code.ToUtf8Bytes() : _emptyBytes;
 
-            _messenger.Send(new SendActivationCodeMessage(Device.Id, codeBytes));
+            _metaMessenger.Publish(new SendActivationCodeMessage(Device.Id, codeBytes));
 
             ClearPasswords();
         }
 
         void OnCancel()
         {
-            _messenger.Send(new CancelActivationCodeEntryMessage(Device.Id));
+            _metaMessenger.Publish(new CancelActivationCodeEntryMessage(Device.Id));
             _metaMessenger.PublishOnServer(new HideActivationCodeUi());
             Device.CancelDeviceAuthorization();
         }

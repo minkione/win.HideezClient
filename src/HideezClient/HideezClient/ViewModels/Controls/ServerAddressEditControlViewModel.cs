@@ -18,7 +18,6 @@ namespace HideezClient.ViewModels
 {
     class ServerAddressEditControlViewModel : ObservableObject
     {
-        readonly IMessenger _messenger;
         readonly IMetaPubSub _metaMessenger;
         readonly ILog _log;
 
@@ -113,9 +112,8 @@ namespace HideezClient.ViewModels
         #endregion
 
         // TODO: Add error handling if service is offline
-        public ServerAddressEditControlViewModel(IMessenger messenger, IMetaPubSub metaMessenger, ILog log)
+        public ServerAddressEditControlViewModel(IMetaPubSub metaMessenger, ILog log)
         {
-            _messenger = messenger;
             _metaMessenger = metaMessenger;
             _log = log;
 

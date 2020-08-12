@@ -1,7 +1,8 @@
-﻿namespace HideezClient.Messages
-{
+﻿using Meta.Lib.Modules.PubSub;
 
-    class CancelActivationCodeEntryMessage
+namespace HideezClient.Messages
+{
+    public class CancelActivationCodeEntryMessage:PubSubMessageBase
     {
         public string DeviceId { get; }
 

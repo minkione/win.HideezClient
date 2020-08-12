@@ -2,13 +2,15 @@
 using HideezClient.Messages;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
+using Meta.Lib.Modules.PubSub;
+using System.Threading.Tasks;
 
 namespace HideezClient.ViewModels
 {
     class ServiceViewModel : ObservableObject
     {
         readonly IServiceProxy _serviceProxy;
-        readonly IMessenger _messenger;
+        readonly IMetaPubSub _metaMessenger;
 
         public bool IsServiceConnected
         {
@@ -18,17 +20,19 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public ServiceViewModel(IServiceProxy serviceProxy, IMessenger messenger)
+        public ServiceViewModel(IServiceProxy serviceProxy, IMetaPubSub metaMessenger)
         {
             _serviceProxy = serviceProxy;
-            _messenger = messenger;
+            _metaMessenger = metaMessenger;
 
-            _messenger.Register<ConnectionServiceChangedMessage>(this, OnServiceConnectionStateChanged);
+            _metaMessenger.Subscribe<ConnectionServiceChangedMessage>(OnServiceConnectionStateChanged);
         }
 
-        void OnServiceConnectionStateChanged(ConnectionServiceChangedMessage obj)
+        Task OnServiceConnectionStateChanged(ConnectionServiceChangedMessage obj)
         {
             NotifyPropertyChanged(nameof(IsServiceConnected));
+
+            return Task.CompletedTask;
         }
     }
 }

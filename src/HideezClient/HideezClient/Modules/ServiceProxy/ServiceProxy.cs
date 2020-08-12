@@ -13,18 +13,16 @@ namespace HideezClient.Modules.ServiceProxy
     class ServiceProxy : IServiceProxy
     {
         private readonly Logger log = LogManager.GetCurrentClassLogger(nameof(ServiceProxy));
-        private readonly IMessenger messenger;
         private readonly IMetaPubSub _metaMessenger;
 
         public bool IsConnected { get; private set; }
 
-        public ServiceProxy(IMessenger messenger, IMetaPubSub metaMessenger)
+        public ServiceProxy(IMetaPubSub metaMessenger)
         {
-            this.messenger = messenger;
             _metaMessenger = metaMessenger;
 
-            messenger.Register<SendActivationCodeMessage>(this, OnSendActivationCodeMessage);
-            messenger.Register<CancelActivationCodeEntryMessage>(this, OnCancelActivationCodeMessage);
+            _metaMessenger.Subscribe<SendActivationCodeMessage>(OnSendActivationCodeMessage);
+            _metaMessenger.Subscribe<CancelActivationCodeEntryMessage>(OnCancelActivationCodeMessage);
 
             _metaMessenger.Subscribe<ConnectedToServerEvent>(OnConnected, null);
             _metaMessenger.Subscribe<DisconnectedFromServerEvent>(OnDisconnected, null);
@@ -47,10 +45,10 @@ namespace HideezClient.Modules.ServiceProxy
 
         void ServiceProxy_ConnectionChanged()
         {
-            messenger.Send(new ConnectionServiceChangedMessage(IsConnected));
+            _metaMessenger.Publish(new ConnectionServiceChangedMessage(IsConnected));
         }
 
-        async void OnSendActivationCodeMessage(SendActivationCodeMessage obj)
+        async Task OnSendActivationCodeMessage(SendActivationCodeMessage obj)
         {
             try
             {
@@ -62,19 +60,16 @@ namespace HideezClient.Modules.ServiceProxy
             }
         }
 
-        async void OnCancelActivationCodeMessage(CancelActivationCodeEntryMessage obj)
+        async Task OnCancelActivationCodeMessage(CancelActivationCodeEntryMessage obj)
         {
+            try
             {
-                try
-                {
-                    await _metaMessenger.PublishOnServer(new HideezMiddleware.IPC.IncommingMessages.CancelActivationCodeMessage(obj.DeviceId));
-                }
-                catch (Exception ex)
-                {
-                    log.WriteLine(ex);
-                }
+                await _metaMessenger.PublishOnServer(new HideezMiddleware.IPC.IncommingMessages.CancelActivationCodeMessage(obj.DeviceId));
+            }
+            catch (Exception ex)
+            {
+                log.WriteLine(ex);
             }
         }
-
     }
 }

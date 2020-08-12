@@ -17,7 +17,6 @@ namespace HideezClient.ViewModels
 {
     public class PinViewModel : ObservableObject
     {
-        readonly IMessenger _messenger;
         readonly IMetaPubSub _metaMessenger;
         readonly IDeviceManager _deviceManager;
         readonly byte[] _emptyBytes = new byte[0];
@@ -39,9 +38,8 @@ namespace HideezClient.ViewModels
         public event EventHandler ViewModelUpdated;
         public event EventHandler PasswordsCleared;
 
-        public PinViewModel(IMessenger messenger, IMetaPubSub metaMessenger, IDeviceManager deviceManager)
+        public PinViewModel(IMetaPubSub metaMessenger, IDeviceManager deviceManager)
         {
-            _messenger = messenger;
             _metaMessenger = metaMessenger;
             _deviceManager = deviceManager;
 
@@ -314,14 +312,14 @@ namespace HideezClient.ViewModels
             var pinBytes = pin != null ? pin.ToUtf8Bytes() : _emptyBytes;
             var oldPinBytes = oldPin != null ? oldPin.ToUtf8Bytes() : _emptyBytes;
 
-            _messenger.Send(new SendPinMessage(Device.Id, pinBytes, oldPinBytes));
+            _metaMessenger.Publish(new SendPinMessage(Device.Id, pinBytes, oldPinBytes));
 
             ClearPasswords();
         }
 
         void OnCancel()
         {
-            _messenger.Send(new HidePinUiMessage());
+            _metaMessenger.Publish(new HidePinUiMessage());
             Device.CancelDeviceAuthorization();
         }
 

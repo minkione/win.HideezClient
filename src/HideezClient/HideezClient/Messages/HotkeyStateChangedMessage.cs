@@ -1,9 +1,10 @@
 ﻿using HideezClient.Models;
 using HideezClient.Modules.HotkeyManager;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.Messages
 {
-    class HotkeyStateChangedMessage
+    public class HotkeyStateChangedMessage: PubSubMessageBase
     {
         public HotkeyStateChangedMessage(UserAction action, string hotkey, HotkeyState state)
         {
