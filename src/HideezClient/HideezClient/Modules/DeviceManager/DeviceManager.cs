@@ -60,6 +60,13 @@ namespace HideezClient.Modules.DeviceManager
             _metaMessenger.Subscribe<DisconnectedFromServerEvent>(OnDisconnectedFromService, null);
         }
 
+        public DeviceManager(IMetaPubSub metaMessenger, IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory, IEnumerable<DeviceDTO> devices)
+            :this(metaMessenger,windowsManager, remoteDeviceFactory)
+        {
+            foreach (var device in devices)
+                AddDevice(device);
+        }
+
         public IEnumerable<Device> Devices => _devices.Values;
 
         async Task OnDisconnectedFromService(DisconnectedFromServerEvent arg)

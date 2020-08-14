@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using SingleInstanceApp;
 using HideezClient.Modules;
-using GalaSoft.MvvmLight.Messaging;
 using HideezClient.ViewModels;
 using Hardcodet.Wpf.TaskbarNotification;
 using System.Globalization;
@@ -57,7 +56,6 @@ namespace HideezClient
         public static Logger _log = LogManager.GetCurrentClassLogger(nameof(App));
         private IStartupHelper _startupHelper;
         private IWorkstationManager _workstationManager;
-        private IMessenger _messenger;
         private IWindowsManager _windowsManager;
         private IServiceWatchdog _serviceWatchdog;
         private IDeviceManager _deviceManager;
@@ -174,8 +172,6 @@ namespace HideezClient
                 _log.WriteLine(sb.ToString(), LogErrorSeverity.Error);
             }
 
-            _messenger = Container.Resolve<IMessenger>();
-            
             // Due to implementation constraints, taskbar icon must be instantiated as late as possible
             Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
             Container.Resolve<ITaskbarIconManager>();
@@ -297,7 +293,6 @@ namespace HideezClient
 
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IWorkstationManager, WorkstationManager>(new ContainerControlledLifetimeManager());
-            Container.RegisterInstance<IMessenger>(Messenger.Default, new ContainerControlledLifetimeManager());
 
             Container.RegisterType<ILog, NLogWrapper>(new ContainerControlledLifetimeManager());
 
@@ -317,9 +312,9 @@ namespace HideezClient
 
             // Settings
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()
-                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.ApplicationSettingsFileName), typeof(IFileSerializer), typeof(IMessenger)));
+                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.ApplicationSettingsFileName), typeof(IFileSerializer), typeof(IMetaPubSub)));
             Container.RegisterType<ISettingsManager<HotkeySettings>, HSSettingsManager<HotkeySettings>>(new ContainerControlledLifetimeManager()
-                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.HotkeySettingsFileName), typeof(IFileSerializer), typeof(IMessenger)));
+                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.HotkeySettingsFileName), typeof(IFileSerializer), typeof(IMetaPubSub)));
 
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());
@@ -332,10 +327,6 @@ namespace HideezClient
             Container.RegisterType<IMenuFactory, MenuFactory>(new ContainerControlledLifetimeManager());
             Container.RegisterType<TaskbarIconViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ITaskbarIconManager, TaskbarIconManager>(new ContainerControlledLifetimeManager());
-
-
-            // Messenger
-            Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
 
             // Input
             Container.RegisterType<UserActionHandler>(new ContainerControlledLifetimeManager());

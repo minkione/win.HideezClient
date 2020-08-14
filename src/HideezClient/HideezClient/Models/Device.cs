@@ -39,7 +39,6 @@ namespace HideezClient.Models
 
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(Device));
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
-        readonly IMessenger _messenger;
         readonly IMetaPubSub _metaMessenger;
 
         RemoteDevice _remoteDevice;
@@ -170,7 +169,7 @@ namespace HideezClient.Models
         //Todo: Add this property in contract on service
         public string Mac
         {
-            get { return Mac; }
+            get { return mac; }
             private set { Set(ref mac, value); }
         }
 
@@ -1042,7 +1041,17 @@ namespace HideezClient.Models
                 if (disposing)
                 {
                     PropertyChanged -= Device_PropertyChanged;
-                    _messenger.Unregister(this);
+                    _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage>(OnDeviceConnectionStateChanged);
+                    _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceInitializedMessage>(OnDeviceInitialized);
+                    _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceFinishedMainFlowMessage>(OnDeviceFinishedMainFlow);
+                    _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage>(OnOperationCancelled);
+                    _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceProximityChangedMessage>(OnDeviceProximityChanged);
+                    _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceBatteryChangedMessage>(OnDeviceBatteryChanged);
+                    _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceProximityLockEnabledMessage>(OnDeviceProximityLockEnabled);
+                    _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(OnLockDeviceStorage);
+                    _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(OnLiftDeviceStorageLock);
+                    _metaMessenger.Unsubscribe<SendPinMessage>(OnPinReceived);
+                    _metaMessenger.Unsubscribe<SessionSwitchMessage>(OnSessionSwitch);
                 }
 
                 disposed = true;
