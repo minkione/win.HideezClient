@@ -766,4 +766,160 @@ Only 1 attempt left.</value>
   <data name="Notification.DeviceLockedByCode.Message" xml:space="preserve">
     <value>To unlock the vault, contact your system administrator for activation code and then reconnect the vault.</value>
   </data>
+  <data name="AccountSelectorNotification.Title" xml:space="preserve">
+    <value>There are few suitable accounts, select one of them, please.</value>
+  </data>
+  <data name="ActivationCode.Label" xml:space="preserve">
+    <value>Activation Code</value>
+  </data>
+  <data name="ActivationCode.Title" xml:space="preserve">
+    <value>Please enter Activation Code for {0}</value>
+  </data>
+  <data name="ButtonWindow.Content" xml:space="preserve">
+    <value>Press the button on your vault to confirm authorization</value>
+  </data>
+  <data name="NoAccountNotification.CloseButton" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="NoAccountNotification.NewAccountButton" xml:space="preserve">
+    <value>Create new account</value>
+  </data>
+  <data name="Pin.ChangePin.Label" xml:space="preserve">
+    <value>Change vault PIN (minimum {0})</value>
+  </data>
+  <data name="Pin.ConfirmPin.Label" xml:space="preserve">
+    <value>Confirm PIN</value>
+  </data>
+  <data name="Pin.CurrentPin.Label" xml:space="preserve">
+    <value>Current PIN</value>
+  </data>
+  <data name="Pin.EnterPin.Label" xml:space="preserve">
+    <value>Enter vault PIN</value>
+  </data>
+  <data name="Pin.InProgress" xml:space="preserve">
+    <value>Processing</value>
+  </data>
+  <data name="Pin.NewPin.Label" xml:space="preserve">
+    <value>New PIN</value>
+  </data>
+  <data name="Pin.Title" xml:space="preserve">
+    <value>Set up new PIN for vault (minimum {0})</value>
+  </data>
+  <data name="PM.CustomUrl.ToolTip" xml:space="preserve">
+    <value>Enter URL here</value>
+  </data>
+  <data name="PM.Label.AddTOTP" xml:space="preserve">
+    <value>Add TOTP</value>
+  </data>
+  <data name="VaultControl.BatteryIcon.ToolTip" xml:space="preserve">
+    <value>Low battery</value>
+  </data>
+  <data name="VaultControl.ConnectingIcon.ToolTip" xml:space="preserve">
+    <value>Connecting vault</value>
+  </data>
+  <data name="VaultControl.LoadingStorageIcon.ToolTip" xml:space="preserve">
+    <value>Loading storage</value>
+  </data>
+  <data name="VaultControl.ProximityIcon.ToolTip" xml:space="preserve">
+    <value>Vault proximity level</value>
+  </data>
+  <data name="VaultControl.VaultsSyncIcon.ToolTip" xml:space="preserve">
+    <value>Synchronizing storage with other vaults</value>
+  </data>
+  <data name="DeviceInfo.CurrentProximityLevel" xml:space="preserve">
+    <value>Current level of signal {0,3}%</value>
+  </data>
+  <data name="FirmwareVersion.Unknown" xml:space="preserve">
+    <value>unknown</value>
+  </data>
+  <data name="Menu.SetAsActive.ToolTip" xml:space="preserve">
+    <value>Set vault as active</value>
+  </data>
+  <data name="Notification.ProximityLockDisabled" xml:space="preserve">
+    <value>Lock by proximity is disabled</value>
+  </data>
+  <data name="PasswordManager.AppList.CustomUrl" xml:space="preserve">
+    <value>&lt;Enter Url&gt;</value>
+  </data>
+  <data name="PasswordManager.AppList.Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="PasswordManager.Error.FailedToDelete" xml:space="preserve">
+    <value>An error occured while deleting account</value>
+  </data>
+  <data name="PasswordManager.Error.FailedToSave" xml:space="preserve">
+    <value>An error occured while saving account</value>
+  </data>
+  <data name="PasswordManager.Error.NameEmpty" xml:space="preserve">
+    <value>Account name cannot be empty</value>
+  </data>
+  <data name="PasswordManager.Error.NameTaken" xml:space="preserve">
+    <value>Account with the same name and login already exists</value>
+  </data>
+  <data name="PasswordManager.Error.OtpSecretInvalid" xml:space="preserve">
+    <value>Not valid OTP secret</value>
+  </data>
+  <data name="PasswordManager.Error.PasswordEmpty" xml:space="preserve">
+    <value>Password cannot be empty.</value>
+  </data>
+  <data name="PasswordManager.Error.Unauthorized" xml:space="preserve">
+    <value>An error occured during operation: Unauthorizated</value>
+  </data>
+  <data name="PasswordManager.ReadOnlyAccount.ToolTip" xml:space="preserve">
+    <value>This account cannot be edited</value>
+  </data>
+  <data name="Pin.Error.PinsDontMatch" xml:space="preserve">
+    <value>The new PIN and confirmation PIN does not match</value>
+  </data>
+  <data name="UserAction.Notification.CreatingNewAccount" xml:space="preserve">
+    <value>Creating new account for {0}</value>
+  </data>
+  <data name="UserAction.NotSupportedPart" xml:space="preserve">
+    <value>Unable to {0}{1}Action not supported</value>
+  </data>
+  <data name="UserAction.PressButton" xml:space="preserve">
+    <value>press vault button</value>
+  </data>
+  <data name="UserAction.PressHotkey" xml:space="preserve">
+    <value>press</value>
+  </data>
+  <data name="Vault.Error.AuthCanceled" xml:space="preserve">
+    <value>({0}) Authorization canceled</value>
+  </data>
+  <data name="Vault.Error.AuthFailed" xml:space="preserve">
+    <value>({0}) Authorization failed</value>
+  </data>
+  <data name="Vault.Error.InvalidPin" xml:space="preserve">
+    <value>Invalid PIN</value>
+  </data>
+  <data name="Vault.Error.InvalidRemoteSerialNo" xml:space="preserve">
+    <value>Remote vault serial number does not match the enumerated serial</value>
+  </data>
+  <data name="Vault.Error.NoAvailableChannels" xml:space="preserve">
+    <value>No available channels on vault ({0})</value>
+  </data>
+  <data name="Vault.Error.PinToShort" xml:space="preserve">
+    <value>PIN is too short</value>
+  </data>
+  <data name="Vault.Error.VaultLocked" xml:space="preserve">
+    <value>Vault is locked</value>
+  </data>
+  <data name="Vault.Error.WrongPin" xml:space="preserve">
+    <value>Wrong PIN ({0} attempts left)</value>
+  </data>
+  <data name="Vault.Notification.EnterCurrentPin" xml:space="preserve">
+    <value>Please enter the PIN code for your Hardware Vault</value>
+  </data>
+  <data name="Vault.Notification.NewPin" xml:space="preserve">
+    <value>Please create new PIN code for your Hardware Vault</value>
+  </data>
+  <data name="Vault.Notification.PreparingForAuth" xml:space="preserve">
+    <value>Preparing for vault {0} authorization</value>
+  </data>
+  <data name="Vault.Notification.PressButton" xml:space="preserve">
+    <value>Please press the Button on your Hardware Vault</value>
+  </data>
+  <data name="Vault.Notification.Synchronizing" xml:space="preserve">
+    <value>Synchronizing credentials in {0} with your other vault, please wait{1}Password manager is temporarily unavailable</value>
+  </data>
 </root>

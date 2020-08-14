@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
+using HideezClient.Modules.Localize;
 using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;
@@ -21,14 +22,12 @@ namespace HideezClient.Modules.ProximityLockManager
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DevicesCollectionChangedMessage>(OnDevicesCollectionChanged);
         }
 
-        Task OnWorkstationUnlocked(WorkstationUnlockedMessage message)
+        async Task OnWorkstationUnlocked(WorkstationUnlockedMessage message)
         {
             if (message.IsNotHideezMethod)
-                _metaMessenger.Publish(new ShowWarningNotificationMessage(message: "Lock by proximity is disabled"));
+                await _metaMessenger.Publish(new ShowWarningNotificationMessage(message: TranslationSource.Instance["Notification.ProximityLockDisabled"]));
 
             ChangeIconState(message.IsNotHideezMethod);
-
-            return Task.CompletedTask;
         }
 
         Task OnDevicesCollectionChanged(HideezMiddleware.IPC.Messages.DevicesCollectionChangedMessage obj)

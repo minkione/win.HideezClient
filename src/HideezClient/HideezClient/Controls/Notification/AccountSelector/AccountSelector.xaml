@@ -6,9 +6,13 @@
     xmlns:local="clr-namespace:HideezClient.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    MinWidth="545"
     MinHeight="60"
     Background="{DynamicResource NotificationBackground}"
     FontSize="14"
+    Foreground="{DynamicResource LightForeground}"
+    Style="{StaticResource NotificationStyle}"
     mc:Ignorable="d">
     <StackPanel Orientation="Vertical">
         <!--  Description textblock  -->
@@ -22,7 +26,7 @@
                 Foreground="White"
                 FontSize="16"
                 FontWeight="SemiBold"
-                Text="There are few suitable accounts, select one of them, please."
+                Text="{l:Localization AccountSelectorNotification.Title}"
                 TextWrapping="Wrap" />
 
             <Button

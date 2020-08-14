@@ -114,7 +114,7 @@ namespace HideezClient.Modules.ActionHandler
             }
             catch (HideezWindowSelectedException)
             {
-                var localizedAction = $"press {hotkey}";
+                var localizedAction = $"{TranslationSource.Instance["UserAction.PressHotkey"]} {hotkey}";
                 var message = TranslationSource.Instance[$"UserAction.HideezWindowSelected.{action.ToString()}"];
                 message = string.Format(message, Environment.NewLine, localizedAction);
                 var msgOptions = new NotificationOptions { CloseTimeout = NotificationOptions.LongTimeout };
@@ -123,7 +123,7 @@ namespace HideezClient.Modules.ActionHandler
             catch (ActionNotSupportedException)
             {
                 var localizedAction = TranslationSource.Instance[$"Enum.UserAction.{action.ToString()}"].ToLowerInvariant();
-                await _metaMessenger.Publish(new ShowInfoNotificationMessage($"Unable to {localizedAction}{Environment.NewLine}Action not supported", notificationId: _activeDevice.Device?.Mac));
+                await _metaMessenger.Publish(new ShowInfoNotificationMessage(string.Format(TranslationSource.Instance["UserAction.NotSupportedPart"], localizedAction, Environment.NewLine), notificationId: _activeDevice.Device?.Mac));
             }
             catch (Exception ex)
             {
@@ -140,7 +140,7 @@ namespace HideezClient.Modules.ActionHandler
             }
             catch (HideezWindowSelectedException)
             {
-                var localizedAction = $"press vault button {TranslationSource.Instance[$"Enum.ButtonPressCode.{code.ToString()}"]}";
+                var localizedAction = $"{TranslationSource.Instance["UserAction.PressButton"]} {TranslationSource.Instance[$"Enum.ButtonPressCode.{code.ToString()}"]}";
                 var message = TranslationSource.Instance[$"UserAction.HideezWindowSelected.{action.ToString()}"];
                 message = string.Format(message, Environment.NewLine, localizedAction);
                 var msgOptions = new NotificationOptions { CloseTimeout = NotificationOptions.LongTimeout };
@@ -149,7 +149,7 @@ namespace HideezClient.Modules.ActionHandler
             catch (ActionNotSupportedException)
             {
                 var localizedAction = TranslationSource.Instance[$"Enum.UserAction.{action.ToString()}"].ToLowerInvariant();
-                await _metaMessenger.Publish(new ShowInfoNotificationMessage($"Unable to {localizedAction}{Environment.NewLine}Action not supported", notificationId: _activeDevice.Device?.Mac));
+                await _metaMessenger.Publish(new ShowInfoNotificationMessage(string.Format(TranslationSource.Instance["UserAction.NotSupportedPart"], localizedAction, Environment.NewLine), notificationId: _activeDevice.Device?.Mac));
             }
             catch (Exception ex)
             {
@@ -254,7 +254,7 @@ namespace HideezClient.Modules.ActionHandler
             if (appInfo.ProcessName == "HideezClient")
                 throw new HideezWindowSelectedException();
 
-            if (_activeDevice.Device.IsStorageLoaded)
+            if (_activeDevice.Device.IsLoadingStorage)
                 return;
 
             if (!_activeDevice.Device.IsAuthorized || !_activeDevice.Device.IsStorageLoaded)
@@ -264,7 +264,7 @@ namespace HideezClient.Modules.ActionHandler
             
             if (_activeDevice.Device.IsAuthorized && _activeDevice.Device.IsStorageLoaded)
             {
-                await _metaMessenger.Publish(new ShowInfoNotificationMessage($"Creating new account for {appInfo.Title}", notificationId: _activeDevice.Device?.Mac));
+                await _metaMessenger.Publish(new ShowInfoNotificationMessage(string.Format(TranslationSource.Instance["UserAction.Notification.CreatingNewAccount"], appInfo.Title), notificationId: _activeDevice.Device?.Mac));
                 await _metaMessenger.Publish(new ShowActivateMainWindowMessage());
                 await _metaMessenger.Publish(new OpenPasswordManagerMessage(deviceId));
                 await _metaMessenger.Publish(new AddAccountForAppMessage(deviceId, appInfo));

@@ -13,6 +13,7 @@
     xmlns:ma="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:maDialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
     Background="Transparent"
     FontSize="16"
     mc:Ignorable="d">
@@ -32,9 +33,14 @@
             </Grid.RowDefinitions>
 
             <StackPanel Visibility="{Binding InProgress, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
-                <TextBlock
-                    Style="{StaticResource DialogTitleTextBlockStyle}"
-                    Text="{Binding Path=Device.Name, StringFormat='Please enter Activation Code for {0}'}" />
+                <TextBlock Style="{StaticResource DialogTitleTextBlockStyle}" >
+                    <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource FormatStringConverter}">
+                            <Binding Path="[ActivationCode.Title]" Source="{x:Static l:TranslationSource.Instance}" />
+                            <Binding Path="Device.Name" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
 
                 <ContentControl Style="{StaticResource UnderLine}" Visibility="{Binding AskCurrentPin, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Grid Margin="0,0,0,24">
@@ -46,7 +52,7 @@
                         <TextBlock
                                 Grid.Column="0"
                                 Style="{StaticResource DialogLabelTextBlockStyle}"
-                                Text="Activation Code" />
+                                Text="{l:Localization ActivationCode.Label}" />
                         <PasswordBox
                                 x:Name="CodePasswordBox"
                                 Grid.Column="2"

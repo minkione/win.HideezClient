@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Linq;
 using Hideez.SDK.Communication.Interfaces;
 using System;
+using HideezClient.Modules.Localize;
 using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.ViewModels
@@ -303,7 +304,7 @@ namespace HideezClient.ViewModels
             {
                 if (!IsConfirmPinCorrect(pin, confirmPin))
                 {
-                    _metaMessenger.Publish(new ShowErrorNotificationMessage("The new PIN and confirmation PIN does not match", notificationId: Device.Mac));
+                    _metaMessenger.Publish(new ShowErrorNotificationMessage(TranslationSource.Instance["Pin.Error.PinsDontMatch"], notificationId: Device.Mac));
                     InProgress = false;
                     return;
                 }

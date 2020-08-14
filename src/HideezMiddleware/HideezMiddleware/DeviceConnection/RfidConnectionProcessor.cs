@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.Localize;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using System;
@@ -115,13 +116,13 @@ namespace HideezMiddleware.DeviceConnection
                 _screenActivator?.ActivateScreen();
 
                 if (_hesConnection == null)
-                    throw new Exception("Cannot connect device. Not connected to the HES.");
+                    throw new Exception(TranslationSource.Instance["ConnectionFlow.RfidConnection.Error.NotConnectedToHes"]);
 
 
                 // get MAC address from the HES
                 info = await _hesConnection.GetInfoByRfid(rfid);
 
-                await _clientUiManager.SendNotification("Connecting to the HES server...", info.DeviceMac);
+                await _clientUiManager.SendNotification(TranslationSource.Instance["ConnectionFlow.RfidConnection.ContactingHesMessage"], info.DeviceMac);
 
                 if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
                 {

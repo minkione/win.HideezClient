@@ -1,10 +1,10 @@
-﻿using HideezClient.Resources;
+﻿using HideezMiddleware.Resources;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Resources;
 
-namespace HideezClient.Modules.Localize
+namespace HideezMiddleware.Localize
 {
     /// <summary>
     /// A class that provide access to resource localized and manage one.
@@ -33,6 +33,11 @@ namespace HideezClient.Modules.Localize
         public string this[string key]
         {
             get { return this.resManager.GetString(key, this.CurrentCulture); }
+        }
+
+        public string Format(string key, params object[] args)
+        {
+            return string.Format(this[key], args);
         }
 
         /// <summary>
