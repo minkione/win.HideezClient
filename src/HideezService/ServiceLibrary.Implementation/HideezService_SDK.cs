@@ -265,7 +265,10 @@ namespace ServiceLibrary.Implementation
                 _uiProxy,
                 _localDeviceInfoCache,
                 _hesAccessManager,
-                _sdkLogger);
+                _sdkLogger)
+            { 
+                IsAlarmTurnOn = _serviceSettingsManager.Settings.AlarmTurnOn
+            };
 
             _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
@@ -381,6 +384,7 @@ namespace ServiceLibrary.Implementation
                 hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
                 hesConnection.LockDeviceStorageRequest += HES_LockDeviceStorageRequest;
                 hesConnection.LiftDeviceStorageLockRequest += HES_LiftDeviceStorageLockRequest;
+                hesConnection.Alarm += HesConnection_Alarm;
 
                 return hesConnection;
             });
@@ -644,6 +648,40 @@ namespace ServiceLibrary.Implementation
             catch (Exception)
             {
                 // Silent handling
+            }
+        }
+
+        private async void HesConnection_Alarm(object sender, bool isEnabled)
+        {
+            try
+            {
+                if (_connectionFlowProcessor.IsAlarmTurnOn != isEnabled)
+                {
+
+                    _connectionFlowProcessor.IsAlarmTurnOn = isEnabled;
+
+                    var settings = _serviceSettingsManager.Settings;
+                    settings.AlarmTurnOn = isEnabled;
+                    _serviceSettingsManager.SaveSettings(settings);
+
+                    if (isEnabled)
+                    {
+                        var count = await _deviceManager.RemoveAll();
+
+                        //RemoveAll() remove only bonds for devices that are connected
+                        //So file "bonds" must to be cleared manually
+                        var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                        var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
+                        File.WriteAllText(bondsFilePath, String.Empty);
+
+                        var wsLocker = new WcfWorkstationLocker(sessionManager, _sdkLogger);
+                        wsLocker.LockWorkstation();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
             }
         }
 
@@ -1083,7 +1121,7 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                var wcfDevice = (IWcfDevice)_deviceManager.FindBySerialNo(serialNo, 2);
+                var wcfDevice = (IWcfDevice)_deviceManager.FindBySerialNo(serialNo, channelNo);
                 if (wcfDevice == null)
                 {
                     var device = _deviceManager.FindBySerialNo(serialNo, 1);

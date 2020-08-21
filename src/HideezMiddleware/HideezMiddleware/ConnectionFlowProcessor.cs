@@ -44,6 +44,8 @@ namespace HideezMiddleware
         public event EventHandler<IDevice> DeviceFinishedMainFlow;
         public event EventHandler<string> Finished;
 
+        public bool IsAlarmTurnOn { get; set; }
+
         public ConnectionFlowProcessor(
             IBleConnectionManager connectionManager,
             BleDeviceManager deviceManager,
@@ -166,6 +168,9 @@ namespace HideezMiddleware
             {
                 await _ui.SendNotification("", _infNid);
                 await _ui.SendError("", _errNid);
+
+                if (IsAlarmTurnOn)
+                    throw new HideezException(HideezErrorCode.HesAlarm);
 
                 if (!_hesAccessManager.HasAccessKey())
                     throw new HideezException(HideezErrorCode.HesWorkstationNotApproved);
