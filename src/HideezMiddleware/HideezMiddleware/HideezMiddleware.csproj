@@ -162,6 +162,7 @@
     <Compile Include="IPC\Messages\LoginClientRequestMessage.cs" />
     <Compile Include="IPC\Messages\ProximitySettingsChangedMessage.cs" />
     <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_DeviceStateChangedMessage.cs" />
+    <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_ClientDisconnectedMessage.cs" />
     <Compile Include="IPC\Messages\ServiceComponentsStateChangedMessage.cs" />
     <Compile Include="IPC\Messages\ServiceSettingsChangedMessage.cs" />
     <Compile Include="IPC\Messages\ShowActivationCodeUiMessage.cs" />
@@ -170,6 +171,7 @@
     <Compile Include="IPC\Messages\WorkstationUnlockedMessage.cs" />
     <Compile Include="Localize\TranslationSource.cs" />
     <Compile Include="MetaPubSubLogger.cs" />
+    <Compile Include="RemoteDevicePubSubManager.cs" />
     <Compile Include="Resources\Strings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

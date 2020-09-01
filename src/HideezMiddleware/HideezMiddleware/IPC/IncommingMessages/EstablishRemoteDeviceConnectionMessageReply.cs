@@ -4,11 +4,13 @@ namespace HideezMiddleware.IPC.IncommingMessages
 {
     public sealed class EstablishRemoteDeviceConnectionMessageReply : PubSubMessageBase
     {
-        public string RemoveDeviceId { get; set; }
+        public string RemoteDeviceId { get; set; }
+        public string ConnectionId { get; set; }
 
-        public EstablishRemoteDeviceConnectionMessageReply(string removeDeviceId)
+        public EstablishRemoteDeviceConnectionMessageReply(string removeDeviceId, string connectionId)
         {
-            RemoveDeviceId = removeDeviceId;
+            RemoteDeviceId = removeDeviceId;
+            ConnectionId = connectionId;
         }
     }
 }

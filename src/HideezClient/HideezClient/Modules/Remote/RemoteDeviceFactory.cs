@@ -1,5 +1,4 @@
-﻿using GalaSoft.MvvmLight.Messaging;
-using Hideez.SDK.Communication;
+﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Remote;
 using HideezClient.Modules.Log;
@@ -28,12 +27,13 @@ namespace HideezClient.Modules
         {
             _log.WriteLine($"({serialNo}) Creating remote vault on channel:{channelNo}");
             var reply = await _metaMessenger.ProcessOnServer<EstablishRemoteDeviceConnectionMessageReply>(new EstablishRemoteDeviceConnectionMessage(serialNo, channelNo), 0);
-            var connectionId = reply.RemoveDeviceId;
+            var remoteDeviceId = reply.RemoteDeviceId;
+            var connectionId = reply.ConnectionId;
 
             var remoteCommands = new RemoteDeviceCommands(_serviceProxy, _metaMessenger);
             var remoteEvents = new RemoteDeviceEvents(_metaMessenger);
 
-            var device = new RemoteDevice(connectionId, channelNo, remoteCommands, remoteEvents, SdkConfig.DefaultRemoteCommandTimeout, new NLogWrapper());
+            var device = new RemoteDevice(remoteDeviceId, channelNo, remoteCommands, remoteEvents, SdkConfig.DefaultRemoteCommandTimeout, new NLogWrapper(), connectionId);
 
             remoteCommands.RemoteDevice = device;
             remoteEvents.RemoteDevice = device;

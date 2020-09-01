@@ -40,6 +40,7 @@ namespace HideezClient.Models
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(Device));
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         readonly IMetaPubSub _metaMessenger;
+        readonly IMetaPubSub _remoteDeviceMessenger = new MetaPubSub(new MetaPubSubLogger(new NLogWrapper()));
 
         RemoteDevice _remoteDevice;
         DelayedMethodCaller dmc = new DelayedMethodCaller(2000);
@@ -732,6 +733,7 @@ namespace HideezClient.Models
                 ShowInfo(string.Format(TranslationSource.Instance["Vault.Notification.PreparingForAuth"], SerialNo), Mac);
                 IsCreatingRemoteDevice = true;
                 _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo);
+                await _remoteDeviceMessenger.TryConnectToServer(_remoteDevice.RemoteDeviceConnectionId);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
 
                 if (cancellationToken.IsCancellationRequested)
