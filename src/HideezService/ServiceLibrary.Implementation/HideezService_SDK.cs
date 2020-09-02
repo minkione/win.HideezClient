@@ -657,7 +657,6 @@ namespace ServiceLibrary.Implementation
             {
                 if (_connectionFlowProcessor.IsAlarmTurnOn != isEnabled)
                 {
-
                     _connectionFlowProcessor.IsAlarmTurnOn = isEnabled;
 
                     var settings = _serviceSettingsManager.Settings;
@@ -676,6 +675,15 @@ namespace ServiceLibrary.Implementation
 
                         var wsLocker = new WcfWorkstationLocker(sessionManager, _sdkLogger);
                         wsLocker.LockWorkstation();
+
+                        _connectionManagerRestarter.Stop();
+                        await Task.Run(async () =>
+                        {
+                            await Task.Delay(1000);
+                            _log.WriteLine("Restarting connection manager");
+                            _connectionManager.Restart();
+                            _connectionManagerRestarter.Start();
+                        });
                     }
                 }
             }
