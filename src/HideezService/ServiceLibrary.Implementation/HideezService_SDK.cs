@@ -1024,6 +1024,8 @@ namespace ServiceLibrary.Implementation
             we.Version = WorkstationEvent.ClassVersion;
             we.Id = workstationEvent.Id;
             we.Date = workstationEvent.Date;
+            we.LocalDateTime = workstationEvent.LocalDateTime;
+            we.TimeZone = workstationEvent.TimeZone;
             we.EventId = (WorkstationEventType)workstationEvent.EventId;
             we.Severity = (WorkstationEventSeverity)workstationEvent.Severity;
             we.Note = workstationEvent.Note;
