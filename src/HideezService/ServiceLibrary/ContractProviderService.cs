@@ -109,7 +109,7 @@ namespace ServiceLibrary
             throw new NotImplementedException();
         }
 
-        public Task<bool> ChangeServerAddress(string address)
+        public Task<HideezMiddleware.ChangeServerAddressResult> ChangeServerAddress(string address)
         {
             throw new NotImplementedException();
         }

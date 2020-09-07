@@ -766,4 +766,25 @@ Only 1 attempt left.</value>
   <data name="Notification.DeviceLockedByCode.Message" xml:space="preserve">
     <value>To unlock the vault, contact your system administrator for activation code and then reconnect the vault.</value>
   </data>
+  <data name="Error.CantSaveAddress" xml:space="preserve">
+    <value>Failed to save server address</value>
+  </data>
+  <data name="Error.Clarification.KeyNotFound" xml:space="preserve">
+    <value>Registry key not found. Please, contact your system administrator to perform a Repair of application installation.</value>
+  </data>
+  <data name="Error.Clarification.SecurityError" xml:space="preserve">
+    <value>Hideez Service is not allowed to make changes to registry. Contact your system administrator.</value>
+  </data>
+  <data name="Error.Clarification.ServerUnavailable" xml:space="preserve">
+    <value>Hideez Enterprise Server is not available, or the address is incorrect.</value>
+  </data>
+  <data name="Error.Clarification.UnauthorizedAccess" xml:space="preserve">
+    <value>Registry key is protected from changes. Contact your system administrator.</value>
+  </data>
+  <data name="Error.Clarification.UnexpectedError" xml:space="preserve">
+    <value>Please, try again. If error persists, contact your system administrator.</value>
+  </data>
+  <data name="Error.UnexpectedError" xml:space="preserve">
+    <value>Unexpected error occured</value>
+  </data>
 </root>

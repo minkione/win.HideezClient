@@ -92,7 +92,7 @@ namespace ServiceLibrary
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]
-        Task<bool> ChangeServerAddress(string address);
+        Task<ChangeServerAddressResult> ChangeServerAddress(string address);
 
         [OperationContract]
         [FaultContract(typeof(HideezServiceFault))]

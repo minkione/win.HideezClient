@@ -738,6 +738,9 @@
     <Resource Include="Resources\Icon\Alert\Alert1.ico" />
     <Resource Include="Resources\Icon\Idle\Idle1.ico" />
     <Resource Include="128x128.ico" />
+    <None Include="Connected Services\HideezServiceReference\HideezClient.HideezServiceReference.ChangeServerAddressResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
     <None Include="Connected Services\HideezServiceReference\HideezClient.HideezServiceReference.ProximitySettingsDTO.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>

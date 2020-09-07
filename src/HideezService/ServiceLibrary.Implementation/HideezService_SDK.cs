@@ -1055,7 +1055,7 @@ namespace ServiceLibrary.Implementation
             return RegistrySettings.GetHesAddress(_log);
         }
 
-        public async Task<bool> ChangeServerAddress(string address)
+        public async Task<ChangeServerAddressResult> ChangeServerAddress(string address)
         {
             try
             {
@@ -1066,7 +1066,7 @@ namespace ServiceLibrary.Implementation
                     _log.WriteLine($"Clearing server address and shutting down connection");
                     RegistrySettings.SetHesAddress(_log, address);
                     await _hesConnection.Stop();
-                    return true;
+                    return ChangeServerAddressResult.Success;
                 }
                 else
                 {
@@ -1078,18 +1078,29 @@ namespace ServiceLibrary.Implementation
                         await _hesConnection.Stop();
                         _hesConnection.Start(address);
 
-                        return true;
+                        return ChangeServerAddressResult.Success;
                     }
                     else
                     {
                         _log.WriteLine($"Failed connectivity check to {address}");
-                        return false;
+                        return ChangeServerAddressResult.ConnectionTimedOut;
                     }
                 }
             }
-            catch (TimeoutException)
+            catch (Exception ex)
             {
-                return false;
+                _log.WriteLine(ex.Message, LogErrorSeverity.Information);
+
+                if (ex is TimeoutException)
+                    return ChangeServerAddressResult.ConnectionTimedOut;
+                else if (ex is KeyNotFoundException)
+                    return ChangeServerAddressResult.KeyNotFound;
+                else if (ex is UnauthorizedAccessException)
+                    return ChangeServerAddressResult.UnauthorizedAccess;
+                else if (ex is SecurityException)
+                    return ChangeServerAddressResult.SecurityError;
+                else
+                    return ChangeServerAddressResult.UnknownError;
             }
         }
 

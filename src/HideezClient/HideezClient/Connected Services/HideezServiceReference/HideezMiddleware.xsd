@@ -1,5 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/HideezMiddleware" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/HideezMiddleware" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="ChangeServerAddressResult">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Success" />
+      <xs:enumeration value="ConnectionTimedOut" />
+      <xs:enumeration value="KeyNotFound" />
+      <xs:enumeration value="UnauthorizedAccess" />
+      <xs:enumeration value="SecurityError" />
+      <xs:enumeration value="UnknownError" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="ChangeServerAddressResult" nillable="true" type="tns:ChangeServerAddressResult" />
   <xs:simpleType name="HesStatus">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Ok" />

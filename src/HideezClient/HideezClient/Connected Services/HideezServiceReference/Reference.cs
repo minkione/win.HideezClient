@@ -768,6 +768,29 @@ namespace HideezClient.HideezServiceReference {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ChangeServerAddressResult", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware")]
+    public enum ChangeServerAddressResult : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Success = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ConnectionTimedOut = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        KeyNotFound = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        UnauthorizedAccess = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SecurityError = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        UnknownError = 5,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="HesStatus", Namespace="http://schemas.datacontract.org/2004/07/HideezMiddleware")]
     public enum HesStatus : int {
         
@@ -1282,10 +1305,10 @@ namespace HideezClient.HideezServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/ChangeServerAddress", ReplyAction="http://tempuri.org/IHideezService/ChangeServerAddressResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezClient.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/ChangeServerAddressHideezServiceFaultFault", Name="HideezServiceFault", Namespace="http://schemas.datacontract.org/2004/07/ServiceLibrary")]
-        bool ChangeServerAddress(string address);
+        HideezClient.HideezServiceReference.ChangeServerAddressResult ChangeServerAddress(string address);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/ChangeServerAddress", ReplyAction="http://tempuri.org/IHideezService/ChangeServerAddressResponse")]
-        System.Threading.Tasks.Task<bool> ChangeServerAddressAsync(string address);
+        System.Threading.Tasks.Task<HideezClient.HideezServiceReference.ChangeServerAddressResult> ChangeServerAddressAsync(string address);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabled", ReplyAction="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabledResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(HideezClient.HideezServiceReference.HideezServiceFault), Action="http://tempuri.org/IHideezService/IsSoftwareVaultUnlockModuleEnabledHideezService" +
@@ -1565,11 +1588,11 @@ namespace HideezClient.HideezServiceReference {
             return base.Channel.GetServerAddressAsync();
         }
         
-        public bool ChangeServerAddress(string address) {
+        public HideezClient.HideezServiceReference.ChangeServerAddressResult ChangeServerAddress(string address) {
             return base.Channel.ChangeServerAddress(address);
         }
         
-        public System.Threading.Tasks.Task<bool> ChangeServerAddressAsync(string address) {
+        public System.Threading.Tasks.Task<HideezClient.HideezServiceReference.ChangeServerAddressResult> ChangeServerAddressAsync(string address) {
             return base.Channel.ChangeServerAddressAsync(address);
         }
         

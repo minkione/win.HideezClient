@@ -1,11 +1,15 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Hideez.SDK.Communication.Log;
+using HideezClient.HideezServiceReference;
 using HideezClient.Messages;
 using HideezClient.Modules.Localize;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using MvvmExtensions.Commands;
 using System;
+using System.Collections.Generic;
+using System.Security;
+using System.ServiceModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -22,6 +26,7 @@ namespace HideezClient.ViewModels
 
         string _serverAddress;
         string _errorServerAddress;
+        string _errorClarification; // Displayed alongside the error to provide additional information for possible solution
         bool _hasChanges = false;
 
         bool _showInfo;
@@ -49,6 +54,12 @@ namespace HideezClient.ViewModels
         {
             get { return _errorServerAddress; }
             set { Set(ref _errorServerAddress, value); }
+        }
+
+        public string ErrorClarification
+        {
+            get { return _errorClarification; }
+            set { Set(ref _errorClarification, value); }
         }
 
         public bool HasChanges
@@ -139,15 +150,28 @@ namespace HideezClient.ViewModels
                 ErrorServerAddress = null;
                 try
                 {
-                    var success = await _serviceProxy.GetService().ChangeServerAddressAsync(ServerAddress).ConfigureAwait(false);
+                    var result = await _serviceProxy.GetService().ChangeServerAddressAsync(ServerAddress).ConfigureAwait(false);
 
-                    if (success)
+                    switch (result)
                     {
-                        ResetViewModel(ServerAddress);
-                    }
-                    else
-                    {
-                        OnAddressChangeFail();
+                        case ChangeServerAddressResult.Success:
+                            ResetViewModel(ServerAddress);
+                            break;
+                        case ChangeServerAddressResult.ConnectionTimedOut:
+                            DisplayError("Error.CantReachServer", "Error.Clarification.ServerUnavailable");
+                            break;
+                        case ChangeServerAddressResult.KeyNotFound:
+                            DisplayError("Error.CantSaveAddress", "Error.Clarification.KeyNotFound");
+                            break;
+                        case ChangeServerAddressResult.UnauthorizedAccess:
+                            DisplayError("Error.CantSaveAddress", "Error.Clarification.UnauthorizedAccess");
+                            break;
+                        case ChangeServerAddressResult.SecurityError:
+                            DisplayError("Error.CantSaveAddress", "Error.Clarification.SecurityError");
+                            break;
+                        case ChangeServerAddressResult.UnknownError:
+                            DisplayError("Error.UnexpectedError", "Error.Clarification.UnexpectedError");
+                            break;
                     }
                 }
                 catch (Exception ex)
@@ -196,9 +220,10 @@ namespace HideezClient.ViewModels
             HasChanges = false;
         }
 
-        void OnAddressChangeFail()
+        void DisplayError(string errorMessageKey, string clarificationMessageKey)
         {
-            ErrorServerAddress = TranslationSource.Instance["Error.CantReachServer"];
+            ErrorServerAddress = TranslationSource.Instance[errorMessageKey];
+            ErrorClarification = TranslationSource.Instance[clarificationMessageKey];
             ShowError = true;
             ShowInfo = false;
         }
