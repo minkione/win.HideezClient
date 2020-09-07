@@ -102,13 +102,14 @@ namespace ServiceLibrary.Implementation
 
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
+            var bondsFolderPath = $"{commonAppData}\\Hideez\\Service\\Bonds";
             var deviceLogsPath = $"{commonAppData}\\Hideez\\Service\\DeviceLogs";
 
             var bleInitTask = Task.Run(() =>
             {
                 // Connection Manager ============================
-                _connectionManager = new BleConnectionManager(_sdkLogger, bondsFilePath);
+                Directory.CreateDirectory(bondsFolderPath); // Ensure directory for bonds is created since unmanaged code doesn't do that
+                _connectionManager = new BleConnectionManager(_sdkLogger, bondsFolderPath);
                 _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
                 _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
                 _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
