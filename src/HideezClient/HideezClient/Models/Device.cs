@@ -765,12 +765,14 @@ namespace HideezClient.Models
                 _log.WriteLine(ex);
                 ShowError(ex.Message, Mac);
                 initErrorCode = ex.ErrorCode;
+                await _remoteDeviceMessenger.DisconnectFromServer();
             }
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
                 ShowError(ex.Message, Mac);
                 initErrorCode = HideezErrorCode.UnknownError;
+                await _remoteDeviceMessenger.DisconnectFromServer();
             }
             finally
             {

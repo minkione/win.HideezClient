@@ -130,8 +130,7 @@ namespace HideezMiddleware
 
         public Task ShowButtonConfirmUi(string deviceId)
         {
-            var ui = GetCurrentClientUi() ?? throw new HideezException(HideezErrorCode.NoConnectedUI);
-            return ui.ShowButtonConfirmUi(deviceId);
+            return _clientUi.ShowButtonConfirmUi(deviceId);
         }
 
         public async Task HidePinUi()
@@ -196,20 +195,14 @@ namespace HideezMiddleware
         {
             WriteLine($"SendNotification: {notification}");
 
-            var ui = GetCurrentClientUi();
-
-            if (ui != null)
-                await ui.SendNotification(notification, notificationId);
+            await _clientUi.SendNotification(notification, notificationId);
         }
 
         public async Task SendError(string error, string notificationId = null)
         {
             WriteLine($"SendError: {error}");
 
-            var ui = GetCurrentClientUi();
-
-            if (ui != null)
-                await ui.SendError(error, notificationId);
+            await _clientUi.SendError(error, notificationId);
         }
     }
 }

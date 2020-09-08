@@ -65,6 +65,7 @@ namespace ServiceLibrary.Implementation
         static DeviceProximitySettingsHelper _deviceProximitySettingsHelper;
         static WatchingSettingsManager<WorkstationSettings> _workstationSettingsManager;
 
+        static BondManager _bondManager;
         static ConnectionFlowProcessor _connectionFlowProcessor;
         static AdvertisementIgnoreList _advIgnoreList;
         static RfidConnectionProcessor _rfidProcessor;
@@ -257,11 +258,15 @@ namespace ServiceLibrary.Implementation
             // Local device info cache
             _localDeviceInfoCache = new LocalDeviceInfoCache(clientRootRegistryKey, _sdkLogger);
 
+            //BondManager
+            _bondManager = new BondManager(bondsFolderPath);
+
             // ConnectionFlowProcessor
             _connectionFlowProcessor = new ConnectionFlowProcessor(
                 _connectionManager,
                 _deviceManager,
                 _hesConnection,
+                _bondManager,
                 _credentialProviderProxy,
                 _screenActivator,
                 _uiProxy,
@@ -1137,9 +1142,12 @@ namespace ServiceLibrary.Implementation
 
         void RemoveWcfDevicePair(IWcfDevice wcfDevice, IMetaPubSub pubSub)
         {
-            wcfDevice.DeviceStateChanged -= RemoteConnection_DeviceStateChanged;
-            pubSub.StopServer();
-            RemoteWcfDevicesDictionary.Remove(pubSub);
+            if (pubSub != null)
+            {
+                wcfDevice.DeviceStateChanged -= RemoteConnection_DeviceStateChanged;
+                pubSub.StopServer();
+                RemoteWcfDevicesDictionary.Remove(pubSub);
+            }
         }
 
         public async Task RemoteConnection_VerifyCommandAsync(RemoteConnection_VerifyCommandMessage args)

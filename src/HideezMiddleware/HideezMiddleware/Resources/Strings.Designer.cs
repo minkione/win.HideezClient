@@ -106,11 +106,29 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connecting vault, please wait..
+        /// </summary>
+        internal static string ConnectionFlow_Connection_Stage1 {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Connection.Stage1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Connecting vault. Press the vault button to confirm..
         /// </summary>
         internal static string ConnectionFlow_Connection_Stage1_PressButton {
             get {
                 return ResourceManager.GetString("ConnectionFlow.Connection.Stage1.PressButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Retrying vault connecting..
+        /// </summary>
+        internal static string ConnectionFlow_Connection_Stage2 {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Connection.Stage2", resourceCulture);
             }
         }
         

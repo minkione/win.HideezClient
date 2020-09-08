@@ -132,8 +132,14 @@
   <data name="ConnectionFlow.Connection.ConnectionFailed" xml:space="preserve">
     <value>Connection failed. Make sure to confirm vault connection by pressing the vault button when you see a green light.  ({0})</value>
   </data>
+  <data name="ConnectionFlow.Connection.Stage1" xml:space="preserve">
+    <value>Connecting vault, please wait.</value>
+  </data>
   <data name="ConnectionFlow.Connection.Stage1.PressButton" xml:space="preserve">
     <value>Connecting vault. Press the vault button to confirm.</value>
+  </data>
+  <data name="ConnectionFlow.Connection.Stage2" xml:space="preserve">
+    <value>Retrying vault connecting.</value>
   </data>
   <data name="ConnectionFlow.Connection.Stage2.LtkError.PressButton" xml:space="preserve">
     <value>LTK error. Retrying. Press the vault button to confirm.</value>

@@ -33,6 +33,7 @@ namespace HideezMiddleware
         readonly HesAppConnection _hesConnection;
         readonly ILocalDeviceInfoCache _localDeviceInfoCache;
         readonly IHesAccessManager _hesAccessManager;
+        readonly BondManager _bondManager;
 
         int _isConnecting = 0;
         CancellationTokenSource _cts;
@@ -47,6 +48,7 @@ namespace HideezMiddleware
             IBleConnectionManager connectionManager,
             BleDeviceManager deviceManager,
             HesAppConnection hesConnection,
+            BondManager bondManager,
             IWorkstationUnlocker workstationUnlocker,
             IScreenActivator screenActivator,
             UiProxyManager ui,
@@ -61,6 +63,7 @@ namespace HideezMiddleware
             _screenActivator = screenActivator;
             _ui = ui;
             _hesConnection = hesConnection;
+            _bondManager = bondManager;
             _localDeviceInfoCache = localDeviceInfoCache;
             _hesAccessManager = hesAccessManager;
 
@@ -585,7 +588,9 @@ namespace HideezMiddleware
         async Task<IDevice> ConnectDevice(string mac, bool rebondOnFail, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
-            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1.PressButton"], mac);
+            if(_bondManager.Exists(mac))
+                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1"], mac);
+            else await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1.PressButton"], mac);
 
             bool ltkErrorOccured = false;
             IDevice device = null;
@@ -602,13 +607,16 @@ namespace HideezMiddleware
             if (device == null)
             {
                 ct.ThrowIfCancellationRequested();
+
+                string ltk = "";
                 if (ltkErrorOccured)
                 {
-                    await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage2.LtkError.PressButton"], mac); // TODO: Fix LTK error in CSR
+                    ltk = "LTK error.";
                     ltkErrorOccured = false;
                 }
-                else
-                    await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage2.PressButton"], mac);
+                if (_bondManager.Exists(mac))
+                    await _ui.SendNotification(ltk + TranslationSource.Instance["ConnectionFlow.Connection.Stage2"], mac);
+                else await _ui.SendNotification(ltk + TranslationSource.Instance["ConnectionFlow.Connection.Stage2.PressButton"], mac);
 
                 try
                 {
