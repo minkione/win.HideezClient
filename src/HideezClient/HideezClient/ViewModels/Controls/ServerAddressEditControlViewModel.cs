@@ -143,7 +143,7 @@ namespace HideezClient.ViewModels
                 ErrorServerAddress = null;
                 try
                 {
-                    var response = await _metaMessenger.ProcessOnServer<ChangeServerAddressMessageReply>(new ChangeServerAddressMessage(ServerAddress)).ConfigureAwait(false);
+                    var response = await _metaMessenger.ProcessOnServer<ChangeServerAddressMessageReply>(new ChangeServerAddressMessage(ServerAddress), 60_000).ConfigureAwait(false);
 
                     switch (response.Result)
                     {
@@ -166,6 +166,10 @@ namespace HideezClient.ViewModels
                             DisplayError("Error.UnexpectedError", "Error.Clarification.UnexpectedError");
                             break;
                     }
+                }
+                catch (TimeoutException)
+                {
+
                 }
                 catch (Exception ex)
                 {
