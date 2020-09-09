@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
 
@@ -48,21 +49,17 @@ namespace ServiceLibrary.Implementation
             return string.Empty;
         }
 
+        /// <exception cref="System.Collections.Generic.KeyNotFoundException">Thrown when Hideez Client root registry key not found</exception>
+        /// <exception cref="System.UnauthorizedAccessException">The RegistryKey is read-only, and cannot be written to; for example, the key has not been opened with write access.</exception>
+        /// <exception cref="System.Security.SecurityException">The user does not have the permissions required to create or modify registry keys.</exception>
         public static void SetHesAddress(Logger log, string address)
         {
-            try
-            {
-                var registryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
+            var registryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
 
-                if (registryKey == null)
-                    throw new Exception($"Couldn't find Hideez Client registry key. ({HideezClientRegistryRoot.RootKeyPath})");
+            if (registryKey == null)
+                throw new KeyNotFoundException($"Couldn't find Hideez Client registry key. ({HideezClientRegistryRoot.RootKeyPath})");
 
-                registryKey.SetValue(_hesAddressRegistryValueName, address);
-            }
-            catch (Exception ex)
-            {
-                log.WriteLine(ex);
-            }
+            registryKey.SetValue(_hesAddressRegistryValueName, address);
         }
     }
 }

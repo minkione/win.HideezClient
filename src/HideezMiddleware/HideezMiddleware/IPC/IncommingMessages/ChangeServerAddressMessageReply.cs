@@ -4,11 +4,11 @@ namespace HideezMiddleware.IPC.IncommingMessages
 {
     public sealed class ChangeServerAddressMessageReply : PubSubMessageBase
     {
-        public bool ChangedSuccessfully { get; set; }
+        public ChangeServerAddressResult Result { get; set; }
 
-        public ChangeServerAddressMessageReply(bool changedSuccessfully)
+        public ChangeServerAddressMessageReply(ChangeServerAddressResult result)
         {
-            ChangedSuccessfully = changedSuccessfully;
+            Result = result;
         }
     }
 }

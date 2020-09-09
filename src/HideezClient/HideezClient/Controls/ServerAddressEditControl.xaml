@@ -132,7 +132,7 @@
                                     <Setter Property="Text" Value="{l:Localization Settings.Label.RequestAddressFromAdmin}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding ShowError}" Value="True">
-                                    <Setter Property="Text" Value="{l:Localization Settings.Label.ServerUnavailable}" />
+                                    <Setter Property="Text" Value="{Binding ErrorClarification}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

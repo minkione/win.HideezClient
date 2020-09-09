@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Hideez.CsrBLE;
@@ -272,7 +273,10 @@ namespace ServiceLibrary.Implementation
                 _uiProxy,
                 _localDeviceInfoCache,
                 _hesAccessManager,
-                _sdkLogger);
+                _sdkLogger)
+            { 
+                IsAlarmTurnOn = _serviceSettingsManager.Settings.AlarmTurnOn
+            };
 
             _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
@@ -405,6 +409,7 @@ namespace ServiceLibrary.Implementation
                 hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
                 hesConnection.LockDeviceStorageRequest += HES_LockDeviceStorageRequest;
                 hesConnection.LiftDeviceStorageLockRequest += HES_LiftDeviceStorageLockRequest;
+                hesConnection.Alarm += HesConnection_Alarm;
 
                 return hesConnection;
             });
@@ -715,6 +720,48 @@ namespace ServiceLibrary.Implementation
             await _messenger.Publish(new DevicesCollectionChangedMessage(GetDevices()));
         }
 
+	private async void HesConnection_Alarm(object sender, bool isEnabled)
+        {
+            try
+            {
+                if (_connectionFlowProcessor.IsAlarmTurnOn != isEnabled)
+                {
+                    _connectionFlowProcessor.IsAlarmTurnOn = isEnabled;
+
+                    var settings = _serviceSettingsManager.Settings;
+                    settings.AlarmTurnOn = isEnabled;
+                    _serviceSettingsManager.SaveSettings(settings);
+
+                    if (isEnabled)
+                    {
+                        var count = await _deviceManager.RemoveAll();
+
+                        //RemoveAll() remove only bonds for devices that are connected
+                        //So file "bonds" must to be cleared manually
+                        var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                        var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
+                        File.WriteAllText(bondsFilePath, String.Empty);
+
+                        var wsLocker = new WcfWorkstationLocker(_messenger, _sdkLogger);
+                        wsLocker.LockWorkstation();
+
+                        _connectionManagerRestarter.Stop();
+                        await Task.Run(async () =>
+                        {
+                            await Task.Delay(1000);
+                            _log.WriteLine("Restarting connection manager");
+                            _connectionManager.Restart();
+                            _connectionManagerRestarter.Start();
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
         void ConnectionManager_DiscoveredDeviceAdded(object sender, DiscoveredDeviceAddedEventArgs e)
         {
         }
@@ -984,6 +1031,8 @@ namespace ServiceLibrary.Implementation
             we.Version = WorkstationEvent.ClassVersion;
             we.Id = workstationEvent.Id;
             we.Date = workstationEvent.Date;
+            we.LocalDateTime = workstationEvent.LocalDateTime;
+            we.TimeZone = workstationEvent.TimeZone;
             we.EventId = (WorkstationEventType)workstationEvent.EventId;
             we.Severity = (WorkstationEventSeverity)workstationEvent.Severity;
             we.Note = workstationEvent.Note;
@@ -993,43 +1042,75 @@ namespace ServiceLibrary.Implementation
             await _eventSaver.AddNewAsync(we);
         }
 
-        async Task ChangeServerAddress(ChangeServerAddressMessage args)
+        public void SetProximitySettings(string mac, int lockProximity, int unlockProximity)
+        {
+            _deviceProximitySettingsHelper?.SetClientProximity(mac, lockProximity, unlockProximity);
+        }
+
+        public ProximitySettingsDTO GetCurrentProximitySettings(string mac)
+        {
+            return new ProximitySettingsDTO
+            {
+                Mac = mac,
+                SerialNo = string.Empty,
+                LockProximity = _workstationSettingsManager.Settings.LockProximity,
+                UnlockProximity = _workstationSettingsManager.Settings.UnlockProximity,
+                AllowEditProximitySettings = _deviceProximitySettingsHelper?.GetAllowEditProximity(mac) ?? false,
+            };
+        }
+
+        public string GetServerAddress()
+        {
+            return RegistrySettings.GetHesAddress(_log);
+        }
+
+        public async Task ChangeServerAddress(ChangeServerAddressMessage args)
         {
             try
             {
-                _log.WriteLine($"Client requested HES address change to \"{args.ServerAddress}\"");
+                var address = args.ServerAddress;
+                _log.WriteLine($"Client requested HES address change to \"{address}\"");
 
-                if (string.IsNullOrWhiteSpace(args.ServerAddress))
+                if (string.IsNullOrWhiteSpace(address))
                 {
                     _log.WriteLine($"Clearing server address and shutting down connection");
-                    RegistrySettings.SetHesAddress(_log, args.ServerAddress);
+                    RegistrySettings.SetHesAddress(_log, address);
                     await _hesConnection.Stop();
-                    await _messenger.Publish(new ChangeServerAddressMessageReply(true));
-                    await RefreshServiceInfo();
+                    await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.Success));
                 }
                 else
                 {
-                    var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(args.ServerAddress, _sdkLogger).TimeoutAfter(5_000);
+                    var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(address, _sdkLogger).TimeoutAfter(5_000);
                     if (connectedOnNewAddress)
                     {
-                        _log.WriteLine($"Passed connectivity check to {args.ServerAddress}");
-                        RegistrySettings.SetHesAddress(_log, args.ServerAddress);
+                        _log.WriteLine($"Passed connectivity check to {address}");
+                        RegistrySettings.SetHesAddress(_log, address);
                         await _hesConnection.Stop();
-                        _hesConnection.Start(args.ServerAddress);
+                        _hesConnection.Start(address);
 
-                        await _messenger.Publish(new ChangeServerAddressMessageReply(true));
-                        await RefreshServiceInfo();
+                        await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.Success));
                     }
                     else
                     {
-                        _log.WriteLine($"Failed connectivity check to {args.ServerAddress}");
-                        await _messenger.Publish(new ChangeServerAddressMessageReply(false));
+                        _log.WriteLine($"Failed connectivity check to {address}");
+                        await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.ConnectionTimedOut));
                     }
                 }
             }
-            catch (TimeoutException)
+            catch (Exception ex)
             {
-                await _messenger.Publish(new ChangeServerAddressMessageReply(false));
+                _log.WriteLine(ex.Message, LogErrorSeverity.Information);
+
+                if (ex is TimeoutException)
+                    await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.ConnectionTimedOut));
+                else if (ex is KeyNotFoundException)
+                    await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.KeyNotFound));
+                else if (ex is UnauthorizedAccessException)
+                    await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.UnauthorizedAccess));
+                else if (ex is SecurityException)
+                    await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.SecurityError));
+                else
+                    await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.UnknownError));
             }
         }
 

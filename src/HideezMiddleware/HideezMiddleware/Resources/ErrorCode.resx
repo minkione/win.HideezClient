@@ -492,4 +492,7 @@
   <data name="HesDeviceWipedOnAnotherServer" xml:space="preserve">
     <value>Vault wiped on another server.</value>
   </data>
+  <data name="HesAlarm" xml:space="preserve">
+    <value>The server has an alarm enabled</value>
+  </data>
 </root>

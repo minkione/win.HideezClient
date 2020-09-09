@@ -110,6 +110,7 @@
     <Compile Include="Audit\SessionSwitchLogger.cs" />
     <Compile Include="Audit\SessionTimestampLogger.cs" />
     <Compile Include="BondManager.cs" />
+    <Compile Include="ChangeServerAddressResult.cs" />
     <Compile Include="DeviceLogging\DeviceLogManager.cs" />
     <Compile Include="DeviceLogging\DeviceLogWriter.cs" />
     <Compile Include="DeviceLogging\IDeviceLogWriter.cs" />
