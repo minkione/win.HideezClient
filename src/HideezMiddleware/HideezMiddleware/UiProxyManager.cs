@@ -195,14 +195,26 @@ namespace HideezMiddleware
         {
             WriteLine($"SendNotification: {notification}");
 
-            await _clientUi.SendNotification(notification, notificationId);
+            var uiList = GetClientUiList();
+
+            foreach (var ui in uiList)
+            {
+                if (ui != null)
+                    await ui.SendNotification(notification, notificationId);
+            }
         }
 
         public async Task SendError(string error, string notificationId = null)
         {
             WriteLine($"SendError: {error}");
 
-            await _clientUi.SendError(error, notificationId);
+            var uiList = GetClientUiList();
+
+            foreach (var ui in uiList)
+            {
+                if (ui != null)
+                    await ui.SendError(error, notificationId);
+            }
         }
     }
 }

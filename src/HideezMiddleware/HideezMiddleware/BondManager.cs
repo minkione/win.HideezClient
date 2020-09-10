@@ -25,6 +25,18 @@ namespace HideezMiddleware
             else return false;
         }
 
+        public int RemoveAll()
+        {
+            var files = Directory.GetFiles(_folderPath);
+
+            foreach(var file in files)
+            {
+                File.Delete(file);
+            }
+
+            return files.Length;
+        }
+
         string MacToFileName(string mac)
         {
             var pairs = mac.Split(':');

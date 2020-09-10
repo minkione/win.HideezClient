@@ -734,13 +734,10 @@ namespace ServiceLibrary.Implementation
 
                     if (isEnabled)
                     {
-                        var count = await _deviceManager.RemoveAll();
-
-                        //RemoveAll() remove only bonds for devices that are connected
-                        //So file "bonds" must to be cleared manually
-                        var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-                        var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
-                        File.WriteAllText(bondsFilePath, String.Empty);
+                        await _deviceManager.RemoveAll();
+                        //_deviceManager.RemoveAll() remove only bonds for devices that are connected
+                        //So the left files need to be deleted manually
+                        _bondManager.RemoveAll();
 
                         var wsLocker = new WcfWorkstationLocker(_messenger, _sdkLogger);
                         wsLocker.LockWorkstation();
