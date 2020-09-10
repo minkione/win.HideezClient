@@ -20,6 +20,7 @@ namespace HideezMiddleware
             SdkConfig.DelayAfterMainWorkflow = settings.DelayAfterMainWorkflow;
             SdkConfig.WorkstationUnlockerConnectTimeout = settings.WorkstationUnlockerConnectTimeout;
             SdkConfig.ReconnectDelay = settings.ReconnectDelay;
+            SdkConfig.HesRequestTimeout = settings.HesRequestTimeout;
 
             SdkConfig.DefaultCommandTimeout = settings.DefaultCommandTimeout;
             SdkConfig.DefaultRemoteCommandTimeout = settings.DefaultRemoteCommandTimeout;

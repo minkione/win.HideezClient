@@ -7,7 +7,7 @@ namespace HideezMiddleware.Settings
     {
         public SdkSettings()
         {
-            SettingsVersion = new Version(1, 2);
+            SettingsVersion = new Version(1, 3);
         }
 
         public SdkSettings(SdkSettings copy)
@@ -23,6 +23,7 @@ namespace HideezMiddleware.Settings
             DelayAfterMainWorkflow = copy.DelayAfterMainWorkflow;
             WorkstationUnlockerConnectTimeout = copy.WorkstationUnlockerConnectTimeout;
             ReconnectDelay = copy.ReconnectDelay;
+            HesRequestTimeout = copy.HesRequestTimeout;
 
             DefaultCommandTimeout = copy.DefaultCommandTimeout;
             DefaultRemoteCommandTimeout = copy.DefaultRemoteCommandTimeout;
@@ -53,6 +54,9 @@ namespace HideezMiddleware.Settings
         public int WorkstationUnlockerConnectTimeout { get; set; } = 5_000;
         [Setting]
         public int ReconnectDelay { get; set; } = 2_000;
+
+        [Setting]
+        public int HesRequestTimeout { get; set; } = 30_000;
 
         [Setting]
         public int DefaultCommandTimeout { get; set; } = 5_000;

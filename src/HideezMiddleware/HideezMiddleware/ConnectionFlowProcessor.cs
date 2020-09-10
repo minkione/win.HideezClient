@@ -114,6 +114,7 @@ namespace HideezMiddleware
                 }
                 finally
                 {
+                    _cts.Cancel();
                     _cts.Dispose();
                     _cts = null;
 
@@ -726,7 +727,7 @@ namespace HideezMiddleware
         async Task LicenseWorkflow(IDevice device, CancellationToken ct)
         {
             await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.License.UpdatingLicenseMessage"], device.Mac);
-            var licenses = await _hesConnection.GetNewDeviceLicenses(device.SerialNo);
+            var licenses = await _hesConnection.GetNewDeviceLicenses(device.SerialNo, ct);
 
             WriteLine($"Received {licenses.Count} new licenses from HES");
 
@@ -769,7 +770,7 @@ namespace HideezMiddleware
         async Task RestoreLicenseWorkflow(IDevice device, CancellationToken ct)
         {
             await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.License.UpdatingLicenseMessage"], device.Mac);
-            var licenses = await _hesConnection.GetDeviceLicenses(device.SerialNo);
+            var licenses = await _hesConnection.GetDeviceLicenses(device.SerialNo, ct);
 
             WriteLine($"Received {licenses.Count} active licenses from HES");
 

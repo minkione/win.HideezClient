@@ -495,4 +495,7 @@
   <data name="HesAlarm" xml:space="preserve">
     <value>The server has an alarm enabled</value>
   </data>
+  <data name="HesRequestTimeout" xml:space="preserve">
+    <value>Server did not reply in a specified amount of time. Please try again after 30 seconds.</value>
+  </data>
 </root>
