@@ -214,7 +214,7 @@ namespace ServiceLibrary.Implementation
 
             // WorkstationInfoProvider ==================================
             WorkstationHelper.Log = _sdkLogger;
-            var workstationInfoProvider = new WorkstationInfoProvider(_workstationIdProvider, _sdkLogger);
+            var workstationInfoProvider = new WorkstationInfoProvider(_workstationIdProvider, _serviceSettingsManager, _sdkLogger);
 
             // HesAccessManager ==================================
             _hesAccessManager = new HesAccessManager(clientRootRegistryKey, _sdkLogger);
@@ -1024,7 +1024,6 @@ namespace ServiceLibrary.Implementation
             we.Version = WorkstationEvent.ClassVersion;
             we.Id = workstationEvent.Id;
             we.Date = workstationEvent.Date;
-            we.LocalDateTime = workstationEvent.LocalDateTime;
             we.TimeZone = workstationEvent.TimeZone;
             we.EventId = (WorkstationEventType)workstationEvent.EventId;
             we.Severity = (WorkstationEventSeverity)workstationEvent.Severity;
