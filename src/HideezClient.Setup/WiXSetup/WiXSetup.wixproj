@@ -55,6 +55,8 @@
     <Content Include="Include.wxi" />
     <Content Include="Resources\InstallerBanner.jpg" />
     <Content Include="Resources\InstallerDialog.jpg" />
+    <Content Include="Resources\service restart on lock %28Disable%29.bat" />
+    <Content Include="Resources\service restart on lock %28Enable%29.bat" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources" />

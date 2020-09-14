@@ -15,9 +15,7 @@ namespace HideezMiddleware.IPC.DTO
         [DataMember]
         public DateTime Date { get; set; }
         [DataMember]
-        public DateTime LocalDateTime { get; set; }
-        [DataMember]
-        public TimeZoneInfo TimeZone { get; set; }
+        public DateTimeOffset TimeZone { get; set; }
         [DataMember]
         public int EventId { get; set; }
         [DataMember]

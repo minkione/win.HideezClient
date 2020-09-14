@@ -7,7 +7,7 @@
 
   <?define 32bit_Binaries_Dir=$(var.ProjectDir)..\..\..\Binaries\32rel\?>
   <?define 64bit_Binaries_Dir=$(var.ProjectDir)..\..\..\Binaries\64rel\?>
-
+  <?define Setup_Resources_Dir=$(var.ProjectDir)Resources\?>
   
   <?define Communication_x86_TargetDir=$(var.Communication.ProjectDir)bin\x86\$(var.Communication.Configuration)\netstandard2.0\?>
   
@@ -194,7 +194,8 @@
 
     <CustomAction Id="AssignDriverInstallerProperty" Property="CSRDRIVERPATH" Value="[INSTALLFOLDER]driver\DPInst.exe" />
     <CustomAction Id="LaunchInstalledApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
-
+    <CustomAction Id="SetupServiceTriggerAction" Directory="INSTALLFOLDER" Execute="commit" Impersonate="no" ExeCommand="cmd.exe /c &quot;sc triggerinfo &quot;Hideez Service&quot; start/namedpipe/hideezsafe3&quot;" Return="check" />
+    
     <InstallExecuteSequence>
       <!-- Set path to driver installator if option is checked -->
       <Custom Action="AssignDriverInstallerProperty" After="CostFinalize" >
@@ -208,6 +209,11 @@
       <!-- Setup CSR driver, HES address and other settings after initial installation -->
       <Custom Action="SetupCustomComponentsAction" After="InstallFiles">
         NOT Installed
+      </Custom>
+      
+      <!-- Setup trigger for service to start when CP is trying to connect to pipe -->
+      <Custom Action="SetupServiceTriggerAction" After="InstallFiles" >
+        NOT REMOVE
       </Custom>
       
       <!-- Launch application after upgrade and passive install -->
@@ -419,7 +425,16 @@
       <Component Id="HideezService.zxing.dll" Guid="{D00AA5C7-3653-4010-9749-BD81612B579D}" Win64="$(var.Win64)">
         <File Id="HideezService.zxing.dll" Name="zxing.dll" Source="$(var.HideezServiceHost_TargetDir)zxing.dll" />
       </Component>
+      
+      <!-- .bat scripts that allow through sc.exe to enable or disable service restart when pc is locked-->
+      <Component Id="serivce_restart_on_lock_disable.bat" Guid="{74A87E95-0DF4-4CE0-8C78-B4BB78A79521}" Win64="$(var.Win64)">
+        <File Id="serivce_restart_on_lock_disable.bat" Name="serivce restart on lock (Disable).bat" Source="$(var.Setup_Resources_Dir)service restart on lock (Disable).bat" />
+      </Component>
 
+      <Component Id="serivce_restart_on_lock_enable.bat" Guid="{17130211-B8B4-47FF-AA07-752F064378DD}" Win64="$(var.Win64)">
+        <File Id="serivce_restart_on_lock_enable.bat" Name="serivce restart on lock (Enable).bat" Source="$(var.Setup_Resources_Dir)service restart on lock (Enable).bat" />
+      </Component>
+    
     </ComponentGroup>
   </Fragment>
   
