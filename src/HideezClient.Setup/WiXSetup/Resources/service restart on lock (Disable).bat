@@ -1,0 +1,1 @@
+sc triggerinfo "Hideez Service" delete

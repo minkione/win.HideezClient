@@ -1,0 +1,1 @@
+sc triggerinfo "Hideez Service" start/namedpipe/hideezsafe3
