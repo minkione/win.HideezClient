@@ -493,6 +493,6 @@
     <value>Vault wiped on another server.</value>
   </data>
   <data name="HesAlarm" xml:space="preserve">
-    <value>The server has an alarm enabled</value>
+    <value>Failed to connect to the server. 618.</value>
   </data>
 </root>
