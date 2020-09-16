@@ -13,6 +13,7 @@ using GalaSoft.MvvmLight.Messaging;
 using Hideez.ARM;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
+using Hideez.SDK.Communication.Security;
 using HideezClient.Messages;
 using HideezClient.Modules;
 using HideezClient.Modules.Log;
