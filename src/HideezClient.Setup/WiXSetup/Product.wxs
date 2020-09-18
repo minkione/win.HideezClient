@@ -326,18 +326,6 @@
 	      <File Id="HideezService.Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Name="Microsoft.AspNetCore.SignalR.Protocols.Json.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.AspNetCore.SignalR.Protocols.Json.dll" />
       </Component>
 
-      <Component Id="HideezService.Microsoft.Extensions.Configuration.Abstractions.dll" Guid="{6BB680C2-8BDA-45BA-B81C-C83C062E9E56}" Win64="$(var.Win64)">
-	      <File Id="HideezService.Microsoft.Extensions.Configuration.Abstractions.dll" Name="Microsoft.Extensions.Configuration.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Configuration.Abstractions.dll" />
-      </Component>
-
-      <Component Id="HideezService.Microsoft.Extensions.Configuration.Binder.dll" Guid="{34D46F5A-B56D-4077-98C8-BC04E6FCBC94}" Win64="$(var.Win64)">
-	      <File Id="HideezService.Microsoft.Extensions.Configuration.Binder.dll" Name="Microsoft.Extensions.Configuration.Binder.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Configuration.Binder.dll" />
-      </Component>
-
-      <Component Id="HideezService.Microsoft.Extensions.Configuration.dll" Guid="{616C38F1-07D3-42C8-B36A-AD2A8D79F0FC}" Win64="$(var.Win64)">
-	      <File Id="HideezService.Microsoft.Extensions.Configuration.dll" Name="Microsoft.Extensions.Configuration.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.Configuration.dll" />
-      </Component>
-
       <Component Id="HideezService.Microsoft.Extensions.DependencyInjection.Abstractions.dll" Guid="{2B4D4A35-8163-4855-836C-CD9E6C1E1A15}" Win64="$(var.Win64)">
 	      <File Id="HideezService.Microsoft.Extensions.DependencyInjection.Abstractions.dll" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
       </Component>
@@ -374,14 +362,6 @@
 	      <File Id="HideezService.NLog.dll" Name="NLog.dll" Source="$(var.HideezServiceHost_TargetDir)NLog.dll" />
       </Component>
 
-      <Component Id="HideezService.ServiceLibrary.dll" Guid="{8B4691B4-ED4E-4680-9E0C-CB315639EBC9}" Win64="$(var.Win64)">
-	      <File Id="HideezService.ServiceLibrary.dll" Name="ServiceLibrary.dll" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.dll" />
-      </Component>
-
-      <Component Id="HideezService.ServiceLibrary.dll.config" Guid="{5553ADED-5C17-41D4-BD8E-42B042D869A1}" Win64="$(var.Win64)">
-	      <File Id="HideezService.ServiceLibrary.dll.config" Name="ServiceLibrary.dll.config" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.dll.config" />
-      </Component>
-
       <Component Id="HideezService.ServiceLibrary.Implementation.dll" Guid="{1BFB0C0F-9742-4790-BD3F-507DF4C37870}" Win64="$(var.Win64)">
 	      <File Id="HideezService.ServiceLibrary.Implementation.dll" Name="ServiceLibrary.Implementation.dll" Source="$(var.HideezServiceHost_TargetDir)ServiceLibrary.Implementation.dll" />
       </Component>
@@ -392,10 +372,6 @@
 
       <Component Id="HideezService.System.Collections.Immutable.dll" Guid="{052AFDF4-83DD-4D5F-A171-62FB61FF27F1}" Win64="$(var.Win64)">
 	      <File Id="HideezService.System.Collections.Immutable.dll" Name="System.Collections.Immutable.dll" Source="$(var.HideezServiceHost_TargetDir)System.Collections.Immutable.dll" />
-      </Component>
-
-      <Component Id="HideezService.System.ComponentModel.Annotations.dll" Guid="{3DC85BC3-A6F7-4D47-BC2B-8EFA1E0C0966}" Win64="$(var.Win64)">
-	      <File Id="HideezService.System.ComponentModel.Annotations.dll" Name="System.ComponentModel.Annotations.dll" Source="$(var.HideezServiceHost_TargetDir)System.ComponentModel.Annotations.dll" />
       </Component>
 
       <Component Id="HideezService.System.IO.Pipelines.dll" Guid="{75682E59-B79C-478E-B4BC-21FCFE905601}" Win64="$(var.Win64)">
@@ -433,6 +409,11 @@
 
       <Component Id="serivce_restart_on_lock_enable.bat" Guid="{17130211-B8B4-47FF-AA07-752F064378DD}" Win64="$(var.Win64)">
         <File Id="serivce_restart_on_lock_enable.bat" Name="serivce restart on lock (Enable).bat" Source="$(var.Setup_Resources_Dir)service restart on lock (Enable).bat" />
+      </Component>
+      <!-- ... -->
+      
+      <Component Id="HideezService.Meta.Lib.dll" Guid="{D3E22B85-2036-45D5-A9F5-45CBF6355ED0}" Win64="$(var.Win64)">
+        <File Id="HideezService.Meta.Lib.dll" Name="Meta.Lib.dll" Source="$(var.HideezServiceHost_TargetDir)Meta.Lib.dll" />
       </Component>
     
     </ComponentGroup>
@@ -749,6 +730,19 @@
       <Component Id="DeviceMaintenanceApplication.exe" Guid="{75B827C4-632A-4137-9405-F0563E6FEC63}" Win64="$(var.Win64)">
         <File Id="DeviceMaintenanceApplication.exe" Name="Hideez Device Maintenance Application.exe" Source="$(var.DeviceMaintenance_TargetDir)Hideez Device Maintenance Application.exe" />
       </Component>
+
+      <Component Id="Meta.Lib.dll" Guid="{27458CF5-63A5-48D8-A90C-306E4DC09EB3}" Win64="$(var.Win64)">
+        <File Id="Meta.Lib.dll" Name="Meta.Lib.dll" Source="$(var.HideezClient_TargetDir)Meta.Lib.dll" />
+      </Component>
+      
+      <Component Id="System.Buffers.dll" Guid="{2BFC1658-32AC-4AF3-9C04-EB1233E501C4}" Win64="$(var.Win64)">
+        <File Id="System.Buffers.dll" Name="System.Buffers.dll" Source="$(var.HideezClient_TargetDir)System.Buffers.dll" />
+      </Component>
+
+      <Component Id="System.Collections.Immutable.dll" Guid="{B056F251-F414-487A-9B9C-05DF285F4EE8}" Win64="$(var.Win64)">
+        <File Id="System.Collections.Immutable.dll" Name="System.Collections.Immutable.dll" Source="$(var.HideezClient_TargetDir)System.Collections.Immutable.dll" />
+      </Component>
+
     </ComponentGroup>
   </Fragment>
 
