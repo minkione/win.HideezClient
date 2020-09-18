@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Hideez.SDK.Communication.Log;
+using System;
 using System.IO;
-using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
-    public class BondManager
+    public class BondManager: Logger
     {
         readonly string _folderPath;
 
-        public BondManager(string folderPath)
+        public BondManager(string folderPath, ILog _log): base(nameof(BondManager), _log)
         {
             _folderPath = folderPath;
         }
@@ -24,17 +24,46 @@ namespace HideezMiddleware
             }
             else return false;
         }
-
-        public int RemoveAll()
+       
+        public async Task<int> RemoveAll()
         {
-            var files = Directory.GetFiles(_folderPath);
+            string[] files = Directory.GetFiles(_folderPath);
+            int count = 0;
+            int i = 0;
 
-            foreach(var file in files)
+            while (i < 3)
             {
-                File.Delete(file);
+                foreach (var file in files)
+                {
+                    var isSuccess = Remove(file);
+                    if (isSuccess)
+                        count++;
+                }
+
+                i++;
+
+                files = Directory.GetFiles(_folderPath);
+
+                if (files.Length != 0)
+                    await Task.Delay(2000);
+                else break;
             }
 
-            return files.Length;
+            return count;
+        }
+
+        bool Remove(string filePath)
+        {
+            try
+            {
+                File.Delete(filePath);
+                return true;
+            }
+            catch (IOException ex)
+            {
+                WriteLine(ex);
+                return false;
+            }
         }
 
         string MacToFileName(string mac)

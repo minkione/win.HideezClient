@@ -260,7 +260,7 @@ namespace ServiceLibrary.Implementation
             _localDeviceInfoCache = new LocalDeviceInfoCache(clientRootRegistryKey, _sdkLogger);
 
             //BondManager
-            _bondManager = new BondManager(bondsFolderPath);
+            _bondManager = new BondManager(bondsFolderPath, _sdkLogger);
 
             // ConnectionFlowProcessor
             _connectionFlowProcessor = new ConnectionFlowProcessor(
@@ -720,7 +720,7 @@ namespace ServiceLibrary.Implementation
             await _messenger.Publish(new DevicesCollectionChangedMessage(GetDevices()));
         }
 
-	private async void HesConnection_Alarm(object sender, bool isEnabled)
+        private async void HesConnection_Alarm(object sender, bool isEnabled)
         {
             try
             {
@@ -737,7 +737,7 @@ namespace ServiceLibrary.Implementation
                         await _deviceManager.RemoveAll();
                         //_deviceManager.RemoveAll() remove only bonds for devices that are connected
                         //So the left files need to be deleted manually
-                        _bondManager.RemoveAll();
+                        await _bondManager.RemoveAll();
 
                         var wsLocker = new WcfWorkstationLocker(_messenger, _sdkLogger);
                         wsLocker.LockWorkstation();
