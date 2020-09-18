@@ -362,7 +362,8 @@ namespace HideezMiddleware
             catch (HideezException ex)
             {
                 if (ex.ErrorCode == HideezErrorCode.ButtonConfirmationTimeout ||
-                    ex.ErrorCode == HideezErrorCode.GetPinTimeout)
+                    ex.ErrorCode == HideezErrorCode.GetPinTimeout ||
+                    ex.ErrorCode == HideezErrorCode.GetActivationCodeTimeout)
                 {
                     // Silent cancelation handling
                     WriteLine(ex);

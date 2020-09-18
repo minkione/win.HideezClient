@@ -167,7 +167,6 @@ namespace HideezClient.Models
             private set { Set(ref serialNo, value); }
         }
 
-        //Todo: Add this property in contract on service
         public string Mac
         {
             get { return mac; }
@@ -506,6 +505,7 @@ namespace HideezClient.Models
             IsConnected = dto.IsConnected;
             IsInitialized = dto.IsInitialized;
             SerialNo = dto.SerialNo;
+            Mac = dto.Mac;
             FirmwareVersion = dto.FirmwareVersion;
             BootloaderVersion = dto.BootloaderVersion;
             StorageTotalSize = dto.StorageTotalSize;

@@ -95,6 +95,10 @@ namespace HideezClient.Modules.NotificationsManager
             if (notification.Options.IsReplace)
             {
                 var matchingNotificationViews = GetNotifications().Where(n => (n.DataContext as CredentialsLoadNotificationViewModel)?.Device.Mac == viewModel.Device.Mac);
+                // Displaying only one notification during connection is visually better. That's why we also close simple notifications
+                // when displaying "Credentials Loading"
+                var simpleNotificationViews = GetNotifications().Where(n => (n.DataContext as SimpleNotificationViewModel)?.ObservableId == viewModel.Device.Mac);
+                matchingNotificationViews = matchingNotificationViews.Concat(simpleNotificationViews); 
                 foreach (var notificationView in matchingNotificationViews)
                 {
                     notificationView.Close();
