@@ -145,14 +145,18 @@ namespace ServiceLibrary.Implementation
 
         void OnServiceStopped()
         {
-            // Generate event for audit
-            var workstationEvent = _eventSaver.GetWorkstationEvent();
-            workstationEvent.EventId = WorkstationEventType.ServiceStopped;
-            // We must wait for the sending completion
-            _eventSaver.AddNew(workstationEvent); 
-            var task = _eventSender.SendEventsAsync(true);
-            task.Start();
-            task.Wait();
+            try
+            {
+                // Generate event for audit
+                var workstationEvent = _eventSaver.GetWorkstationEvent();
+                workstationEvent.EventId = WorkstationEventType.ServiceStopped;
+                // We must wait for the sending completion
+                _eventSaver.AddNew(workstationEvent); 
+                var task = Task.Run(async () => await _eventSender.SendEventsAsync(true));
+            
+                task.Wait();
+            }
+            catch (Exception) { }
         }
         #endregion
     }
