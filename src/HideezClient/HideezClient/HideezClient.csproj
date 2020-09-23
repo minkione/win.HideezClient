@@ -456,7 +456,6 @@
     <Compile Include="Utilities\AccountUtility.cs" />
     <Compile Include="Utilities\Base32Encoding.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
-    <Compile Include="Utilities\Password\PasswordGenerator.cs" />
     <Compile Include="Utilities\QrCode\IQrScannerHelper.cs" />
     <Compile Include="Utilities\QrCode\QrScannerHelper.cs" />
     <Compile Include="Utilities\Trie\ITrie.cs" />
