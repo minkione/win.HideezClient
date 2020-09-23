@@ -2,7 +2,7 @@
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.WCF;
+using Hideez.SDK.Communication.PipeDevice;
 using HideezMiddleware;
 using HideezMiddleware.IPC.DTO;
 using HideezMiddleware.IPC.IncommingMessages;
@@ -23,17 +23,17 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
     /// </summary>
     class PipeDeviceConnectionManager: Logger
     {
-        readonly Dictionary<IMetaPubSub, IWcfDevice> RemotePipeDevicesDictionary = new Dictionary<IMetaPubSub, IWcfDevice>();
+        readonly Dictionary<IMetaPubSub, IPipeDevice> RemotePipeDevicesDictionary = new Dictionary<IMetaPubSub, IPipeDevice>();
         readonly BleDeviceManager _deviceManager;
         readonly IMetaPubSub _messenger;
-        readonly WcfDeviceFactory _pipeDeviceFactory;
+        readonly PipeDeviceFactory _pipeDeviceFactory;
 
         public PipeDeviceConnectionManager(BleDeviceManager deviceManager, IMetaPubSub pubSub, ILog log):
             base(nameof(PipeDeviceConnectionManager), log)
         {
             _deviceManager = deviceManager;
             _messenger = pubSub;
-            _pipeDeviceFactory = new WcfDeviceFactory(_deviceManager, log);
+            _pipeDeviceFactory = new PipeDeviceFactory(_deviceManager, log);
 
             _messenger.Subscribe<RemoteDeviceDisconnectedMessage>(OnRemoteDeviceDisconnected);
             _messenger.Subscribe<RemoteConnection_RemoteCommandMessage>(RemoteConnection_RemoteCommandAsync);
@@ -49,7 +49,7 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
             {
                 RemoteDevicePubSubManager remoteDevicePubSub = new RemoteDevicePubSubManager(_messenger);
 
-                var pipeDevice = (IWcfDevice)_deviceManager.FindBySerialNo(args.SerialNo, args.ChannelNo);
+                var pipeDevice = (IPipeDevice)_deviceManager.FindBySerialNo(args.SerialNo, args.ChannelNo);
                 if (pipeDevice == null)
                 {
                     var device = _deviceManager.FindBySerialNo(args.SerialNo, 1);
@@ -78,7 +78,7 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
         /// <returns></returns>
         Task OnRemoteDeviceDisconnected(RemoteDeviceDisconnectedMessage arg)
         {
-            RemotePipeDevicesDictionary.TryGetValue(arg.RemoteConnectionPubSub, out IWcfDevice pipeDevice);
+            RemotePipeDevicesDictionary.TryGetValue(arg.RemoteConnectionPubSub, out IPipeDevice pipeDevice);
             if (pipeDevice != null)
             {
                 _deviceManager.Remove(pipeDevice);
@@ -90,7 +90,7 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
         {
             try
             {
-                var pipeDevice = _deviceManager.Find(args.ConnectionId) as IWcfDevice;
+                var pipeDevice = _deviceManager.Find(args.ConnectionId) as IPipeDevice;
 
                 if (pipeDevice == null)
                     throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, args.ConnectionId);
@@ -110,7 +110,7 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
         {
             try
             {
-                var pipeDevice = _deviceManager.Find(args.ConnectionId) as IWcfDevice;
+                var pipeDevice = _deviceManager.Find(args.ConnectionId) as IPipeDevice;
 
                 if (pipeDevice == null)
                     throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, args.ConnectionId);
@@ -130,7 +130,7 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
         {
             try
             {
-                var pipeDevice = _deviceManager.Find(args.ConnectionId) as IWcfDevice;
+                var pipeDevice = _deviceManager.Find(args.ConnectionId) as IPipeDevice;
 
                 if (pipeDevice == null)
                     throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, args.ConnectionId);
@@ -150,9 +150,9 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
             {
                 if (RemotePipeDevicesDictionary.Count > 0)
                 {
-                    if (sender is IWcfDevice wcfDevice)
+                    if (sender is IPipeDevice pipeDevice)
                     {
-                        await _messenger.Publish(new RemoteConnection_DeviceStateChangedMessage(wcfDevice.Id, new DeviceStateDTO(e.State)));
+                        await _messenger.Publish(new RemoteConnection_DeviceStateChangedMessage(pipeDevice.Id, new DeviceStateDTO(e.State)));
                     }
                 }
             }
@@ -167,13 +167,13 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
         /// Remove the pipe device.
         /// </summary>
         /// <param name="pipeDevice">The pipe device, that must be removed.</param>
-        public void RemovePipeDevice(IWcfDevice pipeDevice)
+        public void RemovePipeDevice(IPipeDevice pipeDevice)
         {
             var pubSub = RemotePipeDevicesDictionary.Where(p => p.Value == pipeDevice).FirstOrDefault().Key;
             DisposePipeDevicePair(pipeDevice, pubSub);
         }
 
-        void SubscribeToPipeDeviceEvents(IWcfDevice pipeDevice, IMetaPubSub pubSub)
+        void SubscribeToPipeDeviceEvents(IPipeDevice pipeDevice, IMetaPubSub pubSub)
         {
             RemotePipeDevicesDictionary.Add(pubSub, pipeDevice);
             pipeDevice.DeviceStateChanged += RemoteConnection_DeviceStateChanged;
@@ -185,7 +185,7 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
         /// </summary>
         /// <param name="pipeDevice">The pipe device that must unsubscribe from all events.</param>
         /// <param name="pubSub">The key through which you want to remove the pipe device from the dictionary.</param>
-        void DisposePipeDevicePair(IWcfDevice pipeDevice, IMetaPubSub pubSub)
+        void DisposePipeDevicePair(IPipeDevice pipeDevice, IMetaPubSub pubSub)
         {
             if (pubSub != null)
             {

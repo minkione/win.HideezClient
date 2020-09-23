@@ -17,7 +17,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
 using Hideez.SDK.Communication.Utils;
-using Hideez.SDK.Communication.WCF;
+using Hideez.SDK.Communication.PipeDevice;
 using Hideez.SDK.Communication.Workstation;
 using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware;
@@ -587,7 +587,7 @@ namespace ServiceLibrary.Implementation
                 device.BatteryChanged -= Device_BatteryChanged;
                 device.WipeFinished -= Device_WipeFinished;
 
-                if (device is IWcfDevice pipeDevice)
+                if (device is IPipeDevice pipeDevice)
                     _pipeDeviceConnectionManager.RemovePipeDevice(pipeDevice);
 
                 if (!device.IsRemote && device.IsInitialized)
