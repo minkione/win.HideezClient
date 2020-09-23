@@ -99,6 +99,7 @@
     <Compile Include="HideezService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegistrySettings.cs" />
+    <Compile Include="RemoteConnectionManagement\PipeDeviceConnectionManager.cs" />
     <Compile Include="ScreenActivation\WcfScreenActivator.cs" />
     <Compile Include="WorkstationLock\UniversalWorkstationLocker.cs" />
     <Compile Include="WorkstationLock\WcfWorkstationLocker.cs" />

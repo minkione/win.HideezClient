@@ -2,9 +2,7 @@
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
 using System;
-using System.Collections.Generic;
 using System.IO.Pipes;
-using System.Linq;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
@@ -12,11 +10,18 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
+    /// <summary>
+    /// Class for creating a direct MetaPubSub for each remote pipe device.
+    /// </summary>
     public class RemoteDevicePubSubManager
     {
         readonly IMetaPubSub _messenger;
 
+        /// <summary>
+        /// Direct MetaPubSub for each pipe device.
+        /// </summary>
         public IMetaPubSub RemoteConnectionPubSub { get; private set; }
+
         public string PipeName { get; private set; }
 
         public RemoteDevicePubSubManager(IMetaPubSub messenger)
@@ -49,7 +54,7 @@ namespace HideezMiddleware
 
         async Task OnRemoteClientDisconnected(RemoteClientDisconnectedEvent arg)
         {
-            await _messenger.Publish(new RemoteConnection_ClientDisconnectedMessage(RemoteConnectionPubSub));
+            await _messenger.Publish(new RemoteDeviceDisconnectedMessage(RemoteConnectionPubSub));
         }
     }
 }

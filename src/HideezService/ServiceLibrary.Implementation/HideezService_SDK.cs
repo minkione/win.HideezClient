@@ -26,18 +26,16 @@ using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.DeviceLogging;
 using HideezMiddleware.IPC.DTO;
 using HideezMiddleware.IPC.IncommingMessages;
-using HideezMiddleware.IPC.IncommingMessages.RemoteDevice;
 using HideezMiddleware.IPC.Messages;
-using HideezMiddleware.IPC.Messages.RemoteDevice;
 using HideezMiddleware.Local;
 using HideezMiddleware.ReconnectManager;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using HideezMiddleware.SoftwareVault.UnlockToken;
-using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ClientManagement;
+using ServiceLibrary.Implementation.RemoteConnectionManagement;
 using ServiceLibrary.Implementation.ScreenActivation;
 using ServiceLibrary.Implementation.WorkstationLock;
 
@@ -52,7 +50,7 @@ namespace ServiceLibrary.Implementation
         static RfidServiceConnection _rfidService;
         static ProximityMonitorManager _proximityMonitorManager;
         static IScreenActivator _screenActivator;
-        static WcfDeviceFactory _wcfDeviceFactory;
+        static PipeDeviceConnectionManager _pipeDeviceConnectionManager;
         static EventSender _eventSender;
         static ServiceClientUiManager _clientProxy;
         static UiProxyManager _uiProxy;
@@ -126,8 +124,8 @@ namespace ServiceLibrary.Implementation
                 _deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
                 SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
 
-                // WCF ============================
-                _wcfDeviceFactory = new WcfDeviceFactory(_deviceManager, _sdkLogger);
+                // Pipe Device Connection Manager ============================
+                _pipeDeviceConnectionManager = new PipeDeviceConnectionManager(_deviceManager, _messenger, _sdkLogger);
                 _sdkLogger.WriteLine(nameof(HideezService), "BLE initialized");
             });
 
@@ -360,10 +358,6 @@ namespace ServiceLibrary.Implementation
             _messenger.Subscribe<RemoteClientDisconnectedEvent>(OnClientDisconnected);
 
             _messenger.Subscribe<GetAvailableChannelsMessage>(GetAvailableChannels);
-            _messenger.Subscribe<RemoteConnection_RemoteCommandMessage>(RemoteConnection_RemoteCommandAsync);
-            _messenger.Subscribe<RemoteConnection_VerifyCommandMessage>(RemoteConnection_VerifyCommandAsync);
-            _messenger.Subscribe<RemoteConnection_ResetChannelMessage>(RemoteConnection_ResetChannelAsync);
-            _messenger.Subscribe<EstablishRemoteDeviceConnectionMessage>(EstablishRemoteDeviceConnection);
             
             _messenger.Subscribe<PublishEventMessage>(PublishEvent);
             _messenger.Subscribe<DisconnectDeviceMessage>(DisconnectDevice);
@@ -378,7 +372,7 @@ namespace ServiceLibrary.Implementation
             _messenger.Subscribe<LoginClientRequestMessage>(OnClientLogin);
             _messenger.Subscribe<RefreshServiceInfoMessage>(OnRefreshServiceInfo);
 
-            _messenger.Subscribe<RemoteConnection_ClientDisconnectedMessage>(OnRemoteConnection_ClientDisconnected);
+            
 
             await Task.WhenAll(serviceInitializationTasks).ConfigureAwait(false);
         }
@@ -593,8 +587,8 @@ namespace ServiceLibrary.Implementation
                 device.BatteryChanged -= Device_BatteryChanged;
                 device.WipeFinished -= Device_WipeFinished;
 
-                if (device is IWcfDevice wcfDevice)
-                    UnsubscribeFromWcfDeviceEvents(wcfDevice);
+                if (device is IWcfDevice pipeDevice)
+                    _pipeDeviceConnectionManager.RemovePipeDevice(pipeDevice);
 
                 if (!device.IsRemote && device.IsInitialized)
                 {
@@ -1143,146 +1137,6 @@ namespace ServiceLibrary.Implementation
 
             await _messenger.Publish(new ServiceSettingsChangedMessage(_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock, RegistrySettings.GetHesAddress(_log)));
 
-        }
-        #endregion
-
-        #region Remote device management
-        readonly Dictionary<IMetaPubSub, IWcfDevice> RemoteWcfDevicesDictionary = new Dictionary<IMetaPubSub, IWcfDevice>();
-
-        public async Task EstablishRemoteDeviceConnection(EstablishRemoteDeviceConnectionMessage args)
-        {
-            try
-            {
-                RemoteDevicePubSubManager remoteDevicePubSub = new RemoteDevicePubSubManager(_messenger);
-
-                var wcfDevice = (IWcfDevice)_deviceManager.FindBySerialNo(args.SerialNo, args.ChannelNo);
-                if (wcfDevice == null)
-                {
-                    var device = _deviceManager.FindBySerialNo(args.SerialNo, 1);
-
-                    if (device == null)
-                        throw new HideezException(HideezErrorCode.DeviceNotFound, args.SerialNo);
-
-                    wcfDevice = await _wcfDeviceFactory.EstablishRemoteDeviceConnection(device.Mac, args.ChannelNo);
-
-                    SubscribeToWcfDeviceEvents(wcfDevice, remoteDevicePubSub.RemoteConnectionPubSub);
-                }
-                
-                await _messenger.Publish(new EstablishRemoteDeviceConnectionMessageReply(wcfDevice.Id, remoteDevicePubSub.PipeName));
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-                throw;
-            }
-        }
-
-        void SubscribeToWcfDeviceEvents(IWcfDevice wcfDevice, IMetaPubSub pubSub)
-        {
-            RemoteWcfDevicesDictionary.Add(pubSub, wcfDevice);
-            wcfDevice.DeviceStateChanged += RemoteConnection_DeviceStateChanged;
-        }
-
-        void UnsubscribeFromWcfDeviceEvents(IWcfDevice wcfDevice)
-        {
-            var pubSub = RemoteWcfDevicesDictionary.Where(p => p.Value == wcfDevice).FirstOrDefault().Key;
-            RemoveWcfDevicePair(wcfDevice, pubSub);
-        }
-
-        async void RemoteConnection_DeviceStateChanged(object sender, DeviceStateEventArgs e)
-        {
-            try
-            {
-                if (RemoteWcfDevicesDictionary.Count > 0)
-                {
-                    if (sender is IWcfDevice wcfDevice)
-                    {
-                        await _messenger.Publish(new RemoteConnection_DeviceStateChangedMessage(wcfDevice.Id, new DeviceStateDTO(e.State)));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
-        }
-
-        Task OnRemoteConnection_ClientDisconnected(RemoteConnection_ClientDisconnectedMessage arg)
-        {
-            RemoteWcfDevicesDictionary.TryGetValue(arg.RemoteConnectionPubSub, out IWcfDevice wcfDevice);
-            if(wcfDevice != null)
-            {
-                RemoveWcfDevicePair(wcfDevice, arg.RemoteConnectionPubSub);
-            }
-            return Task.CompletedTask;
-        }
-
-        void RemoveWcfDevicePair(IWcfDevice wcfDevice, IMetaPubSub pubSub)
-        {
-            if (pubSub != null)
-            {
-                wcfDevice.DeviceStateChanged -= RemoteConnection_DeviceStateChanged;
-                pubSub.StopServer();
-                RemoteWcfDevicesDictionary.Remove(pubSub);
-            }
-        }
-
-        public async Task RemoteConnection_VerifyCommandAsync(RemoteConnection_VerifyCommandMessage args)
-        {
-            try
-            {
-                var wcfDevice = _deviceManager.Find(args.ConnectionId) as IWcfDevice;
-
-                if (wcfDevice == null)
-                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, args.ConnectionId);
-
-                var response = await wcfDevice.OnVerifyCommandAsync(args.Data);
-
-                await _messenger.Publish(new RemoteConnection_VerifyCommandMessageReply(response));
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-                throw;
-            }
-        }
-
-        public async Task RemoteConnection_RemoteCommandAsync(RemoteConnection_RemoteCommandMessage args)
-        {
-            try
-            {
-                var wcfDevice = _deviceManager.Find(args.ConnectionId) as IWcfDevice;
-
-                if (wcfDevice == null)
-                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, args.ConnectionId);
-
-                var response = await wcfDevice.OnRemoteCommandAsync(args.Data);
-
-                await _messenger.Publish(new RemoteConnection_RemoteCommandMessageReply(response));
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-                throw;
-            }
-        }
-
-        public async Task RemoteConnection_ResetChannelAsync(RemoteConnection_ResetChannelMessage args)
-        {
-            try
-            {
-                var wcfDevice = _deviceManager.Find(args.ConnectionId) as IWcfDevice;
-
-                if (wcfDevice == null)
-                    throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, args.ConnectionId);
-
-                await wcfDevice.OnResetChannelAsync();
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-                throw;
-            }
         }
         #endregion
 
