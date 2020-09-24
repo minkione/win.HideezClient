@@ -111,6 +111,15 @@
     <Compile Include="Audit\SessionTimestampLogger.cs" />
     <Compile Include="BondManager.cs" />
     <Compile Include="ChangeServerAddressResult.cs" />
+    <Compile Include="DeviceConnection\Workflow\AccountsUpdateProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\ActivationProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\ConnectionFlowProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\LicensingProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\VaultAuthorizationProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\PermissionsCheckProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\StateUpdateProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\UnlockProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\UserAuthorizationProcessor.cs" />
     <Compile Include="DeviceLogging\DeviceLogManager.cs" />
     <Compile Include="DeviceLogging\DeviceLogWriter.cs" />
     <Compile Include="DeviceLogging\IDeviceLogWriter.cs" />

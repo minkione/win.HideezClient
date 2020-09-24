@@ -475,7 +475,7 @@ namespace HideezMiddleware
 
             await _hesConnection.FixDevice(device, ct);
 
-            await new WaitMasterKeyProc(device).Run(SdkConfig.SystemStateEventWaitTimeout, ct);
+            await new WaitVaultAuthProc(device).Run(SdkConfig.SystemStateEventWaitTimeout, ct);
         }
 
         async Task<bool> ButtonWorkflow(IDevice device, int timeout, CancellationToken ct)

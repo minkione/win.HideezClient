@@ -271,10 +271,7 @@ namespace ServiceLibrary.Implementation
                 _uiProxy,
                 _localDeviceInfoCache,
                 _hesAccessManager,
-                _sdkLogger)
-            { 
-                IsAlarmTurnOn = _serviceSettingsManager.Settings.AlarmTurnOn
-            };
+                _sdkLogger);
 
             _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
@@ -718,10 +715,8 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                if (_connectionFlowProcessor.IsAlarmTurnOn != isEnabled)
+                if (_serviceSettingsManager.Settings.AlarmTurnOn != isEnabled)
                 {
-                    _connectionFlowProcessor.IsAlarmTurnOn = isEnabled;
-
                     var settings = _serviceSettingsManager.Settings;
                     settings.AlarmTurnOn = isEnabled;
                     _serviceSettingsManager.SaveSettings(settings);
