@@ -5,7 +5,6 @@ using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Local;
-using HideezMiddleware.Localize;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Tasks;
@@ -36,6 +35,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         // Todo: initialize
         readonly PermissionsCheckProcessor _permissionsCheckProcessor;
+        readonly VaultConnectionProcessor _vaultConnectionProcessor;
         readonly LicensingProcessor _licensingProcessor;
         readonly StateUpdateProcessor _stateUpdateProcessor;
         readonly ActivationProcessor _activationProcessor;
@@ -43,11 +43,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         readonly VaultAuthorizationProcessor _masterkeyProcessor;
         readonly UserAuthorizationProcessor _userAuthorizationProcessor;
         readonly UnlockProcessor _unlockProcessor;
+        // ...
 
         int _isConnecting = 0;
         CancellationTokenSource _cts;
-
-        string _flowId = string.Empty;
 
         public event EventHandler<string> Started;
         public event EventHandler<IDevice> DeviceFinishedMainFlow;
@@ -84,26 +83,26 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
         {
-            // cancel the workflow if workstation access was retracted on HES
+            // Cancel the workflow if workstation access was retracted on HES
             Cancel("Workstation access retracted");
         }
 
         void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
-            // cancel the workflow if session switches to an unlocked (or different one)
-            // TODO: MainFlow can cancel itself after successful unlock
+            // Cancel the workflow if session switches to an unlocked (or different one)
+            // Keep in mind, that workflow can cancel itself due to successful workstation unlock
             Cancel("Session switched");
         }
 
         void OnVaultDisconnectedDuringFlow(object sender, EventArgs e)
         {
-            // cancel the workflow if the vault disconnects
+            // Cancel the workflow if the vault disconnects
             Cancel("Vault unexpectedly disconnected");
         }
 
         void OnCancelledByVaultButton(object sender, EventArgs e)
         {
-            // cancel the workflow if the user pressed the cancel button (long button press)
+            // Cancel the workflow if the user pressed the cancel button (long button press)
             Cancel("User pressed the cancel button");
         }
 
@@ -165,17 +164,17 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             WriteLine($"Started main workflow ({mac})");
 
-            _flowId = Guid.NewGuid().ToString();
-            Started?.Invoke(this, _flowId);
+            var flowId = Guid.NewGuid().ToString();
+            Started?.Invoke(this, flowId);
 
-            bool success = false;
-            bool criticalError = false;
+            bool workflowFinishedSuccessfully = false;
+            bool deleteVaultBond = false;
             string errorMessage = null;
             IDevice device = null;
 
             try
             {
-                await _ui.SendNotification("", mac);
+                await _ui.SendNotification(string.Empty, mac);
 
                 _permissionsCheckProcessor.CheckPermissions();
 
@@ -189,13 +188,11 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                         .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct);
                 }
 
-
-                device = await ConnectDevice(mac, rebondOnConnectionFail, ct);
-
+                device = await _vaultConnectionProcessor.ConnectVault(mac, rebondOnConnectionFail, ct);
                 device.Disconnected += OnVaultDisconnectedDuringFlow;
                 device.OperationCancelled += OnCancelledByVaultButton;
 
-                await WaitDeviceInitialization(mac, device, ct);
+                await _vaultConnectionProcessor.WaitVaultInitialization(mac, device, ct);
 
                 if (device.IsBoot)
                     throw new HideezException(HideezErrorCode.DeviceInBootloaderMode);
@@ -209,19 +206,24 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 await _licensingProcessor.CheckLicense(device, vaultInfo, ct);
                 vaultInfo = await _stateUpdateProcessor.UpdateDeviceState(device, vaultInfo, ct);
-                await device.RefreshDeviceInfo();
 
                 await _activationProcessor.ActivateVault(device, ct);
-                await device.RefreshDeviceInfo();
 
-                await _masterkeyProcessor.ActivateVault(device, ct);
-                await device.RefreshDeviceInfo(); 
+                await _masterkeyProcessor.AuthVault(device, ct);
 
-                await Task.WhenAll(_accountsUpdateProcessor.UpdateAccounts(device, vaultInfo, true), _userAuthorizationProcessor.AuthorizeUser(device));
+                if (_workstationUnlocker.IsConnected && WorkstationHelper.IsActiveSessionLocked() && tryUnlock)
+                {
+                    await Task.WhenAll(
+                    _accountsUpdateProcessor.UpdateAccounts(device, vaultInfo, true),
+                    _userAuthorizationProcessor.AuthorizeUser(device, ct));
 
-                await _unlockProcessor.UnlockWorkstation(device); // todo
+                    _screenActivator?.StopPeriodicScreenActivation();
+                    await _unlockProcessor.UnlockWorkstation(device, flowId, onUnlockAttempt);
+                }
+                else
+                    await _accountsUpdateProcessor.UpdateAccounts(device, vaultInfo, true);
                 
-                await _accountsUpdateProcessor.UpdateAccounts(device, vaultInfo, false); // todo
+                await _accountsUpdateProcessor.UpdateAccounts(device, vaultInfo, false);
 
                 // ....
                 // todo: user prop name
@@ -229,10 +231,49 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 // ....
 
                 await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), false);
+
+                workflowFinishedSuccessfully = true;
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.HesDeviceNotFound)
             {
-                criticalError = true;
+                deleteVaultBond = true;
+                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
+            }
+            catch (HideezException ex)
+            {
+                switch (ex.ErrorCode)
+                {
+                    case HideezErrorCode.DeviceIsLocked:
+                    case HideezErrorCode.DeviceNotAssignedToUser:
+                    case HideezErrorCode.HesDeviceNotFound:
+                    case HideezErrorCode.HesDeviceCompromised:
+                        // There errors require bond removal
+                        deleteVaultBond = true;
+                        errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
+                        break;
+                    case HideezErrorCode.ButtonConfirmationTimeout:
+                    case HideezErrorCode.GetPinTimeout:
+                    case HideezErrorCode.GetActivationCodeTimeout:
+                        // Silent handling
+                        WriteLine(ex);
+                        break;
+                    default:
+                        errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
+                        break;
+                }
+            }
+            catch (OperationCanceledException ex)
+            {
+                // Silent cancelation handling
+                WriteLine(ex);
+            }
+            catch (TimeoutException ex)
+            {
+                // Silent timeout handling
+                WriteLine(ex);
+            }
+            catch (Exception ex)
+            {
                 errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
             }
             finally
@@ -245,7 +286,15 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 _screenActivator?.StopPeriodicScreenActivation();
             }
 
+            await WorkflowCleanup(errorMessage, mac, device, workflowFinishedSuccessfully, deleteVaultBond);
 
+            Finished?.Invoke(this, flowId);
+
+            WriteLine($"Main workflow end {mac}");
+        }
+
+        async Task WorkflowCleanup(string errorMessage, string mac, IDevice device, bool workflowFinishedSuccessfully, bool deleteVaultBond)
+        {
             // Cleanup
             try
             {
@@ -259,21 +308,20 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 if (device != null)
                 {
-                    if (criticalError)
+                    if (workflowFinishedSuccessfully)
+                    {
+                        WriteLine($"Successfully finished the main workflow: ({device.Id})");
+                        DeviceFinishedMainFlow?.Invoke(this, device);
+                    }
+                    else if (deleteVaultBond)
                     {
                         WriteLine($"Mainworkflow critical error, Removing ({device.Id})");
                         await _deviceManager.Remove(device);
                     }
-                    else if (!success)
+                    else
                     {
                         WriteLine($"Main workflow failed, Disconnecting ({device.Id})");
                         await _deviceManager.DisconnectDevice(device);
-                    }
-                    else
-                    {
-                        WriteLine($"Successfully finished the main workflow: ({device.Id})");
-                        device.SetUserProperty(FLOW_FINISHED_PROP, true);
-                        DeviceFinishedMainFlow?.Invoke(this, device);
                     }
                 }
             }
@@ -281,92 +329,6 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             {
                 WriteLine(ex, LogErrorSeverity.Error);
             }
-
-            Finished?.Invoke(this, _flowId);
-            _flowId = string.Empty;
-
-            WriteLine($"Main workflow end {mac}");
         }
-
-
-        async Task<IDevice> ConnectDevice(string mac, bool rebondOnFail, CancellationToken ct)
-        {
-            ct.ThrowIfCancellationRequested();
-            if (_bondManager.Exists(mac))
-                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1"], mac);
-            else await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1.PressButton"], mac);
-
-            bool ltkErrorOccured = false;
-            IDevice device = null;
-            try
-            {
-                device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
-            }
-            catch (Exception ex) // Thrown when LTK error occurs in csr
-            {
-                WriteLine(ex);
-                ltkErrorOccured = true;
-            }
-
-            if (device == null)
-            {
-                ct.ThrowIfCancellationRequested();
-
-                string ltk = "";
-                if (ltkErrorOccured)
-                {
-                    ltk = "LTK error.";
-                    ltkErrorOccured = false;
-                }
-                if (_bondManager.Exists(mac))
-                    await _ui.SendNotification(ltk + TranslationSource.Instance["ConnectionFlow.Connection.Stage2"], mac);
-                else await _ui.SendNotification(ltk + TranslationSource.Instance["ConnectionFlow.Connection.Stage2.PressButton"], mac);
-
-                try
-                {
-                    device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
-                }
-                catch (Exception ex) // Thrown when LTK error occurs in csr
-                {
-                    WriteLine(ex);
-                    ltkErrorOccured = true;
-                }
-
-                if (device == null && rebondOnFail)
-                {
-                    ct.ThrowIfCancellationRequested();
-
-                    // remove the bond and try one more time
-                    await _deviceManager.RemoveByMac(mac);
-
-                    if (ltkErrorOccured)
-                        await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage3.LtkError.PressButton"], mac); // TODO: Fix LTK error in CSR
-                    else
-                        await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage3.PressButton"], mac);
-
-                    device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
-                }
-            }
-
-            if (device == null)
-                throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed", mac));
-
-            return device;
-        }
-
-        async Task WaitDeviceInitialization(string mac, IDevice device, CancellationToken ct)
-        {
-            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Initialization.WaitingInitializationMessage"], mac);
-
-            if (!await device.WaitInitialization(SdkConfig.DeviceInitializationTimeout, ct))
-                throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Initialization.InitializationFailed", mac));
-
-            if (device.IsErrorState)
-            {
-                await _deviceManager.Remove(device);
-                throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Initialization.DeviceInitializationError", mac, device.ErrorMessage));
-            }
-        }
-
     }
 }

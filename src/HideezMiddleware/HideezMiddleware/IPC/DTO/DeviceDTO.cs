@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
 using HideezMiddleware;
+using HideezMiddleware.DeviceConnection.Workflow;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;

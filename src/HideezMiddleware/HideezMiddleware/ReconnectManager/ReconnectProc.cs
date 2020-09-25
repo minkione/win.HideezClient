@@ -1,6 +1,7 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Utils;
+using HideezMiddleware.DeviceConnection.Workflow;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

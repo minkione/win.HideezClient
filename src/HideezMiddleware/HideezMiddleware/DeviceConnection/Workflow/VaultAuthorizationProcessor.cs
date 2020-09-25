@@ -21,7 +21,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             _ui = ui;
         }
 
-        public async Task ActivateVault(IDevice device, CancellationToken ct)
+        public async Task AuthVault(IDevice device, CancellationToken ct)
         {
             if (!device.AccessLevel.IsMasterKeyRequired)
                 return;
@@ -32,7 +32,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             await _hesConnection.AuthDevice(device.SerialNo);
 
-            await new WaitVaultAuthProc(device).Run(SdkConfig.SystemStateEventWaitTimeout, ct);
+            await new WaitMasterKeyProc(device).Run(SdkConfig.SystemStateEventWaitTimeout, ct);
+
+            await device.RefreshDeviceInfo();
         }
     }
 }

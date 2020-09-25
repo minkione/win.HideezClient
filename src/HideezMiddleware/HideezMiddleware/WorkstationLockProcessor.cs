@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
+using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.ReconnectManager;
 using System;
 using System.Linq;

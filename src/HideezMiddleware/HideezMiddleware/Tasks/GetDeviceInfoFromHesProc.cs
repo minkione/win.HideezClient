@@ -42,10 +42,7 @@ namespace HideezMiddleware.Tasks
                     else
                     {
                         //todo - load device info from the local cache (file)
-                        info = new DeviceInfoDto()
-                        {
-                            NeedUpdate = false
-                        };
+                        info = new DeviceInfoDto();
                         IsSuccessful = false;
 
                     }

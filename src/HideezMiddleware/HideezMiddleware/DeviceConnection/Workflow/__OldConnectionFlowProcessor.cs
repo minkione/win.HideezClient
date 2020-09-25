@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,9 +17,11 @@ using HideezMiddleware.Localize;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Tasks;
 using Microsoft.Win32;
+*/
 
 namespace HideezMiddleware
 {
+    /*
     public class ConnectionFlowProcessor : Logger
     {
         public const string FLOW_FINISHED_PROP = "MainFlowFinished";
@@ -250,10 +253,6 @@ namespace HideezMiddleware
                     await device.RefreshDeviceInfo();
                 }
 
-                /* 
-                 * This info refresh is required because after device was connected, the server may have
-                 * locked it by code. This info refresh must stay to ensure that activation code is entered during connection
-                */
                 await device.RefreshDeviceInfo(); 
                 
                 WriteLine($"Check if vault is locked: {device.IsLocked}");
@@ -929,4 +928,5 @@ namespace HideezMiddleware
         }
         #endregion
     }
+    */
 }

@@ -38,6 +38,7 @@ using ServiceLibrary.Implementation.ClientManagement;
 using ServiceLibrary.Implementation.RemoteConnectionManagement;
 using ServiceLibrary.Implementation.ScreenActivation;
 using ServiceLibrary.Implementation.WorkstationLock;
+using HideezMiddleware.DeviceConnection.Workflow;
 
 namespace ServiceLibrary.Implementation
 {
@@ -242,7 +243,7 @@ namespace ServiceLibrary.Implementation
             _eventSender = new EventSender(_hesConnection, _eventSaver, _sdkLogger);
 
             // ScreenActivator ==================================
-            _screenActivator = new WcfScreenActivator(_messenger);
+            _screenActivator = new MetalibScreenActivator(_messenger);
 
             // Client Proxy =============================
             _clientProxy = new ServiceClientUiManager(_messenger);
@@ -271,6 +272,7 @@ namespace ServiceLibrary.Implementation
                 _uiProxy,
                 _localDeviceInfoCache,
                 _hesAccessManager,
+                _serviceSettingsManager,
                 _sdkLogger);
 
             _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);

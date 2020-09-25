@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Implementation.ScreenActivation
 {
-    class WcfScreenActivator : ScreenActivator
+    class MetalibScreenActivator : ScreenActivator
     {
         readonly IMetaPubSub _messenger;
 
-        public WcfScreenActivator(IMetaPubSub messenger)
+        public MetalibScreenActivator(IMetaPubSub messenger)
         {
             _messenger = messenger;
         }

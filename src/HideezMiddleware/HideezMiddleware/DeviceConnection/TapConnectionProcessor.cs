@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.DeviceConnection.Workflow;
 
 namespace HideezMiddleware.DeviceConnection
 {

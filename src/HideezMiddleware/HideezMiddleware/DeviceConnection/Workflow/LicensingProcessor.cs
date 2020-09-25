@@ -59,9 +59,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                         await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
                     }
-
-                    await device.RefreshDeviceInfo();
                 }
+
+                await device.RefreshDeviceInfo();
             }
         }
     }
