@@ -83,7 +83,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             }
 
             if (device == null)
-                throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed", mac));
+                throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed", mac));
 
             return device;
         }
@@ -93,12 +93,12 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Initialization.WaitingInitializationMessage"], mac);
 
             if (!await device.WaitInitialization(SdkConfig.DeviceInitializationTimeout, ct))
-                throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Initialization.InitializationFailed", mac));
+                throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Initialization.InitializationFailed", mac));
 
             if (device.IsErrorState)
             {
                 await _deviceManager.Remove(device);
-                throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Initialization.DeviceInitializationError", mac, device.ErrorMessage));
+                throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Initialization.DeviceInitializationError", mac, device.ErrorMessage));
             }
         }
     }

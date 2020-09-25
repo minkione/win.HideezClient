@@ -23,18 +23,27 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         public async Task AuthVault(IDevice device, CancellationToken ct)
         {
-            if (!device.AccessLevel.IsMasterKeyRequired)
-                return;
-            
             ct.ThrowIfCancellationRequested();
 
-            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.MasterKey.AwaitingHESAuth"], device.Mac);
+            if (device.AccessLevel.IsMasterKeyRequired)
+            {
 
-            await _hesConnection.AuthDevice(device.SerialNo);
+                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.MasterKey.AwaitingHESAuth"], device.Mac);
 
-            await new WaitMasterKeyProc(device).Run(SdkConfig.SystemStateEventWaitTimeout, ct);
+                await _hesConnection.AuthDevice(device.SerialNo);
 
-            await device.RefreshDeviceInfo();
+                await new WaitMasterKeyProc(device).Run(SdkConfig.SystemStateEventWaitTimeout, ct);
+
+                await device.RefreshDeviceInfo();
+            }
+
+            if (device.AccessLevel.IsMasterKeyRequired)
+            {
+                if (_hesConnection.State == HesConnectionState.Connected)
+                    throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.MasterKey.Error.AuthFailed"]);
+                else
+                    throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.MasterKey.Error.AuthFailedNoNetwork"]);
+            }
         }
     }
 }

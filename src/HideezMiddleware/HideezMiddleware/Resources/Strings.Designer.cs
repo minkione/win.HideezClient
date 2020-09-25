@@ -88,6 +88,33 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Vault got locked due to too many incorrect activation attempts. Please, contact your system administrator.
+        /// </summary>
+        internal static string ConnectionFlow_ActivationCode_Error_LockedByInvalidAttempts {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.ActivationCode.Error.LockedByInvalidAttempts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vault is locked. Please, contact your system administrator..
+        /// </summary>
+        internal static string ConnectionFlow_ActivationCode_Error_VaultIsLocked {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.ActivationCode.Error.VaultIsLocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vault is locked. Please, contact your system administrator. If you already got an activation code, please check your network connection..
+        /// </summary>
+        internal static string ConnectionFlow_ActivationCode_Error_VaultIsLockedNoNetwork {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.ActivationCode.Error.VaultIsLockedNoNetwork", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please press the Button on your Hideez Key.
         /// </summary>
         internal static string ConnectionFlow_Button_PressButtonMessage {
@@ -169,6 +196,15 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your device is in bootloader mode. Please, contact your system administrator to update your firmware..
+        /// </summary>
+        internal static string ConnectionFlow_Error_VaultInBootloaderMode {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Error.VaultInBootloaderMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Vault is locked.
         /// </summary>
         internal static string ConnectionFlow_Error_VaultIsLocked {
@@ -205,6 +241,15 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot download vault license. Please, check your network connection..
+        /// </summary>
+        internal static string ConnectionFlow_License_Error_CannotDownloadLicense {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.License.Error.CannotDownloadLicense", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid license received from HES for {0}, (EMPTY_DATA). Please, contact your administrator..
         /// </summary>
         internal static string ConnectionFlow_License_Error_EmptyLicenseData {
@@ -223,6 +268,15 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No licenses available for your vault. Please, contact your system administrator..
+        /// </summary>
+        internal static string ConnectionFlow_License_Error_NoLicensesAvailable {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.License.Error.NoLicensesAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Updating vault licenses....
         /// </summary>
         internal static string ConnectionFlow_License_UpdatingLicenseMessage {
@@ -237,6 +291,24 @@ namespace HideezMiddleware.Resources {
         internal static string ConnectionFlow_MasterKey_AwaitingHESAuth {
             get {
                 return ResourceManager.GetString("ConnectionFlow.MasterKey.AwaitingHESAuth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device authorization failed unexpectedly. Please, try to connect your device again. If the error persists, please contact your system administrator..
+        /// </summary>
+        internal static string ConnectionFlow_MasterKey_Error_AuthFailed {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.MasterKey.Error.AuthFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Server connection is required for device authorization. Please,check your network connection and try again..
+        /// </summary>
+        internal static string ConnectionFlow_MasterKey_Error_AuthFailedNoNetwork {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.MasterKey.Error.AuthFailedNoNetwork", resourceCulture);
             }
         }
         
@@ -309,6 +381,24 @@ namespace HideezMiddleware.Resources {
         internal static string ConnectionFlow_RfidConnection_Error_NotConnectedToHes {
             get {
                 return ResourceManager.GetString("ConnectionFlow.RfidConnection.Error.NotConnectedToHes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vault cannot be initialized. Please, check your network connection..
+        /// </summary>
+        internal static string ConnectionFlow_StateUpdate_Error_CannotLinkToUser {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.StateUpdate.Error.CannotLinkToUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vault is not assigned to any user. Please, contact your system administrator..
+        /// </summary>
+        internal static string ConnectionFlow_StateUpdate_Error_NotAssignedToUser {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.StateUpdate.Error.NotAssignedToUser", resourceCulture);
             }
         }
         

@@ -5,6 +5,7 @@ using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Local;
+using HideezMiddleware.Localize;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Tasks;
@@ -195,7 +196,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 await _vaultConnectionProcessor.WaitVaultInitialization(mac, device, ct);
 
                 if (device.IsBoot)
-                    throw new HideezException(HideezErrorCode.DeviceInBootloaderMode);
+                    throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultInBootloaderMode"]);
 
                 // ....
                 // todo: set vault state to initializing
@@ -206,22 +207,20 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 await _licensingProcessor.CheckLicense(device, vaultInfo, ct);
                 vaultInfo = await _stateUpdateProcessor.UpdateDeviceState(device, vaultInfo, ct);
-
-                await _activationProcessor.ActivateVault(device, ct);
+                vaultInfo = await _activationProcessor.ActivateVault(device, vaultInfo, ct);
 
                 await _masterkeyProcessor.AuthVault(device, ct);
 
+                var osAccUpdateTask = _accountsUpdateProcessor.UpdateAccounts(device, vaultInfo, true);
                 if (_workstationUnlocker.IsConnected && WorkstationHelper.IsActiveSessionLocked() && tryUnlock)
                 {
-                    await Task.WhenAll(
-                    _accountsUpdateProcessor.UpdateAccounts(device, vaultInfo, true),
-                    _userAuthorizationProcessor.AuthorizeUser(device, ct));
+                    await Task.WhenAll(_userAuthorizationProcessor.AuthorizeUser(device, ct), osAccUpdateTask);
 
                     _screenActivator?.StopPeriodicScreenActivation();
                     await _unlockProcessor.UnlockWorkstation(device, flowId, onUnlockAttempt);
                 }
                 else
-                    await _accountsUpdateProcessor.UpdateAccounts(device, vaultInfo, true);
+                    await osAccUpdateTask;
                 
                 await _accountsUpdateProcessor.UpdateAccounts(device, vaultInfo, false);
 
@@ -233,11 +232,6 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), false);
 
                 workflowFinishedSuccessfully = true;
-            }
-            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.HesDeviceNotFound)
-            {
-                deleteVaultBond = true;
-                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
             }
             catch (HideezException ex)
             {

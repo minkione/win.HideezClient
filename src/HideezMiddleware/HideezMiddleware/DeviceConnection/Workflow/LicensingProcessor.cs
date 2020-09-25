@@ -41,10 +41,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                         ct.ThrowIfCancellationRequested();
 
                         if (license.Data == null)
-                            throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.License.Error.EmptyLicenseData", device.SerialNo));
+                            throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.License.Error.EmptyLicenseData", device.SerialNo));
 
                         if (license.Id == null)
-                            throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.License.Error.EmptyLicenseId", device.SerialNo));
+                            throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.License.Error.EmptyLicenseId", device.SerialNo));
 
                         try
                         {
@@ -62,6 +62,14 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 }
 
                 await device.RefreshDeviceInfo();
+            }
+
+            if (device.LicenseInfo == 0)
+            {
+                if (_hesConnection.State == HesConnectionState.Connected)
+                    throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.License.Error.NoLicensesAvailable"]);
+                else
+                    throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.License.Error.CannotDownloadLicense"]);
             }
         }
     }

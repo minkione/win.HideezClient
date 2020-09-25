@@ -394,7 +394,7 @@
     <value>HES verification failed</value>
   </data>
   <data name="HesWorkstationNotApproved" xml:space="preserve">
-    <value>Workstation is not approved</value>
+    <value>Workstation is not approved. Contact your system administrator.</value>
   </data>
   <data name="LongOperationNotFound" xml:space="preserve">
     <value>Operation not found</value>
@@ -493,9 +493,12 @@
     <value>Vault wiped on another server.</value>
   </data>
   <data name="HesAlarm" xml:space="preserve">
-    <value>Failed to connect to the server. 618.</value>
+    <value>Failed to connect to the server</value>
   </data>
   <data name="HesRequestTimeout" xml:space="preserve">
     <value>Server did not reply in a specified amount of time. Please try again after 30 seconds.</value>
+  </data>
+  <data name="DeviceInBootloaderMode" xml:space="preserve">
+    <value>Your device is in bootloader mode. Please, contact your system administrator to update your firmware.</value>
   </data>
 </root>
