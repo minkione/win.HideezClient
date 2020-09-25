@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Dasync.Collections;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Utils;
@@ -74,6 +73,7 @@ namespace HideezMiddleware
             if (_pendingGetPinRequests.TryGetValue(e.DeviceId, out TaskCompletionSource<string> tcs))
                 tcs.TrySetResult(e.Pin);
         }
+
         void ClientUi_ActivationCodeReceived(object sender, ActivationCodeEventArgs e)
         {
             if (_pendingGetActivationCodeRequests.TryGetValue(e.DeviceId, out TaskCompletionSource<byte[]> tcs))
@@ -84,12 +84,6 @@ namespace HideezMiddleware
         {
             if (_pendingGetActivationCodeRequests.TryGetValue(e.DeviceId, out TaskCompletionSource<byte[]> tcs))
                 tcs.TrySetCanceled();
-        }
-
-        IClientUiProxy GetCurrentClientUi()
-        {
-            // TODO:
-            return null;
         }
 
         List<IClientUiProxy> GetClientUiList()
@@ -105,9 +99,15 @@ namespace HideezMiddleware
         {
             WriteDebugLine($"SendGetPin: {deviceId}");
 
-            var ui = GetCurrentClientUi() ?? throw new HideezException(HideezErrorCode.NoConnectedUI);
+            var uiList = GetClientUiList();
+            if (uiList.Count == 0)
+                throw new HideezException(HideezErrorCode.NoConnectedUI);
 
-            await ui.ShowPinUi(deviceId, withConfirm, askOldPin);
+            foreach (var ui in uiList)
+            {
+                if (ui != null)
+                    await ui.ShowPinUi(deviceId, withConfirm, askOldPin);
+            }
 
             var tcs = _pendingGetPinRequests.GetOrAdd(deviceId, (x) =>
             {
@@ -145,9 +145,15 @@ namespace HideezMiddleware
 
         public async Task<byte[]> GetActivationCode(string deviceId, int timeout, CancellationToken ct)
         {
-            var ui = GetCurrentClientUi() ?? throw new HideezException(HideezErrorCode.NoConnectedUI);
+            var uiList = GetClientUiList();
+            if (uiList.Count == 0)
+                throw new HideezException(HideezErrorCode.NoConnectedUI);
 
-            await ui.ShowActivationCodeUi(deviceId);
+            foreach (var ui in uiList)
+            {
+                if (ui != null)
+                    await ui.ShowActivationCodeUi(deviceId);
+            }
 
             var tcs = _pendingGetActivationCodeRequests.GetOrAdd(deviceId, (x) =>
             {
