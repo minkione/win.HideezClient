@@ -5,6 +5,7 @@ using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.Localize;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
@@ -21,8 +22,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             _workstationUnlocker = workstationUnlocker;
         }
 
-        public async Task UnlockWorkstation(IDevice device, string flowId, Action<WorkstationUnlockResult> onUnlockAttempt)
+        public async Task UnlockWorkstation(IDevice device, string flowId, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
         {
+	        ct.ThrowIfCancellationRequested();
+
             await TryUnlockWorkstation(device, flowId, onUnlockAttempt);
         }
 

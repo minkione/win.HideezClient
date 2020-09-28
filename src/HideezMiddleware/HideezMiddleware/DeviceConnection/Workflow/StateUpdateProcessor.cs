@@ -22,6 +22,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         public async Task<HwVaultInfoFromHesDto> UpdateDeviceState(IDevice device, HwVaultInfoFromHesDto vaultInfo, CancellationToken ct)
         {
+            ct.ThrowIfCancellationRequested();
+
             if (vaultInfo.NeedStateUpdate)
             {
                 vaultInfo = await _hesConnection.UpdateDeviceState(device, ct);

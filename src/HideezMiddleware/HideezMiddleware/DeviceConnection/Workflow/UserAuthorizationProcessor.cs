@@ -20,6 +20,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         public async Task AuthorizeUser(IDevice device, CancellationToken ct)
         {
+            ct.ThrowIfCancellationRequested();
+
             int timeout = SdkConfig.MainWorkflowTimeout;
             
             await ButtonWorkflow(device, timeout, ct);
@@ -39,6 +41,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Button.PressButtonMessage"], device.Mac);
             await _ui.ShowButtonConfirmUi(device.Id);
             var res = await device.WaitButtonConfirmation(timeout, ct);
+
+            ct.ThrowIfCancellationRequested();
+
             return res;
         }
 
@@ -63,6 +68,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 await _ui.SendNotification(TranslationSource.Instance.Format("ConnectionFlow.Pin.NewPinMessage", device.MinPinLength), device.Mac);
                 string pin = await _ui.GetPin(device.Id, timeout, ct, withConfirm: true);
 
+                ct.ThrowIfCancellationRequested();
+
                 if (string.IsNullOrWhiteSpace(pin))
                 {
                     // we received an empty PIN from the user. Trying again with the same timeout.
@@ -71,6 +78,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 }
 
                 var pinResult = await device.SetPin(pin); //this using default timeout for BLE commands
+
+                ct.ThrowIfCancellationRequested();
+
                 if (pinResult == HideezErrorCode.Ok)
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> PIN OK");
@@ -97,6 +107,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Pin.EnterPinMessage"], device.Mac);
                 string pin = await _ui.GetPin(device.Id, timeout, ct);
 
+                ct.ThrowIfCancellationRequested();
+
                 Debug.WriteLine($">>>>>>>>>>>>>>> PIN: {pin}");
                 if (string.IsNullOrWhiteSpace(pin))
                 {
@@ -108,6 +120,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 var attemptsLeft = device.PinAttemptsRemain - 1;
                 var pinResult = await device.EnterPin(pin); //this using default timeout for BLE commands
+
+                ct.ThrowIfCancellationRequested();
 
                 if (pinResult == HideezErrorCode.Ok)
                 {

@@ -90,6 +90,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         public async Task WaitVaultInitialization(string mac, IDevice device, CancellationToken ct)
         {
+            ct.ThrowIfCancellationRequested();
+
             await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Initialization.WaitingInitializationMessage"], mac);
 
             if (!await device.WaitInitialization(SdkConfig.DeviceInitializationTimeout, ct))

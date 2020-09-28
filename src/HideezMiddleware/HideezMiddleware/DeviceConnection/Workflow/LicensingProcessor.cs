@@ -62,6 +62,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 }
 
                 await device.RefreshDeviceInfo();
+
+                ct.ThrowIfCancellationRequested();
             }
 
             if (device.LicenseInfo == 0)

@@ -217,7 +217,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     await Task.WhenAll(_userAuthorizationProcessor.AuthorizeUser(device, ct), osAccUpdateTask);
 
                     _screenActivator?.StopPeriodicScreenActivation();
-                    await _unlockProcessor.UnlockWorkstation(device, flowId, onUnlockAttempt);
+                    await _unlockProcessor.UnlockWorkstation(device, flowId, onUnlockAttempt, ct);
                 }
                 else
                     await osAccUpdateTask;
