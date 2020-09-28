@@ -1,6 +1,7 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
 using System.Diagnostics;
 using System.Threading;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
-    public class UserAuthorizationProcessor : Logger
+    public class UserAuthorizationProcessor : Logger, IUserAuthorizationProcessor
     {
         readonly UiProxyManager _ui;
 

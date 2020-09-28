@@ -174,7 +174,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             {
                 await _ui.SendNotification(string.Empty, mac);
 
-                _permissionsCheckProcessor.CheckPermissions();
+                _permissionsCheckProcessor.CheckPermissions(_cts);
 
                 // Start periodic screen activator to raise the "curtain"
                 if (WorkstationHelper.IsActiveSessionLocked())

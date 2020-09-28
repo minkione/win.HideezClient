@@ -3,6 +3,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
+using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
 using System;
 using System.Threading;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
-    public class UnlockProcessor : Logger
+    public class UnlockProcessor : Logger, IUnlockProcessor
     {
         readonly UiProxyManager _ui;
         readonly IWorkstationUnlocker _workstationUnlocker;

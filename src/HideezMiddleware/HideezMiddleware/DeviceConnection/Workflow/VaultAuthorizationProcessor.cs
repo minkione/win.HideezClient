@@ -3,13 +3,14 @@ using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Tasks;
+using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
-    public class VaultAuthorizationProcessor : Logger
+    public class VaultAuthorizationProcessor : Logger, IVaultAuthorizationProcessor
     {
         readonly UiProxyManager _ui;
         readonly IHesAppConnection _hesConnection;

@@ -3,16 +3,17 @@ using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
-    public class ActivationProcessor : Logger
+    public class ActivationProcessor : Logger, IActivationProcessor
     {
-        UiProxyManager _ui;
-        IHesAppConnection _hesConnection;
+        readonly UiProxyManager _ui;
+        readonly IHesAppConnection _hesConnection;
 
         public ActivationProcessor(UiProxyManager ui, HesAppConnection hesConnection, ILog log)
             : base(nameof(ActivationProcessor), log)

@@ -2,13 +2,14 @@
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
-    public class AccountsUpdateProcessor : Logger
+    public class AccountsUpdateProcessor : Logger, IAccountsUpdateProcessor
     {
-        IHesAppConnection _hesConnection;
+        readonly IHesAppConnection _hesConnection;
 
         public AccountsUpdateProcessor(IHesAppConnection hesConnection, ILog log)
             : base(nameof(AccountsUpdateProcessor), log)

@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
 using System;
 using System.Threading;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
-    public class VaultConnectionProcessor : Logger
+    public class VaultConnectionProcessor : Logger, IVaultConnectionProcessor
     {
         readonly UiProxyManager _ui;
         readonly BondManager _bondManager;

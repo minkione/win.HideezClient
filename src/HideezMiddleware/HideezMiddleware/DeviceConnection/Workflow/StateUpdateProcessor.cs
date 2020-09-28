@@ -2,13 +2,14 @@
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
-    public class StateUpdateProcessor : Logger
+    public class StateUpdateProcessor : Logger, IStateUpdateProcessor
     {
         readonly UiProxyManager _ui;
         readonly IHesAppConnection _hesConnection;

@@ -114,6 +114,15 @@
     <Compile Include="DeviceConnection\Workflow\AccountsUpdateProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\ActivationProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\ConnectionFlowProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IAccountsUpdateProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IActivationProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\ILicensingProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IPermissionsCheckProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IStateUpdateProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IUnlockProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IUserAuthorizationProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IVaultAuthorizationProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IVaultConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\LicensingProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\VaultAuthorizationProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\PermissionsCheckProcessor.cs" />
