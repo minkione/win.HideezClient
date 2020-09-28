@@ -27,6 +27,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             if (device.AccessLevel.IsMasterKeyRequired)
             {
+                if (_hesConnection.State != HesConnectionState.Connected)
+                    throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.MasterKey.Error.AuthFailedNoNetwork"]);
 
                 await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.MasterKey.AwaitingHESAuth"], device.Mac);
 

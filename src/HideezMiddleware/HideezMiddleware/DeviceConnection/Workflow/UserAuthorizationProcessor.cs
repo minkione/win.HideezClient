@@ -21,8 +21,14 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         public async Task AuthorizeUser(IDevice device, CancellationToken ct)
         {
             int timeout = SdkConfig.MainWorkflowTimeout;
-            if (!await ButtonWorkflow(device, timeout, ct) || !await PinWorkflow(device, timeout, ct) || !await ButtonWorkflow(device, timeout, ct))
-                throw new HideezException(HideezErrorCode.UnknownError); // todo: error code
+            
+            await ButtonWorkflow(device, timeout, ct);
+            await PinWorkflow(device, timeout, ct);
+            await ButtonWorkflow(device, timeout, ct);
+
+            // A precaution, but we shouldn't reach this line
+            if (device.AccessLevel.IsLocked || !device.AccessLevel.IsButtonRequired || device.AccessLevel.IsPinRequired)
+                throw new VaultFailedToAuthorizeException(TranslationSource.Instance["ConnectionFlow.UserAuthorization.Error.AuthFailed"]);
         }
 
         async Task<bool> ButtonWorkflow(IDevice device, int timeout, CancellationToken ct)
@@ -36,25 +42,22 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             return res;
         }
 
-        Task<bool> PinWorkflow(IDevice device, int timeout, CancellationToken ct)
+        async Task PinWorkflow(IDevice device, int timeout, CancellationToken ct)
         {
             if (device.AccessLevel.IsPinRequired && device.AccessLevel.IsNewPinRequired)
             {
-                return SetPinWorkflow(device, timeout, ct);
+                await SetPinWorkflow(device, timeout, ct);
             }
             else if (device.AccessLevel.IsPinRequired)
             {
-                return EnterPinWorkflow(device, timeout, ct);
+                await EnterPinWorkflow(device, timeout, ct);
             }
-
-            return Task.FromResult(true);
         }
 
-        async Task<bool> SetPinWorkflow(IDevice device, int timeout, CancellationToken ct)
+        async Task SetPinWorkflow(IDevice device, int timeout, CancellationToken ct)
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
-            bool res = false;
             while (device.AccessLevel.IsNewPinRequired)
             {
                 await _ui.SendNotification(TranslationSource.Instance.Format("ConnectionFlow.Pin.NewPinMessage", device.MinPinLength), device.Mac);
@@ -71,7 +74,6 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 if (pinResult == HideezErrorCode.Ok)
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> PIN OK");
-                    res = true;
                     break;
                 }
                 else if (pinResult == HideezErrorCode.ERR_PIN_TOO_SHORT)
@@ -84,14 +86,12 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow ---------------------------------------");
-            return res;
         }
 
-        async Task<bool> EnterPinWorkflow(IDevice device, int timeout, CancellationToken ct)
+        async Task EnterPinWorkflow(IDevice device, int timeout, CancellationToken ct)
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> EnterPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
-            bool res = false;
             while (!device.AccessLevel.IsLocked)
             {
                 await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Pin.EnterPinMessage"], device.Mac);
@@ -103,7 +103,6 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     // we received an empty PIN from the user. Trying again with the same timeout.
                     Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY PIN");
                     WriteLine("Received empty PIN");
-
                     continue;
                 }
 
@@ -113,19 +112,18 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 if (pinResult == HideezErrorCode.Ok)
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> PIN OK");
-                    res = true;
                     break;
                 }
                 else if (pinResult == HideezErrorCode.ERR_DEVICE_LOCKED_BY_PIN)
                 {
-                    throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                    throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Pin.Error.LockedByInvalidAttempts"]);
                 }
                 else // ERR_PIN_WRONG and ERR_PIN_TOO_SHORT should just be displayed as wrong pin for security reasons
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({attemptsLeft} attempts left)");
                     if (device.AccessLevel.IsLocked)
                     {
-                        await _ui.SendError(TranslationSource.Instance["ConnectionFlow.Error.VaultIsLocked"], device.Mac);
+                        throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Pin.Error.LockedByInvalidAttempts"]);
                     }
                     else
                     {
@@ -138,7 +136,6 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> PinWorkflow ------------------------------");
-            return res;
         }
     }
 }

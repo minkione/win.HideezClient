@@ -88,7 +88,7 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Vault got locked due to too many incorrect activation attempts. Please, contact your system administrator.
+        ///   Looks up a localized string similar to Vault got locked due to too many incorrect activation attempts. Please, contact your system administrator..
         /// </summary>
         internal static string ConnectionFlow_ActivationCode_Error_LockedByInvalidAttempts {
             get {
@@ -205,11 +205,20 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Vault is locked.
+        ///   Looks up a localized string similar to Vault is locked. Please, contact your system administrator..
         /// </summary>
         internal static string ConnectionFlow_Error_VaultIsLocked {
             get {
                 return ResourceManager.GetString("ConnectionFlow.Error.VaultIsLocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vault is locked. Please, contact your system administrator. If you already got an activation code, please check your network connection..
+        /// </summary>
+        internal static string ConnectionFlow_Error_VaultIsLockedNoNetwork {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Error.VaultIsLockedNoNetwork", resourceCulture);
             }
         }
         
@@ -295,7 +304,7 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Device authorization failed unexpectedly. Please, try to connect your device again. If the error persists, please contact your system administrator..
+        ///   Looks up a localized string similar to Vault authorization failed unexpectedly. Please, try to connect your vault again. If the error persists, please contact your system administrator..
         /// </summary>
         internal static string ConnectionFlow_MasterKey_Error_AuthFailed {
             get {
@@ -336,6 +345,15 @@ namespace HideezMiddleware.Resources {
         internal static string ConnectionFlow_Pin_Error_InvalidPin_OneAttemptLeft {
             get {
                 return ResourceManager.GetString("ConnectionFlow.Pin.Error.InvalidPin.OneAttemptLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vault got locked due to too many incorrect pin attempts. Contact your system administrator..
+        /// </summary>
+        internal static string ConnectionFlow_Pin_Error_LockedByInvalidAttempts {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Pin.Error.LockedByInvalidAttempts", resourceCulture);
             }
         }
         
@@ -403,7 +421,7 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Vault &apos;{0}&apos; doesn&apos;t have any stored Primary accounts.
+        ///   Looks up a localized string similar to Vault doesn&apos;t have a stored Primary account..
         /// </summary>
         internal static string ConnectionFlow_Unlock_Error_NoCredentials {
             get {
@@ -412,7 +430,7 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Reading credentials from the device....
+        ///   Looks up a localized string similar to Reading credentials from the vault....
         /// </summary>
         internal static string ConnectionFlow_Unlock_ReadingCredentials {
             get {
@@ -430,11 +448,20 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Uploading new credentials to the device....
+        ///   Looks up a localized string similar to Uploading new credentials to the vault....
         /// </summary>
         internal static string ConnectionFlow_Update_UploadingCredentials {
             get {
                 return ResourceManager.GetString("ConnectionFlow.Update.UploadingCredentials", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User authorization failed unexpectedly. Please, try to connect your vault again. If the error persists, please contact your system administrator..
+        /// </summary>
+        internal static string ConnectionFlow_UserAuthorization_Error_AuthFailed {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.UserAuthorization.Error.AuthFailed", resourceCulture);
             }
         }
         

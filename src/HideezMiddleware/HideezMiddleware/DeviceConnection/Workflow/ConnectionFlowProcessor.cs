@@ -200,7 +200,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 // ....
                 // todo: set vault state to initializing
-                device.SetUserProperty("MainflowConnectionState", Hideez.SDK.Communication.HES.DTO.ConnectionState.Initializing);
+                device.SetUserProperty("MainflowConnectionState", HwVaultConnectionState.Initializing);
                 // ....
 
                 var vaultInfo = await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), true);
@@ -226,7 +226,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 // ....
                 // todo: user prop name
-                device.SetUserProperty("MainflowConnectionState", Hideez.SDK.Communication.HES.DTO.ConnectionState.Online);
+                device.SetUserProperty("MainflowConnectionState", HwVaultConnectionState.Online);
                 // ....
 
                 await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), false);
@@ -255,6 +255,17 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                         errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
                         break;
                 }
+            }
+            catch (VaultFailedToAuthorizeException ex)
+            {
+                // User should never receive this error unless there is a bug in algorithm 
+                errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
+            }
+            catch (WorkstationUnlockFailedException ex)
+            {
+                // Silent handling of failed workstation unlock
+                // The actual message will be displayed by credential provider
+                WriteLine(ex);
             }
             catch (OperationCanceledException ex)
             {

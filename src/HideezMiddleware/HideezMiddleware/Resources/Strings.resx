@@ -127,7 +127,7 @@
     <value>Invalid activation code. {0} attempts left</value>
   </data>
   <data name="ConnectionFlow.ActivationCode.Error.LockedByInvalidAttempts" xml:space="preserve">
-    <value>Vault got locked due to too many incorrect activation attempts. Please, contact your system administrator</value>
+    <value>Vault got locked due to too many incorrect activation attempts. Please, contact your system administrator.</value>
   </data>
   <data name="ConnectionFlow.ActivationCode.Error.VaultIsLocked" xml:space="preserve">
     <value>Vault is locked. Please, contact your system administrator.</value>
@@ -166,7 +166,10 @@
     <value>Your device is in bootloader mode. Please, contact your system administrator to update your firmware.</value>
   </data>
   <data name="ConnectionFlow.Error.VaultIsLocked" xml:space="preserve">
-    <value>Vault is locked</value>
+    <value>Vault is locked. Please, contact your system administrator.</value>
+  </data>
+  <data name="ConnectionFlow.Error.VaultIsLockedNoNetwork" xml:space="preserve">
+    <value>Vault is locked. Please, contact your system administrator. If you already got an activation code, please check your network connection.</value>
   </data>
   <data name="ConnectionFlow.Initialization.DeviceInitializationError" xml:space="preserve">
     <value>Failed to initialize vault connection '{0}' ({1}). Please try again.</value>
@@ -196,7 +199,7 @@
     <value>Waiting for HES authorization...</value>
   </data>
   <data name="ConnectionFlow.MasterKey.Error.AuthFailed" xml:space="preserve">
-    <value>Device authorization failed unexpectedly. Please, try to connect your device again. If the error persists, please contact your system administrator.</value>
+    <value>Vault authorization failed unexpectedly. Please, try to connect your vault again. If the error persists, please contact your system administrator.</value>
   </data>
   <data name="ConnectionFlow.MasterKey.Error.AuthFailedNoNetwork" xml:space="preserve">
     <value>Server connection is required for device authorization. Please,check your network connection and try again.</value>
@@ -209,6 +212,9 @@
   </data>
   <data name="ConnectionFlow.Pin.Error.InvalidPin.OneAttemptLeft" xml:space="preserve">
     <value>Invalid PIN! 1 attempt left.</value>
+  </data>
+  <data name="ConnectionFlow.Pin.Error.LockedByInvalidAttempts" xml:space="preserve">
+    <value>Vault got locked due to too many incorrect pin attempts. Contact your system administrator.</value>
   </data>
   <data name="ConnectionFlow.Pin.Error.PinToShort" xml:space="preserve">
     <value>PIN too short</value>
@@ -232,16 +238,19 @@
     <value>Vault is not assigned to any user. Please, contact your system administrator.</value>
   </data>
   <data name="ConnectionFlow.Unlock.Error.NoCredentials" xml:space="preserve">
-    <value>Vault '{0}' doesn't have any stored Primary accounts</value>
+    <value>Vault doesn't have a stored Primary account.</value>
   </data>
   <data name="ConnectionFlow.Unlock.ReadingCredentials" xml:space="preserve">
-    <value>Reading credentials from the device...</value>
+    <value>Reading credentials from the vault...</value>
   </data>
   <data name="ConnectionFlow.Unlock.Unlocking" xml:space="preserve">
     <value>Unlocking the PC...</value>
   </data>
   <data name="ConnectionFlow.Update.UploadingCredentials" xml:space="preserve">
-    <value>Uploading new credentials to the device...</value>
+    <value>Uploading new credentials to the vault...</value>
+  </data>
+  <data name="ConnectionFlow.UserAuthorization.Error.AuthFailed" xml:space="preserve">
+    <value>User authorization failed unexpectedly. Please, try to connect your vault again. If the error persists, please contact your system administrator.</value>
   </data>
   <data name="ServiceComponentStatus.Bluetooth.NotAvailable" xml:space="preserve">
     <value>Bluetooth not available (state: {0})</value>

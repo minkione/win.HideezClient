@@ -23,9 +23,6 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         public async Task UnlockWorkstation(IDevice device, string flowId, Action<WorkstationUnlockResult> onUnlockAttempt)
         {
-            if (device.AccessLevel.IsLocked || !device.AccessLevel.IsButtonRequired || device.AccessLevel.IsPinRequired)
-                throw new HideezException(HideezErrorCode.UnknownError); // todo: errorcode
-
             await TryUnlockWorkstation(device, flowId, onUnlockAttempt);
         }
 
@@ -47,6 +44,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             result.FlowId = flowId;
 
             onUnlockAttempt?.Invoke(result);
+
+            if (!result.IsSuccessful)
+                throw new WorkstationUnlockFailedException(); // Abort connection flow
         }
 
         async Task<Credentials> GetCredentials(IDevice device)
@@ -81,7 +81,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 }
 
                 if (credentials.IsEmpty)
-                    throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Unlock.Error.NoCredentials", device.SerialNo));
+                    throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Unlock.Error.NoCredentials"]);
             }
             else
             {
@@ -95,7 +95,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 //if (credentials.IsEmpty)
                 //    throw new Exception($"Cannot read login or password from the vault '{device.SerialNo}'");
                 if (credentials.IsEmpty)
-                    throw new Exception(TranslationSource.Instance.Format("ConnectionFlow.Unlock.Error.NoCredentials", device.SerialNo));
+                    throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Unlock.Error.NoCredentials"]);
             }
 
             return credentials;
