@@ -19,10 +19,13 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         public async Task UpdateAccounts(IDevice device, HwVaultInfoFromHesDto vaultInfo, bool onlyOsAccounts)
         {
-            if ((vaultInfo.NeedUpdateOSAccounts && onlyOsAccounts) || (vaultInfo.NeedUpdateNonOSAccounts && !onlyOsAccounts))
+            if (_hesConnection.State == HesConnectionState.Connected)
             {
-                await _hesConnection.UpdateAccounts(device.SerialNo, onlyOsAccounts);
-                await device.RefreshDeviceInfo();
+                if ((vaultInfo.NeedUpdateOSAccounts && onlyOsAccounts) || (vaultInfo.NeedUpdateNonOSAccounts && !onlyOsAccounts))
+                {
+                    await _hesConnection.UpdateAccounts(device.SerialNo, onlyOsAccounts);
+                    await device.RefreshDeviceInfo();
+                }
             }
         }
     }

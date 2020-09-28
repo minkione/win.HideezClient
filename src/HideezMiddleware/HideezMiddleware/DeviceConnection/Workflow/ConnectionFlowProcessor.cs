@@ -197,7 +197,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Initializing);
 
-                var vaultInfo = await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), true);
+                HwVaultInfoFromHesDto vaultInfo = new HwVaultInfoFromHesDto(); // Initializes with default values for when HES is not connected
+                if (_hesConnection.State == HesConnectionState.Connected)
+                    vaultInfo = await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), true);
 
                 // Todo: 
                 // Save owner and email from vault info into local cache. 
@@ -250,6 +252,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     case HideezErrorCode.GetActivationCodeTimeout:
                         // Silent handling
                         WriteLine(ex);
+                        break;
+                    case HideezErrorCode.HesNotConnected:
+                        // We need to display an error message which is different from one that is usually shown for that error code.
+                        errorMessage = TranslationSource.Instance["ConnectionFlow.Error.UnexpectedlyLostNetworkConnection"];
                         break;
                     default:
                         errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);

@@ -25,7 +25,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             ct.ThrowIfCancellationRequested();
 
-            if (vaultInfo.NeedStateUpdate)
+            if (vaultInfo.NeedStateUpdate && _hesConnection.State == HesConnectionState.Connected)
             {
                 vaultInfo = await _hesConnection.UpdateDeviceState(device, ct);
                 await device.RefreshDeviceInfo();
