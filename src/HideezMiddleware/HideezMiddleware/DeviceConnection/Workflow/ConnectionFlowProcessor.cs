@@ -200,7 +200,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 // ....
                 // todo: set vault state to initializing
-                device.SetUserProperty("MainflowConnectionState", Hideez.SDK.Communication.HES.DTO.ConnectionState.Initializing);
+                device.SetUserProperty("MainflowConnectionState", HwVaultConnectionState.Initializing);
                 // ....
 
                 var vaultInfo = await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), true);
@@ -217,7 +217,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     await Task.WhenAll(_userAuthorizationProcessor.AuthorizeUser(device, ct), osAccUpdateTask);
 
                     _screenActivator?.StopPeriodicScreenActivation();
-                    await _unlockProcessor.UnlockWorkstation(device, flowId, onUnlockAttempt);
+                    await _unlockProcessor.UnlockWorkstation(device, flowId, onUnlockAttempt, ct);
                 }
                 else
                     await osAccUpdateTask;
@@ -226,7 +226,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 // ....
                 // todo: user prop name
-                device.SetUserProperty("MainflowConnectionState", Hideez.SDK.Communication.HES.DTO.ConnectionState.Online);
+                device.SetUserProperty("MainflowConnectionState", HwVaultConnectionState.Online);
                 // ....
 
                 await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), false);

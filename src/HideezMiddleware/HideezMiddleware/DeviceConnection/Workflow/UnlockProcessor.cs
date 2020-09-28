@@ -5,6 +5,7 @@ using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.Localize;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
@@ -21,15 +22,17 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             _workstationUnlocker = workstationUnlocker;
         }
 
-        public async Task UnlockWorkstation(IDevice device, string flowId, Action<WorkstationUnlockResult> onUnlockAttempt)
+        public async Task UnlockWorkstation(IDevice device, string flowId, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
         {
+            ct.ThrowIfCancellationRequested();
+
             if (device.AccessLevel.IsLocked || !device.AccessLevel.IsButtonRequired || device.AccessLevel.IsPinRequired)
                 throw new HideezException(HideezErrorCode.UnknownError); // todo: errorcode
 
-            await TryUnlockWorkstation(device, flowId, onUnlockAttempt);
+            await TryUnlockWorkstation(device, flowId, onUnlockAttempt, ct);
         }
 
-        async Task TryUnlockWorkstation(IDevice device, string flowId, Action<WorkstationUnlockResult> onUnlockAttempt)
+        async Task TryUnlockWorkstation(IDevice device, string flowId, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
         {
             var result = new WorkstationUnlockResult();
 
