@@ -427,7 +427,7 @@
     <value>Channel 0 cannot be verified</value>
   </data>
   <data name="DeviceHasBeenWiped" xml:space="preserve">
-    <value>The vault has been wiped. Try to connect it again.</value>
+    <value>The vault has been successfully wiped. It can now be assigned to another user.</value>
   </data>
   <data name="HesDeviceNotAssignedToAnyUser" xml:space="preserve">
     <value>Vault is not assigned to any user. Please, contact your system administrator.</value>

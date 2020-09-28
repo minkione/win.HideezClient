@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
@@ -18,11 +19,6 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 {
     public class ConnectionFlowProcessor : Logger
     {
-        // Todo: Move constant property names to another class
-        public const string FLOW_FINISHED_PROP = "MainFlowFinished";
-        public const string OWNER_NAME_PROP = "OwnerName";
-        public const string OWNER_EMAIL_PROP = "OwnerEmail";
-
         readonly IBleConnectionManager _connectionManager;
         readonly BleDeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
@@ -50,6 +46,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         CancellationTokenSource _cts;
 
         public event EventHandler<string> Started;
+        public event EventHandler<IDevice> DeviceFinilizingMainFlow;
         public event EventHandler<IDevice> DeviceFinishedMainFlow;
         public event EventHandler<string> Finished;
 
@@ -198,12 +195,13 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 if (device.IsBoot)
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultInBootloaderMode"]);
 
-                // ....
-                // todo: set vault state to initializing
-                device.SetUserProperty("MainflowConnectionState", HwVaultConnectionState.Initializing);
-                // ....
+                device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Initializing);
 
                 var vaultInfo = await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), true);
+
+                // Todo: 
+                // Save owner and email from vault info into local cache. 
+                // If vault info is not available, load owner and email from local cache
 
                 await _licensingProcessor.CheckLicense(device, vaultInfo, ct);
                 vaultInfo = await _stateUpdateProcessor.UpdateDeviceState(device, vaultInfo, ct);
@@ -221,13 +219,14 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 }
                 else
                     await osAccUpdateTask;
+
+                device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Finalizing);
+                WriteLine($"Finalizing main workflow: ({device.Id})");
+                DeviceFinilizingMainFlow?.Invoke(this, device);
                 
                 await _accountsUpdateProcessor.UpdateAccounts(device, vaultInfo, false);
 
-                // ....
-                // todo: user prop name
-                device.SetUserProperty("MainflowConnectionState", HwVaultConnectionState.Online);
-                // ....
+                device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Online);
 
                 await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), false);
 
@@ -241,6 +240,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     case HideezErrorCode.DeviceNotAssignedToUser:
                     case HideezErrorCode.HesDeviceNotFound:
                     case HideezErrorCode.HesDeviceCompromised:
+                    case HideezErrorCode.DeviceHasBeenWiped:
                         // There errors require bond removal
                         deleteVaultBond = true;
                         errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);

@@ -1,4 +1,6 @@
-﻿using Hideez.SDK.Communication.Interfaces;
+﻿using Hideez.SDK.Communication.Device;
+using Hideez.SDK.Communication.HES.DTO;
+using Hideez.SDK.Communication.Interfaces;
 using HideezMiddleware;
 using HideezMiddleware.DeviceConnection.Workflow;
 using Newtonsoft.Json;
@@ -34,11 +36,11 @@ namespace HideezMiddleware.IPC.DTO
             PinAttemptsRemain = device.PinAttemptsRemain;
             IsCanUnlock = device.IsCanUnlock;
             UnlockAttemptsRemain = device.UnlockAttemptsRemain;
-            FinishedMainFlow = device.GetUserProperty<bool>(ConnectionFlowProcessor.FLOW_FINISHED_PROP);
+            HwVaultConnectionState = device.GetUserProperty<HwVaultConnectionState>(CustomProperties.HW_CONNECTION_STATE_PROP);
             Proximity = device.Proximity;
             CanLockPyProximity = device.GetUserProperty<bool>(WorkstationLockProcessor.PROX_LOCK_ENABLED_PROP);
-            OwnerName = device.GetUserProperty<string>(ConnectionFlowProcessor.OWNER_NAME_PROP) ?? string.Empty;
-            OwnerEmail = device.GetUserProperty<string>(ConnectionFlowProcessor.OWNER_EMAIL_PROP) ?? string.Empty;
+            OwnerName = device.GetUserProperty<string>(CustomProperties.OWNER_NAME_PROP) ?? string.Empty;
+            OwnerEmail = device.GetUserProperty<string>(CustomProperties.OWNER_EMAIL_PROP) ?? string.Empty;
         }
 
         [DataMember]
@@ -101,7 +103,7 @@ namespace HideezMiddleware.IPC.DTO
         public int UnlockAttemptsRemain { get; private set; }
 
         [DataMember]
-        public bool FinishedMainFlow { get; private set; }
+        public HwVaultConnectionState HwVaultConnectionState { get; private set; }
 
         [DataMember]
         public double Proximity { get; private set; }

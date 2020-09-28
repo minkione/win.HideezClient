@@ -24,7 +24,7 @@ namespace HideezMiddleware.ReconnectManager
         {
             try
             {
-                _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
+                _connectionFlowProcessor.DeviceFinilizingMainFlow += ConnectionFlowProcessor_DeviceFinilizingMainFlow;
                 await _connectionFlowProcessor.Connect(_device.Mac);
                 return _isReconnectSuccessful;
             }
@@ -34,12 +34,12 @@ namespace HideezMiddleware.ReconnectManager
             }
             finally
             {
-                _connectionFlowProcessor.DeviceFinishedMainFlow -= ConnectionFlowProcessor_DeviceFinishedMainFlow;
+                _connectionFlowProcessor.DeviceFinishedMainFlow -= ConnectionFlowProcessor_DeviceFinilizingMainFlow;
             }
 
         }
 
-        void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice e)
+        void ConnectionFlowProcessor_DeviceFinilizingMainFlow(object sender, IDevice e)
         {
             if (e.Id == _device.Id)
                 _isReconnectSuccessful = true;

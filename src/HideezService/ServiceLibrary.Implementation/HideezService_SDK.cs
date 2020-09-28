@@ -39,6 +39,7 @@ using ServiceLibrary.Implementation.RemoteConnectionManagement;
 using ServiceLibrary.Implementation.ScreenActivation;
 using ServiceLibrary.Implementation.WorkstationLock;
 using HideezMiddleware.DeviceConnection.Workflow;
+using Hideez.SDK.Communication.HES.DTO;
 
 namespace ServiceLibrary.Implementation
 {
@@ -769,7 +770,7 @@ namespace ServiceLibrary.Implementation
                 if (sender is IDevice device)
                 {
                     if (!device.IsConnected)
-                        device.SetUserProperty(ConnectionFlowProcessor.FLOW_FINISHED_PROP, false);
+                        device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Offline);
 
                     await _messenger.Publish(new DeviceConnectionStateChangedMessage(new DeviceDTO(device)));
                 }

@@ -40,7 +40,7 @@ namespace HideezMiddleware
             _workstationLocker = workstationLocker;
             _deviceReconnectManager = deviceReconnectManager;
 
-            _flowProcessor.DeviceFinishedMainFlow += FlowProcessor_DeviceFinishedMainFlow;
+            _flowProcessor.DeviceFinilizingMainFlow += FlowProcessor_DeviceFinalizingMainFlow;
 
             _proximityMonitorManager.DeviceBelowLockForToLong += ProximityMonitorManager_DeviceBelowLockForToLong;
             _proximityMonitorManager.DeviceProximityTimeout += ProximityMonitorManager_DeviceProximityTimeout;
@@ -49,7 +49,7 @@ namespace HideezMiddleware
             _deviceReconnectManager.DeviceDisconnected += DeviceReconnectManager_DeviceDisconnected;
         }
 
-        void FlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
+        void FlowProcessor_DeviceFinalizingMainFlow(object sender, IDevice device)
         {
             if (device == null)
                 return;
@@ -88,7 +88,7 @@ namespace HideezMiddleware
 
             if (disposing)
             {
-                _flowProcessor.DeviceFinishedMainFlow -= FlowProcessor_DeviceFinishedMainFlow;
+                _flowProcessor.DeviceFinishedMainFlow -= FlowProcessor_DeviceFinalizingMainFlow;
 
                 _proximityMonitorManager.DeviceConnectionLost -= ProximityMonitorManager_DeviceConnectionLost;
                 _proximityMonitorManager.DeviceBelowLockForToLong -= ProximityMonitorManager_DeviceBelowLockForToLong;

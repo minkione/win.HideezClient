@@ -35,7 +35,7 @@ namespace HideezMiddleware.ReconnectManager
             _deviceManager = deviceManager;
             _connectionFlowProcessor = connectionFlowProcessor;
 
-            _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
+            _connectionFlowProcessor.DeviceFinilizingMainFlow += ConnectionFlowProcessor_DeviceFinalizingMainFlow;
 
             _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
 
@@ -46,7 +46,7 @@ namespace HideezMiddleware.ReconnectManager
             _proximityMonitorManager.DeviceProximityNormalized += ProximityMonitorManager_DeviceProximityNormalized;
         }
 
-        private void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice e)
+        private void ConnectionFlowProcessor_DeviceFinalizingMainFlow(object sender, IDevice e)
         {
             EnableDeviceReconnect(e);
         }
@@ -140,7 +140,7 @@ namespace HideezMiddleware.ReconnectManager
             {
                 if (dispose)
                 {
-                    _connectionFlowProcessor.DeviceFinishedMainFlow -= ConnectionFlowProcessor_DeviceFinishedMainFlow;
+                    _connectionFlowProcessor.DeviceFinishedMainFlow -= ConnectionFlowProcessor_DeviceFinalizingMainFlow;
 
                     _deviceManager.DeviceRemoved -= DeviceManager_DeviceRemoved;
 
