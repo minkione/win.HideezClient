@@ -24,7 +24,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         public async Task CheckLicense(IDevice device, HwVaultInfoFromHesDto vaultInfo, CancellationToken ct)
         {
-            if (vaultInfo.NeedUpdateLicense)
+            if (vaultInfo.NeedUpdateLicense && _hesConnection.State == HesConnectionState.Connected)
             {
                 await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.License.UpdatingLicenseMessage"], device.Mac);
                 var licenses = await _hesConnection.GetNewDeviceLicenses(device.SerialNo, ct);

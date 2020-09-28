@@ -196,6 +196,15 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unexpectedly lost connection to the server. Please, check your network connection and try to connect your vault again..
+        /// </summary>
+        internal static string ConnectionFlow_Error_UnexpectedlyLostNetworkConnection {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Error.UnexpectedlyLostNetworkConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your device is in bootloader mode. Please, contact your system administrator to update your firmware..
         /// </summary>
         internal static string ConnectionFlow_Error_VaultInBootloaderMode {

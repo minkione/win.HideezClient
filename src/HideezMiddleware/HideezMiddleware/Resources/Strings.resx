@@ -162,6 +162,9 @@
   <data name="ConnectionFlow.Connection.Stage3.PressButton" xml:space="preserve">
     <value>Re-bonding. Press the vault button to confirm.</value>
   </data>
+  <data name="ConnectionFlow.Error.UnexpectedlyLostNetworkConnection" xml:space="preserve">
+    <value>Unexpectedly lost connection to the server. Please, check your network connection and try to connect your vault again.</value>
+  </data>
   <data name="ConnectionFlow.Error.VaultInBootloaderMode" xml:space="preserve">
     <value>Your device is in bootloader mode. Please, contact your system administrator to update your firmware.</value>
   </data>
