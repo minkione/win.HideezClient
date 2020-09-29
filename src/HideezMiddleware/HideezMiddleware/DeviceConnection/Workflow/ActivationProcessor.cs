@@ -92,7 +92,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 }
             }
 
-            if (device.IsLocked && !device.IsCanUnlock)
+            if (device.IsLocked)
             {
                 if (_hesConnection.State == HesConnectionState.Connected)
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.ActivationCode.Error.VaultIsLocked"]);

@@ -22,13 +22,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         /// </summary>
         /// <exception cref="HideezException">Thrown with code <see cref="HideezErrorCode.HesAlarm"/> when alarm is turned on</exception>
         /// <exception cref="HideezException">Thrown with code <see cref="HideezErrorCode.HesWorkstationNotApproved"/> when workstation is not approved on HES</exception>
-        public void CheckPermissions(CancellationTokenSource cts)
+        public void CheckPermissions()
         {
             if (_serviceSettingsManager.Settings.AlarmTurnOn)
-            {
-                cts?.Cancel();
                 throw new HideezException(HideezErrorCode.HesAlarm);
-            }    
 
             if (!_hesAccessManager.HasAccessKey())
                 throw new HideezException(HideezErrorCode.HesWorkstationNotApproved);
