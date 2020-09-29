@@ -43,6 +43,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         readonly VaultAuthorizationProcessor _masterkeyProcessor;
         readonly UserAuthorizationProcessor _userAuthorizationProcessor;
         readonly UnlockProcessor _unlockProcessor;
+        readonly CacheVaultInfoProcessor _cacheVaultInfoProcessor;
         // ...
 
         int _isConnecting = 0;
@@ -80,6 +81,13 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             _hesAccessManager.AccessRetractedEvent += HesAccessManager_AccessRetractedEvent;
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
+            _serviceSettingsManager.SettingsChanged += ServiceSettingsManager_SettingsChanged; 
+        }
+
+        void ServiceSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ServiceSettings> e)
+        {
+            if (e.OldSettings.AlarmTurnOn)
+                Cancel("Alarm enabled on HES");
         }
 
         void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
@@ -180,7 +188,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             {
                 await _ui.SendNotification(string.Empty, mac);
 
-                _permissionsCheckProcessor.CheckPermissions(_cts);
+                _permissionsCheckProcessor.CheckPermissions();
 
                 // Start periodic screen activator to raise the "curtain"
                 if (WorkstationHelper.IsActiveSessionLocked())
@@ -207,9 +215,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 if (_hesConnection.State == HesConnectionState.Connected)
                     vaultInfo = await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), true);
 
-                // Todo: 
-                // Save owner and email from vault info into local cache. 
-                // If vault info is not available, load owner and email from local cache
+                _cacheVaultInfoProcessor.CacheAndUpdateVaultOwner(ref device, vaultInfo, ct);
 
                 await _licensingProcessor.CheckLicense(device, vaultInfo, ct);
                 vaultInfo = await _stateUpdateProcessor.UpdateDeviceState(device, vaultInfo, ct);
