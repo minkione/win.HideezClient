@@ -12,6 +12,9 @@ using HideezMiddleware.Settings;
 using HideezMiddleware.Tasks;
 using Microsoft.Win32;
 using System;
+using System.Linq;
+using System.ServiceModel.Configuration;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -106,8 +109,11 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         public void Cancel(string reason)
         {
-            WriteLine($"Canceling; {reason}");
-            _cts?.Cancel();
+            if (_cts != null)
+            {
+                WriteLine($"Canceling; {reason}");
+                _cts?.Cancel();
+            }
         }
 
         public async Task Connect(string mac)
@@ -313,6 +319,18 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
+                    if (device != null && !string.IsNullOrWhiteSpace(device.SerialNo))
+                    {
+                        var sb = new StringBuilder();
+                        sb.Append(errorMessage);
+                        sb.Append(Environment.NewLine);
+                        sb.Append(Environment.NewLine);
+                        sb.Append(TranslationSource.Instance["Vault"]);
+                        sb.Append(" " + device.SerialNo);
+
+                        errorMessage = sb.ToString();
+                    }
+
                     WriteLine(errorMessage);
                     await _ui.SendError(errorMessage, mac);
                 }

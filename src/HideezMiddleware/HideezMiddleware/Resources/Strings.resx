@@ -273,4 +273,7 @@
   <data name="ServiceComponentStatus.RFID.ServiceNotConnected" xml:space="preserve">
     <value>RFID service not connected</value>
   </data>
+  <data name="Vault" xml:space="preserve">
+    <value>Vault</value>
+  </data>
 </root>

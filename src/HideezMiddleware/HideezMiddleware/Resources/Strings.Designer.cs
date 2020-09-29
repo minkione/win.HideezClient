@@ -527,5 +527,14 @@ namespace HideezMiddleware.Resources {
                 return ResourceManager.GetString("ServiceComponentStatus.RFID.ServiceNotConnected", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vault.
+        /// </summary>
+        internal static string Vault {
+            get {
+                return ResourceManager.GetString("Vault", resourceCulture);
+            }
+        }
     }
 }
