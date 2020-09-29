@@ -18,7 +18,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow.Interfaces
         /// - Server sent license with incorrect data
         /// - Vault has no licenses at the end of operation
         /// </exception>
-        /// <exception cref="OperationCancelledException">Thrown if cancellation token is cancelled.</exception>
+        /// <exception cref="OperationCanceledException">Thrown if cancellation token is cancelled.</exception>
         Task CheckLicense(IDevice device, HwVaultInfoFromHesDto vaultInfo, CancellationToken ct);
     }
 }
