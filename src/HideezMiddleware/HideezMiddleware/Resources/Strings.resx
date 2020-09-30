@@ -255,6 +255,9 @@
   <data name="ConnectionFlow.UserAuthorization.Error.AuthFailed" xml:space="preserve">
     <value>User authorization failed unexpectedly. Please, try to connect your vault again. If the error persists, please contact your system administrator.</value>
   </data>
+  <data name="ConnectionFlow.VaultSerialNo" xml:space="preserve">
+    <value>(Vault serial no: {0} )</value>
+  </data>
   <data name="ServiceComponentStatus.Bluetooth.NotAvailable" xml:space="preserve">
     <value>Bluetooth not available (state: {0})</value>
   </data>
@@ -272,8 +275,5 @@
   </data>
   <data name="ServiceComponentStatus.RFID.ServiceNotConnected" xml:space="preserve">
     <value>RFID service not connected</value>
-  </data>
-  <data name="Vault" xml:space="preserve">
-    <value>Vault</value>
   </data>
 </root>

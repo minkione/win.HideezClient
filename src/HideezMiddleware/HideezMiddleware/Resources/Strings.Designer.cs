@@ -475,6 +475,15 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (Vault serial no: {0} ).
+        /// </summary>
+        internal static string ConnectionFlow_VaultSerialNo {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.VaultSerialNo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Bluetooth not available (state: {0}).
         /// </summary>
         internal static string ServiceComponentStatus_Bluetooth_NotAvailable {
@@ -525,15 +534,6 @@ namespace HideezMiddleware.Resources {
         internal static string ServiceComponentStatus_RFID_ServiceNotConnected {
             get {
                 return ResourceManager.GetString("ServiceComponentStatus.RFID.ServiceNotConnected", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Vault.
-        /// </summary>
-        internal static string Vault {
-            get {
-                return ResourceManager.GetString("Vault", resourceCulture);
             }
         }
     }

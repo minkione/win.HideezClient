@@ -326,8 +326,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                         sb.Append(errorMessage);
                         sb.Append(Environment.NewLine);
                         sb.Append(Environment.NewLine);
-                        sb.Append(TranslationSource.Instance["Vault"]);
-                        sb.Append(" " + device.SerialNo);
+                        sb.Append(string.Format(TranslationSource.Instance["ConnectionFlow.VaultSerialNo"], device.SerialNo));
 
                         errorMessage = sb.ToString();
                     }
