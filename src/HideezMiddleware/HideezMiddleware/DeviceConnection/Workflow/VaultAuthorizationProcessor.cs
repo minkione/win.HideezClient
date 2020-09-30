@@ -12,10 +12,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 {
     public class VaultAuthorizationProcessor : Logger, IVaultAuthorizationProcessor
     {
-        readonly UiProxyManager _ui;
+        readonly IClientUiManager _ui;
         readonly IHesAppConnection _hesConnection;
 
-        public VaultAuthorizationProcessor(IHesAppConnection hesConnection, UiProxyManager ui, ILog log)
+        public VaultAuthorizationProcessor(IHesAppConnection hesConnection, IClientUiManager ui, ILog log)
             : base(nameof(VaultAuthorizationProcessor), log)
         {
             _hesConnection = hesConnection;

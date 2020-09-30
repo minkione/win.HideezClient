@@ -12,14 +12,14 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 {
     public class ActivationProcessor : Logger, IActivationProcessor
     {
-        readonly UiProxyManager _ui;
         readonly IHesAppConnection _hesConnection;
+        readonly IClientUiManager _ui;
 
-        public ActivationProcessor(UiProxyManager ui, HesAppConnection hesConnection, ILog log)
+        public ActivationProcessor(IHesAppConnection hesConnection, IClientUiManager ui, ILog log)
             : base(nameof(ActivationProcessor), log)
         {
-            _ui = ui;
             _hesConnection = hesConnection;
+            _ui = ui;
         }
 
         public async Task<HwVaultInfoFromHesDto> ActivateVault(IDevice device, HwVaultInfoFromHesDto vaultInfo, CancellationToken ct)

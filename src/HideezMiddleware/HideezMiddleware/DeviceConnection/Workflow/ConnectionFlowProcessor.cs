@@ -5,15 +5,13 @@ using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
-using HideezMiddleware.Local;
+using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Tasks;
 using Microsoft.Win32;
 using System;
-using System.Linq;
-using System.ServiceModel.Configuration;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,29 +20,29 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 {
     public class ConnectionFlowProcessor : Logger
     {
-        readonly IBleConnectionManager _connectionManager;
+        public struct ConnectionFlowSubprocessorsStruct
+        {
+            public IPermissionsCheckProcessor PermissionsCheckProcessor;
+            public IVaultConnectionProcessor VaultConnectionProcessor;
+            public ICacheVaultInfoProcessor CacheVaultInfoProcessor;
+            public ILicensingProcessor LicensingProcessor;
+            public IStateUpdateProcessor StateUpdateProcessor;
+            public IActivationProcessor ActivationProcessor;
+            public IVaultAuthorizationProcessor MasterkeyProcessor;
+            public IAccountsUpdateProcessor AccountsUpdateProcessor;
+            public IUserAuthorizationProcessor UserAuthorizationProcessor;
+            public IUnlockProcessor UnlockProcessor;
+        }
+
         readonly BleDeviceManager _deviceManager;
-        readonly IWorkstationUnlocker _workstationUnlocker;
+        readonly IWorkstationUnlocker _workstationUnlocker; // Todo: remove and replace calls with unlockProcessor
         readonly IScreenActivator _screenActivator;
-        readonly UiProxyManager _ui;
+        readonly IClientUiManager _ui;
         readonly IHesAppConnection _hesConnection;
-        readonly ILocalDeviceInfoCache _localDeviceInfoCache;
         readonly IHesAccessManager _hesAccessManager;
-        readonly BondManager _bondManager;
         readonly ISettingsManager<ServiceSettings> _serviceSettingsManager;
 
-        // Todo: initialize
-        readonly PermissionsCheckProcessor _permissionsCheckProcessor;
-        readonly VaultConnectionProcessor _vaultConnectionProcessor;
-        readonly LicensingProcessor _licensingProcessor;
-        readonly StateUpdateProcessor _stateUpdateProcessor;
-        readonly ActivationProcessor _activationProcessor;
-        readonly AccountsUpdateProcessor _accountsUpdateProcessor;
-        readonly VaultAuthorizationProcessor _masterkeyProcessor;
-        readonly UserAuthorizationProcessor _userAuthorizationProcessor;
-        readonly UnlockProcessor _unlockProcessor;
-        readonly CacheVaultInfoProcessor _cacheVaultInfoProcessor;
-        // ...
+        readonly ConnectionFlowSubprocessorsStruct _subp;
 
         int _isConnecting = 0;
         CancellationTokenSource _cts;
@@ -55,29 +53,26 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         public event EventHandler<string> Finished;
 
         public ConnectionFlowProcessor(
-            IBleConnectionManager connectionManager,
             BleDeviceManager deviceManager,
             IHesAppConnection hesConnection,
-            BondManager bondManager,
             IWorkstationUnlocker workstationUnlocker,
             IScreenActivator screenActivator,
-            UiProxyManager ui,
-            ILocalDeviceInfoCache localDeviceInfoCache,
+            IClientUiManager ui,
             IHesAccessManager hesAccessManager,
             ISettingsManager<ServiceSettings> serviceSettingsManager,
+            ConnectionFlowSubprocessorsStruct subprocs,
             ILog log)
             : base(nameof(ConnectionFlowProcessor), log)
         {
-            _connectionManager = connectionManager;
             _deviceManager = deviceManager;
             _workstationUnlocker = workstationUnlocker;
             _screenActivator = screenActivator;
             _ui = ui;
             _hesConnection = hesConnection;
-            _bondManager = bondManager;
-            _localDeviceInfoCache = localDeviceInfoCache;
             _hesAccessManager = hesAccessManager;
             _serviceSettingsManager = serviceSettingsManager;
+
+            _subp = subprocs;
 
             _hesAccessManager.AccessRetractedEvent += HesAccessManager_AccessRetractedEvent;
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
@@ -86,7 +81,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         void ServiceSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ServiceSettings> e)
         {
-            if (e.OldSettings.AlarmTurnOn)
+            if (e.NewSettings.AlarmTurnOn)
                 Cancel("Alarm enabled on HES");
         }
 
@@ -188,7 +183,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             {
                 await _ui.SendNotification(string.Empty, mac);
 
-                _permissionsCheckProcessor.CheckPermissions();
+                _subp.PermissionsCheckProcessor.CheckPermissions();
 
                 // Start periodic screen activator to raise the "curtain"
                 if (WorkstationHelper.IsActiveSessionLocked())
@@ -200,11 +195,11 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                         .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct);
                 }
 
-                device = await _vaultConnectionProcessor.ConnectVault(mac, rebondOnConnectionFail, ct);
+                device = await _subp.VaultConnectionProcessor.ConnectVault(mac, rebondOnConnectionFail, ct);
                 device.Disconnected += OnVaultDisconnectedDuringFlow;
                 device.OperationCancelled += OnCancelledByVaultButton;
 
-                await _vaultConnectionProcessor.WaitVaultInitialization(mac, device, ct);
+                await _subp.VaultConnectionProcessor.WaitVaultInitialization(mac, device, ct);
 
                 if (device.IsBoot)
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultInBootloaderMode"]);
@@ -215,21 +210,21 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 if (_hesConnection.State == HesConnectionState.Connected)
                     vaultInfo = await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), true);
 
-                _cacheVaultInfoProcessor.CacheAndUpdateVaultOwner(ref device, vaultInfo, ct);
+                _subp.CacheVaultInfoProcessor.CacheAndUpdateVaultOwner(ref device, vaultInfo, ct);
 
-                await _licensingProcessor.CheckLicense(device, vaultInfo, ct);
-                vaultInfo = await _stateUpdateProcessor.UpdateDeviceState(device, vaultInfo, ct);
-                vaultInfo = await _activationProcessor.ActivateVault(device, vaultInfo, ct);
+                await _subp.LicensingProcessor.CheckLicense(device, vaultInfo, ct);
+                vaultInfo = await _subp.StateUpdateProcessor.UpdateDeviceState(device, vaultInfo, ct);
+                vaultInfo = await _subp.ActivationProcessor.ActivateVault(device, vaultInfo, ct);
 
-                await _masterkeyProcessor.AuthVault(device, ct);
+                await _subp.MasterkeyProcessor.AuthVault(device, ct);
 
-                var osAccUpdateTask = _accountsUpdateProcessor.UpdateAccounts(device, vaultInfo, true);
+                var osAccUpdateTask = _subp.AccountsUpdateProcessor.UpdateAccounts(device, vaultInfo, true);
                 if (_workstationUnlocker.IsConnected && WorkstationHelper.IsActiveSessionLocked() && tryUnlock)
                 {
-                    await Task.WhenAll(_userAuthorizationProcessor.AuthorizeUser(device, ct), osAccUpdateTask);
+                    await Task.WhenAll(_subp.UserAuthorizationProcessor.AuthorizeUser(device, ct), osAccUpdateTask);
 
                     _screenActivator?.StopPeriodicScreenActivation();
-                    await _unlockProcessor.UnlockWorkstation(device, flowId, onUnlockAttempt, ct);
+                    await _subp.UnlockProcessor.UnlockWorkstation(device, flowId, onUnlockAttempt, ct);
                 }
                 else
                     await osAccUpdateTask;
@@ -238,7 +233,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 WriteLine($"Finalizing main workflow: ({device.Id})");
                 DeviceFinilizingMainFlow?.Invoke(this, device);
                 
-                await _accountsUpdateProcessor.UpdateAccounts(device, vaultInfo, false);
+                await _subp.AccountsUpdateProcessor.UpdateAccounts(device, vaultInfo, false);
 
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Online);
 

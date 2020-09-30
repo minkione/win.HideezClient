@@ -13,10 +13,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 {
     public class UnlockProcessor : Logger, IUnlockProcessor
     {
-        readonly UiProxyManager _ui;
+        readonly IClientUiManager _ui;
         readonly IWorkstationUnlocker _workstationUnlocker;
 
-        public UnlockProcessor(UiProxyManager ui, IWorkstationUnlocker workstationUnlocker, ILog log)
+        public UnlockProcessor(IClientUiManager ui, IWorkstationUnlocker workstationUnlocker, ILog log)
             : base(nameof(UnlockProcessor), log)
         {
             _ui = ui;

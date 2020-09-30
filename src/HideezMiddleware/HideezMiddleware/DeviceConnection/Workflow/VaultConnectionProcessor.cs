@@ -12,11 +12,11 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 {
     public class VaultConnectionProcessor : Logger, IVaultConnectionProcessor
     {
-        readonly UiProxyManager _ui;
+        readonly IClientUiManager _ui;
         readonly BondManager _bondManager;
         readonly BleDeviceManager _deviceManager;
 
-        public VaultConnectionProcessor(UiProxyManager ui, BondManager bondManager, BleDeviceManager deviceManager, ILog log)
+        public VaultConnectionProcessor(IClientUiManager ui, BondManager bondManager, BleDeviceManager deviceManager, ILog log)
             : base(nameof(VaultConnectionProcessor), log)
         {
             _ui = ui;

@@ -19,6 +19,7 @@ using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware;
 using HideezMiddleware.DeviceConnection;
+using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Workstation;
 using Microsoft.Win32;
@@ -1041,8 +1042,9 @@ namespace WinSampleApp.ViewModel
 
                 // BleConnectionManager ============================
                 var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-                var bondsFilePath = $"{commonAppData}\\Hideez\\bonds";
-                _connectionManager = new BleConnectionManager(_log, bondsFilePath);
+                var bondsFolderPath = $"{commonAppData}\\Hideez\\Service\\Bonds";
+
+                _connectionManager = new BleConnectionManager(_log, bondsFolderPath);
                 _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
                 _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
                 _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
@@ -1086,6 +1088,9 @@ namespace WinSampleApp.ViewModel
                 _rfidService = new RfidServiceConnection(_log);
                 _rfidService.Start();
 
+                // Service Settings Manager ==================================
+                var serviceSettingsManager = new SettingsManager<ServiceSettings>(string.Empty, new XmlFileSerializer(_log));
+
                 // Unlocker Settings Manager ==================================
                 var proximitySettingsManager = new SettingsManager<ProximitySettings>(string.Empty, new XmlFileSerializer(_log));
 
@@ -1097,16 +1102,19 @@ namespace WinSampleApp.ViewModel
 
                 // ConnectionFlowProcessor ==================================
                 var hesAccessManager = new HesAccessManager(clientRegistryRoot, _log);
-                _connectionFlowProcessor = new ConnectionFlowProcessor(
-                    _connectionManager,
+                var bondManager = new BondManager(bondsFolderPath, _log);
+                var connectionFlowProcessorfactory = new ConnectionFlowProcessorFactory(
                     _deviceManager,
+                    bondManager,
                     _hesConnection,
-                    _credentialProviderProxy, // use _credentialProviderProxy as IWorkstationUnlocker in real app
+                    _credentialProviderProxy,
                     null,
                     uiProxyManager,
-                    null,
                     hesAccessManager,
+                    serviceSettingsManager,
+                    null,
                     _log);
+                _connectionFlowProcessor = connectionFlowProcessorfactory.Create();
 
                 _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, rfidSettingsManager, null, uiProxyManager, _log);
                 _rfidProcessor.Start();

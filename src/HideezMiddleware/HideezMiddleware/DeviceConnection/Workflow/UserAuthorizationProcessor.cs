@@ -11,9 +11,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 {
     public class UserAuthorizationProcessor : Logger, IUserAuthorizationProcessor
     {
-        readonly UiProxyManager _ui;
+        readonly IClientUiManager _ui;
 
-        public UserAuthorizationProcessor(UiProxyManager ui, ILog log)
+        public UserAuthorizationProcessor(IClientUiManager ui, ILog log)
             : base(nameof(UserAuthorizationProcessor), log)
         {
             _ui = ui;

@@ -4,7 +4,6 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Local;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 

@@ -13,10 +13,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 {
     public class LicensingProcessor : Logger, ILicensingProcessor
     {
-        readonly UiProxyManager _ui;
+        readonly IClientUiManager _ui;
         readonly IHesAppConnection _hesConnection;
 
-        public LicensingProcessor(IHesAppConnection hesConnection, UiProxyManager ui, ILog log)
+        public LicensingProcessor(IHesAppConnection hesConnection, IClientUiManager ui, ILog log)
             : base(nameof(LicensingProcessor), log)
         {
             _hesConnection = hesConnection;

@@ -263,18 +263,18 @@ namespace ServiceLibrary.Implementation
             _bondManager = new BondManager(bondsFolderPath, _sdkLogger);
 
             // ConnectionFlowProcessor
-            _connectionFlowProcessor = new ConnectionFlowProcessor(
-                _connectionManager,
+            var connectionFlowProcessorfactory = new ConnectionFlowProcessorFactory(
                 _deviceManager,
-                _hesConnection,
                 _bondManager,
+                _hesConnection,
                 _credentialProviderProxy,
                 _screenActivator,
                 _uiProxy,
-                _localDeviceInfoCache,
                 _hesAccessManager,
                 _serviceSettingsManager,
+                _localDeviceInfoCache,
                 _sdkLogger);
+            _connectionFlowProcessor = connectionFlowProcessorfactory.Create();
 
             _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
