@@ -803,6 +803,7 @@ namespace HideezClient.Models
 
                 await ButtonWorkflow(ct);
                 await PinWorkflow(ct);
+                await ButtonWorkflow(ct);
 
                 if (ct.IsCancellationRequested)
                     ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthCanceled"], SerialNo), Mac);
@@ -876,7 +877,7 @@ namespace HideezClient.Models
             if (!_remoteDevice.AccessLevel.IsButtonRequired)
                 return true;
 
-            ShowInfo(TranslationSource.Instance["Vault.Notification.PressButton"], Mac);
+            ShowInfo(TranslationSource.Instance["ConnectionFlow.Button.PressButtonMessage"], Mac);
             await _metaMessenger.Publish(new ShowButtonConfirmUiMessage(Id));
             var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT, ct);
             return res;
@@ -981,10 +982,13 @@ namespace HideezClient.Models
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({attemptsLeft} attempts left)");
                     if (AccessLevel.IsLocked)
-                        ShowError(TranslationSource.Instance["Vault.Error.VaultLocked"], Mac);
+                        ShowError(TranslationSource.Instance["ConnectionFlow.Pin.Error.LockedByInvalidAttempts"], Mac);
                     else
                     {
-                        ShowError(string.Format(TranslationSource.Instance["Vault.Error.WrongPin"], attemptsLeft), Mac);
+                        if (attemptsLeft > 1)
+                            ShowError(string.Format(TranslationSource.Instance["ConnectionFlow.Pin.Error.InvalidPin.ManyAttemptsLeft"], attemptsLeft), Mac);
+                        else
+                            ShowError(string.Format(TranslationSource.Instance["ConnectionFlow.Pin.Error.InvalidPin.OneAttemptLeft"]), Mac);
                         await _remoteDevice.RefreshDeviceInfo(); // Remaining pin attempts update is not quick enough 
                     }
                 }
