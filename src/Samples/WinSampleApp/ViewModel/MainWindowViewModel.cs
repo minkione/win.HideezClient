@@ -48,6 +48,7 @@ namespace WinSampleApp.ViewModel
         public string Pin { get; set; }
         public string OldPin { get; set; }
         public string CODE { get; set; }
+        public string Passphrase { get; set; }
         public string BleAdapterState => _connectionManager?.State.ToString();
 
         public string ConectByMacAddress1
@@ -727,24 +728,6 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         _ = BoostDeviceRssi(CurrentDevice);
-                    }
-                };
-            }
-        }
-
-        public ICommand UpdateFwCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null && (CurrentDevice.UpdateFwProgress == 0 || CurrentDevice.UpdateFwProgress == 100);
-                    },
-                    CommandAction = (x) =>
-                    {
-                        _ = UpdateFw(CurrentDevice);
                     }
                 };
             }
@@ -1549,7 +1532,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await device.Device.CheckPassphrase(Encoding.UTF8.GetBytes("passphrase"));
+                await device.Device.CheckPassphrase(Encoding.UTF8.GetBytes(Passphrase));
                 MessageBox.Show("Passphrase check - ok");
             }
             catch (Exception ex)
