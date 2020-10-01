@@ -12,10 +12,10 @@ namespace HideezMiddleware.Local
 
         public LocalDeviceInfo() { }
 
-        public LocalDeviceInfo(DeviceInfoDto dto)
+        public LocalDeviceInfo(HwVaultShortInfoFromHesDto dto)
         {
-            SerialNo = dto.DeviceSerialNo;
-            Mac = dto.DeviceMac;
+            SerialNo = dto.VaultSerialNo;
+            Mac = dto.VaultMac;
             // TODO: Add RFID to device info cache
             OwnerName = dto.OwnerName;
             OwnerEmail = dto.OwnerEmail;

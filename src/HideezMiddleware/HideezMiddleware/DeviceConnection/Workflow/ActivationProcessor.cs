@@ -87,7 +87,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     await _ui.HideActivationCodeUi();
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
                     if (_hesConnection.State == HesConnectionState.Connected)
-                        vaultInfo = await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), true);
+                        vaultInfo = await _hesConnection.UpdateHwVaultProperties(new HwVaultInfoFromClientDto(device), true);
 #pragma warning restore IDE0059 // Unnecessary assignment of a value
                 }
             }

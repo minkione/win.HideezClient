@@ -22,7 +22,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             ct.ThrowIfCancellationRequested();
 
-            if (string.IsNullOrWhiteSpace(dto.DeviceMac))
+            if (string.IsNullOrWhiteSpace(dto.VaultMac))
                 LoadLocalVaultOwner(ref device);
             else
             {
@@ -39,8 +39,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 {
                     var info = new LocalDeviceInfo
                     {
-                        Mac = dto.DeviceMac,
-                        SerialNo = dto.DeviceSerialNo,
+                        Mac = dto.VaultMac,
+                        SerialNo = dto.VaultSerialNo,
                         OwnerName = dto.OwnerName,
                         OwnerEmail = dto.OwnerEmail,
                     };

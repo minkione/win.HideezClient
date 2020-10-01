@@ -401,8 +401,8 @@ namespace ServiceLibrary.Implementation
                     rfidSettingsManager.SaveSettings(settings);
                 };
                 hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
-                hesConnection.LockDeviceStorageRequest += HES_LockDeviceStorageRequest;
-                hesConnection.LiftDeviceStorageLockRequest += HES_LiftDeviceStorageLockRequest;
+                hesConnection.LockHwVaultStorageRequest += HES_LockDeviceStorageRequest;
+                hesConnection.LiftHwVaultStorageLockRequest += HES_LiftDeviceStorageLockRequest;
                 hesConnection.Alarm += HesConnection_Alarm;
 
                 return hesConnection;

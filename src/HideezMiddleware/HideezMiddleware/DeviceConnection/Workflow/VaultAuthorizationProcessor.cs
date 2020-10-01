@@ -30,7 +30,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             {
                 await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.MasterKey.AwaitingHESAuth"], device.Mac);
 
-                await _hesConnection.AuthDevice(device.SerialNo);
+                await _hesConnection.AuthHwVault(device.SerialNo);
 
                 await new WaitMasterKeyProc(device).Run(SdkConfig.SystemStateEventWaitTimeout, ct);
 

@@ -208,7 +208,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 HwVaultInfoFromHesDto vaultInfo = new HwVaultInfoFromHesDto(); // Initializes with default values for when HES is not connected
                 if (_hesConnection.State == HesConnectionState.Connected)
-                    vaultInfo = await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), true);
+                    vaultInfo = await _hesConnection.UpdateHwVaultProperties(new HwVaultInfoFromClientDto(device), true);
 
                 _subp.CacheVaultInfoProcessor.CacheAndUpdateVaultOwner(ref device, vaultInfo, ct);
 
@@ -237,7 +237,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Online);
 
-                await _hesConnection.UpdateDeviceProperties(new HwVaultInfoFromClientDto(device), false);
+                await _hesConnection.UpdateHwVaultProperties(new HwVaultInfoFromClientDto(device), false);
 
                 workflowFinishedSuccessfully = true;
             }

@@ -28,7 +28,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             if (vaultInfo.NeedUpdateLicense && _hesConnection.State == HesConnectionState.Connected)
             {
                 await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.License.UpdatingLicenseMessage"], device.Mac);
-                var licenses = await _hesConnection.GetNewDeviceLicenses(device.SerialNo, ct);
+                var licenses = await _hesConnection.GetNewHwVaultLicenses(device.SerialNo, ct);
                 WriteLine($"Received {licenses.Count} new licenses from HES");
 
                 ct.ThrowIfCancellationRequested();
@@ -58,7 +58,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                             WriteLine($"Loaded license ({license.Id}) into vault ({device.SerialNo}) into slot {i}");
                         }
 
-                        await _hesConnection.OnDeviceLicenseApplied(device.SerialNo, license.Id);
+                        await _hesConnection.OnHwVaultLicenseApplied(device.SerialNo, license.Id);
                     }
                 }
 

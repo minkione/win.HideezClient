@@ -12,7 +12,7 @@ namespace HideezMiddleware.Tasks
         readonly HesAppConnection _hesConnection;
         readonly string _mac;
         readonly CancellationToken _ct;
-        readonly TaskCompletionSource<DeviceInfoDto> _tcs = new TaskCompletionSource<DeviceInfoDto>();
+        readonly TaskCompletionSource<HwVaultShortInfoFromHesDto> _tcs = new TaskCompletionSource<HwVaultShortInfoFromHesDto>();
 
         /// <summary>
         /// Set to True if info was retrieved from HES
@@ -26,23 +26,23 @@ namespace HideezMiddleware.Tasks
             _ct = ct;
         }
 
-        internal Task<DeviceInfoDto> Run()
+        internal Task<HwVaultShortInfoFromHesDto> Run()
         {
             Task.Run(async () => 
             {
                 try
                 {
-                    DeviceInfoDto info = null;
+                    HwVaultShortInfoFromHesDto info = null;
 
                     if (_hesConnection.State == HesConnectionState.Connected)
                     {
-                        info = await _hesConnection.GetInfoByMac(_mac, _ct);
+                        info = await _hesConnection.GetHwVaultInfoByMac(_mac, _ct);
                         IsSuccessful = true;
                     }
                     else
                     {
                         //todo - load device info from the local cache (file)
-                        info = new DeviceInfoDto();
+                        info = new HwVaultShortInfoFromHesDto();
                         IsSuccessful = false;
 
                     }

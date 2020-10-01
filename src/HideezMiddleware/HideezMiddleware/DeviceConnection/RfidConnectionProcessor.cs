@@ -111,7 +111,7 @@ namespace HideezMiddleware.DeviceConnection
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 1) == 1)
                 return;
 
-            DeviceInfoDto info = null;
+            HwVaultShortInfoFromHesDto info = null;
             try
             {
                 _screenActivator?.ActivateScreen();
@@ -121,15 +121,15 @@ namespace HideezMiddleware.DeviceConnection
 
 
                 // get MAC address from the HES
-                info = await _hesConnection.GetInfoByRfid(rfid);
+                info = await _hesConnection.GetHwVaultInfoByRfid(rfid);
 
-                await _clientUiManager.SendNotification(TranslationSource.Instance["ConnectionFlow.RfidConnection.ContactingHesMessage"], info.DeviceMac);
+                await _clientUiManager.SendNotification(TranslationSource.Instance["ConnectionFlow.RfidConnection.ContactingHesMessage"], info.VaultMac);
 
                 if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
                 {
                     try
                     {
-                        await _connectionFlowProcessor.ConnectAndUnlock(info.DeviceMac, OnUnlockAttempt);
+                        await _connectionFlowProcessor.ConnectAndUnlock(info.VaultMac, OnUnlockAttempt);
                     }
                     catch (Exception)
                     {
@@ -148,7 +148,7 @@ namespace HideezMiddleware.DeviceConnection
             catch (Exception ex)
             {
                 WriteLine(ex);
-                await _clientUiManager.SendError(HideezExceptionLocalization.GetErrorAsString(ex), info?.DeviceMac);
+                await _clientUiManager.SendError(HideezExceptionLocalization.GetErrorAsString(ex), info?.VaultMac);
             }
         }
 
