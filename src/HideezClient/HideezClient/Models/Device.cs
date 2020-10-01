@@ -28,6 +28,7 @@ using HideezMiddleware.IPC.DTO;
 using Meta.Lib.Modules.PubSub;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezClient.Modules.Localize;
+using Hideez.SDK.Communication.HES.DTO;
 
 namespace HideezClient.Models
 {
@@ -512,7 +513,7 @@ namespace HideezClient.Models
             StorageFreeSize = dto.StorageFreeSize;
             Proximity = dto.Proximity;
             Battery = dto.Battery;
-            FinishedMainFlow = dto.FinishedMainFlow;
+            FinishedMainFlow = dto.HwVaultConnectionState == HwVaultConnectionState.Online;
             CanLockByProximity = dto.CanLockPyProximity;
             IsCanUnlock = dto.IsCanUnlock;
             MinPinLength = dto.MinPinLength;
@@ -877,7 +878,7 @@ namespace HideezClient.Models
             if (!_remoteDevice.AccessLevel.IsButtonRequired)
                 return true;
 
-            ShowInfo(TranslationSource.Instance["ConnectionFlow.Button.PressButtonMessage"], Mac);
+            ShowInfo(TranslationSource.Instance["Vault.Notification.PressButton"], Mac);
             await _metaMessenger.Publish(new ShowButtonConfirmUiMessage(Id));
             var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT, ct);
             return res;
@@ -982,13 +983,13 @@ namespace HideezClient.Models
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({attemptsLeft} attempts left)");
                     if (AccessLevel.IsLocked)
-                        ShowError(TranslationSource.Instance["ConnectionFlow.Pin.Error.LockedByInvalidAttempts"], Mac);
+                        ShowError(TranslationSource.Instance["Vault.Error.Pin.LockedByInvalidAttempts"], Mac);
                     else
                     {
                         if (attemptsLeft > 1)
-                            ShowError(string.Format(TranslationSource.Instance["ConnectionFlow.Pin.Error.InvalidPin.ManyAttemptsLeft"], attemptsLeft), Mac);
+                            ShowError(string.Format(TranslationSource.Instance["Vault.Error.InvalidPin.ManyAttemptsLeft"], attemptsLeft), Mac);
                         else
-                            ShowError(string.Format(TranslationSource.Instance["ConnectionFlow.Pin.Error.InvalidPin.OneAttemptLeft"]), Mac);
+                            ShowError(string.Format(TranslationSource.Instance["Vault.Error.InvalidPin.OneAttemptLeft"]), Mac);
                         await _remoteDevice.RefreshDeviceInfo(); // Remaining pin attempts update is not quick enough 
                     }
                 }

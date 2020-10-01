@@ -943,4 +943,13 @@ Only 1 attempt left.</value>
   <data name="Vault.Notification.Synchronizing" xml:space="preserve">
     <value>Synchronizing credentials in {0} with your other vault, please wait{1}Password manager is temporarily unavailable</value>
   </data>
+  <data name="Vault.Error.Pin.LockedByInvalidAttempts" xml:space="preserve">
+    <value>Vault got locked due to too many incorrect pin attempts. Contact your system administrator.</value>
+  </data>
+  <data name="Vault.Error.InvalidPin.ManyAttemptsLeft" xml:space="preserve">
+    <value>Invalid PIN! {0} attempts left.</value>
+  </data>
+  <data name="Vault.Error.InvalidPin.OneAttemptLeft" xml:space="preserve">
+    <value>Invalid PIN! 1 attempt left.</value>
+  </data>
 </root>
