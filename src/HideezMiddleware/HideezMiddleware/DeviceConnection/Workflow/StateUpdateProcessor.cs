@@ -27,7 +27,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             if (vaultInfo.NeedStateUpdate && _hesConnection.State == HesConnectionState.Connected)
             {
-                vaultInfo = await _hesConnection.UpdateHwVaultStatus(device, ct);
+                vaultInfo = await _hesConnection.UpdateHwVaultStatus(new HwVaultInfoFromClientDto(device), ct);
                 await device.RefreshDeviceInfo();
             }
 
