@@ -70,7 +70,7 @@ namespace HideezClient.Modules
             metaMessenger.Subscribe<ShowButtonConfirmUiMessage>(ShowButtonConfirmAsync);
             metaMessenger.Subscribe<ShowPinUiMessage>(ShowPinAsync);
             metaMessenger.Subscribe<HidePinUiMessage>(HidePinAsync);
-            //messenger.Register<ShowActivationCodeUiMessage>(this, ShowActivationDialogAsync);
+            metaMessenger.TrySubscribeOnServer<ShowActivationCodeUiMessage>(ShowActivationDialogAsync);
             metaMessenger.TrySubscribeOnServer<HideActivationCodeUi>(HideActivationDialogAsync);
 
             metaMessenger.Subscribe<ShowActivateMainWindowMessage>((p) => ActivateMainWindow());
@@ -402,9 +402,9 @@ namespace HideezClient.Modules
             return Task.CompletedTask;
         }
 
-        void ShowActivationDialogAsync(HideezMiddleware.IPC.Messages.ShowActivationCodeUiMessage obj)
+        Task ShowActivationDialogAsync(HideezMiddleware.IPC.Messages.ShowActivationCodeUiMessage obj)
         {
-            lock (activationDialogLock)
+            try
             {
                 if (activationView == null)
                 {
@@ -430,6 +430,9 @@ namespace HideezClient.Modules
                     });
                 }
             }
+            catch { }
+
+            return Task.CompletedTask;
         }
 
         Task HideActivationDialogAsync(HideActivationCodeUi message)
