@@ -96,6 +96,8 @@
                      Value="[HESAddress]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
                      Value="[InstallDongleDriver]" />
+        <MsiProperty Name="REINSTALLMODE"
+                     Value="dmus"/>
       </MsiPackage>
 
       <MsiPackage DisplayInternalUI="no"
@@ -107,6 +109,8 @@
                      Value="[HESAddress]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
                      Value="[InstallDongleDriver]" />
+        <MsiProperty Name="REINSTALLMODE" 
+                     Value="dmus"/>
       </MsiPackage>
     </Chain>
   </Bundle>
