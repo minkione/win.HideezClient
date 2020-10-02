@@ -23,7 +23,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             {
                 if ((vaultInfo.NeedUpdateOSAccounts && onlyOsAccounts) || (vaultInfo.NeedUpdateNonOSAccounts && !onlyOsAccounts))
                 {
-                    await _hesConnection.UpdateAccounts(device.SerialNo, onlyOsAccounts);
+                    await _hesConnection.UpdateHwVaultAccounts(device.SerialNo, onlyOsAccounts);
                     await device.RefreshDeviceInfo();
                 }
             }
