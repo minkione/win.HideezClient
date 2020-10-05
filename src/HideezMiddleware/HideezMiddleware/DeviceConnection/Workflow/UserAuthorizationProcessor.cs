@@ -64,9 +64,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
+            await _ui.SendNotification(TranslationSource.Instance.Format("ConnectionFlow.Pin.NewPinMessage", device.MinPinLength), device.Mac);
             while (device.AccessLevel.IsNewPinRequired)
             {
-                await _ui.SendNotification(TranslationSource.Instance.Format("ConnectionFlow.Pin.NewPinMessage", device.MinPinLength), device.Mac);
                 string pin = await _ui.GetPin(device.Id, timeout, ct, withConfirm: true);
 
                 ct.ThrowIfCancellationRequested();
@@ -103,9 +103,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> EnterPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Pin.EnterPinMessage"], device.Mac);
             while (!device.AccessLevel.IsLocked)
             {
-                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Pin.EnterPinMessage"], device.Mac);
                 string pin = await _ui.GetPin(device.Id, timeout, ct);
 
                 ct.ThrowIfCancellationRequested();

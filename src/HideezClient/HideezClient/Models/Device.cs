@@ -751,6 +751,9 @@ namespace HideezClient.Models
                     return;
                 }
 
+                if (!_remoteDevice.IsAuthorized)
+                    ShowInfo(string.Empty, Mac);
+
                 if (_remoteDevice.SerialNo != SerialNo)
                     throw new Exception(TranslationSource.Instance["Vault.Error.InvalidRemoteSerialNo"]);
 
@@ -903,9 +906,9 @@ namespace HideezClient.Models
             Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
             bool pinOk = false;
+            ShowInfo(TranslationSource.Instance["Vault.Notification.NewPin"], Mac);
             while (AccessLevel.IsNewPinRequired)
             {
-                ShowInfo(TranslationSource.Instance["Vault.Notification.NewPin"], Mac);
                 var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, ct, withConfirm: true);
 
                 if (pin == null)
@@ -949,9 +952,9 @@ namespace HideezClient.Models
             Debug.WriteLine(">>>>>>>>>>>>>>> EnterPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
             bool pinOk = false;
+            ShowInfo(TranslationSource.Instance["Vault.Notification.EnterCurrentPin"], Mac);
             while (!AccessLevel.IsLocked)
             {
-                ShowInfo(TranslationSource.Instance["Vault.Notification.EnterCurrentPin"], Mac);
                 var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, ct);
 
                 if (pin == null)

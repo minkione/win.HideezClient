@@ -34,10 +34,6 @@ namespace HideezClient.Modules.NotificationsManager
         {
             Screen screen = GetCurrentScreen();
 
-            // Do not create notifications without content
-            if (string.IsNullOrWhiteSpace(message))
-                return;
-
             if (string.IsNullOrWhiteSpace(notificationId))
                 notificationId = DEFAULT_NOTIFICATION_ID;
 
@@ -68,6 +64,10 @@ namespace HideezClient.Modules.NotificationsManager
                     }
                 }
             }
+
+            // Do not create notifications without content
+            if (string.IsNullOrWhiteSpace(message))
+                return;
 
             AddNotification(screen, notification);
         }

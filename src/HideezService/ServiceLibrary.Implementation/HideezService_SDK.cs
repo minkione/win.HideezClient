@@ -570,6 +570,7 @@ namespace ServiceLibrary.Implementation
                 device.ProximityChanged += Device_ProximityChanged;
                 device.BatteryChanged += Device_BatteryChanged;
                 device.WipeFinished += Device_WipeFinished;
+                device.AccessLevelChanged += Device_AccessLevelChanged;
             }
         }
 
@@ -586,6 +587,7 @@ namespace ServiceLibrary.Implementation
                 device.ProximityChanged -= Device_ProximityChanged;
                 device.BatteryChanged -= Device_BatteryChanged;
                 device.WipeFinished -= Device_WipeFinished;
+                device.AccessLevelChanged -= Device_AccessLevelChanged;
 
                 if (device is IPipeDevice pipeDevice)
                     _pipeDeviceConnectionManager.RemovePipeDevice(pipeDevice);
@@ -886,6 +888,19 @@ namespace ServiceLibrary.Implementation
                     }
                 };
                     
+            }
+        }
+
+        async void Device_AccessLevelChanged(object sender, AccessLevel e)
+        {
+            var device = (IDevice)sender;
+            if (device.ChannelNo == (int)DefaultDeviceChannel.Main)
+            {
+                try
+                {
+                    await device.RefreshDeviceInfo();
+                }
+                catch { }
             }
         }
 
