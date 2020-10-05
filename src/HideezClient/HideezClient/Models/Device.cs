@@ -685,6 +685,7 @@ namespace HideezClient.Models
                         await tempRemoteDevice.DeleteContext();
                         tempRemoteDevice.Dispose();
                     }
+                    await _remoteDeviceMessenger.DisconnectFromServer();
                 }
             }
             catch (Exception ex)
@@ -733,8 +734,7 @@ namespace HideezClient.Models
 
                 ShowInfo(string.Format(TranslationSource.Instance["Vault.Notification.PreparingForAuth"], SerialNo), Mac);
                 IsCreatingRemoteDevice = true;
-                _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo);
-                await _remoteDeviceMessenger.TryConnectToServer(_remoteDevice.RemoteDeviceConnectionId);
+                _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo, _remoteDeviceMessenger);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
 
                 if (cancellationToken.IsCancellationRequested)
@@ -769,14 +769,12 @@ namespace HideezClient.Models
                 _log.WriteLine(ex);
                 ShowError(ex.Message, Mac);
                 initErrorCode = ex.ErrorCode;
-                await _remoteDeviceMessenger.DisconnectFromServer();
             }
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
                 ShowError(ex.Message, Mac);
                 initErrorCode = HideezErrorCode.UnknownError;
-                await _remoteDeviceMessenger.DisconnectFromServer();
             }
             finally
             {
@@ -1063,6 +1061,7 @@ namespace HideezClient.Models
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(OnLiftDeviceStorageLock);
                     _metaMessenger.Unsubscribe<SendPinMessage>(OnPinReceived);
                     _metaMessenger.Unsubscribe<SessionSwitchMessage>(OnSessionSwitch);
+                    _remoteDeviceMessenger.DisconnectFromServer();
                 }
 
                 disposed = true;
