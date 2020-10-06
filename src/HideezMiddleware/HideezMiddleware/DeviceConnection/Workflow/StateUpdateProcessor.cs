@@ -21,7 +21,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             _ui = ui;
         }
 
-        public async Task<HwVaultInfoFromHesDto> UpdateDeviceState(IDevice device, HwVaultInfoFromHesDto vaultInfo, CancellationToken ct)
+        public async Task<HwVaultInfoFromHesDto> UpdateDeviceStatus(IDevice device, HwVaultInfoFromHesDto vaultInfo, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 

@@ -1532,7 +1532,9 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await device.Device.CheckPassphrase(Encoding.UTF8.GetBytes(Passphrase));
+                var masterkey = ConvertUtils.HexStringToBytes(Passphrase);
+                await device.Device.CheckPassphrase(masterkey);
+                //await device.Device.CheckPassphrase(Encoding.UTF8.GetBytes(Passphrase));
                 MessageBox.Show("Passphrase check - ok");
             }
             catch (Exception ex)
@@ -1565,10 +1567,16 @@ namespace WinSampleApp.ViewModel
                 var res = wnd.ShowDialog();
                 if (res == true)
                 {
+                    var masterkey = ConvertUtils.HexStringToBytes(Passphrase);
                     await device.Device.Access(
-                        DateTime.UtcNow,
-                        Encoding.UTF8.GetBytes("passphrase"),
-                        AccessParams);
+                          DateTime.UtcNow,
+                          masterkey,
+                          AccessParams);
+
+                    //await device.Device.Access(
+                    //    DateTime.UtcNow,
+                    //    Encoding.UTF8.GetBytes("passphrase"),
+                    //    AccessParams);
                 }
             }
             catch (Exception ex)

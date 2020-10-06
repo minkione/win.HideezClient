@@ -6,6 +6,7 @@ using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,11 +26,21 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         public async Task CheckLicense(IDevice device, HwVaultInfoFromHesDto vaultInfo, CancellationToken ct)
         {
-            if (vaultInfo.NeedUpdateLicense && _hesConnection.State == HesConnectionState.Connected)
+            if ((device.AccessLevel.IsLinkRequired || vaultInfo.NeedUpdateLicense) && _hesConnection.State == HesConnectionState.Connected)
             {
                 await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.License.UpdatingLicenseMessage"], device.Mac);
-                var licenses = await _hesConnection.GetNewHwVaultLicenses(device.SerialNo, ct);
-                WriteLine($"Received {licenses.Count} new licenses from HES");
+
+                IList<HwVaultLicenseDto> licenses;
+                if (device.AccessLevel.IsLinkRequired)
+                {
+                    licenses = await _hesConnection.GetHwVaultLicenses(device.SerialNo, ct);
+                    WriteLine($"Received {licenses.Count} TOTAL licenses from HES");
+                }
+                else
+                {
+                    licenses = await _hesConnection.GetNewHwVaultLicenses(device.SerialNo, ct);
+                    WriteLine($"Received {licenses.Count} NEW licenses from HES");
+                }
 
                 ct.ThrowIfCancellationRequested();
 

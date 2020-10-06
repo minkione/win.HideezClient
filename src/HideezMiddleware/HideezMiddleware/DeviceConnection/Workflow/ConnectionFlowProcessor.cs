@@ -213,7 +213,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 _subp.CacheVaultInfoProcessor.CacheAndUpdateVaultOwner(ref device, vaultInfo, ct);
 
                 await _subp.LicensingProcessor.CheckLicense(device, vaultInfo, ct);
-                vaultInfo = await _subp.StateUpdateProcessor.UpdateDeviceState(device, vaultInfo, ct);
+                vaultInfo = await _subp.StateUpdateProcessor.UpdateDeviceStatus(device, vaultInfo, ct);
                 vaultInfo = await _subp.ActivationProcessor.ActivateVault(device, vaultInfo, ct);
 
                 await _subp.MasterkeyProcessor.AuthVault(device, ct);

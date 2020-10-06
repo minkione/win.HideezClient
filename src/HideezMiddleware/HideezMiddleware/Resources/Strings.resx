@@ -256,7 +256,7 @@
     <value>User authorization failed unexpectedly. Please, try to connect your vault again. If the error persists, please contact your system administrator.</value>
   </data>
   <data name="ConnectionFlow.VaultSerialNo" xml:space="preserve">
-    <value>(Vault serial no: {0} )</value>
+    <value>(Vault serial no: {0})</value>
   </data>
   <data name="ServiceComponentStatus.Bluetooth.NotAvailable" xml:space="preserve">
     <value>Bluetooth not available (state: {0})</value>

@@ -475,7 +475,7 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (Vault serial no: {0} ).
+        ///   Looks up a localized string similar to (Vault serial no: {0}).
         /// </summary>
         internal static string ConnectionFlow_VaultSerialNo {
             get {
