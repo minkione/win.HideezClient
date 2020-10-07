@@ -24,6 +24,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         public async Task<HwVaultInfoFromHesDto> ActivateVault(IDevice device, HwVaultInfoFromHesDto vaultInfo, CancellationToken ct)
         {
+            HwVaultInfoFromHesDto newVaultInfo = null;
             if (device.IsLocked && device.IsCanUnlock)
             {
                 try
@@ -82,14 +83,20 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     }
                     while (device.IsLocked);
                 }
+                catch
+                {
+                    if (_hesConnection.State == HesConnectionState.Connected)
+                        await _hesConnection.UpdateHwVaultStatus(new HwVaultInfoFromClientDto(device), ct);
+
+                    throw; 
+                }
                 finally
                 {
                     await _ui.HideActivationCodeUi();
-#pragma warning disable IDE0059 // Unnecessary assignment of a value
-                    if (_hesConnection.State == HesConnectionState.Connected)
-                        vaultInfo = await _hesConnection.UpdateHwVaultProperties(new HwVaultInfoFromClientDto(device), true);
-#pragma warning restore IDE0059 // Unnecessary assignment of a value
                 }
+
+                if (_hesConnection.State == HesConnectionState.Connected)
+                    newVaultInfo = await _hesConnection.UpdateHwVaultStatus(new HwVaultInfoFromClientDto(device), ct);
             }
 
             if (device.IsLocked)
@@ -100,7 +107,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.ActivationCode.Error.VaultIsLockedNoNetwork"]);
             }
 
-            return vaultInfo;
+            return newVaultInfo ?? vaultInfo;
         }
     }
 }

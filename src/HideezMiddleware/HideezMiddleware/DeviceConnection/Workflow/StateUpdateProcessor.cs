@@ -25,9 +25,11 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             ct.ThrowIfCancellationRequested();
 
+            HwVaultInfoFromHesDto newVaultInfo = null;
+
             if (vaultInfo.NeedStateUpdate && _hesConnection.State == HesConnectionState.Connected)
             {
-                vaultInfo = await _hesConnection.UpdateHwVaultStatus(new HwVaultInfoFromClientDto(device), ct);
+                newVaultInfo = await _hesConnection.UpdateHwVaultStatus(new HwVaultInfoFromClientDto(device), ct);
                 await device.RefreshDeviceInfo();
             }
 
@@ -39,7 +41,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.StateUpdate.Error.CannotLinkToUser"]);
             }
 
-            return vaultInfo;
+            return newVaultInfo ?? vaultInfo;
         }
     }
 }
