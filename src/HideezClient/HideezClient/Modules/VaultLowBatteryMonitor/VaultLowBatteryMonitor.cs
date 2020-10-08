@@ -40,7 +40,7 @@ namespace HideezClient.Modules.VaultLowBatteryMonitor
                     var device = _deviceManager.Devices.FirstOrDefault(d => d.Mac == mac);
                     if (device != null && device.IsConnected && device.FinishedMainFlow)
                     {
-                        vaultIdFilter.Add(obj.DeviceId);
+                        vaultIdFilter.Add(mac);
 
                         _messenger.Publish(new ShowLowBatteryNotificationMessage(
                             TranslationSource.Instance["LowBatteryNotification.Message"],
