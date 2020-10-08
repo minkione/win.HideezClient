@@ -45,6 +45,7 @@ using Meta.Lib.Modules.PubSub;
 using HideezClient.Modules.NotificationsManager;
 using Meta.Lib.Modules.PubSub.Messages;
 using HideezMiddleware.IPC.Messages;
+using HideezClient.Modules.VaultLowBatteryMonitor;
 
 namespace HideezClient
 {
@@ -193,6 +194,7 @@ namespace HideezClient
             _buttonManager.Enabled = true;
             _messageWindow = Container.Resolve<MessageWindow>();
             Container.Resolve<IProximityLockManager>();
+            Container.Resolve<IVaultLowBatteryMonitor>();
 
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
 
@@ -309,6 +311,7 @@ namespace HideezClient
                 new InjectionConstructor(HideezClientRegistryRoot.GetRootRegistryKey(false), typeof(ILog)));
             Container.RegisterType<IWorkstationInfoProvider, WorkstationInfoProvider>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IProximityLockManager, ProximityLockManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IVaultLowBatteryMonitor, VaultLowBatteryMonitor>(new ContainerControlledLifetimeManager());
 
             // Settings
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()

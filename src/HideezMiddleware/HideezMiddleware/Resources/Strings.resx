@@ -157,10 +157,10 @@
     <value>Retrying. Press the vault button to confirm.</value>
   </data>
   <data name="ConnectionFlow.Connection.Stage3.LtkError.PressButton" xml:space="preserve">
-    <value>LTK error. Re-bonding. Press the vault button to confirm.</value>
+    <value>LTK error. Retrying pairing. Press the vault button to confirm.</value>
   </data>
   <data name="ConnectionFlow.Connection.Stage3.PressButton" xml:space="preserve">
-    <value>Re-bonding. Press the vault button to confirm.</value>
+    <value>Retrying pairing. Press the vault button to confirm.</value>
   </data>
   <data name="ConnectionFlow.Error.UnexpectedlyLostNetworkConnection" xml:space="preserve">
     <value>Unexpectedly lost connection to the server. Please, check your network connection and try to connect your vault again.</value>

@@ -3,7 +3,7 @@ using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.Messages
 {
-    public class ShowLockNotificationMessage: PubSubMessageBase
+    public class ShowLowBatteryNotificationMessage : PubSubMessageBase
     {
         public string NotificationId { get; }
 
@@ -13,7 +13,7 @@ namespace HideezClient.Messages
 
         public NotificationOptions Options { get; }
 
-        public ShowLockNotificationMessage(string message = null, string title = null, NotificationOptions options = null, string notificationId = null)
+        public ShowLowBatteryNotificationMessage(string message = null, string title = null, NotificationOptions options = null, string notificationId = null)
         {
             Message = message;
             Title = title;

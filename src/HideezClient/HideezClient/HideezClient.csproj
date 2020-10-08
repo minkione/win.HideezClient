@@ -361,6 +361,7 @@
     <Compile Include="Messages\DeviceButtonPressedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
     <Compile Include="Messages\ShowDeviceLockedByPinNotificationMessage.cs" />
+    <Compile Include="Messages\ShowLowBatteryNotificationMessage.cs" />
     <Compile Include="Messages\ShowLockNotificationMessage.cs" />
     <Compile Include="Messages\ForceShutdownMessage.cs" />
     <Compile Include="Messages\HidePinUiMessage.cs" />
@@ -422,6 +423,8 @@
     <Compile Include="Modules\SettingsManager\HSSettingsManager.cs" />
     <Compile Include="Modules\EventPublisher\EventPublisher.cs" />
     <Compile Include="Modules\EventPublisher\IEventPublisher.cs" />
+    <Compile Include="Modules\VaultLowBatteryMonitor\IVaultLowBatteryMonitor.cs" />
+    <Compile Include="Modules\VaultLowBatteryMonitor\VaultLowBatteryMonitor.cs" />
     <Compile Include="Mvvm\WeakPropertyObserver.cs" />
     <Compile Include="Mvvm\IRequireViewIdentification.cs" />
     <Compile Include="Mvvm\LocalizedObject.cs" />

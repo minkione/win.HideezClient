@@ -178,7 +178,7 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to LTK error. Re-bonding. Press the vault button to confirm..
+        ///   Looks up a localized string similar to LTK error. Retrying pairing. Press the vault button to confirm..
         /// </summary>
         internal static string ConnectionFlow_Connection_Stage3_LtkError_PressButton {
             get {
@@ -187,7 +187,7 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Re-bonding. Press the vault button to confirm..
+        ///   Looks up a localized string similar to Retrying pairing. Press the vault button to confirm..
         /// </summary>
         internal static string ConnectionFlow_Connection_Stage3_PressButton {
             get {

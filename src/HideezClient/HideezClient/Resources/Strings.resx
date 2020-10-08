@@ -640,7 +640,7 @@ to access stored credentials</value>
     <value>Disconnect vault</value>
   </data>
   <data name="Menu.RemoveDevice.Tooltip" xml:space="preserve">
-    <value>Disconnect vault and delete bluetooth bond</value>
+    <value>Disconnect and unpair vault</value>
   </data>
   <data name="SearchPasswords" xml:space="preserve">
     <value>Search passwords</value>
@@ -951,5 +951,11 @@ Only 1 attempt left.</value>
   </data>
   <data name="Vault.Error.InvalidPin.OneAttemptLeft" xml:space="preserve">
     <value>Invalid PIN! 1 attempt left.</value>
+  </data>
+  <data name="LowBatteryNotification.Message" xml:space="preserve">
+    <value>The battery level in your vault is below 25%. Consider contacting your system administrator to schedule a battery replacement.</value>
+  </data>
+  <data name="LowBatteryNotification.Title" xml:space="preserve">
+    <value>Vault battery level is low</value>
   </data>
 </root>

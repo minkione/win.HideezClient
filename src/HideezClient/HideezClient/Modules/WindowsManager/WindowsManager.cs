@@ -59,6 +59,7 @@ namespace HideezClient.Modules
             metaMessenger.Subscribe<ShowInfoNotificationMessage>(ShowInfo);
             metaMessenger.Subscribe<ShowErrorNotificationMessage>(ShowError);
             metaMessenger.Subscribe<ShowLockNotificationMessage>(ShowLockNotification);
+            metaMessenger.Subscribe<ShowLowBatteryNotificationMessage>(ShowLowBatteryNotification);
 
             metaMessenger.TrySubscribeOnServer<WorkstationUnlockedMessage>(ClearNotifications);
 
@@ -253,6 +254,12 @@ namespace HideezClient.Modules
         private Task ShowInfo(ShowInfoNotificationMessage message)
         {
             UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(message.NotificationId, message.Title ?? GetTitle(), message.Message, NotificationIconType.Info, message.Options));
+            return Task.CompletedTask;
+        }
+
+        private Task ShowLowBatteryNotification(ShowLowBatteryNotificationMessage message)
+        {
+            UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(message.NotificationId, message.Title ?? GetTitle(), message.Message, NotificationIconType.Warn, message.Options));
             return Task.CompletedTask;
         }
 

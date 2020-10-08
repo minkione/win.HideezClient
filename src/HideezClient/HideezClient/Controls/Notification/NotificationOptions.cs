@@ -8,7 +8,7 @@ namespace HideezClient.Modules
     {
         public static TimeSpan LongTimeout { get { return TimeSpan.FromSeconds(15); } } 
         public static TimeSpan DefaultTimeout { get { return TimeSpan.FromSeconds(7); } }
-
+        public static TimeSpan NoTimeout { get { return TimeSpan.Zero; } }
 
         public NotificationPosition Position { get; set; } = NotificationPosition.Normal;
         /// <summary>
