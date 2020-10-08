@@ -52,6 +52,7 @@
                         <TextBlock
                                 Grid.Column="0"
                                 Style="{StaticResource DialogLabelTextBlockStyle}"
+                                VerticalAlignment="Center"
                                 Text="{l:Localization ActivationCode.Label}" />
                         <PasswordBox
                                 x:Name="CodePasswordBox"
@@ -64,7 +65,13 @@
                                 MaxLength="{Binding MaxCodeLength}"
                                 PasswordChanged="CodePasswordBox_PasswordChanged"
                                 PreviewTextInput="PasswordBox_PreviewTextInput"
-                                Style="{StaticResource DialogPasswordBoxStyle}" />
+                                Foreground="{StaticResource DarkForeground}"
+                                BorderThickness ="0"
+                                HorizontalAlignment ="Stretch"
+                                FontSize="16"
+                                Background ="Transparent"
+                                CaretBrush="{StaticResource DarkForeground}"
+                                VerticalContentAlignment="Center"  />
                     </Grid>
                 </ContentControl>
             </StackPanel>
