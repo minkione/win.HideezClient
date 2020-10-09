@@ -685,7 +685,14 @@ namespace HideezClient.Models
                         await tempRemoteDevice.DeleteContext();
                         tempRemoteDevice.Dispose();
                     }
-                    await _remoteDeviceMessenger.DisconnectFromServer();
+                    try
+                    {
+                        await _remoteDeviceMessenger.DisconnectFromServer();
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // IMetaPubSub may throw InvalidOperationException if we try to disconnect without first connecting
+                    }
                 }
             }
             catch (Exception ex)
