@@ -1061,7 +1061,7 @@ namespace HideezClient.Models
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(OnLiftDeviceStorageLock);
                     _metaMessenger.Unsubscribe<SendPinMessage>(OnPinReceived);
                     _metaMessenger.Unsubscribe<SessionSwitchMessage>(OnSessionSwitch);
-                    _remoteDeviceMessenger.DisconnectFromServer();
+                    StopDeviceMessangerAsync();
                 }
 
                 disposed = true;
@@ -1077,6 +1077,24 @@ namespace HideezClient.Models
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        async void StopDeviceMessangerAsync()
+        {
+            try
+            {
+                await _remoteDeviceMessenger.DisconnectFromServer();
+            }
+            catch (InvalidOperationException)
+            {
+                // IMetaPubSub may throw InvalidOperationException if we try to disconnect without first connecting
+                // At the moment there is no reliable way to see if that is the case
+                // Therefore InvalidOperationException is handled silently
+            }
+            catch (Exception ex)
+            {
+                _log.WriteLine(ex);
+            }
         }
         #endregion
     }
