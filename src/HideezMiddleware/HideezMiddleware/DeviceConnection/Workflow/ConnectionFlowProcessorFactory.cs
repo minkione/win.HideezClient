@@ -52,7 +52,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 PermissionsCheckProcessor = new PermissionsCheckProcessor(_hesAccessManager, _serviceSettingsManager),
                 VaultConnectionProcessor = new VaultConnectionProcessor(_ui, _bondManager, _deviceManager, _log),
                 LicensingProcessor = new LicensingProcessor(_hesConnection, _ui, _log),
-                StateUpdateProcessor = new StateUpdateProcessor(_hesConnection, _ui, _log),
+                StateUpdateProcessor = new StateUpdateProcessor(_hesConnection, _log),
                 ActivationProcessor = new ActivationProcessor(_hesConnection, _ui, _log),
                 AccountsUpdateProcessor = new AccountsUpdateProcessor(_hesConnection, _log),
                 MasterkeyProcessor = new VaultAuthorizationProcessor(_hesConnection, _ui, _log),

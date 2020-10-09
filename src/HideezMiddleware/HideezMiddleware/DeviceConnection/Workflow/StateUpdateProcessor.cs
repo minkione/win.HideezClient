@@ -11,17 +11,15 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 {
     public class StateUpdateProcessor : Logger, IStateUpdateProcessor
     {
-        readonly IClientUiManager _ui;
         readonly IHesAppConnection _hesConnection;
 
-        public StateUpdateProcessor(IHesAppConnection hesConnection, IClientUiManager ui, ILog log)
+        public StateUpdateProcessor(IHesAppConnection hesConnection, ILog log)
             : base(nameof(StateUpdateProcessor), log)
         {
             _hesConnection = hesConnection;
-            _ui = ui;
         }
 
-        public async Task<HwVaultInfoFromHesDto> UpdateDeviceStatus(IDevice device, HwVaultInfoFromHesDto vaultInfo, CancellationToken ct)
+        public async Task<HwVaultInfoFromHesDto> UpdateVaultStatus(IDevice device, HwVaultInfoFromHesDto vaultInfo, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 

@@ -1,8 +1,6 @@
-﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.HES.Client;
+﻿using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.Tasks;
 using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
 using System.Threading;
@@ -31,8 +29,6 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.MasterKey.AwaitingHESAuth"], device.Mac);
 
                 await _hesConnection.AuthHwVault(device.SerialNo);
-
-                await new WaitMasterKeyProc(device).Run(SdkConfig.SystemStateEventWaitTimeout, ct);
 
                 await device.RefreshDeviceInfo();
             }

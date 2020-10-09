@@ -18,6 +18,6 @@ namespace HideezMiddleware.DeviceConnection.Workflow.Interfaces
         /// <exception cref="HideezException">Thrown when vault is wiped or an error occurs on the server</exception>
         /// <exception cref="OperationCanceledException">Thrown if cancellation token is cancelled.</exception>
         /// <returns>Returns updated <see cref="HwVaultInfoFromHesDto"/> after successfull link or unlock</returns>
-        Task<HwVaultInfoFromHesDto> UpdateDeviceStatus(IDevice device, HwVaultInfoFromHesDto vaultInfo, CancellationToken ct);
+        Task<HwVaultInfoFromHesDto> UpdateVaultStatus(IDevice device, HwVaultInfoFromHesDto vaultInfo, CancellationToken ct);
     }
 }
