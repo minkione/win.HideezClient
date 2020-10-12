@@ -30,7 +30,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             await ButtonWorkflow(device, timeout, ct);
 
             // A precaution, but we shouldn't reach this line
-            if (device.AccessLevel.IsLocked || !device.AccessLevel.IsButtonRequired || device.AccessLevel.IsPinRequired)
+            if (device.AccessLevel.IsLocked || device.AccessLevel.IsButtonRequired || device.AccessLevel.IsPinRequired)
                 throw new VaultFailedToAuthorizeException(TranslationSource.Instance["ConnectionFlow.UserAuthorization.Error.AuthFailed"]);
         }
 
