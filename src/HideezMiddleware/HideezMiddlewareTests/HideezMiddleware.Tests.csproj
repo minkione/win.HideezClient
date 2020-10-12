@@ -89,13 +89,10 @@
   </Choose>
   <ItemGroup>
     <Compile Include="BaseSettingsTests.cs" />
-    <Compile Include="DeviceConnectionTests\AccountsUpdateProcessorTests.cs" />
-    <Compile Include="DeviceConnectionTests\CacheVaultInfoProcessorTests.cs" />
-    <Compile Include="DeviceConnectionTests\LicensingProcessorTests.cs" />
-    <Compile Include="DeviceConnectionTests\StateUpdateProcessorTests.cs" />
-    <Compile Include="DeviceConnectionTests\UnlockProcessorTests.cs" />
-    <Compile Include="DeviceConnectionTests\UserAuthorizationProcessorTests.cs" />
-    <Compile Include="DeviceConnectionTests\VaultAuthorizationProcessorTests.cs" />
+    <Compile Include="VaultConnectionTests\AccountsUpdateProcessorTests.cs" />
+    <Compile Include="VaultConnectionTests\LicensingProcessorTests.cs" />
+    <Compile Include="VaultConnectionTests\StateUpdateProcessorTests.cs" />
+    <Compile Include="VaultConnectionTests\VaultAuthorizationProcessorTests.cs" />
     <Compile Include="TempTestFolder.cs" />
     <Compile Include="DeviceLogManagerTests.cs" />
     <Compile Include="DeviceLogWriterTests.cs" />

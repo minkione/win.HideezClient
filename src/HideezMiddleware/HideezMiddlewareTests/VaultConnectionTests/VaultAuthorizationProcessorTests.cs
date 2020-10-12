@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
-namespace HideezMiddleware.Tests.DeviceConnectionTests
+namespace HideezMiddleware.Tests.VaultConnectionTests
 {
     [TestClass]
     public class VaultAuthorizationProcessorTests

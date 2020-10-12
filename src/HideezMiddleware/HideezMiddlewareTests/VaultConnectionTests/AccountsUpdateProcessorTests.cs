@@ -8,7 +8,7 @@ using Moq;
 using System;
 using System.Threading.Tasks;
 
-namespace HideezMiddleware.Tests.DeviceConnectionTests
+namespace HideezMiddleware.Tests.VaultConnectionTests
 {
     [TestClass]
     public class AccountsUpdateProcessorTests
