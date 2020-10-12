@@ -89,6 +89,9 @@
   </Choose>
   <ItemGroup>
     <Compile Include="BaseSettingsTests.cs" />
+    <Compile Include="DeviceConnectionTests\AccountsUpdateProcessorTests.cs" />
+    <Compile Include="DeviceConnectionTests\CacheVaultInfoProcessorTests.cs" />
+    <Compile Include="DeviceConnectionTests\LicensingProcessorTests.cs" />
     <Compile Include="DeviceConnectionTests\StateUpdateProcessorTests.cs" />
     <Compile Include="DeviceConnectionTests\UnlockProcessorTests.cs" />
     <Compile Include="DeviceConnectionTests\UserAuthorizationProcessorTests.cs" />

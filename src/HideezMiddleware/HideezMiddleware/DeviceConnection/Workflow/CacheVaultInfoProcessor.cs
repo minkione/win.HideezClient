@@ -18,7 +18,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             _localDeviceInfoCache = localDeviceInfoCache;
         }
-        public void CacheAndUpdateVaultOwner( ref IDevice device, HwVaultInfoFromHesDto dto, CancellationToken ct)
+
+        public void CacheAndUpdateVaultOwner(ref IDevice device, HwVaultInfoFromHesDto dto, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
