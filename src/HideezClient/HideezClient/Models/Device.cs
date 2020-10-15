@@ -774,7 +774,8 @@ namespace HideezClient.Models
             catch (HideezException ex)
             {
                 _log.WriteLine(ex);
-                ShowError(ex.Message, Mac);
+                if(ex.ErrorCode!=HideezErrorCode.ChannelInitializationFailed)
+                    ShowError(ex.Message, Mac);
                 initErrorCode = ex.ErrorCode;
             }
             catch (Exception ex)
