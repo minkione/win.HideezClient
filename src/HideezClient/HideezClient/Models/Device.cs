@@ -726,7 +726,7 @@ namespace HideezClient.Models
                 }
 
                 _log.WriteLine("Checking for available channels");
-                var channelsReply = await _metaMessenger.ProcessOnServer<GetAvailableChannelsMessageReply>(new GetAvailableChannelsMessage(SerialNo), 0);
+                var channelsReply = await _metaMessenger.ProcessOnServer<GetAvailableChannelsMessageReply>(new GetAvailableChannelsMessage(SerialNo));
                 var channels = channelsReply.FreeChannels;
                 if (channels.Length == 0)
                     throw new Exception(string.Format(TranslationSource.Instance["Vault.Error.NoAvailableChannels"], SerialNo)); // Todo: separate exception type
