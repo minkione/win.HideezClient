@@ -85,6 +85,10 @@ namespace HideezClient.Controls
                         Closed?.Invoke(this, EventArgs.Empty);
                     });
                 }
+                else
+                {
+                    Closed?.Invoke(this, EventArgs.Empty);
+                }
 
             }
         }
