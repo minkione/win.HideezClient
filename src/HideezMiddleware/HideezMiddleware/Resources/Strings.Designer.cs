@@ -205,6 +205,15 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unexpected network error occured (code: {0}). Please, check your network connection and try to connect your vault again..
+        /// </summary>
+        internal static string ConnectionFlow_Error_UnexpectedNetworkError {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Error.UnexpectedNetworkError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your device is in bootloader mode. Please, contact your system administrator to update your firmware..
         /// </summary>
         internal static string ConnectionFlow_Error_VaultInBootloaderMode {

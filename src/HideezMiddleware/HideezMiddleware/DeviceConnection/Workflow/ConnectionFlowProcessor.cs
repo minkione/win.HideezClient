@@ -12,6 +12,7 @@ using HideezMiddleware.Settings;
 using HideezMiddleware.Tasks;
 using Microsoft.Win32;
 using System;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -237,7 +238,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Online);
 
-                await _hesConnection.UpdateHwVaultProperties(new HwVaultInfoFromClientDto(device), false);
+                if (_hesConnection.State == HesConnectionState.Connected)
+                    await _hesConnection.UpdateHwVaultProperties(new HwVaultInfoFromClientDto(device), false);
 
                 workflowFinishedSuccessfully = true;
             }
@@ -289,6 +291,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             {
                 // Silent timeout handling
                 WriteLine(ex);
+            }
+            catch (WebSocketException ex)
+            {
+                errorMessage = string.Format(TranslationSource.Instance["ConnectionFlow.Error.UnexpectedNetworkError"], ex.WebSocketErrorCode);
             }
             catch (Exception ex)
             {
