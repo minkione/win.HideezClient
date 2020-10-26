@@ -198,19 +198,9 @@ namespace ServiceLibrary.Implementation
             // HKLM\SOFTWARE\Hideez\Client, client_hes_address REG_SZ
             string hesAddress = RegistrySettings.GetHesAddress(_log);
 
-            if (!string.IsNullOrEmpty(hesAddress))
-            {
-                ServicePointManager.ServerCertificateValidationCallback +=
-                (sender, cert, chain, error) =>
-                {
-                    if (sender is HttpWebRequest request)
-                    {
-                        if (request.Address.AbsoluteUri.StartsWith(hesAddress))
-                            return true;
-                    }
-                    return error == SslPolicyErrors.None;
-                };
-            }
+            // Allow self-signed SSL certificate for specified address
+            EndpointCertificateManager.Enable();
+            EndpointCertificateManager.AllowCertificate(hesAddress);
 
             // WorkstationInfoProvider ==================================
             WorkstationHelper.Log = _sdkLogger;
@@ -1071,12 +1061,15 @@ namespace ServiceLibrary.Implementation
                 }
                 else
                 {
+                    EndpointCertificateManager.AllowCertificate(address);
                     var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(address, _sdkLogger).TimeoutAfter(5_000);
                     if (connectedOnNewAddress)
                     {
                         _log.WriteLine($"Passed connectivity check to {address}");
                         RegistrySettings.SetHesAddress(_log, address);
                         await _hesConnection.Stop();
+                        EndpointCertificateManager.DisableAllCertificates();
+                        EndpointCertificateManager.AllowCertificate(address);
                         _hesConnection.Start(address);
 
                         return ChangeServerAddressResult.Success;
@@ -1084,6 +1077,7 @@ namespace ServiceLibrary.Implementation
                     else
                     {
                         _log.WriteLine($"Failed connectivity check to {address}");
+                        EndpointCertificateManager.DisableCertificate(address);
                         return ChangeServerAddressResult.ConnectionTimedOut;
                     }
                 }
@@ -1091,6 +1085,7 @@ namespace ServiceLibrary.Implementation
             catch (Exception ex)
             {
                 _log.WriteLine(ex.Message, LogErrorSeverity.Information);
+                EndpointCertificateManager.DisableCertificate(address);
 
                 if (ex is TimeoutException)
                     return ChangeServerAddressResult.ConnectionTimedOut;
