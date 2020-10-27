@@ -143,7 +143,7 @@ namespace HideezClient.ViewModels
                 ErrorServerAddress = null;
                 try
                 {
-                    var response = await _metaMessenger.ProcessOnServer<ChangeServerAddressMessageReply>(new ChangeServerAddressMessage(ServerAddress), 60_000).ConfigureAwait(false);
+                    var response = await _metaMessenger.ProcessOnServer<ChangeServerAddressMessageReply>(new ChangeServerAddressMessage(ServerAddress)).ConfigureAwait(false);
 
                     switch (response.Result)
                     {

@@ -37,7 +37,7 @@ namespace HideezClient.Modules.Remote
 
             try
             {
-                var response = await _metaMessenger.ProcessOnServer<RemoteConnection_VerifyCommandMessageReply>(new RemoteConnection_VerifyCommandMessage(RemoteDevice.Id, data), SdkConfig.DeviceInitializationTimeout);
+                var response = await _metaMessenger.ProcessOnServer<RemoteConnection_VerifyCommandMessageReply>(new RemoteConnection_VerifyCommandMessage(RemoteDevice.Id, data));
                 RemoteDevice.OnVerifyResponse(response.Data, null);
             }
             catch (Exception ex)
@@ -66,7 +66,7 @@ namespace HideezClient.Modules.Remote
 
             try
             {
-                var response = await _metaMessenger.ProcessOnServer<RemoteConnection_RemoteCommandMessageReply>(new RemoteConnection_RemoteCommandMessage(RemoteDevice.Id, data), SdkConfig.DefaultRemoteCommandTimeout);
+                var response = await _metaMessenger.ProcessOnServer<RemoteConnection_RemoteCommandMessageReply>(new RemoteConnection_RemoteCommandMessage(RemoteDevice.Id, data));
                 RemoteDevice.OnCommandResponse(response.Data, null);
             }
             catch (Exception ex)

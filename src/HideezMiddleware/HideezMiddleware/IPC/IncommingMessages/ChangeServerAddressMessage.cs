@@ -9,6 +9,7 @@ namespace HideezMiddleware.IPC.IncommingMessages
         public ChangeServerAddressMessage(string serverAddress)
         {
             ServerAddress = serverAddress;
+            ResponseTimeout = 60_000;
         }
     }
 }

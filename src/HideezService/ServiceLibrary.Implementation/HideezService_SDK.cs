@@ -1096,7 +1096,7 @@ namespace ServiceLibrary.Implementation
             catch (Exception ex)
             {
                 _log.WriteLine(ex.Message, LogErrorSeverity.Information);
-                EndpointCertificateManager.DisableCertificate(address);
+                EndpointCertificateManager.DisableCertificate(args.ServerAddress);
 
                 if (ex is TimeoutException)
                     await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.ConnectionTimedOut));
