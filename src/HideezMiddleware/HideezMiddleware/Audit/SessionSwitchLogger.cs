@@ -1,8 +1,6 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
-using HideezMiddleware.DeviceConnection;
-using HideezMiddleware.Tasks;
 using Microsoft.Win32;
 using System;
 using System.Threading.Tasks;
@@ -26,7 +24,7 @@ namespace HideezMiddleware.Audit
         readonly EventSaver _eventSaver;
         readonly SessionUnlockMethodMonitor _sessionUnlockMethodMonitor;
         readonly WorkstationLockProcessor _workstationLockProcessor;
-        readonly BleDeviceManager _bleDeviceManager;
+        readonly DeviceManager _bleDeviceManager;
 
         LockProcedure _lockProcedure = null;
         readonly object _lpLock = new object();
@@ -34,7 +32,7 @@ namespace HideezMiddleware.Audit
         public SessionSwitchLogger(EventSaver eventSaver,
             SessionUnlockMethodMonitor sessionUnlockMethodMonitor,
             WorkstationLockProcessor workstationLockProcessor,
-            BleDeviceManager bleDeviceManager,
+            DeviceManager bleDeviceManager,
             ILog log)
             : base(nameof(SessionSwitchLogger), log)
         {

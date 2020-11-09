@@ -1,10 +1,9 @@
 ﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
-using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.BLE;
 using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
 using HideezMiddleware.ScreenActivation;
@@ -15,6 +14,7 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Hideez.SDK.Communication.Interfaces;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
@@ -34,7 +34,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             public IUnlockProcessor UnlockProcessor;
         }
 
-        readonly BleDeviceManager _deviceManager;
+        readonly DeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker; // Todo: remove and replace calls with unlockProcessor
         readonly IScreenActivator _screenActivator;
         readonly IClientUiManager _ui;
@@ -53,9 +53,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         public event EventHandler<string> Finished;
 
         public ConnectionFlowProcessor(
-            BleDeviceManager deviceManager,
+            DeviceManager deviceManager,
             IHesAppConnection hesConnection,
-            IWorkstationUnlocker workstationUnlocker,
+            Hideez.SDK.Communication.Interfaces.IWorkstationUnlocker workstationUnlocker,
             IScreenActivator screenActivator,
             IClientUiManager ui,
             IHesAccessManager hesAccessManager,
@@ -345,12 +345,12 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     else if (deleteVaultBond)
                     {
                         WriteLine($"Mainworkflow critical error, Removing ({device.Id})");
-                        await _deviceManager.Remove(device);
+                        await _deviceManager.ConnectionManager.DeleteBond(device.DeviceConnection);
                     }
                     else
                     {
                         WriteLine($"Main workflow failed, Disconnecting ({device.Id})");
-                        await _deviceManager.DisconnectDevice(device);
+                        await _deviceManager.ConnectionManager.Disconnect(device.DeviceConnection);
                     }
                 }
             }

@@ -8,7 +8,6 @@ using System.Windows;
 using System.Windows.Input;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.FW;
 using Hideez.SDK.Communication.HES.Client;
@@ -16,6 +15,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.LongOperations;
 using Hideez.SDK.Communication.PasswordManager;
+using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware;
 using HideezMiddleware.DeviceConnection;
@@ -29,8 +29,8 @@ namespace WinSampleApp.ViewModel
     public class MainWindowViewModel : ViewModelBase, IClientUiProxy, IWorkstationUnlocker
     {
         readonly EventLogger _log;
-        readonly BleConnectionManager _connectionManager;
-        readonly BleDeviceManager _deviceManager;
+        readonly IBleConnectionManager _csrConnectionManager;
+        readonly DeviceManager _deviceManager;
         readonly CredentialProviderProxy _credentialProviderProxy;
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly RfidConnectionProcessor _rfidProcessor;
@@ -49,7 +49,7 @@ namespace WinSampleApp.ViewModel
         public string OldPin { get; set; }
         public string CODE { get; set; }
         public string Passphrase { get; set; }
-        public string BleAdapterState => _connectionManager?.State.ToString();
+        public string BleAdapterState => _csrConnectionManager?.State.ToString();
 
         public string ConectByMacAddress1
         {
@@ -471,7 +471,7 @@ namespace WinSampleApp.ViewModel
                 {
                     CanExecuteFunc = () =>
                     {
-                        return _connectionManager.State == BluetoothAdapterState.PoweredOn && !BleAdapterDiscovering;
+                        return _csrConnectionManager.State == BluetoothAdapterState.PoweredOn && !BleAdapterDiscovering;
                     },
                     CommandAction = (x) =>
                     {
@@ -489,7 +489,7 @@ namespace WinSampleApp.ViewModel
                 {
                     CanExecuteFunc = () =>
                     {
-                        return _connectionManager.State == BluetoothAdapterState.PoweredOn && BleAdapterDiscovering;
+                        return _csrConnectionManager.State == BluetoothAdapterState.PoweredOn && BleAdapterDiscovering;
                     },
                     CommandAction = (x) =>
                     {
@@ -529,7 +529,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        RemoveAllDevices(x);
+                        RemoveAllDevices();
                     }
                 };
             }
@@ -673,7 +673,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        _ = AddDeviceChannel(CurrentDevice);
+                        AddDeviceChannel(CurrentDevice);
                     }
                 };
             }
@@ -691,7 +691,7 @@ namespace WinSampleApp.ViewModel
                     },
                     CommandAction = (x) =>
                     {
-                        _ = RemoveDeviceChannel(CurrentDevice);
+                        RemoveDeviceChannel(CurrentDevice);
                     }
                 };
             }
@@ -710,24 +710,6 @@ namespace WinSampleApp.ViewModel
                     CommandAction = (x) =>
                     {
                         Test();
-                    }
-                };
-            }
-        }
-
-        public ICommand BoostDeviceRssiCommand
-        {
-            get
-            {
-                return new DelegateCommand
-                {
-                    CanExecuteFunc = () =>
-                    {
-                        return CurrentDevice != null;
-                    },
-                    CommandAction = (x) =>
-                    {
-                        _ = BoostDeviceRssi(CurrentDevice);
                     }
                 };
             }
@@ -1027,16 +1009,17 @@ namespace WinSampleApp.ViewModel
                 var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
                 var bondsFolderPath = $"{commonAppData}\\Hideez\\Service\\Bonds";
 
-                _connectionManager = new BleConnectionManager(_log, bondsFolderPath);
-                _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-                _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
-                _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
-                _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+                _csrConnectionManager = new BleConnectionManager(_log, bondsFolderPath);
+                _csrConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+                _csrConnectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
+                _csrConnectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
+                _csrConnectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
 
                 // BLE ============================
-                _deviceManager = new BleDeviceManager(_log, _connectionManager);
-                _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
-                _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
+                _deviceManager = new DeviceManager(_csrConnectionManager, _log);
+
+                _deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
+                _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
 
                 // WorkstationInfoProvider ==================================
                 var clientRegistryRoot = HideezClientRegistryRoot.GetRootRegistryKey(true);
@@ -1102,13 +1085,14 @@ namespace WinSampleApp.ViewModel
                 _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, rfidSettingsManager, null, uiProxyManager, _log);
                 _rfidProcessor.Start();
 
-                _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _connectionManager, _log);
+                _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _csrConnectionManager, _log);
                 _tapProcessor.Start();
 
                 // StatusManager =============================
-                var statusManager = new StatusManager(_hesConnection, null, _rfidService, _connectionManager, uiProxyManager, rfidSettingsManager, null, _log);
+                var statusManager = new StatusManager(_hesConnection, null, _rfidService, _csrConnectionManager, uiProxyManager, rfidSettingsManager, null, _log);
 
-                _connectionManager.StartDiscovery();
+                _csrConnectionManager.Start();
+                _csrConnectionManager.StartDiscovery();
 
                 ClientConnected?.Invoke(this, EventArgs.Empty);
             }
@@ -1149,25 +1133,28 @@ namespace WinSampleApp.ViewModel
             _credentialProviderProxy?.Stop();
         }
 
-        void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
+        void DeviceManager_DeviceAdded(object sender, DeviceAddedEventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                if (e.AddedDevice != null)
-                {
-                    var deviceViewModel = new DeviceViewModel(e.AddedDevice);
+                    var deviceViewModel = new DeviceViewModel(e.Device);
                     Devices.Add(deviceViewModel);
                     if (CurrentDevice == null)
                         CurrentDevice = deviceViewModel;
-                }
-                else if (e.RemovedDevice != null)
-                {
-                    var item = Devices.FirstOrDefault(x => x.Id == e.RemovedDevice.Id &&
-                                                           x.ChannelNo == e.RemovedDevice.ChannelNo);
 
-                    if (item != null)
-                        Devices.Remove(item);
-                }
+                    e.Device.Start();
+            });
+        }
+
+        void DeviceManager_DeviceRemoved(object sender, DeviceRemovedEventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var item = Devices.FirstOrDefault(x => x.Id == e.Device.Id && 
+                                                    x.ChannelNo == e.Device.ChannelNo);
+
+                if (item != null)
+                    Devices.Remove(item);
             });
         }
 
@@ -1201,19 +1188,19 @@ namespace WinSampleApp.ViewModel
 
         void ResetBleAdapter()
         {
-            _connectionManager.Restart();
+            _csrConnectionManager.Restart();
         }
 
         void StartDiscovery()
         {
             //DiscoveredDevices.Clear();
-            _connectionManager.StartDiscovery();
+            _csrConnectionManager.StartDiscovery();
             BleAdapterDiscovering = true;
         }
 
         void StopDiscovery()
         {
-            _connectionManager.StopDiscovery();
+            _csrConnectionManager.StopDiscovery();
             BleAdapterDiscovering = false;
             DiscoveredDevices.Clear();
         }
@@ -1223,11 +1210,12 @@ namespace WinSampleApp.ViewModel
             DiscoveredDevices.Clear();
         }
 
-        async void RemoveAllDevices(object x)
+        async void RemoveAllDevices()
         {
             try
             {
-                await _deviceManager.RemoveAll();
+                foreach (var connection in _csrConnectionManager.DeviceConnections)
+                    await _csrConnectionManager.DeleteBond(connection);
             }
             catch (Exception ex)
             {
@@ -1237,7 +1225,7 @@ namespace WinSampleApp.ViewModel
 
         void ConnectDiscoveredDevice(DiscoveredDeviceAddedEventArgs e)
         {
-            _connectionManager.ConnectDiscoveredDeviceAsync(e.Id);
+            _csrConnectionManager.Connect(e.Id);
         }
 
         async Task ConnectDeviceByMac(string mac)
@@ -1246,7 +1234,8 @@ namespace WinSampleApp.ViewModel
             {
                 _log.WriteLine("MainVM", $"Waiting Device connection {mac} ..........................");
 
-                var device = await _deviceManager.ConnectDevice(mac, timeout: 10_000);
+                var con = await _deviceManager.ConnectionManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+                var device = _deviceManager.Find(con.Id, (byte)DefaultDeviceChannel.Main);
 
                 if (device != null)
                     _log.WriteLine("MainVM", $"Device connected {device.Name} ++++++++++++++++++++++++");
@@ -1263,7 +1252,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                _deviceManager.ConnectDevice(device.Device);
+                _csrConnectionManager.Connect(device.Device.DeviceConnection.Id);
             }
             catch (Exception ex)
             {
@@ -1275,7 +1264,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await _deviceManager.DisconnectDevice(device.Device);
+                await _csrConnectionManager.Disconnect(device.Device.DeviceConnection);
             }
             catch (Exception ex)
             {
@@ -1335,14 +1324,14 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        async Task AddDeviceChannel(DeviceViewModel currentDevice)
+        void AddDeviceChannel(DeviceViewModel currentDevice)
         {
-            _ = await _deviceManager.AddChannel(currentDevice.Device, _nextChannelNo++, isRemote: false);
+            _deviceManager.AddDeviceChannel(currentDevice.Device, _nextChannelNo++);
         }
 
-        async Task RemoveDeviceChannel(DeviceViewModel currentDevice)
+        void RemoveDeviceChannel(DeviceViewModel currentDevice)
         {
-            await _deviceManager.Remove(currentDevice.Device);
+            _deviceManager.RemoveDeviceChannel(currentDevice.Device);
             _nextChannelNo--;
         }
 
@@ -1465,18 +1454,6 @@ namespace WinSampleApp.ViewModel
             {
                 MessageBox.Show(HideezExceptionLocalization.GetErrorAsString(ex));
                 await device.Device.RefreshDeviceInfo();
-            }
-        }
-
-        async Task BoostDeviceRssi(DeviceViewModel device)
-        {
-            try
-            {
-                await device.Device.BoostRssi(100, 15);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
             }
         }
 

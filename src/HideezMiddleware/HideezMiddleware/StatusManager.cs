@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
-using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
-using HideezMiddleware.IPC.Messages;
+using Hideez.SDK.Communication.BLE;
 using HideezMiddleware.Settings;
-using Meta.Lib.Modules.PubSub;
-using Meta.Lib.Modules.PubSub.Messages;
 
 namespace HideezMiddleware
 {

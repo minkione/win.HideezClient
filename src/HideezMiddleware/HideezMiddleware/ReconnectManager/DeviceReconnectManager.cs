@@ -14,7 +14,7 @@ namespace HideezMiddleware.ReconnectManager
     public class DeviceReconnectManager : Logger, IDisposable
     {
         readonly ProximityMonitorManager _proximityMonitorManager;
-        readonly BleDeviceManager _deviceManager;
+        readonly DeviceManager _deviceManager;
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
 
         readonly object _reconnectListLock = new object();
@@ -26,7 +26,7 @@ namespace HideezMiddleware.ReconnectManager
         public event EventHandler<IDevice> DeviceDisconnected;
 
         public DeviceReconnectManager(ProximityMonitorManager proximityMonitorManager, 
-            BleDeviceManager deviceManager, 
+            DeviceManager deviceManager, 
             ConnectionFlowProcessor connectionFlowProcessor, 
             ILog log)
             : base(nameof(DeviceReconnectManager), log)
@@ -51,21 +51,21 @@ namespace HideezMiddleware.ReconnectManager
             EnableDeviceReconnect(e);
         }
 
-        void DeviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
+        void DeviceManager_DeviceRemoved(object sender, DeviceRemovedEventArgs e)
         {
-            DisableDeviceReconnect(e.RemovedDevice);
+            DisableDeviceReconnect(e.Device);
         }
 
         async void ProximityMonitorManager_DeviceBelowLockForToLong(object sender, IDevice device)
         {
             DisableDeviceReconnect(device);
-            await _deviceManager.DisconnectDevice(device);
+            await _deviceManager.ConnectionManager.Disconnect(device.DeviceConnection);
         }
 
         async void ProximityMonitorManager_DeviceProximityTimeout(object sender, IDevice device)
         {
             DisableDeviceReconnect(device);
-            await _deviceManager.DisconnectDevice(device);
+            await _deviceManager.ConnectionManager.Disconnect(device.DeviceConnection);
         }
 
         void ProximityMonitorManager_DeviceConnectionLost(object sender, IDevice device)
@@ -90,7 +90,7 @@ namespace HideezMiddleware.ReconnectManager
         {
             lock (_reconnectListLock)
             {
-                EnableDeviceReconnect(device.Id);
+                EnableDeviceReconnect(device);
             }
         }
 
@@ -186,7 +186,7 @@ namespace HideezMiddleware.ReconnectManager
         {
             lock (_reconnectListLock)
             {
-                if (!device.IsBoot && !device.IsRemote)
+                if (!device.IsBoot && !(device is IRemoteDeviceProxy))
                 {
                     WriteLine($"{device.SerialNo} reconnect re-enabled");
                     _reconnectAllowedList.Add(device.SerialNo);
@@ -194,35 +194,15 @@ namespace HideezMiddleware.ReconnectManager
             }
         }
 
-        public void EnableDeviceReconnect(string deviceId)
-        {
-            lock (_reconnectListLock)
-            {
-                var device = _deviceManager.Find(deviceId);
-                if (device != null)
-                    EnableDeviceReconnect(device);
-            }
-        }
-
         public void DisableDeviceReconnect(IDevice device)
         {
             lock (_reconnectListLock)
             {
-                if (!device.IsBoot && !device.IsRemote)
+                if (!device.IsBoot && !(device is IRemoteDeviceProxy))
                 {
                     WriteLine($"{device.SerialNo} reconnect disabled");
                     _reconnectAllowedList.Remove(device.SerialNo);
                 }
-            }
-        }
-
-        public void DisableDeviceReconnect(string deviceId)
-        {
-            lock (_reconnectListLock)
-            {
-                var device = _deviceManager.Find(deviceId);
-                if (device != null)
-                    DisableDeviceReconnect(device);
             }
         }
 

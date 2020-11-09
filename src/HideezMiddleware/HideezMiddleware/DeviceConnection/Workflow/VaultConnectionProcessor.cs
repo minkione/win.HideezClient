@@ -1,12 +1,13 @@
 ﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.BLE;
 using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
+using Meta.Lib.Utils;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Hideez.SDK.Communication.Interfaces;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
@@ -14,9 +15,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
     {
         readonly IClientUiManager _ui;
         readonly BondManager _bondManager;
-        readonly BleDeviceManager _deviceManager;
+        readonly DeviceManager _deviceManager;
 
-        public VaultConnectionProcessor(IClientUiManager ui, BondManager bondManager, BleDeviceManager deviceManager, ILog log)
+        public VaultConnectionProcessor(IClientUiManager ui, BondManager bondManager, DeviceManager deviceManager, ILog log)
             : base(nameof(VaultConnectionProcessor), log)
         {
             _ui = ui;
@@ -35,7 +36,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             IDevice device = null;
             try
             {
-                device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
+                // Todo: This entire class will have to be changed to adapt to win ble
+                var con = await _deviceManager.ConnectionManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+                device = _deviceManager.Find(con.Id, (byte)DefaultDeviceChannel.Main);
             }
             catch (Exception ex) // Thrown when LTK error occurs in csr
             {
@@ -59,7 +62,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 try
                 {
-                    device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout / 2);
+                    var con = await _deviceManager.ConnectionManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout / 2);
+                    device = _deviceManager.Find(con.Id, (byte)DefaultDeviceChannel.Main);
                 }
                 catch (Exception ex) // Thrown when LTK error occurs in csr
                 {
@@ -72,14 +76,15 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     ct.ThrowIfCancellationRequested();
 
                     // remove the bond and try one more time
-                    await _deviceManager.RemoveByMac(mac);
+                    await _deviceManager.ConnectionManager.DeleteBond(mac);
 
                     if (ltkErrorOccured)
                         await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage3.LtkError.PressButton"], mac); // TODO: Fix LTK error in CSR
                     else
                         await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage3.PressButton"], mac);
 
-                    device = await _deviceManager.ConnectDevice(mac, SdkConfig.ConnectDeviceTimeout);
+                    var con = await _deviceManager.ConnectionManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+                    device = _deviceManager.Find(con.Id, (byte)DefaultDeviceChannel.Main);
                 }
             }
 
@@ -100,7 +105,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             if (device.IsErrorState)
             {
-                await _deviceManager.Remove(device);
+                await _deviceManager.ConnectionManager.RemoveConnection(device.DeviceConnection);
                 throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Initialization.DeviceInitializationError", mac, device.ErrorMessage));
             }
         }

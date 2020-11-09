@@ -16,7 +16,7 @@ namespace HideezMiddleware
 
         readonly ConnectionFlowProcessor _flowProcessor;
         readonly ProximityMonitorManager _proximityMonitorManager;
-        readonly BleDeviceManager _deviceManager;
+        readonly DeviceManager _deviceManager;
         readonly IWorkstationLocker _workstationLocker;
         readonly DeviceReconnectManager _deviceReconnectManager;
 
@@ -28,7 +28,7 @@ namespace HideezMiddleware
         public WorkstationLockProcessor(
             ConnectionFlowProcessor flowProcessor, 
             ProximityMonitorManager proximityMonitorManager, 
-            BleDeviceManager deviceManager, 
+            DeviceManager deviceManager, 
             IWorkstationLocker workstationLocker, 
             DeviceReconnectManager deviceReconnectManager,
             ILog log)
@@ -56,7 +56,7 @@ namespace HideezMiddleware
 
             lock (_deviceListsLock)
             {
-                if (!device.IsRemote && !device.IsBoot)
+                if (!(device is IRemoteDeviceProxy) && !device.IsBoot)
                 {
                     // Limit of one device that may be authorized for workstation lock
                     if (_deviceManager.Devices.Any(d => d.IsConnected && d.Id != device.Id && d.GetUserProperty<bool>(PROX_LOCK_ENABLED_PROP)))

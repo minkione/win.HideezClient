@@ -1,7 +1,7 @@
-﻿using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.HES.Client;
+﻿using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.BLE;
 using HideezMiddleware.Local;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
@@ -10,7 +10,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 {
     public class ConnectionFlowProcessorFactory
     {
-        private readonly BleDeviceManager _deviceManager;
+        private readonly DeviceManager _deviceManager;
         private readonly BondManager _bondManager;
         private readonly IHesAppConnection _hesConnection;
         private readonly IWorkstationUnlocker _workstationUnlocker;
@@ -22,7 +22,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         private readonly ILog _log;
 
         public ConnectionFlowProcessorFactory(
-            BleDeviceManager deviceManager,
+            DeviceManager deviceManager,
             BondManager bondManager,
             IHesAppConnection hesConnection,
             IWorkstationUnlocker workstationUnlocker,

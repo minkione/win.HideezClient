@@ -26,7 +26,7 @@ namespace HideezMiddleware.DeviceConnection
         readonly ISettingsManager<ProximitySettings> _proximitySettingsManager;
         readonly ISettingsManager<WorkstationSettings> _workstationSettingsManager;
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
-        readonly BleDeviceManager _bleDeviceManager;
+        readonly DeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
         readonly IHesAccessManager _hesAccessManager;
         readonly object _lock = new object();
@@ -45,7 +45,7 @@ namespace HideezMiddleware.DeviceConnection
             ISettingsManager<ProximitySettings> proximitySettingsManager,
             ISettingsManager<WorkstationSettings> workstationSettingsManager,
             AdvertisementIgnoreList advIgnoreListMonitor,
-            BleDeviceManager bleDeviceManager,
+            DeviceManager deviceManager,
             IWorkstationUnlocker workstationUnlocker,
             IHesAccessManager hesAccessManager,
             ILog log) 
@@ -56,7 +56,7 @@ namespace HideezMiddleware.DeviceConnection
             _proximitySettingsManager = proximitySettingsManager ?? throw new ArgumentNullException(nameof(proximitySettingsManager));
             _workstationSettingsManager = workstationSettingsManager ?? throw new ArgumentNullException(nameof(workstationSettingsManager));
             _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
-            _bleDeviceManager = bleDeviceManager ?? throw new ArgumentNullException(nameof(bleDeviceManager));
+            _deviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
             _workstationUnlocker = workstationUnlocker ?? throw new ArgumentNullException(nameof(workstationUnlocker));
             _hesAccessManager = hesAccessManager ?? throw new ArgumentNullException(nameof(hesAccessManager));
         }
@@ -165,7 +165,7 @@ namespace HideezMiddleware.DeviceConnection
             {
                 try
                 {
-                    var device = _bleDeviceManager.Devices.FirstOrDefault(d => d.Mac == mac && !d.IsRemote && !d.IsBoot);
+                    var device = _deviceManager.Devices.FirstOrDefault(d => d.Mac == mac && !(d is IRemoteDeviceProxy) && !d.IsBoot);
 
                     // Unlocked Workstation, Device not found OR Device not connected - dont add to ignore
                     if (!_workstationUnlocker.IsConnected && (device == null || (device != null && !device.IsConnected)))
