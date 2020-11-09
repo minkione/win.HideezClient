@@ -1,8 +1,9 @@
 ﻿using DeviceMaintenance.ViewModel;
+using Meta.Lib.Modules.PubSub;
 
 namespace DeviceMaintenance.Messages
 {
-    public class DeviceWipedEvent : MessageBase
+    public class DeviceWipedEvent : PubSubMessageBase
     {
         public DeviceViewModel DeviceViewModel { get; }
 

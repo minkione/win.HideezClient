@@ -1,6 +1,8 @@
-﻿namespace DeviceMaintenance.Messages
+﻿using Meta.Lib.Modules.PubSub;
+
+namespace DeviceMaintenance.Messages
 {
-    public class StartDiscoveryCommand : MessageBase
+    public class StartDiscoveryCommand : PubSubMessageBase
     {
     }
 }

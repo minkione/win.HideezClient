@@ -191,9 +191,7 @@ namespace DeviceMaintenance.ViewModel
             try
             {
                 var res = await _hub.Process<ConnectDeviceResponse>(
-                    new ConnectDeviceCommand(_mac),
-                    SdkConfig.ConnectDeviceTimeout * 2 + SdkConfig.DeviceInitializationTimeout,
-                    x => x.Mac == _mac);
+                    new ConnectDeviceCommand(_mac), x => x.Mac == _mac);
 
                 if (res.Device == null)
                     throw new Exception("Failed to connect device");
@@ -216,7 +214,7 @@ namespace DeviceMaintenance.ViewModel
                 CurrentState = State.EnteringBoot;
 
                 var res = await _hub.Process<EnterBootResponse>(
-                    new EnterBootCommand(this, filePath, _device, _longOperation), 5_000);
+                    new EnterBootCommand(this, filePath, _device, _longOperation));
 
                 CurrentState = State.Updating;
 

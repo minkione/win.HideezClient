@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DeviceMaintenance.Messages
 {
-    public class MessageBase : IPubSubMessage
+    public class MessageBase// : IPubSubMessage
     {
         public bool DeliverAtLeastOnce => true;
 
