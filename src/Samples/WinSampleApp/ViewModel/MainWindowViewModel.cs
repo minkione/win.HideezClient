@@ -1141,8 +1141,6 @@ namespace WinSampleApp.ViewModel
                     Devices.Add(deviceViewModel);
                     if (CurrentDevice == null)
                         CurrentDevice = deviceViewModel;
-
-                    e.Device.Start();
             });
         }
 
