@@ -36,9 +36,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             IDevice device = null;
             try
             {
-                // Todo: This entire class will have to be changed to adapt to win ble
-                var con = await _deviceManager.ConnectionManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
-                device = _deviceManager.Find(con.Id, (byte)DefaultDeviceChannel.Main);
+                device = await _deviceManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
             }
             catch (Exception ex) // Thrown when LTK error occurs in csr
             {
@@ -62,8 +60,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 try
                 {
-                    var con = await _deviceManager.ConnectionManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout / 2);
-                    device = _deviceManager.Find(con.Id, (byte)DefaultDeviceChannel.Main);
+                    device = await _deviceManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout / 2);
                 }
                 catch (Exception ex) // Thrown when LTK error occurs in csr
                 {
@@ -83,8 +80,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     else
                         await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage3.PressButton"], mac);
 
-                    var con = await _deviceManager.ConnectionManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
-                    device = _deviceManager.Find(con.Id, (byte)DefaultDeviceChannel.Main);
+                    device = await _deviceManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
                 }
             }
 

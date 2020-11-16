@@ -3,6 +3,7 @@ using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
 using Microsoft.Win32;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.Audit
@@ -24,7 +25,7 @@ namespace HideezMiddleware.Audit
         readonly EventSaver _eventSaver;
         readonly SessionUnlockMethodMonitor _sessionUnlockMethodMonitor;
         readonly WorkstationLockProcessor _workstationLockProcessor;
-        readonly DeviceManager _bleDeviceManager;
+        readonly DeviceManager _deviceManager;
 
         LockProcedure _lockProcedure = null;
         readonly object _lpLock = new object();
@@ -32,14 +33,14 @@ namespace HideezMiddleware.Audit
         public SessionSwitchLogger(EventSaver eventSaver,
             SessionUnlockMethodMonitor sessionUnlockMethodMonitor,
             WorkstationLockProcessor workstationLockProcessor,
-            DeviceManager bleDeviceManager,
+            DeviceManager deviceManager,
             ILog log)
             : base(nameof(SessionSwitchLogger), log)
         {
             _eventSaver = eventSaver;
             _sessionUnlockMethodMonitor = sessionUnlockMethodMonitor;
             _workstationLockProcessor = workstationLockProcessor;
-            _bleDeviceManager = bleDeviceManager;
+            _deviceManager = deviceManager;
 
             _workstationLockProcessor.WorkstationLocking += WorkstationLockProcessor_WorkstationLocking;
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
@@ -145,7 +146,9 @@ namespace HideezMiddleware.Audit
                 if (_lockProcedure != null && (DateTime.UtcNow - _lockProcedure.Time).TotalSeconds <= LOCK_EVENT_TIMEOUT)
                 {
                     we.Note = _lockProcedure.Reason.ToString();
-                    we.DeviceId = _bleDeviceManager.Find(_lockProcedure.Mac, 1)?.SerialNo; // Todo: Replace channel magic number with const
+                    we.DeviceId = _deviceManager.Devices
+                        .FirstOrDefault( d => d.Mac == _lockProcedure.Mac 
+                        && d.ChannelNo == (byte)DefaultDeviceChannel.Main)?.SerialNo;
                 }
                 else
                     we.Note = WorkstationLockingReason.NonHideez.ToString();
@@ -182,7 +185,9 @@ namespace HideezMiddleware.Audit
                 procedure.FlowUnlockResult.IsSuccessful)
             {
                 we.Note = _sessionUnlockMethodMonitor.GetUnlockMethod().ToString();
-                we.DeviceId = _bleDeviceManager.Find(procedure.FlowUnlockResult.DeviceMac, 1)?.SerialNo;
+                we.DeviceId = _deviceManager.Devices
+                        .FirstOrDefault(d => d.Mac == procedure.FlowUnlockResult.DeviceMac
+                       && d.ChannelNo == (byte)DefaultDeviceChannel.Main)?.SerialNo;
                 we.AccountLogin = procedure.FlowUnlockResult.AccountLogin;
                 we.AccountName = procedure.FlowUnlockResult.AccountName;
                 WriteLine($"Procedure successful ({we.DeviceId}, method: {we.Note})");

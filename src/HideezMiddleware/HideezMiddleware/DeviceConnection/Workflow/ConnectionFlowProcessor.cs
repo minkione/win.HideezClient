@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Interfaces;
+using System.Linq;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
@@ -165,7 +166,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
-            var existingDevice = _deviceManager.Find(mac, (int)DefaultDeviceChannel.Main);
+            var existingDevice = _deviceManager.Devices.FirstOrDefault(d => d.Mac == mac && d.ChannelNo == (int)DefaultDeviceChannel.Main);
             if (existingDevice != null && existingDevice.IsConnected && !WorkstationHelper.IsActiveSessionLocked())
                 return;
 

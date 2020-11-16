@@ -1212,7 +1212,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                foreach (var connection in _csrConnectionManager.DeviceConnections)
+                foreach (var connection in _csrConnectionManager.ConnectionControllers)
                     await _csrConnectionManager.DeleteBond(connection);
             }
             catch (Exception ex)
@@ -1232,8 +1232,7 @@ namespace WinSampleApp.ViewModel
             {
                 _log.WriteLine("MainVM", $"Waiting Device connection {mac} ..........................");
 
-                var con = await _deviceManager.ConnectionManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
-                var device = _deviceManager.Find(con.Id, (byte)DefaultDeviceChannel.Main);
+                var device = await _deviceManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
 
                 if (device != null)
                     _log.WriteLine("MainVM", $"Device connected {device.Name} ++++++++++++++++++++++++");
@@ -1324,7 +1323,8 @@ namespace WinSampleApp.ViewModel
 
         void AddDeviceChannel(DeviceViewModel currentDevice)
         {
-            _deviceManager.AddDeviceChannel(currentDevice.Device, _nextChannelNo++);
+            var newDevice = _deviceManager.AddDeviceChannel(currentDevice.Device, _nextChannelNo++);
+            Task.Run(newDevice.Initialize);
         }
 
         void RemoveDeviceChannel(DeviceViewModel currentDevice)
