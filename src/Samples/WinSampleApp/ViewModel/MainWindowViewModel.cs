@@ -1212,8 +1212,8 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                foreach (var connection in _csrConnectionManager.ConnectionControllers)
-                    await _csrConnectionManager.DeleteBond(connection);
+                foreach (var device in _deviceManager.Devices.ToList())
+                    await _deviceManager.DeleteBond(device.DeviceConnection);
             }
             catch (Exception ex)
             {
@@ -1221,9 +1221,9 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        void ConnectDiscoveredDevice(DiscoveredDeviceAddedEventArgs e)
+        async void ConnectDiscoveredDevice(DiscoveredDeviceAddedEventArgs e)
         {
-            _csrConnectionManager.Connect(e.Id);
+            await _deviceManager.Connect(e.Id);
         }
 
         async Task ConnectDeviceByMac(string mac)
@@ -1245,11 +1245,11 @@ namespace WinSampleApp.ViewModel
             }
         }
 
-        void ConnectDevice(DeviceViewModel device)
+        async void ConnectDevice(DeviceViewModel device)
         {
             try
             {
-                _csrConnectionManager.Connect(device.Device.DeviceConnection.Id);
+                await _deviceManager.Connect(device.Device.DeviceConnection.Id);
             }
             catch (Exception ex)
             {
@@ -1261,7 +1261,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await _csrConnectionManager.Disconnect(device.Device.DeviceConnection);
+                await _deviceManager.Disconnect(device.Device.DeviceConnection);
             }
             catch (Exception ex)
             {
