@@ -59,13 +59,13 @@ namespace HideezMiddleware.ReconnectManager
         async void ProximityMonitorManager_DeviceBelowLockForToLong(object sender, IDevice device)
         {
             DisableDeviceReconnect(device);
-            await _deviceManager.ConnectionManager.Disconnect(device.DeviceConnection);
+            await _deviceManager.Disconnect(device.DeviceConnection);
         }
 
         async void ProximityMonitorManager_DeviceProximityTimeout(object sender, IDevice device)
         {
             DisableDeviceReconnect(device);
-            await _deviceManager.ConnectionManager.Disconnect(device.DeviceConnection);
+            await _deviceManager.Disconnect(device.DeviceConnection);
         }
 
         void ProximityMonitorManager_DeviceConnectionLost(object sender, IDevice device)

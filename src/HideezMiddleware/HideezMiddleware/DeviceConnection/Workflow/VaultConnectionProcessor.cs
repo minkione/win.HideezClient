@@ -73,7 +73,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     ct.ThrowIfCancellationRequested();
 
                     // remove the bond and try one more time
-                    await _deviceManager.ConnectionManager.DeleteBond(mac);
+                    await _deviceManager.DeleteBond(mac);
 
                     if (ltkErrorOccured)
                         await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage3.LtkError.PressButton"], mac); // TODO: Fix LTK error in CSR
@@ -101,7 +101,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             if (device.IsErrorState)
             {
-                await _deviceManager.ConnectionManager.RemoveConnection(device.DeviceConnection);
+                await _deviceManager.RemoveConnection(device.DeviceConnection);
                 throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Initialization.DeviceInitializationError", mac, device.ErrorMessage));
             }
         }

@@ -346,12 +346,12 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     else if (deleteVaultBond)
                     {
                         WriteLine($"Mainworkflow critical error, Removing ({device.Id})");
-                        await _deviceManager.ConnectionManager.DeleteBond(device.DeviceConnection);
+                        await _deviceManager.DeleteBond(device.DeviceConnection);
                     }
                     else
                     {
                         WriteLine($"Main workflow failed, Disconnecting ({device.Id})");
-                        await _deviceManager.ConnectionManager.Disconnect(device.DeviceConnection);
+                        await _deviceManager.Disconnect(device.DeviceConnection);
                     }
                 }
             }
