@@ -1324,7 +1324,7 @@ namespace WinSampleApp.ViewModel
         void AddDeviceChannel(DeviceViewModel currentDevice)
         {
             var newDevice = _deviceManager.AddDeviceChannel(currentDevice.Device, _nextChannelNo++);
-            Task.Run(newDevice.Initialize);
+            Task.Run(newDevice.VerifyAndInitialize);
         }
 
         void RemoveDeviceChannel(DeviceViewModel currentDevice)
