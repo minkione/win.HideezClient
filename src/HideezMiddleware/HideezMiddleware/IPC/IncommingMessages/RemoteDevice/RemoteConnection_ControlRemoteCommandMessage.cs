@@ -2,13 +2,13 @@
 
 namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
 {
-    public sealed class RemoteConnection_RemoteCommandMessage : PubSubMessageBase
+    public class RemoteConnection_ControlRemoteCommandMessage : PubSubMessageBase
     {
         public string ConnectionId { get; set; }
 
         public string Data { get; set; }
 
-        public RemoteConnection_RemoteCommandMessage(string connectionid, string data)
+        public RemoteConnection_ControlRemoteCommandMessage(string connectionid, string data)
         {
             ConnectionId = connectionid;
             Data = data;

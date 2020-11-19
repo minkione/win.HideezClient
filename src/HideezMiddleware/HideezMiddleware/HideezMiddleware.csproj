@@ -165,6 +165,7 @@
     <Compile Include="IPC\IncommingMessages\GetAvailableChannelsMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\PublishEventMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RefreshServiceInfoMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_ControlRemoteCommandMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_RemoteCommandMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_RemoteCommandMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_ResetChannelMessage.cs" />

@@ -417,6 +417,7 @@
     <Compile Include="Modules\ProximityLockManager\IProximityLockManager.cs" />
     <Compile Include="Modules\ProximityLockManager\ProximityLockManager.cs" />
     <Compile Include="Modules\Remote\IRemoteDeviceFactory.cs" />
+    <Compile Include="Modules\Remote\PipeRemoteDeviceConnection.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceCommands.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceEvents.cs" />
     <Compile Include="Modules\Remote\RemoteDeviceFactory.cs" />
