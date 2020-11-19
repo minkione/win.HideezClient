@@ -4,9 +4,9 @@ namespace HideezClient.Messages
 {
     class ShowDeviceLockedByPinNotificationMessage
     {
-        public Device Device { get; set; }
+        public DeviceModel Device { get; set; }
 
-        public ShowDeviceLockedByPinNotificationMessage(Device device)
+        public ShowDeviceLockedByPinNotificationMessage(DeviceModel device)
         {
             Device = device;
         }

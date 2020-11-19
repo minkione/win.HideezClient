@@ -12,7 +12,7 @@ namespace HideezClient.ViewModels
         private MenuItemViewModel authorizeDeviceAndLoadStorageMenu;
         private MenuItemViewModel setAsActiveDeviceMenu;
 
-        public DeviceInfoViewModel(Device device, IMenuFactory menuFactory)
+        public DeviceInfoViewModel(DeviceModel device, IMenuFactory menuFactory)
             : base(device)
         {
             DisconnectDeviceMenu = menuFactory.GetMenuItem(device, MenuItemType.DisconnectDevice);

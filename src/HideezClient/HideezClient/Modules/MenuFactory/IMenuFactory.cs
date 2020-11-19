@@ -34,6 +34,6 @@ namespace HideezClient.Modules
     public interface IMenuFactory
     {
         MenuItemViewModel GetMenuItem(MenuItemType type);
-        MenuItemViewModel GetMenuItem(Device device, MenuItemType type);
+        MenuItemViewModel GetMenuItem(DeviceModel device, MenuItemType type);
     }
 }

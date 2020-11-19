@@ -33,17 +33,17 @@ using Hideez.SDK.Communication.HES.DTO;
 namespace HideezClient.Models
 {
     // Todo: Implement thread-safety lock for password manager and remote device
-    public class Device : ObservableObject, IDisposable
+    public class DeviceModel : ObservableObject, IDisposable
     {
         const int INIT_TIMEOUT = 5_000;
         readonly int CREDENTIAL_TIMEOUT = SdkConfig.MainWorkflowTimeout;
 
-        readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(Device));
+        readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(DeviceModel));
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         readonly IMetaPubSub _metaMessenger;
         readonly IMetaPubSub _remoteDeviceMessenger = new MetaPubSub(new MetaPubSubLogger(new NLogWrapper()));
 
-        RemoteDevice _remoteDevice;
+        Hideez.SDK.Communication.BLE.Device _remoteDevice;
         DelayedMethodCaller dmc = new DelayedMethodCaller(2000);
         readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetPinRequests
             = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
@@ -84,7 +84,7 @@ namespace HideezClient.Models
 
         bool _isStorageLocked = false;
 
-        public Device(
+        public DeviceModel(
             IRemoteDeviceFactory remoteDeviceFactory,
             IMetaPubSub metaMessenger,
             DeviceDTO dto)
@@ -680,9 +680,9 @@ namespace HideezClient.Models
                         tempRemoteDevice.ButtonPressed -= RemoteDevice_ButtonPressed;
                         tempRemoteDevice.StorageModified -= RemoteDevice_StorageModified;
                         tempRemoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
-                        await tempRemoteDevice.Shutdown(code);
+                        //await tempRemoteDevice.Shutdown(code);
                         await _metaMessenger.PublishOnServer(new RemoveDeviceMessage(tempRemoteDevice.Id));
-                        await tempRemoteDevice.DeleteContext();
+                        //await tempRemoteDevice.DeleteContext();
                         tempRemoteDevice.Dispose();
                     }
                     try
@@ -750,7 +750,7 @@ namespace HideezClient.Models
                     return;
                 }
 
-                await _remoteDevice.VerifyAndInitialize(cancellationToken);
+                await _remoteDevice.Initialize();
 
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -1076,7 +1076,7 @@ namespace HideezClient.Models
             }
         }
 
-        ~Device()
+        ~DeviceModel()
         {
             Dispose(false);
         }

@@ -8,6 +8,6 @@ namespace HideezClient.Modules.DeviceManager
     {
         event NotifyCollectionChangedEventHandler DevicesCollectionChanged;
 
-        IEnumerable<Device> Devices { get; }
+        IEnumerable<DeviceModel> Devices { get; }
     }
 }

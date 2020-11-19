@@ -29,7 +29,7 @@ namespace HideezClient.Modules.DeviceManager
         readonly IMetaPubSub _metaMessenger;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
         readonly SemaphoreQueue _semaphoreQueue = new SemaphoreQueue(1, 1);
-        ConcurrentDictionary<string, Device> _devices { get; } = new ConcurrentDictionary<string, Device>();
+        ConcurrentDictionary<string, DeviceModel> _devices { get; } = new ConcurrentDictionary<string, DeviceModel>();
 
         // Custom dispatcher is required for unit tests because during test 
         // runs the Application.Current property is null
@@ -67,7 +67,7 @@ namespace HideezClient.Modules.DeviceManager
                 AddDevice(device);
         }
 
-        public IEnumerable<Device> Devices => _devices.Values;
+        public IEnumerable<DeviceModel> Devices => _devices.Values;
 
         async Task OnDisconnectedFromService(DisconnectedFromServerEvent arg)
         {
@@ -99,7 +99,7 @@ namespace HideezClient.Modules.DeviceManager
                     AddDevice(deviceDto);
 
                 // delete device from UI if its deleted from service
-                Device[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
+                DeviceModel[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
                 await RemoveDevices(missingDevices);
             }
             catch (Exception ex)
@@ -150,7 +150,7 @@ namespace HideezClient.Modules.DeviceManager
         {
             if (!_devices.ContainsKey(dto.Id))
             {
-                var device = new Device(_remoteDeviceFactory, _metaMessenger, dto);
+                var device = new DeviceModel(_remoteDeviceFactory, _metaMessenger, dto);
                 device.PropertyChanged += Device_PropertyChanged;
 
                 if (_devices.TryAdd(device.Id, device))
@@ -162,16 +162,16 @@ namespace HideezClient.Modules.DeviceManager
 
         private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if(sender is Device device && e.PropertyName == nameof(Device.IsLoadingStorage) && device.IsLoadingStorage)
+            if(sender is DeviceModel device && e.PropertyName == nameof(DeviceModel.IsLoadingStorage) && device.IsLoadingStorage)
             {
                 CredentialsLoadNotificationViewModel viewModal = new CredentialsLoadNotificationViewModel(device);
                 _windowsManager.ShowCredentialsLoading(viewModal);
             }
         }
 
-        async Task RemoveDevice(Device device)
+        async Task RemoveDevice(DeviceModel device)
         {
-            if (_devices.TryRemove(device.Id, out Device removedDevice))
+            if (_devices.TryRemove(device.Id, out DeviceModel removedDevice))
             {
                 removedDevice.PropertyChanged -= Device_PropertyChanged;
                 await removedDevice.ShutdownRemoteDeviceAsync(HideezErrorCode.DeviceRemoved);
@@ -180,7 +180,7 @@ namespace HideezClient.Modules.DeviceManager
             }
         }
 
-        async Task RemoveDevices(Device[] devices)
+        async Task RemoveDevices(DeviceModel[] devices)
         {
             foreach (var device in devices)
                 await RemoveDevice(device);

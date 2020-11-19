@@ -28,7 +28,7 @@ namespace HideezClient.ViewModels
         bool _inProgress = false;
         string _errorMessage = string.Empty;
 
-        Device _device;
+        DeviceModel _device;
 
         public event EventHandler ViewModelUpdated;
         public event EventHandler PasswordsCleared;
@@ -73,7 +73,7 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public Device Device
+        public DeviceModel Device
         {
             get { return _device; }
             set { Set(ref _device, value); }

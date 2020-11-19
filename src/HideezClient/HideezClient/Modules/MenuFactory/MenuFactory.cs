@@ -95,7 +95,7 @@ namespace HideezClient.Modules
             }
         }
 
-        public MenuItemViewModel GetMenuItem(Device device, MenuItemType type)
+        public MenuItemViewModel GetMenuItem(DeviceModel device, MenuItemType type)
         {
             if (device == null)
             {
@@ -120,7 +120,7 @@ namespace HideezClient.Modules
             }
         }
 
-        private MenuItemViewModel GetMenuRemoveDevice(Device device)
+        private MenuItemViewModel GetMenuRemoveDevice(DeviceModel device)
         {
             return new MenuItemViewModel
             {
@@ -133,7 +133,7 @@ namespace HideezClient.Modules
             };
         }
 
-        private MenuItemViewModel GetMenuDisconnectDevice(Device device)
+        private MenuItemViewModel GetMenuDisconnectDevice(DeviceModel device)
         {
             return new MenuItemViewModel
             {
@@ -147,7 +147,7 @@ namespace HideezClient.Modules
             };
         }
 
-        private MenuItemViewModel GetMenuAuthorizeAndLoadStorage(Device device)
+        private MenuItemViewModel GetMenuAuthorizeAndLoadStorage(DeviceModel device)
         {
             return new MenuItemViewModel
             {
@@ -172,7 +172,7 @@ namespace HideezClient.Modules
             };
         }
 
-        private MenuItemViewModel GetMenuSetAsActiveDevice(Device device)
+        private MenuItemViewModel GetMenuSetAsActiveDevice(DeviceModel device)
         {
             return new MenuItemViewModel
             {
@@ -189,7 +189,7 @@ namespace HideezClient.Modules
 
         private async void OnDisconnectDevice(object param)
         {
-            if (param is Device device)
+            if (param is DeviceModel device)
             {
                 try
                 {
@@ -207,7 +207,7 @@ namespace HideezClient.Modules
 
         private async void OnRemoveDevice(object param)
         {
-            if (param is Device device)
+            if (param is DeviceModel device)
             {
                 try
                 {
@@ -379,13 +379,13 @@ namespace HideezClient.Modules
 
         private async void OnAuthorizeAndLoadStorage(object param)
         {
-            if (param is Device device)
+            if (param is DeviceModel device)
             {
                 await device.InitRemoteAndLoadStorageAsync();
             }
         }
 
-        private async void OnChangeActiveDevice(Device device)
+        private async void OnChangeActiveDevice(DeviceModel device)
         {
             _activeDevice.Device = device;
             await device.InitRemoteAndLoadStorageAsync(true);

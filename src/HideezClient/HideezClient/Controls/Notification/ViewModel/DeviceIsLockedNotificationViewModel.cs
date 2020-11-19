@@ -4,9 +4,9 @@ namespace HideezClient.Controls
 {
     class DeviceIsLockedNotificationViewModel : SimpleNotificationViewModel
     {
-        Device _device;
+        DeviceModel _device;
 
-        public Device Device
+        public DeviceModel Device
         {
             get { return _device; }
             set { Set(ref _device, value); }

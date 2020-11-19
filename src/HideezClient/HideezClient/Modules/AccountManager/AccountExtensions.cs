@@ -12,7 +12,7 @@ namespace HideezClient.Modules
 {
     public static class AccountExtensions
     {
-        public static Account[] FindAccountsByApp(this Device device, AppInfo appInfo)
+        public static Account[] FindAccountsByApp(this DeviceModel device, AppInfo appInfo)
         {
             List<Account> accounts = new List<Account>();
 

@@ -19,10 +19,10 @@ namespace HideezClient.Controls
 
     public class CredentialsLoadNotificationViewModel : ObservableObject
     {
-        private Device device;
+        private DeviceModel device;
         private LoadedCredentialsState state;
 
-        public CredentialsLoadNotificationViewModel(Device device)
+        public CredentialsLoadNotificationViewModel(DeviceModel device)
         {
             this.Device = device;
             Device.PropertyChanged += Device_PropertyChanged;
@@ -31,7 +31,7 @@ namespace HideezClient.Controls
 
         private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (sender is Device device)
+            if (sender is DeviceModel device)
             {
                 if (e.PropertyName == nameof(Device.IsStorageLoaded) && device.IsStorageLoaded)
                 {
@@ -44,7 +44,7 @@ namespace HideezClient.Controls
             }
         }
 
-        public Device Device
+        public DeviceModel Device
         {
             get { return device; }
             set { Set(ref device, value); }

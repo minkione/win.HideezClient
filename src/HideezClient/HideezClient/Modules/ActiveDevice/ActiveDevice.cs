@@ -14,7 +14,7 @@ namespace HideezClient.Modules
     {
         readonly IDeviceManager _deviceManager;
         readonly IMetaPubSub _metaMessenger;
-        Device _device;
+        DeviceModel _device;
 
         readonly object _deviceLock = new object();
 
@@ -27,7 +27,7 @@ namespace HideezClient.Modules
             _deviceManager.DevicesCollectionChanged += DeviceManager_DevicesCollectionChanged;
         }
 
-        public Device Device 
+        public DeviceModel Device 
         {
             get { return _device; }
             set

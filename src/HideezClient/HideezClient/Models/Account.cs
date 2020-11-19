@@ -10,17 +10,17 @@ namespace HideezClient.Models
 {
     public class Account
     {
-        private readonly Device device;
+        private readonly DeviceModel device;
         private readonly AccountRecord accountRecord;
 
-        public Account(Device device, AccountRecord accountRecord)
+        public Account(DeviceModel device, AccountRecord accountRecord)
         {
             this.device = device;
             this.accountRecord = accountRecord;
         }
 
         public string Id => $"{device.Id}:{accountRecord.StorageId}";
-        public Device Device => device;
+        public DeviceModel Device => device;
         public string Name => accountRecord.Name;
 
         public string[] Apps => AccountUtility.Split(accountRecord.Apps);

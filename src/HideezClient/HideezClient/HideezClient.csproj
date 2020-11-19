@@ -382,7 +382,7 @@
     <Compile Include="Messages\ShowInfoNotificationMessage.cs" />
     <Compile Include="Messages\ShowPinUiMessage.cs" />
     <Compile Include="Messages\ShowWarningNotificationMessage.cs" />
-    <Compile Include="Models\Device.cs" />
+    <Compile Include="Models\DeviceModel.cs" />
     <Compile Include="Models\Account.cs" />
     <Compile Include="Modules\AccountManager\AccountExtensions.cs" />
     <Compile Include="Modules\ActionHandler\Exception\AccountException.cs" />
