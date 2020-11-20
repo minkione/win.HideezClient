@@ -1074,7 +1074,7 @@ namespace ServiceLibrary.Implementation
                 else
                 {
                     EndpointCertificateManager.AllowCertificate(address);
-                    var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(address, _sdkLogger).TimeoutAfter(5_000);
+                    var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(address, _sdkLogger).TimeoutAfter(30_000);
                     if (connectedOnNewAddress)
                     {
                         _log.WriteLine($"Passed connectivity check to {address}");
