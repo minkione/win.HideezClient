@@ -88,16 +88,26 @@ namespace ServiceLibrary.Implementation
 
                 _messenger.StartServer("HideezServicePipe", () =>
                 {
-                    var pipeSecurity = new PipeSecurity();
-                    pipeSecurity.AddAccessRule(new PipeAccessRule(
-                        new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
-                        PipeAccessRights.FullControl,
-                        AccessControlType.Allow));
+                    try
+                    {
+                        _log.WriteLine("Custom pipe config started");
+                        var pipeSecurity = new PipeSecurity();
+                        pipeSecurity.AddAccessRule(new PipeAccessRule(
+                            new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null),
+                            PipeAccessRights.FullControl,
+                            AccessControlType.Allow));
+                
+                        var pipe = new NamedPipeServerStream("HideezServicePipe", PipeDirection.InOut, 32,
+                            PipeTransmissionMode.Message, PipeOptions.Asynchronous, 4096, 4096, pipeSecurity);
 
-                    var pipe = new NamedPipeServerStream("HideezServicePipe", PipeDirection.InOut, 32,
-                        PipeTransmissionMode.Message, PipeOptions.Asynchronous, 4096, 4096, pipeSecurity);
-
-                    return pipe;
+                        _log.WriteLine("Custom pipe config successful");
+                        return pipe;
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.WriteLine("Custom pipe config failed.", ex);
+                        return null;
+                    }
                 });
 
                 _log.WriteLine(">>>>>> Service started");

@@ -1,4 +1,5 @@
-﻿using HideezMiddleware.IPC.Messages.RemoteDevice;
+﻿using Hideez.SDK.Communication.Log;
+using HideezMiddleware.IPC.Messages.RemoteDevice;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
 using System;
@@ -13,7 +14,7 @@ namespace HideezMiddleware
     /// <summary>
     /// Class for creating a direct MetaPubSub for each remote pipe device.
     /// </summary>
-    public class RemoteDevicePubSubManager
+    public class RemoteDevicePubSubManager : Logger
     {
         readonly IMetaPubSub _messenger;
 
@@ -24,7 +25,8 @@ namespace HideezMiddleware
 
         public string PipeName { get; private set; }
 
-        public RemoteDevicePubSubManager(IMetaPubSub messenger)
+        public RemoteDevicePubSubManager(IMetaPubSub messenger, ILog log)
+            : base(nameof(RemoteDevicePubSubManager), log)
         {
             RemoteConnectionPubSub = new MetaPubSub(new MetaPubSubLogger(new NLogWrapper()));
             PipeName = "HideezRemoteDevicePipe_" + Guid.NewGuid().ToString();
@@ -37,16 +39,26 @@ namespace HideezMiddleware
         {
             RemoteConnectionPubSub.StartServer(PipeName, () =>
             {
-                var pipeSecurity = new PipeSecurity();
-                pipeSecurity.AddAccessRule(new PipeAccessRule(
-                    new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
-                    PipeAccessRights.FullControl,
-                    AccessControlType.Allow));
+                try
+                {
+                    WriteLine("Custom pipe config started");
+                    var pipeSecurity = new PipeSecurity();
+                    pipeSecurity.AddAccessRule(new PipeAccessRule(
+                        new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null),
+                        PipeAccessRights.FullControl,
+                        AccessControlType.Allow));
 
-                var pipe = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 32,
-                    PipeTransmissionMode.Message, PipeOptions.Asynchronous, 4096, 4096, pipeSecurity);
+                    var pipe = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 32,
+                        PipeTransmissionMode.Message, PipeOptions.Asynchronous, 4096, 4096, pipeSecurity);
 
-                return pipe;
+                    WriteLine("Custom pipe config successful");
+                    return pipe;
+                }
+                catch (Exception ex)
+                {
+                    WriteLine("Custom pipe config failed.", ex);
+                    return null;
+                }
             });
 
             RemoteConnectionPubSub.Subscribe<RemoteClientDisconnectedEvent>(OnRemoteClientDisconnected);

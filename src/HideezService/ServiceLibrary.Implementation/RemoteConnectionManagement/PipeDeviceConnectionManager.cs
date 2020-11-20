@@ -47,7 +47,7 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
         {
             try
             {
-                RemoteDevicePubSubManager remoteDevicePubSub = new RemoteDevicePubSubManager(_messenger);
+                RemoteDevicePubSubManager remoteDevicePubSub = new RemoteDevicePubSubManager(_messenger, _log);
 
                 var pipeDevice = (IPipeDevice)_deviceManager.FindBySerialNo(args.SerialNo, args.ChannelNo);
                 if (pipeDevice == null)
