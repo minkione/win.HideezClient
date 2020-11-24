@@ -1230,7 +1230,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                foreach (var device in _deviceManager.Devices.ToList())
+                foreach (var device in _deviceManager.Devices.Where(d => d.ChannelNo == (byte)DefaultDeviceChannel.Main))
                     await _deviceManager.DeleteBond(device.DeviceConnection);
             }
             catch (Exception ex)
