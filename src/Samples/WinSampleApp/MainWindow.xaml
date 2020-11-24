@@ -80,6 +80,7 @@
                         <Button Content="Remove All" Margin="0,10,0,0" Command="{Binding RemoveAllDevicesCommand}"/>
                         <Button Content="Connect" Margin="0,10,0,0" Command="{Binding ConnectDeviceCommand}"/>
                         <Button Content="Disconnect" Margin="0,10,0,0" Command="{Binding DisconnectDeviceCommand}"/>
+                        <Button Content="Verify and Init" Margin="0,10,0,0" Command="{Binding VerifyAndInitializeDeviceCommand}"/>
                         <Button Content="Ping" Margin="0,10,0,0" Command="{Binding PingDeviceCommand}"/>
                         <Button Content="Add Channel" Margin="0,10,0,0" Command="{Binding AddDeviceChannelCommand}"/>
                         <Button Content="Remove Channel" Margin="0,10,0,0" Command="{Binding RemoveDeviceChannelCommand}"/>

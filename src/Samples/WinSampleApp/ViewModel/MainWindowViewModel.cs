@@ -661,6 +661,24 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand VerifyAndInitializeDeviceCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;  
+                    },
+                    CommandAction = (x) =>
+                    {
+                        _ = VerifyAndInitializeDevice(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         public ICommand AddDeviceChannelCommand
         {
             get
@@ -1281,6 +1299,18 @@ namespace WinSampleApp.ViewModel
                     throw new Exception("Wrong reply: " + reply.ResultAsString);
                 else
                     MessageBox.Show(reply.ResultAsString);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(HideezExceptionLocalization.GetErrorAsString(ex));
+            }
+        }
+
+        async Task VerifyAndInitializeDevice(DeviceViewModel device)
+        {
+            try
+            {
+                await device.Device.VerifyAndInitialize();
             }
             catch (Exception ex)
             {
