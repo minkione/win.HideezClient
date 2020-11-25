@@ -117,7 +117,7 @@ namespace HideezMiddleware
                 if (args.VerifyChannelNo < 2 || args.VerifyChannelNo > 7)
                     throw new HideezException(HideezErrorCode.InvalidChannelNo, args.VerifyChannelNo);
 
-                var response = await _pipeDevice.Device.SendVerifyCommand(args.PubKeyH, args.NonceH, args.VerifyChannelNo);
+                var response = await _pipeDevice.Device.SendVerifyCommand(args.PubKeyH, args.NonceH, 1);
 
                 await RemoteConnectionPubSub.Publish(new RemoteConnection_VerifyCommandMessageReply(response.Result));
             }
