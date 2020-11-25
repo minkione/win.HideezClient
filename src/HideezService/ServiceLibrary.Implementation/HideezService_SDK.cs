@@ -45,8 +45,8 @@ namespace ServiceLibrary.Implementation
 {
     public partial class HideezService
     {
-        static BleConnectionManager _connectionManager;
-        static BleDeviceManager _deviceManager;
+        static BleConnectionManager _bleConnectionManager;
+        static DeviceManager _deviceManager;
         static CredentialProviderProxy _credentialProviderProxy;
         static HesAppConnection _hesConnection;
         static RfidServiceConnection _rfidService;
@@ -111,19 +111,22 @@ namespace ServiceLibrary.Implementation
             {
                 // Connection Manager ============================
                 Directory.CreateDirectory(bondsFolderPath); // Ensure directory for bonds is created since unmanaged code doesn't do that
-                _connectionManager = new BleConnectionManager(_sdkLogger, bondsFolderPath);
-                _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-                _connectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
-                _connectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
-                _connectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
-                _connectionManagerRestarter = new ConnectionManagerRestarter(_connectionManager, _sdkLogger);
+
+                _bleConnectionManager = new BleConnectionManager(_sdkLogger, bondsFolderPath);
+                _bleConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+                _bleConnectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
+                _bleConnectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
+                _bleConnectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+                _bleConnectionManager.Start();
+                _bleConnectionManager.StartDiscovery();
+                _connectionManagerRestarter = new ConnectionManagerRestarter(_bleConnectionManager, _sdkLogger);
 
                 // BLE ============================
-                _deviceManager = new BleDeviceManager(_sdkLogger, _connectionManager);
-                _deviceManager.DeviceAdded += DevicesManager_DeviceCollectionChanged;
-                _deviceManager.DeviceRemoved += DevicesManager_DeviceCollectionChanged;
-                _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
-                _deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
+                _deviceManager = new DeviceManager(_bleConnectionManager, _sdkLogger);
+                _deviceManager.DeviceAdded += DevicesManager_DeviceAdded;
+                _deviceManager.DeviceRemoved += DevicesManager_DeviceRemoved;
+                //_deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
+                //_deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
                 SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
 
                 // Pipe Device Connection Manager ============================
@@ -254,7 +257,7 @@ namespace ServiceLibrary.Implementation
 
             // StatusManager =============================
             _statusManager = new StatusManager(_hesConnection, _tbHesConnection, _rfidService, 
-                _connectionManager, _uiProxy, _rfidSettingsManager, _credentialProviderProxy, _sdkLogger);
+                _bleConnectionManager, _uiProxy, _rfidSettingsManager, _credentialProviderProxy, _sdkLogger);
 
             // Local device info cache
             _localDeviceInfoCache = new LocalDeviceInfoCache(clientRootRegistryKey, _sdkLogger);
@@ -279,7 +282,7 @@ namespace ServiceLibrary.Implementation
             _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreList = new AdvertisementIgnoreList(
-                _connectionManager,
+                _bleConnectionManager,
                 _workstationSettingsManager,
                 _sdkLogger);
             _rfidProcessor = new RfidConnectionProcessor(
@@ -292,11 +295,11 @@ namespace ServiceLibrary.Implementation
                 _sdkLogger);
             _tapProcessor = new TapConnectionProcessor(
                 _connectionFlowProcessor,
-                _connectionManager,
+                _bleConnectionManager,
                 _sdkLogger);
             _proximityProcessor = new ProximityConnectionProcessor(
                 _connectionFlowProcessor,
-                _connectionManager,
+                _bleConnectionManager,
                 _proximitySettingsManager,
                 _workstationSettingsManager,
                 _advIgnoreList,
@@ -349,7 +352,7 @@ namespace ServiceLibrary.Implementation
             _workstationLockProcessor.Start();
             _proximityMonitorManager.Start();
 
-            _connectionManager.StartDiscovery();
+            _bleConnectionManager.StartDiscovery();
             _connectionManagerRestarter.Start();
 
             _deviceReconnectManager.Start();
@@ -377,7 +380,7 @@ namespace ServiceLibrary.Implementation
             await Task.WhenAll(serviceInitializationTasks).ConfigureAwait(false);
         }
 
-        Task<HesAppConnection> CreateHesHub(BleDeviceManager deviceManager, 
+        Task<HesAppConnection> CreateHesHub(DeviceManager deviceManager, 
             WorkstationInfoProvider workstationInfoProvider, 
             ISettingsManager<ProximitySettings> proximitySettingsManager, 
             ISettingsManager<RfidSettings> rfidSettingsManager,
@@ -417,7 +420,7 @@ namespace ServiceLibrary.Implementation
             });
         }
 
-        Task CreateHubs(BleDeviceManager deviceManager, 
+        Task CreateHubs(DeviceManager deviceManager, 
             WorkstationInfoProvider workstationInfoProvider,
             ISettingsManager<ProximitySettings> proximitySettingsManager,
             ISettingsManager<RfidSettings> rfidSettingsManager,
@@ -538,7 +541,10 @@ namespace ServiceLibrary.Implementation
         {
             // Disconnect all connected devices
             _deviceReconnectManager.DisableAllDevicesReconnect();
-            await _deviceManager.DisconnectAllDevices().ConfigureAwait(false);
+            foreach(var device in _deviceManager.Devices)
+            {
+                await _deviceManager.Disconnect(device.DeviceConnection).ConfigureAwait(false);
+            }
         }
 
         void WorkstationProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<WorkstationSettings> e)
@@ -557,60 +563,60 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        void DeviceManager_DeviceAdded(object sender, DeviceCollectionChangedEventArgs e)
-        {
-            var device = e.AddedDevice;
+        //void DeviceManager_DeviceAdded(object sender, DeviceCollectionChangedEventArgs e)
+        //{
+        //    var device = e.AddedDevice;
 
-            if (device != null)
-            {
-                device.ConnectionStateChanged += Device_ConnectionStateChanged;
-                device.Initialized += Device_Initialized;
-                device.Disconnected += Device_Disconnected;
-                device.OperationCancelled += Device_OperationCancelled;
-                device.ProximityChanged += Device_ProximityChanged;
-                device.BatteryChanged += Device_BatteryChanged;
-                device.WipeFinished += Device_WipeFinished;
-                device.AccessLevelChanged += Device_AccessLevelChanged;
-            }
-        }
+        //    if (device != null)
+        //    {
+        //        device.ConnectionStateChanged += Device_ConnectionStateChanged;
+        //        device.Initialized += Device_Initialized;
+        //        device.Disconnected += Device_Disconnected;
+        //        device.OperationCancelled += Device_OperationCancelled;
+        //        device.ProximityChanged += Device_ProximityChanged;
+        //        device.BatteryChanged += Device_BatteryChanged;
+        //        device.WipeFinished += Device_WipeFinished;
+        //        device.AccessLevelChanged += Device_AccessLevelChanged;
+        //    }
+        //}
 
-        async void DeviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
-        {
-            var device = e.RemovedDevice;
+        //async void DeviceManager_DeviceRemoved(object sender, DeviceCollectionChangedEventArgs e)
+        //{
+        //    var device = e.RemovedDevice;
 
-            if (device != null)
-            {
-                device.ConnectionStateChanged -= Device_ConnectionStateChanged;
-                device.Initialized -= Device_Initialized;
-                device.Disconnected -= Device_Disconnected;
-                device.OperationCancelled -= Device_OperationCancelled;
-                device.ProximityChanged -= Device_ProximityChanged;
-                device.BatteryChanged -= Device_BatteryChanged;
-                device.WipeFinished -= Device_WipeFinished;
-                device.AccessLevelChanged -= Device_AccessLevelChanged;
+        //    if (device != null)
+        //    {
+        //        device.ConnectionStateChanged -= Device_ConnectionStateChanged;
+        //        device.Initialized -= Device_Initialized;
+        //        device.Disconnected -= Device_Disconnected;
+        //        device.OperationCancelled -= Device_OperationCancelled;
+        //        device.ProximityChanged -= Device_ProximityChanged;
+        //        device.BatteryChanged -= Device_BatteryChanged;
+        //        device.WipeFinished -= Device_WipeFinished;
+        //        device.AccessLevelChanged -= Device_AccessLevelChanged;
 
-                if (device is IPipeDevice pipeDevice)
-                    _pipeDeviceConnectionManager.RemovePipeDevice(pipeDevice);
+        //        if (device is IPipeDevice pipeDevice)
+        //            _pipeDeviceConnectionManager.RemovePipeDevice(pipeDevice);
 
-                if (!device.IsRemote && device.IsInitialized)
-                {
-                    var workstationEvent = _eventSaver.GetWorkstationEvent();
-                    workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
-                    workstationEvent.Severity = WorkstationEventSeverity.Warning;
-                    workstationEvent.DeviceId = device.SerialNo;
-                    await _eventSaver.AddNewAsync(workstationEvent);
-                }
-            }
-        }
+        //        if (!device.IsRemote && device.IsInitialized)
+        //        {
+        //            var workstationEvent = _eventSaver.GetWorkstationEvent();
+        //            workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
+        //            workstationEvent.Severity = WorkstationEventSeverity.Warning;
+        //            workstationEvent.DeviceId = device.SerialNo;
+        //            await _eventSaver.AddNewAsync(workstationEvent);
+        //        }
+        //    }
+        //}
 
         async void Device_Disconnected(object sender, EventArgs e)
         {
-            if (sender is IDevice device && device.IsInitialized && (!device.IsRemote || device.ChannelNo > 2))
+            if (sender is IDevice device && device.IsInitialized && (!(device is IRemoteDeviceProxy) || device.ChannelNo > 2))
             {
                 var workstationEvent = _eventSaver.GetWorkstationEvent();
                 workstationEvent.Severity = WorkstationEventSeverity.Info;
                 workstationEvent.DeviceId = device.SerialNo;
-                if (device.IsRemote)
+                if (device is IRemoteDeviceProxy)
                 {
                     workstationEvent.EventId = WorkstationEventType.RemoteDisconnect;
                 }
@@ -624,10 +630,10 @@ namespace ServiceLibrary.Implementation
 
         async void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
-            if (_connectionManager.State == BluetoothAdapterState.Unknown || _connectionManager.State == BluetoothAdapterState.PoweredOn)
+            if (_bleConnectionManager.State == BluetoothAdapterState.Unknown || _bleConnectionManager.State == BluetoothAdapterState.PoweredOn)
             {
                 var we = _eventSaver.GetWorkstationEvent();
-                if (_connectionManager.State == BluetoothAdapterState.PoweredOn)
+                if (_bleConnectionManager.State == BluetoothAdapterState.PoweredOn)
                 {
                     we.EventId = WorkstationEventType.DonglePlugged;
                     we.Severity = WorkstationEventSeverity.Info;
@@ -711,9 +717,53 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        async void DevicesManager_DeviceCollectionChanged(object sender, DeviceCollectionChangedEventArgs e)
+        async void DevicesManager_DeviceAdded(object sender, DeviceAddedEventArgs e)
         {
             await _messenger.Publish(new DevicesCollectionChangedMessage(GetDevices()));
+
+            var device = e.Device;
+
+            if (device != null)
+            {
+                device.ConnectionStateChanged += Device_ConnectionStateChanged;
+                device.Initialized += Device_Initialized;
+                device.Disconnected += Device_Disconnected;
+                device.OperationCancelled += Device_OperationCancelled;
+                device.ProximityChanged += Device_ProximityChanged;
+                device.BatteryChanged += Device_BatteryChanged;
+                device.WipeFinished += Device_WipeFinished;
+                device.AccessLevelChanged += Device_AccessLevelChanged;
+            }
+        }
+
+        async void DevicesManager_DeviceRemoved(object sender, DeviceRemovedEventArgs e)
+        {
+            await _messenger.Publish(new DevicesCollectionChangedMessage(GetDevices()));
+            var device = e.Device;
+
+            if (device != null)
+            {
+                device.ConnectionStateChanged -= Device_ConnectionStateChanged;
+                device.Initialized -= Device_Initialized;
+                device.Disconnected -= Device_Disconnected;
+                device.OperationCancelled -= Device_OperationCancelled;
+                device.ProximityChanged -= Device_ProximityChanged;
+                device.BatteryChanged -= Device_BatteryChanged;
+                device.WipeFinished -= Device_WipeFinished;
+                device.AccessLevelChanged -= Device_AccessLevelChanged;
+
+                if (device is IPipeDevice pipeDevice)
+                    _pipeDeviceConnectionManager.RemovePipeDevice(pipeDevice);
+
+                if (!(device is IRemoteDeviceProxy) && device.IsInitialized)
+                {
+                    var workstationEvent = _eventSaver.GetWorkstationEvent();
+                    workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
+                    workstationEvent.Severity = WorkstationEventSeverity.Warning;
+                    workstationEvent.DeviceId = device.SerialNo;
+                    await _eventSaver.AddNewAsync(workstationEvent);
+                }
+            }
         }
 
         private async void HesConnection_Alarm(object sender, bool isEnabled)
@@ -728,7 +778,8 @@ namespace ServiceLibrary.Implementation
 
                     if (isEnabled)
                     {
-                        await _deviceManager.RemoveAll();
+                        foreach(var device in _deviceManager.Devices)
+                            await _deviceManager.RemoveConnection(device.DeviceConnection);
                         //_deviceManager.RemoveAll() remove only bonds for devices that are connected
                         //So the left files need to be deleted manually
                         await _bondManager.RemoveAll();
@@ -741,7 +792,7 @@ namespace ServiceLibrary.Implementation
                         {
                             await Task.Delay(1000);
                             _log.WriteLine("Restarting connection manager");
-                            _connectionManager.Restart();
+                            _bleConnectionManager.Restart();
                             _connectionManagerRestarter.Start();
                         });
                     }
@@ -800,12 +851,12 @@ namespace ServiceLibrary.Implementation
                         Error(ex);
                     }
 
-                    if (!device.IsRemote || device.ChannelNo > 2)
+                    if (!(device is IRemoteDeviceProxy) || device.ChannelNo > 2)
                     {
                         var workstationEvent = _eventSaver.GetWorkstationEvent();
                         workstationEvent.Severity = WorkstationEventSeverity.Info;
                         workstationEvent.DeviceId = device.SerialNo;
-                        if (device.IsRemote)
+                        if (device is IRemoteDeviceProxy)
                         {
                             workstationEvent.EventId = WorkstationEventType.RemoteConnect;
                         }
@@ -859,7 +910,7 @@ namespace ServiceLibrary.Implementation
             {
                 try
                 {
-                    await _messenger.Publish(new DeviceBatteryChangedMessage(device.Id, e));
+                    await _messenger.Publish(new DeviceBatteryChangedMessage(device.Id, device.Mac, e));
                 }
                 catch (Exception ex)
                 {
@@ -880,7 +931,7 @@ namespace ServiceLibrary.Implementation
                 {
                     try
                     {
-                        await _deviceManager.Remove(device);
+                        await _deviceManager.RemoveConnection(device.DeviceConnection);
                     }
                     catch (Exception ex)
                     {
@@ -944,7 +995,8 @@ namespace ServiceLibrary.Implementation
                 {
                     // Disconnect all connected devices
                     _deviceReconnectManager.DisableAllDevicesReconnect();
-                    await _deviceManager.DisconnectAllDevices();
+                    foreach (var device in _deviceManager.Devices)
+                        await _deviceManager.Disconnect(device.DeviceConnection);
                 }
             }
             catch (Exception ex)
@@ -959,7 +1011,7 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                return _deviceManager.Devices.Where(d => !d.IsRemote).Select(d => new DeviceDTO(d)).ToArray();
+                return _deviceManager.Devices.Select(d => new DeviceDTO(d)).ToArray();
             }
             catch (Exception ex)
             {
@@ -1000,8 +1052,13 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                _deviceReconnectManager.DisableDeviceReconnect(args.DeviceId);
-                await _deviceManager.DisconnectDevice(args.DeviceId);
+                var device = _deviceManager.Devices.FirstOrDefault(d => d.Id == args.DeviceId);
+                if (device != null)
+                {
+
+                    _deviceReconnectManager.DisableDeviceReconnect(device);
+                    await _deviceManager.Disconnect(device.DeviceConnection);
+                }
             }
             catch (Exception ex)
             {
@@ -1014,11 +1071,11 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                var device = _deviceManager.Find(args.DeviceId);
+                var device = _deviceManager.Devices.FirstOrDefault(d=>d.Id == args.DeviceId);
                 if (device != null)
                 {
                     _deviceReconnectManager.DisableDeviceReconnect(device);
-                    await _deviceManager.Remove(device);
+                    await _deviceManager.RemoveConnection(device.DeviceConnection);
                 }
             }
             catch (Exception ex)
@@ -1212,7 +1269,7 @@ namespace ServiceLibrary.Implementation
                     {
                         await Task.Delay(1000);
                         _log.WriteLine("Restarting connection manager");
-                        _connectionManager.Restart();
+                        _bleConnectionManager.Restart();
                         _connectionManagerRestarter.Start();
 
                         _log.WriteLine("Starting connection processors");
@@ -1264,7 +1321,8 @@ namespace ServiceLibrary.Implementation
                 _rfidProcessor.Stop();
 
                 _log.WriteLine("Disconnecting all connected vaults");
-                await _deviceManager.DisconnectAllDevices();
+                foreach (var device in _deviceManager.Devices)
+                    await _deviceManager.Disconnect(device.DeviceConnection);
 
                 _log.WriteLine("Sending all events");
                 await _eventSender.SendEventsAsync(true);

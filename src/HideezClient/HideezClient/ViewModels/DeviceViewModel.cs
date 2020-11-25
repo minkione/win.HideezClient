@@ -12,9 +12,9 @@ namespace HideezClient.ViewModels
 {
     public class DeviceViewModel : LocalizedObject
     {
-        protected Device device;
+        protected DeviceModel device;
 
-        public DeviceViewModel(Device device)
+        public DeviceViewModel(DeviceModel device)
         {
             if (device == null)
                 throw new ArgumentNullException(nameof(device));
@@ -27,7 +27,7 @@ namespace HideezClient.ViewModels
         public string OwnerName => device.OwnerName;
         public string OwnerEmail => device.OwnerEmail;
         public string Id => device.Id;
-        public string Mac => BleUtils.DeviceIdToMac(Id);
+        public string Mac => device.Mac;
         public bool IsConnected => device.IsConnected;
         public double Proximity => device.Proximity;
         public int Battery => device.Battery;

@@ -34,13 +34,12 @@ namespace HideezClient.Modules.VaultLowBatteryMonitor
             lock (filterLock)
             {
                 // Todo: Might need a better algorithm for detecting low battery
-                var mac = BleUtils.DeviceIdToMac(obj.DeviceId);
-                if (!vaultIdFilter.Contains(mac) && obj.Battery != 0 && obj.Battery <= 25)
+                if (!vaultIdFilter.Contains(obj.Mac) && obj.Battery != 0 && obj.Battery <= 25)
                 {
-                    var device = _deviceManager.Devices.FirstOrDefault(d => d.Mac == mac);
+                    var device = _deviceManager.Devices.FirstOrDefault(d => d.Mac == obj.Mac);
                     if (device != null && device.IsConnected && device.FinishedMainFlow)
                     {
-                        vaultIdFilter.Add(mac);
+                        vaultIdFilter.Add(obj.Mac);
 
                         _messenger.Publish(new ShowLowBatteryNotificationMessage(
                             TranslationSource.Instance["LowBatteryNotification.Message"],

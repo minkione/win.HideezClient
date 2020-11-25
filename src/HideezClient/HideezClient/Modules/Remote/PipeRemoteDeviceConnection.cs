@@ -35,32 +35,40 @@ namespace HideezClient.Modules.Remote
         public event EventHandler<FwWipeStatus> WipeFinished;
         public event EventHandler ConnectionStateChanged;
 
-        public PipeRemoteDeviceConnection(IMetaPubSub metaPubSub, string id)
+        public PipeRemoteDeviceConnection(IMetaPubSub metaPubSub, string id, string mac, string name, bool isConnected)
         {
             _metaPubSub = metaPubSub;
 
             Id = id;
+            Name = name;
+            Mac = mac;
 
-            //_metaPubSub.TrySubscribeOnServer<RemoteConnection_DeviceStateChangedMessage>(OnDeviceStateChanged);
+            if (isConnected)
+                State = ConnectionState.Connected;
+            else State = ConnectionState.NotConnected;
 
+            _metaPubSub.TrySubscribeOnServer<RemoteConnection_DeviceStateChangedMessage>(OnDeviceStateChanged);
+        }
+
+        private Task OnDeviceStateChanged(RemoteConnection_DeviceStateChangedMessage arg)
+        {
+            DeviceStateChanged?.Invoke(this, arg.State);
+            return Task.CompletedTask;
         }
 
         public bool IsBoot()
         {
-            throw new NotImplementedException();
+            return false;
         }
 
-        public Task SendRequestAsync(EncryptedRequest request)
+        public async Task SendRequestAsync(EncryptedRequest request)
         {
-            return Task.Run(async () =>
+            var data = JsonConvert.SerializeObject(request);
+            var response = await _metaPubSub.ProcessOnServer<RemoteConnection_RemoteCommandMessageReply>(new RemoteConnection_RemoteCommandMessage(Id, data),30000);
+            if (response != null)
             {
-                var data = JsonConvert.SerializeObject(request);
-                var response = await _metaPubSub.ProcessOnServer<RemoteConnection_RemoteCommandMessageReply>(new RemoteConnection_RemoteCommandMessage(Id, data));
-                if (response != null)
-                {
-                    ResponseReceived?.Invoke(this, new MessageBuffer(response.Data, request.Buffer.ChannelNo));
-                }
-            });
+                ResponseReceived?.Invoke(this, new MessageBuffer(response.Data, request.Buffer.ChannelNo));
+            }
         }
 
         public async Task SendRequestAsync(ControlRequest request)

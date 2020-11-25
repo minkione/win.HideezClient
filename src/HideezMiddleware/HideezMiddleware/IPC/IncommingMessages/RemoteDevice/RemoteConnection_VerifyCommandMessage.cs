@@ -6,12 +6,18 @@ namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
     {
         public string ConnectionId { get; set; }
 
-        public byte[] Data { get; set; }
+        public byte[] PubKeyH { get; set; }
 
-        public RemoteConnection_VerifyCommandMessage(string connectionId, byte[] data)
+        public byte[] NonceH { get; }
+
+        public byte VerifyChannelNo { get; }
+
+        public RemoteConnection_VerifyCommandMessage(string connectionId, byte[] pubKeyH, byte[] nonceH, byte verifyChannelNo)
         {
             ConnectionId = connectionId;
-            Data = data;
+            PubKeyH = pubKeyH;
+            NonceH = nonceH;
+            VerifyChannelNo = verifyChannelNo;
         }
     }
 }

@@ -6,11 +6,14 @@ namespace HideezMiddleware.IPC.Messages
     {
         public string DeviceId { get; }
 
+        public string Mac { get; }
+
         public int Battery { get; }
 
-        public DeviceBatteryChangedMessage(string deviceId, int battery)
+        public DeviceBatteryChangedMessage(string deviceId, string mac, int battery)
         {
             DeviceId = deviceId;
+            Mac = mac;
             Battery = battery;
         }
     }

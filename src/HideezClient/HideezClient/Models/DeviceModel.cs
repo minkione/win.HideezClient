@@ -43,7 +43,7 @@ namespace HideezClient.Models
         readonly IMetaPubSub _metaMessenger;
         readonly IMetaPubSub _remoteDeviceMessenger = new MetaPubSub(new MetaPubSubLogger(new NLogWrapper()));
 
-        Hideez.SDK.Communication.BLE.Device _remoteDevice;
+        Device _remoteDevice;
         DelayedMethodCaller dmc = new DelayedMethodCaller(2000);
         readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetPinRequests
             = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
@@ -750,7 +750,7 @@ namespace HideezClient.Models
                     return;
                 }
 
-                await _remoteDevice.Initialize();
+                await _remoteDevice.VerifyAndInitialize();
 
                 if (cancellationToken.IsCancellationRequested)
                 {

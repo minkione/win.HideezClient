@@ -32,11 +32,13 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1"], mac);
             else await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1.PressButton"], mac);
 
+            var id = BleUtils.MacToConnectionId(mac);
+
             bool ltkErrorOccured = false;
             IDevice device = null;
             try
             {
-                device = await _deviceManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+                device = await _deviceManager.Connect(id).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
             }
             catch (Exception ex) // Thrown when LTK error occurs in csr
             {
@@ -60,7 +62,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 try
                 {
-                    device = await _deviceManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout / 2);
+                    device = await _deviceManager.Connect(id).TimeoutAfter(SdkConfig.ConnectDeviceTimeout / 2);
                 }
                 catch (Exception ex) // Thrown when LTK error occurs in csr
                 {
@@ -73,14 +75,14 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     ct.ThrowIfCancellationRequested();
 
                     // remove the bond and try one more time
-                    await _deviceManager.DeleteBond(mac);
+                    await _deviceManager.DeleteBond(id);
 
                     if (ltkErrorOccured)
                         await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage3.LtkError.PressButton"], mac); // TODO: Fix LTK error in CSR
                     else
                         await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage3.PressButton"], mac);
 
-                    device = await _deviceManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+                    device = await _deviceManager.Connect(id).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
                 }
             }
 

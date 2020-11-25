@@ -7,9 +7,9 @@ namespace HideezMiddleware.IPC.Messages
     {
         public string DeviceId { get; }
 
-        public DeviceStateDTO State { get; }
+        public byte[] State { get; }
 
-        public RemoteConnection_DeviceStateChangedMessage(string deviceId, DeviceStateDTO state)
+        public RemoteConnection_DeviceStateChangedMessage(string deviceId, byte[] state)
         {
             DeviceId = deviceId;
             State = state;

@@ -11,39 +11,39 @@ using System.Threading.Tasks;
 
 namespace HideezClient.Modules.Remote
 {
-    class RemoteDeviceEvents : IRemoteEvents
-    {
-        readonly IMetaPubSub _messenger;
+    //class RemoteDeviceEvents : IRemoteEvents
+    //{
+    //    readonly IMetaPubSub _messenger;
 
-        public RemoteDeviceEvents(IMetaPubSub messenger)
-        {
-            _messenger = messenger;
+    //    public RemoteDeviceEvents(IMetaPubSub messenger)
+    //    {
+    //        _messenger = messenger;
 
-            _messenger.TrySubscribeOnServer<RemoteConnection_DeviceStateChangedMessage>(OnDeviceStateChanged);
-        }
+    //        _messenger.TrySubscribeOnServer<RemoteConnection_DeviceStateChangedMessage>(OnDeviceStateChanged);
+    //    }
 
-        public event EventHandler<DeviceState> DeviceStateChanged;
+    //    public event EventHandler<DeviceState> DeviceStateChanged;
 
-        // Todo: fix cyclic dependency between RemoteDevice and RemoteCommands/RemoteEvents
-        public RemoteDevice RemoteDevice { get; set; }
+    //    // Todo: fix cyclic dependency between RemoteDevice and RemoteCommands/RemoteEvents
+    //    public RemoteDevice RemoteDevice { get; set; }
 
-        Task OnDeviceStateChanged(RemoteConnection_DeviceStateChangedMessage msg)
-        {
-            if (IsMessageFromCurrentDevice(msg))
-                DeviceStateChanged?.Invoke(this, msg.State.ToDeviceState());
+    //    Task OnDeviceStateChanged(RemoteConnection_DeviceStateChangedMessage msg)
+    //    {
+    //        if (IsMessageFromCurrentDevice(msg))
+    //            DeviceStateChanged?.Invoke(this, msg.State.ToDeviceState());
 
-            return Task.CompletedTask;
-        }
+    //        return Task.CompletedTask;
+    //    }
 
-        bool IsMessageFromCurrentDevice(RemoteConnection_DeviceStateChangedMessage msg)
-        {
-            if (string.IsNullOrWhiteSpace(msg.DeviceId))
-                return false;
+    //    bool IsMessageFromCurrentDevice(RemoteConnection_DeviceStateChangedMessage msg)
+    //    {
+    //        if (string.IsNullOrWhiteSpace(msg.DeviceId))
+    //            return false;
 
-            if (RemoteDevice == null)
-                return false;
+    //        if (RemoteDevice == null)
+    //            return false;
 
-            return msg.DeviceId== RemoteDevice.Id;
-        }
-    }
+    //        return msg.DeviceId== RemoteDevice.Id;
+    //    }
+    //}
 }
