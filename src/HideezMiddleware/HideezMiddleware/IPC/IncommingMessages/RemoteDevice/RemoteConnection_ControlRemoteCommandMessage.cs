@@ -7,12 +7,12 @@ namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
     {
         public string ConnectionId { get; set; }
 
-        public string Data { get; set; }
+        public ControlRequest ControlRequest { get; set; }
 
-        public RemoteConnection_ControlRemoteCommandMessage(string connectionid, string data)
+        public RemoteConnection_ControlRemoteCommandMessage(string connectionid, ControlRequest controlRequest)
         {
             ConnectionId = connectionid;
-            Data = data;
+            ControlRequest = controlRequest;
         }
     }
 }

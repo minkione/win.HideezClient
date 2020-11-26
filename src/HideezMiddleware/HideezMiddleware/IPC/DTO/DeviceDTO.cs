@@ -25,6 +25,7 @@ namespace HideezMiddleware.IPC.DTO
             IsBoot = device.IsBoot;
             Battery = device.Battery;
             SerialNo = device.SerialNo;
+            ChannelNo = device.ChannelNo;
             Mac = device.Mac;
             FirmwareVersion = device.FirmwareVersion;
             BootloaderVersion = device.BootloaderVersion;
@@ -51,6 +52,9 @@ namespace HideezMiddleware.IPC.DTO
 
         [DataMember]
         public string SerialNo { get; set; }
+        
+        [DataMember]
+        public byte ChannelNo { get; set; }
 
         [DataMember]
         public string Mac { get; set; }

@@ -1,50 +1,54 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PipeDevice;
+using HideezMiddleware;
 using HideezMiddleware.IPC.IncommingMessages.RemoteDevice;
-using HideezMiddleware.IPC.Messages.RemoteDevice;
+using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
-using Newtonsoft.Json;
 using System;
 using System.IO.Pipes;
 using System.Security.AccessControl;
 using System.Security.Principal;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace HideezMiddleware
+
+namespace ServiceLibrary.Implementation.RemoteConnectionManagement
 {
-    /// <summary>
-    /// Class for creating a direct MetaPubSub for each remote pipe device.
-    /// </summary>
-    public class RemoteDevicePubSubManager: Logger
+    class PipeDeviceConnectionHandler: Logger
     {
         readonly IMetaPubSub _messenger;
-        private readonly PipeRemoteDeviceProxy _pipeDevice;
+        readonly PipeRemoteDeviceProxy _pipeDevice;
+        readonly DeviceManager _deviceManager;
 
         /// <summary>
         /// Direct MetaPubSub for each pipe device.
         /// </summary>
-        public IMetaPubSub RemoteConnectionPubSub { get; private set; }
+        readonly IMetaPubSub _remoteConnectionPubSub;
 
-        public string PipeName { get; private set; }
+        public string PipeName { get; }
 
-        public RemoteDevicePubSubManager(IMetaPubSub messenger, PipeRemoteDeviceProxy pipeDevice, ILog log)
-            :base(nameof(RemoteDevicePubSubManager), log)
+        public PipeDeviceConnectionHandler(IMetaPubSub messenger, PipeRemoteDeviceProxy pipeDevice, DeviceManager deviceManager, ILog log)
+            : base(nameof(PipeDeviceConnectionHandler), log)
         {
-            RemoteConnectionPubSub = new MetaPubSub(new MetaPubSubLogger(new NLogWrapper()));
             PipeName = "HideezRemoteDevicePipe_" + Guid.NewGuid().ToString();
+
+            _remoteConnectionPubSub = new MetaPubSub(new MetaPubSubLogger(new NLogWrapper()));
+
             _messenger = messenger;
             _pipeDevice = pipeDevice;
+            _deviceManager = deviceManager;
+
+            _pipeDevice.DeviceConnection.DeviceStateChanged += RemoteConnection_DeviceStateChanged;
 
             InitializePubSub();
         }
 
         void InitializePubSub()
         {
-            RemoteConnectionPubSub.StartServer(PipeName, () =>
+            _remoteConnectionPubSub.StartServer(PipeName, () =>
             {
                 var pipeSecurity = new PipeSecurity();
                 pipeSecurity.AddAccessRule(new PipeAccessRule(
@@ -58,24 +62,38 @@ namespace HideezMiddleware
                 return pipe;
             });
 
-            RemoteConnectionPubSub.Subscribe<RemoteClientDisconnectedEvent>(OnRemoteClientDisconnected);
-            RemoteConnectionPubSub.Subscribe<RemoteConnection_RemoteCommandMessage>(RemoteConnection_RemoteCommandAsync);
-            RemoteConnectionPubSub.Subscribe<RemoteConnection_GetRootKeyMessage>(RemoteConnection_GetRootKeyAsync);
-            RemoteConnectionPubSub.Subscribe<RemoteConnection_ControlRemoteCommandMessage>(RemoteConnection_ControlRemoteCommandAsync);
-            RemoteConnectionPubSub.Subscribe<RemoteConnection_VerifyCommandMessage>(RemoteConnection_VerifyCommandAsync);
-            RemoteConnectionPubSub.Subscribe<RemoteConnection_ResetChannelMessage>(RemoteConnection_ResetChannelAsync);
+            _remoteConnectionPubSub.Subscribe<RemoteClientDisconnectedEvent>(OnRemoteClientDisconnected);
+            _remoteConnectionPubSub.Subscribe<RemoteConnection_RemoteCommandMessage>(RemoteConnection_RemoteCommandAsync);
+            _remoteConnectionPubSub.Subscribe<RemoteConnection_ControlRemoteCommandMessage>(RemoteConnection_ControlRemoteCommandAsync);
+            _remoteConnectionPubSub.Subscribe<RemoteConnection_GetRootKeyMessage>(RemoteConnection_GetRootKeyAsync);
+            _remoteConnectionPubSub.Subscribe<RemoteConnection_VerifyCommandMessage>(RemoteConnection_VerifyCommandAsync);
+            _remoteConnectionPubSub.Subscribe<RemoteConnection_ResetChannelMessage>(RemoteConnection_ResetChannelAsync);
         }
 
-        private async Task RemoteConnection_ControlRemoteCommandAsync(RemoteConnection_ControlRemoteCommandMessage arg)
+        #region Event Handlers
+        async void RemoteConnection_DeviceStateChanged(object sender, byte[] e)
+        {
+            try
+            {
+                if (sender is IConnectionController connection)
+                {
+                    await _remoteConnectionPubSub.Publish(new RemoteConnection_DeviceStateChangedMessage(connection.Id, e));
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        async Task RemoteConnection_ControlRemoteCommandAsync(RemoteConnection_ControlRemoteCommandMessage arg)
         {
             try
             {
                 if (_pipeDevice == null || _pipeDevice.Id != arg.ConnectionId)
                     throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, arg.ConnectionId);
 
-                var data = JsonConvert.DeserializeObject<ControlRequest>(arg.Data);
-                if (data != null)
-                    await _pipeDevice.SendControlRequest(data);
+                await _pipeDevice.SendControlRequest(arg.ControlRequest);
             }
             catch (Exception ex)
             {
@@ -91,14 +109,10 @@ namespace HideezMiddleware
                 if (_pipeDevice == null || _pipeDevice.Id != args.ConnectionId)
                     throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, args.ConnectionId);
 
-                byte[] response = null;
-                var data = JsonConvert.DeserializeObject<EncryptedRequest>(args.Data);
-
-                if (data != null)
-                    response = await _pipeDevice.SendRequestAndWaitResponseAsync(data, null);
+                var response = await _pipeDevice.SendRequestAndWaitResponseAsync(args.EncryptedRequest, null);
 
                 if (response != null)
-                    await RemoteConnectionPubSub.Publish(new RemoteConnection_RemoteCommandMessageReply(response));
+                    await _remoteConnectionPubSub.Publish(new RemoteConnection_RemoteCommandMessageReply(response));
             }
             catch (Exception ex)
             {
@@ -117,9 +131,10 @@ namespace HideezMiddleware
                 if (args.VerifyChannelNo < 2 || args.VerifyChannelNo > 7)
                     throw new HideezException(HideezErrorCode.InvalidChannelNo, args.VerifyChannelNo);
 
-                var response = await _pipeDevice.Device.SendVerifyCommand(args.PubKeyH, args.NonceH, 1);
+                var response = await _pipeDevice.Device.VerifyEncryption(args.PubKeyH, args.NonceH, args.VerifyChannelNo);
 
-                await RemoteConnectionPubSub.Publish(new RemoteConnection_VerifyCommandMessageReply(response.Result));
+                if (response != null)
+                    await _remoteConnectionPubSub.Publish(new RemoteConnection_DeviceCommandMessageReply(response));
             }
             catch (Exception ex)
             {
@@ -135,7 +150,7 @@ namespace HideezMiddleware
                 if (_pipeDevice == null || _pipeDevice.Id != args.ConnectionId)
                     throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, args.ConnectionId);
 
-                await _pipeDevice.Device.SendResetCommand(args.ChannelNo);
+                await _pipeDevice.Device.ResetEncryption(args.ChannelNo);
             }
             catch (Exception ex)
             {
@@ -143,7 +158,7 @@ namespace HideezMiddleware
                 throw;
             }
         }
-        
+
         async Task RemoteConnection_GetRootKeyAsync(RemoteConnection_GetRootKeyMessage args)
         {
             try
@@ -151,10 +166,10 @@ namespace HideezMiddleware
                 if (_pipeDevice == null || _pipeDevice.Id != args.ConnectionId)
                     throw new HideezException(HideezErrorCode.RemoteDeviceNotFound, args.ConnectionId);
 
-                var response = await _pipeDevice.Device.SendGetRootKeyCommand();
+                var response = await _pipeDevice.Device.GetRootKey();
 
-                if(response!= null)
-                    await RemoteConnectionPubSub.Publish(new RemoteConnection_RemoteCommandMessageReply(response.Result));
+                if (response != null)
+                    await _remoteConnectionPubSub.Publish(new RemoteConnection_DeviceCommandMessageReply(response));
             }
             catch (Exception ex)
             {
@@ -163,9 +178,21 @@ namespace HideezMiddleware
             }
         }
 
-        async Task OnRemoteClientDisconnected(RemoteClientDisconnectedEvent arg)
+        Task OnRemoteClientDisconnected(RemoteClientDisconnectedEvent arg)
         {
-            await _messenger.Publish(new RemoteDeviceDisconnectedMessage(RemoteConnectionPubSub));
+            DisposePair();
+
+            _deviceManager.RemoveDeviceChannel(_pipeDevice);
+
+            return Task.CompletedTask;
+        }
+        #endregion
+
+        public void DisposePair()
+        {
+            _pipeDevice.DeviceConnection.DeviceStateChanged -= RemoteConnection_DeviceStateChanged;
+
+            _remoteConnectionPubSub.StopServer();
         }
 
         void Error(Exception ex, string message = "")

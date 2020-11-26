@@ -6,14 +6,9 @@ namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
     {
         public string ConnectionId { get; set; }
 
-        public byte[] Data { get; set; }
-
-        public RemoteConnection_GetRootKeyMessage(string connectionid, byte[] data)
+        public RemoteConnection_GetRootKeyMessage(string connectionid)
         {
             ConnectionId = connectionid;
-            Data = data;
         }
     }
-
-
 }

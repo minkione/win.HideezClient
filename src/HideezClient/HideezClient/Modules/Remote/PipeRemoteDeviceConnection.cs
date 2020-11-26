@@ -63,8 +63,7 @@ namespace HideezClient.Modules.Remote
 
         public async Task SendRequestAsync(EncryptedRequest request)
         {
-            var data = JsonConvert.SerializeObject(request);
-            var response = await _metaPubSub.ProcessOnServer<RemoteConnection_RemoteCommandMessageReply>(new RemoteConnection_RemoteCommandMessage(Id, data),30000);
+            var response = await _metaPubSub.ProcessOnServer<RemoteConnection_RemoteCommandMessageReply>(new RemoteConnection_RemoteCommandMessage(Id, request), 10_000);
             if (response != null)
             {
                 ResponseReceived?.Invoke(this, new MessageBuffer(response.Data, request.Buffer.ChannelNo));
@@ -73,8 +72,7 @@ namespace HideezClient.Modules.Remote
 
         public async Task SendRequestAsync(ControlRequest request)
         {
-            var data = JsonConvert.SerializeObject(request);
-            await _metaPubSub.PublishOnServer(new RemoteConnection_ControlRemoteCommandMessage(Id, data));
+            await _metaPubSub.PublishOnServer(new RemoteConnection_ControlRemoteCommandMessage(Id, request));
         }
     }
 }

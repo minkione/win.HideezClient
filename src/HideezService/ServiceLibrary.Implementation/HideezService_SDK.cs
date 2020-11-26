@@ -752,8 +752,8 @@ namespace ServiceLibrary.Implementation
                 device.WipeFinished -= Device_WipeFinished;
                 device.AccessLevelChanged -= Device_AccessLevelChanged;
 
-                if (device is IPipeDevice pipeDevice)
-                    _pipeDeviceConnectionManager.RemovePipeDevice(pipeDevice);
+                if (device is IRemoteDeviceProxy pipeDevice)
+                    _pipeDeviceConnectionManager.RemovePipeDeviceConnection(pipeDevice);
 
                 if (!(device is IRemoteDeviceProxy) && device.IsInitialized)
                 {

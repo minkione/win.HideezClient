@@ -148,7 +148,7 @@ namespace HideezClient.Modules.DeviceManager
 
         void AddDevice(DeviceDTO dto)
         {
-            if (!_devices.ContainsKey(dto.Id))
+            if (dto.ChannelNo == 1 && !_devices.ContainsKey(dto.Id))
             {
                 var device = new DeviceModel(_remoteDeviceFactory, _metaMessenger, dto);
                 device.PropertyChanged += Device_PropertyChanged;

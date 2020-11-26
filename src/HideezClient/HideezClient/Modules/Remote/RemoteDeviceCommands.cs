@@ -26,22 +26,21 @@ namespace HideezClient.Modules.Remote
             _connectionId = connectionId;
         }
 
-        public async Task<GetRootKeyReply> SendGetRootKeyCommand()
+        public async Task<DeviceCommandReplyResult> GetRootKey()
         {
-            var message = new GetRootKeyCommand();
-            var response = await _metaMessenger.ProcessOnServer<RemoteConnection_RemoteCommandMessageReply>(new RemoteConnection_GetRootKeyMessage(_connectionId, message.Data), SdkConfig.GetRootKeyCommandTimeout);
-            return new GetRootKeyReply(response.Data);
+            var response = await _metaMessenger.ProcessOnServer<RemoteConnection_DeviceCommandMessageReply>(new RemoteConnection_GetRootKeyMessage(_connectionId), SdkConfig.GetRootKeyCommandTimeout);
+            return response.Data;
         }
 
-        public async Task SendResetCommand(byte channelNo)
+        public async Task ResetEncryption(byte channelNo)
         {
             await _metaMessenger.PublishOnServer(new RemoteConnection_ResetChannelMessage(_connectionId, channelNo));
         }
 
-        public async Task<VerifyReply> SendVerifyCommand(byte[] pubKeyH, byte[] nonceH, byte verifyChannelNo)
+        public async Task<DeviceCommandReplyResult> VerifyEncryption(byte[] pubKeyH, byte[] nonceH, byte verifyChannelNo)
         {
-            var response = await _metaMessenger.ProcessOnServer<RemoteConnection_VerifyCommandMessageReply>(new RemoteConnection_VerifyCommandMessage(_connectionId, pubKeyH, nonceH, verifyChannelNo), SdkConfig.DeviceInitializationTimeout);
-            return new VerifyReply(response.Data);
+            var response = await _metaMessenger.ProcessOnServer<RemoteConnection_DeviceCommandMessageReply>(new RemoteConnection_VerifyCommandMessage(_connectionId, pubKeyH, nonceH, verifyChannelNo), SdkConfig.DeviceInitializationTimeout);
+            return response.Data;
         }
     }
 }

@@ -99,6 +99,7 @@
     <Compile Include="HideezService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegistrySettings.cs" />
+    <Compile Include="RemoteConnectionManagement\PipeDeviceConnectionHandler.cs" />
     <Compile Include="RemoteConnectionManagement\PipeDeviceConnectionManager.cs" />
     <Compile Include="ScreenActivation\MetalibScreenActivator.cs" />
     <Compile Include="WorkstationLock\UniversalWorkstationLocker.cs" />
