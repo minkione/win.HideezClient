@@ -40,12 +40,14 @@ using ServiceLibrary.Implementation.ScreenActivation;
 using ServiceLibrary.Implementation.WorkstationLock;
 using HideezMiddleware.DeviceConnection.Workflow;
 using Hideez.SDK.Communication.HES.DTO;
+using WinBle._10._0._18362;
 
 namespace ServiceLibrary.Implementation
 {
     public partial class HideezService
     {
-        static BleConnectionManager _bleConnectionManager;
+        static IBleConnectionManager _csrBleConnectionManager;
+        static IBleConnectionManager _winBleConnectionManager;
         static DeviceManager _deviceManager;
         static CredentialProviderProxy _credentialProviderProxy;
         static HesAppConnection _hesConnection;
@@ -72,9 +74,11 @@ namespace ServiceLibrary.Implementation
         static RfidConnectionProcessor _rfidProcessor;
         static TapConnectionProcessor _tapProcessor;
         static ProximityConnectionProcessor _proximityProcessor;
+        static ExternalConnectionProcessor _winBleProcessor;
         static SessionUnlockMethodMonitor _sessionUnlockMethodMonitor;
         static SessionSwitchLogger _sessionSwitchLogger;
         static ConnectionManagerRestarter _connectionManagerRestarter;
+        private ConnectionManagersCoordinator _connectionManagersCoordinator;
         static ILocalDeviceInfoCache _localDeviceInfoCache;
         static DeviceLogManager _deviceLogManager;
 
@@ -112,17 +116,31 @@ namespace ServiceLibrary.Implementation
                 // Connection Manager ============================
                 Directory.CreateDirectory(bondsFolderPath); // Ensure directory for bonds is created since unmanaged code doesn't do that
 
-                _bleConnectionManager = new BleConnectionManager(_sdkLogger, bondsFolderPath);
-                _bleConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-                _bleConnectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
-                _bleConnectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
-                _bleConnectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
-                _bleConnectionManager.Start();
-                _bleConnectionManager.StartDiscovery();
-                _connectionManagerRestarter = new ConnectionManagerRestarter(_bleConnectionManager, _sdkLogger);
+                _csrBleConnectionManager = new BleConnectionManager(_sdkLogger, bondsFolderPath);
+                _csrBleConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+                _csrBleConnectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
+                _csrBleConnectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
+                _csrBleConnectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+
+                _winBleConnectionManager = new WinBleConnectionManager(_sdkLogger);
+                // Todo: subscribtion to WinBleConnectionManager events
+                //_winBleConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+                //_winBleConnectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
+                //_winBleConnectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
+                //_winBleConnectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+
+                // Connection Managers Coordinator ============================
+                _connectionManagersCoordinator = new ConnectionManagersCoordinator();
+                _connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
+                _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManager);
+                _connectionManagersCoordinator.Start();
+
+                _csrBleConnectionManager.StartDiscovery();
+
+                _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger, _csrBleConnectionManager, _winBleConnectionManager);
 
                 // BLE ============================
-                _deviceManager = new DeviceManager(_bleConnectionManager, _sdkLogger);
+                _deviceManager = new DeviceManager(_winBleConnectionManager, _sdkLogger); // TODO: Use _connectionManagersCoordinator instead of _csrBleConnectionManager
                 _deviceManager.DeviceAdded += DevicesManager_DeviceAdded;
                 _deviceManager.DeviceRemoved += DevicesManager_DeviceRemoved;
                 //_deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
@@ -225,9 +243,10 @@ namespace ServiceLibrary.Implementation
 
             // HesAccessManager ==================================
             _hesAccessManager = new HesAccessManager(clientRootRegistryKey, _sdkLogger);
-            _hesAccessManager.AccessRetractedEvent += HesAccessManager_AccessRetractedEvent; 
+            _hesAccessManager.AccessRetractedEvent += HesAccessManager_AccessRetractedEvent;
 
             // TB & HES Connections ==================================
+            await bleInitTask.ConfigureAwait(false);
             await pipeInitTask.ConfigureAwait(false); 
             await CreateHubs(_deviceManager, workstationInfoProvider, _proximitySettingsManager, _rfidSettingsManager, _hesAccessManager, _sdkLogger).ConfigureAwait(false);
 
@@ -236,7 +255,6 @@ namespace ServiceLibrary.Implementation
             // Software Vault Unlock Mechanism
             _unlockTokenProvider = new UnlockTokenProvider(clientRootRegistryKey, _sdkLogger);
             _unlockTokenGenerator = new UnlockTokenGenerator(_unlockTokenProvider, workstationInfoProvider, _sdkLogger);
-            await pipeInitTask.ConfigureAwait(false);
             _remoteWorkstationUnlocker = new RemoteWorkstationUnlocker(_unlockTokenProvider, _tbHesConnection, _credentialProviderProxy, _sdkLogger);
 
             // Start Software Vault unlock modules
@@ -257,7 +275,7 @@ namespace ServiceLibrary.Implementation
 
             // StatusManager =============================
             _statusManager = new StatusManager(_hesConnection, _tbHesConnection, _rfidService, 
-                _bleConnectionManager, _uiProxy, _rfidSettingsManager, _credentialProviderProxy, _sdkLogger);
+                _csrBleConnectionManager, _uiProxy, _rfidSettingsManager, _credentialProviderProxy, _sdkLogger);
 
             // Local device info cache
             _localDeviceInfoCache = new LocalDeviceInfoCache(clientRootRegistryKey, _sdkLogger);
@@ -282,7 +300,7 @@ namespace ServiceLibrary.Implementation
             _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreList = new AdvertisementIgnoreList(
-                _bleConnectionManager,
+                _csrBleConnectionManager,
                 _workstationSettingsManager,
                 _sdkLogger);
             _rfidProcessor = new RfidConnectionProcessor(
@@ -295,11 +313,11 @@ namespace ServiceLibrary.Implementation
                 _sdkLogger);
             _tapProcessor = new TapConnectionProcessor(
                 _connectionFlowProcessor,
-                _bleConnectionManager,
+                _csrBleConnectionManager,
                 _sdkLogger);
             _proximityProcessor = new ProximityConnectionProcessor(
                 _connectionFlowProcessor,
-                _bleConnectionManager,
+                _csrBleConnectionManager,
                 _proximitySettingsManager,
                 _workstationSettingsManager,
                 _advIgnoreList,
@@ -307,12 +325,17 @@ namespace ServiceLibrary.Implementation
                 _credentialProviderProxy,
                 _hesAccessManager,
                 _sdkLogger);
+            _winBleProcessor = new ExternalConnectionProcessor(
+                _connectionFlowProcessor,
+                _winBleConnectionManager,
+                _sdkLogger);
 
             serviceInitializationTasks.Add(Task.Run(() =>
             {
                 _proximityProcessor.Start();
                 _tapProcessor.Start();
                 _rfidProcessor.Start();
+                _winBleProcessor.Start();
             }));
 
             // Proximity Monitor ==================================
@@ -337,7 +360,7 @@ namespace ServiceLibrary.Implementation
 
             //SessionUnlockMethodMonitor ==================================
             _sessionUnlockMethodMonitor = new SessionUnlockMethodMonitor(_connectionFlowProcessor,
-                 _tapProcessor, _rfidProcessor, _proximityProcessor, _sdkLogger);
+                 _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor, _sdkLogger);
 
             // SessionSwitchLogger ==================================
             _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver, _sessionUnlockMethodMonitor,
@@ -352,7 +375,7 @@ namespace ServiceLibrary.Implementation
             _workstationLockProcessor.Start();
             _proximityMonitorManager.Start();
 
-            _bleConnectionManager.StartDiscovery();
+            _csrBleConnectionManager.StartDiscovery();
             _connectionManagerRestarter.Start();
 
             _deviceReconnectManager.Start();
@@ -630,10 +653,10 @@ namespace ServiceLibrary.Implementation
 
         async void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
-            if (_bleConnectionManager.State == BluetoothAdapterState.Unknown || _bleConnectionManager.State == BluetoothAdapterState.PoweredOn)
+            if (_csrBleConnectionManager.State == BluetoothAdapterState.Unknown || _csrBleConnectionManager.State == BluetoothAdapterState.PoweredOn)
             {
                 var we = _eventSaver.GetWorkstationEvent();
-                if (_bleConnectionManager.State == BluetoothAdapterState.PoweredOn)
+                if (_csrBleConnectionManager.State == BluetoothAdapterState.PoweredOn)
                 {
                     we.EventId = WorkstationEventType.DonglePlugged;
                     we.Severity = WorkstationEventSeverity.Info;
@@ -792,7 +815,7 @@ namespace ServiceLibrary.Implementation
                         {
                             await Task.Delay(1000);
                             _log.WriteLine("Restarting connection manager");
-                            _bleConnectionManager.Restart();
+                            _csrBleConnectionManager.Restart();
                             _connectionManagerRestarter.Start();
                         });
                     }
@@ -1269,7 +1292,7 @@ namespace ServiceLibrary.Implementation
                     {
                         await Task.Delay(1000);
                         _log.WriteLine("Restarting connection manager");
-                        _bleConnectionManager.Restart();
+                        _csrBleConnectionManager.Restart();
                         _connectionManagerRestarter.Start();
 
                         _log.WriteLine("Starting connection processors");

@@ -11,17 +11,17 @@ namespace HideezMiddleware
     /// </summary>
     public class ConnectionManagerRestarter : Logger
     {
-        IBleConnectionManager _bleConnectionManager;
+        readonly IBleConnectionManager[] _bleConnectionManagers;
         CancellationTokenSource _tcs = null;
         object _tcsLock = new object();
 
-        public ConnectionManagerRestarter(IBleConnectionManager bleConnectionManager, ILog log)
+        public ConnectionManagerRestarter(ILog log, params IBleConnectionManager[] bleConnectionManagers)
             : base(nameof(ConnectionManagerRestarter), log)
         {
-            _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
+            _bleConnectionManagers = bleConnectionManagers;
         }
 
-        public int CheckIntervalMs { get; set; } = 2000;
+        public int ManagerStateCheckIntervalMs { get; set; } = 2000;
 
         public void Start()
         {
@@ -60,22 +60,25 @@ namespace HideezMiddleware
             }
             while (!token.IsCancellationRequested)
             {
-                await Task.Delay(2000, token);
+                await Task.Delay(ManagerStateCheckIntervalMs, token);
 
                 if (token.IsCancellationRequested)
                     break;
 
-                if (_bleConnectionManager.State == BluetoothAdapterState.Unknown)
+                foreach (var manager in _bleConnectionManagers)
                 {
-                    try
+                    if (manager.State == BluetoothAdapterState.Unknown)
                     {
-                        WriteLine("Restarting connection manager due to Unknown state");
-                        _bleConnectionManager.Restart();
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteLine(ex);
-                        return;
+                        try
+                        {
+                            WriteLine($"Restarting {manager.GetType()} due to Unknown state");
+                            manager.Restart();
+                        }
+                        catch (Exception ex)
+                        {
+                            WriteLine(ex);
+                            return;
+                        }
                     }
                 }
             }
