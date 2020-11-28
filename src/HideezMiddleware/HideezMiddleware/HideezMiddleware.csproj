@@ -111,6 +111,8 @@
     <Compile Include="Audit\SessionTimestampLogger.cs" />
     <Compile Include="BondManager.cs" />
     <Compile Include="ChangeServerAddressResult.cs" />
+    <Compile Include="DeviceConnection\ExternalConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\IConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\AccountsUpdateProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\ActivationProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\CacheVaultInfoProcessor.cs" />
@@ -279,6 +281,10 @@
     <ProjectReference Include="..\..\..\win.SDK\Communication\Communication.csproj">
       <Project>{6f4c0dc3-4aa3-4517-9311-edec593baf12}</Project>
       <Name>Communication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\win.SDK\WinBle\WinBle.csproj">
+      <Project>{AF08ED4D-6977-4DCB-A49D-0C0A547698BA}</Project>
+      <Name>WinBle</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

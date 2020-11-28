@@ -56,7 +56,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         public ConnectionFlowProcessor(
             DeviceManager deviceManager,
             IHesAppConnection hesConnection,
-            Hideez.SDK.Communication.Interfaces.IWorkstationUnlocker workstationUnlocker,
+            IWorkstationUnlocker workstationUnlocker,
             IScreenActivator screenActivator,
             IClientUiManager ui,
             IHesAccessManager hesAccessManager,

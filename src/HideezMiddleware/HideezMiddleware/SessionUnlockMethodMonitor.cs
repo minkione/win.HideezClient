@@ -17,6 +17,7 @@ namespace HideezMiddleware
         readonly TapConnectionProcessor _tapProcessor;
         readonly RfidConnectionProcessor _rfidProcessor;
         readonly ProximityConnectionProcessor _proximityProcessor;
+        readonly ExternalConnectionProcessor _winBleProcessor;
 
         UnlockSessionSwitchProc _unlockProcedure = null;
         readonly object _upLock = new object();
@@ -27,12 +28,14 @@ namespace HideezMiddleware
                                           TapConnectionProcessor tapProcessor,
                                           RfidConnectionProcessor rfidProcessor,
                                           ProximityConnectionProcessor proximityProcessor,
+                                          ExternalConnectionProcessor winBleProcessor,
                                           ILog log): base(nameof(SessionUnlockMethodMonitor), log)
         {
             _connectionFlowProcessor = connectionFlowProcessor;
             _tapProcessor = tapProcessor;
             _rfidProcessor = rfidProcessor;
             _proximityProcessor = proximityProcessor;
+            _winBleProcessor = winBleProcessor;
 
             _connectionFlowProcessor.Started += ConnectionFlowProcessor_Started;
         }
@@ -44,7 +47,7 @@ namespace HideezMiddleware
                 if (_unlockProcedure != null)
                     _unlockProcedure.Dispose();
 
-                _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor);
+                _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor);
                 WriteLine("Started unlock procedure");
             }
         }

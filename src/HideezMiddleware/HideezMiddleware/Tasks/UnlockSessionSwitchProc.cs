@@ -14,6 +14,7 @@ namespace HideezMiddleware.Tasks
         readonly TapConnectionProcessor _tapProcessor;
         readonly RfidConnectionProcessor _rfidProcessor;
         readonly ProximityConnectionProcessor _proximityProcessor;
+        readonly ExternalConnectionProcessor _winBleProcessor;
 
         readonly TaskCompletionSource<object> _tcs = new TaskCompletionSource<object>();
         readonly string _flowId;
@@ -30,13 +31,15 @@ namespace HideezMiddleware.Tasks
             ConnectionFlowProcessor connectionFlowProcessor,
             TapConnectionProcessor tapProcessor,
             RfidConnectionProcessor rfidProcessor,
-            ProximityConnectionProcessor proximityProcessor)
+            ProximityConnectionProcessor proximityProcessor,
+            ExternalConnectionProcessor winBleProcessor)
         {
             _flowId = flowId;
             _connectionFlowProcessor = connectionFlowProcessor;
             _tapProcessor = tapProcessor;
             _rfidProcessor = rfidProcessor;
             _proximityProcessor = proximityProcessor;
+            _winBleProcessor = winBleProcessor;
 
             SubscribeToEvents();
         }
@@ -94,6 +97,7 @@ namespace HideezMiddleware.Tasks
             _tapProcessor.WorkstationUnlockPerformed += TapProcessor_WorkstationUnlockPerformed;
             _rfidProcessor.WorkstationUnlockPerformed += RfidProcessor_WorkstationUnlockPerformed;
             _proximityProcessor.WorkstationUnlockPerformed += ProximityProcessor_WorkstationUnlockPerformed;
+            _winBleProcessor.WorkstationUnlockPerformed += WinBleProcessor_WorkstationUnlockPerformed;
         }
 
         void UnsubscribeFromEvents()
@@ -102,6 +106,7 @@ namespace HideezMiddleware.Tasks
             _tapProcessor.WorkstationUnlockPerformed -= TapProcessor_WorkstationUnlockPerformed;
             _rfidProcessor.WorkstationUnlockPerformed -= RfidProcessor_WorkstationUnlockPerformed;
             _proximityProcessor.WorkstationUnlockPerformed -= ProximityProcessor_WorkstationUnlockPerformed;
+            _winBleProcessor.WorkstationUnlockPerformed -= WinBleProcessor_WorkstationUnlockPerformed;
         }
 
         void ConnectionFlowProcessor_Finished(object sender, string e)
@@ -145,6 +150,18 @@ namespace HideezMiddleware.Tasks
             {
                 FlowUnlockResult = e;
                 UnlockMethod = SessionSwitchSubject.Proximity;
+
+                if (!FlowUnlockResult.IsSuccessful)
+                    _tcs.TrySetResult(new object());
+            }
+        }
+
+        void WinBleProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
+        {
+            if (e.FlowId == _flowId)
+            {
+                FlowUnlockResult = e;
+                UnlockMethod = SessionSwitchSubject.WinBle;
 
                 if (!FlowUnlockResult.IsSuccessful)
                     _tcs.TrySetResult(new object());

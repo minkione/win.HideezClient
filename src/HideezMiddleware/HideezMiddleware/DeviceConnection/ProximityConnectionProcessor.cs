@@ -13,7 +13,7 @@ using HideezMiddleware.Settings;
 namespace HideezMiddleware.DeviceConnection
 {
 
-    public class ProximityConnectionProcessor : Logger, IDisposable
+    public class ProximityConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
         struct ProximityUnlockAccess
         {
@@ -21,7 +21,6 @@ namespace HideezMiddleware.DeviceConnection
             public bool CanConnect { get; set; }
         }
 
-        readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly IBleConnectionManager _bleConnectionManager;
         readonly ISettingsManager<ProximitySettings> _proximitySettingsManager;
         readonly ISettingsManager<WorkstationSettings> _workstationSettingsManager;
@@ -37,8 +36,6 @@ namespace HideezMiddleware.DeviceConnection
         int _isConnecting = 0;
         bool isRunning = false;
 
-        public event EventHandler<WorkstationUnlockResult> WorkstationUnlockPerformed;
-
         public ProximityConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
@@ -49,9 +46,8 @@ namespace HideezMiddleware.DeviceConnection
             IWorkstationUnlocker workstationUnlocker,
             IHesAccessManager hesAccessManager,
             ILog log) 
-            : base(nameof(ProximityConnectionProcessor), log)
+            : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
         {
-            _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));
             _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
             _proximitySettingsManager = proximitySettingsManager ?? throw new ArgumentNullException(nameof(proximitySettingsManager));
             _workstationSettingsManager = workstationSettingsManager ?? throw new ArgumentNullException(nameof(workstationSettingsManager));
@@ -89,7 +85,7 @@ namespace HideezMiddleware.DeviceConnection
         }
         #endregion
 
-        public void Start()
+        public override void Start()
         {
             lock (_lock)
             {
@@ -104,7 +100,7 @@ namespace HideezMiddleware.DeviceConnection
             }
         }
 
-        public void Stop()
+        public override void Stop()
         {
             lock (_lock)
             {
@@ -180,7 +176,7 @@ namespace HideezMiddleware.DeviceConnection
                         // Locked Workstation, Device not found OR not connected - connect add to ignore
                         if (_workstationUnlocker.IsConnected && (device == null || (device != null && !device.IsConnected)))
                         {
-                            await _connectionFlowProcessor.ConnectAndUnlock(mac, OnUnlockAttempt);
+                            await ConnectAndUnlockByMac(mac);
                         }
                     }
                     catch (Exception)
@@ -197,12 +193,6 @@ namespace HideezMiddleware.DeviceConnection
                     Interlocked.Exchange(ref _isConnecting, 0);
                 }
             }
-        }
-
-        void OnUnlockAttempt(WorkstationUnlockResult result)
-        {
-            if (result.IsSuccessful)
-                WorkstationUnlockPerformed?.Invoke(this, result);
         }
     }
 }

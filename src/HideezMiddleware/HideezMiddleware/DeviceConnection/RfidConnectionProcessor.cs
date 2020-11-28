@@ -12,9 +12,8 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection
 {
-    public class RfidConnectionProcessor : Logger, IDisposable
+    public class RfidConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
-        readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly IClientUiManager _clientUiManager;
         readonly HesAppConnection _hesConnection;
         readonly RfidServiceConnection _rfidService;
@@ -25,8 +24,6 @@ namespace HideezMiddleware.DeviceConnection
         int _isConnecting = 0;
         bool isRunning = false;
 
-        public event EventHandler<WorkstationUnlockResult> WorkstationUnlockPerformed;
-
         public RfidConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor, 
             HesAppConnection hesConnection,
@@ -35,9 +32,8 @@ namespace HideezMiddleware.DeviceConnection
             IScreenActivator screenActivator,
             IClientUiManager clientUiManager, 
             ILog log) 
-            : base(nameof(RfidConnectionProcessor), log)
+            : base(connectionFlowProcessor, nameof(RfidConnectionProcessor), log)
         {
-            _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));
             _hesConnection = hesConnection ?? throw new ArgumentNullException(nameof(hesConnection));
             _rfidService = rfidService ?? throw new ArgumentNullException(nameof(rfidService));
             _rfidSettingsManager = rfidSettingsManager ?? throw new ArgumentNullException(nameof(rfidSettingsManager));
@@ -72,7 +68,7 @@ namespace HideezMiddleware.DeviceConnection
         }
         #endregion
 
-        public void Start()
+        public override void Start()
         {
             lock (_lock)
             {
@@ -85,7 +81,7 @@ namespace HideezMiddleware.DeviceConnection
             }
         }
 
-        public void Stop()
+        public override void Stop()
         {
             lock (_lock)
             {
@@ -129,7 +125,7 @@ namespace HideezMiddleware.DeviceConnection
                 {
                     try
                     {
-                        await _connectionFlowProcessor.ConnectAndUnlock(info.VaultMac, OnUnlockAttempt);
+                        await ConnectAndUnlockByMac(info.VaultMac);
                     }
                     catch (Exception)
                     {
@@ -150,12 +146,6 @@ namespace HideezMiddleware.DeviceConnection
                 WriteLine(ex);
                 await _clientUiManager.SendError(HideezExceptionLocalization.GetErrorAsString(ex), info?.VaultMac);
             }
-        }
-
-        void OnUnlockAttempt(WorkstationUnlockResult result)
-        {
-            if (result.IsSuccessful)
-                WorkstationUnlockPerformed?.Invoke(this, result);
         }
     }
 }

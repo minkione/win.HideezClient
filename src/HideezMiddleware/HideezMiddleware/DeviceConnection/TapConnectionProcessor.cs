@@ -8,24 +8,20 @@ using HideezMiddleware.DeviceConnection.Workflow;
 
 namespace HideezMiddleware.DeviceConnection
 {
-    public class TapConnectionProcessor : Logger, IDisposable
+    public class TapConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
-        readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly IBleConnectionManager _bleConnectionManager;
         readonly object _lock = new object();
 
         int _isConnecting = 0;
         bool isRunning = false;
 
-        public event EventHandler<WorkstationUnlockResult> WorkstationUnlockPerformed;
-
         public TapConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
             ILog log) 
-            : base(nameof(TapConnectionProcessor), log)
+            : base(connectionFlowProcessor, nameof(TapConnectionProcessor), log)
         {
-            _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));
             _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
         }
 
@@ -56,7 +52,7 @@ namespace HideezMiddleware.DeviceConnection
         }
         #endregion
 
-        public void Start()
+        public override void Start()
         {
             lock (_lock)
             {
@@ -69,7 +65,7 @@ namespace HideezMiddleware.DeviceConnection
             }
         }
 
-        public void Stop()
+        public override void Stop()
         {
             lock (_lock)
             {
@@ -99,7 +95,7 @@ namespace HideezMiddleware.DeviceConnection
                     try
                     {
                         var mac = BleUtils.ConnectionIdToMac(adv.Id);
-                        await _connectionFlowProcessor.ConnectAndUnlock(mac, OnUnlockAttempt);
+                        await ConnectAndUnlockByMac(mac);
                     }
                     catch (Exception)
                     {
@@ -115,12 +111,6 @@ namespace HideezMiddleware.DeviceConnection
                     }
                 }
             }
-        }
-
-        void OnUnlockAttempt(WorkstationUnlockResult result)
-        {
-            if (result.IsSuccessful)
-                WorkstationUnlockPerformed?.Invoke(this, result);
         }
     }
 }
