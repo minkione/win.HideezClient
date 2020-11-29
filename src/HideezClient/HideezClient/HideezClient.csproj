@@ -475,6 +475,7 @@
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
     <Compile Include="ViewModels\Controls\ServerAddressEditControlViewModel.cs" />
+    <Compile Include="ViewModels\Controls\WinBleDeviceManagementListViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
     <Compile Include="ViewModels\Dialog\ActivationViewModel.cs" />

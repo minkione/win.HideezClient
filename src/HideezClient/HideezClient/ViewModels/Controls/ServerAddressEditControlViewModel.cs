@@ -12,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace HideezClient.ViewModels
+namespace HideezClient.ViewModels.Controls
 {
     class ServerAddressEditControlViewModel : ObservableObject
     {

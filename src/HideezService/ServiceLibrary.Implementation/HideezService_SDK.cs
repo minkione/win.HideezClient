@@ -75,6 +75,7 @@ namespace ServiceLibrary.Implementation
         static TapConnectionProcessor _tapProcessor;
         static ProximityConnectionProcessor _proximityProcessor;
         static ExternalConnectionProcessor _winBleProcessor;
+        static WinBleControllersStateMonitor _winBleControllersStateMonitor;
         static SessionUnlockMethodMonitor _sessionUnlockMethodMonitor;
         static SessionSwitchLogger _sessionSwitchLogger;
         static ConnectionManagerRestarter _connectionManagerRestarter;
@@ -104,7 +105,7 @@ namespace ServiceLibrary.Implementation
 
             // Collection of module initialization tasks that must be finished to complete service launch
             // but otherwise are not immediatelly required by other modules
-            List<Task> serviceInitializationTasks = new List<Task>(); 
+            List<Task> serviceInitializationTasks = new List<Task>();
 
             // Combined path evaluates to '%ProgramData%\\Hideez\\Bonds'
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
@@ -113,7 +114,7 @@ namespace ServiceLibrary.Implementation
 
             var bleInitTask = Task.Run(() =>
             {
-                // Connection Manager ============================
+                // Csr Connection Manager ============================
                 Directory.CreateDirectory(bondsFolderPath); // Ensure directory for bonds is created since unmanaged code doesn't do that
 
                 _csrBleConnectionManager = new BleConnectionManager(_sdkLogger, bondsFolderPath);
@@ -122,12 +123,19 @@ namespace ServiceLibrary.Implementation
                 _csrBleConnectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
                 _csrBleConnectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
 
+                // WinBle Connection Manager ============================
                 _winBleConnectionManager = new WinBleConnectionManager(_sdkLogger);
                 // Todo: subscribtion to WinBleConnectionManager events
                 //_winBleConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
                 //_winBleConnectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
                 //_winBleConnectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
                 //_winBleConnectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+
+
+                // WinBle Controllers State Monitor ============================
+                _winBleControllersStateMonitor = new WinBleControllersStateMonitor((WinBleConnectionManager)_winBleConnectionManager, _sdkLogger);
+                _winBleControllersStateMonitor.WinBleControllersCollectionChanged += WinBleControllersStateMonitor_WinBleControllersCollectionChanged;
+                _winBleControllersStateMonitor.Start();
 
                 // Connection Managers Coordinator ============================
                 _connectionManagersCoordinator = new ConnectionManagersCoordinator();
@@ -136,8 +144,10 @@ namespace ServiceLibrary.Implementation
                 _connectionManagersCoordinator.Start();
 
                 _csrBleConnectionManager.StartDiscovery();
+                _winBleConnectionManager.StartDiscovery();
 
                 _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger, _csrBleConnectionManager, _winBleConnectionManager);
+
 
                 // BLE ============================
                 _deviceManager = new DeviceManager(_winBleConnectionManager, _sdkLogger); // TODO: Use _connectionManagersCoordinator instead of _csrBleConnectionManager
@@ -247,7 +257,7 @@ namespace ServiceLibrary.Implementation
 
             // TB & HES Connections ==================================
             await bleInitTask.ConfigureAwait(false);
-            await pipeInitTask.ConfigureAwait(false); 
+            await pipeInitTask.ConfigureAwait(false);
             await CreateHubs(_deviceManager, workstationInfoProvider, _proximitySettingsManager, _rfidSettingsManager, _hesAccessManager, _sdkLogger).ConfigureAwait(false);
 
             serviceInitializationTasks.Add(StartHubs(hesAddress));
@@ -274,7 +284,7 @@ namespace ServiceLibrary.Implementation
             _uiProxy = new UiProxyManager(_credentialProviderProxy, _clientProxy, _sdkLogger);
 
             // StatusManager =============================
-            _statusManager = new StatusManager(_hesConnection, _tbHesConnection, _rfidService, 
+            _statusManager = new StatusManager(_hesConnection, _tbHesConnection, _rfidService,
                 _csrBleConnectionManager, _uiProxy, _rfidSettingsManager, _credentialProviderProxy, _sdkLogger);
 
             // Local device info cache
@@ -350,10 +360,10 @@ namespace ServiceLibrary.Implementation
             _workstationLocker = new UniversalWorkstationLocker(SdkConfig.DefaultLockTimeout * 1000, _messenger, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
-            _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor, 
+            _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor,
                 _proximityMonitorManager,
-                _deviceManager, 
-                _workstationLocker, 
+                _deviceManager,
+                _workstationLocker,
                 _deviceReconnectManager,
                 _sdkLogger);
             _workstationLockProcessor.DeviceProxLockEnabled += WorkstationLockProcessor_DeviceProxLockEnabled;
@@ -384,11 +394,11 @@ namespace ServiceLibrary.Implementation
             _messenger.Subscribe<RemoteClientDisconnectedEvent>(OnClientDisconnected);
 
             _messenger.Subscribe<GetAvailableChannelsMessage>(GetAvailableChannels);
-            
+
             _messenger.Subscribe<PublishEventMessage>(PublishEvent);
             _messenger.Subscribe<DisconnectDeviceMessage>(DisconnectDevice);
             _messenger.Subscribe<RemoveDeviceMessage>(RemoveDeviceAsync);
-            
+
             _messenger.Subscribe<ChangeServerAddressMessage>(ChangeServerAddress);
             _messenger.Subscribe<SetSoftwareVaultUnlockModuleStateMessage>(SetSoftwareVaultUnlockModuleState);
 
@@ -398,14 +408,14 @@ namespace ServiceLibrary.Implementation
             _messenger.Subscribe<LoginClientRequestMessage>(OnClientLogin);
             _messenger.Subscribe<RefreshServiceInfoMessage>(OnRefreshServiceInfo);
 
-            
+            _messenger.Subscribe<ConnectDeviceRequestMessage>(OnConnectDeviceRequest);
 
             await Task.WhenAll(serviceInitializationTasks).ConfigureAwait(false);
         }
 
-        Task<HesAppConnection> CreateHesHub(DeviceManager deviceManager, 
-            WorkstationInfoProvider workstationInfoProvider, 
-            ISettingsManager<ProximitySettings> proximitySettingsManager, 
+        Task<HesAppConnection> CreateHesHub(DeviceManager deviceManager,
+            WorkstationInfoProvider workstationInfoProvider,
+            ISettingsManager<ProximitySettings> proximitySettingsManager,
             ISettingsManager<RfidSettings> rfidSettingsManager,
             IHesAccessManager hesAccessManager,
             ILog log)
@@ -443,7 +453,7 @@ namespace ServiceLibrary.Implementation
             });
         }
 
-        Task CreateHubs(DeviceManager deviceManager, 
+        Task CreateHubs(DeviceManager deviceManager,
             WorkstationInfoProvider workstationInfoProvider,
             ISettingsManager<ProximitySettings> proximitySettingsManager,
             ISettingsManager<RfidSettings> rfidSettingsManager,
@@ -560,11 +570,23 @@ namespace ServiceLibrary.Implementation
             await RefreshServiceInfo();
         }
 
+        async Task OnConnectDeviceRequest(ConnectDeviceRequestMessage arg)
+        {
+            try
+            {
+                await _winBleConnectionManager.Connect(arg.Id);
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
         async void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
         {
             // Disconnect all connected devices
             _deviceReconnectManager.DisableAllDevicesReconnect();
-            foreach(var device in _deviceManager.Devices)
+            foreach (var device in _deviceManager.Devices)
             {
                 await _deviceManager.Disconnect(device.DeviceConnection).ConfigureAwait(false);
             }
@@ -722,7 +744,7 @@ namespace ServiceLibrary.Implementation
             {
                 await _messenger.Publish(new LockDeviceStorageMessage(serialNo));
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 // Silent handling
             }
@@ -801,7 +823,7 @@ namespace ServiceLibrary.Implementation
 
                     if (isEnabled)
                     {
-                        foreach(var device in _deviceManager.Devices)
+                        foreach (var device in _deviceManager.Devices)
                             await _deviceManager.RemoveConnection(device.DeviceConnection);
                         //_deviceManager.RemoveAll() remove only bonds for devices that are connected
                         //So the left files need to be deleted manually
@@ -940,7 +962,7 @@ namespace ServiceLibrary.Implementation
                     Error(ex);
                 }
             }
-            
+
         }
 
         void Device_WipeFinished(object sender, WipeFinishedEventtArgs e)
@@ -950,7 +972,7 @@ namespace ServiceLibrary.Implementation
                 var device = (IDevice)sender;
                 _log?.WriteLine($"({device.SerialNo}) Wipe finished. Disabling automatic reconnect");
                 _deviceReconnectManager.DisableDeviceReconnect(device);
-                device.Disconnected += async (s, a) => 
+                device.Disconnected += async (s, a) =>
                 {
                     try
                     {
@@ -961,7 +983,7 @@ namespace ServiceLibrary.Implementation
                         Error(ex);
                     }
                 };
-                    
+
             }
         }
 
@@ -1021,6 +1043,19 @@ namespace ServiceLibrary.Implementation
                     foreach (var device in _deviceManager.Devices)
                         await _deviceManager.Disconnect(device.DeviceConnection);
                 }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        async void WinBleControllersStateMonitor_WinBleControllersCollectionChanged(object sender, WinBleControllersCollectionChangedEventArgs e)
+        {
+            try
+            {
+                var controllersArray = e.WinBleControllers.Select(c => new WinBleControllerStateDTO(c)).ToArray();
+                await _messenger.Publish(new WinBleControllersCollectionChanged(controllersArray));
             }
             catch (Exception ex)
             {
@@ -1230,6 +1265,7 @@ namespace ServiceLibrary.Implementation
 
             await _messenger.Publish(new ServiceSettingsChangedMessage(_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock, RegistrySettings.GetHesAddress(_log)));
 
+            _winBleControllersStateMonitor.NotifySubscribers();
         }
         #endregion
 

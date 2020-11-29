@@ -3,7 +3,7 @@ using HideezClient.Models;
 using HideezClient.Modules;
 using HideezClient.Modules.Localize;
 
-namespace HideezClient.ViewModels
+namespace HideezClient.ViewModels.Controls
 {
     public class DeviceInfoViewModel : DeviceViewModel
     {

@@ -7,6 +7,7 @@ using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using HideezClient.ViewModels;
+using HideezClient.ViewModels.Controls;
 using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Commands;
 using ReactiveUI;

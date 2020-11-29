@@ -151,6 +151,7 @@
     <Compile Include="DeviceConnection\RfidConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\TapConnectionProcessor.cs" />
     <Compile Include="IPC\DTO\AccessLevelDTO.cs" />
+    <Compile Include="IPC\DTO\WinBleControllerStateDTO.cs" />
     <Compile Include="IPC\DTO\DeviceDTO.cs" />
     <Compile Include="IPC\DTO\DeviceStateDTO.cs" />
     <Compile Include="IPC\DTO\ProximitySettingsDTO.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="IPC\IncommingMessages\CancelPinMessage.cs" />
     <Compile Include="IPC\IncommingMessages\ChangeServerAddressMessage.cs" />
     <Compile Include="IPC\IncommingMessages\ChangeServerAddressMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\ConnectDeviceRequestMessage.cs" />
     <Compile Include="IPC\IncommingMessages\DisconnectDeviceMessage.cs" />
     <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessage.cs" />
     <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessageReply.cs" />
@@ -200,6 +202,7 @@
     <Compile Include="IPC\Messages\ShowActivationCodeUiMessage.cs" />
     <Compile Include="IPC\Messages\UserErrorMessage.cs" />
     <Compile Include="IPC\Messages\UserNotificationMessage.cs" />
+    <Compile Include="IPC\Messages\WinBleControllersCollectionChanged.cs" />
     <Compile Include="IPC\Messages\WorkstationUnlockedMessage.cs" />
     <Compile Include="Localize\TranslationSource.cs" />
     <Compile Include="MetaPubSubLogger.cs" />
@@ -211,6 +214,7 @@
     <Compile Include="SessionUnlockMethodMonitor.cs" />
     <Compile Include="Settings\Manager\WatchingSettingsManager.cs" />
     <Compile Include="Settings\WorkstationSettings.cs" />
+    <Compile Include="WinBleControllersStateMonitor.cs" />
     <Compile Include="Workstation\IWorkstationIdProvider.cs" />
     <Compile Include="Local\LocalDeviceInfo.cs" />
     <Compile Include="Local\LocalDeviceInfoCache.cs" />

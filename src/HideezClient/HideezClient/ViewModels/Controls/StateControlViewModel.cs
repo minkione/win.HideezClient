@@ -2,7 +2,7 @@
 using HideezClient.Modules.Localize;
 using HideezClient.Mvvm;
 
-namespace HideezClient.ViewModels
+namespace HideezClient.ViewModels.Controls
 {
     class StateControlViewModel : LocalizedObject
     {

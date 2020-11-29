@@ -18,6 +18,7 @@ using System.Windows.Controls;
 using HideezClient.Modules.ServiceProxy;
 using System.Threading.Tasks;
 using Meta.Lib.Modules.PubSub;
+using HideezClient.ViewModels.Controls;
 
 namespace HideezClient.ViewModels
 {

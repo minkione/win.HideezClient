@@ -1,4 +1,5 @@
 ﻿using HideezClient.ViewModels;
+using HideezClient.ViewModels.Controls;
 using System.Windows.Controls;
 using System.Windows.Input;
 

@@ -46,6 +46,7 @@ using HideezClient.Modules.NotificationsManager;
 using Meta.Lib.Modules.PubSub.Messages;
 using HideezMiddleware.IPC.Messages;
 using HideezClient.Modules.VaultLowBatteryMonitor;
+using HideezClient.ViewModels.Controls;
 
 namespace HideezClient
 {
@@ -290,6 +291,7 @@ namespace HideezClient
             Container.RegisterType<SoftwareKeyPageViewModel>();
             Container.RegisterType<SoftwareUnlockSettingViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ActivationViewModel>();
+            Container.RegisterType<WinBleDeviceManagementListViewModel>(new ContainerControlledLifetimeManager());
 
             #endregion ViewModels
 

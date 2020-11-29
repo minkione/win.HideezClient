@@ -12,7 +12,7 @@ using System.Collections.ObjectModel;
 using System.ServiceModel;
 using System.Threading.Tasks;
 
-namespace HideezClient.ViewModels
+namespace HideezClient.ViewModels.Controls
 {
     class IndicatorsViewModel : ObservableObject
     {

@@ -18,6 +18,7 @@ using GalaSoft.MvvmLight.Ioc;
 using HideezClient.Controls;
 using HideezClient.Dialogs;
 using HideezClient.PageViewModels;
+using HideezClient.ViewModels.Controls;
 using System.ComponentModel;
 using System.Diagnostics;
 using Unity;
@@ -83,6 +84,11 @@ namespace HideezClient.ViewModels
         public ServerAddressEditControlViewModel ServerAddressEditControlViewModel
         {
             get { return DIContainer.Resolve<ServerAddressEditControlViewModel>(); }
+        }
+
+        public WinBleDeviceManagementListViewModel WinBleDeviceManagementListViewModel
+        {
+            get { return DIContainer.Resolve<WinBleDeviceManagementListViewModel>(); }
         }
 
         #endregion
