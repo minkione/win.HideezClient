@@ -133,6 +133,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 }
                 finally
                 {
+                    _cts.Cancel();
                     _cts.Dispose();
                     _cts = null;
 
@@ -169,7 +170,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             // IsConnected-true indicates that device already finished main flow or is in progress
             var existingDevice = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId == connectionId 
                 && d.ChannelNo == (int)DefaultDeviceChannel.Main);
-            if (existingDevice != null && existingDevice.IsConnected && !WorkstationHelper.IsActiveSessionLocked())
+            if (existingDevice != null && existingDevice.IsConnected && existingDevice.IsInitialized && !WorkstationHelper.IsActiveSessionLocked())
                 return;
 
             WriteLine($"Started main workflow ({connectionId.Id}, {(DefaultConnectionIdProvider)connectionId.IdProvider})");

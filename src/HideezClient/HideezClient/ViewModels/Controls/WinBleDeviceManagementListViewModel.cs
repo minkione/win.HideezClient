@@ -28,17 +28,27 @@ namespace HideezClient.ViewModels.Controls
             catch (Exception) { } // Handle error in case we are not connected to server
         }
 
-        private async Task OnControllersCollectionChanged(WinBleControllersCollectionChanged args)
+        bool firsttime = true;
+        private Task OnControllersCollectionChanged(WinBleControllersCollectionChanged args)
         {
-            try
+            return Task.Run(async () =>
             {
-                if (args.Controllers.Count() > 0 && !args.Controllers.First().IsConnected && args.Controllers.First().IsDiscovered)
-                    await _metaMessenger.PublishOnServer(new ConnectDeviceRequestMessage(args.Controllers.First().Id));
-            }
-            catch (Exception ex)
-            {
-                _log?.WriteLine(ex);
-            }
+                try
+                {
+                    if (args.Controllers.Count() > 0 && !args.Controllers.First().IsConnected && args.Controllers.First().IsDiscovered)
+                    {
+                        if (firsttime)
+                        {
+                            firsttime = false;
+                            await _metaMessenger.PublishOnServer(new ConnectDeviceRequestMessage(args.Controllers.First().Id));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log?.WriteLine(ex);
+                }
+            });
         }
     }
 }

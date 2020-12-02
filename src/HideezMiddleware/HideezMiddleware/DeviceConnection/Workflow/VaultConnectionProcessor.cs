@@ -74,12 +74,13 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     ltkErrorOccured = true;
                 }
 
-                if (device == null && rebondOnFail)
+                // After second failed connect with csr we delete bond and try to create new pair
+                if (device == null && rebondOnFail && connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr)
                 {
                     ct.ThrowIfCancellationRequested();
 
                     // remove the bond and try one more time
-                    await _deviceManager.DeleteBond(connectionId.Id);
+                    await _deviceManager.DeleteBond(connectionId);
 
                     if (ltkErrorOccured)
                         await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage3.LtkError.PressButton"], connectionId.Id); // TODO: Fix LTK error in CSR
