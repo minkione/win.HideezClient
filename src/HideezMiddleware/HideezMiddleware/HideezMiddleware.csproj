@@ -261,7 +261,6 @@
     <Compile Include="Utils\WorkstationHelper.cs" />
     <Compile Include="Utils\WorkstationHelper_UnlockCheck.cs" />
     <Compile Include="WorkstationInfoProvider.cs" />
-    <Compile Include="DeviceConnection\Workflow\__OldConnectionFlowProcessor.cs" />
     <Compile Include="WorkstationLockingEventArgs.cs" />
     <Compile Include="WorkstationLockProcessor.cs" />
     <Compile Include="WorkstationLockingReason.cs" />
