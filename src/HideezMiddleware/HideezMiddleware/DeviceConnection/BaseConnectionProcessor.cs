@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Refactored.BLE;
 using HideezMiddleware.DeviceConnection.Workflow;
 using System;
 using System.Threading.Tasks;
@@ -21,9 +22,9 @@ namespace HideezMiddleware.DeviceConnection
 
         public abstract void Stop();
 
-        protected async Task ConnectAndUnlockByMac(string mac)
+        protected async Task ConnectAndUnlockByConnectionId(ConnectionId connectionId)
         {
-            await _connectionFlowProcessor.ConnectAndUnlock(mac, OnUnlockAttempt);
+            await _connectionFlowProcessor.ConnectAndUnlock(connectionId, OnUnlockAttempt);
         }
 
         void OnUnlockAttempt(WorkstationUnlockResult result)

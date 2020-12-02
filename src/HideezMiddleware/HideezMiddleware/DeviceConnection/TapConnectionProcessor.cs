@@ -5,6 +5,7 @@ using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.BLE;
 using HideezMiddleware.DeviceConnection.Workflow;
+using Hideez.SDK.Communication.Refactored.BLE;
 
 namespace HideezMiddleware.DeviceConnection
 {
@@ -94,8 +95,8 @@ namespace HideezMiddleware.DeviceConnection
                 {
                     try
                     {
-                        var mac = BleUtils.ConnectionIdToMac(adv.Id);
-                        await ConnectAndUnlockByMac(mac);
+                        var connectionId = new ConnectionId(adv.Id, (byte)DefaultConnectionIdProvider.Csr);
+                        await ConnectAndUnlockByConnectionId(connectionId);
                     }
                     catch (Exception)
                     {

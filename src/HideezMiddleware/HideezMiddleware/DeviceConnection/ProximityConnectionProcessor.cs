@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Refactored.BLE;
 using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.Settings;
 
@@ -176,7 +178,8 @@ namespace HideezMiddleware.DeviceConnection
                         // Locked Workstation, Device not found OR not connected - connect add to ignore
                         if (_workstationUnlocker.IsConnected && (device == null || (device != null && !device.IsConnected)))
                         {
-                            await ConnectAndUnlockByMac(mac);
+                            var connectionId = new ConnectionId(adv.Id, (byte)DefaultConnectionIdProvider.Csr);
+                            await ConnectAndUnlockByConnectionId(connectionId);
                         }
                     }
                     catch (Exception)

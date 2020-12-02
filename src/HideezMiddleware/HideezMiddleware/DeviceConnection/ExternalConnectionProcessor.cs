@@ -97,7 +97,7 @@ namespace HideezMiddleware.DeviceConnection
             {
                 try
                 {
-                    await ConnectAndUnlockByMac(args.Controller.Mac);
+                    await ConnectAndUnlockByConnectionId(args.Controller.Connection.ConnectionId);
                 }
                 catch (Exception)
                 {

@@ -25,7 +25,7 @@ namespace HideezMiddleware.ReconnectManager
             try
             {
                 _connectionFlowProcessor.DeviceFinilizingMainFlow += ConnectionFlowProcessor_DeviceFinilizingMainFlow;
-                await _connectionFlowProcessor.Connect(_device.Mac);
+                await _connectionFlowProcessor.Connect(_device.DeviceConnection.Connection.ConnectionId);
                 return _isReconnectSuccessful;
             }
             catch (Exception)

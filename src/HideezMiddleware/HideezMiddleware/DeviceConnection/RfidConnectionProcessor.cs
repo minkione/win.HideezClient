@@ -98,6 +98,9 @@ namespace HideezMiddleware.DeviceConnection
 
         async Task UnlockByRfid(string rfid)
         {
+            // TODO: Re-implement RFID connection
+            throw new NotImplementedException();
+            /*
             if (!isRunning)
                 return;
 
@@ -146,6 +149,7 @@ namespace HideezMiddleware.DeviceConnection
                 WriteLine(ex);
                 await _clientUiManager.SendError(HideezExceptionLocalization.GetErrorAsString(ex), info?.VaultMac);
             }
+            */
         }
     }
 }

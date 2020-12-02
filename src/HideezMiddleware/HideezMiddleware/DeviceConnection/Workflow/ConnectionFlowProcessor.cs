@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Interfaces;
 using System.Linq;
+using Hideez.SDK.Communication.Refactored.BLE;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
@@ -120,7 +121,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             }
         }
 
-        public async Task Connect(string mac)
+        public async Task Connect(ConnectionId connectionId)
         {
             // ignore, if already performing workflow for any device
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
@@ -128,7 +129,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 try
                 {
                     _cts = new CancellationTokenSource();
-                    await MainWorkflow(mac, false, false, null, _cts.Token);
+                    await MainWorkflow(connectionId, false, false, null, _cts.Token);
                 }
                 finally
                 {
@@ -141,7 +142,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         }
 
-        public async Task ConnectAndUnlock(string mac, Action<WorkstationUnlockResult> onSuccessfulUnlock)
+        public async Task ConnectAndUnlock(ConnectionId connectionId, Action<WorkstationUnlockResult> onSuccessfulUnlock)
         {
             // ignore, if already performing workflow for any device
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
@@ -149,7 +150,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 try
                 {
                     _cts = new CancellationTokenSource();
-                    await MainWorkflow(mac, true, true, onSuccessfulUnlock, _cts.Token);
+                    await MainWorkflow(connectionId, true, true, onSuccessfulUnlock, _cts.Token);
                 }
                 finally
                 {
@@ -162,15 +163,16 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             }
         }
 
-        async Task MainWorkflow(string mac, bool rebondOnConnectionFail, bool tryUnlock, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
+        async Task MainWorkflow(ConnectionId connectionId, bool rebondOnConnectionFail, bool tryUnlock, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
         {
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
-            var existingDevice = _deviceManager.Devices.FirstOrDefault(d => d.Mac == mac && d.ChannelNo == (int)DefaultDeviceChannel.Main);
+            var existingDevice = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId == connectionId 
+                && d.ChannelNo == (int)DefaultDeviceChannel.Main);
             if (existingDevice != null && existingDevice.IsConnected && !WorkstationHelper.IsActiveSessionLocked())
                 return;
 
-            WriteLine($"Started main workflow ({mac})");
+            WriteLine($"Started main workflow ({connectionId.Id}, {(DefaultConnectionIdProvider)connectionId.IdProvider})");
 
             var flowId = Guid.NewGuid().ToString();
             Started?.Invoke(this, flowId);
@@ -182,7 +184,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             try
             {
-                await _ui.SendNotification(string.Empty, mac);
+                await _ui.SendNotification(string.Empty, connectionId.Id);
 
                 _subp.PermissionsCheckProcessor.CheckPermissions();
 
@@ -196,11 +198,11 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                         .Run(SdkConfig.WorkstationUnlockerConnectTimeout, ct);
                 }
 
-                device = await _subp.VaultConnectionProcessor.ConnectVault(mac, rebondOnConnectionFail, ct);
+                device = await _subp.VaultConnectionProcessor.ConnectVault(connectionId, rebondOnConnectionFail, ct);
                 device.Disconnected += OnVaultDisconnectedDuringFlow;
                 device.OperationCancelled += OnCancelledByVaultButton;
 
-                await _subp.VaultConnectionProcessor.WaitVaultInitialization(mac, device, ct);
+                await _subp.VaultConnectionProcessor.WaitVaultInitialization(device, ct);
 
                 if (device.IsBoot)
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultInBootloaderMode"]);
@@ -305,14 +307,14 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 _screenActivator?.StopPeriodicScreenActivation();
             }
 
-            await WorkflowCleanup(errorMessage, mac, device, workflowFinishedSuccessfully, deleteVaultBond);
+            await WorkflowCleanup(errorMessage, connectionId, device, workflowFinishedSuccessfully, deleteVaultBond);
 
             Finished?.Invoke(this, flowId);
 
-            WriteLine($"Main workflow end {mac}");
+            WriteLine($"Main workflow end ({connectionId.Id}, {(DefaultConnectionIdProvider)connectionId.IdProvider})");
         }
 
-        async Task WorkflowCleanup(string errorMessage, string mac, IDevice device, bool workflowFinishedSuccessfully, bool deleteVaultBond)
+        async Task WorkflowCleanup(string errorMessage, ConnectionId connectionId, IDevice device, bool workflowFinishedSuccessfully, bool deleteVaultBond)
         {
             // Cleanup
             try
@@ -333,7 +335,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     }
 
                     WriteLine(errorMessage);
-                    await _ui.SendError(errorMessage, mac);
+                    await _ui.SendError(errorMessage, connectionId.Id);
                 }
 
                 if (device != null)

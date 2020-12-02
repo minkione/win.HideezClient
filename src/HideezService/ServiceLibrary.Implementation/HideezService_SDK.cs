@@ -41,6 +41,7 @@ using ServiceLibrary.Implementation.WorkstationLock;
 using HideezMiddleware.DeviceConnection.Workflow;
 using Hideez.SDK.Communication.HES.DTO;
 using WinBle._10._0._18362;
+using Hideez.SDK.Communication.Refactored.BLE;
 
 namespace ServiceLibrary.Implementation
 {
@@ -139,7 +140,7 @@ namespace ServiceLibrary.Implementation
 
                 // Connection Managers Coordinator ============================
                 _connectionManagersCoordinator = new ConnectionManagersCoordinator();
-                _connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
+                //_connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
                 _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManager);
                 _connectionManagersCoordinator.Start();
 
@@ -150,7 +151,7 @@ namespace ServiceLibrary.Implementation
 
 
                 // BLE ============================
-                _deviceManager = new DeviceManager(_winBleConnectionManager, _sdkLogger); // TODO: Use _connectionManagersCoordinator instead of _csrBleConnectionManager
+                _deviceManager = new DeviceManager(_connectionManagersCoordinator, _sdkLogger);
                 _deviceManager.DeviceAdded += DevicesManager_DeviceAdded;
                 _deviceManager.DeviceRemoved += DevicesManager_DeviceRemoved;
                 //_deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
@@ -569,17 +570,22 @@ namespace ServiceLibrary.Implementation
         {
             await RefreshServiceInfo();
         }
-
-        async Task OnConnectDeviceRequest(ConnectDeviceRequestMessage arg)
+        
+        Task OnConnectDeviceRequest(ConnectDeviceRequestMessage arg)
         {
-            try
+            return Task.Run(async () =>
             {
-                await _winBleConnectionManager.Connect(arg.Id);
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
+                try
+                {
+                    var controller = (_winBleConnectionManager as WinBleConnectionManager).BondedControllers.FirstOrDefault(c => c.Id == arg.Id);
+                    if (controller != null)
+                        await _winBleConnectionManager.Connect(controller.Connection.ConnectionId);
+                }
+                catch (Exception ex)
+                {
+                    Error(ex);
+                }
+            });
         }
 
         async void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
