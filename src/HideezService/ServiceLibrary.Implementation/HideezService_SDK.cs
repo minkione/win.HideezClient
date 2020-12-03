@@ -152,6 +152,7 @@ namespace ServiceLibrary.Implementation
 
                 // BLE ============================
                 _deviceManager = new DeviceManager(_connectionManagersCoordinator, _sdkLogger);
+
                 _deviceManager.DeviceAdded += DevicesManager_DeviceAdded;
                 _deviceManager.DeviceRemoved += DevicesManager_DeviceRemoved;
                 //_deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
@@ -803,7 +804,7 @@ namespace ServiceLibrary.Implementation
                 device.WipeFinished -= Device_WipeFinished;
                 device.AccessLevelChanged -= Device_AccessLevelChanged;
 
-                if (device is IRemoteDeviceProxy pipeDevice)
+                if (device is PipeRemoteDeviceProxy pipeDevice)
                     _pipeDeviceConnectionManager.RemovePipeDeviceConnection(pipeDevice);
 
                 if (!(device is IRemoteDeviceProxy) && device.IsInitialized)
