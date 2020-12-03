@@ -25,6 +25,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <TextBlock
+                Margin="0,6,0,0"
                 VerticalAlignment="Top"
                 Style="{DynamicResource LabelStyle}"
                 Text="{l:Localization Settings.Label.ServerAddress}" />
