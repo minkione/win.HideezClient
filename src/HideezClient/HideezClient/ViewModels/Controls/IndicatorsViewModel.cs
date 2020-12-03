@@ -2,10 +2,12 @@
 using Hideez.SDK.Communication.Log;
 using HideezClient.Controls;
 using HideezClient.Messages;
+using HideezClient.Models.Settings;
 using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
 using HideezMiddleware;
+using HideezMiddleware.Settings;
 using Meta.Lib.Modules.PubSub;
 using System;
 using System.Collections.ObjectModel;
@@ -18,18 +20,23 @@ namespace HideezClient.ViewModels.Controls
     {
         private readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(IndicatorsViewModel));
         private readonly IServiceProxy _serviceProxy;
+        private readonly ISettingsManager<ApplicationSettings> _appSettingsManager;
 
         private StateControlViewModel service;
         private StateControlViewModel server;
         private StateControlViewModel rfid;
         private StateControlViewModel dongle;
         private StateControlViewModel tbServer;
+        private StateControlViewModel bluetooth;
 
-        public IndicatorsViewModel(IServiceProxy serviceProxy, IMetaPubSub metaMessenger)
+        public IndicatorsViewModel(IServiceProxy serviceProxy, IMetaPubSub metaMessenger, ISettingsManager<ApplicationSettings> appSettingsManager)
         {
             _serviceProxy = serviceProxy;
+            _appSettingsManager = appSettingsManager;
 
             InitIndicators();
+
+            _appSettingsManager.SettingsChanged += AppSettingsManager_OnSettingsChanged;
 
             metaMessenger.Subscribe<ConnectionServiceChangedMessage>(c => ResetIndicators(c.IsConnected));
             metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ServiceComponentsStateChangedMessage>(OnComponentsStateChangedMessage);
@@ -69,6 +76,12 @@ namespace HideezClient.ViewModels.Controls
             set { Set(ref tbServer, value); }
         }
 
+        public StateControlViewModel Bluetooth
+        {
+            get { return bluetooth; }
+            set { Set(ref bluetooth, value); }
+        }
+
         #endregion
         
         Task OnComponentsStateChangedMessage(HideezMiddleware.IPC.Messages.ServiceComponentsStateChangedMessage msg)
@@ -96,15 +109,28 @@ namespace HideezClient.ViewModels.Controls
             RFID.State = StateControlViewModel.BoolToState(msg.RfidStatus == RfidStatus.Ok);
             RFID.Visible = msg.RfidStatus != RfidStatus.Disabled && _serviceProxy.IsConnected;
 
-            // Bluetooth
-            Dongle.State = StateControlViewModel.BoolToState(msg.BluetoothStatus == BluetoothStatus.Ok);
-            Dongle.Visible = _serviceProxy.IsConnected;
+            // Hideez Dongle
+            Dongle.State = StateControlViewModel.BoolToState(msg.DongleStatus == BluetoothStatus.Ok);
+            Dongle.Visible = _appSettingsManager.Settings.ShowDongleIndicator ? _serviceProxy.IsConnected : false;
 
             // Try&Buy Server
             TBServer.State = StateControlViewModel.BoolToState(msg.TbHesStatus == HesStatus.Ok);
             TBServer.Visible = _serviceProxy.IsConnected;
 
+            // Built-in Bluetooth
+            Bluetooth.State = StateControlViewModel.BoolToState(msg.BluetoothStatus == BluetoothStatus.Ok);
+            Bluetooth.Visible = _appSettingsManager.Settings.ShowBluetoothIndicator ? _serviceProxy.IsConnected : false;
+
             return Task.CompletedTask;
+        }
+
+        private void AppSettingsManager_OnSettingsChanged(object sender, SettingsChangedEventArgs<ApplicationSettings> e)
+        {
+            // Hideez Dongle
+            Dongle.Visible = _appSettingsManager.Settings.ShowDongleIndicator ? _serviceProxy.IsConnected : false;
+
+            // Built-in Bluetooth
+            Bluetooth.Visible = _appSettingsManager.Settings.ShowBluetoothIndicator ? _serviceProxy.IsConnected : false;
         }
 
         private void InitIndicators()
@@ -146,9 +172,17 @@ namespace HideezClient.ViewModels.Controls
                 RedTooltip = "Status.Tooltip.NetworkUnavailable",
             };
 
+            Bluetooth = new StateControlViewModel
+            {
+                Name = "Status.Bluetooth",
+                GreenTooltip = "Status.Tooltip.BluetoothAvailable",
+                RedTooltip = "Status.Tooltip.BluetoothUnavailable",
+            };
+
             Indicators.Add(Server);
             Indicators.Add(RFID);
             Indicators.Add(Dongle);
+            Indicators.Add(Bluetooth);
         }
 
         private Task ResetIndicators(bool isServiceConnected)
@@ -159,8 +193,6 @@ namespace HideezClient.ViewModels.Controls
                 Service.Visible = false;
 
                 Server.Visible = true;
-                Dongle.Visible = true;
-
                 TBServer.Visible = true;
             }   
             else
@@ -179,6 +211,9 @@ namespace HideezClient.ViewModels.Controls
 
                 TBServer.State = StateControlState.Red;
                 TBServer.Visible = false;
+
+                Bluetooth.State = StateControlState.Red;
+                Bluetooth.Visible = false;
             }
 
             return Task.CompletedTask;

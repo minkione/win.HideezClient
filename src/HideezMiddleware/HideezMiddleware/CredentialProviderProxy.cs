@@ -346,12 +346,12 @@ namespace HideezMiddleware
         #endregion Utils
 
 
-        public async Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
+        public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus dongleStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus)
         {
             var statuses = new List<string>();
-
-            if (bluetoothStatus != BluetoothStatus.Ok)
-                statuses.Add(TranslationSource.Instance.Format("ServiceComponentStatus.Bluetooth.NotAvailable", bluetoothStatus));
+            
+            if (dongleStatus != BluetoothStatus.Ok)
+                statuses.Add(TranslationSource.Instance.Format("ServiceComponentStatus.Bluetooth.NotAvailable", dongleStatus));
 
             if (rfidStatus != RfidStatus.Disabled && rfidStatus != RfidStatus.Ok)
             {

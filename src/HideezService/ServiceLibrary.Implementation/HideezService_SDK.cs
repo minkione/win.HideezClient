@@ -287,7 +287,8 @@ namespace ServiceLibrary.Implementation
 
             // StatusManager =============================
             _statusManager = new StatusManager(_hesConnection, _tbHesConnection, _rfidService,
-                _csrBleConnectionManager, _uiProxy, _rfidSettingsManager, _credentialProviderProxy, _sdkLogger);
+                _csrBleConnectionManager, _winBleConnectionManager, _uiProxy, 
+                _rfidSettingsManager, _credentialProviderProxy, _sdkLogger);
 
             // Local device info cache
             _localDeviceInfoCache = new LocalDeviceInfoCache(clientRootRegistryKey, _sdkLogger);

@@ -80,9 +80,9 @@ namespace ServiceLibrary.Implementation.ClientManagement
             await _metaMessenger.Publish(new UserNotificationMessage(notificationId, message));
         }
 
-        public async Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
+        public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus dongleStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus)
         {
-            await _metaMessenger.Publish(new ServiceComponentsStateChangedMessage(hesStatus, rfidStatus, bluetoothStatus, tbHesStatus));
+            await _metaMessenger.Publish(new ServiceComponentsStateChangedMessage(hesStatus, rfidStatus, dongleStatus, tbHesStatus, bluetoothStatus));
         }
 
     }

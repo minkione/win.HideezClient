@@ -11,7 +11,7 @@ namespace HideezClient.Models.Settings
         /// </summary>
         public ApplicationSettings()
         {
-            SettingsVersion = new Version(1, 1, 0);
+            SettingsVersion = new Version(1, 2, 0);
             IsFirstLaunch = true;
             LaunchApplicationOnStartup = false;
             SelectedUiLanguage = "en-us";
@@ -20,6 +20,8 @@ namespace HideezClient.Models.Settings
             UseSimplifiedUI = false;
             AutoCreateAccountIfNotFound = false;
             AddMainDomain = true;
+            ShowDongleIndicator = true;
+            ShowBluetoothIndicator = true;
         }
 
         /// <summary>
@@ -41,6 +43,8 @@ namespace HideezClient.Models.Settings
             UseSimplifiedUI = copy.UseSimplifiedUI;
             AutoCreateAccountIfNotFound = copy.AutoCreateAccountIfNotFound;
             AddMainDomain = copy.AddMainDomain;
+            ShowDongleIndicator = copy.ShowDongleIndicator;
+            ShowBluetoothIndicator = copy.ShowBluetoothIndicator;
         }
 
         [Setting]
@@ -69,6 +73,12 @@ namespace HideezClient.Models.Settings
 
         [Setting]
         public bool AddMainDomain { get; set; }
+
+        [Setting]
+        public bool ShowDongleIndicator { get; set; }
+
+        [Setting]
+        public bool ShowBluetoothIndicator { get; set; }
 
         public override object Clone()
         {

@@ -958,4 +958,16 @@ Only 1 attempt left.</value>
   <data name="LowBatteryNotification.Title" xml:space="preserve">
     <value>Vault battery level is low</value>
   </data>
+  <data name="Settings.CheckBox.ShowBluetoothIndicator" xml:space="preserve">
+    <value>Display Bluetooth indicator</value>
+  </data>
+  <data name="Settings.CheckBox.ShowDongleIndicator" xml:space="preserve">
+    <value>Display Dongle indicator</value>
+  </data>
+  <data name="Settings.Indicators.Tooltip" xml:space="preserve">
+    <value>Indicators are displayed in the lower-left corner of application window</value>
+  </data>
+  <data name="Status.Bluetooth" xml:space="preserve">
+    <value>Bluetooth</value>
+  </data>
 </root>

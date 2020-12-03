@@ -184,16 +184,16 @@ namespace HideezMiddleware
             }
         }
 
-        public async Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
+        public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus dongleStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus)
         {
-            WriteLine($"SendStatus: hes:{hesStatus}; tb_hes: {tbHesStatus}; rfid:{rfidStatus}; ble:{bluetoothStatus};");
+            WriteLine($"SendStatus: hes:{hesStatus}; rfid:{rfidStatus}; tb_hes: {tbHesStatus}; dongle:{dongleStatus}; ble:{bluetoothStatus}");
 
             var uiList = GetClientUiList();
 
             foreach (var ui in uiList)
             {
                 if (ui != null)
-                    await ui.SendStatus(hesStatus, tbHesStatus, rfidStatus, bluetoothStatus);
+                    await ui.SendStatus(hesStatus, rfidStatus, dongleStatus, bluetoothStatus, tbHesStatus);
             }
         }
 

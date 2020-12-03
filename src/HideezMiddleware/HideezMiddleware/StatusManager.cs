@@ -13,7 +13,8 @@ namespace HideezMiddleware
         readonly HesAppConnection _hesConnection;
         readonly HesAppConnection _tbHesConnection;
         readonly RfidServiceConnection _rfidService;
-        readonly IBleConnectionManager _connectionManager;
+        readonly IBleConnectionManager _csrConnectionManager;
+        readonly IBleConnectionManager _winBleConnectionManager;
         readonly IClientUiManager _uiClientManager;
         readonly ISettingsManager<RfidSettings> _rfidSettingsManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
@@ -21,7 +22,8 @@ namespace HideezMiddleware
         public StatusManager(HesAppConnection hesConnection,
             HesAppConnection tbHesConnection,
             RfidServiceConnection rfidService,
-            IBleConnectionManager connectionManager,
+            IBleConnectionManager csrConnectionManager,
+            IBleConnectionManager winBleConnectionManager,
             IClientUiManager clientUiManager,
             ISettingsManager<RfidSettings> rfidSettingsManager,
             IWorkstationUnlocker workstationUnlocker,
@@ -31,14 +33,16 @@ namespace HideezMiddleware
             _hesConnection = hesConnection;
             _tbHesConnection = tbHesConnection;
             _rfidService = rfidService;
-            _connectionManager = connectionManager;
+            _csrConnectionManager = csrConnectionManager;
+            _winBleConnectionManager = winBleConnectionManager;
             _uiClientManager = clientUiManager;
             _rfidSettingsManager = rfidSettingsManager;
             _workstationUnlocker = workstationUnlocker;
 
             _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
             _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
-            _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+            _csrConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+            _winBleConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _rfidSettingsManager.SettingsChanged += RfidSettingsManager_SettingsChanged;
 
             if (_hesConnection != null)
@@ -69,7 +73,8 @@ namespace HideezMiddleware
                 // Release managed resources here
                 _rfidService.RfidServiceStateChanged -= RfidService_RfidServiceStateChanged;
                 _rfidService.RfidReaderStateChanged -= RfidService_RfidReaderStateChanged;
-                _connectionManager.AdapterStateChanged -= ConnectionManager_AdapterStateChanged;
+                _csrConnectionManager.AdapterStateChanged -= ConnectionManager_AdapterStateChanged;
+                _winBleConnectionManager.AdapterStateChanged -= ConnectionManager_AdapterStateChanged;
 
                 if (_hesConnection != null)
                     _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
@@ -134,11 +139,13 @@ namespace HideezMiddleware
 
                 var rfidStatus = GetRfidStatus();
 
-                var bluetoothStatus = GetBluetoothStatus();
+                var dongleStatus = GetDongleStatus();
 
                 var tbHesStatus = GetTBHesStatus();
 
-                await _uiClientManager.SendStatus(hesStatus, tbHesStatus, rfidStatus, bluetoothStatus);
+                var bluetoothStatus = GetBluetoothStatus();
+
+                await _uiClientManager.SendStatus(hesStatus, rfidStatus, dongleStatus, bluetoothStatus, tbHesStatus);
             }
             catch (Exception ex)
             {
@@ -146,9 +153,9 @@ namespace HideezMiddleware
             }
         }
 
-        BluetoothStatus GetBluetoothStatus()
+        BluetoothStatus GetDongleStatus()
         {
-            switch (_connectionManager.State)
+            switch (_csrConnectionManager.State)
             {
                 case BluetoothAdapterState.PoweredOn:
                 case BluetoothAdapterState.LoadingKnownDevices:
@@ -206,6 +213,28 @@ namespace HideezMiddleware
             }
 
             return HesStatus.HesNotConnected;
+        }
+
+        BluetoothStatus GetBluetoothStatus()
+        {
+            switch (_winBleConnectionManager.State)
+            {
+                case BluetoothAdapterState.PoweredOn:
+                case BluetoothAdapterState.LoadingKnownDevices:
+                    return BluetoothStatus.Ok;
+                case BluetoothAdapterState.Unknown:
+                    return BluetoothStatus.Unknown;
+                case BluetoothAdapterState.Resetting:
+                    return BluetoothStatus.Resetting;
+                case BluetoothAdapterState.Unsupported:
+                    return BluetoothStatus.Unsupported;
+                case BluetoothAdapterState.Unauthorized:
+                    return BluetoothStatus.Unauthorized;
+                case BluetoothAdapterState.PoweredOff:
+                    return BluetoothStatus.PoweredOff;
+                default:
+                    return BluetoothStatus.Unknown;
+            }
         }
     }
 }

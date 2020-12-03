@@ -26,7 +26,7 @@
 
     <!--  State Control Style  -->
     <Style x:Key="StateControlStyle" TargetType="{x:Type controls:StateControl}">
-        <Setter Property="Margin" Value="18,22" />
+        <Setter Property="Margin" Value="16,22" />
 
         <Setter Property="GreenBackground" Value="{DynamicResource IndicatorGreenBrush}" />
         <Setter Property="OrangeBackground" Value="{DynamicResource IndicatorOrangeBrush}" />

@@ -9,16 +9,19 @@ namespace HideezMiddleware.IPC.Messages
             
         public RfidStatus RfidStatus { get; }
             
-        public BluetoothStatus BluetoothStatus { get; }
+        public BluetoothStatus DongleStatus { get; }
         
         public HesStatus TbHesStatus { get; }
 
-        public ServiceComponentsStateChangedMessage(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus)
+        public BluetoothStatus BluetoothStatus { get; }
+
+        public ServiceComponentsStateChangedMessage(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus dongleStatus, HesStatus tbHesStatus, BluetoothStatus bluetoothStatus)
         {
             HesStatus = hesStatus;
             RfidStatus = rfidStatus;
-            BluetoothStatus = bluetoothStatus;
+            DongleStatus = dongleStatus;
             TbHesStatus = tbHesStatus;
+            BluetoothStatus = bluetoothStatus;
         }
     }
 }

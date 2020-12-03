@@ -57,7 +57,7 @@ namespace HideezMiddleware
         Task HideActivationCodeUi();
 
 
-        Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus);
+        Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus dongleStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus);
         Task SendError(string message, string notificationId);
         Task SendNotification(string message, string notificationId);
     }
@@ -70,7 +70,7 @@ namespace HideezMiddleware
         Task<byte[]> GetActivationCode(string deviceId, int timeout, CancellationToken ct);
         Task HideActivationCodeUi();
 
-        Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus);
+        Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus dongleStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus);
         Task SendError(string message, string notificationId = null);
         Task SendNotification(string message, string notificationId = null);
     }
