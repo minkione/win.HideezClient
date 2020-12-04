@@ -99,7 +99,7 @@ namespace HideezMiddleware
             NotifySubscribers();
         }
         
-        void WinBleConnectionManager_BondedControllerRemoved(object sender, ControllerAddedEventArgs e)
+        void WinBleConnectionManager_BondedControllerRemoved(object sender, ControllerRemovedEventArgs e)
         {
             NotifySubscribers();
         }
