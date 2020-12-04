@@ -92,6 +92,11 @@ namespace HideezClient.ViewModels
                 Header = "Menu.Settings",
                 Command = OpenSettingsPageCommand,
             };
+            MenuWinBle = new MenuItemViewModel
+            {
+                Header = "Menu.WinBle",
+                Command = OpenWinBlePageCommand,
+            };
             MenuHardwareKeyPage = new MenuItemViewModel
             {
                 Header = "Menu.HardwareKeyPage.Header",
@@ -217,6 +222,7 @@ namespace HideezClient.ViewModels
         private MenuItemViewModel menuPasswordManager;
         private MenuItemViewModel menuHelp;
         private MenuItemViewModel menuSettings;
+        private MenuItemViewModel menuWinBle;
         private MenuItemViewModel menuAboutDevice;
         private MenuItemViewModel menuDefaultPage;
         private MenuItemViewModel menuHardwareKeyPage;
@@ -238,6 +244,12 @@ namespace HideezClient.ViewModels
         {
             get { return menuSettings; }
             set { Set(ref menuSettings, value); }
+        }
+
+        public MenuItemViewModel MenuWinBle
+        {
+            get { return menuWinBle; }
+            set { Set(ref menuWinBle, value); }
         }
 
         public MenuItemViewModel MenuDeviceSettings
@@ -289,6 +301,17 @@ namespace HideezClient.ViewModels
                 return new DelegateCommand
                 {
                     CommandAction = x => OnOpenSettings(),
+                };
+            }
+        }
+
+        public ICommand OpenWinBlePageCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x => OnOpenWinBle(),
                 };
             }
         }
@@ -364,6 +387,11 @@ namespace HideezClient.ViewModels
         private void OnOpenSettings()
         {
             ProcessNavRequest("SettingsPage");
+        }
+
+        private void OnOpenWinBle()
+        {
+            ProcessNavRequest("WinBlePairPage");
         }
 
         private void OnOpenPasswordManager()

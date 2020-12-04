@@ -5,6 +5,7 @@ using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,7 +15,25 @@ namespace HideezClient.ViewModels.Controls
     {
         readonly IMetaPubSub _metaMessenger;
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(WinBleDeviceManagementListViewModel));
+        readonly Dictionary<string, WinBleControllerStateViewModel> _controllersVmDictionary = new Dictionary<string, WinBleControllerStateViewModel>();
+        readonly object _handlerLock = new object();
+        readonly object _dictionaryLock = new object();
+        
 
+        public IReadOnlyCollection<WinBleControllerStateViewModel> Controllers
+        {
+            get
+            {
+                lock (_dictionaryLock)
+                {
+                    return _controllersVmDictionary.Values.ToList()
+                        .OrderByDescending(c => c.IsConnected)
+                        .ThenByDescending(c => c.IsDiscovered)
+                        .ToList()
+                        .AsReadOnly();
+                }
+            }
+        }
 
         public WinBleDeviceManagementListViewModel(IMetaPubSub metaMessenger)
         {
@@ -28,27 +47,36 @@ namespace HideezClient.ViewModels.Controls
             catch (Exception) { } // Handle error in case we are not connected to server
         }
 
-        bool firsttime = true;
         private Task OnControllersCollectionChanged(WinBleControllersCollectionChanged args)
         {
-            return Task.Run(async () =>
+            lock (_handlerLock)
             {
-                try
+                Task.Run(() =>
                 {
-                    if (args.Controllers.Count() > 0 && !args.Controllers.First().IsConnected && args.Controllers.First().IsDiscovered)
+                    lock (_dictionaryLock)
                     {
-                        if (firsttime)
+                        var missingKeys = _controllersVmDictionary.Keys.Except(args.Controllers.Select(controller => controller.Id));
+                        foreach (var key in missingKeys)
+                            _controllersVmDictionary.Remove(key);
+
+                        foreach (var controllerDto in args.Controllers)
                         {
-                            firsttime = false;
-                            await _metaMessenger.PublishOnServer(new ConnectDeviceRequestMessage(args.Controllers.First().Id));
+                            if (_controllersVmDictionary.ContainsKey(controllerDto.Id))
+                                _controllersVmDictionary[controllerDto.Id].FromDto(controllerDto);
+                            else
+                            {
+                                var newVm = new WinBleControllerStateViewModel(_metaMessenger);
+                                newVm.FromDto(controllerDto);
+                                _controllersVmDictionary[controllerDto.Id] = newVm;
+                            }
                         }
+
                     }
-                }
-                catch (Exception ex)
-                {
-                    _log?.WriteLine(ex);
-                }
-            });
+                    
+                    NotifyPropertyChanged(nameof(Controllers));
+                });
+            }
+            return Task.CompletedTask;
         }
     }
 }

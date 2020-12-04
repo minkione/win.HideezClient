@@ -451,12 +451,16 @@
     <Compile Include="PagesView\SoftwareKeyPage.xaml.cs">
       <DependentUpon>SoftwareKeyPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PagesView\WinBlePairPage.xaml.cs">
+      <DependentUpon>WinBlePairPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PageViewModels\DefaultPageViewModel.cs" />
     <Compile Include="PageViewModels\DeviceSettingsPageViewModel.cs" />
     <Compile Include="PageViewModels\HelpPageViewModel.cs" />
     <Compile Include="PageViewModels\SettingsPageViewModel.cs" />
     <Compile Include="PageViewModels\HardwareKeyPageViewModel.cs" />
     <Compile Include="PageViewModels\SoftwareKeyPageViewModel.cs" />
+    <Compile Include="PageViewModels\WinBlePairPageViewModel.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
     <Compile Include="Utilities\Base32Encoding.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
@@ -475,6 +479,7 @@
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
     <Compile Include="ViewModels\Controls\ServerAddressEditControlViewModel.cs" />
+    <Compile Include="ViewModels\Controls\WinBleControllerStateViewModel.cs" />
     <Compile Include="ViewModels\Controls\WinBleDeviceManagementListViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
@@ -569,6 +574,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="PagesView\SoftwareKeyPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PagesView\WinBlePairPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

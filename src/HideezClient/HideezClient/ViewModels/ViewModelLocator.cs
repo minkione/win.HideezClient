@@ -149,6 +149,11 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<DeviceSettingsPageViewModel>(); }
         }
 
+        public WinBlePairPageViewModel WinBlePairPage
+        {
+            get { return DIContainer.Resolve<WinBlePairPageViewModel>(); }
+        }
+
         #endregion
     }
 }

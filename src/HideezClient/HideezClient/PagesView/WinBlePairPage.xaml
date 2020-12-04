@@ -1,0 +1,105 @@
+﻿<Page 
+    x:Class="HideezClient.PagesView.WinBlePairPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:HideezClient.PagesView"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    mc:Ignorable="d" 
+    d:DesignHeight="450" 
+    d:DesignWidth="800"
+    DataContext="{Binding WinBlePairPage, Mode=OneWay, Source={StaticResource Locator}}"
+    Style="{DynamicResource PageStyle}"
+    Title="WinBlePairPage">
+    <ScrollViewer 
+        HorizontalScrollBarVisibility="Hidden"
+        VerticalScrollBarVisibility="Auto"
+        CanContentScroll="True">
+        <Grid Margin="16" VerticalAlignment="Stretch">
+            <Border Style="{StaticResource SettingsBorderStyle}">
+                <Grid>
+                <TextBlock 
+                    HorizontalAlignment="Left"
+                    Style="{StaticResource DialogLabelTextBlockStyle}"
+                    Text="Win Ble Devices" />
+
+                <ListView
+                    Margin="0,30"
+                    Padding="25,10"
+                    VerticalAlignment="Top"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    FocusVisualStyle="{x:Null}"
+                    ItemsSource="{Binding DeviceManagementListVm.Controllers}"
+                    SelectionMode="Single"
+                    ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                    VirtualizingStackPanel.IsVirtualizing="False">
+                    <ListView.Resources>
+                        <Style TargetType="GridViewColumnHeader">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </Style>
+                    </ListView.Resources>
+                    <ListView.View>
+                        <GridView >
+                            <GridViewColumn Width="250">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <iconPacks:PackIconFontAwesome
+                                                Kind="SignalSolid"
+                                                Width="16"
+                                                Height="16"
+                                                Margin="0,2,8,0"
+                                                VerticalAlignment="Center"
+                                                Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                />
+                                                <iconPacks:PackIconFontAwesome
+                                                Kind="SignalSolid"
+                                                Width="16"
+                                                Height="16"
+                                                Margin="0,2,8,0"
+                                                VerticalAlignment="Center"
+                                                Visibility="{Binding CanBeConnected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                />
+                                                <TextBlock 
+                                                Text="{Binding Name}"
+                                                VerticalAlignment="Center"
+                                                Margin="0,0,10,0"/>
+
+                                            <Grid Visibility="{Binding IsDiscovered, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+                                                <TextBlock 
+                                                    Text="Not in range"
+                                                    Visibility="{Binding IsConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
+                                            </Grid>
+
+                                            <TextBlock 
+                                                Text="Connected"
+                                                Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                            
+                                            <Button 
+                                                Style="{DynamicResource ConfirmButtonStyle}"
+                                                Content="Connect"
+                                                Focusable="True"
+                                                Visibility="{Binding CanBeConnected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                Command="{Binding ConnectCommand}" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Height" Value="46" />
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="Focusable" Value="False" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

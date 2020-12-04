@@ -156,6 +156,12 @@
                 Grid.Row="3">
                 <controls:LeftMenuItemControl DataContext="{Binding MenuDefaultPage}" Visibility="Hidden" />
 
+                <controls:LeftMenuItemControl DataContext="{Binding MenuWinBle}">
+                    <controls:LeftMenuItemControl.Tag>
+                        <iconPacks:PackIconFontAwesome Kind="BluetoothBrands" />
+                    </controls:LeftMenuItemControl.Tag>
+                </controls:LeftMenuItemControl>
+
                 <controls:LeftMenuItemControl DataContext="{Binding MenuSettings}">
                     <controls:LeftMenuItemControl.Tag>
                         <iconPacks:PackIconFontAwesome Kind="CogSolid" />
