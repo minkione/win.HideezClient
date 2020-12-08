@@ -1,4 +1,5 @@
-﻿using Hideez.SDK.Communication.BLE;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.BLE;
 using Meta.Lib.Modules.PubSub;
 
 namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
@@ -13,6 +14,7 @@ namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
         {
             ConnectionId = connectionid;
             EncryptedRequest = data;
+            ResponseTimeout = 10_000;
         }
     }
 }

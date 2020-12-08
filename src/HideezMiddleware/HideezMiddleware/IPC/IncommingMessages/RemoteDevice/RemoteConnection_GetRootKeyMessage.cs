@@ -1,4 +1,5 @@
-﻿using Meta.Lib.Modules.PubSub;
+﻿using Hideez.SDK.Communication;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
 {
@@ -9,6 +10,7 @@ namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
         public RemoteConnection_GetRootKeyMessage(string connectionid)
         {
             ConnectionId = connectionid;
+            ResponseTimeout = SdkConfig.GetRootKeyCommandTimeout;
         }
     }
 }

@@ -86,11 +86,6 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<ServerAddressEditControlViewModel>(); }
         }
 
-        public WinBleDeviceManagementListViewModel WinBleDeviceManagementListViewModel
-        {
-            get { return DIContainer.Resolve<WinBleDeviceManagementListViewModel>(); }
-        }
-
         #endregion
 
         #region Dialog
@@ -147,11 +142,6 @@ namespace HideezClient.ViewModels
         public DeviceSettingsPageViewModel DeviceSettingsPageViewModel
         {
             get { return DIContainer.Resolve<DeviceSettingsPageViewModel>(); }
-        }
-
-        public WinBlePairPageViewModel WinBlePairPage
-        {
-            get { return DIContainer.Resolve<WinBlePairPageViewModel>(); }
         }
 
         #endregion

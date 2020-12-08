@@ -15,14 +15,8 @@ using HideezMiddleware.Settings;
 namespace HideezMiddleware.DeviceConnection
 {
 
-    public class ProximityConnectionProcessor : BaseConnectionProcessor, IDisposable
+    public sealed class ProximityConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
-        struct ProximityUnlockAccess
-        {
-            public string Mac { get; set; }
-            public bool CanConnect { get; set; }
-        }
-
         readonly IBleConnectionManager _bleConnectionManager;
         readonly ISettingsManager<ProximitySettings> _proximitySettingsManager;
         readonly ISettingsManager<WorkstationSettings> _workstationSettingsManager;
@@ -67,7 +61,7 @@ namespace HideezMiddleware.DeviceConnection
         }
 
         bool disposed = false;
-        protected virtual void Dispose(bool disposing)
+        void Dispose(bool disposing)
         {
             if (disposed)
                 return;

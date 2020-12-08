@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection
 {
-    public class RfidConnectionProcessor : BaseConnectionProcessor, IDisposable
+    public sealed class RfidConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
         readonly IClientUiManager _clientUiManager;
         readonly HesAppConnection _hesConnection;
@@ -49,7 +49,7 @@ namespace HideezMiddleware.DeviceConnection
         }
 
         bool disposed = false;
-        protected virtual void Dispose(bool disposing)
+        void Dispose(bool disposing)
         {
             if (disposed)
                 return;

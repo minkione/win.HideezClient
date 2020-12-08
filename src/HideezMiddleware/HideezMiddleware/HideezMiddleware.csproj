@@ -52,8 +52,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Meta.Lib, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Meta.Lib.1.1.2\lib\netstandard2.0\Meta.Lib.dll</HintPath>
+    <Reference Include="Meta.Lib, Version=1.1.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Meta.Lib.1.1.3\lib\netstandard2.0\Meta.Lib.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -113,6 +113,7 @@
     <Compile Include="ChangeServerAddressResult.cs" />
     <Compile Include="DeviceConnection\ExternalConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\IConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\WinBleAutomaticConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\AccountsUpdateProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\ActivationProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\CacheVaultInfoProcessor.cs" />
@@ -151,7 +152,6 @@
     <Compile Include="DeviceConnection\RfidConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\TapConnectionProcessor.cs" />
     <Compile Include="IPC\DTO\AccessLevelDTO.cs" />
-    <Compile Include="IPC\DTO\WinBleControllerStateDTO.cs" />
     <Compile Include="IPC\DTO\DeviceDTO.cs" />
     <Compile Include="IPC\DTO\DeviceStateDTO.cs" />
     <Compile Include="IPC\DTO\ProximitySettingsDTO.cs" />
@@ -161,7 +161,6 @@
     <Compile Include="IPC\IncommingMessages\CancelPinMessage.cs" />
     <Compile Include="IPC\IncommingMessages\ChangeServerAddressMessage.cs" />
     <Compile Include="IPC\IncommingMessages\ChangeServerAddressMessageReply.cs" />
-    <Compile Include="IPC\IncommingMessages\ConnectDeviceRequestMessage.cs" />
     <Compile Include="IPC\IncommingMessages\DisconnectDeviceMessage.cs" />
     <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessage.cs" />
     <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessageReply.cs" />
@@ -202,7 +201,6 @@
     <Compile Include="IPC\Messages\ShowActivationCodeUiMessage.cs" />
     <Compile Include="IPC\Messages\UserErrorMessage.cs" />
     <Compile Include="IPC\Messages\UserNotificationMessage.cs" />
-    <Compile Include="IPC\Messages\WinBleControllersCollectionChanged.cs" />
     <Compile Include="IPC\Messages\WorkstationUnlockedMessage.cs" />
     <Compile Include="Localize\TranslationSource.cs" />
     <Compile Include="MetaPubSubLogger.cs" />

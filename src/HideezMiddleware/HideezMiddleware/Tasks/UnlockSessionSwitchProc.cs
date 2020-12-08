@@ -14,7 +14,7 @@ namespace HideezMiddleware.Tasks
         readonly TapConnectionProcessor _tapProcessor;
         readonly RfidConnectionProcessor _rfidProcessor;
         readonly ProximityConnectionProcessor _proximityProcessor;
-        readonly ExternalConnectionProcessor _winBleProcessor;
+        readonly WinBleAutomaticConnectionProcessor _winBleProcessor;
 
         readonly TaskCompletionSource<object> _tcs = new TaskCompletionSource<object>();
         readonly string _flowId;
@@ -32,7 +32,7 @@ namespace HideezMiddleware.Tasks
             TapConnectionProcessor tapProcessor,
             RfidConnectionProcessor rfidProcessor,
             ProximityConnectionProcessor proximityProcessor,
-            ExternalConnectionProcessor winBleProcessor)
+            WinBleAutomaticConnectionProcessor winBleProcessor)
         {
             _flowId = flowId;
             _connectionFlowProcessor = connectionFlowProcessor;

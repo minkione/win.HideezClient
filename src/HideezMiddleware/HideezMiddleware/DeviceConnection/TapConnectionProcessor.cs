@@ -9,7 +9,7 @@ using Hideez.SDK.Communication.Refactored.BLE;
 
 namespace HideezMiddleware.DeviceConnection
 {
-    public class TapConnectionProcessor : BaseConnectionProcessor, IDisposable
+    public sealed class TapConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
         readonly IBleConnectionManager _bleConnectionManager;
         readonly object _lock = new object();
@@ -34,7 +34,7 @@ namespace HideezMiddleware.DeviceConnection
         }
 
         bool disposed = false;
-        protected virtual void Dispose(bool disposing)
+        void Dispose(bool disposing)
         {
             if (disposed)
                 return;

@@ -13,7 +13,7 @@ namespace HideezMiddleware.DeviceConnection
     /// Connection flow is initiated by an external action outside of application scope
     /// which is detected by appearance of new controller
     /// </summary>
-    public class ExternalConnectionProcessor : BaseConnectionProcessor, IDisposable
+    public sealed class ExternalConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
         readonly IConnectionManager _connectionManager;
         readonly object _lock = new object();
@@ -38,7 +38,7 @@ namespace HideezMiddleware.DeviceConnection
         }
 
         bool disposed = false;
-        protected virtual void Dispose(bool disposing)
+        void Dispose(bool disposing)
         {
             if (disposed)
                 return;

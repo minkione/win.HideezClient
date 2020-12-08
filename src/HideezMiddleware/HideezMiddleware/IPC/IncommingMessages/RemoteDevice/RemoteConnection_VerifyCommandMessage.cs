@@ -1,4 +1,5 @@
-﻿using Meta.Lib.Modules.PubSub;
+﻿using Hideez.SDK.Communication;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
 {
@@ -18,6 +19,7 @@ namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
             PubKeyH = pubKeyH;
             NonceH = nonceH;
             VerifyChannelNo = verifyChannelNo;
+            ResponseTimeout = SdkConfig.DeviceInitializationTimeout;
         }
     }
 }

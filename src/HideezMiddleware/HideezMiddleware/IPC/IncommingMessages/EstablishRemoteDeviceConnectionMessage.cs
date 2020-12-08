@@ -1,4 +1,5 @@
-﻿using Meta.Lib.Modules.PubSub;
+﻿using Hideez.SDK.Communication;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezMiddleware.IPC.IncommingMessages
 {
@@ -11,6 +12,7 @@ namespace HideezMiddleware.IPC.IncommingMessages
         {
             SerialNo = serialNo;
             ChannelNo = channelNo;
+            ResponseTimeout = SdkConfig.ConnectDeviceTimeout;
         }
     }
 }

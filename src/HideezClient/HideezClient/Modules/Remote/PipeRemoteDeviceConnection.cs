@@ -63,7 +63,7 @@ namespace HideezClient.Modules.Remote
 
         public async Task SendRequestAsync(EncryptedRequest request)
         {
-            var response = await _metaPubSub.ProcessOnServer<RemoteConnection_RemoteCommandMessageReply>(new RemoteConnection_RemoteCommandMessage(Id, request), 10_000);
+            var response = await _metaPubSub.ProcessOnServer<RemoteConnection_RemoteCommandMessageReply>(new RemoteConnection_RemoteCommandMessage(Id, request));
             if (response != null)
             {
                 ResponseReceived?.Invoke(this, new MessageBuffer(response.Data, request.Buffer.ChannelNo));

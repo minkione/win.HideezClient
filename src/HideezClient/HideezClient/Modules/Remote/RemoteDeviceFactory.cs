@@ -26,7 +26,7 @@ namespace HideezClient.Modules
         public async Task<Device> CreateRemoteDeviceAsync(string serialNo, byte channelNo, IMetaPubSub remoteDeviceMessenger)
         {
             _logger.WriteLine($"({serialNo}) Creating remote vault on channel:{channelNo}");
-            var reply = await _metaMessenger.ProcessOnServer<EstablishRemoteDeviceConnectionMessageReply>(new EstablishRemoteDeviceConnectionMessage(serialNo, channelNo), SdkConfig.ConnectDeviceTimeout);
+            var reply = await _metaMessenger.ProcessOnServer<EstablishRemoteDeviceConnectionMessageReply>(new EstablishRemoteDeviceConnectionMessage(serialNo, channelNo));
             var remoteDeviceId = reply.RemoteDeviceId;
 
             var result = await remoteDeviceMessenger.TryConnectToServer(reply.PipeName);

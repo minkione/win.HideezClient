@@ -47,8 +47,8 @@ namespace ServiceLibrary.Implementation
 {
     public partial class HideezService
     {
-        static IBleConnectionManager _csrBleConnectionManager;
-        static IBleConnectionManager _winBleConnectionManager;
+        static BleConnectionManager _csrBleConnectionManager;
+        static WinBleConnectionManager _winBleConnectionManager;
         static DeviceManager _deviceManager;
         static CredentialProviderProxy _credentialProviderProxy;
         static HesAppConnection _hesConnection;
@@ -75,7 +75,7 @@ namespace ServiceLibrary.Implementation
         static RfidConnectionProcessor _rfidProcessor;
         static TapConnectionProcessor _tapProcessor;
         static ProximityConnectionProcessor _proximityProcessor;
-        static ExternalConnectionProcessor _winBleProcessor;
+        static WinBleAutomaticConnectionProcessor _winBleProcessor;
         static WinBleControllersStateMonitor _winBleControllersStateMonitor;
         static SessionUnlockMethodMonitor _sessionUnlockMethodMonitor;
         static SessionSwitchLogger _sessionSwitchLogger;
@@ -338,9 +338,11 @@ namespace ServiceLibrary.Implementation
                 _credentialProviderProxy,
                 _hesAccessManager,
                 _sdkLogger);
-            _winBleProcessor = new ExternalConnectionProcessor(
+            _winBleProcessor = new WinBleAutomaticConnectionProcessor(
                 _connectionFlowProcessor,
                 _winBleConnectionManager,
+                _workstationSettingsManager,
+                _deviceManager,
                 _sdkLogger);
 
             serviceInitializationTasks.Add(Task.Run(() =>
@@ -410,8 +412,6 @@ namespace ServiceLibrary.Implementation
 
             _messenger.Subscribe<LoginClientRequestMessage>(OnClientLogin);
             _messenger.Subscribe<RefreshServiceInfoMessage>(OnRefreshServiceInfo);
-
-            _messenger.Subscribe<ConnectDeviceRequestMessage>(OnConnectDeviceRequest);
 
             await Task.WhenAll(serviceInitializationTasks).ConfigureAwait(false);
         }
@@ -571,23 +571,6 @@ namespace ServiceLibrary.Implementation
         async Task OnRefreshServiceInfo(RefreshServiceInfoMessage arg)
         {
             await RefreshServiceInfo();
-        }
-        
-        Task OnConnectDeviceRequest(ConnectDeviceRequestMessage arg)
-        {
-            return Task.Run(async () =>
-            {
-                try
-                {
-                    var controller = (_winBleConnectionManager as WinBleConnectionManager).BondedControllers.FirstOrDefault(c => c.Id == arg.Id);
-                    if (controller != null)
-                        await _winBleConnectionManager.Connect(controller.Connection.ConnectionId);
-                }
-                catch (Exception ex)
-                {
-                    Error(ex);
-                }
-            });
         }
 
         async void HesAccessManager_AccessRetractedEvent(object sender, EventArgs e)
@@ -1060,15 +1043,7 @@ namespace ServiceLibrary.Implementation
 
         async void WinBleControllersStateMonitor_WinBleControllersCollectionChanged(object sender, WinBleControllersCollectionChangedEventArgs e)
         {
-            try
-            {
-                var controllersArray = e.WinBleControllers.Select(c => new WinBleControllerStateDTO(c)).ToArray();
-                await _messenger.Publish(new WinBleControllersCollectionChanged(controllersArray));
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
+            // Todo:
         }
         #endregion
 

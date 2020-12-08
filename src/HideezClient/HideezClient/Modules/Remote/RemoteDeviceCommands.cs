@@ -28,7 +28,7 @@ namespace HideezClient.Modules.Remote
 
         public async Task<DeviceCommandReplyResult> GetRootKey()
         {
-            var response = await _metaMessenger.ProcessOnServer<RemoteConnection_DeviceCommandMessageReply>(new RemoteConnection_GetRootKeyMessage(_connectionId), SdkConfig.GetRootKeyCommandTimeout);
+            var response = await _metaMessenger.ProcessOnServer<RemoteConnection_DeviceCommandMessageReply>(new RemoteConnection_GetRootKeyMessage(_connectionId));
             return response.Data;
         }
 
@@ -39,7 +39,7 @@ namespace HideezClient.Modules.Remote
 
         public async Task<DeviceCommandReplyResult> VerifyEncryption(byte[] pubKeyH, byte[] nonceH, byte verifyChannelNo)
         {
-            var response = await _metaMessenger.ProcessOnServer<RemoteConnection_DeviceCommandMessageReply>(new RemoteConnection_VerifyCommandMessage(_connectionId, pubKeyH, nonceH, verifyChannelNo), SdkConfig.DeviceInitializationTimeout);
+            var response = await _metaMessenger.ProcessOnServer<RemoteConnection_DeviceCommandMessageReply>(new RemoteConnection_VerifyCommandMessage(_connectionId, pubKeyH, nonceH, verifyChannelNo));
             return response.Data;
         }
     }

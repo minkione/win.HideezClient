@@ -127,9 +127,8 @@ namespace HideezClient.Modules
                 Header = "Menu.RemoveDevice.Tooltip",
                 Command = new DelegateCommand
                 {
-                    CommandAction = OnRemoveDevice,
+                    CommandAction = (x) => OnRemoveDevice(device),
                 },
-                CommandParameter = device,
             };
         }
 
@@ -140,10 +139,9 @@ namespace HideezClient.Modules
                 Header = "Menu.DisconnectDevice.Tooltip",
                 Command = new DelegateCommand
                 {
-                    CommandAction = OnDisconnectDevice,
-                    CanExecuteFunc = () => device.IsConnected
+                    CanExecuteFunc = () => device.IsConnected,
+                    CommandAction = (x) => OnDisconnectDevice(device),
                 },
-                CommandParameter = device,
             };
         }
 
@@ -162,13 +160,9 @@ namespace HideezClient.Modules
 
                     CommandAction = (x) =>
                     {
-                        OnAuthorizeAndLoadStorage(x);
+                        OnAuthorizeAndLoadStorage(device);
                     }
                 },
-                CommandParameter = device,
-                // Todo: Add support for Menu item hiding
-                // This will allow us to hide Authoriz menu item, if its no longe relevant (i.e. device alrady authorized)
-                //IsVisible = !device.IsAuthorized,
             };
         }
 
@@ -187,40 +181,46 @@ namespace HideezClient.Modules
             };
         }
 
-        private async void OnDisconnectDevice(object param)
+        private async void OnDisconnectDevice(DeviceModel device)
         {
-            if (param is DeviceModel device)
+            try
             {
-                try
-                {
-                    var result = await _windowsManager.ShowDisconnectDevicePromptAsync(device.Name);
+                var result = await _windowsManager.ShowDisconnectDevicePromptAsync(device.Name);
 
-                    if (result)
-                        await _metaMessenger.PublishOnServer(new DisconnectDeviceMessage(device.Id));
-                }
-                catch (Exception ex)
-                {
-                    await _metaMessenger.Publish(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
-                }
+                if (result)
+                    await _metaMessenger.PublishOnServer(new DisconnectDeviceMessage(device.Id));
+            }
+            catch (Exception ex)
+            {
+                await _metaMessenger.Publish(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
+            }
+
+        }
+
+        private async void OnRemoveDevice(DeviceModel device)
+        {
+            try
+            {
+                var result = await _windowsManager.ShowRemoveDevicePromptAsync(device.Name);
+
+                if (result)
+                    await _metaMessenger.PublishOnServer(new RemoveDeviceMessage(device.Id));
+            }
+            catch (Exception ex)
+            {
+                await _metaMessenger.Publish(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
             }
         }
 
-        private async void OnRemoveDevice(object param)
+        private async void OnAuthorizeAndLoadStorage(DeviceModel device)
         {
-            if (param is DeviceModel device)
-            {
-                try
-                {
-                    var result = await _windowsManager.ShowRemoveDevicePromptAsync(device.Name);
+            await device.InitRemoteAndLoadStorageAsync();
+        }
 
-                    if (result)
-                        await _metaMessenger.PublishOnServer(new RemoveDeviceMessage(device.Id));
-                }
-                catch (Exception ex)
-                {
-                    await _metaMessenger.Publish(new ShowErrorNotificationMessage(ex.Message, notificationId: device.Mac));
-                }
-            }
+        private async void OnChangeActiveDevice(DeviceModel device)
+        {
+            _activeDevice.Device = device;
+            await device.InitRemoteAndLoadStorageAsync(true);
         }
 
         private async Task OnTechSupportAsync(string techSupportUriKey)
@@ -375,20 +375,6 @@ namespace HideezClient.Modules
             }
 
             return logsMenu;
-        }
-
-        private async void OnAuthorizeAndLoadStorage(object param)
-        {
-            if (param is DeviceModel device)
-            {
-                await device.InitRemoteAndLoadStorageAsync();
-            }
-        }
-
-        private async void OnChangeActiveDevice(DeviceModel device)
-        {
-            _activeDevice.Device = device;
-            await device.InitRemoteAndLoadStorageAsync(true);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace HideezMiddleware
         readonly TapConnectionProcessor _tapProcessor;
         readonly RfidConnectionProcessor _rfidProcessor;
         readonly ProximityConnectionProcessor _proximityProcessor;
-        readonly ExternalConnectionProcessor _winBleProcessor;
+        readonly WinBleAutomaticConnectionProcessor _winBleProcessor;
 
         UnlockSessionSwitchProc _unlockProcedure = null;
         readonly object _upLock = new object();
@@ -28,7 +28,7 @@ namespace HideezMiddleware
                                           TapConnectionProcessor tapProcessor,
                                           RfidConnectionProcessor rfidProcessor,
                                           ProximityConnectionProcessor proximityProcessor,
-                                          ExternalConnectionProcessor winBleProcessor,
+                                          WinBleAutomaticConnectionProcessor winBleProcessor,
                                           ILog log): base(nameof(SessionUnlockMethodMonitor), log)
         {
             _connectionFlowProcessor = connectionFlowProcessor;
