@@ -77,7 +77,7 @@ namespace HideezMiddleware
                         catch (Exception ex)
                         {
                             WriteLine(ex);
-                            return;
+                            continue;
                         }
                     }
                 }

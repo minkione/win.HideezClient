@@ -1,5 +1,4 @@
-﻿using GalaSoft.MvvmLight.Messaging;
-using HideezClient.Messages;
+﻿using HideezClient.Messages;
 using HideezClient.Modules.DeviceManager;
 using HideezClient.Mvvm;
 using MvvmExtensions.Commands;
@@ -11,11 +10,7 @@ using System.Linq;
 using HideezClient.Modules;
 using System.Collections.Generic;
 using MvvmExtensions.Attributes;
-using System.Windows;
 using HideezClient.Utilities;
-using HideezClient.Modules.Localize;
-using System.Windows.Controls;
-using HideezClient.Modules.ServiceProxy;
 using System.Threading.Tasks;
 using Meta.Lib.Modules.PubSub;
 using HideezClient.ViewModels.Controls;
@@ -91,11 +86,6 @@ namespace HideezClient.ViewModels
             {
                 Header = "Menu.Settings",
                 Command = OpenSettingsPageCommand,
-            };
-            MenuWinBle = new MenuItemViewModel
-            {
-                Header = "Menu.WinBle",
-                Command = OpenWinBlePageCommand,
             };
             MenuHardwareKeyPage = new MenuItemViewModel
             {
@@ -222,7 +212,6 @@ namespace HideezClient.ViewModels
         private MenuItemViewModel menuPasswordManager;
         private MenuItemViewModel menuHelp;
         private MenuItemViewModel menuSettings;
-        private MenuItemViewModel menuWinBle;
         private MenuItemViewModel menuAboutDevice;
         private MenuItemViewModel menuDefaultPage;
         private MenuItemViewModel menuHardwareKeyPage;
@@ -244,12 +233,6 @@ namespace HideezClient.ViewModels
         {
             get { return menuSettings; }
             set { Set(ref menuSettings, value); }
-        }
-
-        public MenuItemViewModel MenuWinBle
-        {
-            get { return menuWinBle; }
-            set { Set(ref menuWinBle, value); }
         }
 
         public MenuItemViewModel MenuDeviceSettings
