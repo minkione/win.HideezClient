@@ -140,7 +140,7 @@ namespace ServiceLibrary.Implementation
 
                 // Connection Managers Coordinator ============================
                 _connectionManagersCoordinator = new ConnectionManagersCoordinator();
-                //_connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
+                _connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
                 _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManager);
                 _connectionManagersCoordinator.Start();
 

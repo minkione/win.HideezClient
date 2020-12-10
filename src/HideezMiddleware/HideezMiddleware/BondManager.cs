@@ -1,11 +1,12 @@
-﻿using Hideez.SDK.Communication.Log;
-using System;
+﻿using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Refactored.BLE;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {
-    public class BondManager: Logger
+    public sealed class BondManager: Logger
     {
         readonly string _folderPath;
 
@@ -23,6 +24,12 @@ namespace HideezMiddleware
                 return !string.IsNullOrWhiteSpace(content);
             }
             else return false;
+        }
+
+        public bool Exists(ConnectionId connectionId)
+        {
+            var mac = BleUtils.ConnectionIdToMac(connectionId.Id);
+            return Exists(mac);
         }
        
         public async Task<int> RemoveAll()

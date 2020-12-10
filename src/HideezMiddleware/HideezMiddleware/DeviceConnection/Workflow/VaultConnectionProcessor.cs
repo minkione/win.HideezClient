@@ -30,12 +30,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             ct.ThrowIfCancellationRequested();
 
-            //if (_bondManager.Exists(mac))
-            //    await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1"], connectionId.Id);
-            //else 
+            if (connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr && !_bondManager.Exists(connectionId))
                 await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1.PressButton"], connectionId.Id);
-
-            //var id = BleUtils.MacToConnectionId(mac);
+            else
+                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1"], connectionId.Id);
 
             bool ltkErrorOccured = false;
             IDevice device = null;
@@ -46,7 +44,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             catch (Exception ex) // Thrown when LTK error occurs in csr
             {
                 WriteLine(ex);
-                ltkErrorOccured = true;
+                if (connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr)
+                    ltkErrorOccured = true;
             }
 
             if (device == null)
@@ -59,10 +58,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     ltk = "LTK error.";
                     ltkErrorOccured = false;
                 }
-                //if (_bondManager.Exists(mac))
-                //    await _ui.SendNotification(ltk + TranslationSource.Instance["ConnectionFlow.Connection.Stage2"], connectionId.Id);
-                //else 
+                if (connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr && !_bondManager.Exists(connectionId))
                     await _ui.SendNotification(ltk + TranslationSource.Instance["ConnectionFlow.Connection.Stage2.PressButton"], connectionId.Id);
+                else
+                    await _ui.SendNotification(ltk + TranslationSource.Instance["ConnectionFlow.Connection.Stage2"], connectionId.Id);
 
                 try
                 {
@@ -71,9 +70,11 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 catch (Exception ex) // Thrown when LTK error occurs in csr
                 {
                     WriteLine(ex);
-                    ltkErrorOccured = true;
+                    if (connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr)
+                        ltkErrorOccured = true;
                 }
 
+                // Only for csr
                 // After second failed connect with csr we delete bond and try to create new pair
                 if (device == null && rebondOnFail && connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr)
                 {

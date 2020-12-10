@@ -151,7 +151,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 try
                 {
                     _cts = new CancellationTokenSource();
-                    await MainWorkflow(connectionId, true, true, onSuccessfulUnlock, _cts.Token);
+                    await MainWorkflow(connectionId, connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr, true, onSuccessfulUnlock, _cts.Token);
                 }
                 finally
                 {
@@ -241,7 +241,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Online);
 
-                await _hesConnection.UpdateHwVaultProperties(new HwVaultInfoFromClientDto(device), false);
+                if (_hesConnection.State == HesConnectionState.Connected)
+                    await _hesConnection.UpdateHwVaultProperties(new HwVaultInfoFromClientDto(device), false);
 
                 workflowFinishedSuccessfully = true;
             }
