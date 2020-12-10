@@ -26,7 +26,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             if (device.AccessLevel.IsMasterKeyRequired && _hesConnection.State == HesConnectionState.Connected)
             {
-                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.MasterKey.AwaitingHESAuth"], device.Mac);
+                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.MasterKey.AwaitingHESAuth"], device.DeviceConnection.Connection.ConnectionId.Id);
 
                 await _hesConnection.AuthHwVault(device.SerialNo);
 

@@ -34,11 +34,11 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             var result = new WorkstationUnlockResult();
 
-            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Unlock.ReadingCredentials"], device.Mac);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Unlock.ReadingCredentials"], device.DeviceConnection.Connection.ConnectionId.Id);
             var credentials = await GetCredentials(device);
 
             // send credentials to the Credential Provider to unlock the PC
-            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Unlock.Unlocking"], device.Mac);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Unlock.Unlocking"], device.DeviceConnection.Connection.ConnectionId.Id);
             result.IsSuccessful = await _workstationUnlocker
                 .SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
 

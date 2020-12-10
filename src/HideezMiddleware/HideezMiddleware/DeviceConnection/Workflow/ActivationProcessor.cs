@@ -39,13 +39,13 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                         if (code.Length < 6)
                         {
-                            await _ui.SendError(TranslationSource.Instance["ConnectionFlow.ActivationCode.Error.CodeToShort"], device.Mac);
+                            await _ui.SendError(TranslationSource.Instance["ConnectionFlow.ActivationCode.Error.CodeToShort"], device.DeviceConnection.Connection.ConnectionId.Id);
                             continue;
                         }
 
                         if (code.Length > 8)
                         {
-                            await _ui.SendError(TranslationSource.Instance["ConnectionFlow.ActivationCode.Error.CodeToLong"], device.Mac);
+                            await _ui.SendError(TranslationSource.Instance["ConnectionFlow.ActivationCode.Error.CodeToLong"], device.DeviceConnection.Connection.ConnectionId.Id);
                             continue;
                         }
 
@@ -73,7 +73,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                         }
                         else if (device.UnlockAttemptsRemain > 0)
                         {
-                            await _ui.SendNotification(TranslationSource.Instance.Format("ConnectionFlow.ActivationCode.Error.InvalidCode", device.UnlockAttemptsRemain), device.Mac);
+                            await _ui.SendNotification(TranslationSource.Instance.Format("ConnectionFlow.ActivationCode.Error.InvalidCode", device.UnlockAttemptsRemain), device.DeviceConnection.Connection.ConnectionId.Id);
                         }
                         else
                         {

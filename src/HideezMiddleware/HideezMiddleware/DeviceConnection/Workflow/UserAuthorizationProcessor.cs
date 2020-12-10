@@ -39,7 +39,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             if (!device.AccessLevel.IsButtonRequired)
                 return true;
 
-            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Button.PressButtonMessage"], device.Mac);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Button.PressButtonMessage"], device.DeviceConnection.Connection.ConnectionId.Id);
             await _ui.ShowButtonConfirmUi(device.Id);
             var res = await device.WaitButtonConfirmation(timeout, ct);
 
@@ -64,7 +64,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
-            await _ui.SendNotification(TranslationSource.Instance.Format("ConnectionFlow.Pin.NewPinMessage", device.MinPinLength), device.Mac);
+            await _ui.SendNotification(TranslationSource.Instance.Format("ConnectionFlow.Pin.NewPinMessage", device.MinPinLength), device.DeviceConnection.Connection.ConnectionId.Id);
             while (device.AccessLevel.IsNewPinRequired)
             {
                 string pin = await _ui.GetPin(device.Id, timeout, ct, withConfirm: true);
@@ -89,11 +89,11 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 }
                 else if (pinResult == HideezErrorCode.ERR_PIN_TOO_SHORT)
                 {
-                    await _ui.SendError(TranslationSource.Instance["ConnectionFlow.Pin.Error.PinToShort"], device.Mac);
+                    await _ui.SendError(TranslationSource.Instance["ConnectionFlow.Pin.Error.PinToShort"], device.DeviceConnection.Connection.ConnectionId.Id);
                 }
                 else if (pinResult == HideezErrorCode.ERR_PIN_WRONG)
                 {
-                    await _ui.SendError(TranslationSource.Instance["ConnectionFlow.Pin.Error.WrongPin"], device.Mac);
+                    await _ui.SendError(TranslationSource.Instance["ConnectionFlow.Pin.Error.WrongPin"], device.DeviceConnection.Connection.ConnectionId.Id);
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow ---------------------------------------");
@@ -103,7 +103,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> EnterPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
-            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Pin.EnterPinMessage"], device.Mac);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Pin.EnterPinMessage"], device.DeviceConnection.Connection.ConnectionId.Id);
             while (!device.AccessLevel.IsLocked)
             {
                 string pin = await _ui.GetPin(device.Id, timeout, ct);
@@ -143,9 +143,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     else
                     {
                         if (attemptsLeft > 1)
-                            await _ui.SendError(TranslationSource.Instance.Format("ConnectionFlow.Pin.Error.InvalidPin.ManyAttemptsLeft", attemptsLeft), device.Mac);
+                            await _ui.SendError(TranslationSource.Instance.Format("ConnectionFlow.Pin.Error.InvalidPin.ManyAttemptsLeft", attemptsLeft), device.DeviceConnection.Connection.ConnectionId.Id);
                         else
-                            await _ui.SendError(TranslationSource.Instance["ConnectionFlow.Pin.Error.InvalidPin.OneAttemptLeft"], device.Mac);
+                            await _ui.SendError(TranslationSource.Instance["ConnectionFlow.Pin.Error.InvalidPin.OneAttemptLeft"], device.DeviceConnection.Connection.ConnectionId.Id);
                         await device.RefreshDeviceInfo(); // Remaining pin attempts update is not quick enough 
                     }
                 }
