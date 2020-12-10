@@ -471,7 +471,7 @@ namespace HideezClient.Models
             if (obj.SerialNo == SerialNo)
             {
                 IsStorageLocked = true;
-                _metaMessenger.Publish(new ShowInfoNotificationMessage(string.Format(TranslationSource.Instance["Vault.Notification.Synchronizing"], serialNo, Environment.NewLine), notificationId: Mac));
+                _metaMessenger.Publish(new ShowInfoNotificationMessage(string.Format(TranslationSource.Instance["Vault.Notification.Synchronizing"], serialNo, Environment.NewLine), notificationId: Id));
             }
 
             return Task.CompletedTask;
@@ -614,14 +614,14 @@ namespace HideezClient.Models
                                 await _metaMessenger.Publish(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByCode.Message"],
                                     TranslationSource.Instance["Notification.DeviceLockedByCode.Caption"],
                                     new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
-                                    Mac));
+                                    Id));
                             }
                             else if (_remoteDevice.IsLockedByPin)
                             {
                                 await _metaMessenger.Publish(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
                                     TranslationSource.Instance["Notification.DeviceLockedByPin.Caption"],
                                     new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
-                                    Mac));
+                                    Id));
                             }
                             else
                             {
@@ -739,7 +739,7 @@ namespace HideezClient.Models
                     return;
                 }
 
-                ShowInfo(string.Format(TranslationSource.Instance["Vault.Notification.PreparingForAuth"], SerialNo), Mac);
+                ShowInfo(string.Format(TranslationSource.Instance["Vault.Notification.PreparingForAuth"], SerialNo), Id);
                 IsCreatingRemoteDevice = true;
                 _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo, _remoteDeviceMessenger);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
@@ -759,7 +759,7 @@ namespace HideezClient.Models
                 }
 
                 if (!_remoteDevice.IsAuthorized)
-                    ShowInfo(string.Empty, Mac);
+                    ShowInfo(string.Empty, Id);
 
                 if (_remoteDevice.SerialNo != SerialNo)
                     throw new Exception(TranslationSource.Instance["Vault.Error.InvalidRemoteSerialNo"]);
@@ -775,13 +775,13 @@ namespace HideezClient.Models
             {
                 _log.WriteLine(ex);
                 if(ex.ErrorCode!=HideezErrorCode.ChannelInitializationFailed)
-                    ShowError(ex.Message, Mac);
+                    ShowError(ex.Message, Id);
                 initErrorCode = ex.ErrorCode;
             }
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
-                ShowError(ex.Message, Mac);
+                ShowError(ex.Message, Id);
                 initErrorCode = HideezErrorCode.UnknownError;
             }
             finally
@@ -816,24 +816,24 @@ namespace HideezClient.Models
                 await ButtonWorkflow(ct);
 
                 if (ct.IsCancellationRequested)
-                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthCanceled"], SerialNo), Mac);
+                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthCanceled"], SerialNo), Id);
                 else if (IsAuthorized)
                     _log.WriteLine($"({_remoteDevice.Id}) Remote vault authorized");
                 else
-                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthFailed"], SerialNo), Mac);
+                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthFailed"], SerialNo), Id);
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked || ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
             {
-                _log.WriteLine($"({Mac}) Auth failed. Vault is locked due to too many incorrect PIN entries");
+                _log.WriteLine($"({Id}) Auth failed. Vault is locked due to too many incorrect PIN entries");
                 await _metaMessenger.Publish(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
                                     TranslationSource.Instance["Notification.DeviceLockedByPin.Caption"],
                                     new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
-                                    Mac));
+                                    Id));
             }
             catch (HideezException ex)
             {
                 _log.WriteLine(ex);
-                ShowError(ex.Message, Mac);
+                ShowError(ex.Message, Id);
             }
             catch (OperationCanceledException ex)
             {
@@ -842,7 +842,7 @@ namespace HideezClient.Models
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
-                ShowError(ex.Message, Mac);
+                ShowError(ex.Message, Id);
             }
             finally
             {
@@ -871,7 +871,7 @@ namespace HideezClient.Models
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
-                ShowError(ex.Message, Mac);
+                ShowError(ex.Message, Id);
 
                 await ShutdownRemoteDeviceAsync(HideezErrorCode.UnknownError);
             }
@@ -887,7 +887,7 @@ namespace HideezClient.Models
             if (!_remoteDevice.AccessLevel.IsButtonRequired)
                 return true;
 
-            ShowInfo(TranslationSource.Instance["Vault.Notification.PressButton"], Mac);
+            ShowInfo(TranslationSource.Instance["Vault.Notification.PressButton"], Id);
             await _metaMessenger.Publish(new ShowButtonConfirmUiMessage(Id));
             var res = await _remoteDevice.WaitButtonConfirmation(CREDENTIAL_TIMEOUT, ct);
             return res;
@@ -912,7 +912,7 @@ namespace HideezClient.Models
             Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
             bool pinOk = false;
-            ShowInfo(TranslationSource.Instance["Vault.Notification.NewPin"], Mac);
+            ShowInfo(TranslationSource.Instance["Vault.Notification.NewPin"], Id);
             while (AccessLevel.IsNewPinRequired)
             {
                 var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, ct, withConfirm: true);
@@ -937,11 +937,11 @@ namespace HideezClient.Models
                 }
                 else if (pinResult == HideezErrorCode.ERR_PIN_TOO_SHORT)
                 {
-                    ShowError(TranslationSource.Instance["Vault.Error.PinToShort"], Mac);
+                    ShowError(TranslationSource.Instance["Vault.Error.PinToShort"], Id);
                 }
                 else if (pinResult == HideezErrorCode.ERR_PIN_WRONG)
                 {
-                    ShowError(TranslationSource.Instance["Vault.Error.InvalidPin"], Mac);
+                    ShowError(TranslationSource.Instance["Vault.Error.InvalidPin"], Id);
                 }
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow ---------------------------------------");
@@ -958,7 +958,7 @@ namespace HideezClient.Models
             Debug.WriteLine(">>>>>>>>>>>>>>> EnterPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 
             bool pinOk = false;
-            ShowInfo(TranslationSource.Instance["Vault.Notification.EnterCurrentPin"], Mac);
+            ShowInfo(TranslationSource.Instance["Vault.Notification.EnterCurrentPin"], Id);
             while (!AccessLevel.IsLocked)
             {
                 var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, ct);
@@ -992,13 +992,13 @@ namespace HideezClient.Models
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong PIN ({attemptsLeft} attempts left)");
                     if (AccessLevel.IsLocked)
-                        ShowError(TranslationSource.Instance["Vault.Error.Pin.LockedByInvalidAttempts"], Mac);
+                        ShowError(TranslationSource.Instance["Vault.Error.Pin.LockedByInvalidAttempts"], Id);
                     else
                     {
                         if (attemptsLeft > 1)
-                            ShowError(string.Format(TranslationSource.Instance["Vault.Error.InvalidPin.ManyAttemptsLeft"], attemptsLeft), Mac);
+                            ShowError(string.Format(TranslationSource.Instance["Vault.Error.InvalidPin.ManyAttemptsLeft"], attemptsLeft), Id);
                         else
-                            ShowError(string.Format(TranslationSource.Instance["Vault.Error.InvalidPin.OneAttemptLeft"]), Mac);
+                            ShowError(string.Format(TranslationSource.Instance["Vault.Error.InvalidPin.OneAttemptLeft"]), Id);
                         await _remoteDevice.RefreshDeviceInfo(); // Remaining pin attempts update is not quick enough 
                     }
                 }
