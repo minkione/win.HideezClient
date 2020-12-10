@@ -139,6 +139,9 @@
     <value>Please press the Button on your Hideez Key</value>
   </data>
   <data name="ConnectionFlow.Connection.ConnectionFailed" xml:space="preserve">
+    <value>Connection failed.  ({0})</value>
+  </data>
+  <data name="ConnectionFlow.Connection.ConnectionFailed.Csr" xml:space="preserve">
     <value>Connection failed. Make sure to confirm vault connection by pressing the vault button when you see a green light.  ({0})</value>
   </data>
   <data name="ConnectionFlow.Connection.Stage1" xml:space="preserve">

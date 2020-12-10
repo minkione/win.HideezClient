@@ -124,11 +124,20 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Connection failed. Make sure to confirm vault connection by pressing the vault button when you see a green light.  ({0}).
+        ///   Looks up a localized string similar to Connection failed.  ({0}).
         /// </summary>
         internal static string ConnectionFlow_Connection_ConnectionFailed {
             get {
                 return ResourceManager.GetString("ConnectionFlow.Connection.ConnectionFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection failed. Make sure to confirm vault connection by pressing the vault button when you see a green light.  ({0}).
+        /// </summary>
+        internal static string ConnectionFlow_Connection_ConnectionFailed_Csr {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Connection.ConnectionFailed.Csr", resourceCulture);
             }
         }
         

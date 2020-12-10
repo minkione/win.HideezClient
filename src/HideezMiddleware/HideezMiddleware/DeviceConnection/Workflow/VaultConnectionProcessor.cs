@@ -93,7 +93,17 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             }
 
             if (device == null)
-                throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed", connectionId.Id));
+            {
+                switch ((DefaultConnectionIdProvider)connectionId.IdProvider)
+                {
+                    case DefaultConnectionIdProvider.Csr:
+                        throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed.Csr", connectionId.Id));
+                    case DefaultConnectionIdProvider.WinBle:
+                        throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed", connectionId.Id));
+                    case DefaultConnectionIdProvider.Undefined:
+                        throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed", connectionId.Id));
+                }
+            }
 
             return device;
         }
