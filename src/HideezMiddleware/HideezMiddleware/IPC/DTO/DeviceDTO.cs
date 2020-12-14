@@ -20,6 +20,8 @@ namespace HideezMiddleware.IPC.DTO
         public DeviceDTO(IDevice device)
         {
             Id = device.Id;
+            // Next line is consistant with what is used in service as id for notifications sent to client interfaces
+            NotificationsId = device.DeviceConnection.Connection.ConnectionId.Id; 
             Name = device.Name;
             IsConnected = device.IsConnected;
             IsBoot = device.IsBoot;
@@ -46,6 +48,9 @@ namespace HideezMiddleware.IPC.DTO
 
         [DataMember]
         public string Id { get; set; }
+
+        [DataMember]
+        public string NotificationsId { get; set; }
 
         [DataMember]
         public string Name { get; set; }

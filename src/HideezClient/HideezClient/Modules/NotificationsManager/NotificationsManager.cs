@@ -94,10 +94,10 @@ namespace HideezClient.Modules.NotificationsManager
 
             if (notification.Options.IsReplace)
             {
-                var matchingNotificationViews = GetNotifications().Where(n => (n.DataContext as CredentialsLoadNotificationViewModel)?.Device.Id == viewModel.Device.Id);
+                var matchingNotificationViews = GetNotifications().Where(n => (n.DataContext as CredentialsLoadNotificationViewModel)?.Device.NotificationsId == viewModel.Device.NotificationsId);
                 // Displaying only one notification during connection is visually better. That's why we also close simple notifications
                 // when displaying "Credentials Loading"
-                var simpleNotificationViews = GetNotifications().Where(n => (n.DataContext as SimpleNotificationViewModel)?.ObservableId == viewModel.Device.Id);
+                var simpleNotificationViews = GetNotifications().Where(n => (n.DataContext as SimpleNotificationViewModel)?.ObservableId == viewModel.Device.NotificationsId);
                 matchingNotificationViews = matchingNotificationViews.Concat(simpleNotificationViews); 
                 foreach (var notificationView in matchingNotificationViews)
                 {
