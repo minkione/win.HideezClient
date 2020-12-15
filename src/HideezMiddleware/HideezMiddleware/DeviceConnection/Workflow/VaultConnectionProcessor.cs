@@ -114,7 +114,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             var connectionId = device.DeviceConnection.Connection.ConnectionId.Id;
 
-            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Initialization.WaitingInitializationMessage"], connectionId);
+            if (!device.IsInitialized)
+                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Initialization.WaitingInitializationMessage"], connectionId);
 
             if (!await device.WaitInitialization(SdkConfig.DeviceInitializationTimeout, ct))
                 throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Initialization.InitializationFailed", connectionId));

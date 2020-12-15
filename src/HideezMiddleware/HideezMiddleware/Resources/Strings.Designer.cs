@@ -214,6 +214,15 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connection cancelled. Your vault is already connected to this computer..
+        /// </summary>
+        internal static string ConnectionFlow_Error_VaultAlreadyConnected {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Error.VaultAlreadyConnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your device is in bootloader mode. Please, contact your system administrator to update your firmware..
         /// </summary>
         internal static string ConnectionFlow_Error_VaultInBootloaderMode {

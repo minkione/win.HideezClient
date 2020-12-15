@@ -819,11 +819,11 @@ namespace HideezClient.Models
                 await ButtonWorkflow(ct);
 
                 if (ct.IsCancellationRequested)
-                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthCanceled"], SerialNo));
+                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthCanceled"], NotificationsId));
                 else if (IsAuthorized)
                     _log.WriteLine($"({_remoteDevice.Id}) Remote vault authorized");
                 else
-                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthFailed"], SerialNo));
+                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthFailed"], NotificationsId));
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked || ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
             {

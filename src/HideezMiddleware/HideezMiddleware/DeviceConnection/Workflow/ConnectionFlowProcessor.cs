@@ -206,7 +206,15 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 await _subp.VaultConnectionProcessor.WaitVaultInitialization(device, ct);
 
                 if (device.IsBoot)
+                {
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultInBootloaderMode"]);
+                }
+
+                // Different device with the same name indicates that a single physical device is connected through different channel
+                // This temporary fix is applied to prevent this behavior
+                if (_deviceManager.Devices.FirstOrDefault(d => d != device && d.Name == device.Name) != null)
+                    throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultAlreadyConnected"]);
+                // ...
 
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Initializing);
 

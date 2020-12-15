@@ -1,5 +1,7 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Device;
+using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
@@ -74,7 +76,7 @@ namespace HideezMiddleware.ReconnectManager
             {
                 // Reconnect is performed only if manager is enabled and we are in unlocked windows session
                 // Certain operations explicitly deny device reconnect and so CanReconnect will be FALSE during them
-                if (!WorkstationHelper.IsActiveSessionLocked() && CanReconnect(device.SerialNo))
+                if (!WorkstationHelper.IsActiveSessionLocked() && CanReconnect(device.Id))
                 {
                     Task.Run(() => Reconnect(device));
                 }
@@ -90,7 +92,8 @@ namespace HideezMiddleware.ReconnectManager
         {
             lock (_reconnectListLock)
             {
-                EnableDeviceReconnect(device);
+                if (device.GetUserProperty<HwVaultConnectionState>(CustomProperties.HW_CONNECTION_STATE_PROP) >= HwVaultConnectionState.Finalizing)
+                    EnableDeviceReconnect(device);
             }
         }
 
@@ -98,7 +101,8 @@ namespace HideezMiddleware.ReconnectManager
         {
             lock (_reconnectListLock)
             {
-                DisableDeviceReconnect(device);
+                if (device.GetUserProperty<HwVaultConnectionState>(CustomProperties.HW_CONNECTION_STATE_PROP) >= HwVaultConnectionState.Finalizing)
+                    DisableDeviceReconnect(device);
             }
         }
 
@@ -106,8 +110,8 @@ namespace HideezMiddleware.ReconnectManager
         {
             try
             {
-                WriteLine($"Starting reconnect procedure for {device.SerialNo}");
-                _reconnectInProgressList.Add(device.SerialNo);
+                WriteLine($"Starting reconnect procedure for {device.Id}");
+                _reconnectInProgressList.Add(device.Id);
 
                 await Task.Delay(SdkConfig.ReconnectDelay); // Small delay before reconnecting
 
@@ -117,18 +121,18 @@ namespace HideezMiddleware.ReconnectManager
 
                 if (reconnectSuccessful)
                 {
-                    WriteLine($"{device.SerialNo} reconnected successfully");
+                    WriteLine($"{device.Id} reconnected successfully");
                     SafeInvoke(DeviceReconnected, device);
                 }
                 else
                 {
-                    WriteLine($"{device.SerialNo} reconnect failed");
+                    WriteLine($"{device.Id} reconnect failed");
                     SafeInvoke(DeviceDisconnected, device);
                 }
             }
             finally
             {
-                _reconnectInProgressList.Remove(device.SerialNo);
+                _reconnectInProgressList.Remove(device.Id);
             }
         }
 
@@ -188,8 +192,8 @@ namespace HideezMiddleware.ReconnectManager
             {
                 if (!device.IsBoot && !(device is IRemoteDeviceProxy))
                 {
-                    WriteLine($"{device.SerialNo} reconnect re-enabled");
-                    _reconnectAllowedList.Add(device.SerialNo);
+                    WriteLine($"{device.Id} reconnect re-enabled");
+                    _reconnectAllowedList.Add(device.Id);
                 }
             }
         }
@@ -200,8 +204,8 @@ namespace HideezMiddleware.ReconnectManager
             {
                 if (!device.IsBoot && !(device is IRemoteDeviceProxy))
                 {
-                    WriteLine($"{device.SerialNo} reconnect disabled");
-                    _reconnectAllowedList.Remove(device.SerialNo);
+                    WriteLine($"{device.Id} reconnect disabled");
+                    _reconnectAllowedList.Remove(device.Id);
                 }
             }
         }
@@ -214,11 +218,11 @@ namespace HideezMiddleware.ReconnectManager
             }
         }
 
-        bool CanReconnect(string deviceSerialNo)
+        bool CanReconnect(string id)
         {
             lock (_reconnectListLock)
             {
-                return _reconnectAllowedList.Contains(deviceSerialNo) && !_reconnectInProgressList.Contains(deviceSerialNo);
+                return _reconnectAllowedList.Contains(id) && !_reconnectInProgressList.Contains(id);
             }
         }
     }

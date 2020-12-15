@@ -99,7 +99,7 @@ namespace HideezClient.Modules.DeviceManager
                     AddDevice(deviceDto);
 
                 // delete device from UI if its deleted from service
-                DeviceModel[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.SerialNo == d.SerialNo) == null).ToArray();
+                DeviceModel[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.Id == d.Id) == null).ToArray();
                 await RemoveDevices(missingDevices);
             }
             catch (Exception ex)
@@ -125,7 +125,7 @@ namespace HideezClient.Modules.DeviceManager
                 else
                 {
                     // Remove device from collection if its not connected
-                    var device = _devices.Values.FirstOrDefault(d => d.SerialNo == message.Device.SerialNo);
+                    var device = _devices.Values.FirstOrDefault(d => d.Id == message.Device.Id);
                     if (device != null)
                         await RemoveDevice(device);
                 }
