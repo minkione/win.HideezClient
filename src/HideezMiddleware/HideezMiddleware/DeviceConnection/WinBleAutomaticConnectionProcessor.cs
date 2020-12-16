@@ -73,21 +73,41 @@ namespace HideezMiddleware.DeviceConnection
                 if (!isRunning)
                 {
                     _winBleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
+                    _winBleConnectionManager.ConnectedBondedControllerAdded += BleConnectionManager_ConnectedBondedControllerAdded;
                     isRunning = true;
                     WriteLine("Started");
                 }
             }
         }
-
+        
         public override void Stop()
         {
             lock (_lock)
             {
                 isRunning = false;
                 _winBleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
+                _winBleConnectionManager.ConnectedBondedControllerAdded -= BleConnectionManager_ConnectedBondedControllerAdded;
                 WriteLine("Stopped");
             }
         }
+
+        async void BleConnectionManager_ConnectedBondedControllerAdded(object sender, ControllerAddedEventArgs e)
+        {
+            if (!isRunning)
+                return;
+
+            if (e.Controller == null)
+                return;
+
+            if (_isConnecting == 1)
+                return;
+
+            if (WorkstationHelper.IsActiveSessionLocked())
+                return;
+
+            await ConnectById(e.Controller.Id);
+        }
+
 
         async void BleConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
@@ -106,16 +126,25 @@ namespace HideezMiddleware.DeviceConnection
                 return;
 
             var proximity = BleUtils.RssiToProximity(adv.Rssi);
-
             var settings = _workstationSettingsManager.Settings;
-            if (proximity < settings.UnlockProximity)
-                return;
 
-            if (_advIgnoreListMonitor.IsIgnored(adv.Id))
+            if(WorkstationHelper.IsActiveSessionLocked())
+                if (proximity < settings.UnlockProximity)
+                    return;
+            else
+                if (proximity < settings.LockProximity)
+                    return;
+
+            await ConnectById(adv.Id);
+        }
+
+        async Task ConnectById(string id)
+        {
+            if (_advIgnoreListMonitor.IsIgnored(id))
                 return;
 
             // Device must be present in the list of bonded devices to be suitable for connection
-            if (_winBleConnectionManager.BondedControllers.FirstOrDefault(c => c.Connection.ConnectionId.Id == adv.Id) == null)
+            if (_winBleConnectionManager.BondedControllers.FirstOrDefault(c => c.Connection.ConnectionId.Id == id) == null)
                 return;
 
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
@@ -123,13 +152,13 @@ namespace HideezMiddleware.DeviceConnection
                 try
                 {
                     // If device from advertisement already exists and is connected, ignore advertisement
-                    var device = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == adv.Id && !(d is IRemoteDeviceProxy));
+                    var device = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == id && !(d is IRemoteDeviceProxy));
                     if (device != null && device.IsConnected)
                         return;
 
                     try
                     {
-                        var connectionId = new ConnectionId(adv.Id, (byte)DefaultConnectionIdProvider.WinBle);
+                        var connectionId = new ConnectionId(id, (byte)DefaultConnectionIdProvider.WinBle);
                         await ConnectAndUnlockByConnectionId(connectionId);
                     }
                     catch (Exception)
@@ -141,7 +170,7 @@ namespace HideezMiddleware.DeviceConnection
                     }
                     finally
                     {
-                        _advIgnoreListMonitor.Ignore(adv.Id);
+                        _advIgnoreListMonitor.Ignore(id);
                     }
                 }
                 finally
