@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Refactored.BLE;
 using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.Localize;
 using HideezMiddleware.ScreenActivation;
@@ -98,9 +99,6 @@ namespace HideezMiddleware.DeviceConnection
 
         async Task UnlockByRfid(string rfid)
         {
-            // TODO: Re-implement RFID connection
-            throw new NotImplementedException();
-            /*
             if (!isRunning)
                 return;
 
@@ -118,17 +116,17 @@ namespace HideezMiddleware.DeviceConnection
                 if (_hesConnection == null)
                     throw new Exception(TranslationSource.Instance["ConnectionFlow.RfidConnection.Error.NotConnectedToHes"]);
 
+                await _clientUiManager.SendNotification(TranslationSource.Instance["ConnectionFlow.RfidConnection.ContactingHesMessage"], info.VaultMac);
 
                 // get MAC address from the HES
                 info = await _hesConnection.GetHwVaultInfoByRfid(rfid);
-
-                await _clientUiManager.SendNotification(TranslationSource.Instance["ConnectionFlow.RfidConnection.ContactingHesMessage"], info.VaultMac);
 
                 if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
                 {
                     try
                     {
-                        await ConnectAndUnlockByMac(info.VaultMac);
+                        var connectionId = new ConnectionId(info.VaultMac, (byte)DefaultConnectionIdProvider.Csr);
+                        await ConnectAndUnlockByConnectionId(connectionId);
                     }
                     catch (Exception)
                     {
@@ -149,7 +147,6 @@ namespace HideezMiddleware.DeviceConnection
                 WriteLine(ex);
                 await _clientUiManager.SendError(HideezExceptionLocalization.GetErrorAsString(ex), info?.VaultMac);
             }
-            */
         }
     }
 }
