@@ -32,6 +32,9 @@ namespace HideezMiddleware
         }
     }
 
+    /// <summary>
+    /// Provides a dynamic list of win ble connection controllers with information about their connection and discovery state
+    /// </summary>
     public sealed class WinBleControllersStateMonitor : Logger
     {
         readonly WinBleConnectionManager _winBleConnectionManager;

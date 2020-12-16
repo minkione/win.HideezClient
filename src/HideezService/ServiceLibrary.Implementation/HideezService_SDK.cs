@@ -133,12 +133,6 @@ namespace ServiceLibrary.Implementation
                 //_winBleConnectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
                 //_winBleConnectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
 
-
-                // WinBle Controllers State Monitor ============================
-                _winBleControllersStateMonitor = new WinBleControllersStateMonitor((WinBleConnectionManager)_winBleConnectionManager, _sdkLogger);
-                _winBleControllersStateMonitor.WinBleControllersCollectionChanged += WinBleControllersStateMonitor_WinBleControllersCollectionChanged;
-                _winBleControllersStateMonitor.Start();
-
                 // Connection Managers Coordinator ============================
                 _connectionManagersCoordinator = new ConnectionManagersCoordinator();
                 _connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
@@ -1021,11 +1015,6 @@ namespace ServiceLibrary.Implementation
             }
         }
 
-        async void SessionManager_SessionClosed()
-        {
-            // TODO: Disconnect remote devices when client disconnects
-        }
-
         async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
             try
@@ -1045,11 +1034,6 @@ namespace ServiceLibrary.Implementation
             {
                 Error(ex);
             }
-        }
-
-        async void WinBleControllersStateMonitor_WinBleControllersCollectionChanged(object sender, WinBleControllersCollectionChangedEventArgs e)
-        {
-            // Todo:
         }
         #endregion
 
