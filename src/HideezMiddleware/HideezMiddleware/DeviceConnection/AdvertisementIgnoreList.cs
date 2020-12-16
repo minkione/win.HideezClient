@@ -59,24 +59,24 @@ namespace HideezMiddleware.DeviceConnection
         }
         #endregion
 
-        public void Ignore(string mac)
+        public void Ignore(string id)
         {
             lock (_lock)
             {
-                if (!_ignoreList.Contains(mac))
-                    _ignoreList.Add(mac);
+                if (!_ignoreList.Contains(id))
+                    _ignoreList.Add(id);
 
-                _lastAdvRecTime[mac] = DateTime.UtcNow;
+                _lastAdvRecTime[id] = DateTime.UtcNow;
             }
         }
 
-        public bool IsIgnored(string mac)
+        public bool IsIgnored(string id)
         {
             lock (_lock)
             {
                 RemoveTimedOutRecords();
 
-                return _ignoreList.Any(m => m == BleUtils.ConnectionIdToMac(mac));
+                return _ignoreList.Any(x => x == id);
             }
         }
 
@@ -95,13 +95,13 @@ namespace HideezMiddleware.DeviceConnection
             {
                 RemoveTimedOutRecords();
 
-                var shortMac = BleUtils.ConnectionIdToMac(e.Id);
-                if (_ignoreList.Any(m => m == shortMac))
+                //var shortMac = BleUtils.ConnectionIdToMac(e.Id);
+                if (_ignoreList.Any(x => x == e.Id))
                 {
                     var proximity = BleUtils.RssiToProximity(e.Rssi);
 
                     if (proximity > _workstationSettingsManager.Settings.LockProximity)
-                        _lastAdvRecTime[shortMac] = DateTime.UtcNow;
+                        _lastAdvRecTime[e.Id] = DateTime.UtcNow;
                 }
             }
         }

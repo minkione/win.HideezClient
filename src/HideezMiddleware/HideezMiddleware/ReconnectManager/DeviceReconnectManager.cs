@@ -85,7 +85,6 @@ namespace HideezMiddleware.ReconnectManager
                     SafeInvoke(DeviceDisconnected, device);
                 }
             }
-
         }
 
         void ProximityMonitorManager_DeviceProximityNormalized(object sender, IDevice device)
@@ -110,24 +109,26 @@ namespace HideezMiddleware.ReconnectManager
         {
             try
             {
-                WriteLine($"Starting reconnect procedure for {device.Id}");
+                await Task.Delay(SdkConfig.ReconnectDelay); // Small delay before reconnecting
                 _reconnectInProgressList.Add(device.Id);
 
-                await Task.Delay(SdkConfig.ReconnectDelay); // Small delay before reconnecting
-
-                var proc = new ReconnectProc(device, _connectionFlowProcessor);
-                var reconnectSuccessful = await proc.Run();
-
-
-                if (reconnectSuccessful)
+                if (_reconnectAllowedList.Contains(device.Id))
                 {
-                    WriteLine($"{device.Id} reconnected successfully");
-                    SafeInvoke(DeviceReconnected, device);
-                }
-                else
-                {
-                    WriteLine($"{device.Id} reconnect failed");
-                    SafeInvoke(DeviceDisconnected, device);
+                    WriteLine($"Starting reconnect procedure for {device.Id}");
+
+                    var proc = new ReconnectProc(device, _connectionFlowProcessor);
+                    var reconnectSuccessful = await proc.Run();
+
+                    if (reconnectSuccessful)
+                    {
+                        WriteLine($"{device.Id} reconnected successfully");
+                        SafeInvoke(DeviceReconnected, device);
+                    }
+                    else
+                    {
+                        WriteLine($"{device.Id} reconnect failed");
+                        SafeInvoke(DeviceDisconnected, device);
+                    }
                 }
             }
             finally

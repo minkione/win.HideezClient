@@ -71,7 +71,8 @@ namespace ServiceLibrary.Implementation
 
         static BondManager _bondManager;
         static ConnectionFlowProcessor _connectionFlowProcessor;
-        static AdvertisementIgnoreList _advIgnoreList;
+        static AdvertisementIgnoreList _advIgnoreCsrList;
+        static AdvertisementIgnoreList _advIgnoreWinBleList;
         static RfidConnectionProcessor _rfidProcessor;
         static TapConnectionProcessor _tapProcessor;
         static ProximityConnectionProcessor _proximityProcessor;
@@ -312,8 +313,12 @@ namespace ServiceLibrary.Implementation
 
             _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
-            _advIgnoreList = new AdvertisementIgnoreList(
+            _advIgnoreCsrList = new AdvertisementIgnoreList(
                 _csrBleConnectionManager,
+                _workstationSettingsManager,
+                _sdkLogger);
+            _advIgnoreWinBleList = new AdvertisementIgnoreList(
+                _winBleConnectionManager,
                 _workstationSettingsManager,
                 _sdkLogger);
             _rfidProcessor = new RfidConnectionProcessor(
@@ -333,7 +338,7 @@ namespace ServiceLibrary.Implementation
                 _csrBleConnectionManager,
                 _proximitySettingsManager,
                 _workstationSettingsManager,
-                _advIgnoreList,
+                _advIgnoreCsrList,
                 _deviceManager,
                 _credentialProviderProxy,
                 _hesAccessManager,
@@ -341,6 +346,7 @@ namespace ServiceLibrary.Implementation
             _winBleProcessor = new WinBleAutomaticConnectionProcessor(
                 _connectionFlowProcessor,
                 _winBleConnectionManager,
+                _advIgnoreWinBleList,
                 _workstationSettingsManager,
                 _deviceManager,
                 _sdkLogger);

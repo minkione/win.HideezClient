@@ -26,7 +26,7 @@ namespace HideezMiddleware.DeviceConnection
         readonly IHesAccessManager _hesAccessManager;
         readonly object _lock = new object();
 
-        List<string> _macListToConnect;
+        List<string> _idListToConnect;
         ProximitySettings _proximitySettings;
 
         int _isConnecting = 0;
@@ -110,7 +110,7 @@ namespace HideezMiddleware.DeviceConnection
         void SetAccessListFromSettings(ProximitySettings settings)
         {
             _proximitySettings = settings;
-            _macListToConnect = _proximitySettings.DevicesProximity.Select(s => s.Mac).ToList();
+            _idListToConnect = _proximitySettings.DevicesProximity.Select(s => s.Mac).ToList();
             _advIgnoreListMonitor.Clear();
         }
 
@@ -135,11 +135,11 @@ namespace HideezMiddleware.DeviceConnection
             if (_isConnecting == 1)
                 return;
 
-            if (_macListToConnect.Count == 0)
+            if (_idListToConnect.Count == 0)
                 return;
 
-            var mac = BleUtils.ConnectionIdToMac(adv.Id);
-            if (!_macListToConnect.Any(m => m == mac))
+            var id = adv.Id;
+            if (!_idListToConnect.Any(m => m == id))
                 return;
 
             var proximity = BleUtils.RssiToProximity(adv.Rssi);
@@ -147,7 +147,7 @@ namespace HideezMiddleware.DeviceConnection
             if (proximity < settings.UnlockProximity)
                 return;
 
-            if (_advIgnoreListMonitor.IsIgnored(mac))
+            if (_advIgnoreListMonitor.IsIgnored(id))
                 return;
 
             if (!_hesAccessManager.HasAccessKey())
@@ -157,7 +157,7 @@ namespace HideezMiddleware.DeviceConnection
             {
                 try
                 {
-                    var device = _deviceManager.Devices.FirstOrDefault(d => d.Mac == mac && !(d is IRemoteDeviceProxy) && !d.IsBoot);
+                    var device = _deviceManager.Devices.FirstOrDefault(d => d.Id == id && !(d is IRemoteDeviceProxy) && !d.IsBoot);
 
                     // Unlocked Workstation, Device not found OR Device not connected - dont add to ignore
                     if (!_workstationUnlocker.IsConnected && (device == null || (device != null && !device.IsConnected)))
@@ -182,7 +182,7 @@ namespace HideezMiddleware.DeviceConnection
                     }
                     finally
                     {
-                        _advIgnoreListMonitor.Ignore(mac);
+                        _advIgnoreListMonitor.Ignore(id);
                     }
                 }
                 finally

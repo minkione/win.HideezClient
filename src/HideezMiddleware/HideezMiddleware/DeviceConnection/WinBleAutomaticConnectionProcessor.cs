@@ -17,6 +17,7 @@ namespace HideezMiddleware.DeviceConnection
     {
         readonly WinBleConnectionManager _winBleConnectionManager;
         readonly ISettingsManager<WorkstationSettings> _workstationSettingsManager;
+        readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly DeviceManager _deviceManager;
         readonly object _lock = new object();
 
@@ -26,6 +27,7 @@ namespace HideezMiddleware.DeviceConnection
         public WinBleAutomaticConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             WinBleConnectionManager winBleConnectionManager,
+            AdvertisementIgnoreList advIgnoreListMonitor,
             ISettingsManager<WorkstationSettings> workstationSettingsManager,
             DeviceManager deviceManager,
             ILog log)
@@ -33,6 +35,7 @@ namespace HideezMiddleware.DeviceConnection
         {
             _winBleConnectionManager = winBleConnectionManager ?? throw new ArgumentNullException(nameof(winBleConnectionManager));
             _workstationSettingsManager = workstationSettingsManager ?? throw new ArgumentNullException(nameof(workstationSettingsManager));
+            _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
             _deviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
         }
 
@@ -103,8 +106,12 @@ namespace HideezMiddleware.DeviceConnection
                 return;
 
             var proximity = BleUtils.RssiToProximity(adv.Rssi);
+
             var settings = _workstationSettingsManager.Settings;
             if (proximity < settings.UnlockProximity)
+                return;
+
+            if (_advIgnoreListMonitor.IsIgnored(adv.Id))
                 return;
 
             // Device must be present in the list of bonded devices to be suitable for connection
@@ -131,6 +138,10 @@ namespace HideezMiddleware.DeviceConnection
                         // In case of an error, wait a few seconds, before retrying connection
                         var nextConnectionAttemptDelay = 3_000;
                         await Task.Delay(nextConnectionAttemptDelay);
+                    }
+                    finally
+                    {
+                        _advIgnoreListMonitor.Ignore(adv.Id);
                     }
                 }
                 finally
