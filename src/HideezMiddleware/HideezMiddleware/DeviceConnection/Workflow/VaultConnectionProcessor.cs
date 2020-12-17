@@ -37,9 +37,14 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             bool ltkErrorOccured = false;
             IDevice device = null;
+
+            var connectionTimeout = SdkConfig.ConnectDeviceTimeout;
+            if (connectionId.IdProvider == (byte)DefaultConnectionIdProvider.WinBle)
+                connectionTimeout = SdkConfig.ConnectDeviceTimeout * 2;
+
             try
             {
-                device = await _deviceManager.Connect(connectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+                device = await _deviceManager.Connect(connectionId).TimeoutAfter(connectionTimeout);
             }
             catch (Exception ex) // Thrown when LTK error occurs in csr
             {
@@ -65,7 +70,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 try
                 {
-                    device = await _deviceManager.Connect(connectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout / 2);
+                    device = await _deviceManager.Connect(connectionId).TimeoutAfter(connectionTimeout / 2);
                 }
                 catch (Exception ex) // Thrown when LTK error occurs in csr
                 {
