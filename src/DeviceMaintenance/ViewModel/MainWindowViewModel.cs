@@ -3,6 +3,7 @@ using DeviceMaintenance.Service;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Refactored.BLE;
 using Meta.Lib.Modules.PubSub;
 using Microsoft.Win32;
 using MvvmExtensions.Attributes;
@@ -163,7 +164,7 @@ namespace DeviceMaintenance.ViewModel
                 {
                     added = true;
                     bool isBonded = ConnectionManager.IsBonded(id);
-                    return new DeviceViewModel(BleUtils.ConnectionIdToMac(id), isBonded, _hub);
+                    return new DeviceViewModel(new ConnectionId( id, (byte)DefaultConnectionIdProvider.Csr), isBonded, _hub);
                 });
 
                 if (added)

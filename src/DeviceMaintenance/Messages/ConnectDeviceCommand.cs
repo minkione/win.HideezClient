@@ -1,12 +1,14 @@
-﻿namespace DeviceMaintenance.Messages
+﻿using Hideez.SDK.Communication.Refactored.BLE;
+
+namespace DeviceMaintenance.Messages
 {
     public class ConnectDeviceCommand : MessageBase
     {
-        public string Mac { get; internal set; }
+        public ConnectionId ConnectionId { get; internal set; }
 
-        public ConnectDeviceCommand(string mac)
+        public ConnectDeviceCommand(ConnectionId connectionId)
         {
-            Mac = mac;
+            ConnectionId = connectionId;
         }
     }
 }

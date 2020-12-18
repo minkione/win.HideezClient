@@ -5,6 +5,7 @@ using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.FW;
 using Hideez.SDK.Communication.Log;
 using Meta.Lib.Modules.PubSub;
+using Meta.Lib.Utils;
 using MvvmExtensions.PropertyChangedMonitoring;
 using System;
 using System.IO;
@@ -14,8 +15,9 @@ namespace DeviceMaintenance.ViewModel
 {
     public class ConnectionManagerViewModel : PropertyChangedImplementation
     {
+        readonly ConnectionManagersCoordinator _connectionManagersCoordinator;
         readonly BleConnectionManager _connectionManager;
-        readonly BleDeviceManager _deviceManager;
+        readonly DeviceManager _deviceManager;
         readonly EventLogger _log;
         readonly MetaPubSub _hub;
 
@@ -38,8 +40,13 @@ namespace DeviceMaintenance.ViewModel
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
 
+            // Connection Managers Coordinator ============================
+            _connectionManagersCoordinator = new ConnectionManagersCoordinator();
+            _connectionManagersCoordinator.AddConnectionManager(_connectionManager);
+            //_connectionManagersCoordinator.Start();
+
             // DeviceManager ============================
-            _deviceManager = new BleDeviceManager(log, _connectionManager);
+            _deviceManager = new DeviceManager(_connectionManagersCoordinator, log);
         }
 
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
@@ -61,28 +68,28 @@ namespace DeviceMaintenance.ViewModel
 
         async Task OnConnectDeviceCommand(ConnectDeviceCommand arg)
         {
-            var device = await _deviceManager.ConnectDevice(arg.Mac, SdkConfig.ConnectDeviceTimeout);
+            var device = await _deviceManager.Connect(arg.ConnectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
 
             if (device == null)
-                device = await _deviceManager.ConnectDevice(arg.Mac, SdkConfig.ConnectDeviceTimeout / 2);
+                device = await _deviceManager.Connect(arg.ConnectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout/2);
 
             if (device != null)
                 await device.WaitInitialization(SdkConfig.DeviceInitializationTimeout, default);
 
-            await _hub.Publish(new ConnectDeviceResponse(device, arg.Mac));
+            await _hub.Publish(new ConnectDeviceResponse(device, arg.ConnectionId));
         }
 
         async Task OnEnterBootCommand(EnterBootCommand cmd)
         {
             var imageUploader = new FirmwareImageUploader(
-                cmd.FirmwareFilePath, _deviceManager, cmd.Device, cmd.LongOperation, _log);
+                cmd.FirmwareFilePath, _deviceManager, cmd.Device as Device, cmd.LongOperation, _log);
             await imageUploader.EnterBoot();
             await _hub.Publish(new EnterBootResponse(imageUploader));
         }
 
         async Task OnDeviceWipedEvent(DeviceWipedEvent arg)
         {
-            await _deviceManager.Remove(arg.DeviceViewModel.Device);
+            await _deviceManager.RemoveConnection(arg.DeviceViewModel.Device.DeviceConnection);
         }
 
         public bool IsBonded(string id)

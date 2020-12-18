@@ -1,16 +1,17 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
+using Hideez.SDK.Communication.Refactored.BLE;
 
 namespace DeviceMaintenance.Messages
 {
     public class ConnectDeviceResponse : MessageBase
     {
         public IDevice Device { get; }
-        public string Mac { get; }
+        public ConnectionId ConnectionId { get; }
 
-        public ConnectDeviceResponse(IDevice device, string mac)
+        public ConnectDeviceResponse(IDevice device, ConnectionId connectionId)
         {
             Device = device;
-            Mac = mac;
+            ConnectionId = connectionId;
         }
     }
 }

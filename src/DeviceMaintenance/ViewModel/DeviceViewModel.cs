@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.LongOperations;
+using Hideez.SDK.Communication.Refactored.BLE;
 using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.PropertyChangedMonitoring;
@@ -30,7 +31,7 @@ namespace DeviceMaintenance.ViewModel
 
         readonly object _stateLocker = new object();
         readonly MetaPubSub _hub;
-        readonly string _mac;
+        readonly ConnectionId _connectionId;
         readonly bool _isBonded;
         readonly LongOperation _longOperation = new LongOperation(1);
 
@@ -43,7 +44,7 @@ namespace DeviceMaintenance.ViewModel
         public DateTime CreatedAt = DateTime.Now;
         public bool IsConnected => _device?.IsConnected ?? false;
         public bool IsBoot => _device?.IsBoot ?? false;
-        public string SerialNo => _device?.SerialNo != null ? $"{_device.SerialNo} (v{_device.FirmwareVersion}, b{_device.BootloaderVersion})" : _mac;
+        public string SerialNo => _device?.SerialNo != null ? $"{_device.SerialNo} (v{_device.FirmwareVersion}, b{_device.BootloaderVersion})" : _connectionId.Id;
 
         public double Progress => _longOperation.Progress;
         public bool InProgress => _longOperation.IsRunning;
@@ -133,12 +134,12 @@ namespace DeviceMaintenance.ViewModel
         }
 
 
-        public DeviceViewModel(string mac, bool isBonded, MetaPubSub hub)
+        public DeviceViewModel(ConnectionId connectionId, bool isBonded, MetaPubSub hub)
         {
             RegisterDependencies();
 
             _hub = hub;
-            _mac = mac;
+            _connectionId = connectionId;
             _isBonded = isBonded;
 
             _longOperation.StateChanged += (object sender, EventArgs e) =>
@@ -191,9 +192,9 @@ namespace DeviceMaintenance.ViewModel
             try
             {
                 var res = await _hub.Process<ConnectDeviceResponse>(
-                    new ConnectDeviceCommand(_mac),
+                    new ConnectDeviceCommand(_connectionId),
                     SdkConfig.ConnectDeviceTimeout * 2 + SdkConfig.DeviceInitializationTimeout,
-                    x => x.Mac == _mac);
+                    x => x.ConnectionId == _connectionId);
 
                 if (res.Device == null)
                     throw new Exception("Failed to connect device");
