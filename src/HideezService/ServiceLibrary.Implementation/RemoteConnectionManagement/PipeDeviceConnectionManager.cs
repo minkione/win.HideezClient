@@ -47,7 +47,7 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
                     pipeDevice = new PipeRemoteDeviceProxy(device, _log);
                     pipeDevice = (PipeRemoteDeviceProxy)_deviceManager.AddDeviceChannelProxy(pipeDevice, device, args.ChannelNo);
 
-                    PipeDeviceConnectionHandler remoteDevicePubSub = new PipeDeviceConnectionHandler(_messenger, pipeDevice, _deviceManager, _log);
+                    PipeDeviceConnectionHandler remoteDevicePubSub = new PipeDeviceConnectionHandler(pipeDevice, _deviceManager, _log);
 
                     pipeDevicesPubSubHandlers.Add(pipeDevice.Id, remoteDevicePubSub);
 

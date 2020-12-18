@@ -19,7 +19,6 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
 {
     class PipeDeviceConnectionHandler: Logger
     {
-        readonly IMetaPubSub _messenger;
         readonly PipeRemoteDeviceProxy _pipeDevice;
         readonly DeviceManager _deviceManager;
 
@@ -30,14 +29,13 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
 
         public string PipeName { get; }
 
-        public PipeDeviceConnectionHandler(IMetaPubSub messenger, PipeRemoteDeviceProxy pipeDevice, DeviceManager deviceManager, ILog log)
+        public PipeDeviceConnectionHandler(PipeRemoteDeviceProxy pipeDevice, DeviceManager deviceManager, ILog log)
             : base(nameof(PipeDeviceConnectionHandler), log)
         {
             PipeName = "HideezRemoteDevicePipe_" + Guid.NewGuid().ToString();
 
             _remoteConnectionPubSub = new MetaPubSub(new MetaPubSubLogger(new NLogWrapper()));
 
-            _messenger = messenger;
             _pipeDevice = pipeDevice;
             _deviceManager = deviceManager;
 
@@ -68,9 +66,16 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
             _remoteConnectionPubSub.Subscribe<RemoteConnection_GetRootKeyMessage>(RemoteConnection_GetRootKeyAsync);
             _remoteConnectionPubSub.Subscribe<RemoteConnection_VerifyCommandMessage>(RemoteConnection_VerifyCommandAsync);
             _remoteConnectionPubSub.Subscribe<RemoteConnection_ResetChannelMessage>(RemoteConnection_ResetChannelAsync);
+            _remoteConnectionPubSub.Subscribe<RemoteConnection_GetConnectionProviderMessage>(RemoteConnection_GetConnectionProviderAsync);
         }
 
         #region Event Handlers
+        async Task RemoteConnection_GetConnectionProviderAsync(RemoteConnection_GetConnectionProviderMessage arg)
+        {
+            var idProvider = _pipeDevice.Device.DeviceConnection.Connection.ConnectionId.IdProvider;
+            await _remoteConnectionPubSub.Publish(new RemoteConnection_GetConnectionProviderMessageReply(idProvider));
+        }
+
         async void RemoteConnection_DeviceStateChanged(object sender, byte[] e)
         {
             try

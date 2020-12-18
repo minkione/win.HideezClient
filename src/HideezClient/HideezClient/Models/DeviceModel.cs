@@ -29,6 +29,7 @@ using Meta.Lib.Modules.PubSub;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezClient.Modules.Localize;
 using Hideez.SDK.Communication.HES.DTO;
+using HideezMiddleware.IPC.IncommingMessages.RemoteDevice;
 
 namespace HideezClient.Models
 {
@@ -54,6 +55,7 @@ namespace HideezClient.Models
         string ownerName;
         string ownerEmail;
         bool isConnected;
+        bool canRemoveConnection;
         bool isInitialized;
         string serialNo;
         string mac;
@@ -158,6 +160,12 @@ namespace HideezClient.Models
         {
             get { return isConnected; }
             private set { Set(ref isConnected, value); }
+        }
+
+        public bool CanRemoveConnection
+        {
+            get { return canRemoveConnection; }
+            private set { Set(ref canRemoveConnection, value); }
         }
 
         // TODO: This property is no longer required
@@ -746,6 +754,9 @@ namespace HideezClient.Models
                 IsCreatingRemoteDevice = true;
                 _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo, _remoteDeviceMessenger);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
+                
+                var reply = await _remoteDeviceMessenger.ProcessOnServer<RemoteConnection_GetConnectionProviderMessageReply>(new RemoteConnection_GetConnectionProviderMessage());
+                CanRemoveConnection = reply.ConnectionIdProvider == DefaultConnectionIdProvider.Csr;
 
                 if (cancellationToken.IsCancellationRequested)
                 {

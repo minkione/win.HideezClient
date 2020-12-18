@@ -225,17 +225,19 @@
                     </Button>
                 </Border>
 
-                <Button
+                <Border mah:VisibilityHelper.IsVisible="{Binding CanRemoveConnection}">
+                    <Button
                     Margin="6,0,2,0"
                     DataContext="{Binding RemoveDeviceMenu}"
                     Style="{StaticResource SemiTransparentButtonStyle}"
                     Width="30"
                     Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}">
-                    <iconPacks:PackIconMaterial
+                        <iconPacks:PackIconMaterial
                         Margin="3"
                         Foreground="{DynamicResource DisconnectButtonBrush}"
                         Kind="Delete" />
-                </Button>
+                    </Button>
+                </Border>
             </StackPanel>
 
             <Border Margin="4,0,2,0">

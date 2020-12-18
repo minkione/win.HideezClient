@@ -169,6 +169,8 @@
     <Compile Include="IPC\IncommingMessages\PublishEventMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RefreshServiceInfoMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_ControlRemoteCommandMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_GetConnectionProviderMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_GetConnectionProviderMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_GetRootKeyMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_GetRootKeyMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_RemoteCommandMessage.cs" />
