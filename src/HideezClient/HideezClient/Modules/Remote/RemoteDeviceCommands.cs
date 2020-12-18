@@ -1,15 +1,9 @@
-﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.Command;
-using Hideez.SDK.Communication.Interfaces;
+﻿using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.Remote;
+using Hideez.SDK.Communication.Refactored.BLE;
 using HideezClient.Modules.Log;
-using HideezClient.Modules.ServiceProxy;
 using HideezMiddleware.IPC.IncommingMessages.RemoteDevice;
 using Meta.Lib.Modules.PubSub;
-using System;
-using System.ServiceModel;
 using System.Threading.Tasks;
 
 namespace HideezClient.Modules.Remote

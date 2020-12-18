@@ -1106,7 +1106,7 @@ namespace ServiceLibrary.Implementation
                 if (device != null)
                 {
                     _deviceReconnectManager.DisableDeviceReconnect(device);
-                    await _deviceManager.RemoveConnection(device.DeviceConnection);
+                    await _deviceManager.DeleteBond(device.DeviceConnection);
                 }
             }
             catch (Exception ex)
@@ -1238,7 +1238,7 @@ namespace ServiceLibrary.Implementation
 
             await _messenger.Publish(new ServiceSettingsChangedMessage(_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock, RegistrySettings.GetHesAddress(_log)));
 
-            _winBleControllersStateMonitor.NotifySubscribers();
+            //_winBleControllersStateMonitor.NotifySubscribers();
         }
         #endregion
 
