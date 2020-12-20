@@ -137,10 +137,6 @@ namespace ServiceLibrary.Implementation
                 _connectionManagersCoordinator = new ConnectionManagersCoordinator();
                 _connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
                 _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManager);
-                _connectionManagersCoordinator.Start();
-
-                _csrBleConnectionManager.StartDiscovery();
-                _winBleConnectionManager.StartDiscovery();
 
                 _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger, _csrBleConnectionManager, _winBleConnectionManager);
 
@@ -390,7 +386,10 @@ namespace ServiceLibrary.Implementation
             _workstationLockProcessor.Start();
             _proximityMonitorManager.Start();
 
+            _connectionManagersCoordinator.Start();
             _csrBleConnectionManager.StartDiscovery();
+            _winBleConnectionManager.StartDiscovery();
+
             _connectionManagerRestarter.Start();
 
             _deviceReconnectManager.Start();
