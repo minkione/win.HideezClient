@@ -16,15 +16,18 @@ namespace HideezMiddleware.DeviceConnection
         readonly List<string> _ignoreList = new List<string>();
         readonly Dictionary<string, DateTime> _lastAdvRecTime = new Dictionary<string, DateTime>();
         readonly object _lock = new object();
+        readonly int _rssiClearDelaySeconds;
 
         public AdvertisementIgnoreList(
             IBleConnectionManager bleConnectionManager,
             ISettingsManager<WorkstationSettings> workstationSettingsManager,
+            int rssiClearDelaySeconds,
             ILog log)
             : base(nameof(AdvertisementIgnoreList), log)
         {
             _bleConnectionManager = bleConnectionManager;
             _workstationSettingsManager = workstationSettingsManager;
+            _rssiClearDelaySeconds = rssiClearDelaySeconds;
 
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
             _bleConnectionManager.AdapterStateChanged += BleConnectionManager_AdapterStateChanged;
@@ -119,7 +122,7 @@ namespace HideezMiddleware.DeviceConnection
             {
                 // Remove MAC's from ignore list if we did not receive an advertisement from them in MAC_IGNORELIST_TIMEOUT_SECONDS seconds
                 if (_ignoreList.Count > 0)
-                    _ignoreList.RemoveAll(m => (DateTime.UtcNow - _lastAdvRecTime[m]).TotalSeconds >= SdkConfig.DefaultLockTimeout);
+                    _ignoreList.RemoveAll(m => (DateTime.UtcNow - _lastAdvRecTime[m]).TotalSeconds >= _rssiClearDelaySeconds);
             }
         }
 

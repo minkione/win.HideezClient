@@ -60,6 +60,8 @@ namespace HideezMiddleware
 
         public event EventHandler<ActivationCodeEventArgs> ActivationCodeCancelled { add { } remove { } }
 
+        public event EventHandler<EventArgs> LogonHyperlinkPressed;
+
         public bool IsConnected => _pipeServer.IsConnected;
 
         readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _pendingLogonRequests
@@ -160,10 +162,11 @@ namespace HideezMiddleware
             //    tcs.TrySetResult(ntstatus == 0);
         }
 
-        async void OnLogonRequestByLoginName(string login)
+        void OnLogonRequestByLoginName(string login)
         {
             WriteLine($"LogonWorkstationAsync: {login}");
-            await SendMessageAsync(CredentialProviderCommandCode.Logon, true, $"{login}");
+
+            SafeInvoke(LogonHyperlinkPressed, EventArgs.Empty);
         }
 
         void OnCheckPin(string deviceId, string pin)

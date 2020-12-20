@@ -159,6 +159,8 @@ namespace ServiceLibrary.Implementation
             {
                 // Named Pipes Server ==============================
                 _credentialProviderProxy = new CredentialProviderProxy(_sdkLogger);
+                // Line below allows us to connect WinBle devices on locked workstation when automatic connection is disabled
+                _credentialProviderProxy.LogonHyperlinkPressed += (s, e) => { _advIgnoreWinBleList?.Clear(); }; 
                 _credentialProviderProxy.Start(); // Faster we connect to the CP, the better
 
                 // RFID Service Connection ============================
@@ -306,10 +308,12 @@ namespace ServiceLibrary.Implementation
             _advIgnoreCsrList = new AdvertisementIgnoreList(
                 _csrBleConnectionManager,
                 _workstationSettingsManager,
+                SdkConfig.DefaultLockTimeout,
                 _sdkLogger);
             _advIgnoreWinBleList = new AdvertisementIgnoreList(
                 _winBleConnectionManager,
                 _workstationSettingsManager,
+                20, // WinBle rssi messages arrive much less frequently than when using csr. Empirically calculated 20s to be acceptable.
                 _sdkLogger);
             _rfidProcessor = new RfidConnectionProcessor(
                 _connectionFlowProcessor,
