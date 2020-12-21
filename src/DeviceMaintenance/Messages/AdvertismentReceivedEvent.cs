@@ -1,8 +1,9 @@
 ﻿using Hideez.SDK.Communication.BLE;
+using Meta.Lib.Modules.PubSub;
 
 namespace DeviceMaintenance.Messages
 {
-    public class AdvertismentReceivedEvent : MessageBase
+    public class AdvertismentReceivedEvent : PubSubMessageBase
     {
         private readonly AdvertismentReceivedEventArgs _e;
 

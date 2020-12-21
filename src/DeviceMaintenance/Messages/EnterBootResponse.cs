@@ -1,8 +1,9 @@
 ﻿using Hideez.SDK.Communication.FW;
+using Meta.Lib.Modules.PubSub;
 
 namespace DeviceMaintenance.Messages
 {
-    public class EnterBootResponse : MessageBase
+    public class EnterBootResponse : PubSubMessageBase
     {
         public FirmwareImageUploader ImageUploader { get; }
 

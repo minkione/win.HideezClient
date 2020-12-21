@@ -14,7 +14,7 @@ namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
         {
             ConnectionId = connectionid;
             EncryptedRequest = data;
-            ResponseTimeout = 10_000;
+            ResponseTimeout = SdkConfig.DefaultRemoteCommandTimeout;
         }
     }
 }

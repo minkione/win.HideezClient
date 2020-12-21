@@ -217,7 +217,7 @@ namespace DeviceMaintenance.ViewModel
                 CurrentState = State.EnteringBoot;
 
                 var res = await _hub.Process<EnterBootResponse>(
-                    new EnterBootCommand(this, filePath, _device, _longOperation), 5_000);
+                    new EnterBootCommand(this, filePath, _device, _longOperation));
 
                 CurrentState = State.Updating;
 

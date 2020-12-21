@@ -48,16 +48,26 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
         {
             _remoteConnectionPubSub.StartServer(PipeName, () =>
             {
-                var pipeSecurity = new PipeSecurity();
-                pipeSecurity.AddAccessRule(new PipeAccessRule(
-                    new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
-                    PipeAccessRights.FullControl,
-                    AccessControlType.Allow));
-
-                var pipe = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 32,
-                    PipeTransmissionMode.Message, PipeOptions.Asynchronous, 4096, 4096, pipeSecurity);
-
-                return pipe;
+                try
+                {
+                    WriteLine("Custom pipe config started");
+                    var pipeSecurity = new PipeSecurity();
+                    pipeSecurity.AddAccessRule(new PipeAccessRule(
+                        new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null),
+                        PipeAccessRights.FullControl,
+                        AccessControlType.Allow));
+                    
+                    var pipe = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 32, 
+                        PipeTransmissionMode.Message, PipeOptions.Asynchronous, 4096, 4096, pipeSecurity);
+                    
+                    WriteLine("Custom pipe config successful");
+                    return pipe;
+                }
+                catch (Exception ex)
+                {
+                    WriteLine("Custom pipe config failed.", ex);
+                    return null;
+                }
             });
 
             _remoteConnectionPubSub.Subscribe<RemoteClientDisconnectedEvent>(OnRemoteClientDisconnected);

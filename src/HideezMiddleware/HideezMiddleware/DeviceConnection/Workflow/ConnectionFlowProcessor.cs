@@ -11,6 +11,9 @@ using HideezMiddleware.Settings;
 using HideezMiddleware.Tasks;
 using Microsoft.Win32;
 using System;
+using System.ComponentModel;
+using System.Net.WebSockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -303,6 +306,16 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             {
                 // Silent timeout handling
                 WriteLine(ex);
+            }
+            catch (WebSocketException ex)
+            {
+                // Retrieve the most inner WebSocketException to retrieve the error code
+                if (ex.WebSocketErrorCode != 0)
+                    errorMessage = string.Format(TranslationSource.Instance["ConnectionFlow.Error.UnexpectedNetworkError"], ex.WebSocketErrorCode);
+                else if (ex.ErrorCode != 0)
+                    errorMessage = string.Format(TranslationSource.Instance["ConnectionFlow.Error.UnexpectedNetworkError"], ex.ErrorCode);
+                else if (ex.InnerException is Win32Exception)
+                    errorMessage = string.Format(TranslationSource.Instance["ConnectionFlow.Error.UnexpectedNetworkError"], "native " + (ex.InnerException as Win32Exception).NativeErrorCode);
             }
             catch (Exception ex)
             {

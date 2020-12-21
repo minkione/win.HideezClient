@@ -171,6 +171,9 @@
   <data name="ConnectionFlow.Error.VaultAlreadyConnected" xml:space="preserve">
     <value>Connection cancelled. Your vault is already connected to this computer.</value>
   </data>
+  <data name="ConnectionFlow.Error.UnexpectedNetworkError" xml:space="preserve">
+    <value>Unexpected network error occured (code: {0}). Please, check your network connection and try to connect your vault again.</value>
+  </data>
   <data name="ConnectionFlow.Error.VaultInBootloaderMode" xml:space="preserve">
     <value>Your device is in bootloader mode. Please, contact your system administrator to update your firmware.</value>
   </data>
