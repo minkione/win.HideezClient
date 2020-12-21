@@ -1,4 +1,5 @@
-﻿using Hideez.SDK.Communication.Refactored.BLE;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Refactored.BLE;
 using Meta.Lib.Modules.PubSub;
 
 namespace DeviceMaintenance.Messages
@@ -10,6 +11,7 @@ namespace DeviceMaintenance.Messages
         public ConnectDeviceCommand(ConnectionId connectionId)
         {
             ConnectionId = connectionId;
+            ResponseTimeout = SdkConfig.ConnectDeviceTimeout * 2 + SdkConfig.DeviceInitializationTimeout;
         }
     }
 }

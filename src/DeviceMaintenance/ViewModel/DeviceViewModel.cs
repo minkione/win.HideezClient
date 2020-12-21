@@ -193,7 +193,6 @@ namespace DeviceMaintenance.ViewModel
             {
                 var res = await _hub.Process<ConnectDeviceResponse>(
                     new ConnectDeviceCommand(_connectionId),
-                    SdkConfig.ConnectDeviceTimeout * 2 + SdkConfig.DeviceInitializationTimeout,
                     x => x.ConnectionId == _connectionId);
 
                 if (res.Device == null)
