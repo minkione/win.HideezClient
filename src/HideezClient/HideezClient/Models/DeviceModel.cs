@@ -645,6 +645,11 @@ namespace HideezClient.Models
                         catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLockedByCode)
                         {
                         }
+                        catch (HideezException ex)
+                        {
+                            _log.WriteLine("Encryption desync, discarding remote device");
+                            await ShutdownRemoteDeviceAsync(ex.ErrorCode);
+                        }
                         catch (Exception ex)
                         {
                             ShowError(ex.Message);

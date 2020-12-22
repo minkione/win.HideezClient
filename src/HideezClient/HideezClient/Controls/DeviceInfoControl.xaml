@@ -256,6 +256,19 @@
                                     <Setter Property="Visibility" Value="Visible" />
                                 </MultiDataTrigger.Setters>
                             </MultiDataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding FinishedMainFlow}" Value="True" />
+                                    <Condition Binding="{Binding IsAuthorized}" Value="True" />
+                                    <Condition Binding="{Binding IsAuthorizingRemoteDevice}" Value="False" />
+                                    <Condition Binding="{Binding IsCreatingRemoteDevice}" Value="False" />
+                                    <Condition Binding="{Binding IsStorageLoaded}" Value="False" />
+                                    <Condition Binding="{Binding IsLoadingStorage}" Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <MultiDataTrigger.Setters>
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </MultiDataTrigger.Setters>
+                            </MultiDataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
