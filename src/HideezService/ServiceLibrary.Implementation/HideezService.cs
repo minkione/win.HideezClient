@@ -126,14 +126,27 @@ namespace ServiceLibrary.Implementation
         }
 
         #region Utils
-        public void Error(Exception ex, string message = "")
+        void Error(Exception ex, string message = "")
         {
             _log?.WriteLine(message, ex);
         }
 
-        public void Error(string message)
+        void Error(string message)
         {
             _log?.WriteLine(message, LogErrorSeverity.Error);
+        }
+
+        async Task SafePublish(IPubSubMessage message, bool logError = false)
+        {
+            try
+            {
+                await _messenger.Publish(message);
+            }
+            catch (Exception ex)
+            {
+                if (logError)
+                    Error(ex);
+            }
         }
         #endregion
 

@@ -557,7 +557,7 @@ namespace ServiceLibrary.Implementation
             // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
             // To avoid the confusion, we resend the event about latest unlock method to every client that connects to service
             if (_deviceManager.Devices.Count() == 0)
-                await _messenger.Publish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+                await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
 
         }
 
@@ -715,7 +715,7 @@ namespace ServiceLibrary.Implementation
                     we.Severity = WorkstationEventSeverity.Warning;
 
                     // Clear all devices on disconnect
-                    await _messenger.Publish(new LiftDeviceStorageLockMessage(string.Empty));
+                    await SafePublish(new LiftDeviceStorageLockMessage(string.Empty));
                 }
 
                 await _eventSaver.AddNewAsync(we, sendImmediately);
@@ -724,31 +724,17 @@ namespace ServiceLibrary.Implementation
 
         async void HES_LockDeviceStorageRequest(object sender, string serialNo)
         {
-            try
-            {
-                await _messenger.Publish(new LockDeviceStorageMessage(serialNo));
-            }
-            catch (Exception)
-            {
-                // Silent handling
-            }
+            await SafePublish(new LockDeviceStorageMessage(serialNo), false);
         }
 
         async void HES_LiftDeviceStorageLockRequest(object sender, string serialNo)
         {
-            try
-            {
-                await _messenger.Publish(new LiftDeviceStorageLockMessage(serialNo));
-            }
-            catch (Exception)
-            {
-                // Silent handling
-            }
+            await SafePublish(new LiftDeviceStorageLockMessage(serialNo), false);
         }
 
         async void DevicesManager_DeviceAdded(object sender, DeviceAddedEventArgs e)
         {
-            await _messenger.Publish(new DevicesCollectionChangedMessage(GetDevices()));
+            await SafePublish(new DevicesCollectionChangedMessage(GetDevices()));
 
             var device = e.Device;
 
@@ -767,7 +753,8 @@ namespace ServiceLibrary.Implementation
 
         async void DevicesManager_DeviceRemoved(object sender, DeviceRemovedEventArgs e)
         {
-            await _messenger.Publish(new DevicesCollectionChangedMessage(GetDevices()));
+            await SafePublish(new DevicesCollectionChangedMessage(GetDevices()));
+
             var device = e.Device;
 
             if (device != null)
@@ -854,7 +841,7 @@ namespace ServiceLibrary.Implementation
                     if (!device.IsConnected)
                         device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Offline);
 
-                    await _messenger.Publish(new DeviceConnectionStateChangedMessage(new DeviceDTO(device)));
+                    await SafePublish(new DeviceConnectionStateChangedMessage(new DeviceDTO(device)));
                 }
             }
             catch (Exception ex)
@@ -873,7 +860,7 @@ namespace ServiceLibrary.Implementation
                     // every session, even if an error occurs
                     try
                     {
-                        await _messenger.Publish(new DeviceInitializedMessage(new DeviceDTO(device)));
+                        await SafePublish(new DeviceInitializedMessage(new DeviceDTO(device)));
                     }
                     catch (Exception ex)
                     {
@@ -905,48 +892,20 @@ namespace ServiceLibrary.Implementation
 
         async void Device_OperationCancelled(object sender, EventArgs e)
         {
-            try
-            {
-                if (sender is IDevice device)
-                {
-                    await _messenger.Publish(new DeviceOperationCancelledMessage(new DeviceDTO(device)));
-                }
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
+            if (sender is IDevice device)
+                await SafePublish(new DeviceOperationCancelledMessage(new DeviceDTO(device)));
         }
 
         async void Device_ProximityChanged(object sender, double e)
         {
             if (sender is IDevice device)
-            {
-                try
-                {
-                    await _messenger.Publish(new DeviceProximityChangedMessage(device.Id, e));
-                }
-                catch (Exception ex)
-                {
-                    Error(ex);
-                }
-            }
+                await SafePublish(new DeviceProximityChangedMessage(device.Id, e));
         }
 
         async void Device_BatteryChanged(object sender, sbyte e)
         {
             if (sender is IDevice device)
-            {
-                try
-                {
-                    await _messenger.Publish(new DeviceBatteryChangedMessage(device.Id, device.Mac, e));
-                }
-                catch (Exception ex)
-                {
-                    Error(ex);
-                }
-            }
-
+                await SafePublish(new DeviceBatteryChangedMessage(device.Id, device.Mac, e));
         }
 
         void Device_WipeFinished(object sender, WipeFinishedEventtArgs e)
@@ -986,26 +945,12 @@ namespace ServiceLibrary.Implementation
 
         async void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
         {
-            try
-            {
-                await _messenger.Publish(new DeviceFinishedMainFlowMessage(new DeviceDTO(device)));
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
+            await SafePublish(new DeviceFinishedMainFlowMessage(new DeviceDTO(device)));
         }
 
         async void WorkstationLockProcessor_DeviceProxLockEnabled(object sender, IDevice device)
         {
-            try
-            {
-                await _messenger.Publish(new DeviceProximityLockEnabledMessage(new DeviceDTO(device)));
-            }
-            catch (Exception ex)
-            {
-                Error(ex);
-            }
+            await SafePublish(new DeviceProximityLockEnabledMessage(new DeviceDTO(device)));
         }
 
         async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
@@ -1013,7 +958,7 @@ namespace ServiceLibrary.Implementation
             try
             {
                 if (reason == SessionSwitchReason.SessionUnlock || reason == SessionSwitchReason.SessionLogon)
-                    await _messenger.Publish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+                    await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
 
                 if (reason == SessionSwitchReason.SessionLogoff || reason == SessionSwitchReason.SessionLock)
                 {
@@ -1046,15 +991,15 @@ namespace ServiceLibrary.Implementation
 
         async Task GetAvailableChannels(GetAvailableChannelsMessage args)
         {
+            // Channels range from 1 to 6 
+            List<byte> freeChannels = new List<byte>() { 1, 2, 3, 4, 5, 6 };
+
             try
             {
                 var devices = _deviceManager.Devices.Where(d => d.SerialNo == args.SerialNo).ToList();
                 if (devices.Count == 0)
                     throw new HideezException(HideezErrorCode.DeviceNotFound, args.SerialNo);
-
-                // Channels range from 1 to 6 
-                List<byte> freeChannels = new List<byte>() { 1, 2, 3, 4, 5, 6 };
-
+                
                 // These channels are reserved by system, the rest is available to clients
                 freeChannels.Remove((byte)DefaultDeviceChannel.Main);
                 freeChannels.Remove((byte)DefaultDeviceChannel.HES);
@@ -1062,14 +1007,14 @@ namespace ServiceLibrary.Implementation
                 // Filter out taken channels
                 var channelsInUse = devices.Select(d => d.ChannelNo).ToList();
                 freeChannels.RemoveAll(c => channelsInUse.Contains(c));
-
-                await _messenger.Publish(new GetAvailableChannelsMessageReply(freeChannels.ToArray()));
             }
             catch (Exception ex)
             {
                 Error(ex);
                 throw;
             }
+            
+            await SafePublish(new GetAvailableChannelsMessageReply(freeChannels.ToArray()));
         }
 
         async Task DisconnectDevice(DisconnectDeviceMessage args)
@@ -1160,7 +1105,7 @@ namespace ServiceLibrary.Implementation
                     _log.WriteLine($"Clearing server address and shutting down connection");
                     RegistrySettings.SetHesAddress(_log, address);
                     await _hesConnection.Stop();
-                    await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.Success));
+                    await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.Success));
                 }
                 else
                 {
@@ -1175,12 +1120,12 @@ namespace ServiceLibrary.Implementation
                         EndpointCertificateManager.AllowCertificate(address);
                         _hesConnection.Start(address);
 
-                        await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.Success));
+                        await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.Success));
                     }
                     else
                     {
                         _log.WriteLine($"Failed connectivity check to {address}");
-                        await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.ConnectionTimedOut));
+                        await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.ConnectionTimedOut));
                     }
                 }
             }
@@ -1190,15 +1135,15 @@ namespace ServiceLibrary.Implementation
                 EndpointCertificateManager.DisableCertificate(args.ServerAddress);
 
                 if (ex is TimeoutException)
-                    await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.ConnectionTimedOut));
+                    await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.ConnectionTimedOut));
                 else if (ex is KeyNotFoundException)
-                    await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.KeyNotFound));
+                    await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.KeyNotFound));
                 else if (ex is UnauthorizedAccessException)
-                    await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.UnauthorizedAccess));
+                    await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.UnauthorizedAccess));
                 else if (ex is SecurityException)
-                    await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.SecurityError));
+                    await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.SecurityError));
                 else
-                    await _messenger.Publish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.UnknownError));
+                    await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.UnknownError));
             }
         }
 
@@ -1231,9 +1176,9 @@ namespace ServiceLibrary.Implementation
         {
             await _statusManager.SendStatusToUI();
 
-            await _messenger.Publish(new DevicesCollectionChangedMessage(GetDevices()));
+            await SafePublish(new DevicesCollectionChangedMessage(GetDevices()));
 
-            await _messenger.Publish(new ServiceSettingsChangedMessage(_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock, RegistrySettings.GetHesAddress(_log)));
+            await SafePublish(new ServiceSettingsChangedMessage(_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock, RegistrySettings.GetHesAddress(_log)));
 
             //_winBleControllersStateMonitor.NotifySubscribers();
         }
