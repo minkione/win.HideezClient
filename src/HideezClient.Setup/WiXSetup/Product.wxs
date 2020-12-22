@@ -386,6 +386,10 @@
 	      <File Id="HideezService.System.Numerics.Vectors.dll" Name="System.Numerics.Vectors.dll" Source="$(var.HideezServiceHost_TargetDir)System.Numerics.Vectors.dll" />
       </Component>
 
+      <Component Id="HideezService.System.Runtime.CompilerServices.Unsafe.dll" Guid="{569FB82F-8C31-43AF-8B13-95427130804E}" Win64="$(var.Win64)">
+	      <File Id="HideezService.System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.HideezServiceHost_TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
+      </Component>
+
       <Component Id="HideezService.System.Threading.Channels.dll" Guid="{11AFEC0F-201B-4690-9DB8-69E3AC0E2361}" Win64="$(var.Win64)">
 	      <File Id="HideezService.System.Threading.Channels.dll" Name="System.Threading.Channels.dll" Source="$(var.HideezServiceHost_TargetDir)System.Threading.Channels.dll" />
       </Component>
@@ -414,6 +418,10 @@
 
       <Component Id="HideezService.WinBle.dll" Guid="{712299ED-4CF0-44AE-95BE-C31239B116BE}" Win64="$(var.Win64)">
         <File Id="HideezService.WinBle.dll" Name="WinBle.dll" Source="$(var.HideezServiceHost_TargetDir)WinBle.dll" />
+      </Component>
+
+      <Component Id="HideezService.System.Runtime.WindowsRuntime.dll" Guid="{0D46F970-343B-40A0-A2B4-EEB1B861076F}" Win64="$(var.Win64)">
+        <File Id="HideezService.System.Runtime.WindowsRuntime.dll" Name="System.Runtime.WindowsRuntime.dll" Source="$(var.HideezServiceHost_TargetDir)System.Runtime.WindowsRuntime.dll" />
       </Component>
       
     </ComponentGroup>
