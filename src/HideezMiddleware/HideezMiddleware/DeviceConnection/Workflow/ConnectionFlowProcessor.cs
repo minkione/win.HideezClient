@@ -216,7 +216,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 // Different device with the same name indicates that a single physical device is connected through different channel
                 // This temporary fix is applied to prevent this behavior
                 // TODO: Another temporary fix is to compare by Id instead of by refence. Should be fixed too
-                if (_deviceManager.Devices.FirstOrDefault(d => d.Id != device.Id && !(d is IRemoteDeviceProxy) && d.Name == device.Name) != null)
+                if (_deviceManager.Devices.FirstOrDefault(d => d.Id != device.Id 
+                    && !(d is IRemoteDeviceProxy)
+                    && d.Name == device.Name
+                    && d.IsConnected) != null)
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultAlreadyConnected"]);
                 // ...
 
