@@ -126,5 +126,10 @@ namespace HideezMiddleware.DeviceConnection
             }
         }
 
+        public void Remove(string id)
+        {
+            if (_ignoreList.Count > 0)
+                _ignoreList.Remove(id);
+        }
     }
 }

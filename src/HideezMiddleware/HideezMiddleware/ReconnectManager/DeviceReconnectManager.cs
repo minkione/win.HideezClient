@@ -130,6 +130,11 @@ namespace HideezMiddleware.ReconnectManager
                         SafeInvoke(DeviceDisconnected, device);
                     }
                 }
+                else
+                {
+                    WriteLine($"{device.Id} reconnect failed");
+                    SafeInvoke(DeviceDisconnected, device);
+                }
             }
             finally
             {

@@ -74,12 +74,18 @@ namespace HideezMiddleware.DeviceConnection
                 {
                     _winBleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
                     _winBleConnectionManager.ConnectedBondedControllerAdded += BleConnectionManager_ConnectedBondedControllerAdded;
+                    _winBleConnectionManager.BondedControllerRemoved += BleConnectionManager_BondedControllerRemoved;
                     isRunning = true;
                     WriteLine("Started");
                 }
             }
         }
-        
+
+        private void BleConnectionManager_BondedControllerRemoved(object sender, ControllerRemovedEventArgs e)
+        {
+            _advIgnoreListMonitor.Remove(e.Controller.Id);
+        }
+
         public override void Stop()
         {
             lock (_lock)

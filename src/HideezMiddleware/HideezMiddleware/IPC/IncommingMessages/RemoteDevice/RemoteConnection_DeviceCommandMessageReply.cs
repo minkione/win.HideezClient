@@ -1,4 +1,4 @@
-﻿using Hideez.SDK.Communication.Refactored.BLE;
+﻿using Hideez.SDK.Communication.BLE;
 using Meta.Lib.Modules.PubSub;
 
 namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
