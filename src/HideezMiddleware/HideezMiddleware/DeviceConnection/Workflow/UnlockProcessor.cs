@@ -41,6 +41,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Unlock.Unlocking"], device.DeviceConnection.Connection.ConnectionId.Id);
             result.IsSuccessful = await _workstationUnlocker
                 .SendLogonRequest(credentials.Login, credentials.Password, credentials.PreviousPassword);
+            await _ui.SendNotification(string.Empty, device.DeviceConnection.Connection.ConnectionId.Id);
 
             result.AccountName = credentials.Name;
             result.AccountLogin = credentials.Login;

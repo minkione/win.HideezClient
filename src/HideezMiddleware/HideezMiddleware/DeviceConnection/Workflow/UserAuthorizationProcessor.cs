@@ -78,6 +78,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     continue;
                 }
 
+                await _ui.SendError(string.Empty, device.DeviceConnection.Connection.ConnectionId.Id);
                 var pinResult = await device.SetPin(pin); //this using default timeout for BLE commands
 
                 ct.ThrowIfCancellationRequested();
@@ -85,6 +86,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 if (pinResult == HideezErrorCode.Ok)
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> PIN OK");
+                    await _ui.SendError(string.Empty, string.Empty);
+                    await _ui.SendNotification(string.Empty, device.DeviceConnection.Connection.ConnectionId.Id);
                     break;
                 }
                 else if (pinResult == HideezErrorCode.ERR_PIN_TOO_SHORT)
@@ -119,6 +122,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     continue;
                 }
 
+                await _ui.SendError(string.Empty, device.DeviceConnection.Connection.ConnectionId.Id);
                 var attemptsLeft = device.PinAttemptsRemain - 1;
                 var pinResult = await device.EnterPin(pin); //this using default timeout for BLE commands
 
@@ -127,6 +131,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 if (pinResult == HideezErrorCode.Ok)
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> PIN OK");
+                    await _ui.SendError(string.Empty, string.Empty);
+                    await _ui.SendNotification(string.Empty, device.DeviceConnection.Connection.ConnectionId.Id);
                     break;
                 }
                 else if (pinResult == HideezErrorCode.ERR_DEVICE_LOCKED_BY_PIN)

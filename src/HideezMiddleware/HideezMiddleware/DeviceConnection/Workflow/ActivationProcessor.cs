@@ -51,6 +51,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                         try
                         {
+                            await _ui.SendError(string.Empty, string.Empty); 
                             await device.UnlockDeviceCode(code);
                         }
                         catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_PIN_WRONG) // Entered invalid activation code
@@ -70,6 +71,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                         if (!device.IsLocked)
                         {
                             WriteLine($"({device.SerialNo}) unlocked with activation code");
+                            await _ui.SendError(string.Empty, string.Empty);
+                            await _ui.SendNotification(string.Empty, device.DeviceConnection.Connection.ConnectionId.Id);
                         }
                         else if (device.UnlockAttemptsRemain > 0)
                         {

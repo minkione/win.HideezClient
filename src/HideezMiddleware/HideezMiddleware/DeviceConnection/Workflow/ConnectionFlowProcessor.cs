@@ -188,6 +188,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             try
             {
+                await _ui.SendError(string.Empty, string.Empty); // Empty Id is intended to be processed only by CredentialProvider
                 await _ui.SendNotification(string.Empty, connectionId.Id);
 
                 _subp.PermissionsCheckProcessor.CheckPermissions();
@@ -363,6 +364,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                     WriteLine(errorMessage);
                     await _ui.SendError(errorMessage, connectionId.Id);
+                    await _ui.SendNotification(string.Empty, string.Empty);
                 }
 
                 if (device != null)
