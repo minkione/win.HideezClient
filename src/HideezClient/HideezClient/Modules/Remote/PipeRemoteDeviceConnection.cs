@@ -1,15 +1,10 @@
 ﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.Command;
+using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Interfaces;
 using HideezMiddleware.IPC.IncommingMessages.RemoteDevice;
 using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HideezClient.Modules.Remote

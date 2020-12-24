@@ -1,5 +1,4 @@
-﻿using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.Remote;
+﻿using Hideez.SDK.Communication.Device;
 using Meta.Lib.Modules.PubSub;
 using System.Threading.Tasks;
 
