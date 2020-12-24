@@ -11,7 +11,7 @@ namespace DeviceMaintenance.Messages
         public ConnectDeviceCommand(ConnectionId connectionId)
         {
             ConnectionId = connectionId;
-            ResponseTimeout = SdkConfig.ConnectDeviceTimeout * 2 + SdkConfig.DeviceInitializationTimeout;
+            ResponseTimeout = SdkConfig.ConnectDeviceTimeout * 3 + SdkConfig.DeviceInitializationTimeout;
         }
     }
 }

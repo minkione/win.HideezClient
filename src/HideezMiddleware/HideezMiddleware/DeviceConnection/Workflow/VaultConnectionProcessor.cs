@@ -93,7 +93,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     else
                         await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage3.PressButton"], connectionId.Id);
 
-                    device = await _deviceManager.Connect(connectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+                    device = await _deviceManager.Connect(connectionId).TimeoutAfter(connectionTimeout);
                 }
             }
 

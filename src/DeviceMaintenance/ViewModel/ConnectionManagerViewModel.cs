@@ -34,17 +34,20 @@ namespace DeviceMaintenance.ViewModel
             _hub.Subscribe<DeviceWipedEvent>(OnDeviceWipedEvent);
 
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            var bondsFilePath = Path.Combine(commonAppData, @"Hideez\bonds");
+            var bondsFolderPath = $"{commonAppData}\\Hideez\\Service\\Bonds";
 
             // ConnectionManager ============================
-            _connectionManager = new BleConnectionManager(log, bondsFilePath);
+            Directory.CreateDirectory(bondsFolderPath); // Ensure directory for bonds is created since unmanaged code doesn't do that
+
+            _connectionManager = new BleConnectionManager(log, bondsFolderPath);
             _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
 
             // Connection Managers Coordinator ============================
             _connectionManagersCoordinator = new ConnectionManagersCoordinator();
             _connectionManagersCoordinator.AddConnectionManager(_connectionManager);
-            //_connectionManagersCoordinator.Start();
+            _connectionManagersCoordinator.Start();
+            _connectionManager.StartDiscovery();
 
             // DeviceManager ============================
             _deviceManager = new DeviceManager(_connectionManagersCoordinator, log);
@@ -73,6 +76,12 @@ namespace DeviceMaintenance.ViewModel
 
             if (device == null)
                 device = await _deviceManager.Connect(arg.ConnectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout/2);
+
+            if (device == null)
+            {
+                await _deviceManager.DeleteBond(arg.ConnectionId);
+                await _deviceManager.Connect(arg.ConnectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+            }
 
             if (device != null)
                 await device.WaitInitialization(SdkConfig.DeviceInitializationTimeout, default);
