@@ -1,9 +1,10 @@
 ﻿using DeviceMaintenance.Messages;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Connection;
 using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.FW;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Utils;

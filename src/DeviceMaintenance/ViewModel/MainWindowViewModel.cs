@@ -1,9 +1,8 @@
 ﻿using DeviceMaintenance.Messages;
 using DeviceMaintenance.Service;
 using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Connection;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.Refactored.BLE;
 using Meta.Lib.Modules.PubSub;
 using Microsoft.Win32;
 using MvvmExtensions.Attributes;
@@ -129,7 +128,7 @@ namespace DeviceMaintenance.ViewModel
         {
             // default value -33 is to much and picks up devices from very far
             SdkConfig.TapProximityUnlockThreshold = -29;
-            SdkConfig.ConnectDeviceTimeout = 5_000;
+            SdkConfig.ConnectDeviceTimeout = 8_000;
             SdkConfig.DeviceInitializationTimeout = 5_000;
 
             _hub = hub;

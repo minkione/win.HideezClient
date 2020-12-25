@@ -1,4 +1,4 @@
-﻿using Hideez.SDK.Communication.BLE;
+﻿using Hideez.SDK.Communication.Interfaces;
 using Meta.Lib.Modules.PubSub;
 
 namespace DeviceMaintenance.Messages

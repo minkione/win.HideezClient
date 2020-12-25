@@ -1,8 +1,8 @@
 ﻿using DeviceMaintenance.Messages;
 using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Connection;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.LongOperations;
-using Hideez.SDK.Communication.Refactored.BLE;
 using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.PropertyChangedMonitoring;
