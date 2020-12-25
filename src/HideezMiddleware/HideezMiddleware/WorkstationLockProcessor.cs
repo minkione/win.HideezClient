@@ -1,4 +1,4 @@
-﻿using Hideez.SDK.Communication.BLE;
+﻿using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
@@ -6,7 +6,6 @@ using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.ReconnectManager;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace HideezMiddleware
 {

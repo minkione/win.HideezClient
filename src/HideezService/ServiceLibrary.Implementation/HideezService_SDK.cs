@@ -41,7 +41,7 @@ using ServiceLibrary.Implementation.WorkstationLock;
 using HideezMiddleware.DeviceConnection.Workflow;
 using Hideez.SDK.Communication.HES.DTO;
 using WinBle._10._0._18362;
-using Hideez.SDK.Communication.Refactored.BLE;
+using Hideez.SDK.Communication.Connection;
 
 namespace ServiceLibrary.Implementation
 {
@@ -81,7 +81,7 @@ namespace ServiceLibrary.Implementation
         static SessionUnlockMethodMonitor _sessionUnlockMethodMonitor;
         static SessionSwitchLogger _sessionSwitchLogger;
         static ConnectionManagerRestarter _connectionManagerRestarter;
-        private ConnectionManagersCoordinator _connectionManagersCoordinator;
+        static ConnectionManagersCoordinator _connectionManagersCoordinator;
         static ILocalDeviceInfoCache _localDeviceInfoCache;
         static DeviceLogManager _deviceLogManager;
 

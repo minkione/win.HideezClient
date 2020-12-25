@@ -1,8 +1,8 @@
 ﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Connection;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.Refactored.BLE;
 using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.Localize;
 using HideezMiddleware.ScreenActivation;

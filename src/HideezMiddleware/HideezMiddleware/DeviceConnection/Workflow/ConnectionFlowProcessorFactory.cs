@@ -1,10 +1,10 @@
 ﻿using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.BLE;
 using HideezMiddleware.Local;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
+using Hideez.SDK.Communication.Device;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {

@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using System;
 using System.Collections.Generic;

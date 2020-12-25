@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Utils;
 using Microsoft.Win32;
 
 namespace HideezMiddleware.Local

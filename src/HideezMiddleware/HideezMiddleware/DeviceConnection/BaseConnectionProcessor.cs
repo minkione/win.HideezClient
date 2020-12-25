@@ -1,5 +1,5 @@
-﻿using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.Refactored.BLE;
+﻿using Hideez.SDK.Communication.Connection;
+using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection.Workflow;
 using System;
 using System.Threading.Tasks;

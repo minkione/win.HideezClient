@@ -1,5 +1,5 @@
 ﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
+using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Log;
 using Microsoft.Win32;
 using System;

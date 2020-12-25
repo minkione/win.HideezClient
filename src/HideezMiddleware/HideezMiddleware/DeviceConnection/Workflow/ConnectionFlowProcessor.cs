@@ -19,7 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Interfaces;
 using System.Linq;
-using Hideez.SDK.Communication.Refactored.BLE;
+using Hideez.SDK.Communication.Connection;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {

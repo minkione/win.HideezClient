@@ -1,6 +1,5 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.BLE;
 using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
 using Meta.Lib.Utils;
@@ -8,7 +7,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Interfaces;
-using Hideez.SDK.Communication.Refactored.BLE;
+using Hideez.SDK.Communication.Device;
+using Hideez.SDK.Communication.Connection;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {

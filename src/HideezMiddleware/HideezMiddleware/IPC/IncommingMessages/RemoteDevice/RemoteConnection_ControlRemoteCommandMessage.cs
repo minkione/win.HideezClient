@@ -1,4 +1,4 @@
-﻿using Hideez.SDK.Communication.Device;
+﻿using Hideez.SDK.Communication.Device.Exchange;
 using Meta.Lib.Modules.PubSub;
 
 namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
