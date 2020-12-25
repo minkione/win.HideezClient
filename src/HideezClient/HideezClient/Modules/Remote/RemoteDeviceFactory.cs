@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.Device;
+using Hideez.SDK.Communication.Device.Exchange;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Modules.Log;
 using HideezClient.Modules.Remote;

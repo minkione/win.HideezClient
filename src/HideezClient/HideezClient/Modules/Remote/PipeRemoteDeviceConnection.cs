@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Device;
+using Hideez.SDK.Communication.Device.Exchange;
 using Hideez.SDK.Communication.Interfaces;
 using HideezMiddleware.IPC.IncommingMessages.RemoteDevice;
 using HideezMiddleware.IPC.Messages;
