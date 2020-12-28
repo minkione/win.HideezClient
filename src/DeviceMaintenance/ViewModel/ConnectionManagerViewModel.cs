@@ -73,15 +73,24 @@ namespace DeviceMaintenance.ViewModel
 
         async Task OnConnectDeviceCommand(ConnectDeviceCommand arg)
         {
-            var device = await _deviceManager.Connect(arg.ConnectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+            IDevice device = null;
+            try
+            {
+                device = await _deviceManager.Connect(arg.ConnectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+            }
+            catch (TimeoutException) { }
 
-            if (device == null)
-                device = await _deviceManager.Connect(arg.ConnectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout/2);
+            try
+            {
+                if (device == null)
+                    device = await _deviceManager.Connect(arg.ConnectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout / 2);
+            }
+            catch (TimeoutException) { }
 
             if (device == null)
             {
                 await _deviceManager.DeleteBond(arg.ConnectionId);
-                await _deviceManager.Connect(arg.ConnectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+                device = await _deviceManager.Connect(arg.ConnectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
             }
 
             if (device != null)

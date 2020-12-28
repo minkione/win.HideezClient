@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -30,6 +31,8 @@ namespace DeviceMaintenance.ViewModel
 
         readonly ConcurrentDictionary<string, DeviceViewModel> _devices =
             new ConcurrentDictionary<string, DeviceViewModel>();
+
+        int _advConnectionInterlock = 0;
 
         public IEnumerable<DeviceViewModel> Devices => _devices.Values.OrderByDescending(x => x.CreatedAt);
         public HideezServiceController HideezServiceController { get; }
@@ -155,28 +158,35 @@ namespace DeviceMaintenance.ViewModel
 
         async Task OnAdvertismentReceived(AdvertismentReceivedEvent arg)
         {
-            DeviceViewModel deviceViewModel = null;
-            try
+            if (Interlocked.CompareExchange(ref _advConnectionInterlock, 1, 0) == 0)
             {
-                bool added = false;
-                deviceViewModel = _devices.GetOrAdd(arg.DeviceId, (id) =>
+                DeviceViewModel deviceViewModel = null;
+                try
                 {
-                    added = true;
-                    bool isBonded = ConnectionManager.IsBonded(id);
-                    return new DeviceViewModel(new ConnectionId( id, (byte)DefaultConnectionIdProvider.Csr), isBonded, _hub);
-                });
+                    bool added = false;
+                    deviceViewModel = _devices.GetOrAdd(arg.DeviceId, (id) =>
+                    {
+                        added = true;
+                        bool isBonded = ConnectionManager.IsBonded(id);
+                        return new DeviceViewModel(new ConnectionId(id, (byte)DefaultConnectionIdProvider.Csr), isBonded, _hub);
+                    });
 
-                if (added)
-                {
-                    NotifyPropertyChanged(nameof(Devices));
+                    if (added)
+                    {
+                        NotifyPropertyChanged(nameof(Devices));
+                    }
+
+                    await deviceViewModel.TryConnect();
                 }
-
-                await deviceViewModel.TryConnect();
-            }
-            catch (Exception ex)
-            {
-                if (deviceViewModel != null)
-                    deviceViewModel.CustomError = ex.Message;
+                catch (Exception ex)
+                {
+                    if (deviceViewModel != null)
+                        deviceViewModel.CustomError = ex.Message;
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref _advConnectionInterlock, 0);
+                }
             }
         }
 
