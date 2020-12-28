@@ -752,7 +752,7 @@ namespace HideezClient.Models
 
                 ShowInfo(string.Format(TranslationSource.Instance["Vault.Notification.PreparingForAuth"], SerialNo));
                 IsCreatingRemoteDevice = true;
-                _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(SerialNo, channelNo, _remoteDeviceMessenger);
+                _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(NotificationsId, channelNo, _remoteDeviceMessenger);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
                 
                 var reply = await _remoteDeviceMessenger.ProcessOnServer<RemoteConnection_GetConnectionProviderMessageReply>(new RemoteConnection_GetConnectionProviderMessage());

@@ -36,14 +36,14 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
         {
             try
             {
-                var pipeDevice = (PipeRemoteDeviceProxy)FindDeviceBySerialNo(args.SerialNo, args.ChannelNo);
+                var pipeDevice = (PipeRemoteDeviceProxy)FindDeviceByConnectionId(args.ConnectionId, args.ChannelNo);
 
                 if (pipeDevice == null)
                 {
-                    var device = FindDeviceBySerialNo(args.SerialNo, 1) as Device;
+                    var device = FindDeviceByConnectionId(args.ConnectionId, 1) as Device;
 
                     if (device == null)
-                        throw new HideezException(HideezErrorCode.DeviceNotFound, args.SerialNo);
+                        throw new HideezException(HideezErrorCode.DeviceNotFound, args.ConnectionId);
 
                     pipeDevice = new PipeRemoteDeviceProxy(device, _log);
                     pipeDevice = (PipeRemoteDeviceProxy)_deviceManager.AddDeviceChannelProxy(pipeDevice, device, args.ChannelNo);
@@ -63,9 +63,9 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
         }
         #endregion
 
-        IDevice FindDeviceBySerialNo(string serialNo, byte channelNo)
+        IDevice FindDeviceByConnectionId(string connectionId, byte channelNo)
         {
-            return _deviceManager.Devices.FirstOrDefault(d => d.SerialNo == serialNo && d.ChannelNo == channelNo);
+            return _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == connectionId && d.ChannelNo == channelNo);
         }
 
         /// <summary>

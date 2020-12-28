@@ -20,10 +20,10 @@ namespace HideezClient.Modules
             _metaMessenger = metaMessenger;
         }
 
-        public async Task<Device> CreateRemoteDeviceAsync(string serialNo, byte channelNo, IMetaPubSub remoteDeviceMessenger)
+        public async Task<Device> CreateRemoteDeviceAsync(string connectionId, byte channelNo, IMetaPubSub remoteDeviceMessenger)
         {
-            _logger.WriteLine($"({serialNo}) Creating remote vault on channel:{channelNo}");
-            var reply = await _metaMessenger.ProcessOnServer<EstablishRemoteDeviceConnectionMessageReply>(new EstablishRemoteDeviceConnectionMessage(serialNo, channelNo));
+            _logger.WriteLine($"({connectionId}) Creating remote vault on channel:{channelNo}");
+            var reply = await _metaMessenger.ProcessOnServer<EstablishRemoteDeviceConnectionMessageReply>(new EstablishRemoteDeviceConnectionMessage(connectionId, channelNo));
             var remoteDeviceId = reply.RemoteDeviceId;
 
             var result = await remoteDeviceMessenger.TryConnectToServer(reply.PipeName);
@@ -32,7 +32,7 @@ namespace HideezClient.Modules
             var deviceCommands = new RemoteDeviceCommands(remoteDeviceMessenger, remoteDeviceId);
             var device = new Device(commandQueue, channelNo, deviceCommands, _log);
 
-            _logger.WriteLine($"({serialNo}) Created remote vault with id: ({device.Id})");
+            _logger.WriteLine($"({connectionId}) Created remote vault with id: ({device.Id})");
 
             return device;
         }

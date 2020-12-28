@@ -6,6 +6,6 @@ namespace HideezClient.Modules
 {
     public interface IRemoteDeviceFactory
     {
-        Task<Device> CreateRemoteDeviceAsync(string serialNo, byte channelNo, IMetaPubSub remoteDeviceMessenger);
+        Task<Device> CreateRemoteDeviceAsync(string connectionId, byte channelNo, IMetaPubSub remoteDeviceMessenger);
     }
 }
