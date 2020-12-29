@@ -42,6 +42,7 @@ using HideezMiddleware.DeviceConnection.Workflow;
 using Hideez.SDK.Communication.HES.DTO;
 using WinBle._10._0._18362;
 using Hideez.SDK.Communication.Connection;
+using HideezMiddleware.CredentialProvider;
 
 namespace ServiceLibrary.Implementation
 {
@@ -93,6 +94,8 @@ namespace ServiceLibrary.Implementation
 
         static HesAppConnection _tbHesConnection;
         static IHesAccessManager _hesAccessManager;
+
+        static CommandLinkVisibilityController _commandLinkVisibilityController;
 
         #region Initialization
 
@@ -160,7 +163,7 @@ namespace ServiceLibrary.Implementation
                 // Named Pipes Server ==============================
                 _credentialProviderProxy = new CredentialProviderProxy(_sdkLogger);
                 // Line below allows us to connect WinBle devices on locked workstation when automatic connection is disabled
-                _credentialProviderProxy.LogonHyperlinkPressed += (s, e) => { _advIgnoreWinBleList?.Clear(); }; 
+                _credentialProviderProxy.CommandLinkPressed += (s, e) => { _advIgnoreWinBleList?.Clear(); }; 
                 _credentialProviderProxy.Start(); // Faster we connect to the CP, the better
 
                 // RFID Service Connection ============================
@@ -370,6 +373,10 @@ namespace ServiceLibrary.Implementation
             // SessionSwitchLogger ==================================
             _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver, _sessionUnlockMethodMonitor,
                 _workstationLockProcessor, _deviceManager, _sdkLogger);
+
+            // CommandLinkVisiblityController ============================
+            _commandLinkVisibilityController = new CommandLinkVisibilityController(_credentialProviderProxy, 
+                _winBleConnectionManager, _connectionFlowProcessor, _sdkLogger);
 
             // SDK initialization finished, start essential components
             if (_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock)

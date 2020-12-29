@@ -49,13 +49,15 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         readonly ConnectionFlowSubprocessorsStruct _subp;
 
-        int _isConnecting = 0;
+        int _workflowInterlock = 0;
         CancellationTokenSource _cts;
 
         public event EventHandler<string> Started;
         public event EventHandler<IDevice> DeviceFinilizingMainFlow;
         public event EventHandler<IDevice> DeviceFinishedMainFlow;
         public event EventHandler<string> Finished;
+
+        public bool IsRunning { get; private set; }
 
         public ConnectionFlowProcessor(
             DeviceManager deviceManager,
@@ -127,7 +129,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         public async Task Connect(ConnectionId connectionId)
         {
             // ignore, if already performing workflow for any device
-            if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
+            if (Interlocked.CompareExchange(ref _workflowInterlock, 1, 0) == 0)
             {
                 try
                 {
@@ -140,7 +142,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     _cts.Dispose();
                     _cts = null;
 
-                    Interlocked.Exchange(ref _isConnecting, 0);
+                    Interlocked.Exchange(ref _workflowInterlock, 0);
                 }
             }
 
@@ -149,7 +151,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         public async Task ConnectAndUnlock(ConnectionId connectionId, Action<WorkstationUnlockResult> onSuccessfulUnlock)
         {
             // ignore, if already performing workflow for any device
-            if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
+            if (Interlocked.CompareExchange(ref _workflowInterlock, 1, 0) == 0)
             {
                 try
                 {
@@ -162,7 +164,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     _cts.Dispose();
                     _cts = null;
 
-                    Interlocked.Exchange(ref _isConnecting, 0);
+                    Interlocked.Exchange(ref _workflowInterlock, 0);
                 }
             }
         }
@@ -179,6 +181,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             WriteLine($"Started main workflow ({connectionId.Id}, {(DefaultConnectionIdProvider)connectionId.IdProvider})");
 
             var flowId = Guid.NewGuid().ToString();
+            IsRunning = true;
             Started?.Invoke(this, flowId);
 
             bool workflowFinishedSuccessfully = false;
@@ -337,6 +340,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             await WorkflowCleanup(errorMessage, connectionId, device, workflowFinishedSuccessfully, deleteVaultBond);
 
+            IsRunning = false;
             Finished?.Invoke(this, flowId);
 
             WriteLine($"Main workflow end ({connectionId.Id}, {(DefaultConnectionIdProvider)connectionId.IdProvider})");

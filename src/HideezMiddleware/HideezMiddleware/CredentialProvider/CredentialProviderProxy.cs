@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
@@ -11,7 +10,7 @@ using Hideez.SDK.Communication.NamedPipes;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.Localize;
 
-namespace HideezMiddleware
+namespace HideezMiddleware.CredentialProvider
 {
     // Commands to the Credential Provider
     public enum CredentialProviderCommandCode
@@ -30,6 +29,7 @@ namespace HideezMiddleware
         GetOldAndConfirmedPin = 11,
         GetActivationCode = 12,
         HideActivationCodeUi = 13,
+        UpdateCommandLink = 14,
     }
 
     // Events from the Credential Provider
@@ -60,7 +60,7 @@ namespace HideezMiddleware
 
         public event EventHandler<ActivationCodeEventArgs> ActivationCodeCancelled { add { } remove { } }
 
-        public event EventHandler<EventArgs> LogonHyperlinkPressed;
+        public event EventHandler<EventArgs> CommandLinkPressed;
 
         public bool IsConnected => _pipeServer.IsConnected;
 
@@ -79,7 +79,7 @@ namespace HideezMiddleware
         {
             _pipeServer.Start();
         }
-        
+
         public void Stop()
         {
             _pipeServer.Stop();
@@ -131,7 +131,7 @@ namespace HideezMiddleware
                     OnCheckActivationCode(strings[0], strings[1]);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 WriteLine(ex);
             }
@@ -166,7 +166,7 @@ namespace HideezMiddleware
         {
             WriteLine($"LogonWorkstationAsync: {login}");
 
-            SafeInvoke(LogonHyperlinkPressed, EventArgs.Empty);
+            SafeInvoke(CommandLinkPressed, EventArgs.Empty);
         }
 
         void OnCheckPin(string deviceId, string pin)
@@ -209,7 +209,7 @@ namespace HideezMiddleware
             {
                 return await tcs.Task.TimeoutAfter(SdkConfig.CredentialProviderLogonTimeout);
             }
-            catch(TimeoutException)
+            catch (TimeoutException)
             {
                 return false;
             }
@@ -275,11 +275,11 @@ namespace HideezMiddleware
         public async Task SendError(string message, string notificationId = null)
         {
             WriteDebugLine($"SendError: {message}");
-            
+
             string formattedMessage = "";
             if (!string.IsNullOrEmpty(message))
                 formattedMessage = $"{DateTime.Now.ToLongTimeString()}: {message}";
-                
+
             await SendMessageAsync(CredentialProviderCommandCode.Error, true, formattedMessage);
         }
 
@@ -298,6 +298,18 @@ namespace HideezMiddleware
         {
             WriteDebugLine($"SendStatus: {statusMessage}");
             await SendMessageAsync(CredentialProviderCommandCode.Status, true, statusMessage);
+        }
+
+        public async Task ShowCommandLink(string commandLinkText = null)
+        {
+            WriteDebugLine($"ShowCommandLink: {commandLinkText}");
+            await SendMessageAsync(CredentialProviderCommandCode.UpdateCommandLink, true, $"true\n{commandLinkText ?? ""}");
+        }
+
+        public async Task HideCommandLink(string commandLinkText = null)
+        {
+            WriteDebugLine($"HideCommandLink: {commandLinkText}");
+            await SendMessageAsync(CredentialProviderCommandCode.UpdateCommandLink, true, $"false\n{commandLinkText ?? ""}");
         }
         #endregion Commands to CP
 
@@ -352,7 +364,7 @@ namespace HideezMiddleware
         public async Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus dongleStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus)
         {
             var statuses = new List<string>();
-            
+
             if (dongleStatus != BluetoothStatus.Ok)
                 statuses.Add(TranslationSource.Instance.Format("ServiceComponentStatus.Bluetooth.NotAvailable", dongleStatus));
 
