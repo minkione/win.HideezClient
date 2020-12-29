@@ -214,20 +214,20 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Connection cancelled. Your vault is already connected to this computer..
-        /// </summary>
-        internal static string ConnectionFlow_Error_VaultAlreadyConnected {
-            get {
-                return ResourceManager.GetString("ConnectionFlow.Error.VaultAlreadyConnected", resourceCulture);
-            }
-        }
-
-	/// <summary>
         ///   Looks up a localized string similar to Unexpected network error occured (code: {0}). Please, check your network connection and try to connect your vault again..
         /// </summary>
         internal static string ConnectionFlow_Error_UnexpectedNetworkError {
             get {
                 return ResourceManager.GetString("ConnectionFlow.Error.UnexpectedNetworkError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection cancelled. Your vault is already connected to this computer..
+        /// </summary>
+        internal static string ConnectionFlow_Error_VaultAlreadyConnected {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Error.VaultAlreadyConnected", resourceCulture);
             }
         }
         
@@ -507,6 +507,24 @@ namespace HideezMiddleware.Resources {
         internal static string ConnectionFlow_VaultSerialNo {
             get {
                 return ResourceManager.GetString("ConnectionFlow.VaultSerialNo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click here to unlock with Hideez Vault.
+        /// </summary>
+        internal static string CredentialProvider_CommandLink_Unlock_Generic {
+            get {
+                return ResourceManager.GetString("CredentialProvider.CommandLink.Unlock.Generic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click here to unlock with {0}.
+        /// </summary>
+        internal static string CredentialProvider_CommandLink_Unlock_Specific {
+            get {
+                return ResourceManager.GetString("CredentialProvider.CommandLink.Unlock.Specific", resourceCulture);
             }
         }
         

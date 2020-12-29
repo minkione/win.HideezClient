@@ -2,8 +2,10 @@
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.Localize;
 using HideezMiddleware.Threading;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using WinBle._10._0._18362;
 
@@ -77,9 +79,20 @@ namespace HideezMiddleware.CredentialProvider
                 if (_cpProxy.IsConnected)
                 {
                     if (_winBleConnectionManager.BondedControllers.Count == 0 || _connectionFlowProcessor.IsRunning)
+                    {
                         await _cpProxy.HideCommandLink();
+                    }
                     else
-                        await _cpProxy.ShowCommandLink();
+                    {
+                        string linkMessage = TranslationSource.Instance["CredentialProvider.CommandLink.Unlock.Generic"];
+                        if (_winBleConnectionManager.BondedControllers.Count == 1)
+                        {
+                            var controller = _winBleConnectionManager.BondedControllers.FirstOrDefault();
+                            linkMessage = string.Format(TranslationSource.Instance["CredentialProvider.CommandLink.Unlock.Specific"], controller?.Name ?? "Hideez Vault");
+                        }
+
+                        await _cpProxy.ShowCommandLink(linkMessage);
+                    }
                 }
             }
             catch (Exception ex)

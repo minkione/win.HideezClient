@@ -285,4 +285,10 @@
   <data name="ServiceComponentStatus.RFID.ServiceNotConnected" xml:space="preserve">
     <value>RFID service not connected</value>
   </data>
+  <data name="CredentialProvider.CommandLink.Unlock.Generic" xml:space="preserve">
+    <value>Click here to unlock with Hideez Vault</value>
+  </data>
+  <data name="CredentialProvider.CommandLink.Unlock.Specific" xml:space="preserve">
+    <value>Click here to unlock with {0}</value>
+  </data>
 </root>
