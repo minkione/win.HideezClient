@@ -95,6 +95,7 @@ namespace HideezMiddleware.DeviceConnection
                 isRunning = false;
                 _winBleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
                 _winBleConnectionManager.ConnectedBondedControllerAdded -= BleConnectionManager_ConnectedBondedControllerAdded;
+                _winBleConnectionManager.BondedControllerRemoved -= BleConnectionManager_BondedControllerRemoved;
                 WriteLine("Stopped");
             }
         }

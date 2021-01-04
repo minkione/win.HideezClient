@@ -388,8 +388,6 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager.Start();
 
             _connectionManagersCoordinator.Start();
-            _csrBleConnectionManager.StartDiscovery();
-            _winBleConnectionManager.StartDiscovery();
 
             _connectionManagerRestarter.Start();
 
