@@ -66,6 +66,7 @@ namespace HideezClient.Models
         int battery = 0;
         bool finishedMainFlow;
         byte storageUpdateCounter;
+        long _loadingCounter = 0;
 
         bool isCreatingRemoteDevice;
         bool isAuthorizingRemoteDevice;
@@ -507,26 +508,31 @@ namespace HideezClient.Models
 
         void LoadFrom(DeviceDTO dto)
         {
-            Id = dto.Id;
-            NotificationsId = dto.NotificationsId;
-            Name = dto.Name;
-            OwnerName = dto.OwnerName;
-            OwnerEmail = dto.OwnerEmail;
-            IsConnected = dto.IsConnected;
-            IsInitialized = dto.IsInitialized;
-            SerialNo = dto.SerialNo;
-            Mac = dto.Mac;
-            FirmwareVersion = dto.FirmwareVersion;
-            BootloaderVersion = dto.BootloaderVersion;
-            StorageTotalSize = dto.StorageTotalSize;
-            StorageFreeSize = dto.StorageFreeSize;
-            Proximity = dto.Proximity;
-            Battery = dto.Battery;
-            FinishedMainFlow = dto.HwVaultConnectionState == HwVaultConnectionState.Online;
-            CanLockByProximity = dto.CanLockPyProximity;
-            IsCanUnlock = dto.IsCanUnlock;
-            MinPinLength = dto.MinPinLength;
-            UnlockAttemptsRemain = dto.UnlockAttemptsRemain;
+            if (dto.Counter > _loadingCounter)
+            {
+                Id = dto.Id;
+                NotificationsId = dto.NotificationsId;
+                Name = dto.Name;
+                OwnerName = dto.OwnerName;
+                OwnerEmail = dto.OwnerEmail;
+                IsConnected = dto.IsConnected;
+                IsInitialized = dto.IsInitialized;
+                SerialNo = dto.SerialNo;
+                Mac = dto.Mac;
+                FirmwareVersion = dto.FirmwareVersion;
+                BootloaderVersion = dto.BootloaderVersion;
+                StorageTotalSize = dto.StorageTotalSize;
+                StorageFreeSize = dto.StorageFreeSize;
+                Proximity = dto.Proximity;
+                Battery = dto.Battery;
+                FinishedMainFlow = dto.HwVaultConnectionState == HwVaultConnectionState.Online;
+                CanLockByProximity = dto.CanLockPyProximity;
+                IsCanUnlock = dto.IsCanUnlock;
+                MinPinLength = dto.MinPinLength;
+                UnlockAttemptsRemain = dto.UnlockAttemptsRemain;
+
+                _loadingCounter = dto.Counter;
+            }
         }
 
         async void TryInitRemoteAsync()
@@ -691,9 +697,8 @@ namespace HideezClient.Models
                         tempRemoteDevice.ButtonPressed -= RemoteDevice_ButtonPressed;
                         tempRemoteDevice.StorageModified -= RemoteDevice_StorageModified;
                         tempRemoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
-                        //await tempRemoteDevice.Shutdown(code);
+                        await tempRemoteDevice.Shutdown();
                         await _metaMessenger.PublishOnServer(new RemoveDeviceMessage(tempRemoteDevice.Id));
-                        //await tempRemoteDevice.DeleteContext();
                         tempRemoteDevice.Dispose();
                     }
                     try

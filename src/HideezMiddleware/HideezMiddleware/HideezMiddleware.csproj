@@ -154,6 +154,7 @@
     <Compile Include="DeviceConnection\TapConnectionProcessor.cs" />
     <Compile Include="IPC\DTO\AccessLevelDTO.cs" />
     <Compile Include="IPC\DTO\DeviceDTO.cs" />
+    <Compile Include="IPC\DTO\DeviceDTOFactory.cs" />
     <Compile Include="IPC\DTO\DeviceStateDTO.cs" />
     <Compile Include="IPC\DTO\ProximitySettingsDTO.cs" />
     <Compile Include="IPC\DTO\WorkstationEventDTO.cs" />

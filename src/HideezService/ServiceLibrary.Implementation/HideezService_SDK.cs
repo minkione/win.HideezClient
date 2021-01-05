@@ -43,6 +43,7 @@ using Hideez.SDK.Communication.HES.DTO;
 using WinBle._10._0._18362;
 using Hideez.SDK.Communication.Connection;
 using HideezMiddleware.CredentialProvider;
+using HideezMiddleware.Threading;
 
 namespace ServiceLibrary.Implementation
 {
@@ -85,6 +86,7 @@ namespace ServiceLibrary.Implementation
         static ConnectionManagersCoordinator _connectionManagersCoordinator;
         static ILocalDeviceInfoCache _localDeviceInfoCache;
         static DeviceLogManager _deviceLogManager;
+        static DeviceDTOFactory _deviceDTOFactory;
 
         static DeviceReconnectManager _deviceReconnectManager;
 
@@ -107,7 +109,7 @@ namespace ServiceLibrary.Implementation
             bool isVerified = _hideezExceptionLocalization.VerifyResourcesForErrorCode(new CultureInfo("en"));
             // Debug.Assert(isVerified, $">>>>>> Verifying error codes resalt: {isVerified}");
 #endif
-
+            _deviceDTOFactory = new DeviceDTOFactory();
             // Collection of module initialization tasks that must be finished to complete service launch
             // but otherwise are not immediatelly required by other modules
             List<Task> serviceInitializationTasks = new List<Task>();
@@ -737,53 +739,71 @@ namespace ServiceLibrary.Implementation
             await SafePublish(new LiftDeviceStorageLockMessage(serialNo), false);
         }
 
+        SemaphoreQueue _devicesSemaphore = new SemaphoreQueue(1, 1);
         async void DevicesManager_DeviceAdded(object sender, DeviceAddedEventArgs e)
         {
-            await SafePublish(new DevicesCollectionChangedMessage(GetDevices()));
-
-            var device = e.Device;
-
-            if (device != null)
+            await _devicesSemaphore.WaitAsync();
+            try
             {
-                device.ConnectionStateChanged += Device_ConnectionStateChanged;
-                device.Initialized += Device_Initialized;
-                device.Disconnected += Device_Disconnected;
-                device.OperationCancelled += Device_OperationCancelled;
-                device.ProximityChanged += Device_ProximityChanged;
-                device.BatteryChanged += Device_BatteryChanged;
-                device.WipeFinished += Device_WipeFinished;
-                device.AccessLevelChanged += Device_AccessLevelChanged;
+                await SafePublish(new DevicesCollectionChangedMessage(GetDevices()));
+
+                var device = e.Device;
+
+                if (device != null)
+                {
+                    device.ConnectionStateChanged += Device_ConnectionStateChanged;
+                    device.Initialized += Device_Initialized;
+                    device.Disconnected += Device_Disconnected;
+                    device.OperationCancelled += Device_OperationCancelled;
+                    device.ProximityChanged += Device_ProximityChanged;
+                    device.BatteryChanged += Device_BatteryChanged;
+                    device.WipeFinished += Device_WipeFinished;
+                    device.AccessLevelChanged += Device_AccessLevelChanged;
+                }
+            }
+            finally
+            {
+                _devicesSemaphore.Release();
             }
         }
 
         async void DevicesManager_DeviceRemoved(object sender, DeviceRemovedEventArgs e)
         {
-            await SafePublish(new DevicesCollectionChangedMessage(GetDevices()));
-
-            var device = e.Device;
-
-            if (device != null)
+            await _devicesSemaphore.WaitAsync();
+            try
             {
-                device.ConnectionStateChanged -= Device_ConnectionStateChanged;
-                device.Initialized -= Device_Initialized;
-                device.Disconnected -= Device_Disconnected;
-                device.OperationCancelled -= Device_OperationCancelled;
-                device.ProximityChanged -= Device_ProximityChanged;
-                device.BatteryChanged -= Device_BatteryChanged;
-                device.WipeFinished -= Device_WipeFinished;
-                device.AccessLevelChanged -= Device_AccessLevelChanged;
+                await SafePublish(new DevicesCollectionChangedMessage(GetDevices()));
+                var device = e.Device;
 
-                if (device is PipeRemoteDeviceProxy pipeDevice)
-                    _pipeDeviceConnectionManager.RemovePipeDeviceConnection(pipeDevice);
-
-                if (!(device is IRemoteDeviceProxy) && device.IsInitialized)
+                if (device != null)
                 {
-                    var workstationEvent = _eventSaver.GetWorkstationEvent();
-                    workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
-                    workstationEvent.Severity = WorkstationEventSeverity.Warning;
-                    workstationEvent.DeviceId = device.SerialNo;
-                    await _eventSaver.AddNewAsync(workstationEvent);
+                    device.ConnectionStateChanged -= Device_ConnectionStateChanged;
+                    device.Initialized -= Device_Initialized;
+                    device.Disconnected -= Device_Disconnected;
+                    device.OperationCancelled -= Device_OperationCancelled;
+                    device.ProximityChanged -= Device_ProximityChanged;
+                    device.BatteryChanged -= Device_BatteryChanged;
+                    device.WipeFinished -= Device_WipeFinished;
+                    device.AccessLevelChanged -= Device_AccessLevelChanged;
+
+                    if (device is PipeRemoteDeviceProxy pipeDevice)
+                        _pipeDeviceConnectionManager.RemovePipeDeviceConnection(pipeDevice);
+
+                    if (!(device is IRemoteDeviceProxy) && device.IsInitialized)
+                    {
+                        var workstationEvent = _eventSaver.GetWorkstationEvent();
+                        workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
+                        workstationEvent.Severity = WorkstationEventSeverity.Warning;
+                        workstationEvent.DeviceId = device.SerialNo;
+                        await _eventSaver.AddNewAsync(workstationEvent);
+                    }
+
+                    _deviceDTOFactory.ResetCounter(device);
                 }
+            }
+            finally
+            {
+                _devicesSemaphore.Release();
             }
         }
 
@@ -846,7 +866,7 @@ namespace ServiceLibrary.Implementation
                     if (!device.IsConnected)
                         device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Offline);
 
-                    await SafePublish(new DeviceConnectionStateChangedMessage(new DeviceDTO(device)));
+                    await SafePublish(new DeviceConnectionStateChangedMessage(_deviceDTOFactory.Create(device)));
                 }
             }
             catch (Exception ex)
@@ -865,7 +885,7 @@ namespace ServiceLibrary.Implementation
                     // every session, even if an error occurs
                     try
                     {
-                        await SafePublish(new DeviceInitializedMessage(new DeviceDTO(device)));
+                        await SafePublish(new DeviceInitializedMessage(_deviceDTOFactory.Create(device)));
                     }
                     catch (Exception ex)
                     {
@@ -898,7 +918,7 @@ namespace ServiceLibrary.Implementation
         async void Device_OperationCancelled(object sender, EventArgs e)
         {
             if (sender is IDevice device)
-                await SafePublish(new DeviceOperationCancelledMessage(new DeviceDTO(device)));
+                await SafePublish(new DeviceOperationCancelledMessage(_deviceDTOFactory.Create(device)));
         }
 
         async void Device_ProximityChanged(object sender, double e)
@@ -950,12 +970,12 @@ namespace ServiceLibrary.Implementation
 
         async void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
         {
-            await SafePublish(new DeviceFinishedMainFlowMessage(new DeviceDTO(device)));
+            await SafePublish(new DeviceFinishedMainFlowMessage(_deviceDTOFactory.Create(device)));
         }
 
         async void WorkstationLockProcessor_DeviceProxLockEnabled(object sender, IDevice device)
         {
-            await SafePublish(new DeviceProximityLockEnabledMessage(new DeviceDTO(device)));
+            await SafePublish(new DeviceProximityLockEnabledMessage(_deviceDTOFactory.Create(device)));
         }
 
         async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
@@ -985,7 +1005,7 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                return _deviceManager.Devices.Select(d => new DeviceDTO(d)).ToArray();
+                return _deviceManager.Devices.Select(d => _deviceDTOFactory.Create(d)).ToArray();
             }
             catch (Exception ex)
             {

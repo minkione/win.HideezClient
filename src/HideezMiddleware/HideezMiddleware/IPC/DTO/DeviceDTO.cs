@@ -119,5 +119,8 @@ namespace HideezMiddleware.IPC.DTO
         
         [DataMember]
         public bool CanLockPyProximity { get; private set; }
+
+        [DataMember]
+        public long Counter { get; set; }
     }
 }
