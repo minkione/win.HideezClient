@@ -48,7 +48,6 @@ namespace DeviceMaintenance.ViewModel
             _connectionManagersCoordinator = new ConnectionManagersCoordinator();
             _connectionManagersCoordinator.AddConnectionManager(_connectionManager);
             _connectionManagersCoordinator.Start();
-            _connectionManager.StartDiscovery();
 
             // DeviceManager ============================
             _deviceManager = new DeviceManager(_connectionManagersCoordinator, log);
@@ -67,7 +66,6 @@ namespace DeviceMaintenance.ViewModel
 
         Task OnStartDiscoveryCommand(StartDiscoveryCommand arg)
         {
-            _connectionManager.StartDiscovery();
             return Task.CompletedTask;
         }
 
