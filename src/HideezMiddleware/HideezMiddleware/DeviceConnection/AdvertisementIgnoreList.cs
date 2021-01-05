@@ -67,7 +67,10 @@ namespace HideezMiddleware.DeviceConnection
             lock (_lock)
             {
                 if (!_ignoreList.Contains(id))
+                {
                     _ignoreList.Add(id);
+                    WriteLine($"Added new item to advertisment ignore list: {id}");
+                }
 
                 _lastAdvRecTime[id] = DateTime.UtcNow;
             }
@@ -87,6 +90,7 @@ namespace HideezMiddleware.DeviceConnection
         {
             lock (_lock)
             {
+                WriteLine("Clearing advertisment ignore list");
                 _ignoreList.Clear();
                 _lastAdvRecTime.Clear();
             }
@@ -98,7 +102,6 @@ namespace HideezMiddleware.DeviceConnection
             {
                 RemoveTimedOutRecords();
 
-                //var shortMac = BleUtils.ConnectionIdToMac(e.Id);
                 if (_ignoreList.Any(x => x == e.Id))
                 {
                     var proximity = BleUtils.RssiToProximity(e.Rssi);
@@ -122,14 +125,24 @@ namespace HideezMiddleware.DeviceConnection
             {
                 // Remove MAC's from ignore list if we did not receive an advertisement from them in MAC_IGNORELIST_TIMEOUT_SECONDS seconds
                 if (_ignoreList.Count > 0)
-                    _ignoreList.RemoveAll(m => (DateTime.UtcNow - _lastAdvRecTime[m]).TotalSeconds >= _rssiClearDelaySeconds);
+                {
+                    var removedItems = _ignoreList.Where(m => (DateTime.UtcNow - _lastAdvRecTime[m]).TotalSeconds >= _rssiClearDelaySeconds);
+                    foreach(var item in removedItems)
+                    {
+                        _ignoreList.Remove(item);
+                        WriteLine($"Removed item from advertisment ignore list: {item}");
+                    }
+                }
             }
         }
 
         public void Remove(string id)
         {
             if (_ignoreList.Count > 0)
+            {
                 _ignoreList.Remove(id);
+                WriteLine($"Removed item from advertisment ignore list: {id}");
+            }
         }
     }
 }
