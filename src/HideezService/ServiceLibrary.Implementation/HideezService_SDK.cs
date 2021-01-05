@@ -819,10 +819,10 @@ namespace ServiceLibrary.Implementation
 
                     if (isEnabled)
                     {
+                        // This line removes bonds only for devices that are currently connected
                         foreach (var device in _deviceManager.Devices)
-                            await _deviceManager.RemoveConnection(device.DeviceConnection);
-                        //_deviceManager.RemoveAll() remove only bonds for devices that are connected
-                        //So the left files need to be deleted manually
+                            await _deviceManager.DeleteBond(device.DeviceConnection);
+                        // The leftover bond files must be deleted manually
                         await _bondManager.RemoveAll();
 
                         var wsLocker = new WcfWorkstationLocker(_messenger, _sdkLogger);
@@ -944,7 +944,8 @@ namespace ServiceLibrary.Implementation
                 {
                     try
                     {
-                        await _deviceManager.RemoveConnection(device.DeviceConnection);
+                        // Wiped device is cleared of all bond information, and therefore must be paired again
+                        await _deviceManager.DeleteBond(device.DeviceConnection);
                     }
                     catch (Exception ex)
                     {
