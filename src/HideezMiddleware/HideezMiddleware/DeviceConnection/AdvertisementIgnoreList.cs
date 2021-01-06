@@ -138,10 +138,13 @@ namespace HideezMiddleware.DeviceConnection
 
         public void Remove(string id)
         {
-            if (_ignoreList.Count > 0)
+            lock (_lock)
             {
-                _ignoreList.Remove(id);
-                WriteLine($"Removed item from advertisment ignore list: {id}");
+                if (_ignoreList.Count > 0)
+                {
+                    _ignoreList.Remove(id);
+                    WriteLine($"Removed item from advertisment ignore list: {id}");
+                }
             }
         }
     }
