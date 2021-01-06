@@ -1,8 +1,10 @@
-﻿using Hideez.SDK.Communication.HES.Client;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
+using HideezMiddleware.Localize;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
@@ -23,8 +25,15 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             {
                 if ((vaultInfo.NeedUpdateOSAccounts && onlyOsAccounts) || (vaultInfo.NeedUpdateNonOSAccounts && !onlyOsAccounts))
                 {
-                    await _hesConnection.UpdateHwVaultAccounts(device.SerialNo, onlyOsAccounts);
-                    await device.RefreshDeviceInfo();
+                    try
+                    {
+                        await _hesConnection.UpdateHwVaultAccounts(device.SerialNo, onlyOsAccounts);
+                        await device.RefreshDeviceInfo();
+                    }
+                    catch (HesException ex) when (ex.ErrorCode == HideezErrorCode.ERR_LICENSE_EXPIRED)
+                    {
+                        WriteLine($"Accounts upload cancelled, vault license expired {string.Format(TranslationSource.Instance["ConnectionFlow.VaultSerialNo"], device.SerialNo)}", LogErrorSeverity.Warning);
+                    }
                 }
             }
         }
