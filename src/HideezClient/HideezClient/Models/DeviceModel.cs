@@ -777,6 +777,9 @@ namespace HideezClient.Models
                     return;
                 }
 
+                if (!_remoteDevice.IsInitialized && _remoteDevice.IsErrorState)
+                    throw new HideezException(HideezErrorCode.ChannelInitializationFailed);
+
                 if (!_remoteDevice.IsAuthorized)
                     ShowInfo(string.Empty);
 
@@ -793,7 +796,7 @@ namespace HideezClient.Models
             catch (HideezException ex)
             {
                 _log.WriteLine(ex);
-                if(ex.ErrorCode!=HideezErrorCode.ChannelInitializationFailed)
+                if(ex.ErrorCode != HideezErrorCode.ChannelInitializationFailed)
                     ShowError(ex.Message);
                 initErrorCode = ex.ErrorCode;
             }
