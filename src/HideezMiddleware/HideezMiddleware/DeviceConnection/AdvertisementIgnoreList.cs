@@ -126,7 +126,7 @@ namespace HideezMiddleware.DeviceConnection
                 // Remove MAC's from ignore list if we did not receive an advertisement from them in MAC_IGNORELIST_TIMEOUT_SECONDS seconds
                 if (_ignoreList.Count > 0)
                 {
-                    var removedItems = _ignoreList.Where(m => (DateTime.UtcNow - _lastAdvRecTime[m]).TotalSeconds >= _rssiClearDelaySeconds);
+                    var removedItems = _ignoreList.Where(m => (DateTime.UtcNow - _lastAdvRecTime[m]).TotalSeconds >= _rssiClearDelaySeconds).ToList();
                     foreach(var item in removedItems)
                     {
                         _ignoreList.Remove(item);
