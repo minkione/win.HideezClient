@@ -28,9 +28,17 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         public async Task<IDevice> ConnectVault(ConnectionId connectionId, bool rebondOnFail, CancellationToken ct)
         {
+            if (connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr)
+                return await ConnectVaultByCsr(connectionId, rebondOnFail, ct);
+            else
+                return await ConnectVaultByWinBle(connectionId, ct);
+        }
+
+        async Task<IDevice> ConnectVaultByCsr(ConnectionId connectionId, bool rebondOnFail, CancellationToken ct)
+        {
             ct.ThrowIfCancellationRequested();
 
-            if (connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr && !_bondManager.Exists(connectionId))
+            if (!_bondManager.Exists(connectionId))
                 await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1.PressButton"], connectionId.Id);
             else
                 await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1"], connectionId.Id);
@@ -39,8 +47,6 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             IDevice device = null;
 
             var connectionTimeout = SdkConfig.ConnectDeviceTimeout;
-            if (connectionId.IdProvider == (byte)DefaultConnectionIdProvider.WinBle)
-                connectionTimeout = SdkConfig.ConnectDeviceTimeout * 2;
 
             try
             {
@@ -49,8 +55,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             catch (Exception ex) // Thrown when LTK error occurs in csr
             {
                 WriteLine(ex);
-                if (connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr)
-                    ltkErrorOccured = true;
+                ltkErrorOccured = true;
             }
 
             if (device == null)
@@ -63,7 +68,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     ltk = "LTK error.";
                     ltkErrorOccured = false;
                 }
-                if (connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr && !_bondManager.Exists(connectionId))
+                if (!_bondManager.Exists(connectionId))
                     await _ui.SendNotification(ltk + TranslationSource.Instance["ConnectionFlow.Connection.Stage2.PressButton"], connectionId.Id);
                 else
                     await _ui.SendNotification(ltk + TranslationSource.Instance["ConnectionFlow.Connection.Stage2"], connectionId.Id);
@@ -72,16 +77,15 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 {
                     device = await _deviceManager.Connect(connectionId).TimeoutAfter(connectionTimeout / 2);
                 }
-                catch (Exception ex) // Thrown when LTK error occurs in csr
+                catch (Exception ex)
                 {
                     WriteLine(ex);
-                    if (connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr)
-                        ltkErrorOccured = true;
+                    ltkErrorOccured = true;
                 }
 
                 // Only for csr
                 // After second failed connect with csr we delete bond and try to create new pair
-                if (device == null && rebondOnFail && connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr)
+                if (device == null && rebondOnFail)
                 {
                     ct.ThrowIfCancellationRequested();
 
@@ -98,17 +102,48 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             }
 
             if (device == null)
+                throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed.Csr", connectionId.Id));
+
+            return device;
+        }
+
+        async Task<IDevice> ConnectVaultByWinBle(ConnectionId connectionId, CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage1"], connectionId.Id);
+
+            IDevice device = null;
+
+            var connectionTimeout = SdkConfig.ConnectDeviceTimeout * 2;
+
+            try
             {
-                switch ((DefaultConnectionIdProvider)connectionId.IdProvider)
+                device = await _deviceManager.Connect(connectionId).TimeoutAfter(connectionTimeout);
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
+
+            if (device == null)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Connection.Stage2"], connectionId.Id);
+
+                try
                 {
-                    case DefaultConnectionIdProvider.Csr:
-                        throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed.Csr", connectionId.Id));
-                    case DefaultConnectionIdProvider.WinBle:
-                        throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed", connectionId.Id));
-                    case DefaultConnectionIdProvider.Undefined:
-                        throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed", connectionId.Id));
+                    device = await _deviceManager.Connect(connectionId).TimeoutAfter(connectionTimeout / 2);
+                }
+                catch (Exception ex)
+                {
+                    WriteLine(ex);
                 }
             }
+
+            if (device == null)
+                throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed", connectionId.Id));
 
             return device;
         }
