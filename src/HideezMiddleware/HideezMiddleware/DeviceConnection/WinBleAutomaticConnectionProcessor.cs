@@ -4,9 +4,11 @@ using Hideez.SDK.Communication.Connection;
 using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.Utils;
+using HideezMiddleware.CredentialProvider;
 using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.Settings;
+using HideezMiddleware.Tasks;
+using HideezMiddleware.Threading;
 using System;
 using System.Linq;
 using System.Threading;
@@ -21,6 +23,9 @@ namespace HideezMiddleware.DeviceConnection
         readonly ISettingsManager<WorkstationSettings> _workstationSettingsManager;
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly DeviceManager _deviceManager;
+        readonly CredentialProviderProxy _credentialProviderProxy;
+        readonly IClientUiManager _ui;
+        readonly SemaphoreQueue _semaphoreQueue = new SemaphoreQueue(1, 1);
         readonly object _lock = new object();
 
         int _isConnecting = 0;
@@ -32,6 +37,8 @@ namespace HideezMiddleware.DeviceConnection
             AdvertisementIgnoreList advIgnoreListMonitor,
             ISettingsManager<WorkstationSettings> workstationSettingsManager,
             DeviceManager deviceManager,
+            CredentialProviderProxy credentialProviderProxy,
+            IClientUiManager ui,
             ILog log)
             : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
         {
@@ -39,6 +46,8 @@ namespace HideezMiddleware.DeviceConnection
             _workstationSettingsManager = workstationSettingsManager ?? throw new ArgumentNullException(nameof(workstationSettingsManager));
             _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
             _deviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
+            _credentialProviderProxy = credentialProviderProxy ?? throw new ArgumentNullException(nameof(credentialProviderProxy));
+            _ui = ui ?? throw new ArgumentNullException(nameof(ui));
         }
 
         #region IDisposable
@@ -77,15 +86,11 @@ namespace HideezMiddleware.DeviceConnection
                     _winBleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
                     _winBleConnectionManager.ConnectedBondedControllerAdded += BleConnectionManager_ConnectedBondedControllerAdded;
                     _winBleConnectionManager.BondedControllerRemoved += BleConnectionManager_BondedControllerRemoved;
+                    _credentialProviderProxy.CommandLinkPressed += CredentialProviderProxy_CommandLinkPressed;
                     isRunning = true;
                     WriteLine("Started");
                 }
             }
-        }
-
-        private void BleConnectionManager_BondedControllerRemoved(object sender, ControllerRemovedEventArgs e)
-        {
-            _advIgnoreListMonitor.Remove(e.Controller.Id);
         }
 
         public override void Stop()
@@ -96,9 +101,44 @@ namespace HideezMiddleware.DeviceConnection
                 _winBleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
                 _winBleConnectionManager.ConnectedBondedControllerAdded -= BleConnectionManager_ConnectedBondedControllerAdded;
                 _winBleConnectionManager.BondedControllerRemoved -= BleConnectionManager_BondedControllerRemoved;
+                _credentialProviderProxy.CommandLinkPressed -= CredentialProviderProxy_CommandLinkPressed;
                 WriteLine("Stopped");
             }
         }
+
+        private async void CredentialProviderProxy_CommandLinkPressed(object sender, EventArgs e)
+        {
+            await _semaphoreQueue.WaitAsync();
+            try
+            {
+                await _ui.SendError("");
+                await _ui.SendNotification("Searching the paired vault...");
+                var adv = await new GetSuitableAdvProc(_winBleConnectionManager).Run(20000);
+                if (adv != null)
+                {
+                    await ConnectByProximity(adv, true);
+                }
+                else
+                {
+                    await _ui.SendNotification("");
+                    await _ui.SendError("Can't find any paired vault.");
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex.Message);
+            }
+            finally
+            {
+                _semaphoreQueue.Release();
+            }
+        }
+
+        private void BleConnectionManager_BondedControllerRemoved(object sender, ControllerRemovedEventArgs e)
+        {
+            _advIgnoreListMonitor.Remove(e.Controller.Id);
+        }
+
 
         async void BleConnectionManager_ConnectedBondedControllerAdded(object sender, ControllerAddedEventArgs e)
         {
@@ -117,13 +157,12 @@ namespace HideezMiddleware.DeviceConnection
             await ConnectById(e.Controller.Id);
         }
 
-
         async void BleConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
             await ConnectByProximity(e);
         }
 
-        async Task ConnectByProximity(AdvertismentReceivedEventArgs adv)
+        async Task ConnectByProximity(AdvertismentReceivedEventArgs adv, bool isCommandLinkPressed = false)
         {
             if (!isRunning)
                 return;
@@ -137,10 +176,17 @@ namespace HideezMiddleware.DeviceConnection
             var proximity = BleUtils.RssiToProximity(adv.Rssi);
             var settings = _workstationSettingsManager.Settings;
 
-            if(WorkstationHelper.IsActiveSessionLocked())
+            if (WorkstationHelper.IsActiveSessionLocked())
                 if (proximity < settings.UnlockProximity)
+                {
+                    if (isCommandLinkPressed)
+                    {
+                        await _ui.SendNotification("");
+                        await _ui.SendError("The vault is too far away. Move it closer to the adapter and try again.");
+                    }
                     return;
-            else
+                }
+                else
                 if (proximity < settings.LockProximity)
                     return;
 

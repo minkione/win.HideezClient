@@ -338,6 +338,8 @@ namespace ServiceLibrary.Implementation
                 _advIgnoreWinBleList,
                 _workstationSettingsManager,
                 _deviceManager,
+                _credentialProviderProxy,
+                _uiProxy,
                 _sdkLogger);
 
             serviceInitializationTasks.Add(Task.Run(() =>
