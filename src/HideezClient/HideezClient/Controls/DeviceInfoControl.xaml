@@ -210,7 +210,7 @@
                 Opacity="0.0"
                 Orientation="Horizontal">
 
-                <Border mah:VisibilityHelper.IsVisible="{Binding IsConnected}">
+                <Border mah:VisibilityHelper.IsVisible="{Binding CanDisconnect}">
                     <Button 
                         DataContext="{Binding DisconnectDeviceMenu}" 
                         Style="{StaticResource SemiTransparentButtonStyle}"

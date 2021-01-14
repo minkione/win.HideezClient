@@ -30,6 +30,7 @@ namespace HideezClient.ViewModels
         public string Mac => device.Mac;
         public bool IsConnected => device.IsConnected;
         public bool CanRemoveConnection => device.CanRemoveConnection;
+        public bool CanDisconnect => device.CanDisconnect && device.IsConnected;
         public double Proximity => device.Proximity;
         public int Battery => device.Battery;
         public bool IsInitializing => device.IsInitializing;

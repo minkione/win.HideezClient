@@ -51,6 +51,7 @@ namespace HideezClient.Models
         string ownerEmail;
         bool isConnected;
         bool canRemoveConnection;
+        bool canDisconnect;
         bool isInitialized;
         string serialNo;
         string mac;
@@ -105,6 +106,9 @@ namespace HideezClient.Models
             RegisterDependencies();
 
             LoadFrom(dto);
+
+            CanRemoveConnection = dto.ConnectionType == (byte)DefaultConnectionIdProvider.Csr;
+            CanDisconnect = dto.ConnectionType == (byte)DefaultConnectionIdProvider.Csr;
         }
 
         #region Properties
@@ -162,6 +166,12 @@ namespace HideezClient.Models
         {
             get { return canRemoveConnection; }
             private set { Set(ref canRemoveConnection, value); }
+        }
+
+        public bool CanDisconnect
+        {
+            get { return canDisconnect; }
+            private set { Set(ref canDisconnect, value); }
         }
 
         // TODO: This property is no longer required
@@ -759,9 +769,6 @@ namespace HideezClient.Models
                 _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(NotificationsId, channelNo, _remoteDeviceMessenger);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
                 
-                var reply = await _remoteDeviceMessenger.ProcessOnServer<RemoteConnection_GetConnectionProviderMessageReply>(new RemoteConnection_GetConnectionProviderMessage());
-                CanRemoveConnection = reply.ConnectionIdProvider == DefaultConnectionIdProvider.Csr;
-
                 if (cancellationToken.IsCancellationRequested)
                 {
                     initErrorCode = HideezErrorCode.RemoteDeviceCreationCancelled;

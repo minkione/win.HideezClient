@@ -1,4 +1,5 @@
-﻿using Hideez.SDK.Communication.Device;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using HideezMiddleware;
@@ -44,6 +45,7 @@ namespace HideezMiddleware.IPC.DTO
             CanLockPyProximity = device.GetUserProperty<bool>(WorkstationLockProcessor.PROX_LOCK_ENABLED_PROP);
             OwnerName = device.GetUserProperty<string>(CustomProperties.OWNER_NAME_PROP) ?? string.Empty;
             OwnerEmail = device.GetUserProperty<string>(CustomProperties.OWNER_EMAIL_PROP) ?? string.Empty;
+            ConnectionType = device.DeviceConnection.Connection.ConnectionId.IdProvider;
         }
 
         [DataMember]
@@ -122,5 +124,8 @@ namespace HideezMiddleware.IPC.DTO
 
         [DataMember]
         public long Counter { get; set; }
+
+        [DataMember]
+        public byte ConnectionType { get; private set; }
     }
 }

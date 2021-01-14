@@ -1,9 +1,7 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using WinBle._10._0._18362;
 
