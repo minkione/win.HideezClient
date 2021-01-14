@@ -22,11 +22,12 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
         {
             // Arrange
             string serialNo = Guid.NewGuid().ToString();
-            var deviceMock = new Mock<IDevice>();
-            deviceMock.SetupGet(d => d.SerialNo).Returns(serialNo);
-            deviceMock.SetupGet(d => d.Mac).Returns("32:B4:D2:R3");
-            deviceMock.SetupGet(d => d.AccessLevel).Returns(new AccessLevel(true, false, false, false, false, false));
-            deviceMock.SetupGet(d => d.LicenseInfo).Returns(1);
+            var vaultMock = new Mock<IDevice>();
+            vaultMock.SetupGet(d => d.SerialNo).Returns(serialNo);
+            vaultMock.SetupGet(d => d.Mac).Returns("32:B4:D2:R3");
+            vaultMock.SetupGet(d => d.AccessLevel).Returns(new AccessLevel(true, false, false, false, false, false));
+            vaultMock.SetupGet(d => d.LicenseInfo).Returns(1);
+            vaultMock.Setup(x => x.DeviceConnection).Returns(MockFactory.GetConnectionControllerMock().Object);
 
             IList<HwVaultLicenseDto> licensesList = new List<HwVaultLicenseDto>() 
             { 
@@ -43,7 +44,7 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             string licenseId = licensesList.FirstOrDefault().Id;
 
             // Act
-            await licensing.CheckLicense(deviceMock.Object, new HwVaultInfoFromHesDto(), CancellationToken.None);
+            await licensing.CheckLicense(vaultMock.Object, new HwVaultInfoFromHesDto(), CancellationToken.None);
 
             // Assert
             connectionMock.Verify(x => x.OnHwVaultLicenseApplied(serialNo, licenseId));
@@ -97,10 +98,11 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
         {
             // Arrange
             string serialNo = Guid.NewGuid().ToString();
-            var deviceMock = new Mock<IDevice>();
-            deviceMock.SetupGet(d => d.SerialNo).Returns(serialNo);
-            deviceMock.SetupGet(d => d.Mac).Returns("32:B4:D2:R3");
-            deviceMock.SetupGet(d => d.AccessLevel).Returns(new AccessLevel(true, false, false, false, false, false));
+            var vaultMock = new Mock<IDevice>();
+            vaultMock.SetupGet(d => d.SerialNo).Returns(serialNo);
+            vaultMock.SetupGet(d => d.Mac).Returns("32:B4:D2:R3");
+            vaultMock.SetupGet(d => d.AccessLevel).Returns(new AccessLevel(true, false, false, false, false, false));
+            vaultMock.Setup(x => x.DeviceConnection).Returns(MockFactory.GetConnectionControllerMock().Object);
 
             var list = new List<HwVaultLicenseDto>() { new HwVaultLicenseDto() { Data = null, Id = "LicenseId_1" } } as IList<HwVaultLicenseDto>;
             Task<IList<HwVaultLicenseDto>> resultTask = Task.FromResult(list);
@@ -113,7 +115,7 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             LicensingProcessor licensing = new LicensingProcessor(connectionMock.Object, uiManager.Object, logMock.Object);
 
             // Act
-            await licensing.CheckLicense(deviceMock.Object, new HwVaultInfoFromHesDto(), CancellationToken.None);
+            await licensing.CheckLicense(vaultMock.Object, new HwVaultInfoFromHesDto(), CancellationToken.None);
 
             // Assert phase is empty: expecting exception, nothing to assert
         }
@@ -123,11 +125,12 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
         {
             // Arrange
             string serialNo = Guid.NewGuid().ToString();
-            var deviceMock = new Mock<IDevice>();
-            deviceMock.SetupGet(d => d.SerialNo).Returns(serialNo);
-            deviceMock.SetupGet(d => d.Mac).Returns("32:B4:D2:R3");
-            deviceMock.SetupGet(d => d.AccessLevel).Returns(new AccessLevel(false, false, false, false, false, false));
-            deviceMock.SetupGet(d => d.LicenseInfo).Returns(1);
+            var vaultMock = new Mock<IDevice>();
+            vaultMock.SetupGet(d => d.SerialNo).Returns(serialNo);
+            vaultMock.SetupGet(d => d.Mac).Returns("32:B4:D2:R3");
+            vaultMock.SetupGet(d => d.AccessLevel).Returns(new AccessLevel(false, false, false, false, false, false));
+            vaultMock.SetupGet(d => d.LicenseInfo).Returns(1);
+            vaultMock.Setup(x => x.DeviceConnection).Returns(MockFactory.GetConnectionControllerMock().Object);
 
             IList<HwVaultLicenseDto> licensesList = new List<HwVaultLicenseDto>() 
             { 
@@ -145,7 +148,7 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             LicensingProcessor licensing = new LicensingProcessor(connectionMock.Object, uiManager.Object, logMock.Object);
 
             // Act
-            await licensing.CheckLicense(deviceMock.Object, new HwVaultInfoFromHesDto() { NeedUpdateLicense = true }, CancellationToken.None);
+            await licensing.CheckLicense(vaultMock.Object, new HwVaultInfoFromHesDto() { NeedUpdateLicense = true }, CancellationToken.None);
 
             // Assert
             foreach(var license in licensesList)

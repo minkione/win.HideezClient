@@ -184,6 +184,7 @@ namespace HideezClient.Modules.DeviceManager.Tests
                 Id = Guid.NewGuid().ToString(),
                 Name = Guid.NewGuid().ToString(),
                 SerialNo = Guid.NewGuid().ToString(),
+                ChannelNo = 1,
                 IsConnected = true,
             };
         }

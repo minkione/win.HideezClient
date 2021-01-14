@@ -66,7 +66,7 @@ namespace HideezClient.Models
         int battery = 0;
         bool finishedMainFlow;
         byte storageUpdateCounter;
-        long _loadingCounter = 0;
+        long _dtoCounter = long.MinValue;
 
         bool isCreatingRemoteDevice;
         bool isAuthorizingRemoteDevice;
@@ -508,8 +508,9 @@ namespace HideezClient.Models
 
         void LoadFrom(DeviceDTO dto)
         {
-            if (dto.Counter > _loadingCounter)
+            if (dto.Counter > _dtoCounter)
             {
+                _dtoCounter = dto.Counter;
                 Id = dto.Id;
                 NotificationsId = dto.NotificationsId;
                 Name = dto.Name;
@@ -530,8 +531,6 @@ namespace HideezClient.Models
                 IsCanUnlock = dto.IsCanUnlock;
                 MinPinLength = dto.MinPinLength;
                 UnlockAttemptsRemain = dto.UnlockAttemptsRemain;
-
-                _loadingCounter = dto.Counter;
             }
         }
 

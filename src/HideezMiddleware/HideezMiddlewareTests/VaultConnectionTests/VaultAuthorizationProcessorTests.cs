@@ -1,4 +1,5 @@
-﻿using Hideez.SDK.Communication.Device;
+﻿using Hideez.SDK.Communication.Connection;
+using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
@@ -27,7 +28,8 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             vaultMock.Setup(x => x.GetUserProperty<HwVaultConnectionState>(It.IsAny<string>())).Returns(HwVaultConnectionState.Initializing);
             vaultMock.SetupGet(x => x.AccessLevel).Returns(accessLevel);
             vaultMock.Setup(x => x.RefreshDeviceInfo()).Returns(Task.CompletedTask);
-
+            var controllerMock = MockFactory.GetConnectionControllerMock();
+            vaultMock.Setup(x => x.DeviceConnection).Returns(controllerMock.Object);
             return vaultMock;
         }
 
