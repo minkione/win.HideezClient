@@ -208,7 +208,7 @@
                 Opacity="0.0"
                 Orientation="Horizontal">
 
-                <Border mah:VisibilityHelper.IsVisible="{Binding IsConnected}">
+                <Border mah:VisibilityHelper.IsVisible="{Binding CanDisconnect}">
                     <Button 
                         Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}"
                         DataContext="{Binding DisconnectDeviceMenu}" 
@@ -222,19 +222,21 @@
                     </Button>
                 </Border>
 
-                <Button
+                <Border mah:VisibilityHelper.IsVisible="{Binding CanRemoveConnection}">
+                    <Button
                     Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}"
                     Margin="4,0,4,0"
                     DataContext="{Binding RemoveDeviceMenu}"
                     Style="{StaticResource SemiTransparentButtonStyle}">
-                    <iconPacks:PackIconFontAwesome
+                        <iconPacks:PackIconFontAwesome
                         Margin="3"
                         Width="13"
                         Height="13"
                         Foreground="{DynamicResource DisconnectButtonBrush}"
                         Kind="TrashSolid" 
                         />
-                </Button>
+                    </Button>
+                </Border>
             </StackPanel>
 
             <Border mah:VisibilityHelper.IsVisible="{Binding IsConnected}">
