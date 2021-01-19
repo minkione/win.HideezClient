@@ -1,6 +1,7 @@
 ﻿using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware.Settings;
+using HideezMiddleware.Utils.WorkstationHelper;
 using HideezMiddleware.Workstation;
 using Microsoft.Win32;
 using System;
@@ -13,6 +14,7 @@ namespace HideezMiddleware
     {
         readonly ISettingsManager<ServiceSettings> _serviceSettingsManager;
         readonly IWorkstationIdProvider _workstationIdProvider;
+        readonly IWorkstationHelper _workstationHelper;
 
         public WorkstationInfoProvider(IWorkstationIdProvider workstationIdProvider, ILog log)
             : base(nameof(WorkstationInfoProvider), log)
@@ -20,11 +22,15 @@ namespace HideezMiddleware
             _workstationIdProvider = workstationIdProvider;
         }
 
-        public WorkstationInfoProvider(IWorkstationIdProvider workstationIdProvider, ISettingsManager<ServiceSettings> serviceSettingsManager, ILog log)
+        public WorkstationInfoProvider(IWorkstationIdProvider workstationIdProvider, 
+            ISettingsManager<ServiceSettings> serviceSettingsManager,
+            IWorkstationHelper workstationHelper,
+            ILog log)
             : base(nameof(WorkstationInfoProvider), log)
         {
             _workstationIdProvider = workstationIdProvider;
             _serviceSettingsManager = serviceSettingsManager;
+            _workstationHelper = workstationHelper;
         }
 
         public string WorkstationId
@@ -70,7 +76,7 @@ namespace HideezMiddleware
                     Debug.Assert(false, "An exception occured while querrying workstation operating system");
                 }
 
-                workstationInfo.Users = WorkstationHelper.GetAllUserNames();
+                workstationInfo.Users = _workstationHelper.GetAllUserNames();
             }
             catch (Exception ex)
             {

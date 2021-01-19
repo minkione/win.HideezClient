@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.Utils.WorkstationHelper;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
@@ -28,15 +29,18 @@ namespace HideezMiddleware.Audit
         readonly SessionInfoProvider _sessionInfoProvider;
         readonly EventSaver _eventSaver;
         readonly Timer _timestampSaveTimer = new Timer(TIMESTAMP_SAVE_INTERVAL);
+        readonly IWorkstationHelper _workstationHelper;
 
         readonly object _fileLock = new object();
 
-        public SessionTimestampLogger(string timestampFilePath, SessionInfoProvider sessionInfoProvider, EventSaver eventSaver, ILog log)
+        public SessionTimestampLogger(string timestampFilePath, SessionInfoProvider sessionInfoProvider, EventSaver eventSaver,
+            IWorkstationHelper workstationHelper, ILog log)
             : base(nameof(SessionTimestampLogger), log)
         {
             _timestampFilePath = timestampFilePath;
             _sessionInfoProvider = sessionInfoProvider;
             _eventSaver = eventSaver;
+            _workstationHelper = workstationHelper;
 
             _timestampSaveTimer.Elapsed += TimestampSaveTimer_Elapsed;
 
@@ -49,8 +53,8 @@ namespace HideezMiddleware.Audit
 
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
 
-            var state = WorkstationHelper.GetSessionLockState(WorkstationHelper.GetSessionId());
-            if (state == WorkstationHelper.LockState.Unlocked)
+            var state = _workstationHelper.GetSessionLockState(_workstationHelper.GetSessionId());
+            if (state == WorkstationInformationHelper.LockState.Unlocked)
             {
                 SaveOrUpdateTimestamp(CreateNewTimestamp());
                 _timestampSaveTimer.Start();

@@ -13,9 +13,9 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading.Tasks;
 
-namespace HideezMiddleware
+namespace HideezMiddleware.Utils.WorkstationHelper
 {
-    public partial class WorkstationHelper
+    public partial class WorkstationInformationHelper
     {
         [DllImport("Wtsapi32.dll")]
         static extern bool WTSQuerySessionInformation(IntPtr hServer, uint sessionId, WtsInfoClass wtsInfoClass, out IntPtr ppBuffer, out int pBytesReturned);
@@ -46,7 +46,7 @@ namespace HideezMiddleware
                     foreach (NetworkInterface interface2 in allNetworkInterfaces)
                     {
                         UnicastIPAddressInformationCollection unicastAddresses = interface2.GetIPProperties().UnicastAddresses;
-                        if ((unicastAddresses != null) && (unicastAddresses.Count > 0))
+                        if (unicastAddresses != null && unicastAddresses.Count > 0)
                         {
                             for (int i = 0; i < unicastAddresses.Count; i++)
                             {
@@ -61,7 +61,7 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
-                Log?.WriteLine(nameof(WorkstationHelper), ex);
+                Log?.WriteLine(nameof(WorkstationInformationHelper), ex);
                 Debug.Assert(false);
             }
 
@@ -83,7 +83,7 @@ namespace HideezMiddleware
             }
             catch (Exception ex)
             {
-                Log?.WriteLine(nameof(WorkstationHelper), ex);
+                Log?.WriteLine(nameof(WorkstationInformationHelper), ex);
                 Debug.Assert(false);
             }
             finally
@@ -127,7 +127,7 @@ namespace HideezMiddleware
             {
                 string msName = LocalToMSAccountConverter.TryTransformToMS(user["Name"] as string);
 
-                if (!String.IsNullOrWhiteSpace(msName))
+                if (!string.IsNullOrWhiteSpace(msName))
                     result.Add(@"MicrosoftAccount\" + msName);
                 else
                     result.Add(new SecurityIdentifier(user["SID"].ToString()).Translate(typeof(NTAccount)).ToString());

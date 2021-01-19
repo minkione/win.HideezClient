@@ -217,6 +217,8 @@
     <Compile Include="Settings\Manager\WatchingSettingsManager.cs" />
     <Compile Include="Settings\WorkstationSettings.cs" />
     <Compile Include="Tasks\GetSuitableAdvProc.cs" />
+    <Compile Include="Utils\WorkstationHelper\IWorkstationHelper.cs" />
+    <Compile Include="Utils\WorkstationHelper\WorkstationHelper.cs" />
     <Compile Include="WinBleControllersStateMonitor.cs" />
     <Compile Include="Workstation\IWorkstationIdProvider.cs" />
     <Compile Include="Local\LocalDeviceInfo.cs" />
@@ -261,8 +263,8 @@
     <Compile Include="UiProxyManager.cs" />
     <Compile Include="Utils\QrBitmapFactory.cs" />
     <Compile Include="Utils\LocalToMSAccountConverter.cs" />
-    <Compile Include="Utils\WorkstationHelper.cs" />
-    <Compile Include="Utils\WorkstationHelper_UnlockCheck.cs" />
+    <Compile Include="Utils\WorkstationHelper\WorkstationInformationHelper.cs" />
+    <Compile Include="Utils\WorkstationHelper\WorkstationInformationHelper_UnlockCheck.cs" />
     <Compile Include="WorkstationInfoProvider.cs" />
     <Compile Include="WorkstationLockingEventArgs.cs" />
     <Compile Include="WorkstationLockProcessor.cs" />

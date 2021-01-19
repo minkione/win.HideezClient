@@ -9,6 +9,7 @@ using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Tasks;
 using HideezMiddleware.Threading;
+using HideezMiddleware.Utils.WorkstationHelper;
 using System;
 using System.Linq;
 using System.Threading;
@@ -25,6 +26,7 @@ namespace HideezMiddleware.DeviceConnection
         readonly DeviceManager _deviceManager;
         readonly CredentialProviderProxy _credentialProviderProxy;
         readonly IClientUiManager _ui;
+        readonly IWorkstationHelper _workstationHelper;
         readonly SemaphoreQueue _semaphoreQueue = new SemaphoreQueue(1, 1);
         readonly object _lock = new object();
 
@@ -39,6 +41,7 @@ namespace HideezMiddleware.DeviceConnection
             DeviceManager deviceManager,
             CredentialProviderProxy credentialProviderProxy,
             IClientUiManager ui,
+            IWorkstationHelper workstationHelper,
             ILog log)
             : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
         {
@@ -48,6 +51,7 @@ namespace HideezMiddleware.DeviceConnection
             _deviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
             _credentialProviderProxy = credentialProviderProxy ?? throw new ArgumentNullException(nameof(credentialProviderProxy));
             _ui = ui ?? throw new ArgumentNullException(nameof(ui));
+            _workstationHelper = workstationHelper ?? throw new ArgumentNullException(nameof(workstationHelper));
         }
 
         #region IDisposable
@@ -151,7 +155,7 @@ namespace HideezMiddleware.DeviceConnection
             if (_isConnecting == 1)
                 return;
 
-            if (WorkstationHelper.IsActiveSessionLocked())
+            if (_workstationHelper.IsActiveSessionLocked())
                 return;
 
             await ConnectById(e.Controller.Id);
@@ -176,7 +180,7 @@ namespace HideezMiddleware.DeviceConnection
             var proximity = BleUtils.RssiToProximity(adv.Rssi);
             var settings = _workstationSettingsManager.Settings;
 
-            if (WorkstationHelper.IsActiveSessionLocked())
+            if (_workstationHelper.IsActiveSessionLocked())
                 if (proximity < settings.UnlockProximity)
                 {
                     if (isCommandLinkPressed)
@@ -225,7 +229,7 @@ namespace HideezMiddleware.DeviceConnection
                     }
                     finally
                     {
-                        if (!WorkstationHelper.IsActiveSessionLocked())
+                        if (!_workstationHelper.IsActiveSessionLocked())
                         {
                             var resultDevice = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == id && !(d is IRemoteDeviceProxy));
                             if (resultDevice != null && resultDevice.IsConnected)

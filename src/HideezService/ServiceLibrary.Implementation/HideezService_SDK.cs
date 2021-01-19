@@ -44,6 +44,7 @@ using WinBle._10._0._18362;
 using Hideez.SDK.Communication.Connection;
 using HideezMiddleware.CredentialProvider;
 using HideezMiddleware.Threading;
+using HideezMiddleware.Utils.WorkstationHelper;
 
 namespace ServiceLibrary.Implementation
 {
@@ -238,8 +239,10 @@ namespace ServiceLibrary.Implementation
             EndpointCertificateManager.AllowCertificate(hesAddress);
 
             // WorkstationInfoProvider ==================================
-            WorkstationHelper.Log = _sdkLogger;
-            var workstationInfoProvider = new WorkstationInfoProvider(_workstationIdProvider, _serviceSettingsManager, _sdkLogger);
+            var workstationInfoProvider = new WorkstationInfoProvider(_workstationIdProvider, 
+                _serviceSettingsManager, 
+                _workstationHelper,
+                _sdkLogger);
 
             // HesAccessManager ==================================
             _hesAccessManager = new HesAccessManager(clientRootRegistryKey, _sdkLogger);
@@ -254,7 +257,7 @@ namespace ServiceLibrary.Implementation
 
             // Software Vault Unlock Mechanism
             _unlockTokenProvider = new UnlockTokenProvider(clientRootRegistryKey, _sdkLogger);
-            _unlockTokenGenerator = new UnlockTokenGenerator(_unlockTokenProvider, workstationInfoProvider, _sdkLogger);
+            _unlockTokenGenerator = new UnlockTokenGenerator(_unlockTokenProvider, workstationInfoProvider, _workstationHelper, _sdkLogger);
             _remoteWorkstationUnlocker = new RemoteWorkstationUnlocker(_unlockTokenProvider, _tbHesConnection, _credentialProviderProxy, _sdkLogger);
 
             // Start Software Vault unlock modules
@@ -295,6 +298,7 @@ namespace ServiceLibrary.Implementation
                 _hesAccessManager,
                 _serviceSettingsManager,
                 _localDeviceInfoCache,
+                _workstationHelper,
                 _sdkLogger);
             _connectionFlowProcessor = connectionFlowProcessorfactory.Create();
 
@@ -340,6 +344,7 @@ namespace ServiceLibrary.Implementation
                 _deviceManager,
                 _credentialProviderProxy,
                 _uiProxy,
+                _workstationHelper,
                 _sdkLogger);
 
             serviceInitializationTasks.Add(Task.Run(() =>
@@ -355,11 +360,15 @@ namespace ServiceLibrary.Implementation
             _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _workstationSettingsManager.Settings.GetProximityMonitorSettings(), _sdkLogger);
 
             // Device Reconnect Manager ================================
-            _deviceReconnectManager = new DeviceReconnectManager(_proximityMonitorManager, _deviceManager, _connectionFlowProcessor, _sdkLogger);
+            _deviceReconnectManager = new DeviceReconnectManager(_proximityMonitorManager,
+                _deviceManager,
+                _connectionFlowProcessor,
+                _workstationHelper,
+                _sdkLogger);
             _deviceReconnectManager.DeviceReconnected += (s, a) => _log.WriteLine($"Device {a.SerialNo} reconnected successfully");
 
             // WorkstationLocker ==================================
-            _workstationLocker = new UniversalWorkstationLocker(SdkConfig.DefaultLockTimeout * 1000, _messenger, _sdkLogger);
+            _workstationLocker = new UniversalWorkstationLocker(SdkConfig.DefaultLockTimeout * 1000, _messenger, _workstationHelper, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor,
@@ -827,7 +836,7 @@ namespace ServiceLibrary.Implementation
                         // The leftover bond files must be deleted manually
                         await _bondManager.RemoveAll();
 
-                        var wsLocker = new WcfWorkstationLocker(_messenger, _sdkLogger);
+                        var wsLocker = new WcfWorkstationLocker(_messenger, _workstationHelper, _sdkLogger);
                         wsLocker.LockWorkstation();
 
                         _connectionManagerRestarter.Stop();

@@ -1,6 +1,6 @@
 ﻿using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
-using HideezMiddleware;
+using HideezMiddleware.Utils.WorkstationHelper;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -69,15 +69,18 @@ namespace ServiceLibrary.Implementation.WorkstationLock
             WTSInit
         }
 
-        public WtsapiWorkstationLocker(ILog log)
+        readonly IWorkstationHelper _workstationHelper;
+
+        public WtsapiWorkstationLocker(IWorkstationHelper workstationHelper, ILog log)
             : base(nameof(WtsapiWorkstationLocker), log)
         {
+            _workstationHelper = workstationHelper;
         }
 
         public void LockWorkstation()
         {
-            var lockState = WorkstationHelper.GetActiveSessionLockState();
-            if (lockState == WorkstationHelper.LockState.Unlocked)
+            var lockState = _workstationHelper.GetActiveSessionLockState();
+            if (lockState == WorkstationInformationHelper.LockState.Unlocked)
             {
 
                 IntPtr ppSessionInfo = IntPtr.Zero;

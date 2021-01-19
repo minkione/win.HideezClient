@@ -5,6 +5,7 @@ using HideezClient.Modules.Log;
 using HideezClient.Utilities;
 using HideezMiddleware;
 using HideezMiddleware.IPC.Messages;
+using HideezMiddleware.Utils.WorkstationHelper;
 using Meta.Lib.Modules.PubSub;
 using System;
 using System.ComponentModel;
@@ -51,9 +52,9 @@ namespace HideezClient.Modules
 
         public void ActivateScreen()
         {
-            var lockState = WorkstationHelper.GetCurrentSessionLockState();
-            if (lockState == WorkstationHelper.LockState.Locked ||
-                lockState == WorkstationHelper.LockState.Unknown)
+            var lockState = WorkstationInformationHelper.GetCurrentSessionLockState();
+            if (lockState == WorkstationInformationHelper.LockState.Locked ||
+                lockState == WorkstationInformationHelper.LockState.Unknown)
             {
                 try
                 {

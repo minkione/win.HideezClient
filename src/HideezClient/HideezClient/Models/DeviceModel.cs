@@ -24,6 +24,7 @@ using Meta.Lib.Modules.PubSub;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezClient.Modules.Localize;
 using Hideez.SDK.Communication.HES.DTO;
+using HideezMiddleware.Utils.WorkstationHelper;
 
 namespace HideezClient.Models
 {
@@ -583,7 +584,7 @@ namespace HideezClient.Models
                     if (!IsCreatingRemoteDevice && 
                         !IsAuthorizingRemoteDevice && 
                         !IsLoadingStorage && 
-                        WorkstationHelper.GetCurrentSessionLockState() == WorkstationHelper.LockState.Unlocked)
+                        WorkstationInformationHelper.GetCurrentSessionLockState() == WorkstationInformationHelper.LockState.Unlocked)
                     {
                         try
                         {

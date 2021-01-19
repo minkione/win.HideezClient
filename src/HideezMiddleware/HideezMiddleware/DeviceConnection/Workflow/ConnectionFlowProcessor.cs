@@ -3,7 +3,6 @@ using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.BLE;
 using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.Localize;
 using HideezMiddleware.ScreenActivation;
@@ -13,13 +12,13 @@ using Microsoft.Win32;
 using System;
 using System.ComponentModel;
 using System.Net.WebSockets;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Interfaces;
 using System.Linq;
 using Hideez.SDK.Communication.Connection;
+using HideezMiddleware.Utils.WorkstationHelper;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
@@ -46,6 +45,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         readonly IHesAppConnection _hesConnection;
         readonly IHesAccessManager _hesAccessManager;
         readonly ISettingsManager<ServiceSettings> _serviceSettingsManager;
+        readonly IWorkstationHelper _workstationHelper;
 
         readonly ConnectionFlowSubprocessorsStruct _subp;
 
@@ -68,6 +68,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             IHesAccessManager hesAccessManager,
             ISettingsManager<ServiceSettings> serviceSettingsManager,
             ConnectionFlowSubprocessorsStruct subprocs,
+            IWorkstationHelper workstationHelper,
             ILog log)
             : base(nameof(ConnectionFlowProcessor), log)
         {
@@ -80,6 +81,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             _serviceSettingsManager = serviceSettingsManager;
 
             _subp = subprocs;
+            _workstationHelper = workstationHelper;
 
             _hesAccessManager.AccessRetractedEvent += HesAccessManager_AccessRetractedEvent;
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
@@ -175,7 +177,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             // IsConnected-true indicates that device already finished main flow or is in progress
             var existingDevice = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId == connectionId 
                 && d.ChannelNo == (int)DefaultDeviceChannel.Main);
-            if (existingDevice != null && existingDevice.IsConnected && existingDevice.IsInitialized && !WorkstationHelper.IsActiveSessionLocked())
+            if (existingDevice != null && existingDevice.IsConnected && existingDevice.IsInitialized && !_workstationHelper.IsActiveSessionLocked())
                 return;
 
             WriteLine($"Started main workflow ({connectionId.Id}, {(DefaultConnectionIdProvider)connectionId.IdProvider})");
@@ -197,7 +199,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 _subp.PermissionsCheckProcessor.CheckPermissions();
 
                 // Start periodic screen activator to raise the "curtain"
-                if (WorkstationHelper.IsActiveSessionLocked())
+                if (_workstationHelper.IsActiveSessionLocked())
                 {
                     _screenActivator?.ActivateScreen();
                     _screenActivator?.StartPeriodicScreenActivation(0);
@@ -242,7 +244,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 await _subp.MasterkeyProcessor.AuthVault(device, ct);
 
                 var osAccUpdateTask = _subp.AccountsUpdateProcessor.UpdateAccounts(device, vaultInfo, true);
-                if (_workstationUnlocker.IsConnected && WorkstationHelper.IsActiveSessionLocked() && tryUnlock)
+                if (_workstationUnlocker.IsConnected && _workstationHelper.IsActiveSessionLocked() && tryUnlock)
                 {
                     await Task.WhenAll(_subp.UserAuthorizationProcessor.AuthorizeUser(device, ct), osAccUpdateTask);
 

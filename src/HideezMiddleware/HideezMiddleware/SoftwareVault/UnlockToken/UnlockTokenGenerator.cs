@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware.SoftwareVault.QrFactories;
+using HideezMiddleware.Utils.WorkstationHelper;
 using Microsoft.Win32;
 using System;
 using System.Drawing.Imaging;
@@ -17,18 +18,23 @@ namespace HideezMiddleware.SoftwareVault.UnlockToken
         readonly IUnlockTokenProvider _unlockTokenProvider;
         readonly IWorkstationInfoProvider _workstationInfoProvider;
         readonly UnlockQrBitmapFactory _unlockQrBitmapFactory;
+        readonly IWorkstationHelper _workstationHelper;
 
         readonly string _CPImagePath = Path.Combine(Environment.SystemDirectory, "HideezCredentialProvider3.bmp");
 
         readonly object _isRunningLock = new object();
         bool _isRunning;
 
-        public UnlockTokenGenerator(IUnlockTokenProvider unlockTokenProvider, IWorkstationInfoProvider workstationInfoProvider, ILog log)
+        public UnlockTokenGenerator(IUnlockTokenProvider unlockTokenProvider,
+            IWorkstationInfoProvider workstationInfoProvider,
+            IWorkstationHelper workstationHelper,
+            ILog log)
             : base(nameof(UnlockTokenGenerator), log)
         {
             _unlockTokenProvider = unlockTokenProvider ?? throw new ArgumentNullException(nameof(unlockTokenProvider));
             _workstationInfoProvider = workstationInfoProvider ?? throw new ArgumentNullException(nameof(workstationInfoProvider));
             _unlockQrBitmapFactory = new UnlockQrBitmapFactory(_workstationInfoProvider);
+            _workstationHelper = workstationHelper;
 
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
         }
@@ -39,7 +45,7 @@ namespace HideezMiddleware.SoftwareVault.UnlockToken
             {
                 if (!_isRunning)
                 {
-                    if (!WorkstationHelper.IsActiveSessionLocked())
+                    if (!_workstationHelper.IsActiveSessionLocked())
                         GenerateAndSaveUnlockToken();
 
                     // Ensure that during the first launch on locked workstation unlock token is still generated

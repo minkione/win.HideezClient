@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace HideezMiddleware
+namespace HideezMiddleware.Utils.WorkstationHelper
 {
-    public partial class WorkstationHelper
+    public partial class WorkstationInformationHelper
     {
         const Int32 FALSE = 0;
 

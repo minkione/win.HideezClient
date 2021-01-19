@@ -6,6 +6,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
 using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.Utils.WorkstationHelper;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -18,6 +19,7 @@ namespace HideezMiddleware.ReconnectManager
         readonly ProximityMonitorManager _proximityMonitorManager;
         readonly DeviceManager _deviceManager;
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
+        readonly IWorkstationHelper _workstationHelper;
 
         readonly object _reconnectListLock = new object();
 
@@ -30,12 +32,14 @@ namespace HideezMiddleware.ReconnectManager
         public DeviceReconnectManager(ProximityMonitorManager proximityMonitorManager, 
             DeviceManager deviceManager, 
             ConnectionFlowProcessor connectionFlowProcessor, 
+            IWorkstationHelper workstationHelper,
             ILog log)
             : base(nameof(DeviceReconnectManager), log)
         {
             _proximityMonitorManager = proximityMonitorManager;
             _deviceManager = deviceManager;
             _connectionFlowProcessor = connectionFlowProcessor;
+            _workstationHelper = workstationHelper;
 
             _connectionFlowProcessor.DeviceFinilizingMainFlow += ConnectionFlowProcessor_DeviceFinalizingMainFlow;
 
@@ -76,7 +80,7 @@ namespace HideezMiddleware.ReconnectManager
             {
                 // Reconnect is performed only if manager is enabled and we are in unlocked windows session
                 // Certain operations explicitly deny device reconnect and so CanReconnect will be FALSE during them
-                if (!WorkstationHelper.IsActiveSessionLocked() && CanReconnect(device.Id))
+                if (!_workstationHelper.IsActiveSessionLocked() && CanReconnect(device.Id))
                 {
                     Task.Run(() => Reconnect(device));
                 }

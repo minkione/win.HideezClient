@@ -1,4 +1,5 @@
 ﻿using HideezMiddleware;
+using HideezMiddleware.Utils.WorkstationHelper;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -10,8 +11,8 @@ namespace HideezClient.Utilities
         public static string DefaultSettingsFolderPath { get; } = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), 
             "Hideez", 
-            "Client", 
-            WorkstationHelper.GetSessionName((uint)Process.GetCurrentProcess().SessionId),
+            "Client",
+            WorkstationInformationHelper.GetSessionName((uint)Process.GetCurrentProcess().SessionId),
             "Settings");
 
         public static string ApplicationSettingsFileName { get; } = "applicationsettings.xml";

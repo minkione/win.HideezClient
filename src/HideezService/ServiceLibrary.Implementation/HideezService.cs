@@ -11,6 +11,7 @@ using Meta.Lib.Modules.PubSub;
 using System.IO.Pipes;
 using System.Security.Principal;
 using System.Security.AccessControl;
+using HideezMiddleware.Utils.WorkstationHelper;
 
 namespace ServiceLibrary.Implementation
 {
@@ -27,6 +28,7 @@ namespace ServiceLibrary.Implementation
         static RegistryKey clientRootRegistryKey;
         static IWorkstationIdProvider _workstationIdProvider;
         static IMetaPubSub _messenger;
+        static IWorkstationHelper _workstationHelper;
 
         public HideezService()
         {
@@ -65,7 +67,8 @@ namespace ServiceLibrary.Implementation
                 clientRootRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
 
                 _log.WriteLine(">>>>>> Initialize session monitor");
-                _sessionInfoProvider = new SessionInfoProvider(_sdkLogger);
+                _workstationHelper = new WorkstationHelper(_sdkLogger);
+                _sessionInfoProvider = new SessionInfoProvider(_workstationHelper, _sdkLogger);
 
                 _log.WriteLine(">>>>>> Initialize workstation id provider");
                 _workstationIdProvider = new WorkstationIdProvider(clientRootRegistryKey, _sdkLogger);
@@ -79,7 +82,7 @@ namespace ServiceLibrary.Implementation
 
                 _log.WriteLine(">>>>>> Initialize session timestamp monitor");
                 var sessionTimestampPath = $@"{commonAppData}\Hideez\Service\Timestamp\timestamp.dat";
-                _sessionTimestampLogger = new SessionTimestampLogger(sessionTimestampPath, _sessionInfoProvider, _eventSaver, _sdkLogger);
+                _sessionTimestampLogger = new SessionTimestampLogger(sessionTimestampPath, _sessionInfoProvider, _eventSaver, _workstationHelper, _sdkLogger);
 
                 OnServiceStarted();
 

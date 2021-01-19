@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Workstation;
+using HideezMiddleware.Utils.WorkstationHelper;
 using Microsoft.Win32;
 using System;
 
@@ -7,6 +8,7 @@ namespace HideezMiddleware.Audit
 {
     public class SessionInfoProvider : Logger, ISessionInfoProvider
     {
+        readonly IWorkstationHelper _workstationHelper;
         public SessionInfo CurrentSession { get; private set; } = null;
 
         /// <summary>
@@ -14,9 +16,11 @@ namespace HideezMiddleware.Audit
         /// </summary>
         public SessionInfo PreviousSession { get; private set; } = null;
 
-        public SessionInfoProvider(ILog log)
+        public SessionInfoProvider(IWorkstationHelper workstationHelper, ILog log)
             : base(nameof(SessionInfoProvider), log)
         {
+            _workstationHelper = workstationHelper;
+
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
 
             GenerateNewIdIfUnlocked();
@@ -24,12 +28,12 @@ namespace HideezMiddleware.Audit
 
         void GenerateNewIdIfUnlocked()
         {
-            var sid = WorkstationHelper.GetSessionId();
-            var state = WorkstationHelper.GetSessionLockState(sid);
-            var name = WorkstationHelper.GetSessionName(sid);
+            var sid = _workstationHelper.GetSessionId();
+            var state = _workstationHelper.GetSessionLockState(sid);
+            var name = _workstationHelper.GetSessionName(sid);
             WriteLine($"Startup sid:{sid}, state:{state}, name:{name}");
 
-            if (state == WorkstationHelper.LockState.Unlocked && name != "SYSTEM")
+            if (state == WorkstationInformationHelper.LockState.Unlocked && name != "SYSTEM")
             {
                 GenerateNewSessionId();
             }
@@ -56,7 +60,7 @@ namespace HideezMiddleware.Audit
         {
             PreviousSession = CurrentSession;
             var virtualSessionId = Guid.NewGuid().ToString();
-            var sessionName = WorkstationHelper.GetSessionName(WorkstationHelper.GetSessionId());
+            var sessionName = _workstationHelper.GetSessionName(_workstationHelper.GetSessionId());
             CurrentSession = new SessionInfo(virtualSessionId, sessionName);
             WriteLine($"Generated new session id: (current: {CurrentSession?.SessionId}), (prev: {PreviousSession?.SessionId})");
         }

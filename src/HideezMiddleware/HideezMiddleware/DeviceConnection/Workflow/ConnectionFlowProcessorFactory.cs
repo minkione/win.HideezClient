@@ -5,6 +5,7 @@ using HideezMiddleware.Local;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using Hideez.SDK.Communication.Device;
+using HideezMiddleware.Utils.WorkstationHelper;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
@@ -19,6 +20,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         private readonly IHesAccessManager _hesAccessManager;
         private readonly ISettingsManager<ServiceSettings> _serviceSettingsManager;
         private readonly ILocalDeviceInfoCache _localDeviceInfoCache;
+        private readonly IWorkstationHelper _workstationHelper;
         private readonly ILog _log;
 
         public ConnectionFlowProcessorFactory(
@@ -31,6 +33,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             IHesAccessManager hesAccessManager,
             ISettingsManager<ServiceSettings> serviceSettingsManager, 
             ILocalDeviceInfoCache localDeviceInfoCache,
+            IWorkstationHelper workstationHelper,
             ILog log)
         {
             _deviceManager = deviceManager;
@@ -42,6 +45,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             _hesAccessManager = hesAccessManager;
             _serviceSettingsManager = serviceSettingsManager;
             _localDeviceInfoCache = localDeviceInfoCache;
+            _workstationHelper = workstationHelper;
             _log = log;
         }
 
@@ -70,6 +74,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 _hesAccessManager, 
                 _serviceSettingsManager, 
                 flowSubprocessors, 
+                _workstationHelper,
                 _log);
         }
     }
