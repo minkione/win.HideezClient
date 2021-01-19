@@ -118,11 +118,11 @@ namespace HideezClient.Modules.DeviceManager.Tests
         [Test]
         public async Task EnumerateDevices_ClearDevices_DevicesCollectionCleared()
         {
+            // Arrange
             var devices = new List<DeviceDTO>();
             IMetaPubSub messenger = GetMessenger();
             IMetaPubSub hub = new MetaPubSub();
             hub.StartServer("Test2");
-
             await messenger.TryConnectToServer("Test2");
             IDeviceManager deviceManager = GetDeviceManager(messenger);
 
@@ -131,8 +131,12 @@ namespace HideezClient.Modules.DeviceManager.Tests
                 devices.Add(GetRandomDeviceDTO());
 
             await messenger.PublishOnServer(new DevicesCollectionChangedMessage(devices.ToArray()));
+
+            // Act
             await messenger.DisconnectFromServer();
-            await Task.Delay(200);
+            await Task.Delay(200 + devicesCount * 5); // DeviceManager handles messenger disconnect asynchronously
+
+            // Assert
             Assert.AreEqual(0, deviceManager.Devices.Count());
         }
 
