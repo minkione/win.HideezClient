@@ -24,7 +24,6 @@ using Meta.Lib.Modules.PubSub;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezClient.Modules.Localize;
 using Hideez.SDK.Communication.HES.DTO;
-using HideezMiddleware.IPC.IncommingMessages.RemoteDevice;
 
 namespace HideezClient.Models
 {
@@ -388,15 +387,12 @@ namespace HideezClient.Models
             }
         }
 
-        async Task OnDeviceConnectionStateChanged(HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage obj)
+        Task OnDeviceConnectionStateChanged(HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage obj)
         {
             if (obj.Device.Id == Id)
-            {
                 LoadFrom(obj.Device);
 
-                if (!obj.Device.IsConnected)
-                    await ShutdownRemoteDeviceAsync(HideezErrorCode.DeviceDisconnected);
-            }
+            return Task.CompletedTask; 
         }
 
         Task OnDeviceInitialized(HideezMiddleware.IPC.Messages.DeviceInitializedMessage obj)
@@ -435,7 +431,7 @@ namespace HideezClient.Models
                 case SessionSwitchReason.SessionLogon:
                 case SessionSwitchReason.SessionUnlock:
                     // Workstation unlock is one of reasons to try create remote device
-                    TryInitRemoteAsync();
+                    Task.Run(TryInitRemoteAsync);
                     break;
                 default:
                     return Task.CompletedTask;
@@ -447,30 +443,23 @@ namespace HideezClient.Models
         Task OnOperationCancelled(HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage obj)
         {
             if (obj.Device.Id == Id)
-            {
                 CancelDeviceAuthorization();
-            }
 
             return Task.CompletedTask;
         }
 
         Task OnDeviceProximityChanged(HideezMiddleware.IPC.Messages.DeviceProximityChangedMessage obj)
         {
-            // Todo: MAYBE it will be beneficial to add a check that device is connected
-            if (Id != obj.DeviceId)
-                return Task.CompletedTask;
-
-            Proximity = obj.Proximity;
+            if (obj.DeviceId == Id )
+                Proximity = obj.Proximity;
 
             return Task.CompletedTask;
         }
 
         Task OnDeviceBatteryChanged(HideezMiddleware.IPC.Messages.DeviceBatteryChangedMessage obj)
         {
-            if (Id != obj.DeviceId)
-                return Task.CompletedTask;
-
-            Battery = obj.Battery;
+            if (obj.DeviceId == Id)
+                Battery = obj.Battery;
 
             return Task.CompletedTask;
         }
@@ -506,11 +495,16 @@ namespace HideezClient.Models
             return Task.CompletedTask;
         }
 
-        void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        async void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(FinishedMainFlow))
             {
-                TryInitRemoteAsync();
+                await TryInitRemoteAsync();
+            }
+
+            if (e.PropertyName == nameof(IsConnected) && !IsConnected)
+            {
+                await TryShutdownRemoteAsync();
             }
         }
 
@@ -544,7 +538,7 @@ namespace HideezClient.Models
             }
         }
 
-        async void TryInitRemoteAsync()
+        async Task TryInitRemoteAsync()
         {
             if (FinishedMainFlow)
             {
@@ -562,6 +556,18 @@ namespace HideezClient.Models
         void CancelRemoteDeviceCreation()
         {
             remoteCancellationTokenSource?.Cancel();
+        }
+
+        async Task TryShutdownRemoteAsync()
+        {
+            try
+            {
+                await ShutdownRemoteDeviceAsync(HideezErrorCode.DeviceDisconnected);
+            }
+            catch (Exception ex)
+            {
+                _log.WriteLine(ex);
+            }
         }
 
         /// <summary>

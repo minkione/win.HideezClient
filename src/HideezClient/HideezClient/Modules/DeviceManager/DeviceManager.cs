@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using GalaSoft.MvvmLight.Messaging;
-using HideezClient.Modules.ServiceProxy;
 using System.Linq;
 using HideezClient.Models;
 using System.Collections.Concurrent;
@@ -17,7 +15,6 @@ using HideezClient.Modules.Log;
 using HideezMiddleware.IPC.DTO;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
-using Hideez.SDK.Communication.Remote;
 using HideezMiddleware.IPC.Messages;
 
 namespace HideezClient.Modules.DeviceManager
@@ -69,75 +66,106 @@ namespace HideezClient.Modules.DeviceManager
 
         public IEnumerable<DeviceModel> Devices => _devices.Values;
 
-        async Task OnDisconnectedFromService(DisconnectedFromServerEvent arg)
+        Task OnDisconnectedFromService(DisconnectedFromServerEvent arg)
         {
-            await _semaphoreQueue.WaitAsync();
-            try
-            {
-                await ClearDevicesCollection();
-            }
-            catch (Exception ex)
-            {
-                _log.WriteLine(ex);
-            }
-            finally
-            {
-                _semaphoreQueue.Release();
-            }
+            TryHandleDisconnectFromService();
+            return Task.CompletedTask;
         }
 
-        async Task OnDevicesCollectionChanged(DevicesCollectionChangedMessage message)
+        void TryHandleDisconnectFromService()
         {
-            await _semaphoreQueue.WaitAsync();
-            try
+            // Fire & Forget to avoid blocking MetaPubSub while we are handling message
+            Task.Run(async () =>
             {
-                // Ignore devices that are not connected
-                var serviceDevices = message.Devices.Where(d => d.IsConnected).ToArray();
-
-                // Create device if it does not exist in UI
-                foreach (var deviceDto in serviceDevices)
-                    AddDevice(deviceDto);
-
-                // delete device from UI if its deleted from service
-                DeviceModel[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.Id == d.Id) == null).ToArray();
-                await RemoveDevices(missingDevices);
-            }
-            catch (Exception ex)
-            {
-                _log.WriteLine(ex);
-            }
-            finally
-            {
-                _semaphoreQueue.Release();
-            }
+                await _semaphoreQueue.WaitAsync();
+                try
+                {
+                    await ClearDevicesCollection();
+                }
+                catch (Exception ex)
+                {
+                    _log.WriteLine(ex);
+                }
+                finally
+                {
+                    _semaphoreQueue.Release();
+                }
+            });
         }
 
-        async Task OnDeviceConnectionStateChanged(DeviceConnectionStateChangedMessage message)
+        Task OnDevicesCollectionChanged(DevicesCollectionChangedMessage message)
         {
-            await _semaphoreQueue.WaitAsync();
-            try
+            // Fire & Forget to avoid blocking MetaPubSub while we are handling message
+            TryHandleDevicesCollectionChange(message);
+            return Task.CompletedTask;
+        }
+
+        void TryHandleDevicesCollectionChange(DevicesCollectionChangedMessage message)
+        {
+            // Fire & Forget to avoid blocking MetaPubSub while we are handling message
+            Task.Run(async () =>
             {
-                if (message.Device.IsConnected)
+                await _semaphoreQueue.WaitAsync();
+                try
                 {
-                    // Add device if its connected and is missing from devices collection
-                    AddDevice(message.Device);
+                    // Ignore devices that are not connected
+                    var serviceDevices = message.Devices.Where(d => d.IsConnected).ToArray();
+
+                    // Create device if it does not exist in UI
+                    foreach (var deviceDto in serviceDevices)
+                        AddDevice(deviceDto);
+
+                    // delete device from UI if its deleted from service
+                    DeviceModel[] missingDevices = _devices.Values.Where(d => serviceDevices.FirstOrDefault(dto => dto.Id == d.Id) == null).ToArray();
+                    await RemoveDevices(missingDevices);
                 }
-                else
+                catch (Exception ex)
                 {
-                    // Remove device from collection if its not connected
-                    var device = _devices.Values.FirstOrDefault(d => d.Id == message.Device.Id);
-                    if (device != null)
-                        await RemoveDevice(device);
+                    _log.WriteLine(ex);
                 }
-            }
-            catch (Exception ex)
+                finally
+                {
+                    _semaphoreQueue.Release();
+                }
+            });
+        }
+
+        Task OnDeviceConnectionStateChanged(DeviceConnectionStateChangedMessage message)
+        {
+            TryHandleDeviceStateChange(message);
+            return Task.CompletedTask;
+        }
+
+        void TryHandleDeviceStateChange(DeviceConnectionStateChangedMessage message)
+        {
+            // Fire & Forget to avoid blocking MetaPubSub while we are handling message
+            Task.Run(async () =>
             {
-                _log.WriteLine(ex);
-            }
-            finally
-            {
-                _semaphoreQueue.Release();
-            }
+                await _semaphoreQueue.WaitAsync();
+                try
+                {
+                    if (message.Device.IsConnected)
+                    {
+                        // Add device if its connected and is missing from devices collection
+                        AddDevice(message.Device);
+                    }
+                    else
+                    {
+                        // Remove device from collection if its not connected
+                        var device = _devices.Values.FirstOrDefault(d => d.Id == message.Device.Id);
+                        if (device != null)
+                            await RemoveDevice(device);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log.WriteLine(ex);
+                }
+                finally
+                {
+                    _semaphoreQueue.Release();
+                }
+            });
         }
 
         async Task ClearDevicesCollection()
@@ -160,7 +188,7 @@ namespace HideezClient.Modules.DeviceManager
             }
         }
 
-        private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if(sender is DeviceModel device && e.PropertyName == nameof(DeviceModel.IsLoadingStorage) && device.IsLoadingStorage)
             {

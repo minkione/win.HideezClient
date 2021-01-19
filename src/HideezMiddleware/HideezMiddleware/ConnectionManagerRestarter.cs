@@ -72,7 +72,6 @@ namespace HideezMiddleware
                     {
                         try
                         {
-                            WriteLine($"Restarting {manager.GetType()} due to Unknown state");
                             manager.Restart();
                         }
                         catch (Exception ex)
