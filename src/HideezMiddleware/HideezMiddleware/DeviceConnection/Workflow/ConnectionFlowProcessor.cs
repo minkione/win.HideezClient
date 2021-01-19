@@ -187,7 +187,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             Started?.Invoke(this, flowId);
 
             bool workflowFinishedSuccessfully = false;
-            bool deleteVaultBond = false;
+            bool deleteVaultBondOnError = false;
             string errorMessage = null;
             IDevice device = null;
 
@@ -229,6 +229,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultAlreadyConnected"]);
                 // ...
 
+                //This fix is applied to prevent spam by failed connections for WinBle.
+                deleteVaultBondOnError = IsNeedDeleteBond(device);
+                
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Initializing);
 
                 HwVaultInfoFromHesDto vaultInfo = new HwVaultInfoFromHesDto(); // Initializes with default values for when HES is not connected
@@ -276,8 +279,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     case HideezErrorCode.HesDeviceNotFound:
                     case HideezErrorCode.HesDeviceCompromised:
                     case HideezErrorCode.DeviceHasBeenWiped:
+                    case HideezErrorCode.HesDeviceLinkedToAnotherServer:
                         // There errors require bond removal
-                        deleteVaultBond = true;
+                        deleteVaultBondOnError = true;
                         errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
                         break;
                     case HideezErrorCode.ButtonConfirmationTimeout:
@@ -340,7 +344,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 _screenActivator?.StopPeriodicScreenActivation();
             }
 
-            await WorkflowCleanup(errorMessage, connectionId, device, workflowFinishedSuccessfully, deleteVaultBond);
+            await WorkflowCleanup(errorMessage, connectionId, device, workflowFinishedSuccessfully, deleteVaultBondOnError);
 
             IsRunning = false;
             Finished?.Invoke(this, flowId);
@@ -396,6 +400,28 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             {
                 WriteLine(ex, LogErrorSeverity.Error);
             }
+        }
+
+        /// <summary>
+        /// When PC is unlocked we need to delete the bond for the device connected via WinBle, the first connection of which 
+        /// was failed and the re-fast connection will also be failed.
+        /// </summary>
+        /// <param name="device">The device must be initialized.</param>
+        /// <param name="hesAppConnection"></param>
+        /// <returns>True, if device is connected via WinBle and PC is unlocked, device has no licenses or
+        /// workstation doesn't have connection to HES and device is not authorized on HES, not assigned to user or locked.
+        /// False, if else.</returns>
+        bool IsNeedDeleteBond(IDevice device)
+        {
+            if (device.DeviceConnection.Connection.ConnectionId.IdProvider == (byte)DefaultConnectionIdProvider.WinBle && !_workstationHelper.IsActiveSessionLocked())
+                if (device.LicenseInfo == 0)
+                    return true;
+                else
+                if (_hesConnection.State != HesConnectionState.Connected)
+                    if (device.AccessLevel.IsMasterKeyRequired || device.AccessLevel.IsLinkRequired || device.IsLocked)
+                        return true;
+
+            return false;
         }
     }
 }
