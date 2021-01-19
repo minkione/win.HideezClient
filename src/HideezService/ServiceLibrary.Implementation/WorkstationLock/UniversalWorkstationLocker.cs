@@ -16,20 +16,22 @@ namespace ServiceLibrary.Implementation.WorkstationLock
             readonly int _lockTimeout;
             readonly WcfWorkstationLocker _wcfLocker;
             readonly WtsapiWorkstationLocker _wtsapiLocker;
+            readonly IWorkstationHelper _workstationHelper;
 
             TaskCompletionSource<object> _tcs = new TaskCompletionSource<object>();
 
-            public EnsureWorkstationLockProc(int lockTimeout, WcfWorkstationLocker wcfLocker, WtsapiWorkstationLocker wtsapiLocker)
+            public EnsureWorkstationLockProc(int lockTimeout, WcfWorkstationLocker wcfLocker, WtsapiWorkstationLocker wtsapiLocker, IWorkstationHelper workstationHelper)
             {
                 _lockTimeout = lockTimeout;
                 _wcfLocker = wcfLocker;
                 _wtsapiLocker = wtsapiLocker;
+                _workstationHelper = workstationHelper;
             }
 
             public async Task Run()
             {
 #if !DEBUG
-                if (WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked)
+                if (_workstationHelper.GetActiveSessionLockState() == WorkstationInformationHelper.LockState.Unlocked)
                 {
                     try
                     {
@@ -45,7 +47,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                     }
                 
                     if (!_tcs.Task.IsCompleted &&
-                        WorkstationHelper.GetActiveSessionLockState() == WorkstationHelper.LockState.Unlocked)
+                        _workstationHelper.GetActiveSessionLockState() == WorkstationInformationHelper.LockState.Unlocked)
                         _wtsapiLocker.LockWorkstation();
                 }
 #endif
@@ -62,7 +64,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                 }
             }
 
-#region IDisposable Support
+            #region IDisposable Support
             bool disposed = false; // To detect redundant calls
             public void Dispose()
             {
@@ -87,12 +89,13 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                 // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
                 Dispose(false);
             }
-#endregion
+            #endregion
         }
 
         readonly int _lockTimeout;
         readonly WcfWorkstationLocker _wcfLocker;
         readonly WtsapiWorkstationLocker _wtsapiLocker;
+        readonly IWorkstationHelper _workstationHelper;
 
         public UniversalWorkstationLocker(int lockTimeout, IMetaPubSub messenger, IWorkstationHelper workstationHelper, ILog log)
             : base(nameof(UniversalWorkstationLocker), log)
@@ -100,6 +103,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
             _lockTimeout = lockTimeout;
             _wcfLocker = new WcfWorkstationLocker(messenger, workstationHelper, log);
             _wtsapiLocker = new WtsapiWorkstationLocker(workstationHelper, log);
+            _workstationHelper = workstationHelper;
         }
 
         public void LockWorkstation()
@@ -111,7 +115,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
         {
             Task.Run(async () =>
             {
-                using (var proc = new EnsureWorkstationLockProc(_lockTimeout, _wcfLocker, _wtsapiLocker))
+                using (var proc = new EnsureWorkstationLockProc(_lockTimeout, _wcfLocker, _wtsapiLocker, _workstationHelper))
                 {
                     await proc.Run();
                 }
