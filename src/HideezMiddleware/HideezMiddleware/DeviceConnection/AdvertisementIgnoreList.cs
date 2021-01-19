@@ -11,12 +11,17 @@ namespace HideezMiddleware.DeviceConnection
 {
     public class AdvertisementIgnoreList : Logger, IDisposable
     {
+        internal struct LastReceivedTime
+        {
+            public DateTime Time;
+            public int ClearDelaySeconds;
+        }
+
         readonly IBleConnectionManager _bleConnectionManager;
         readonly ISettingsManager<WorkstationSettings> _workstationSettingsManager;
 
         readonly List<string> _ignoreList = new List<string>();
-        readonly Dictionary<string, DateTime> _lastAdvRecTime = new Dictionary<string, DateTime>();
-        readonly Dictionary<string, Timer> _autoRemovedAdv = new Dictionary<string, Timer>();
+        readonly Dictionary<string, LastReceivedTime> _advReceivedTime = new Dictionary<string, LastReceivedTime>();
         readonly object _lock = new object();
         readonly int _rssiClearDelaySeconds;
 
@@ -79,7 +84,11 @@ namespace HideezMiddleware.DeviceConnection
                     WriteLine($"Added new item to advertisment ignore list: {id}");
                 }
 
-                _lastAdvRecTime[id] = DateTime.UtcNow;
+                if (_advReceivedTime.TryGetValue(id, out LastReceivedTime recTime))
+                    if (recTime.ClearDelaySeconds != _rssiClearDelaySeconds)
+                        return;
+
+                _advReceivedTime[id] = new LastReceivedTime() { ClearDelaySeconds = _rssiClearDelaySeconds, Time = DateTime.UtcNow };
             }
         }
 
@@ -87,7 +96,7 @@ namespace HideezMiddleware.DeviceConnection
         /// The method of adding the connection Id to the ignore list for defined time.
         /// </summary>
         /// <param name="id">The connection Id.</param>
-        /// <param name="lifetime">The time, in miliseconds, in which connection Id will be removed from the ignore list.</param>
+        /// <param name="lifetime">The time, in seconds, in which connection Id will be removed from the ignore list.</param>
         public void IgnoreForTime(string id, int lifetime)
         {
             lock (_lock)
@@ -97,27 +106,7 @@ namespace HideezMiddleware.DeviceConnection
                     _ignoreList.Add(id);
                     WriteLine($"Added new item to advertisment ignore list: {id}");
 
-                    var timer = new Timer(lifetime);
-
-                    void TimeoutCache(object s, ElapsedEventArgs e)
-                    {
-                        try
-                        {
-                            timer.Elapsed -= TimeoutCache;
-                            timer.Dispose();
-                            _autoRemovedAdv.Remove(id);
-                            _ignoreList.Remove(id);
-                            WriteLine($"Removed item from advertisment ignore list: {id}");
-                        }
-                        catch(Exception ex)
-                        {
-                            WriteLine(ex.Message);
-                        }
-                    }
-
-                    timer.Elapsed += TimeoutCache;
-                    timer.Start();
-                    _autoRemovedAdv.Add(id, timer);
+                    _advReceivedTime[id] = new LastReceivedTime() { ClearDelaySeconds = lifetime, Time = DateTime.UtcNow };
                 }
             }
         }
@@ -146,14 +135,7 @@ namespace HideezMiddleware.DeviceConnection
             {
                 WriteLine("Clearing advertisment ignore list");
                 _ignoreList.Clear();
-                _lastAdvRecTime.Clear();
-
-                foreach (var timer in _autoRemovedAdv.Values)
-                {
-                    timer.Stop();
-                    timer.Dispose();
-                }
-                _autoRemovedAdv.Clear();
+                _advReceivedTime.Clear();
             }
         }
 
@@ -167,8 +149,9 @@ namespace HideezMiddleware.DeviceConnection
                 {
                     var proximity = BleUtils.RssiToProximity(e.Rssi);
 
-                    if (proximity > _workstationSettingsManager.Settings.LockProximity && !_autoRemovedAdv.ContainsKey(e.Id))
-                        _lastAdvRecTime[e.Id] = DateTime.UtcNow;
+                    if (proximity > _workstationSettingsManager.Settings.LockProximity)
+                        if (_advReceivedTime.TryGetValue(e.Id, out LastReceivedTime lastReceived) && lastReceived.ClearDelaySeconds == _rssiClearDelaySeconds)
+                            _advReceivedTime[e.Id] = new LastReceivedTime() { Time = DateTime.UtcNow, ClearDelaySeconds = _rssiClearDelaySeconds };
                 }
             }
         }
@@ -187,12 +170,11 @@ namespace HideezMiddleware.DeviceConnection
                 // Remove Id's from ignore list if we did not receive an advertisement from them in _rssiClearDelaySeconds seconds
                 if (_ignoreList.Count > 0)
                 {
-                    var removedItems = _ignoreList.Where(m => _lastAdvRecTime.ContainsKey(m) && 
-                    (DateTime.UtcNow - _lastAdvRecTime[m]).TotalSeconds >= _rssiClearDelaySeconds && 
-                    !_autoRemovedAdv.ContainsKey(m)).ToList();
+                    var removedItems = _ignoreList.Where(m=>(DateTime.UtcNow - _advReceivedTime[m].Time).TotalSeconds >= _advReceivedTime[m].ClearDelaySeconds).ToList();
                     foreach(var item in removedItems)
                     {
                         _ignoreList.Remove(item);
+                        _advReceivedTime.Remove(item);
                         WriteLine($"Removed item from advertisment ignore list: {item}");
                     }
                 }
@@ -210,6 +192,7 @@ namespace HideezMiddleware.DeviceConnection
                 if (_ignoreList.Count > 0)
                 {
                     _ignoreList.Remove(id);
+                    _advReceivedTime.Remove(id);
                     WriteLine($"Removed item from advertisment ignore list: {id}");
                 }
             }

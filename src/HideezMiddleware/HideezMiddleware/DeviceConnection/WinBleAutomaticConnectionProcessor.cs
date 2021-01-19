@@ -234,7 +234,7 @@ namespace HideezMiddleware.DeviceConnection
                             var resultDevice = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == id && !(d is IRemoteDeviceProxy));
                             if (resultDevice != null && resultDevice.IsConnected)
                                 _advIgnoreListMonitor.Ignore(id);
-                            else _advIgnoreListMonitor.IgnoreForTime(id, 60000);
+                            else _advIgnoreListMonitor.IgnoreForTime(id, 60);
                         }
                         else
                             _advIgnoreListMonitor.Ignore(id);
