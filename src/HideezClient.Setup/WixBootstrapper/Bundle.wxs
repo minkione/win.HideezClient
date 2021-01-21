@@ -13,40 +13,37 @@
           UpdateUrl="$(var.UpdateUrl)"
           AboutUrl="$(var.AboutUrl)"
           UpgradeCode="$(var.UpgradeCode)"
-          IconSourceFile="128x128.ico"
-          DisableModify="yes">
+          IconSourceFile="128x128.ico">
 
     <Variable Name="HESAddress"
               Value=""
               bal:Overridable="yes"
               Hidden="yes"
               Type="string"/>
-    <Variable Name="InstallDongleDriver"
-              bal:Overridable="yes"
-              Type="numeric"
-              Value="1" />
+   
 
-    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
-      <bal:WixStandardBootstrapperApplication LicenseFile="Legal.rtf"
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
+      <bal:WixStandardBootstrapperApplication LicenseUrl="https://hideez.com/pages/terms-of-use"
                                               LogoFile="logo.bmp"
                                               ThemeFile="Resources/HideezTheme.xml"
                                               LocalizationFile="Resources/1033/en-us.wxl"
                                               ShowFilesInUse="yes"
-                                              SuppressOptionsUI="yes"/>
+                                              SuppressOptionsUI="yes"
+                                              ShowVersion="yes"/>
 
       <!-- Localization -->
       <!-- Translations are disabled until their strings are properly localized -->
-      <Payload Id="thm_ru" Name="1049\thm.wxl" Compressed="yes" SourceFile="Resources/1049/ru-ru.wxl"/>
+      <!--<Payload Id="thm_ru" Name="1049\thm.wxl" Compressed="yes" SourceFile="Resources/1049/ru-ru.wxl"/>
       <Payload Id="thmx_ru" Name="1049\thm.xml" Compressed="yes" SourceFile="Resources/1049/HideezTheme.xml"/>
-      <Payload Id="thmb_ru" Name="1049\logo.png" Compressed="yes" SourceFile="Resources/1049/logo.png"/>
+      <Payload Id="thmb_ru" Name="1049\logo.png" Compressed="yes" SourceFile="Resources/1049/logo.png"/>-->
 
-      <Payload Id="thm_uk" Name="1058\thm.wxl" Compressed="yes" SourceFile="Resources/1058/uk-uk.wxl"/>
+      <!--<Payload Id="thm_uk" Name="1058\thm.wxl" Compressed="yes" SourceFile="Resources/1058/uk-uk.wxl"/>
       <Payload Id="thmx_uk" Name="1058\thm.xml" Compressed="yes" SourceFile="Resources/1058/HideezTheme.xml"/>
-      <Payload Id="thmb_uk" Name="1058\logo.png" Compressed="yes" SourceFile="Resources/1058/logo.png"/>
+      <Payload Id="thmb_uk" Name="1058\logo.png" Compressed="yes" SourceFile="Resources/1058/logo.png"/>-->
 
-      <Payload Id="thm_en" Name="1033\thm.wxl" Compressed="yes" SourceFile="Resources/1033/en-us.wxl"/>
+      <!--<Payload Id="thm_en" Name="1033\thm.wxl" Compressed="yes" SourceFile="Resources/1033/en-us.wxl"/>
       <Payload Id="thmx_en" Name="1033\thm.xml" Compressed="yes" SourceFile="Resources/HideezTheme.xml"/>
-      <Payload Id="thmb_en" Name="1033\logo.png" Compressed="yes" SourceFile="Resources/1033/logo.png"/>
+      <Payload Id="thmb_en" Name="1033\logo.png" Compressed="yes" SourceFile="Resources/1033/logo.png"/>-->
 
     </BootstrapperApplicationRef>
 
@@ -64,6 +61,14 @@
     <Variable Name="LaunchTarget"
               Value="[InstallFolder]\HideezClient.exe"/>
 
+    <!-- Install version option -->
+    <!-- Uncomment next line, when Standalone version will be ready for selection -->
+    <!--<Variable Name="StandaloneInstallRadio" Type="numeric" Value="0"/>--> 
+    <Variable Name="EnterpriseInstallRadio" Type="numeric" Value="1"/>
+    
+    <!-- Driver option -->
+    <Variable Name="InstallDongleDriver" bal:Overridable="yes" Type="numeric" Value="0" />
+      
     <Chain DisableSystemRestore="yes">
       <!-- Install .Net Framework 4.7.2 -->
       <PackageGroupRef Id="NetFx472Redist"/>

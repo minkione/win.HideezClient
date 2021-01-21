@@ -970,4 +970,10 @@ Only 1 attempt left.</value>
   <data name="Status.Bluetooth" xml:space="preserve">
     <value>Bluetooth</value>
   </data>
+  <data name="Status.Tooltip.BluetoothAvailable" xml:space="preserve">
+    <value>Bluetooth enabled</value>
+  </data>
+  <data name="Status.Tooltip.BluetoothUnavailable" xml:space="preserve">
+    <value>Bluetooth turned off or not available</value>
+  </data>
 </root>
