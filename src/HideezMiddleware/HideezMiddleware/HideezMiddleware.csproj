@@ -216,7 +216,7 @@
     <Compile Include="SessionUnlockMethodMonitor.cs" />
     <Compile Include="Settings\Manager\WatchingSettingsManager.cs" />
     <Compile Include="Settings\WorkstationSettings.cs" />
-    <Compile Include="Tasks\GetSuitableAdvProc.cs" />
+    <Compile Include="Tasks\WaitAdvertisementProc.cs" />
     <Compile Include="Utils\WorkstationHelper\IWorkstationHelper.cs" />
     <Compile Include="Utils\WorkstationHelper\WorkstationHelper.cs" />
     <Compile Include="WinBleControllersStateMonitor.cs" />

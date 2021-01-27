@@ -6,6 +6,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.CredentialProvider;
 using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.Localize;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Tasks;
 using HideezMiddleware.Threading;
@@ -27,8 +28,8 @@ namespace HideezMiddleware.DeviceConnection
         readonly CredentialProviderProxy _credentialProviderProxy;
         readonly IClientUiManager _ui;
         readonly IWorkstationHelper _workstationHelper;
-        readonly SemaphoreQueue _semaphoreQueue = new SemaphoreQueue(1, 1);
         readonly object _lock = new object();
+        int _commandLinkInterlock = 0;
 
         int _isConnecting = 0;
         bool isRunning = false;
@@ -112,29 +113,32 @@ namespace HideezMiddleware.DeviceConnection
 
         private async void CredentialProviderProxy_CommandLinkPressed(object sender, EventArgs e)
         {
-            await _semaphoreQueue.WaitAsync();
-            try
+            // Interlock prevents start of multiple or subsequent procedures if impatient user clicks commandLink multiple times
+            if (Interlocked.CompareExchange(ref _commandLinkInterlock, 1, 0) == 0)
             {
-                await _ui.SendError("");
-                await _ui.SendNotification("Searching the paired vault...");
-                var adv = await new GetSuitableAdvProc(_winBleConnectionManager).Run(20000);
-                if (adv != null)
+                try
                 {
-                    await ConnectByProximity(adv, true);
+                    await _ui.SendError("");
+                    await _ui.SendNotification(TranslationSource.Instance["ConnectionProcessor.SearchingForVault"]);
+                    var adv = await new WaitAdvertisementProc(_winBleConnectionManager).Run(10_000);
+                    if (adv != null)
+                    {
+                        await ConnectByProximity(adv, true);
+                    }
+                    else
+                    {
+                        await _ui.SendNotification("");
+                        await _ui.SendError(TranslationSource.Instance["ConnectionProcessor.VaultNotFound"]);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    await _ui.SendNotification("");
-                    await _ui.SendError("Can't find any paired vault.");
+                    WriteLine(ex.Message);
                 }
-            }
-            catch (Exception ex)
-            {
-                WriteLine(ex.Message);
-            }
-            finally
-            {
-                _semaphoreQueue.Release();
+                finally
+                {
+                    Interlocked.Exchange(ref _commandLinkInterlock, 0);
+                }
             }
         }
 
@@ -181,18 +185,18 @@ namespace HideezMiddleware.DeviceConnection
             var settings = _workstationSettingsManager.Settings;
 
             if (_workstationHelper.IsActiveSessionLocked())
+            {
                 if (proximity < settings.UnlockProximity)
                 {
                     if (isCommandLinkPressed)
                     {
                         await _ui.SendNotification("");
-                        await _ui.SendError("The vault is too far away. Move it closer to the adapter and try again.");
+                        await _ui.SendError(TranslationSource.Instance["ConnectionProcessor.LowProximity"]);
                     }
+
                     return;
                 }
-                else
-                if (proximity < settings.LockProximity)
-                    return;
+            }
 
             await ConnectById(adv.Id);
         }
@@ -234,7 +238,8 @@ namespace HideezMiddleware.DeviceConnection
                             var resultDevice = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == id && !(d is IRemoteDeviceProxy));
                             if (resultDevice != null && resultDevice.IsConnected)
                                 _advIgnoreListMonitor.Ignore(id);
-                            else _advIgnoreListMonitor.IgnoreForTime(id, 60);
+                            else 
+                                _advIgnoreListMonitor.IgnoreForTime(id, 60);
                         }
                         else
                             _advIgnoreListMonitor.Ignore(id);

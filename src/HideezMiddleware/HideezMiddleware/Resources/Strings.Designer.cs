@@ -511,6 +511,33 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The vault is too far away. Move it closer and try again..
+        /// </summary>
+        internal static string ConnectionProcessor_LowProximity {
+            get {
+                return ResourceManager.GetString("ConnectionProcessor.LowProximity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Searching the paired vault....
+        /// </summary>
+        internal static string ConnectionProcessor_SearchingForVault {
+            get {
+                return ResourceManager.GetString("ConnectionProcessor.SearchingForVault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vault is turned off or to far away.
+        /// </summary>
+        internal static string ConnectionProcessor_VaultNotFound {
+            get {
+                return ResourceManager.GetString("ConnectionProcessor.VaultNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Click here to unlock with Hideez Vault.
         /// </summary>
         internal static string CredentialProvider_CommandLink_Unlock_Generic {

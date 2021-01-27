@@ -291,4 +291,13 @@
   <data name="CredentialProvider.CommandLink.Unlock.Specific" xml:space="preserve">
     <value>Click here to unlock with {0}</value>
   </data>
+  <data name="ConnectionProcessor.LowProximity" xml:space="preserve">
+    <value>The vault is too far away. Move it closer and try again.</value>
+  </data>
+  <data name="ConnectionProcessor.SearchingForVault" xml:space="preserve">
+    <value>Searching the paired vault...</value>
+  </data>
+  <data name="ConnectionProcessor.VaultNotFound" xml:space="preserve">
+    <value>Vault is turned off or to far away</value>
+  </data>
 </root>

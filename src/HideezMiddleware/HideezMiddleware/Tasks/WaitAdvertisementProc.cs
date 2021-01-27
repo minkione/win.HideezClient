@@ -7,12 +7,12 @@ using WinBle._10._0._18362;
 
 namespace HideezMiddleware.Tasks
 {
-    class GetSuitableAdvProc
+    class WaitAdvertisementProc
     {
         readonly TaskCompletionSource<AdvertismentReceivedEventArgs> _tcs = new TaskCompletionSource<AdvertismentReceivedEventArgs>();
         readonly WinBleConnectionManager _winBleConnectionManager;
 
-        public GetSuitableAdvProc(WinBleConnectionManager connectionManager)
+        public WaitAdvertisementProc(WinBleConnectionManager connectionManager)
         {
             _winBleConnectionManager = connectionManager;
         }
