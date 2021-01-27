@@ -5,8 +5,8 @@ using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection.Workflow;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NUnit.Framework;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.Tests.VaultConnectionTests
 {
-    [TestClass]
     public class VaultAuthorizationProcessorTests
     {
         readonly AccessLevel NEED_AUTH_ACCESSLEVEL = new AccessLevel(false, false, true, false, false, false);
@@ -55,7 +54,7 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             return hesAppConnectionMock;
         }
 
-        [TestMethod]
+        [Test]
         public async Task UpdateVaultStatus_AuthRequired_AuthPerformed()
         {
             // Arrange
@@ -75,9 +74,8 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             // Assert
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(WorkflowException))]
-        public async Task UpdateVaultStatus_AuthRequired_NoNetwork_ExceptionThrown()
+        [Test]
+        public void UpdateVaultStatus_AuthRequired_NoNetwork_ExceptionThrown()
         {
             // Arrange
             var logMock = new Mock<ILog>();
@@ -91,15 +89,13 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             var vaultAuthProcessor = new VaultAuthorizationProcessor(hesAppConnectionMock.Object, uiMock.Object, logMock.Object);
 
             // Act
-            await vaultAuthProcessor.AuthVault(vaultMock.Object, CancellationToken.None);
-
             // Assert
-            Assert.Fail("WorkflowException was expected");
+            Assert.ThrowsAsync<WorkflowException>(() => vaultAuthProcessor.AuthVault(vaultMock.Object, CancellationToken.None));
         }
 
-        [TestMethod]
-        [DataRow(HesConnectionState.Connected)]
-        [DataRow(HesConnectionState.Disconnected)]
+        [Test]
+        [TestCase(HesConnectionState.Connected)]
+        [TestCase(HesConnectionState.Disconnected)]
         public async Task UpdateVaultStatus_AuthNotRequired_StatusUnchanged(HesConnectionState hesConnectionState)
         {
             // Arrange
@@ -122,9 +118,8 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             // Assert
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(WorkflowException))]
-        public async Task UpdateVaultStatus_AuthRequired_HesAlgorithmError_ExceptionThrown()
+        [Test]
+        public void UpdateVaultStatus_AuthRequired_HesAlgorithmError_ExceptionThrown()
         {
             // Arrange
             var logMock = new Mock<ILog>();
@@ -142,10 +137,8 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             var vaultAuthProcessor = new VaultAuthorizationProcessor(hesAppConnectionMock.Object, uiMock.Object, logMock.Object);
 
             // Act
-            await vaultAuthProcessor.AuthVault(vaultMock.Object, CancellationToken.None);
-
             // Assert
-            Assert.Fail("WorkflowException was expected");
+            Assert.ThrowsAsync<WorkflowException>(() => vaultAuthProcessor.AuthVault(vaultMock.Object, CancellationToken.None));
         }
     }
 }

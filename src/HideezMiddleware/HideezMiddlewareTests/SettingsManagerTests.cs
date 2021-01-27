@@ -1,6 +1,6 @@
 ﻿using HideezMiddleware.Settings;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NUnit.Framework;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace HideezMiddleware.Tests
 {
     // todo: Update tests to use TempTestFolder
-    [TestClass]
     public class SettingsManagerTests
     {
         private class TestSettings : BaseSettings
@@ -83,7 +82,7 @@ namespace HideezMiddleware.Tests
         }
 
 
-        [TestMethod]
+        [Test]
         public void SettingsManager_DefaultSettingsFilePath()
         {
             // Arrange
@@ -95,7 +94,7 @@ namespace HideezMiddleware.Tests
             Assert.IsFalse(string.IsNullOrWhiteSpace(settingsManager.SettingsFilePath));
         }
 
-        [TestMethod]
+        [Test]
         public void SettingsFilePath_SetAbsolutePath_Success()
         {
             // Arrange
@@ -108,7 +107,7 @@ namespace HideezMiddleware.Tests
             Assert.AreEqual(settingsManager.SettingsFilePath, GetAbsoluteFormattedPath());
         }
 
-        [TestMethod]
+        [Test]
         public void SettingsFilePath_SetRelativePath_Success()
         {
             // Arrange
@@ -122,48 +121,45 @@ namespace HideezMiddleware.Tests
             Assert.AreEqual(settingsManager.SettingsFilePath, relativePath);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void SettingsFilePath_SetEmptyPath_Exception()
+        [Test]
+        public void SettingsFilePath_SetEmptyPath_ArgumentNullException()
         {
             // Arrange
             var settingsManager = SetupSettingsManager();
 
             // Act
-            settingsManager.SettingsFilePath = string.Empty;
+            // Assert 
+            Assert.Throws<ArgumentNullException>(() => { settingsManager.SettingsFilePath = string.Empty; });
 
-            // Assert phase is empty: expecting exception, nothing to assert
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void SettingsFilePath_SetIncorrectFileName_Exception()
+        [Test]
+        public void SettingsFilePath_SetIncorrectFileName_ArgumentException()
         {
             // Arrange
             var settingsManager = SetupSettingsManager();
             var incorrectPath = "S:\\SomeMagicalPath\\some<><>file.xml";
 
             // Act
-            settingsManager.SettingsFilePath = incorrectPath;
+            // Assert 
+            Assert.Throws<ArgumentException>(() => { settingsManager.SettingsFilePath = incorrectPath; });
 
-            // Assert phase is empty: expecting exception, nothing to assert
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void SettingsFilePath_NoFilenamePath_Exception()
+        [Test]
+        public void SettingsFilePath_NoFilenamePath_ArgumentException()
         {
             // Arrange
             var settingsManager = SetupSettingsManager();
             var path = Path.GetTempPath();
 
             // Act
-            settingsManager.SettingsFilePath = path;
+            // Assert 
+            Assert.Throws<ArgumentException>(() => { settingsManager.SettingsFilePath = path; });
 
-            // Assert phase is empty: expecting exception, nothing to assert
         }
 
-        [TestMethod]
+        [Test]
         public async Task SettingsManager_LoadSettings_SettingsDeserialized()
         {
             // Arrange
@@ -177,7 +173,7 @@ namespace HideezMiddleware.Tests
             serializerMock.Verify(m => m.Deserialize<TestSettings>(GetAbsoluteFormattedPath()));
         }
 
-        [TestMethod]
+        [Test]
         public async Task LoadSettings_SettingsNotLoaded_SettingsLoaded()
         {
             // Arrange
@@ -196,7 +192,7 @@ namespace HideezMiddleware.Tests
             //Assert.AreEqual(serializedSettings, settingsManager.Settings);
         }
 
-        [TestMethod]
+        [Test]
         public void SettingsManager_SaveSettings_SettingsSerialized()
         {
             // Arrange
@@ -210,7 +206,7 @@ namespace HideezMiddleware.Tests
             serializerMock.Verify(m => m.Serialize(GetAbsoluteFormattedPath(), GetSerializedSettings()));
         }
 
-        [TestMethod]
+        [Test]
         public void SaveSettings_SettingsNotLoaded_SettingsUpdated()
         {
             // Arrange
@@ -233,7 +229,7 @@ namespace HideezMiddleware.Tests
             //Assert.AreEqual(settingsManager.Settings, serializedSettings);
         }
 
-        [TestMethod]
+        [Test]
         public async Task SaveSettings_SettingsLoaded_SettingsUpdated()
         {
             // Arrange
@@ -268,7 +264,7 @@ namespace HideezMiddleware.Tests
             //Assert.AreEqual(settingsManager.Settings, serializedSettings);
         }
 
-        [TestMethod]
+        [Test]
         public async Task GetSettings_SettingsNotLoaded_SettingsUpdated()
         {
             // Arrange
@@ -290,7 +286,7 @@ namespace HideezMiddleware.Tests
             Assert.AreNotEqual(defaultSettings, settingsManager.Settings);
         }
 
-        [TestMethod]
+        [Test]
         public async Task GetSettings_SettingsLoaded_SettingsNotUpdated()
         {
             // Arrange
@@ -317,7 +313,7 @@ namespace HideezMiddleware.Tests
             //Assert.AreEqual(loadSettingsResult, getSettingsResult);
         }
 
-        [TestMethod]
+        [Test]
         public async Task LoadSettings_DeserializationFailed_DefaultReturned()
         {
             // Arrange
@@ -341,7 +337,7 @@ namespace HideezMiddleware.Tests
             //Assert.AreEqual(settingsManager.Settings, loadSettingsResult);
         }
 
-        [TestMethod]
+        [Test]
         public async Task GetSettings_DeserializationFailed_DefaultReturned()
         {
             // Arrange
@@ -365,7 +361,7 @@ namespace HideezMiddleware.Tests
             //Assert.AreEqual(defaultSettings, getSettingsResult);
         }
 
-        [TestMethod]
+        [Test]
         public void Settings_NotLoaded_Default()
         {
             // Arrange
@@ -380,7 +376,7 @@ namespace HideezMiddleware.Tests
             Assert.AreEqual(settings, new TestSettings()); // default(ApplicationSettings)
         }
 
-        [TestMethod]
+        [Test]
         public async Task Settings_DefaultSettingsLoaded_DeepCopyCreated()
         {
             // Arrange
@@ -401,7 +397,7 @@ namespace HideezMiddleware.Tests
             Assert.AreNotSame(settingsReference1, settingsReference2);
         }
 
-        [TestMethod]
+        [Test]
         public async Task GetSettings_DefaultSettingsLoaded_DeepCopyCreated()
         {
             // Arrange
@@ -422,7 +418,7 @@ namespace HideezMiddleware.Tests
             Assert.AreNotSame(settingsReference1, settingsReference2);
         }
 
-        [TestMethod]
+        [Test]
         public async Task LoadSettings_SettingsNotLoaded_MessengerCalled()
         {
             // Arrange
@@ -438,7 +434,7 @@ namespace HideezMiddleware.Tests
             Assert.IsTrue(isSettingsChanged);
         }
 
-        [TestMethod]
+        [Test]
         public async Task GetSettings_SettingsNotLoaded_MessengerCalled()
         {
             // Arrange
@@ -454,7 +450,7 @@ namespace HideezMiddleware.Tests
             Assert.IsTrue(isSettingsChanged);
         }
 
-        [TestMethod]
+        [Test]
         public void InitializeFileStruct_CorrectPath_DirectoryCreated()
         {
             // Arrange

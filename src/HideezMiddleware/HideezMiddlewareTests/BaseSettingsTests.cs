@@ -1,10 +1,9 @@
 ﻿using HideezMiddleware.Settings;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using System;
 
 namespace HideezMiddleware.Tests
 {
-    [TestClass]
     public class BaseSettingsTests
     {
         private class TestSettings1 : BaseSettings
@@ -35,7 +34,7 @@ namespace HideezMiddleware.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void Equals_SameValues_True()
         {
             // Arrange
@@ -61,7 +60,7 @@ namespace HideezMiddleware.Tests
             Assert.IsTrue(equalsBA);
         }
 
-        [TestMethod]
+        [Test]
         public void Equals_DifferentValues_False()
         {
             // Arrange
@@ -85,7 +84,7 @@ namespace HideezMiddleware.Tests
             Assert.IsFalse(equalsBA);
         }
 
-        [TestMethod]
+        [Test]
         public void Equals_DifferentClasses_False()
         {
             // Arrange
@@ -112,7 +111,7 @@ namespace HideezMiddleware.Tests
 
         }
 
-        [TestMethod]
+        [Test]
         public void GetHashCode_SameValues_SameHash()
         {
             // Arrange
@@ -137,7 +136,7 @@ namespace HideezMiddleware.Tests
             Assert.AreEqual(hashA, hashB);
         }
 
-        [TestMethod]
+        [Test]
         public void GetHashCode_DifferentValues_DifferentHash()
         {
             // Arrange
@@ -160,7 +159,7 @@ namespace HideezMiddleware.Tests
             Assert.AreNotEqual(hashA, hashB);
         }
 
-        [TestMethod]
+        [Test]
         public void GetHashCode_DifferentClasses_DifferentHash()
         {
             // Arrange

@@ -1,15 +1,14 @@
 ﻿using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Xml.Serialization;
 using Moq;
+using NUnit.Framework;
 
 namespace HideezMiddleware.Tests
 {
     // todo: Update tests to use TempTestFolder
-    [TestClass]
     public class XmlFileSerializerTests
     {
         private readonly ILog log = new Mock<ILog>().Object;
@@ -59,7 +58,7 @@ namespace HideezMiddleware.Tests
         }
 
 
-        [TestMethod]
+        [Test]
         public void Serialize_ExistingPath_FileCreated()
         {
             // Arrange
@@ -84,8 +83,7 @@ namespace HideezMiddleware.Tests
             Assert.IsTrue(serializationResult);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(DirectoryNotFoundException))]
+        [Test]
         public void Serialize_NonexistingPath_ExceptionThrown()
         {
             // Arrange
@@ -104,12 +102,12 @@ namespace HideezMiddleware.Tests
             var xmlSerializer = new XmlFileSerializer(log);
 
             // Act
-            var serializationResult = xmlSerializer.Serialize(filePath, data);
+            // Assert
+            Assert.Throws<DirectoryNotFoundException>(() => xmlSerializer.Serialize(filePath, data));
 
-            // Assert phase is empty: expecting exception, nothing to assert
         }
 
-        [TestMethod]
+        [Test]
         public void Deserialize_NonexistingPath_DefaultReturned()
         {
             // Arrange
@@ -135,7 +133,7 @@ namespace HideezMiddleware.Tests
             Assert.IsTrue(deserializedData == null);
         }
 
-        [TestMethod]
+        [Test]
         public void Deserialize_IncorrectDeserializationType_DefaultReturned()
         {
             // Arrange
@@ -161,7 +159,7 @@ namespace HideezMiddleware.Tests
             Assert.IsTrue(deserializedData == null);
         }
 
-        [TestMethod]
+        [Test]
         public void SerializeDeserialize_ExistingPath_Deserialized()
         {
             // Arrange

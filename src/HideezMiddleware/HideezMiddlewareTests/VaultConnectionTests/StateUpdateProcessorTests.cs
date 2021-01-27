@@ -4,15 +4,14 @@ using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection.Workflow;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NUnit.Framework;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.Tests.VaultConnectionTests
 {
-    [TestClass]
     public class StateUpdateProcessorTests
     {
         readonly AccessLevel NEED_UPDATE_ACCESSLEVEL = new AccessLevel(true, false, false, false, false, false);
@@ -55,7 +54,7 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             return hesAppConnectionMock;
         }
 
-        [TestMethod]
+        [Test]
         public async Task UpdateVaultStatus_LinkRequired_StatusUpdated()
         {
             // Arrange
@@ -74,9 +73,8 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             Assert.AreNotEqual(NEED_UPDATE_INFO, newVaultInfo);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(WorkflowException))]
-        public async Task UpdateVaultStatus_LinkRequired_NoNetwork_ExceptionThrown()
+        [Test]
+        public void UpdateVaultStatus_LinkRequired_NoNetwork_ExceptionThrown()
         {
             // Arrange
             var logMock = new Mock<ILog>();
@@ -88,15 +86,13 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             var stateUpdateProcessors = new StateUpdateProcessor(hesAppConnectionMock.Object, logMock.Object);
 
             // Act
-            await stateUpdateProcessors.UpdateVaultStatus(vaultMock.Object, NEED_UPDATE_INFO, CancellationToken.None);
-
             // Assert
-            Assert.Fail("WorkflowException was expected");
+            Assert.ThrowsAsync<WorkflowException>(() => stateUpdateProcessors.UpdateVaultStatus(vaultMock.Object, NEED_UPDATE_INFO, CancellationToken.None));
         }
 
-        [TestMethod]
-        [DataRow(HesConnectionState.Connected)]
-        [DataRow(HesConnectionState.Disconnected)]
+        [Test]
+        [TestCase(HesConnectionState.Connected)]
+        [TestCase(HesConnectionState.Disconnected)]
         public async Task UpdateVaultStatus_LinkNotRequired_StatusUnchanged(HesConnectionState hesConnectionState)
         {
             // Arrange
@@ -118,9 +114,8 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             Assert.AreEqual(ALL_OK_INFO, newVaultInfo);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(WorkflowException))]
-        public async Task UpdateVaultStatus_LinkRequired_HesAlgorithmError_ExceptionThrown()
+        [Test]
+        public void UpdateVaultStatus_LinkRequired_HesAlgorithmError_ExceptionThrown()
         {
             // Arrange
             var logMock = new Mock<ILog>();
@@ -136,10 +131,9 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             var stateUpdateProcessors = new StateUpdateProcessor(hesAppConnectionMock.Object, logMock.Object);
 
             // Act
-            await stateUpdateProcessors.UpdateVaultStatus(vaultMock.Object, NEED_UPDATE_INFO, CancellationToken.None);
-
             // Assert
-            Assert.Fail("WorkflowException was expected");
+            Assert.ThrowsAsync<WorkflowException>(() => stateUpdateProcessors.UpdateVaultStatus(vaultMock.Object, NEED_UPDATE_INFO, CancellationToken.None));
+
         }
     }
 }

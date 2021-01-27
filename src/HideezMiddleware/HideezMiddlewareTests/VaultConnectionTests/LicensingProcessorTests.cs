@@ -4,8 +4,8 @@ using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection.Workflow;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +14,9 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.Tests.VaultConnectionTests
 {
-    [TestClass]
     public class LicensingProcessorTests
     {
-        [TestMethod]
+        [Test]
         public async Task CheckLicense_ServerReturnLicenseForUpdate_OnHwVaultLicenseAppliedCalled()
         {
             // Arrange
@@ -50,9 +49,8 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             connectionMock.Verify(x => x.OnHwVaultLicenseApplied(serialNo, licenseId));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(WorkflowException))]
-        public async Task CheckLicense_NoLicensesAvailable_WorkflowException()
+        [Test]
+        public void CheckLicense_NoLicensesAvailable_WorkflowException()
         {
             // Arrange
             var deviceMock = new Mock<IDevice>();
@@ -66,14 +64,12 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             LicensingProcessor licensing = new LicensingProcessor(connectionMock.Object, uiManager.Object, logMock.Object);
 
             // Act
-            await licensing.CheckLicense(deviceMock.Object, new HwVaultInfoFromHesDto(), CancellationToken.None);
-
-            // Assert phase is empty: expecting exception, nothing to assert
+            // Assert 
+            Assert.ThrowsAsync<WorkflowException>(() => licensing.CheckLicense(deviceMock.Object, new HwVaultInfoFromHesDto(), CancellationToken.None));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(WorkflowException))]
-        public async Task CheckLicense_CannotDownloadLicense_WorkflowException()
+        [Test]
+        public void CheckLicense_CannotDownloadLicense_WorkflowException()
         {
             // Arrange
             var deviceMock = new Mock<IDevice>();
@@ -87,14 +83,12 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             LicensingProcessor licensing = new LicensingProcessor(connectionMock.Object, uiManager.Object, logMock.Object);
 
             // Act
-            await licensing.CheckLicense(deviceMock.Object, new HwVaultInfoFromHesDto(), CancellationToken.None);
-
-            // Assert phase is empty: expecting exception, nothing to assert
+            // Assert 
+            Assert.ThrowsAsync<WorkflowException>(() => licensing.CheckLicense(deviceMock.Object, new HwVaultInfoFromHesDto(), CancellationToken.None));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(WorkflowException))]
-        public async Task CheckLicense_EmptyLicenseData_WorkflowException()
+        [Test]
+        public void CheckLicense_EmptyLicenseData_WorkflowException()
         {
             // Arrange
             string serialNo = Guid.NewGuid().ToString();
@@ -115,12 +109,11 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             LicensingProcessor licensing = new LicensingProcessor(connectionMock.Object, uiManager.Object, logMock.Object);
 
             // Act
-            await licensing.CheckLicense(vaultMock.Object, new HwVaultInfoFromHesDto(), CancellationToken.None);
-
-            // Assert phase is empty: expecting exception, nothing to assert
+            // Assert 
+            Assert.ThrowsAsync<WorkflowException>(() => licensing.CheckLicense(vaultMock.Object, new HwVaultInfoFromHesDto(), CancellationToken.None));
         }
 
-        [TestMethod]
+        [Test]
         public async Task CheckLicense_NeedUpdateLicense_Updated3NewLicenses()
         {
             // Arrange

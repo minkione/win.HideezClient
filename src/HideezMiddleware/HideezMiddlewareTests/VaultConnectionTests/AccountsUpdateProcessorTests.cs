@@ -3,17 +3,16 @@ using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection.Workflow;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.Tests.VaultConnectionTests
 {
-    [TestClass]
     public class AccountsUpdateProcessorTests
     {
-        [TestMethod]
+        [Test]
         public async Task UpdateAccounts_DeviceNeedUpdateOSAccounts_UpdateHwVaultAccountsReceived()
         {
             // Arrange
@@ -34,7 +33,7 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             connectionMock.Verify(x => x.UpdateHwVaultAccounts(serialNo, true), Times.Once);
         }
         
-        [TestMethod]
+        [Test]
         public async Task UpdateAccounts_DeviceNeedUpdateNonOSAccounts_UpdateHwVaultAccountsReceived()
         {
             // Arrange
@@ -55,7 +54,7 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             connectionMock.Verify(x => x.UpdateHwVaultAccounts(serialNo, false), Times.Once);
         }
 
-        [TestMethod]
+        [Test]
         public async Task UpdateAccounts_ServerDiconnected_AccountsNotUpdated()
         {
             // Arrange

@@ -1,18 +1,15 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.DeviceLogging;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Xml;
 
 namespace HideezMiddleware.Tests
 {
-    [TestClass]
     public class DeviceLogWriterTests
     {
         const int LOG_BLOCK_LENGTH = 2;
@@ -79,7 +76,7 @@ namespace HideezMiddleware.Tests
             return mock.Object;
         }
 
-        [TestMethod]
+        [Test]
         public void SaveLog_SaveNoDatedEntries_LogReprintedAfterSaved()
         {
             using (var tf = new TempTestFolder(nameof(DeviceLogWriterTests)))
@@ -108,7 +105,7 @@ namespace HideezMiddleware.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void SaveLog_SaveNewDatedEntries_LogAppendedToSaved()
         {
             using (var tf = new TempTestFolder(nameof(DeviceLogWriterTests)))
@@ -137,7 +134,7 @@ namespace HideezMiddleware.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void SaveLog_SaveWithDuplicatedBeginning_ExtendedSinceLastEntry()
         {
             using (var tf = new TempTestFolder(nameof(DeviceLogWriterTests)))
@@ -168,7 +165,7 @@ namespace HideezMiddleware.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void SaveLog_SaveWithSomeDuplicates_LogExtendedSinceLastEntry()
         {
             using (var tf = new TempTestFolder(nameof(DeviceLogWriterTests)))
