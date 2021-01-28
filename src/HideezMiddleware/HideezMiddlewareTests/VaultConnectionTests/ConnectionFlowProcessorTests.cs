@@ -7,6 +7,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
+using HideezMiddleware.DeviceLogging;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Utils.WorkstationHelper;
@@ -66,6 +67,8 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             DeviceManager deviceManager = new DeviceManager(coordinator, logMock.Object);
             deviceManager.DeviceRemoved += (sender, e) => invokeCounter++;
 
+            DeviceLogManager deviceLogManager = new DeviceLogManager(string.Empty, new Mock<IDeviceLogWriter>().Object, settingsManagerMock.Object, logMock.Object);
+
             ConnectionFlowProcessor.ConnectionFlowSubprocessorsStruct connectionFlowSubprocessors = GetConnectionFlowSubprocessors(
                 hesConnectionState,
                 licenseCount,
@@ -76,7 +79,7 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
                 controller);
             ConnectionFlowProcessor connectionFlowProcessor = new ConnectionFlowProcessor(deviceManager, hesAppConnectionMock.Object,
                 workstationUnlockerMock.Object, screenActivatorMock.Object, uiMock.Object, hesAccesManagerMock.Object, settingsManagerMock.Object,
-                connectionFlowSubprocessors, workstationHelperMock.Object, logMock.Object);
+                connectionFlowSubprocessors, workstationHelperMock.Object, deviceLogManager, logMock.Object);
 
             //Act
             await connectionFlowProcessor.Connect(connectionId);

@@ -288,6 +288,9 @@ namespace ServiceLibrary.Implementation
             //BondManager
             _bondManager = new BondManager(bondsFolderPath, _sdkLogger);
 
+            //Device Log Manager
+            _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _sdkLogger);
+
             // ConnectionFlowProcessor
             var connectionFlowProcessorfactory = new ConnectionFlowProcessorFactory(
                 _deviceManager,
@@ -300,10 +303,9 @@ namespace ServiceLibrary.Implementation
                 _serviceSettingsManager,
                 _localDeviceInfoCache,
                 _workstationHelper,
+                _deviceLogManager,
                 _sdkLogger);
             _connectionFlowProcessor = connectionFlowProcessorfactory.Create();
-
-            _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _connectionFlowProcessor, _sdkLogger);
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreCsrList = new AdvertisementIgnoreList(
                 _csrBleConnectionManager,

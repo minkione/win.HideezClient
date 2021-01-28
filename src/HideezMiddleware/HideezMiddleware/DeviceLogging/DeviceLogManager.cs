@@ -15,30 +15,29 @@ namespace HideezMiddleware.DeviceLogging
         readonly string _logsDirectoryPath;
 
         readonly ISettingsManager<ServiceSettings> _serviceSettingsManager;
-        readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly IDeviceLogWriter _deviceLogWriter;
 
-        public DeviceLogManager(string logsDirectoryPath, IDeviceLogWriter deviceLogWriter, ISettingsManager<ServiceSettings> serviceSettingsManager, ConnectionFlowProcessor connectionFlowProcessor, ILog log)
+        public DeviceLogManager(string logsDirectoryPath, IDeviceLogWriter deviceLogWriter, ISettingsManager<ServiceSettings> serviceSettingsManager, ILog log)
             : base(nameof(DeviceLogManager), log)
         {
             _logsDirectoryPath = logsDirectoryPath;
 
             _deviceLogWriter = deviceLogWriter;
             _serviceSettingsManager = serviceSettingsManager;
-            _connectionFlowProcessor = connectionFlowProcessor;
-
-            _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
         }
 
-        async void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
+        public async Task TryReadDeviceLog(IDevice device)
         {
             try
             {
                 if (!_serviceSettingsManager.Settings.ReadDeviceLog)
                     return;
 
+                WriteLine("Reading device log, low performance is expected");
+                var now = DateTime.UtcNow;
                 var deviceLogs = await FetchDeviceLog(device);
 
+                WriteLine($"Device log loaded, {deviceLogs.Count} days. {(DateTime.UtcNow-now)} passed");
                 foreach (var dailyLog in deviceLogs)
                     _deviceLogWriter.SaveLog(_logsDirectoryPath, dailyLog, device, true);
 

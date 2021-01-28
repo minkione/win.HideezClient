@@ -19,6 +19,7 @@ using Hideez.SDK.Communication.Interfaces;
 using System.Linq;
 using Hideez.SDK.Communication.Connection;
 using HideezMiddleware.Utils.WorkstationHelper;
+using HideezMiddleware.DeviceLogging;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
@@ -46,6 +47,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         readonly IHesAccessManager _hesAccessManager;
         readonly ISettingsManager<ServiceSettings> _serviceSettingsManager;
         readonly IWorkstationHelper _workstationHelper;
+        readonly DeviceLogManager _deviceLogManager;
 
         readonly ConnectionFlowSubprocessorsStruct _subp;
 
@@ -69,6 +71,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             ISettingsManager<ServiceSettings> serviceSettingsManager,
             ConnectionFlowSubprocessorsStruct subprocs,
             IWorkstationHelper workstationHelper,
+            DeviceLogManager deviceLogManager,
             ILog log)
             : base(nameof(ConnectionFlowProcessor), log)
         {
@@ -82,6 +85,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
             _subp = subprocs;
             _workstationHelper = workstationHelper;
+            _deviceLogManager = deviceLogManager;
 
             _hesAccessManager.AccessRetractedEvent += HesAccessManager_AccessRetractedEvent;
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
@@ -218,6 +222,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 {
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultInBootloaderMode"]);
                 }
+
+                await _deviceLogManager.TryReadDeviceLog(device);
 
                 // Different device with the same name indicates that a single physical device is connected through different channel
                 // This temporary fix is applied to prevent this behavior
