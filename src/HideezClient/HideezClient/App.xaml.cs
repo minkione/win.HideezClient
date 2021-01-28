@@ -47,6 +47,8 @@ using Meta.Lib.Modules.PubSub.Messages;
 using HideezMiddleware.IPC.Messages;
 using HideezClient.Modules.VaultLowBatteryMonitor;
 using HideezClient.ViewModels.Controls;
+using HideezClient.Modules.BleDeviceUnpairHelper;
+using HideezClient.Modules.WorkstationManager;
 
 namespace HideezClient
 {
@@ -66,6 +68,7 @@ namespace HideezClient
         private IButtonManager _buttonManager;
         private MessageWindow _messageWindow;
         private IMetaPubSub _metaMessenger;
+        private BleDeviceUnpairHelper _bleDeviceUnpairHelper;
 
         public static IUnityContainer Container { get; private set; }
 
@@ -196,6 +199,7 @@ namespace HideezClient
             _messageWindow = Container.Resolve<MessageWindow>();
             Container.Resolve<IProximityLockManager>();
             Container.Resolve<IVaultLowBatteryMonitor>();
+            _bleDeviceUnpairHelper = Container.Resolve<BleDeviceUnpairHelper>();
 
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
 

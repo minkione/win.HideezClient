@@ -10,7 +10,7 @@ namespace HideezMiddleware.IPC.IncommingMessages.RemoteDevice
         public RemoteConnection_GetRootKeyMessage(string connectionid)
         {
             ConnectionId = connectionid;
-            ResponseTimeout = SdkConfig.GetRootKeyCommandTimeout;
+            ResponseTimeout = SdkConfig.RemoteGetRootkeyCommandTimeout;
         }
     }
 }

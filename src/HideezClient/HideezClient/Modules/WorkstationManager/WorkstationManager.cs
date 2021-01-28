@@ -1,9 +1,6 @@
-﻿using GalaSoft.MvvmLight.Messaging;
-using Hideez.SDK.Communication.Log;
+﻿using Hideez.SDK.Communication.Log;
 using HideezClient.Messages;
-using HideezClient.Modules.Log;
 using HideezClient.Utilities;
-using HideezMiddleware;
 using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Utils.WorkstationHelper;
 using Meta.Lib.Modules.PubSub;
@@ -14,26 +11,29 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using WindowsInput;
 
-namespace HideezClient.Modules
+namespace HideezClient.Modules.WorkstationManager
 {
-    class WorkstationManager : IWorkstationManager
+    class WorkstationManager : Logger, IWorkstationManager
     {
-        readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(WorkstationManager));
         readonly IInputSimulator inputSimulator = new InputSimulator();
+        readonly BleDeviceUnpairHelper.BleDeviceUnpairHelper _bleDeviceUnpairHelper;
 
-        public WorkstationManager(IMetaPubSub metaMessenger)
+        public WorkstationManager(IMetaPubSub metaMessenger, ILog log)
+            : base(nameof(WorkstationManager), log)
         {
+            _bleDeviceUnpairHelper = new BleDeviceUnpairHelper.BleDeviceUnpairHelper(metaMessenger, log);
+
             // Start listening command messages
-            metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LockWorkstationMessage>(LockPC);
+            metaMessenger.TrySubscribeOnServer<LockWorkstationMessage>(LockPC);
             //metaMessenger.Subscribe<ForceShutdownMessage>(ForceShutdown);
             metaMessenger.TrySubscribeOnServer<ActivateScreenRequestMessage>(ActivateScreen);
         }
 
         public void LockPC()
         {
-            _log.WriteLine($"Calling Win32.LockWorkstation");
+            WriteLine($"Calling Win32.LockWorkstation");
             var result = Win32Helper.LockWorkStation();
-            _log.WriteLine($"Win32.LockWorkstation result: {result}");
+            WriteLine($"Win32.LockWorkstation result: {result}");
             if (result == false)
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -69,7 +69,7 @@ namespace HideezClient.Modules
                     {
                         // This exception is thrown when the library could not successfully send simulated input
                         // To the target window, usually due to User Interface Privacy Isolation (UIPI)
-                        _log.WriteLine("UIPI prevented simulated input", LogErrorSeverity.Warning);
+                        WriteLine("UIPI prevented simulated input", LogErrorSeverity.Warning);
                     }
                     else
                         throw;
@@ -87,7 +87,7 @@ namespace HideezClient.Modules
             }
             catch (Exception ex)
             {
-                _log.WriteLine(ex);
+                WriteLine(ex);
             }
 
             return Task.CompletedTask;
@@ -101,7 +101,7 @@ namespace HideezClient.Modules
             }
             catch (Exception ex)
             {
-                _log.WriteLine(ex);
+                WriteLine(ex);
             }
         }
 
@@ -113,7 +113,7 @@ namespace HideezClient.Modules
             }
             catch (Exception ex)
             {
-                _log.WriteLine(ex);
+                WriteLine(ex);
             }
 
             return Task.CompletedTask;

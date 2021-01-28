@@ -133,6 +133,7 @@ namespace ServiceLibrary.Implementation
 
                 // WinBle Connection Manager ============================
                 _winBleConnectionManager = new WinBleConnectionManager(_sdkLogger);
+                _winBleConnectionManager.UnpairProvider = new UnpairProvider(_messenger, _sdkLogger);
                 // Todo: subscribtion to WinBleConnectionManager events
                 //_winBleConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
                 //_winBleConnectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
