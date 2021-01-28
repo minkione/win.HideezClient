@@ -202,8 +202,12 @@ namespace HideezMiddleware.ReconnectManager
             {
                 if (!device.IsBoot && !(device is IRemoteDeviceProxy))
                 {
-                    WriteLine($"{device.Id} reconnect re-enabled");
-                    _reconnectAllowedList.Add(device.Id);
+                    // TODO: Temporary fix, until WinBle connection lifetime is updated to support reconnect
+                    if (device.DeviceConnection.Connection.ConnectionId.IdProvider == (byte)DefaultConnectionIdProvider.WinBle)
+                        return;
+
+                    if (_reconnectAllowedList.Add(device.Id))
+                        WriteLine($"{device.Id} reconnect enabled");
                 }
             }
         }
@@ -214,8 +218,8 @@ namespace HideezMiddleware.ReconnectManager
             {
                 if (!device.IsBoot && !(device is IRemoteDeviceProxy))
                 {
-                    WriteLine($"{device.Id} reconnect disabled");
-                    _reconnectAllowedList.Remove(device.Id);
+                    if (_reconnectAllowedList.Remove(device.Id))
+                        WriteLine($"{device.Id} reconnect disabled");
                 }
             }
         }
