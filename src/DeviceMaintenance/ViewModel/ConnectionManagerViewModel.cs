@@ -47,7 +47,7 @@ namespace DeviceMaintenance.ViewModel
             _csrConnectionManager = new BleConnectionManager(log, bondsFolderPath);
             _csrConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _csrConnectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
-            _winBleConnectionManager = new WinBleConnectionManager(log);
+            _winBleConnectionManager = new WinBleConnectionManager(log, false);
             _winBleConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _winBleConnectionManager.BondedControllerAdded += WinBleConnectionManager_BondedControllerAdded;
 
