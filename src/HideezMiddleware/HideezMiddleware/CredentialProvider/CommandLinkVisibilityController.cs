@@ -81,7 +81,6 @@ namespace HideezMiddleware.CredentialProvider
                     if (_winBleConnectionManager.BondedControllers.Count == 0 || _connectionFlowProcessor.IsRunning)
                     {
                         await _cpProxy.HideCommandLink();
-                        await _cpProxy.HideCommandLink();
                     }
                     else
                     {

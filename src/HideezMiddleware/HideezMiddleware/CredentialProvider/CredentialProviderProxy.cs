@@ -302,13 +302,13 @@ namespace HideezMiddleware.CredentialProvider
 
         public async Task ShowCommandLink(string commandLinkText = null)
         {
-            WriteDebugLine($"ShowCommandLink: {commandLinkText}");
+            WriteLine($"ShowCommandLink: {commandLinkText}");
             await SendMessageAsync(CredentialProviderCommandCode.UpdateCommandLink, true, $"true\n{commandLinkText ?? ""}");
         }
 
         public async Task HideCommandLink(string commandLinkText = null)
         {
-            WriteDebugLine($"HideCommandLink: {commandLinkText}");
+            WriteLine($"HideCommandLink: {commandLinkText}");
             await SendMessageAsync(CredentialProviderCommandCode.UpdateCommandLink, true, $"false\n{commandLinkText ?? ""}");
         }
         #endregion Commands to CP
