@@ -27,6 +27,8 @@ namespace DeviceMaintenance.ViewModel
         readonly MetaPubSub _hub;
 
         bool _automaticallyUploadFirmware = Properties.Settings.Default.AutomaticallyUpload;
+        bool _csrUpdate = true;
+        bool _winBleUpdate = false;
         string _fileName = Properties.Settings.Default.FirmwareFileName;
 
         readonly ConcurrentDictionary<string, DeviceViewModel> _devices =
@@ -73,8 +75,26 @@ namespace DeviceMaintenance.ViewModel
         {
             get
             {
-                return !string.IsNullOrWhiteSpace(FirmwareFilePath) && 
-                        FirmwareFilePath.EndsWith($".{FW_FILE_EXTENSION}");
+                    return !string.IsNullOrWhiteSpace(FirmwareFilePath) &&
+                            FirmwareFilePath.EndsWith($".{FW_FILE_EXTENSION}");
+            }
+        }
+
+        [DependsOn(nameof(IsFirmwareSelected), nameof(IsCsrEnabled))]
+        public bool IsTapEnabled
+        {
+            get
+            {
+                return IsFirmwareSelected && IsCsrEnabled;
+            }
+        }
+
+        [DependsOn(nameof(IsFirmwareSelected), nameof(IsWinBleEnabled))]
+        public bool IsWinBleUpdateAvailable
+        {
+            get
+            {
+                return IsFirmwareSelected && IsWinBleEnabled;
             }
         }
 
@@ -91,6 +111,52 @@ namespace DeviceMaintenance.ViewModel
                     _automaticallyUploadFirmware = value;
                     Properties.Settings.Default.AutomaticallyUpload = AutomaticallyUploadFirmware;
                     Properties.Settings.Default.Save();
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public bool IsCsrEnabled
+        {
+            get
+            {
+                return _csrUpdate;
+            }
+            set
+            {
+                if (_csrUpdate != value)
+                {
+                    if (value)
+                    {
+                        _devices.Clear();
+                        NotifyPropertyChanged(nameof(Devices));
+                        ConnectionManager.Initialize(DefaultConnectionIdProvider.Csr);
+                    }
+                    _csrUpdate = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public bool IsWinBleEnabled
+        {
+            get
+            {
+                return _winBleUpdate;
+            }
+            set
+            {
+                if (_winBleUpdate != value)
+                {
+                    if (value)
+                    {
+                        _devices.Clear();
+                        NotifyPropertyChanged(nameof(Devices));
+                        ConnectionManager.Initialize(DefaultConnectionIdProvider.WinBle);
+
+                        AutomaticallyUploadFirmware = false;
+                    }
+                    _winBleUpdate = value;
                     NotifyPropertyChanged();
                 }
             }
@@ -138,10 +204,12 @@ namespace DeviceMaintenance.ViewModel
             _log = new EventLogger("Maintenance");
 
             _hub.Subscribe<AdvertismentReceivedEvent>(OnAdvertismentReceived);
+            _hub.Subscribe<ControllerAddedEvent>(OnDeviceDiscovered);
             _hub.Subscribe<DeviceConnectedEvent>(OnDeviceConnected);
             _hub.Subscribe<ClosingEvent>(OnClosing);
 
             ConnectionManager = new ConnectionManagerViewModel(_log, _hub);
+            ConnectionManager.Initialize(DefaultConnectionIdProvider.Csr);
             HideezServiceController = new HideezServiceController(_log, _hub);
 
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
@@ -156,7 +224,17 @@ namespace DeviceMaintenance.ViewModel
             return Task.CompletedTask;
         }
 
+        async Task OnDeviceDiscovered(ControllerAddedEvent arg)
+        {
+            await CreateDeviceViewModel(arg.DeviceId, (byte)DefaultConnectionIdProvider.WinBle);
+        }
+
         async Task OnAdvertismentReceived(AdvertismentReceivedEvent arg)
+        {
+            await CreateDeviceViewModel(arg.DeviceId, (byte)DefaultConnectionIdProvider.Csr);
+        }
+
+        async Task CreateDeviceViewModel(string deviceId, byte connectionType)
         {
             if (Interlocked.CompareExchange(ref _advConnectionInterlock, 1, 0) == 0)
             {
@@ -164,11 +242,11 @@ namespace DeviceMaintenance.ViewModel
                 try
                 {
                     bool added = false;
-                    deviceViewModel = _devices.GetOrAdd(arg.DeviceId, (id) =>
+                    deviceViewModel = _devices.GetOrAdd(deviceId, (id) =>
                     {
                         added = true;
                         bool isBonded = ConnectionManager.IsBonded(id);
-                        return new DeviceViewModel(new ConnectionId(id, (byte)DefaultConnectionIdProvider.Csr), isBonded, _hub);
+                        return new DeviceViewModel(new ConnectionId(id, connectionType), isBonded, _hub);
                     });
 
                     if (added)
@@ -192,7 +270,7 @@ namespace DeviceMaintenance.ViewModel
 
         Task OnDeviceConnected(DeviceConnectedEvent arg)
         {
-            if (AutomaticallyUploadFirmware || arg.DeviceViewModel.IsBoot)
+            if (IsFirmwareSelected && (AutomaticallyUploadFirmware || arg.DeviceViewModel.IsBoot))
                 return arg.DeviceViewModel.StartFirmwareUpdate(FirmwareFilePath);
 
             return Task.CompletedTask;

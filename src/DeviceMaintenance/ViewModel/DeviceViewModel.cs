@@ -113,7 +113,8 @@ namespace DeviceMaintenance.ViewModel
                 {
                     CommandAction = async (x) =>
                     {
-                        await StartFirmwareUpdate((string)x);
+                        if(!string.IsNullOrEmpty((string)x))
+                            await StartFirmwareUpdate((string)x);
                     }
                 };
             }
@@ -196,7 +197,12 @@ namespace DeviceMaintenance.ViewModel
                     x => x.ConnectionId == _connectionId);
 
                 if (res.Device == null)
-                    throw new Exception("Failed to connect device");
+                {
+                    if(_connectionId.IdProvider == (byte)DefaultConnectionIdProvider.WinBle)
+                        throw new Exception("Failed to connect device. Pair device and try again");
+                    else if(_connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr)
+                        throw new Exception("Failed to connect device");
+                }
 
                 CurrentState = State.Connected;
                 SetDevice(res.Device);

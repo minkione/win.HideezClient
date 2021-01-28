@@ -11,19 +11,23 @@ using Meta.Lib.Utils;
 using MvvmExtensions.PropertyChangedMonitoring;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using WinBle._10._0._18362;
 
 namespace DeviceMaintenance.ViewModel
 {
     public class ConnectionManagerViewModel : PropertyChangedImplementation
     {
         readonly ConnectionManagersCoordinator _connectionManagersCoordinator;
-        readonly BleConnectionManager _connectionManager;
+        readonly WinBleConnectionManager _winBleConnectionManager;
+        readonly BleConnectionManager _csrConnectionManager;
         readonly DeviceManager _deviceManager;
         readonly EventLogger _log;
         readonly MetaPubSub _hub;
+        IBleConnectionManager _activeConnectionManager;
 
-        public bool BleAdapterAvailable => _connectionManager?.State == BluetoothAdapterState.PoweredOn;
+        public bool BleAdapterAvailable => _activeConnectionManager?.State == BluetoothAdapterState.PoweredOn;
 
         public ConnectionManagerViewModel(EventLogger log, MetaPubSub hub)
         {
@@ -40,17 +44,38 @@ namespace DeviceMaintenance.ViewModel
             // ConnectionManager ============================
             Directory.CreateDirectory(bondsFolderPath); // Ensure directory for bonds is created since unmanaged code doesn't do that
 
-            _connectionManager = new BleConnectionManager(log, bondsFolderPath);
-            _connectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            _connectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
+            _csrConnectionManager = new BleConnectionManager(log, bondsFolderPath);
+            _csrConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+            _csrConnectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
+            _winBleConnectionManager = new WinBleConnectionManager(log);
+            _winBleConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
+            _winBleConnectionManager.BondedControllerAdded += WinBleConnectionManager_BondedControllerAdded;
 
             // Connection Managers Coordinator ============================
             _connectionManagersCoordinator = new ConnectionManagersCoordinator();
-            _connectionManagersCoordinator.AddConnectionManager(_connectionManager);
-            _connectionManagersCoordinator.Start();
+            _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManager);
+            _connectionManagersCoordinator.AddConnectionManager(_csrConnectionManager);
+            //_connectionManagersCoordinator.Start();
 
             // DeviceManager ============================
             _deviceManager = new DeviceManager(_connectionManagersCoordinator, log);
+        }
+
+        public void Initialize(DefaultConnectionIdProvider connectionType)
+        {
+            _activeConnectionManager?.Restart();
+            _connectionManagersCoordinator.Stop();
+            if (connectionType == DefaultConnectionIdProvider.Csr)
+            {
+                _activeConnectionManager = _csrConnectionManager;
+            }
+            else if (connectionType == DefaultConnectionIdProvider.WinBle)
+            {
+                _activeConnectionManager = _winBleConnectionManager;
+            }
+            _activeConnectionManager.Start();
+
+            NotifyPropertyChanged(nameof(BleAdapterAvailable));
         }
 
         void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
@@ -62,6 +87,11 @@ namespace DeviceMaintenance.ViewModel
         {
             if (e.Rssi > SdkConfig.TapProximityUnlockThreshold)
                 _hub.Publish(new AdvertismentReceivedEvent(e));
+        }
+
+        void WinBleConnectionManager_BondedControllerAdded(object sender, ControllerAddedEventArgs e)
+        {
+            _hub.Publish(new ControllerAddedEvent(e.Controller.Id));
         }
 
         Task OnStartDiscoveryCommand(StartDiscoveryCommand arg)
@@ -88,7 +118,9 @@ namespace DeviceMaintenance.ViewModel
             if (device == null)
             {
                 await _deviceManager.DeleteBond(arg.ConnectionId);
-                device = await _deviceManager.Connect(arg.ConnectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+                
+                if(_activeConnectionManager.Id == (byte)DefaultConnectionIdProvider.Csr)
+                    device = await _deviceManager.Connect(arg.ConnectionId).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
             }
 
             if (device != null)
@@ -112,7 +144,9 @@ namespace DeviceMaintenance.ViewModel
 
         public bool IsBonded(string id)
         {
-            return _connectionManager.IsBonded(id);
+            if(_activeConnectionManager.Id == (byte)DefaultConnectionIdProvider.Csr)
+                return _csrConnectionManager.IsBonded(id);
+            return true;
         }
     }
 }

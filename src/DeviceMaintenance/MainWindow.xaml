@@ -36,6 +36,14 @@
                         NoConnectionBackground="{DynamicResource DisconnectedBrush}"
                         HasConnectionBackground="{DynamicResource ConnectedBrush}"
                         />
+                    <RadioButton GroupName="Type"
+                                 Content="Csr"
+                                 IsChecked="{Binding IsCsrEnabled, Mode=TwoWay}"
+                                 Margin="10,0">
+                    </RadioButton>
+                    <RadioButton GroupName="Type"
+                                 Content="WinBle"
+                                 IsChecked="{Binding IsWinBleEnabled, Mode=TwoWay}"/>
                 </WrapPanel>
 
 
@@ -61,6 +69,7 @@
                     Content="Automatically start uploading device firmware" 
                     HorizontalAlignment="Left" 
                     IsChecked="{Binding AutomaticallyUploadFirmware, Mode=TwoWay}"
+                    Visibility="{Binding Path=IsCsrEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
                     />
 
                 <WrapPanel 
@@ -90,7 +99,16 @@
                         Foreground="White"
                         FontWeight="DemiBold"
                         VerticalAlignment="Center"
-                        Visibility="{Binding Path=IsFirmwareSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Visibility="{Binding Path=IsTapEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        />
+                    <TextBlock 
+                        Margin="10"
+                        Text="Pair device through Windows Bluetooth Settings to upload new firmware" 
+                        FontSize="14"
+                        Foreground="White"
+                        FontWeight="DemiBold"
+                        VerticalAlignment="Center"
+                        Visibility="{Binding Path=IsWinBleUpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}"
                         />
                 </WrapPanel>
 
@@ -153,6 +171,7 @@
                                         FontWeight="Bold"
                                         Margin="10,0,0,0"
                                         Command="{Binding UpdateDevice}" CommandParameter="{Binding DataContext.FirmwareFilePath, RelativeSource={RelativeSource FindAncestor, AncestorType=Metro:MetroWindow}}"
+                                        IsEnabled="{Binding DataContext.IsFirmwareSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=Metro:MetroWindow}}"
                                         Style="{StaticResource MetroAccentButton}"
                                         Visibility="{Binding ReadyToUpdateState, Converter={StaticResource BooleanToVisibilityConverter}}"
                                         />
@@ -215,19 +234,35 @@
                                     Padding="2"
                                     />
 
-                                    <iconPacks:PackIconMaterial
-                                    Kind="Cancel"
-                                    Foreground="Red"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center"
-                                    Height="24"
-                                    Width="24"
-                                    Margin="10,0"
-                                    Visibility="{Binding ErrorState, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    ToolTip="{Binding CustomError}"
-                                    Background="Transparent"
-                                    Padding="2"
-                                    />
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="10,2,5,2"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                Visibility="{Binding ErrorState, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                                        <Border BorderThickness="2"
+                                                BorderBrush="White"
+                                                Padding="10,1,0,1"
+                                                VerticalAlignment="Center"
+                                                ToolTip="{Binding CustomError}">
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                                                <TextBlock VerticalAlignment="Center"
+                                                           HorizontalAlignment="Left"
+                                                           Text="Failed"
+                                                           FontSize="14"
+                                                           />
+                                                <iconPacks:PackIconMaterial
+                                                        Kind="Cancel"
+                                                        Foreground="Red"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center"
+                                                        Height="19"
+                                                        Width="19"
+                                                        Margin="14,2,4,2"
+                                                        Background="Transparent"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
                                 </Grid>
                             </Border>
                         </DataTemplate>

@@ -156,6 +156,7 @@
     <Compile Include="Messages\ClosingEvent.cs" />
     <Compile Include="Messages\ConnectDeviceCommand.cs" />
     <Compile Include="Messages\ConnectDeviceResponse.cs" />
+    <Compile Include="Messages\ControllerAddedEvent.cs" />
     <Compile Include="Messages\DeviceConnectedEvent.cs" />
     <Compile Include="Messages\DeviceWipedEvent.cs" />
     <Compile Include="Messages\EnterBootCommand.cs" />
@@ -232,6 +233,10 @@
     <ProjectReference Include="..\..\win.SDK\CsrBLE\CsrBLE.vcxproj">
       <Project>{d274aa09-5b34-4450-a6fb-5a5a351c7b45}</Project>
       <Name>CsrBLE</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\win.SDK\WinBle\WinBle.csproj">
+      <Project>{AF08ED4D-6977-4DCB-A49D-0C0A547698BA}</Project>
+      <Name>WinBle</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
