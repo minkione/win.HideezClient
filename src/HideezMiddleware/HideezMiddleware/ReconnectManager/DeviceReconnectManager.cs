@@ -202,7 +202,6 @@ namespace HideezMiddleware.ReconnectManager
             {
                 if (!device.IsBoot && !(device is IRemoteDeviceProxy))
                 {
-                    // TODO: Temporary fix, until WinBle connection lifetime is updated to support reconnect
                     if (_reconnectAllowedList.Add(device.Id))
                         WriteLine($"{device.Id} reconnect enabled");
                 }
