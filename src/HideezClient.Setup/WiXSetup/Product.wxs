@@ -89,6 +89,8 @@
       <ComponentRef Id="ApplicationShortcut" />
       <ComponentRef Id="ApplicationStartup" />
 
+      <ComponentRef Id="AppModeWriteToRegistry" />
+    
     </Feature>
 
     <!-- Directory structure -->
@@ -179,6 +181,14 @@
                       Root="HKLM"
                       Key="SOFTWARE\Hideez\Client"
                       Name="client_hes_address"
+                      Type="raw" />
+    </Property>
+    
+    <Property Id="SAVEDMODE" Secure="yes">
+      <RegistrySearch Id="FindSavedMODE"
+                      Root="HKLM"
+                      Key="SOFTWARE\Hideez\Client"
+                      Name="mode"
                       Type="raw" />
     </Property>
     <!-- ... -->
@@ -874,6 +884,16 @@
                   Execute="deferred"
                   Impersonate="no"
                   Return="check"/>
+  </Fragment>
+  
+    <!-- Standalone / Enterprise installation-->
+  <Fragment>
+    <SetProperty Id="ENTERPRISE" After="CostFinalize" Value="[SAVEDMODE]">SAVEDMODE</SetProperty>
+    <Component Id="AppModeWriteToRegistry" Guid="{CE2BEA01-24BA-4CD5-AC3D-9EBA436BE62D}" Directory="INSTALLFOLDER">
+      <RegistryKey Root="HKLM" Key="SOFTWARE\Hideez\Client" >
+        <RegistryValue Type="string" Name="mode" Value="[ENTERPRISE]" />
+      </RegistryKey>
+    </Component>
   </Fragment>
   
 </Wix>

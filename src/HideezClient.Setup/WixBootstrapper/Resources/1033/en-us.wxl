@@ -34,7 +34,7 @@ no prompts. By default UI and all prompts are displayed.
   <String Id="InstallEnableGA">&amp;Send anonymous usage statistics to Hideez</String>
 
   <String Id="InstallSelectVersionText">Select version to install</String>
-  <String Id="InstallStandaloneButton">Standalone version (Coming soon)</String>
+  <String Id="InstallStandaloneButton">Standalone version</String>
   <String Id="InstallEnterpriseButton">Enterprise version</String>
   <String Id="InstallAdditionalOptionsText">Additional options</String>
   <String Id="InstallDriverButton">Install dongle driver</String>
