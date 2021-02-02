@@ -107,6 +107,9 @@
     <Compile Include="..\..\Version.cs">
       <Link>Version.cs</Link>
     </Compile>
+    <Compile Include="ApplicationModeProvider\ApplicationMode.cs" />
+    <Compile Include="ApplicationModeProvider\ApplicationModeRegistryProvider.cs" />
+    <Compile Include="ApplicationModeProvider\IApplicationModeProvider.cs" />
     <Compile Include="Audit\EventSaver.cs" />
     <Compile Include="Audit\EventSender.cs" />
     <Compile Include="Audit\EventFactory.cs" />

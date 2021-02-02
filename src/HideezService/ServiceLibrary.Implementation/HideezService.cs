@@ -12,6 +12,7 @@ using System.IO.Pipes;
 using System.Security.Principal;
 using System.Security.AccessControl;
 using HideezMiddleware.Utils.WorkstationHelper;
+using HideezMiddleware.ApplicationModeProvider;
 
 namespace ServiceLibrary.Implementation
 {
@@ -29,6 +30,7 @@ namespace ServiceLibrary.Implementation
         static IWorkstationIdProvider _workstationIdProvider;
         static IMetaPubSub _messenger;
         static IWorkstationHelper _workstationHelper;
+        static IApplicationModeProvider _applicationModeProvider;
 
         public HideezService()
         {
@@ -65,6 +67,10 @@ namespace ServiceLibrary.Implementation
 
                 _log.WriteLine(">>>>>> Get registry settings key");
                 clientRootRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
+
+                _log.WriteLine(">>>>>> Get application mode provider");
+                _applicationModeProvider = new ApplicationModeRegistryProvider(clientRootRegistryKey, _sdkLogger);
+                _log.WriteLine($"Application mode: {_applicationModeProvider.GetApplicationMode()}");
 
                 _log.WriteLine(">>>>>> Initialize session monitor");
                 _workstationHelper = new WorkstationHelper(_sdkLogger);
