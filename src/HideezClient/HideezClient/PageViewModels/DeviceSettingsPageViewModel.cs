@@ -1,11 +1,8 @@
-﻿using GalaSoft.MvvmLight.Messaging;
-using Hideez.SDK.Communication.Log;
+﻿using Hideez.SDK.Communication.Log;
 using HideezClient.Messages;
-using HideezClient.Models;
 using HideezClient.Modules;
 using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
-using HideezClient.Mvvm;
 using HideezClient.ViewModels;
 using HideezClient.ViewModels.Controls;
 using Meta.Lib.Modules.PubSub;
@@ -13,16 +10,12 @@ using MvvmExtensions.Commands;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace HideezClient.PageViewModels
@@ -82,6 +75,7 @@ namespace HideezClient.PageViewModels
             });
 
             this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Where(t => t.Item1 != 0 && t.Item2 != 0).Subscribe(o => ProximityHasChanges = true);
+            UnlockProximity = 20;
 
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
         }

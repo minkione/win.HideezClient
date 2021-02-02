@@ -976,4 +976,22 @@ Only 1 attempt left.</value>
   <data name="Status.Tooltip.BluetoothUnavailable" xml:space="preserve">
     <value>Bluetooth turned off or not available</value>
   </data>
+  <data name="ProximitySettings.CheckBox.DisableDisplayAutomatically" xml:space="preserve">
+    <value>Do not turn on display automatically</value>
+  </data>
+  <data name="ProximitySettings.CheckBox.EnableLockPC" xml:space="preserve">
+    <value>Use this device to Lock the PC</value>
+  </data>
+  <data name="ProximitySettings.CheckBox.EnableUnlockPC" xml:space="preserve">
+    <value>Use this device to Unlock the PC</value>
+  </data>
+  <data name="ProximitySettings.Label.UserName" xml:space="preserve">
+    <value>User Name</value>
+  </data>
+  <data name="ProximitySettings.TextBlock.SignalLevel" xml:space="preserve">
+    <value>Select the bluetooth signal level for lock and unlock of the computer.</value>
+  </data>
+  <data name="ProximitySettings.Watermark.Password" xml:space="preserve">
+    <value>Enter new password</value>
+  </data>
 </root>
