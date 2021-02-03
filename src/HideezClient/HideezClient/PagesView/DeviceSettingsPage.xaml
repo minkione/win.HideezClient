@@ -195,17 +195,17 @@
                                 Style="{StaticResource CheckboxStyle}"
                                 Content="{l:Localization ProximitySettings.CheckBox.EnableLockPC}"
                                 Margin="0,0,0,18"
-                                IsChecked="True" />
+                                IsChecked="{Binding EnabledLockByProximity}" />
                                 <CheckBox 
                                 Style="{StaticResource CheckboxStyle}"
                                 Content="{l:Localization ProximitySettings.CheckBox.DisableDisplayAutomatically}"
                                 Margin="0,0,0,18"
-                                IsChecked="True" />
+                                IsChecked="{Binding DisabledDisplayAuto}" />
                                 <CheckBox 
                                 Style="{StaticResource CheckboxStyle}"
                                 Content="{l:Localization ProximitySettings.CheckBox.EnableUnlockPC}"
                                 Margin="0,0,0,18"
-                                IsChecked="True" />
+                                IsChecked="{Binding EnabledUnlockByProximity}" />
                             </StackPanel>
                             <StackPanel Grid.Column="1">
                                 <!--  Account Name  -->
