@@ -11,8 +11,8 @@ namespace HideezMiddleware
         const string ACCESS_VALUE_NAME = "access";
         readonly RegistryKey _rootKey;
 
-        public event EventHandler<EventArgs> AccessGrantedEvent;
-        public event EventHandler<EventArgs> AccessRetractedEvent;
+        public event EventHandler<EventArgs> AccessGranted;
+        public event EventHandler<EventArgs> AccessRetracted;
 
         public HesAccessManager(RegistryKey rootKey, ILog log)
             : base(nameof(HesAccessManager), log)
@@ -33,7 +33,7 @@ namespace HideezMiddleware
             {
                 _rootKey.DeleteValue(ACCESS_VALUE_NAME);
                 WriteLine("Access key cleared");
-                AccessRetractedEvent?.Invoke(this, EventArgs.Empty);
+                AccessRetracted?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -44,7 +44,7 @@ namespace HideezMiddleware
                 var key = Guid.NewGuid().ToString().Replace("-", "");
                 _rootKey.SetValue(ACCESS_VALUE_NAME, key);
                 WriteLine("Access key saved");
-                AccessGrantedEvent?.Invoke(this, EventArgs.Empty);
+                AccessGranted?.Invoke(this, EventArgs.Empty);
             }
         }
     }

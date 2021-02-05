@@ -13,11 +13,15 @@ using System.Security.Principal;
 using System.Security.AccessControl;
 using HideezMiddleware.Utils.WorkstationHelper;
 using HideezMiddleware.ApplicationModeProvider;
+using System.Collections.Concurrent;
+using HideezMiddleware.Modules;
 
 namespace ServiceLibrary.Implementation
 {
     public partial class HideezService
     {
+        public ConcurrentBag<IModule> ServiceModules { get; } = new ConcurrentBag<IModule>();
+
         static ILog _sdkLogger;
         static Logger _log;
         static EventSaver _eventSaver;
@@ -31,19 +35,6 @@ namespace ServiceLibrary.Implementation
         static IMetaPubSub _messenger;
         static IWorkstationHelper _workstationHelper;
         static IApplicationModeProvider _applicationModeProvider;
-
-        public HideezService()
-        {
-            lock (_initializationLock)
-            {
-                if (!_initialized)
-                {
-                    SetupExceptionHandling();
-                    Initialize();
-                    _initialized = true;
-                }
-            }
-        }
 
         void Initialize()
         {

@@ -24,7 +24,7 @@ namespace HideezServiceHost
         {
             try
             {
-                _service = new HideezService();
+                _service = new HideezServiceFactory().GetHideezService();
             }
             catch (Exception ex)
             {

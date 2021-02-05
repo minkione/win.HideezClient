@@ -87,7 +87,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             _workstationHelper = workstationHelper;
             _deviceLogManager = deviceLogManager;
 
-            _hesAccessManager.AccessRetractedEvent += HesAccessManager_AccessRetractedEvent;
+            _hesAccessManager.AccessRetracted += HesAccessManager_AccessRetractedEvent;
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
             _serviceSettingsManager.SettingsChanged += ServiceSettingsManager_SettingsChanged; 
         }

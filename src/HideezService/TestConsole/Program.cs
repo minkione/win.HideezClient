@@ -12,7 +12,7 @@ namespace TestConsole
             try
             {
                 SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
-                var service = new HideezService();
+                var service = new HideezServiceFactory().GetHideezService();
 
                 while (true)
                 {

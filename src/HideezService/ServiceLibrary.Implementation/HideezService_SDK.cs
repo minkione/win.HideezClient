@@ -145,8 +145,9 @@ namespace ServiceLibrary.Implementation
                 _connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
                 _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManager);
 
-                _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger, _csrBleConnectionManager, _winBleConnectionManager);
-
+                _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger);
+                _connectionManagerRestarter.AddManager(_csrBleConnectionManager);
+                _connectionManagerRestarter.AddManager(_winBleConnectionManager);
 
                 // BLE ============================
                 _deviceManager = new DeviceManager(_connectionManagersCoordinator, _sdkLogger);
@@ -247,7 +248,7 @@ namespace ServiceLibrary.Implementation
 
             // HesAccessManager ==================================
             _hesAccessManager = new HesAccessManager(clientRootRegistryKey, _sdkLogger);
-            _hesAccessManager.AccessRetractedEvent += HesAccessManager_AccessRetractedEvent;
+            _hesAccessManager.AccessRetracted += HesAccessManager_AccessRetractedEvent;
 
             // TB & HES Connections ==================================
             await bleInitTask.ConfigureAwait(false);

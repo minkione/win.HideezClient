@@ -1,4 +1,5 @@
 ﻿using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Workstation;
 using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware.Workstation;
 using Newtonsoft.Json;
@@ -15,7 +16,7 @@ namespace HideezMiddleware.Audit
 
         public event EventHandler UrgentEventSaved;
 
-        public EventSaver(SessionInfoProvider sessionInfoProvider, IWorkstationIdProvider workstationIdProvider, string eventsDirectoryPath, ILog log)
+        public EventSaver(ISessionInfoProvider sessionInfoProvider, IWorkstationIdProvider workstationIdProvider, string eventsDirectoryPath, ILog log)
             : base(nameof(EventSaver), log)
         {
             EventsDirectoryPath = eventsDirectoryPath;
@@ -25,6 +26,7 @@ namespace HideezMiddleware.Audit
 
             _eventFactory = new EventFactory(sessionInfoProvider, workstationIdProvider, log);
         }
+
 
         public string EventsDirectoryPath { get; }
 

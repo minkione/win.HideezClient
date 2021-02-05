@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Utils;
+using HideezMiddleware.CredentialProvider;
 
 namespace HideezMiddleware
 {
     public class UiProxyManager : Logger, IClientUiManager, IDisposable
     {
-        readonly IClientUiProxy _credentialProviderUi;
-        readonly IClientUiProxy _clientUi;
+        IClientUiProxy _credentialProviderUi;
+        IClientUiProxy _clientUi;
         readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _pendingGetPinRequests
             = new ConcurrentDictionary<string, TaskCompletionSource<string>>();
         readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetActivationCodeRequests
@@ -21,22 +22,15 @@ namespace HideezMiddleware
         public UiProxyManager(IClientUiProxy credentialProviderUi, IClientUiProxy clientUi, ILog log)
             : base(nameof(UiProxyManager), log)
         {
-            _credentialProviderUi = credentialProviderUi;
-            _clientUi = clientUi;
+            _credentialProviderUi = credentialProviderUi ?? throw new ArgumentNullException(nameof(credentialProviderUi));
+            _credentialProviderUi.PinReceived += ClientUi_PinReceived;
+            _credentialProviderUi.ActivationCodeReceived += ClientUi_ActivationCodeReceived;
+            _credentialProviderUi.ActivationCodeCancelled += ClientUi_ActivationCodeCancelled;
 
-            if (_credentialProviderUi != null)
-            {
-                _credentialProviderUi.PinReceived += ClientUi_PinReceived;
-                _credentialProviderUi.ActivationCodeReceived += ClientUi_ActivationCodeReceived;
-                _credentialProviderUi.ActivationCodeCancelled += ClientUi_ActivationCodeCancelled;
-            }
-
-            if (_clientUi != null)
-            {
-                _clientUi.PinReceived += ClientUi_PinReceived;
-                _clientUi.ActivationCodeReceived += ClientUi_ActivationCodeReceived;
-                _clientUi.ActivationCodeCancelled += ClientUi_ActivationCodeCancelled;
-            }
+            _clientUi = clientUi ?? throw new ArgumentNullException(nameof(clientUi));
+            _clientUi.PinReceived += ClientUi_PinReceived;
+            _clientUi.ActivationCodeReceived += ClientUi_ActivationCodeReceived;
+            _clientUi.ActivationCodeCancelled += ClientUi_ActivationCodeCancelled;
         }
 
         #region IDisposable

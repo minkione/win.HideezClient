@@ -1,5 +1,6 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware.Utils.WorkstationHelper;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -26,14 +27,14 @@ namespace HideezMiddleware.Audit
         const double TIMESTAMP_SAVE_INTERVAL = 300_000; // 5 minutes. At most results in 5 minute difference between service uptime and shutdown without server connection
 
         readonly string _timestampFilePath;
-        readonly SessionInfoProvider _sessionInfoProvider;
+        readonly ISessionInfoProvider _sessionInfoProvider;
         readonly EventSaver _eventSaver;
         readonly Timer _timestampSaveTimer = new Timer(TIMESTAMP_SAVE_INTERVAL);
         readonly IWorkstationHelper _workstationHelper;
 
         readonly object _fileLock = new object();
 
-        public SessionTimestampLogger(string timestampFilePath, SessionInfoProvider sessionInfoProvider, EventSaver eventSaver,
+        public SessionTimestampLogger(string timestampFilePath, ISessionInfoProvider sessionInfoProvider, EventSaver eventSaver,
             IWorkstationHelper workstationHelper, ILog log)
             : base(nameof(SessionTimestampLogger), log)
         {

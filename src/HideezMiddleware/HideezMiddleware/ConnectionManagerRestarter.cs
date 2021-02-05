@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,14 +13,31 @@ namespace HideezMiddleware
     /// </summary>
     public class ConnectionManagerRestarter : Logger
     {
-        readonly IBleConnectionManager[] _bleConnectionManagers;
+        readonly List<IBleConnectionManager> _bleConnectionManagers = new List<IBleConnectionManager>();
+        readonly object _managersLock = new object();
         CancellationTokenSource _tcs = null;
-        object _tcsLock = new object();
+        readonly object _tcsLock = new object();
 
-        public ConnectionManagerRestarter(ILog log, params IBleConnectionManager[] bleConnectionManagers)
+        public ConnectionManagerRestarter(ILog log)
             : base(nameof(ConnectionManagerRestarter), log)
         {
-            _bleConnectionManagers = bleConnectionManagers;
+        }
+
+        public void AddManager(IBleConnectionManager manager)
+        {
+            lock (_managersLock)
+            {
+                if (!_bleConnectionManagers.Contains(manager))
+                    _bleConnectionManagers.Add(manager);
+            }
+        }
+
+        public void RemoveManager(IBleConnectionManager manager)
+        {
+            lock(_managersLock)
+            {
+                _bleConnectionManagers.Remove(manager);
+            }
         }
 
         public int ManagerStateCheckIntervalMs { get; set; } = 2000;

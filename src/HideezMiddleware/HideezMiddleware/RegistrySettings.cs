@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Hideez.SDK.Communication.Log;
-using HideezMiddleware;
 
-namespace ServiceLibrary.Implementation
+namespace HideezMiddleware
 {
-    class RegistrySettings
+    public class RegistrySettings
     {
         const string _hesAddressRegistryValueName = "client_hes_address";
 
