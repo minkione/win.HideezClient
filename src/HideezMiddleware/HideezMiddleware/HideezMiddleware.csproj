@@ -222,6 +222,10 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="SessionUnlockMethodMonitor.cs" />
+    <Compile Include="Settings\SettingsProvider\DeviceProximitySettingsProvider.cs" />
+    <Compile Include="Settings\SettingsProvider\DeviceProximitySettingsProviderFactory.cs" />
+    <Compile Include="Settings\UserDeviceProximitySettings.cs" />
+    <Compile Include="Settings\UserProximitySettings.cs" />
     <Compile Include="Settings\Manager\WatchingSettingsManager.cs" />
     <Compile Include="Settings\WorkstationSettings.cs" />
     <Compile Include="Tasks\WaitAdvertisementProc.cs" />

@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Security;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Hideez.CsrBLE;
 using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
@@ -44,7 +41,8 @@ using WinBle._10._0._18362;
 using Hideez.SDK.Communication.Connection;
 using HideezMiddleware.CredentialProvider;
 using HideezMiddleware.Threading;
-using HideezMiddleware.Utils.WorkstationHelper;
+using Hideez.SDK.Communication.Proximity.Interfaces;
+using HideezMiddleware.Settings.SettingsProvider;
 
 namespace ServiceLibrary.Implementation
 {
@@ -57,6 +55,7 @@ namespace ServiceLibrary.Implementation
         static HesAppConnection _hesConnection;
         static RfidServiceConnection _rfidService;
         static ProximityMonitorManager _proximityMonitorManager;
+        static IProximitySettingsProviderFactory _proximitySettingsProviderFactory;
         static IScreenActivator _screenActivator;
         static PipeDeviceConnectionManager _pipeDeviceConnectionManager;
         static EventSender _eventSender;
@@ -67,10 +66,11 @@ namespace ServiceLibrary.Implementation
         static WorkstationLockProcessor _workstationLockProcessor;
 
         static ISettingsManager<RfidSettings> _rfidSettingsManager;
-        static ISettingsManager<ProximitySettings> _proximitySettingsManager;
         static ISettingsManager<ServiceSettings> _serviceSettingsManager;
+        static WatchingSettingsManager<ProximitySettings> _enterpriseProximitySettingsManager;
         static DeviceProximitySettingsHelper _deviceProximitySettingsHelper;
         static WatchingSettingsManager<WorkstationSettings> _workstationSettingsManager;
+        static WatchingSettingsManager<UserProximitySettings> _userProximitySettingsManager;
 
         static BondManager _bondManager;
         static ConnectionFlowProcessor _connectionFlowProcessor;
@@ -182,6 +182,7 @@ namespace ServiceLibrary.Implementation
             string sdkSettingsPath = Path.Combine(settingsDirectory, "Sdk.xml");
             string rfidSettingsPath = Path.Combine(settingsDirectory, "Rfid.xml");
             string proximitySettingsPath = Path.Combine(settingsDirectory, "Unlock.xml");
+            string userProximitySettingsPath = Path.Combine(settingsDirectory, "UserProximitySettings.xml");
             string serviceSettingsPath = Path.Combine(settingsDirectory, "Service.xml");
             string workstationSettingsPath = Path.Combine(settingsDirectory, "Workstation.xml");
             IFileSerializer fileSerializer = new XmlFileSerializer(_sdkLogger);
@@ -204,11 +205,12 @@ namespace ServiceLibrary.Implementation
                 }),
                 Task.Run(async () =>
                 {
-                    _proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
-                    _proximitySettingsManager.InitializeFileStruct();
-                    await _proximitySettingsManager.GetSettingsAsync().ConfigureAwait(false);
+                    _enterpriseProximitySettingsManager = new WatchingSettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
+                    _enterpriseProximitySettingsManager.InitializeFileStruct();
+                    await _enterpriseProximitySettingsManager.LoadSettingsAsync().ConfigureAwait(false);
+                    _enterpriseProximitySettingsManager.AutoReloadOnFileChanges = true;
 
-                    _deviceProximitySettingsHelper = new DeviceProximitySettingsHelper(_proximitySettingsManager);
+                    _deviceProximitySettingsHelper = new DeviceProximitySettingsHelper(_enterpriseProximitySettingsManager);
                     _sdkLogger.WriteLine(nameof(HideezService), $"{nameof(ProximitySettings)} loaded");
                 }),
                 Task.Run(async () =>
@@ -224,7 +226,13 @@ namespace ServiceLibrary.Implementation
                     _workstationSettingsManager.InitializeFileStruct();
                     await _workstationSettingsManager.LoadSettingsAsync().ConfigureAwait(false);
                     _workstationSettingsManager.AutoReloadOnFileChanges = true;
-                    _workstationSettingsManager.SettingsChanged += WorkstationProximitySettingsManager_SettingsChanged;
+                    _sdkLogger.WriteLine(nameof(HideezService), $"{nameof(WorkstationSettings)} loaded");
+                }),
+                 Task.Run(async () =>
+                {
+                    _userProximitySettingsManager = new WatchingSettingsManager<UserProximitySettings>(userProximitySettingsPath, fileSerializer);
+                    await _userProximitySettingsManager.LoadSettingsAsync().ConfigureAwait(false);
+                    _userProximitySettingsManager.AutoReloadOnFileChanges = true;
                     _sdkLogger.WriteLine(nameof(HideezService), $"{nameof(WorkstationSettings)} loaded");
                 })
             };
@@ -239,6 +247,13 @@ namespace ServiceLibrary.Implementation
             EndpointCertificateManager.Enable();
             EndpointCertificateManager.AllowCertificate(hesAddress);
 
+            //ProximitySettingsProviderFactory =================================
+            _proximitySettingsProviderFactory = new DeviceProximitySettingsProviderFactory(
+                _applicationModeProvider.GetApplicationMode(),
+                _enterpriseProximitySettingsManager,
+                _userProximitySettingsManager,
+                _sdkLogger);
+
             // WorkstationInfoProvider ==================================
             var workstationInfoProvider = new WorkstationInfoProvider(_workstationIdProvider, 
                 _serviceSettingsManager, 
@@ -252,7 +267,7 @@ namespace ServiceLibrary.Implementation
             // TB & HES Connections ==================================
             await bleInitTask.ConfigureAwait(false);
             await pipeInitTask.ConfigureAwait(false);
-            await CreateHubs(_deviceManager, workstationInfoProvider, _proximitySettingsManager, _rfidSettingsManager, _hesAccessManager, _sdkLogger).ConfigureAwait(false);
+            await CreateHubs(_deviceManager, workstationInfoProvider, _enterpriseProximitySettingsManager, _rfidSettingsManager, _hesAccessManager, _sdkLogger).ConfigureAwait(false);
 
             serviceInitializationTasks.Add(StartHubs(hesAddress));
 
@@ -332,7 +347,7 @@ namespace ServiceLibrary.Implementation
             _proximityProcessor = new ProximityConnectionProcessor(
                 _connectionFlowProcessor,
                 _csrBleConnectionManager,
-                _proximitySettingsManager,
+                _enterpriseProximitySettingsManager,
                 _workstationSettingsManager,
                 _advIgnoreCsrList,
                 _deviceManager,
@@ -343,7 +358,7 @@ namespace ServiceLibrary.Implementation
                 _connectionFlowProcessor,
                 _winBleConnectionManager,
                 _advIgnoreWinBleList,
-                _workstationSettingsManager,
+                _proximitySettingsProviderFactory,
                 _deviceManager,
                 _credentialProviderProxy,
                 _uiProxy,
@@ -359,8 +374,7 @@ namespace ServiceLibrary.Implementation
             }));
 
             // Proximity Monitor ==================================
-            ProximitySettings proximitySettings = _proximitySettingsManager.Settings;
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _workstationSettingsManager.Settings.GetProximityMonitorSettings(), _sdkLogger);
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _proximitySettingsProviderFactory, _sdkLogger);
 
             // Device Reconnect Manager ================================
             _deviceReconnectManager = new DeviceReconnectManager(_proximityMonitorManager,
@@ -594,22 +608,6 @@ namespace ServiceLibrary.Implementation
             foreach (var device in _deviceManager.Devices)
             {
                 await _deviceManager.Disconnect(device.DeviceConnection).ConfigureAwait(false);
-            }
-        }
-
-        void WorkstationProximitySettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<WorkstationSettings> e)
-        {
-            try
-            {
-                if (_proximityMonitorManager != null)
-                {
-                    _log.WriteLine("Updating proximity monitors with new settings");
-                    _proximityMonitorManager.MonitorSettings = e.NewSettings.GetProximityMonitorSettings();
-                }
-            }
-            catch (Exception ex)
-            {
-                _log.WriteLine(ex);
             }
         }
 

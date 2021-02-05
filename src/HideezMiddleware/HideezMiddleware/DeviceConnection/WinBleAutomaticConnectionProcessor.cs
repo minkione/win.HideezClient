@@ -4,6 +4,7 @@ using Hideez.SDK.Communication.Connection;
 using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Proximity.Interfaces;
 using HideezMiddleware.CredentialProvider;
 using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.Localize;
@@ -22,7 +23,7 @@ namespace HideezMiddleware.DeviceConnection
     public sealed class WinBleAutomaticConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
         readonly WinBleConnectionManager _winBleConnectionManager;
-        readonly ISettingsManager<WorkstationSettings> _workstationSettingsManager;
+        readonly IProximitySettingsProviderFactory _proximitySettingsProviderFactory;
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly DeviceManager _deviceManager;
         readonly CredentialProviderProxy _credentialProviderProxy;
@@ -38,7 +39,7 @@ namespace HideezMiddleware.DeviceConnection
             ConnectionFlowProcessor connectionFlowProcessor,
             WinBleConnectionManager winBleConnectionManager,
             AdvertisementIgnoreList advIgnoreListMonitor,
-            ISettingsManager<WorkstationSettings> workstationSettingsManager,
+            IProximitySettingsProviderFactory proximitySettingsProviderFactory,
             DeviceManager deviceManager,
             CredentialProviderProxy credentialProviderProxy,
             IClientUiManager ui,
@@ -47,7 +48,7 @@ namespace HideezMiddleware.DeviceConnection
             : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
         {
             _winBleConnectionManager = winBleConnectionManager ?? throw new ArgumentNullException(nameof(winBleConnectionManager));
-            _workstationSettingsManager = workstationSettingsManager ?? throw new ArgumentNullException(nameof(workstationSettingsManager));
+            _proximitySettingsProviderFactory = proximitySettingsProviderFactory ?? throw new ArgumentNullException(nameof(proximitySettingsProviderFactory));
             _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
             _deviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
             _credentialProviderProxy = credentialProviderProxy ?? throw new ArgumentNullException(nameof(credentialProviderProxy));
@@ -162,6 +163,9 @@ namespace HideezMiddleware.DeviceConnection
             if (_workstationHelper.IsActiveSessionLocked())
                 return;
 
+            if (_advIgnoreListMonitor.IsIgnored(e.Controller.Id))
+                return;
+
             await ConnectById(e.Controller.Id);
         }
 
@@ -181,12 +185,21 @@ namespace HideezMiddleware.DeviceConnection
             if (_isConnecting == 1)
                 return;
 
+            if (_advIgnoreListMonitor.IsIgnored(adv.Id))
+                return;
+
             var proximity = BleUtils.RssiToProximity(adv.Rssi);
-            var settings = _workstationSettingsManager.Settings;
+            var settingsProvider = _proximitySettingsProviderFactory.GetProximitySettingsProvider(adv.Id);
 
             if (_workstationHelper.IsActiveSessionLocked())
             {
-                if (proximity < settings.UnlockProximity)
+                if(!settingsProvider.EnabledUnlockByProximity)
+                    return;
+
+                if (settingsProvider.DisabledDisplayAuto && !isCommandLinkPressed)
+                    return;
+
+                if (proximity < settingsProvider.UnlockProximity)
                 {
                     if (isCommandLinkPressed)
                     {
@@ -203,9 +216,6 @@ namespace HideezMiddleware.DeviceConnection
 
         async Task ConnectById(string id)
         {
-            if (_advIgnoreListMonitor.IsIgnored(id))
-                return;
-
             // Device must be present in the list of bonded devices to be suitable for connection
             if (_winBleConnectionManager.BondedControllers.FirstOrDefault(c => c.Connection.ConnectionId.Id == id) == null)
                 return;

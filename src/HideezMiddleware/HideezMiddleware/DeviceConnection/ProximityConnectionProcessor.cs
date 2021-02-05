@@ -112,7 +112,7 @@ namespace HideezMiddleware.DeviceConnection
         void SetAccessListFromSettings(ProximitySettings settings)
         {
             _proximitySettings = settings;
-            _idListToConnect = _proximitySettings.DevicesProximity.Select(s => s.Mac).ToList();
+            _idListToConnect = _proximitySettings.DevicesProximity.Select(s => BleUtils.MacToConnectionId(s.Mac)).ToList();
             _advIgnoreListMonitor.Clear();
         }
 
