@@ -46,14 +46,14 @@ namespace HideezMiddleware.Settings.SettingsProvider
             get => _applicationMode == ApplicationMode.Enterprise ? true : _userDeviceProximitySettings.EnabledLockByProximity;
         }
 
-        public bool EnabledUnlockByProximity 
+        public bool EnabledUnlock 
         { 
             get => _applicationMode == ApplicationMode.Enterprise ? true : _userDeviceProximitySettings.EnabledUnlockByProximity;
         }
 
-        public bool DisabledDisplayAuto 
+        public bool DisabledUnlockByProximity 
         { 
-            get => _applicationMode == ApplicationMode.Enterprise ? _isExistEnterpriseSettings : _userDeviceProximitySettings.DisabledDisplayAuto;
+            get => _applicationMode == ApplicationMode.Enterprise ? !_isExistEnterpriseSettings : _userDeviceProximitySettings.DisabledDisplayAuto;
         }
 
         public DeviceProximitySettingsProvider(

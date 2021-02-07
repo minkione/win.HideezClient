@@ -10,6 +10,7 @@ using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Proximity.Interfaces;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.Settings;
@@ -20,16 +21,12 @@ namespace HideezMiddleware.DeviceConnection
     public sealed class ProximityConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
         readonly IBleConnectionManager _bleConnectionManager;
-        readonly ISettingsManager<ProximitySettings> _proximitySettingsManager;
-        readonly ISettingsManager<WorkstationSettings> _workstationSettingsManager;
+        readonly IProximitySettingsProviderFactory _proximitySettingsProviderFactory;
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly DeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
         readonly IHesAccessManager _hesAccessManager;
         readonly object _lock = new object();
-
-        List<string> _idListToConnect;
-        ProximitySettings _proximitySettings;
 
         int _isConnecting = 0;
         bool isRunning = false;
@@ -37,8 +34,7 @@ namespace HideezMiddleware.DeviceConnection
         public ProximityConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
-            ISettingsManager<ProximitySettings> proximitySettingsManager,
-            ISettingsManager<WorkstationSettings> workstationSettingsManager,
+            IProximitySettingsProviderFactory proximitySettingsProviderFactory,
             AdvertisementIgnoreList advIgnoreListMonitor,
             DeviceManager deviceManager,
             IWorkstationUnlocker workstationUnlocker,
@@ -47,8 +43,7 @@ namespace HideezMiddleware.DeviceConnection
             : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
         {
             _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
-            _proximitySettingsManager = proximitySettingsManager ?? throw new ArgumentNullException(nameof(proximitySettingsManager));
-            _workstationSettingsManager = workstationSettingsManager ?? throw new ArgumentNullException(nameof(workstationSettingsManager));
+            _proximitySettingsProviderFactory = proximitySettingsProviderFactory ?? throw new ArgumentNullException(nameof(_proximitySettingsProviderFactory));
             _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
             _deviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
             _workstationUnlocker = workstationUnlocker ?? throw new ArgumentNullException(nameof(workstationUnlocker));
@@ -71,7 +66,6 @@ namespace HideezMiddleware.DeviceConnection
             if (disposing)
             {
                 _bleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
-                _proximitySettingsManager.SettingsChanged -= UnlockerSettingsManager_SettingsChanged;
             }
 
             disposed = true;
@@ -90,8 +84,6 @@ namespace HideezMiddleware.DeviceConnection
                 if (!isRunning)
                 {
                     _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
-                    _proximitySettingsManager.SettingsChanged += UnlockerSettingsManager_SettingsChanged;
-                    SetAccessListFromSettings(_proximitySettingsManager.Settings);
                     isRunning = true;
                     WriteLine("Started");
                 }
@@ -104,15 +96,12 @@ namespace HideezMiddleware.DeviceConnection
             {
                 isRunning = false;
                 _bleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
-                _proximitySettingsManager.SettingsChanged -= UnlockerSettingsManager_SettingsChanged;
                 WriteLine("Stopped");
             }
         }
 
         void SetAccessListFromSettings(ProximitySettings settings)
         {
-            _proximitySettings = settings;
-            _idListToConnect = _proximitySettings.DevicesProximity.Select(s => BleUtils.MacToConnectionId(s.Mac)).ToList();
             _advIgnoreListMonitor.Clear();
         }
 
@@ -137,16 +126,13 @@ namespace HideezMiddleware.DeviceConnection
             if (_isConnecting == 1)
                 return;
 
-            if (_idListToConnect.Count == 0)
-                return;
-
             var id = adv.Id;
-            if (!_idListToConnect.Any(m => m == id))
+            var settingsProvider = _proximitySettingsProviderFactory.GetProximitySettingsProvider(id);
+            if (settingsProvider.DisabledUnlockByProximity)
                 return;
 
             var proximity = BleUtils.RssiToProximity(adv.Rssi);
-            var settings = _workstationSettingsManager.Settings;
-            if (proximity < settings.UnlockProximity)
+            if (proximity < settingsProvider.UnlockProximity)
                 return;
 
             if (_advIgnoreListMonitor.IsIgnored(id))

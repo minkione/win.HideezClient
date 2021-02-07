@@ -11,6 +11,7 @@ namespace HideezMiddleware.Settings.SettingsProvider
         private readonly ISettingsManager<ProximitySettings> _enterpriseProximitySettingsManager;
         private readonly ISettingsManager<UserProximitySettings> _userDevicesProximitySettingsManager;
         private readonly ILog _log;
+        private readonly object _locker = new object();
 
         private readonly Dictionary<string, IDeviceProximitySettingsProvider> _providers = new Dictionary<string, IDeviceProximitySettingsProvider>();
 
@@ -26,15 +27,18 @@ namespace HideezMiddleware.Settings.SettingsProvider
             _log = log;
         }
 
-        public IDeviceProximitySettingsProvider GetProximitySettingsProvider(string deviceId)
+        public IDeviceProximitySettingsProvider GetProximitySettingsProvider(string connectionId)
         {
-            if (_providers.ContainsKey(deviceId))
-                return _providers[deviceId];
-            else
+            lock (_locker)
             {
-                var provider = new DeviceProximitySettingsProvider(deviceId, _applicationMode, _enterpriseProximitySettingsManager, _userDevicesProximitySettingsManager, _log);
-                _providers.Add(deviceId, provider);
-                return provider;
+                if (_providers.ContainsKey(connectionId))
+                    return _providers[connectionId];
+                else
+                {
+                    var provider = new DeviceProximitySettingsProvider(connectionId, _applicationMode, _enterpriseProximitySettingsManager, _userDevicesProximitySettingsManager, _log);
+                    _providers.Add(connectionId, provider);
+                    return provider;
+                }
             }
         }
     }

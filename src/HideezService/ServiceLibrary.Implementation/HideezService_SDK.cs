@@ -324,12 +324,12 @@ namespace ServiceLibrary.Implementation
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreCsrList = new AdvertisementIgnoreList(
                 _csrBleConnectionManager,
-                _workstationSettingsManager,
+                _proximitySettingsProviderFactory,
                 SdkConfig.DefaultLockTimeout,
                 _sdkLogger);
             _advIgnoreWinBleList = new AdvertisementIgnoreList(
                 _winBleConnectionManager,
-                _workstationSettingsManager,
+                _proximitySettingsProviderFactory,
                 20, // WinBle rssi messages arrive much less frequently than when using csr. Empirically calculated 20s to be acceptable.
                 _sdkLogger);
             _rfidProcessor = new RfidConnectionProcessor(
@@ -347,8 +347,7 @@ namespace ServiceLibrary.Implementation
             _proximityProcessor = new ProximityConnectionProcessor(
                 _connectionFlowProcessor,
                 _csrBleConnectionManager,
-                _enterpriseProximitySettingsManager,
-                _workstationSettingsManager,
+                _proximitySettingsProviderFactory,
                 _advIgnoreCsrList,
                 _deviceManager,
                 _credentialProviderProxy,

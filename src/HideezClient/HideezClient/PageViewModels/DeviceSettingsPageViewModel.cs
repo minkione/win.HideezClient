@@ -1,5 +1,4 @@
-﻿using Hideez.SDK.Communication.BLE;
-using Hideez.SDK.Communication.Log;
+﻿using Hideez.SDK.Communication.Log;
 using HideezClient.Messages;
 using HideezClient.Modules;
 using HideezClient.Modules.Log;
@@ -87,6 +86,7 @@ namespace HideezClient.PageViewModels
 
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
 
+            _proximitySettingsManager.InitializeFileStruct();
             _proximitySettingsManager.LoadSettings();
             TryLoadProximitySettings();
         }
@@ -196,6 +196,7 @@ namespace HideezClient.PageViewModels
         void SaveOrUpdateSettings()
         {
             var settings = _proximitySettingsManager.Settings;
+            string connectionId = Device.Id.Remove(Device.Id.Length - 2);
             var deviceSettings = settings.DevicesProximity.FirstOrDefault(s => s.Id == Device.Id);
             if(deviceSettings!= null)
             {
@@ -209,7 +210,6 @@ namespace HideezClient.PageViewModels
             {
                 var devicesSettings = settings.DevicesProximity.ToList();
                 var newSettings = UserDeviceProximitySettings.DefaultSettings;
-                string connectionId = Device.Id.Remove(Device.Id.Length - 2);
                 newSettings.Id = connectionId;
                 newSettings.DisabledDisplayAuto = DisabledDisplayAuto;
                 newSettings.EnabledLockByProximity = EnabledLockByProximity;

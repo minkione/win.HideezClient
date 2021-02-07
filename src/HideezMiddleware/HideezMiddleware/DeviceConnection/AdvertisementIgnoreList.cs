@@ -5,6 +5,7 @@ using Hideez.SDK.Communication.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hideez.SDK.Communication.Proximity.Interfaces;
 
 namespace HideezMiddleware.DeviceConnection
 {
@@ -23,7 +24,7 @@ namespace HideezMiddleware.DeviceConnection
         }
 
         readonly IBleConnectionManager _bleConnectionManager;
-        readonly ISettingsManager<WorkstationSettings> _workstationSettingsManager;
+        readonly IProximitySettingsProviderFactory _proximitySettingsProviderFactory;
 
         readonly Dictionary<string, IgnoreEntry> _ignoreDict = new Dictionary<string, IgnoreEntry>();
         readonly object _lock = new object();
@@ -31,13 +32,13 @@ namespace HideezMiddleware.DeviceConnection
 
         public AdvertisementIgnoreList(
             IBleConnectionManager bleConnectionManager,
-            ISettingsManager<WorkstationSettings> workstationSettingsManager,
+            IProximitySettingsProviderFactory proximitySettingsProviderFactory,
             int rssiClearDelaySeconds,
             ILog log)
             : base(nameof(AdvertisementIgnoreList), log)
         {
             _bleConnectionManager = bleConnectionManager;
-            _workstationSettingsManager = workstationSettingsManager;
+            _proximitySettingsProviderFactory = proximitySettingsProviderFactory;
             _rssiClearDelaySeconds = rssiClearDelaySeconds;
 
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
@@ -147,8 +148,8 @@ namespace HideezMiddleware.DeviceConnection
                 if (_ignoreDict.ContainsKey(e.Id))
                 {
                     var proximity = BleUtils.RssiToProximity(e.Rssi);
-
-                    if (proximity > _workstationSettingsManager.Settings.LockProximity)
+                    var settingsProvider = _proximitySettingsProviderFactory.GetProximitySettingsProvider(e.Id);
+                    if (proximity > settingsProvider.LockProximity)
                         _ignoreDict[e.Id].LastReceivedTime = DateTime.UtcNow;
                 }
             }
