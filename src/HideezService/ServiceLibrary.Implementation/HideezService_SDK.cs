@@ -55,7 +55,7 @@ namespace ServiceLibrary.Implementation
         static HesAppConnection _hesConnection;
         static RfidServiceConnection _rfidService;
         static ProximityMonitorManager _proximityMonitorManager;
-        static IProximitySettingsProviderFactory _proximitySettingsProviderFactory;
+        static IDeviceProximitySettingsProvider _proximitySettingsProvider;
         static IScreenActivator _screenActivator;
         static PipeDeviceConnectionManager _pipeDeviceConnectionManager;
         static EventSender _eventSender;
@@ -231,6 +231,7 @@ namespace ServiceLibrary.Implementation
                  Task.Run(async () =>
                 {
                     _userProximitySettingsManager = new WatchingSettingsManager<UserProximitySettings>(userProximitySettingsPath, fileSerializer);
+                    _userProximitySettingsManager.InitializeFileStruct();
                     await _userProximitySettingsManager.LoadSettingsAsync().ConfigureAwait(false);
                     _userProximitySettingsManager.AutoReloadOnFileChanges = true;
                     _sdkLogger.WriteLine(nameof(HideezService), $"{nameof(WorkstationSettings)} loaded");
@@ -247,12 +248,15 @@ namespace ServiceLibrary.Implementation
             EndpointCertificateManager.Enable();
             EndpointCertificateManager.AllowCertificate(hesAddress);
 
-            //ProximitySettingsProviderFactory =================================
-            _proximitySettingsProviderFactory = new DeviceProximitySettingsProviderFactory(
-                _applicationModeProvider.GetApplicationMode(),
-                _enterpriseProximitySettingsManager,
-                _userProximitySettingsManager,
-                _sdkLogger);
+            //ProximitySettingsProvider=================================
+            if (_applicationModeProvider.GetApplicationMode() == HideezMiddleware.ApplicationModeProvider.ApplicationMode.Enterprise)
+                _proximitySettingsProvider = new UnlockProximitySettingsProvider(
+                    _enterpriseProximitySettingsManager,
+                    _sdkLogger);
+            else
+                _proximitySettingsProvider = new UserProximitySettingsProvider(
+                    _userProximitySettingsManager,
+                    _sdkLogger);
 
             // WorkstationInfoProvider ==================================
             var workstationInfoProvider = new WorkstationInfoProvider(_workstationIdProvider, 
@@ -324,12 +328,12 @@ namespace ServiceLibrary.Implementation
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreCsrList = new AdvertisementIgnoreList(
                 _csrBleConnectionManager,
-                _proximitySettingsProviderFactory,
+                _proximitySettingsProvider,
                 SdkConfig.DefaultLockTimeout,
                 _sdkLogger);
             _advIgnoreWinBleList = new AdvertisementIgnoreList(
                 _winBleConnectionManager,
-                _proximitySettingsProviderFactory,
+                _proximitySettingsProvider,
                 20, // WinBle rssi messages arrive much less frequently than when using csr. Empirically calculated 20s to be acceptable.
                 _sdkLogger);
             _rfidProcessor = new RfidConnectionProcessor(
@@ -347,7 +351,7 @@ namespace ServiceLibrary.Implementation
             _proximityProcessor = new ProximityConnectionProcessor(
                 _connectionFlowProcessor,
                 _csrBleConnectionManager,
-                _proximitySettingsProviderFactory,
+                _proximitySettingsProvider,
                 _advIgnoreCsrList,
                 _deviceManager,
                 _credentialProviderProxy,
@@ -357,7 +361,7 @@ namespace ServiceLibrary.Implementation
                 _connectionFlowProcessor,
                 _winBleConnectionManager,
                 _advIgnoreWinBleList,
-                _proximitySettingsProviderFactory,
+                _proximitySettingsProvider,
                 _deviceManager,
                 _credentialProviderProxy,
                 _uiProxy,
@@ -373,7 +377,7 @@ namespace ServiceLibrary.Implementation
             }));
 
             // Proximity Monitor ==================================
-            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _proximitySettingsProviderFactory, _sdkLogger);
+            _proximityMonitorManager = new ProximityMonitorManager(_deviceManager, _proximitySettingsProvider, _sdkLogger);
 
             // Device Reconnect Manager ================================
             _deviceReconnectManager = new DeviceReconnectManager(_proximityMonitorManager,
@@ -426,6 +430,8 @@ namespace ServiceLibrary.Implementation
             _messenger.Subscribe<RemoteClientDisconnectedEvent>(OnClientDisconnected);
 
             _messenger.Subscribe<GetAvailableChannelsMessage>(GetAvailableChannels);
+            _messenger.Subscribe<LoadUserProximitySettingsMessage>(GetUserProximitySettings);
+            _messenger.Subscribe<SaveUserProximitySettingsMessage>(OnSaveUserProximitySettings);
 
             _messenger.Subscribe<PublishEventMessage>(PublishEvent);
             _messenger.Subscribe<DisconnectDeviceMessage>(DisconnectDevice);
@@ -1052,6 +1058,51 @@ namespace ServiceLibrary.Implementation
             }
             
             await SafePublish(new GetAvailableChannelsMessageReply(freeChannels.ToArray()));
+        }
+
+        async Task GetUserProximitySettings(LoadUserProximitySettingsMessage args)
+        {
+            try
+            {
+                var settings = _userProximitySettingsManager.Settings;
+                var deviceProximitySettings = settings.GetProximitySettings(args.DeviceConnectionId);
+                await SafePublish(new LoadUserProximitySettingsMessageReply(deviceProximitySettings));
+            }
+            catch(Exception ex)
+            {
+                Error(ex);
+                throw;
+            }
+        }
+
+        Task OnSaveUserProximitySettings(SaveUserProximitySettingsMessage args)
+        {
+            try
+            {
+                var settings = _userProximitySettingsManager.Settings;
+                var deviceSettings = settings.DevicesProximity.FirstOrDefault(s => s.Id == args.UserDeviceProximitySettings.Id);
+                if (deviceSettings != null)
+                {
+                    deviceSettings.LockProximity = args.UserDeviceProximitySettings.LockProximity;
+                    deviceSettings.UnlockProximity = args.UserDeviceProximitySettings.UnlockProximity;
+                    deviceSettings.EnabledLockByProximity = args.UserDeviceProximitySettings.EnabledLockByProximity;
+                    deviceSettings.EnabledUnlockByProximity = args.UserDeviceProximitySettings.EnabledUnlockByProximity;
+                    deviceSettings.DisabledDisplayAuto = args.UserDeviceProximitySettings.DisabledDisplayAuto;
+                }
+                else
+                {
+                    var devicesSettings = settings.DevicesProximity.ToList();
+                    devicesSettings.Add(args.UserDeviceProximitySettings);
+                    settings.DevicesProximity = devicesSettings.ToArray();
+                }
+                _userProximitySettingsManager.SaveSettings(settings);
+            }
+            catch(Exception ex)
+            {
+                Error(ex);
+                throw;
+            }
+            return Task.CompletedTask;
         }
 
         async Task DisconnectDevice(DisconnectDeviceMessage args)

@@ -175,6 +175,8 @@
     <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\GetAvailableChannelsMessage.cs" />
     <Compile Include="IPC\IncommingMessages\GetAvailableChannelsMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\LoadUserProximitySettingsMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\LoadUserProximitySettingsMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\PublishEventMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RefreshServiceInfoMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_ControlRemoteCommandMessage.cs" />
@@ -188,6 +190,7 @@
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_VerifyCommandMessage.cs" />
     <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_DeviceCommandMessageReply.cs" />
     <Compile Include="IPC\IncommingMessages\RemoveDeviceMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\SaveUserProximitySettingsMessage.cs" />
     <Compile Include="IPC\IncommingMessages\SendActivationCodeMessage.cs" />
     <Compile Include="IPC\IncommingMessages\SetSoftwareVaultUnlockModuleStateMessage.cs" />
     <Compile Include="IPC\Messages\ActivateScreenRequestMessage.cs" />
@@ -222,8 +225,8 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="SessionUnlockMethodMonitor.cs" />
-    <Compile Include="Settings\SettingsProvider\DeviceProximitySettingsProvider.cs" />
-    <Compile Include="Settings\SettingsProvider\DeviceProximitySettingsProviderFactory.cs" />
+    <Compile Include="Settings\SettingsProvider\UnlockProximitySettingsProvider.cs" />
+    <Compile Include="Settings\SettingsProvider\UserProximitySettingsProvider.cs" />
     <Compile Include="Settings\UserDeviceProximitySettings.cs" />
     <Compile Include="Settings\UserProximitySettings.cs" />
     <Compile Include="Settings\Manager\WatchingSettingsManager.cs" />

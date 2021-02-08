@@ -23,7 +23,7 @@ namespace HideezMiddleware.DeviceConnection
     public sealed class WinBleAutomaticConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
         readonly WinBleConnectionManager _winBleConnectionManager;
-        readonly IProximitySettingsProviderFactory _proximitySettingsProviderFactory;
+        readonly IDeviceProximitySettingsProvider _proximitySettingsProvider;
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly DeviceManager _deviceManager;
         readonly CredentialProviderProxy _credentialProviderProxy;
@@ -39,7 +39,7 @@ namespace HideezMiddleware.DeviceConnection
             ConnectionFlowProcessor connectionFlowProcessor,
             WinBleConnectionManager winBleConnectionManager,
             AdvertisementIgnoreList advIgnoreListMonitor,
-            IProximitySettingsProviderFactory proximitySettingsProviderFactory,
+            IDeviceProximitySettingsProvider proximitySettingsProvider,
             DeviceManager deviceManager,
             CredentialProviderProxy credentialProviderProxy,
             IClientUiManager ui,
@@ -48,7 +48,7 @@ namespace HideezMiddleware.DeviceConnection
             : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
         {
             _winBleConnectionManager = winBleConnectionManager ?? throw new ArgumentNullException(nameof(winBleConnectionManager));
-            _proximitySettingsProviderFactory = proximitySettingsProviderFactory ?? throw new ArgumentNullException(nameof(proximitySettingsProviderFactory));
+            _proximitySettingsProvider = proximitySettingsProvider ?? throw new ArgumentNullException(nameof(proximitySettingsProvider));
             _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
             _deviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
             _credentialProviderProxy = credentialProviderProxy ?? throw new ArgumentNullException(nameof(credentialProviderProxy));
@@ -189,17 +189,16 @@ namespace HideezMiddleware.DeviceConnection
                 return;
 
             var proximity = BleUtils.RssiToProximity(adv.Rssi);
-            var settingsProvider = _proximitySettingsProviderFactory.GetProximitySettingsProvider(adv.Id);
 
             if (_workstationHelper.IsActiveSessionLocked())
             {
-                if(!settingsProvider.EnabledUnlock)
+                if(!_proximitySettingsProvider.IsEnabledUnlock(adv.Id))
                     return;
 
-                if (settingsProvider.DisabledUnlockByProximity && !isCommandLinkPressed)
+                if (_proximitySettingsProvider.IsDisabledUnlockByProximity(adv.Id) && !isCommandLinkPressed)
                     return;
 
-                if (proximity < settingsProvider.UnlockProximity)
+                if (proximity < _proximitySettingsProvider.GetUnlockProximity(adv.Id))
                 {
                     if (isCommandLinkPressed)
                     {

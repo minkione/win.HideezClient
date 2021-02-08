@@ -24,7 +24,7 @@ namespace HideezMiddleware.DeviceConnection
         }
 
         readonly IBleConnectionManager _bleConnectionManager;
-        readonly IProximitySettingsProviderFactory _proximitySettingsProviderFactory;
+        readonly IDeviceProximitySettingsProvider _proximitySettingsProvider;
 
         readonly Dictionary<string, IgnoreEntry> _ignoreDict = new Dictionary<string, IgnoreEntry>();
         readonly object _lock = new object();
@@ -32,13 +32,13 @@ namespace HideezMiddleware.DeviceConnection
 
         public AdvertisementIgnoreList(
             IBleConnectionManager bleConnectionManager,
-            IProximitySettingsProviderFactory proximitySettingsProviderFactory,
+            IDeviceProximitySettingsProvider proximitySettingsProvider,
             int rssiClearDelaySeconds,
             ILog log)
             : base(nameof(AdvertisementIgnoreList), log)
         {
             _bleConnectionManager = bleConnectionManager;
-            _proximitySettingsProviderFactory = proximitySettingsProviderFactory;
+            _proximitySettingsProvider = proximitySettingsProvider;
             _rssiClearDelaySeconds = rssiClearDelaySeconds;
 
             _bleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
@@ -148,8 +148,8 @@ namespace HideezMiddleware.DeviceConnection
                 if (_ignoreDict.ContainsKey(e.Id))
                 {
                     var proximity = BleUtils.RssiToProximity(e.Rssi);
-                    var settingsProvider = _proximitySettingsProviderFactory.GetProximitySettingsProvider(e.Id);
-                    if (proximity > settingsProvider.LockProximity)
+
+                    if (proximity > _proximitySettingsProvider.GetLockProximity(e.Id))
                         _ignoreDict[e.Id].LastReceivedTime = DateTime.UtcNow;
                 }
             }

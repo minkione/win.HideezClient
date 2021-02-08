@@ -21,7 +21,7 @@ namespace HideezMiddleware.DeviceConnection
     public sealed class ProximityConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
         readonly IBleConnectionManager _bleConnectionManager;
-        readonly IProximitySettingsProviderFactory _proximitySettingsProviderFactory;
+        readonly IDeviceProximitySettingsProvider _proximitySettingsProvider;
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly DeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
@@ -34,7 +34,7 @@ namespace HideezMiddleware.DeviceConnection
         public ProximityConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
-            IProximitySettingsProviderFactory proximitySettingsProviderFactory,
+            IDeviceProximitySettingsProvider proximitySettingsProvider,
             AdvertisementIgnoreList advIgnoreListMonitor,
             DeviceManager deviceManager,
             IWorkstationUnlocker workstationUnlocker,
@@ -43,7 +43,7 @@ namespace HideezMiddleware.DeviceConnection
             : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
         {
             _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
-            _proximitySettingsProviderFactory = proximitySettingsProviderFactory ?? throw new ArgumentNullException(nameof(_proximitySettingsProviderFactory));
+            _proximitySettingsProvider = proximitySettingsProvider ?? throw new ArgumentNullException(nameof(_proximitySettingsProvider));
             _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
             _deviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
             _workstationUnlocker = workstationUnlocker ?? throw new ArgumentNullException(nameof(workstationUnlocker));
@@ -127,12 +127,11 @@ namespace HideezMiddleware.DeviceConnection
                 return;
 
             var id = adv.Id;
-            var settingsProvider = _proximitySettingsProviderFactory.GetProximitySettingsProvider(id);
-            if (settingsProvider.DisabledUnlockByProximity)
+            if (_proximitySettingsProvider.IsDisabledUnlockByProximity(id))
                 return;
 
             var proximity = BleUtils.RssiToProximity(adv.Rssi);
-            if (proximity < settingsProvider.UnlockProximity)
+            if (proximity < _proximitySettingsProvider.GetUnlockProximity(id))
                 return;
 
             if (_advIgnoreListMonitor.IsIgnored(id))

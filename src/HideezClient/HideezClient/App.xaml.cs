@@ -322,13 +322,8 @@ namespace HideezClient
                 new InjectionConstructor(HideezClientRegistryRoot.GetRootRegistryKey(false), typeof(ILog)));
 
             // Settings
-            var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            var serviceSettingsDirectory = $@"{commonAppData}\Hideez\Service\Settings\";
-            string proximitySettingsPath = Path.Combine(serviceSettingsDirectory, "UserProximitySettings.xml");
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()
                 , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.ApplicationSettingsFileName), typeof(IFileSerializer), typeof(IMetaPubSub)));
-            Container.RegisterType<ISettingsManager<UserProximitySettings>, SettingsManager<UserProximitySettings>>(new ContainerControlledLifetimeManager(),
-                new InjectionConstructor(proximitySettingsPath, typeof(IFileSerializer)));
             Container.RegisterType<ISettingsManager<HotkeySettings>, HSSettingsManager<HotkeySettings>>(new ContainerControlledLifetimeManager()
                 , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.HotkeySettingsFileName), typeof(IFileSerializer), typeof(IMetaPubSub)));
 

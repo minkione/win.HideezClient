@@ -5,6 +5,7 @@ using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.ViewModels;
 using HideezClient.ViewModels.Controls;
+using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.Settings;
 using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Commands;
@@ -26,19 +27,16 @@ namespace HideezClient.PageViewModels
         readonly IServiceProxy serviceProxy;
         readonly IWindowsManager windowsManager;
         readonly Logger log = LogManager.GetCurrentClassLogger(nameof(DeviceSettingsPageViewModel));
-        readonly ISettingsManager<UserProximitySettings> _proximitySettingsManager;
         readonly IMetaPubSub _metaMessenger;
 
         public DeviceSettingsPageViewModel(
             IServiceProxy serviceProxy,
             IWindowsManager windowsManager,
             IActiveDevice activeDevice,
-            ISettingsManager<UserProximitySettings> proximitySettingsManager,
             IMetaPubSub metaMessenger)
         {
             this.serviceProxy = serviceProxy;
             this.windowsManager = windowsManager;
-            _proximitySettingsManager = proximitySettingsManager;
             _metaMessenger = metaMessenger;
 
             _metaMessenger.Subscribe<ActiveDeviceChangedMessage>(OnActiveDeviceChanged);
@@ -86,8 +84,6 @@ namespace HideezClient.PageViewModels
 
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
 
-            _proximitySettingsManager.InitializeFileStruct();
-            _proximitySettingsManager.LoadSettings();
             TryLoadProximitySettings();
         }
 
@@ -153,12 +149,12 @@ namespace HideezClient.PageViewModels
 
         #endregion
 
-        private Task OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
+        private async Task OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
         {
             // Todo: ViewModel should be reused instead of being recreated each time active device is changed
             Device = obj.NewDevice != null ? new DeviceViewModel(obj.NewDevice) : null;
 
-            return Task.CompletedTask;
+            await TryLoadProximitySettings();
         }
 
         public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
@@ -175,17 +171,17 @@ namespace HideezClient.PageViewModels
             return true;
         }
 
-        void TryLoadProximitySettings()
+        async Task TryLoadProximitySettings()
         {
             try
             {
-                var settings = _proximitySettingsManager.Settings;
-                var deviceProximitySettings = settings.GetProximitySettings(Device.Id);
-                LockProximity = deviceProximitySettings.LockProximity;
-                UnlockProximity = deviceProximitySettings.UnlockProximity;
-                EnabledLockByProximity = deviceProximitySettings.EnabledLockByProximity;
-                EnabledUnlockByProximity = deviceProximitySettings.EnabledUnlockByProximity;
-                DisabledDisplayAuto = deviceProximitySettings.DisabledDisplayAuto;
+                string connectionId = Device.Id.Remove(Device.Id.Length - 2);
+                var reply = await _metaMessenger.ProcessOnServer<LoadUserProximitySettingsMessageReply>(new LoadUserProximitySettingsMessage(connectionId));
+                LockProximity = reply.UserDeviceProximitySettings.LockProximity;
+                UnlockProximity = reply.UserDeviceProximitySettings.UnlockProximity;
+                EnabledLockByProximity = reply.UserDeviceProximitySettings.EnabledLockByProximity;
+                EnabledUnlockByProximity = reply.UserDeviceProximitySettings.EnabledUnlockByProximity;
+                DisabledDisplayAuto = reply.UserDeviceProximitySettings.DisabledDisplayAuto;
             }
             catch(Exception ex)
             {
@@ -193,22 +189,12 @@ namespace HideezClient.PageViewModels
             }
         }
 
-        void SaveOrUpdateSettings()
+        async Task SaveOrUpdateSettings()
         {
-            var settings = _proximitySettingsManager.Settings;
-            string connectionId = Device.Id.Remove(Device.Id.Length - 2);
-            var deviceSettings = settings.DevicesProximity.FirstOrDefault(s => s.Id == Device.Id);
-            if(deviceSettings!= null)
+            try
             {
-                deviceSettings.LockProximity = LockProximity;
-                deviceSettings.UnlockProximity = UnlockProximity;
-                deviceSettings.EnabledLockByProximity = EnabledLockByProximity;
-                deviceSettings.EnabledUnlockByProximity = EnabledUnlockByProximity;
-                deviceSettings.DisabledDisplayAuto = DisabledDisplayAuto;
-            }
-            else
-            {
-                var devicesSettings = settings.DevicesProximity.ToList();
+                string connectionId = Device.Id.Remove(Device.Id.Length - 2);
+
                 var newSettings = UserDeviceProximitySettings.DefaultSettings;
                 newSettings.Id = connectionId;
                 newSettings.DisabledDisplayAuto = DisabledDisplayAuto;
@@ -216,10 +202,13 @@ namespace HideezClient.PageViewModels
                 newSettings.EnabledUnlockByProximity = EnabledUnlockByProximity;
                 newSettings.LockProximity = LockProximity;
                 newSettings.UnlockProximity = UnlockProximity;
-                devicesSettings.Add(newSettings);
-                settings.DevicesProximity = devicesSettings.ToArray();
+
+                await _metaMessenger.PublishOnServer(new SaveUserProximitySettingsMessage(newSettings));
             }
-            _proximitySettingsManager.SaveSettings(settings);
+            catch (Exception ex)
+            {
+                log.WriteLine($"Failed proximity settings saving: {ex.Message}");
+            }
         }
     }
 }
