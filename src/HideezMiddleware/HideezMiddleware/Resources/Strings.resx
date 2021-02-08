@@ -300,4 +300,10 @@
   <data name="ConnectionProcessor.VaultNotFound" xml:space="preserve">
     <value>Vault is turned off or to far away</value>
   </data>
+  <data name="ConnectionProcessor.DisabledUnlock" xml:space="preserve">
+    <value>You can't unlock PC by this vault {0}</value>
+  </data>
+  <data name="ConnectionProcessor.DisabledUnlockByProximity" xml:space="preserve">
+    <value>Auto unlock is disabled for this vault {0}</value>
+  </data>
 </root>

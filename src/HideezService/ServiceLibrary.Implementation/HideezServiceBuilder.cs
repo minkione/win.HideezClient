@@ -5,6 +5,7 @@ using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Proximity.Interfaces;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware;
 using HideezMiddleware.Audit;
@@ -28,6 +29,7 @@ using HideezMiddleware.Modules.Rfid;
 using HideezMiddleware.Modules.WinBle;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
+using HideezMiddleware.Settings.SettingsProvider;
 using HideezMiddleware.Utils.WorkstationHelper;
 using HideezMiddleware.Workstation;
 using Meta.Lib.Modules.PubSub;
@@ -128,6 +130,7 @@ namespace ServiceLibrary.Implementation
             string proximitySettingsPath = Path.Combine(settingsDirectory, "Unlock.xml");
             string serviceSettingsPath = Path.Combine(settingsDirectory, "Service.xml");
             string workstationSettingsPath = Path.Combine(settingsDirectory, "Workstation.xml");
+            string userProximitySettingsPath = Path.Combine(settingsDirectory, "UserProximitySettings.xml");
 
             Directory.CreateDirectory(bondsFolderPath); // Ensure directory for bonds is created since unmanaged code doesn't do that
 
@@ -175,6 +178,15 @@ namespace ServiceLibrary.Implementation
                     workstationSettingsManager.AutoReloadOnFileChanges = true;
                     sdkLogger.WriteLine(nameof(HideezService), $"{nameof(WorkstationSettings)} loaded");
                     _container.RegisterInstance<ISettingsManager<WorkstationSettings>>(workstationSettingsManager, new ExternallyControlledLifetimeManager());
+                }),
+                Task.Run(async () =>
+                {
+                    var userProximitySettingsManager = new WatchingSettingsManager<UserProximitySettings>(userProximitySettingsPath, fileSerializer);
+                    userProximitySettingsManager.InitializeFileStruct();
+                    await userProximitySettingsManager.LoadSettingsAsync().ConfigureAwait(false);
+                    userProximitySettingsManager.AutoReloadOnFileChanges = true;
+                    sdkLogger.WriteLine(nameof(HideezService), $"{nameof(UserProximitySettings)} loaded");
+                    _container.RegisterInstance<ISettingsManager<UserProximitySettings>>(userProximitySettingsManager, new ExternallyControlledLifetimeManager());
                 })
             };
 
@@ -227,6 +239,16 @@ namespace ServiceLibrary.Implementation
 
             // Hes access manager is used by workflow and processors
             _container.RegisterType<IHesAccessManager, HesAccessManager>();
+        }
+
+        public void AddEnterpriseProximitySettingsSupport()
+        {
+            _container.RegisterType<IDeviceProximitySettingsProvider, UnlockProximitySettingsProvider>(new ContainerControlledLifetimeManager());
+        }
+
+        public void AddStandaloneProximitySettingsSupport()
+        {
+            _container.RegisterType<IDeviceProximitySettingsProvider, UserProximitySettingsProvider>(new ContainerControlledLifetimeManager());
         }
 
         public void AddFatalExceptionHandling()
@@ -323,9 +345,8 @@ namespace ServiceLibrary.Implementation
             var messenger = _container.Resolve<IMetaPubSub>();
             var csrBleConnectionManager = _container.Resolve<BleConnectionManager>();
             var connectionFlow = _container.Resolve<ConnectionFlowProcessor>();
-            var workstationSettings = _container.Resolve<ISettingsManager<WorkstationSettings>>();
-            var proximitySettings = _container.Resolve<ISettingsManager<ProximitySettings>>();
-            var advIgnoreCsrList = new AdvertisementIgnoreList(csrBleConnectionManager, workstationSettings, SdkConfig.DefaultLockTimeout, log);
+            var proximitySettingsProvider = _container.Resolve<IDeviceProximitySettingsProvider>();
+            var advIgnoreCsrList = new AdvertisementIgnoreList(csrBleConnectionManager, proximitySettingsProvider, SdkConfig.DefaultLockTimeout, log);
             var deviceManager = _container.Resolve<DeviceManager>();
             var workstationUnlocker = _container.Resolve<IWorkstationUnlocker>();
             var hesAccessManager = _container.Resolve<IHesAccessManager>();
@@ -334,8 +355,7 @@ namespace ServiceLibrary.Implementation
             var proximityConnectionProcessor = new ProximityConnectionProcessor(
                 connectionFlow,
                 csrBleConnectionManager,
-                proximitySettings,
-                workstationSettings,
+                proximitySettingsProvider,
                 advIgnoreCsrList,
                 deviceManager,
                 workstationUnlocker,
@@ -364,8 +384,9 @@ namespace ServiceLibrary.Implementation
             var winBleConnectionManager = _container.Resolve<WinBleConnectionManager>();
             winBleConnectionManager.UnpairProvider = new UnpairProvider(messenger, log);
             var workstationSettingsManager = _container.Resolve<ISettingsManager<WorkstationSettings>>();
+            var proximitySettingsProvider = _container.Resolve<IDeviceProximitySettingsProvider>();
             // WinBle rssi messages arrive much less frequently than when using csr. Empirically calculated 20s rssi clear delay to be acceptable.
-            var advIgnoreWinBleList = new AdvertisementIgnoreList(winBleConnectionManager, workstationSettingsManager, 20, log);
+            var advIgnoreWinBleList = new AdvertisementIgnoreList(winBleConnectionManager, proximitySettingsProvider, 20, log);
             var deviceManager = _container.Resolve<DeviceManager>();
             var credProvProxy = _container.Resolve<CredentialProviderProxy>();
             var uiManager = _container.Resolve<IClientUiManager>();
@@ -374,8 +395,8 @@ namespace ServiceLibrary.Implementation
             var winBleAutomaticConnectionProcessor = new WinBleAutomaticConnectionProcessor(
                 connectionFlow, 
                 winBleConnectionManager, 
-                advIgnoreWinBleList, 
-                workstationSettingsManager, 
+                advIgnoreWinBleList,
+                proximitySettingsProvider, 
                 deviceManager, 
                 credProvProxy, 
                 uiManager,
