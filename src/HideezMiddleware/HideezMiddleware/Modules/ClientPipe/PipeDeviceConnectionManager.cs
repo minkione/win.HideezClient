@@ -1,5 +1,4 @@
 ﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
@@ -11,18 +10,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ServiceLibrary.Implementation.RemoteConnectionManagement
+namespace HideezMiddleware.Modules.ClientPipe
 {
     /// <summary>
     /// Class to manage pipe device connection.
     /// </summary>
-    class PipeDeviceConnectionManager: Logger
+    public class PipeDeviceConnectionManager : Logger
     {
         readonly Dictionary<string, PipeDeviceConnectionHandler> pipeDevicesPubSubHandlers = new Dictionary<string, PipeDeviceConnectionHandler>();
         readonly DeviceManager _deviceManager;
         readonly IMetaPubSub _messenger;
 
-        public PipeDeviceConnectionManager(DeviceManager deviceManager, IMetaPubSub pubSub, ILog log):
+        public PipeDeviceConnectionManager(DeviceManager deviceManager, IMetaPubSub pubSub, ILog log) :
             base(nameof(PipeDeviceConnectionManager), log)
         {
             _deviceManager = deviceManager;

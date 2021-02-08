@@ -1,11 +1,15 @@
-﻿using Hideez.SDK.Communication.Device;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.Modules.DeviceManagement.Messages;
 using HideezMiddleware.Modules.Hes.Messages;
 using HideezMiddleware.Threading;
 using Meta.Lib.Modules.PubSub;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.Modules.DeviceManagement
@@ -25,6 +29,10 @@ namespace HideezMiddleware.Modules.DeviceManagement
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
 
             _messenger.Subscribe<HesAccessManager_AccessRetractedMessage>(HesAccessManager_AccessRetracted);
+
+            _messenger.Subscribe<GetAvailableChannelsMessage>(GetAvailableChannels);
+            _messenger.Subscribe<DisconnectDeviceMessage>(DisconnectDevice);
+            _messenger.Subscribe<RemoveDeviceMessage>(RemoveDeviceAsync);
         }
 
         private readonly SemaphoreQueue _devicesSemaphore = new SemaphoreQueue(1, 1);
@@ -260,6 +268,73 @@ namespace HideezMiddleware.Modules.DeviceManagement
             catch (Exception ex)
             {
                 WriteLine(ex);
+            }
+        }
+
+        async Task GetAvailableChannels(GetAvailableChannelsMessage args)
+        {
+            // Channels range from 1 to 6 
+            List<byte> freeChannels = new List<byte>() { 1, 2, 3, 4, 5, 6 };
+
+            try
+            {
+                var devices = _deviceManager.Devices.Where(d => d.SerialNo == args.SerialNo).ToList();
+                if (devices.Count == 0)
+                    throw new HideezException(HideezErrorCode.DeviceNotFound, args.SerialNo);
+
+                // These channels are reserved by system, the rest is available to clients
+                freeChannels.Remove((byte)DefaultDeviceChannel.Main);
+                freeChannels.Remove((byte)DefaultDeviceChannel.HES);
+
+                // Filter out taken channels
+                var channelsInUse = devices.Select(d => d.ChannelNo).ToList();
+                freeChannels.RemoveAll(c => channelsInUse.Contains(c));
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+                throw;
+            }
+
+            await SafePublish(new GetAvailableChannelsMessageReply(freeChannels.ToArray()));
+        }
+
+        async Task DisconnectDevice(DisconnectDeviceMessage args)
+        {
+            try
+            {
+                var device = _deviceManager.Devices.FirstOrDefault(d => d.Id == args.DeviceId);
+                if (device != null)
+                {
+
+                    // Todo: move reconnect to device management
+                    //_deviceReconnectManager.DisableDeviceReconnect(device);
+                    await _deviceManager.Disconnect(device.DeviceConnection);
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+                throw;
+            }
+        }
+
+        async Task RemoveDeviceAsync(RemoveDeviceMessage args)
+        {
+            try
+            {
+                var device = _deviceManager.Devices.FirstOrDefault(d => d.Id == args.DeviceId);
+                if (device != null)
+                {
+                    // Todo: move reconnect to device management
+                    //_deviceReconnectManager.DisableDeviceReconnect(device);
+                    await _deviceManager.DeleteBond(device.DeviceConnection);
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+                throw;
             }
         }
     }

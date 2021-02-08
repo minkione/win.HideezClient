@@ -4,7 +4,9 @@ using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Workstation;
+using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware.Audit;
+using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Modules.Hes.Messages;
 using HideezMiddleware.Workstation;
@@ -41,6 +43,8 @@ namespace HideezMiddleware.Modules.Audit
             _messenger.Subscribe<BleAdapterStateChangedMessage>(HandleAdapterStateChanged, msg => msg.Sender is BleConnectionManager);
             _messenger.Subscribe<RfidService_RfidReaderStateChangedMessage>(HandleRfidReaderStateChanged);
             _messenger.Subscribe<HesAppConnection_HubConnectionStateChangedMessage>(HandleHubConnectionStateChanged);
+
+            _messenger.Subscribe<PublishEventMessage>(PublishEvent);
         }
 
         private async Task HandleAdapterStateChanged(BleAdapterStateChangedMessage msg)
@@ -82,9 +86,9 @@ namespace HideezMiddleware.Modules.Audit
         }
 
         private bool prevHesIsConnectedState = false;
-        private async Task HandleHubConnectionStateChanged(HesAppConnection_HubConnectionStateChangedMessage arg)
+        private async Task HandleHubConnectionStateChanged(HesAppConnection_HubConnectionStateChangedMessage msg)
         {
-            var hesConnection = arg.Sender as HesAppConnection;
+            var hesConnection = msg.Sender as HesAppConnection;
             var isConnected = hesConnection.State == HesConnectionState.Connected;
             if (prevHesIsConnectedState != isConnected)
             {
@@ -106,5 +110,23 @@ namespace HideezMiddleware.Modules.Audit
                 await _eventSaver.AddNewAsync(we, sendImmediately);
             }
         }
+
+        private async Task PublishEvent(PublishEventMessage msg)
+        {
+            var workstationEvent = msg.WorkstationEvent;
+            var we = _eventSaver.GetWorkstationEvent();
+            we.Version = WorkstationEvent.ClassVersion;
+            we.Id = workstationEvent.Id;
+            we.Date = workstationEvent.Date;
+            we.TimeZone = workstationEvent.TimeZone;
+            we.EventId = (WorkstationEventType)workstationEvent.EventId;
+            we.Severity = (WorkstationEventSeverity)workstationEvent.Severity;
+            we.Note = workstationEvent.Note;
+            we.DeviceId = workstationEvent.DeviceId;
+            we.AccountName = workstationEvent.AccountName;
+            we.AccountLogin = workstationEvent.AccountLogin;
+            await _eventSaver.AddNewAsync(we);
+        }
+
     }
 }

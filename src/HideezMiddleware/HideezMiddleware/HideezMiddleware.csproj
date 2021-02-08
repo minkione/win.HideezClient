@@ -121,6 +121,7 @@
     <Compile Include="Audit\SessionTimestampLogger.cs" />
     <Compile Include="BondManager.cs" />
     <Compile Include="ChangeServerAddressResult.cs" />
+    <Compile Include="ClientManagement\ServiceClientUiManager.cs" />
     <Compile Include="CredentialProvider\CommandLinkVisibilityController.cs" />
     <Compile Include="DeviceConnection\ExternalConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\IConnectionProcessor.cs" />
@@ -223,6 +224,9 @@
     <Compile Include="Localize\TranslationSource.cs" />
     <Compile Include="MetaPubSubLogger.cs" />
     <Compile Include="Modules\Audit\AuditModule.cs" />
+    <Compile Include="Modules\ClientPipe\ClientPipeModule.cs" />
+    <Compile Include="Modules\ClientPipe\PipeDeviceConnectionHandler.cs" />
+    <Compile Include="Modules\ClientPipe\PipeDeviceConnectionManager.cs" />
     <Compile Include="Modules\CredentialProvider\CredentialProviderModule.cs" />
     <Compile Include="Modules\Csr\CsrModule.cs" />
     <Compile Include="Modules\DeviceManagement\DeviceManagementModule.cs" />
@@ -333,6 +337,8 @@
       <Name>WinBle</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Modules\RemoteUnlock\Messages\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

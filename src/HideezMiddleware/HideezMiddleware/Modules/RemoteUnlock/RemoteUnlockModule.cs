@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Workstation;
+using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.Settings;
 using HideezMiddleware.SoftwareVault.UnlockToken;
 using HideezMiddleware.Utils.WorkstationHelper;
@@ -13,6 +14,12 @@ namespace HideezMiddleware.Modules.RemoteUnlock
 {
     public sealed class RemoteUnlockModule : ModuleBase
     {
+        readonly ISettingsManager<ServiceSettings> _serviceSettingsManager;
+        readonly UnlockTokenProvider _unlockTokenProvider;
+        readonly UnlockTokenGenerator _unlockTokenGenerator;
+        readonly IHesAppConnection _tbHesAppConnection;
+        readonly RemoteWorkstationUnlocker _remoteWorkstationUnlocker;
+
         public RemoteUnlockModule(ISettingsManager<ServiceSettings> serviceSettingsManager,
             RegistryKey rootKey,
             IWorkstationInfoProvider workstationInfoProvider,
@@ -23,18 +30,45 @@ namespace HideezMiddleware.Modules.RemoteUnlock
             ILog log)
             : base(messenger, nameof(RemoteUnlockModule), log)
         {
-            var _unlockTokenProvider = new UnlockTokenProvider(rootKey, log);
-            var _unlockTokenGenerator = new UnlockTokenGenerator(_unlockTokenProvider, workstationInfoProvider, workstationHelper, log);
-            var _tbHesAppConnection = tbHesAppConnection;
-            var _remoteWorkstationUnlocker = new RemoteWorkstationUnlocker(_unlockTokenProvider, _tbHesAppConnection, workstationUnlocker, log);
+            _serviceSettingsManager = serviceSettingsManager;
 
-            if (serviceSettingsManager.Settings.EnableSoftwareVaultUnlock)
+            _unlockTokenProvider = new UnlockTokenProvider(rootKey, log);
+            _unlockTokenGenerator = new UnlockTokenGenerator(_unlockTokenProvider, workstationInfoProvider, workstationHelper, log);
+            _tbHesAppConnection = tbHesAppConnection;
+            _remoteWorkstationUnlocker = new RemoteWorkstationUnlocker(_unlockTokenProvider, _tbHesAppConnection, workstationUnlocker, log);
+
+            if (_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock)
                 Task.Run(_unlockTokenGenerator.Start);
 
             _tbHesAppConnection.Start("https://testhub.hideez.com/"); // Launch Try&Buy immediatelly to reduce loading time
 
-            if (serviceSettingsManager.Settings.EnableSoftwareVaultUnlock)
+            if (_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock)
                 _remoteWorkstationUnlocker.Start();
+
+            _messenger.Subscribe<SetSoftwareVaultUnlockModuleStateMessage>(SetSoftwareVaultUnlockModuleState);
+        }
+
+        async Task SetSoftwareVaultUnlockModuleState(SetSoftwareVaultUnlockModuleStateMessage args)
+        {
+            var settings = _serviceSettingsManager.Settings;
+            if (settings.EnableSoftwareVaultUnlock != args.Enabled)
+            {
+                WriteLine($"Client requested to switch software unlock module. New value: {args.Enabled}");
+                settings.EnableSoftwareVaultUnlock = args.Enabled;
+                _serviceSettingsManager.SaveSettings(settings);
+
+                if (args.Enabled)
+                {
+                    _unlockTokenGenerator.Start();
+                    _remoteWorkstationUnlocker.Start();
+                }
+                else
+                {
+                    _unlockTokenGenerator.Stop();
+                    _remoteWorkstationUnlocker.Stop();
+                    _unlockTokenGenerator.DeleteSavedToken();
+                }
+            }
         }
     }
 }

@@ -1,10 +1,8 @@
 ﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PipeDevice;
-using HideezMiddleware;
 using HideezMiddleware.IPC.IncommingMessages.RemoteDevice;
 using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
@@ -16,9 +14,9 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 
 
-namespace ServiceLibrary.Implementation.RemoteConnectionManagement
+namespace HideezMiddleware.Modules.ClientPipe
 {
-    class PipeDeviceConnectionHandler: Logger
+    public class PipeDeviceConnectionHandler : Logger
     {
         readonly PipeRemoteDeviceProxy _pipeDevice;
         readonly DeviceManager _deviceManager;
@@ -57,10 +55,10 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
                         new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null),
                         PipeAccessRights.FullControl,
                         AccessControlType.Allow));
-                    
-                    var pipe = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 32, 
+
+                    var pipe = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 32,
                         PipeTransmissionMode.Message, PipeOptions.Asynchronous, 4096, 4096, pipeSecurity);
-                    
+
                     WriteLine("Custom pipe config successful");
                     return pipe;
                 }

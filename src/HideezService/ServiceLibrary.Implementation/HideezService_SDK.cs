@@ -34,8 +34,6 @@ using HideezMiddleware.Settings;
 using HideezMiddleware.SoftwareVault.UnlockToken;
 using Meta.Lib.Modules.PubSub.Messages;
 using Microsoft.Win32;
-using ServiceLibrary.Implementation.ClientManagement;
-using ServiceLibrary.Implementation.RemoteConnectionManagement;
 using ServiceLibrary.Implementation.ScreenActivation;
 using ServiceLibrary.Implementation.WorkstationLock;
 using HideezMiddleware.DeviceConnection.Workflow;
@@ -44,7 +42,8 @@ using WinBle._10._0._18362;
 using Hideez.SDK.Communication.Connection;
 using HideezMiddleware.CredentialProvider;
 using HideezMiddleware.Threading;
-using HideezMiddleware.Utils.WorkstationHelper;
+using HideezMiddleware.ClientManagement;
+using HideezMiddleware.Modules.ClientPipe;
 
 namespace ServiceLibrary.Implementation
 {
@@ -422,8 +421,9 @@ namespace ServiceLibrary.Implementation
             _messenger.Subscribe<ChangeServerAddressMessage>(ChangeServerAddress);
             _messenger.Subscribe<SetSoftwareVaultUnlockModuleStateMessage>(SetSoftwareVaultUnlockModuleState);
 
-            _messenger.Subscribe<CancelActivationCodeMessage>(CancelActivationCode);
-            _messenger.Subscribe<SendActivationCodeMessage>(SendActivationCode);
+            // To be deleted; was refactored and moved to modules
+            //_messenger.Subscribe<CancelActivationCodeMessage>(CancelActivationCode);
+            //_messenger.Subscribe<SendActivationCodeMessage>(SendActivationCode);
 
             _messenger.Subscribe<LoginClientRequestMessage>(OnClientLogin);
             _messenger.Subscribe<RefreshServiceInfoMessage>(OnRefreshServiceInfo);
@@ -1222,34 +1222,6 @@ namespace ServiceLibrary.Implementation
             await SafePublish(new ServiceSettingsChangedMessage(_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock, RegistrySettings.GetHesAddress(_log)));
 
             //_winBleControllersStateMonitor.NotifySubscribers();
-        }
-        #endregion
-
-        #region Activation Code
-        public Task SendActivationCode(SendActivationCodeMessage args)
-        {
-            try
-            {
-                _clientProxy.EnterActivationCode(args.DeviceId, args.ActivationCode);
-            }
-            catch (Exception ex)
-            {
-                _log.WriteDebugLine(ex);
-            }
-            return Task.CompletedTask;
-        }
-
-        public Task CancelActivationCode(CancelActivationCodeMessage args)
-        {
-            try
-            {
-                _clientProxy.CancelActivationCode(args.DeviceId);
-            }
-            catch (Exception ex)
-            {
-                _log.WriteDebugLine(ex);
-            }
-            return Task.CompletedTask;
         }
         #endregion
 

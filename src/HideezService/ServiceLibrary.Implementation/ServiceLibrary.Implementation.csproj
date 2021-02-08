@@ -101,12 +101,9 @@
       <Link>Version.cs</Link>
     </Compile>
     <Compile Include="HideezServiceFactory.cs" />
-    <Compile Include="ClientManagement\ServiceClientUiManager.cs" />
     <Compile Include="HideezService.cs" />
     <Compile Include="HideezService_SDK.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RemoteConnectionManagement\PipeDeviceConnectionHandler.cs" />
-    <Compile Include="RemoteConnectionManagement\PipeDeviceConnectionManager.cs" />
     <Compile Include="ScreenActivation\MetalibScreenActivator.cs" />
     <Compile Include="HideezServiceBuildDirector.cs" />
     <Compile Include="HideezServiceBuilder.cs" />

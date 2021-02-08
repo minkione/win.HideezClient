@@ -3,7 +3,6 @@ using HideezMiddleware;
 using HideezMiddleware.Utils.WorkstationHelper;
 using Meta.Lib.Modules.PubSub;
 using Microsoft.Win32;
-using ServiceLibrary.Implementation.ClientManagement;
 using System;
 using System.Threading.Tasks;
 

@@ -8,13 +8,16 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware;
 using HideezMiddleware.Audit;
+using HideezMiddleware.ClientManagement;
 using HideezMiddleware.CredentialProvider;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.DeviceLogging;
+using HideezMiddleware.IPC.DTO;
 using HideezMiddleware.Local;
 using HideezMiddleware.Modules;
 using HideezMiddleware.Modules.Audit;
+using HideezMiddleware.Modules.ClientPipe;
 using HideezMiddleware.Modules.CredentialProvider;
 using HideezMiddleware.Modules.Csr;
 using HideezMiddleware.Modules.DeviceManagement;
@@ -28,11 +31,13 @@ using HideezMiddleware.Settings;
 using HideezMiddleware.Utils.WorkstationHelper;
 using HideezMiddleware.Workstation;
 using Meta.Lib.Modules.PubSub;
-using ServiceLibrary.Implementation.ClientManagement;
 using ServiceLibrary.Implementation.ScreenActivation;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipes;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using Unity;
 using Unity.Injection;
@@ -48,6 +53,10 @@ namespace ServiceLibrary.Implementation
     /// </summary>
     public sealed class HideezServiceBuilder
     {
+        // NOTE: Because container is disposed after service building is finished, 
+        // components that implement IDisposable interface should have ExternallyControlledLifetimeManager
+        // because container recursively disposes of all objects it controls
+
         /// <summary>
         /// Reference to service instance that is being built
         /// </summary>
@@ -228,7 +237,7 @@ namespace ServiceLibrary.Implementation
 
         public void AddHES()
         {
-            _container.RegisterType<IHesAppConnection, HesAppConnection>(new ContainerControlledLifetimeManager(), 
+            _container.RegisterType<IHesAppConnection, HesAppConnection>(new ExternallyControlledLifetimeManager(), 
                 new InjectionConstructor(
                     typeof(DeviceManager),
                     typeof(IWorkstationInfoProvider),
@@ -241,71 +250,21 @@ namespace ServiceLibrary.Implementation
 
         public void AddRemoteUnlock()
         {
-            _container.RegisterType<IHesAppConnection, HesAppConnection>("tb", new ContainerControlledLifetimeManager(),
+            _container.RegisterType<IHesAppConnection, HesAppConnection>("tb", new ExternallyControlledLifetimeManager(),
                 new InjectionConstructor(
                     typeof(IWorkstationInfoProvider),
                     typeof(ILog)
                     ));
             var remoteUnlockModule = _container.Resolve<RemoteUnlockModule>(
-                new ParameterOverride(typeof(HesAppConnection), _container.Resolve<HesAppConnection>("tb")));
+                new ParameterOverride(typeof(IHesAppConnection), _container.Resolve<IHesAppConnection>("tb")));
             AddModule(remoteUnlockModule);
         }
 
-        //public void AddClient()
-        //{
-        //    var pipeName = "HideezServicePipe";
-        //    var log = _container.Resolve<Logger>();
-        //    var messenger = _container.Resolve<IMetaPubSub>();
-        //    messenger.StartServer(pipeName, () =>
-        //    {
-        //        try
-        //        {
-        //            log.WriteLine("Custom pipe config started");
-        //            var pipeSecurity = new PipeSecurity();
-        //            pipeSecurity.AddAccessRule(new PipeAccessRule(
-        //                new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null),
-        //                PipeAccessRights.FullControl,
-        //                AccessControlType.Allow));
-
-        //            var pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 32,
-        //                PipeTransmissionMode.Message, PipeOptions.Asynchronous, 4096, 4096, pipeSecurity);
-
-        //            log.WriteLine("Custom pipe config successful");
-        //            return pipe;
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            log.WriteLine("Custom pipe config failed.", ex);
-        //            return null;
-        //        }
-        //    });
-
-        //    var deviceDTOFactory = _container.Resolve<DeviceDTOFactory>();
-        //    AddModule(deviceDTOFactory);
-
-        //    var pipeDeviceConnectionManager = _container.Resolve<PipeDeviceConnectionManager>();
-        //    AddModule(pipeDeviceConnectionManager);
-
-        //    //SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch; // Publish WorkstationUnlockedMessage
-
-        //    //messenger.Subscribe<RemoteClientConnectedEvent>(OnClientConnected);
-        //    //messenger.Subscribe<RemoteClientDisconnectedEvent>(OnClientDisconnected);
-        //    //
-        //    //messenger.Subscribe<GetAvailableChannelsMessage>(GetAvailableChannels);
-        //    //
-        //    //messenger.Subscribe<PublishEventMessage>(PublishEvent);
-        //    //messenger.Subscribe<DisconnectDeviceMessage>(DisconnectDevice);
-        //    //messenger.Subscribe<RemoveDeviceMessage>(RemoveDeviceAsync);
-        //    //
-        //    //messenger.Subscribe<ChangeServerAddressMessage>(ChangeServerAddress);
-        //    //messenger.Subscribe<SetSoftwareVaultUnlockModuleStateMessage>(SetSoftwareVaultUnlockModuleState);
-        //    //
-        //    //messenger.Subscribe<CancelActivationCodeMessage>(CancelActivationCode);
-        //    //messenger.Subscribe<SendActivationCodeMessage>(SendActivationCode);
-        //    //
-        //    //messenger.Subscribe<LoginClientRequestMessage>(OnClientLogin);
-        //    //messenger.Subscribe<RefreshServiceInfoMessage>(OnRefreshServiceInfo);
-        //}
+        public void AddClientPipe()
+        {
+            var module = _container.Resolve<ClientPipeModule>();
+            AddModule(module);
+        }
 
         public void AddEnterpriseConnectionFlow()
         {
