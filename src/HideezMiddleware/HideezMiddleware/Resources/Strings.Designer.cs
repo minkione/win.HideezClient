@@ -511,6 +511,24 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You can&apos;t unlock PC by this vault {0}.
+        /// </summary>
+        internal static string ConnectionProcessor_DisabledUnlock {
+            get {
+                return ResourceManager.GetString("ConnectionProcessor.DisabledUnlock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto unlock is disabled for this vault {0}.
+        /// </summary>
+        internal static string ConnectionProcessor_DisabledUnlockByProximity {
+            get {
+                return ResourceManager.GetString("ConnectionProcessor.DisabledUnlockByProximity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The vault is too far away. Move it closer and try again..
         /// </summary>
         internal static string ConnectionProcessor_LowProximity {
