@@ -262,6 +262,7 @@ namespace HideezMiddleware.Modules.DeviceManagement
             {
                 foreach (var device in _deviceManager.Devices)
                 {
+                    await _messenger.Publish(new DeviceManager_ExpectedDeviceRemovalMessage(device));
                     await _deviceManager.Disconnect(device.DeviceConnection).ConfigureAwait(false);
                 }
             }
@@ -306,9 +307,7 @@ namespace HideezMiddleware.Modules.DeviceManagement
                 var device = _deviceManager.Devices.FirstOrDefault(d => d.Id == args.DeviceId);
                 if (device != null)
                 {
-
-                    // Todo: move reconnect to device management
-                    //_deviceReconnectManager.DisableDeviceReconnect(device);
+                    await _messenger.Publish(new DeviceManager_ExpectedDeviceRemovalMessage(device));
                     await _deviceManager.Disconnect(device.DeviceConnection);
                 }
             }
@@ -326,8 +325,7 @@ namespace HideezMiddleware.Modules.DeviceManagement
                 var device = _deviceManager.Devices.FirstOrDefault(d => d.Id == args.DeviceId);
                 if (device != null)
                 {
-                    // Todo: move reconnect to device management
-                    //_deviceReconnectManager.DisableDeviceReconnect(device);
+                    await _messenger.Publish(new DeviceManager_ExpectedDeviceRemovalMessage(device));
                     await _deviceManager.DeleteBond(device.DeviceConnection);
                 }
             }

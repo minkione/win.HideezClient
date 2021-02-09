@@ -1,14 +1,13 @@
 ﻿using Hideez.SDK.Communication.Log;
-using HideezMiddleware;
 using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Utils.WorkstationHelper;
 using Meta.Lib.Modules.PubSub;
 using System;
 using System.Threading.Tasks;
 
-namespace ServiceLibrary.Implementation.WorkstationLock
+namespace HideezMiddleware.Modules.ReconnectAndWorkstationLock
 {
-    class WcfWorkstationLocker : Logger, IWorkstationLocker
+    internal sealed class WcfWorkstationLocker : Logger, IWorkstationLocker
     {
         readonly IMetaPubSub _messenger;
         readonly IWorkstationHelper _workstationHelper;

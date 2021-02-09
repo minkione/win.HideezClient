@@ -235,6 +235,7 @@
     <Compile Include="Modules\DeviceManagement\DeviceManagementModule.cs" />
     <Compile Include="Modules\DeviceManagement\Messages\DeviceManager_DeviceAddedMessage.cs" />
     <Compile Include="Modules\DeviceManagement\Messages\DeviceManager_DeviceRemovedMessage.cs" />
+    <Compile Include="Modules\DeviceManagement\Messages\DeviceManager_ExpectedDeviceRemovalMessage.cs" />
     <Compile Include="Modules\FatalExceptionHandler\FatalExceptionHandlerModule.cs" />
     <Compile Include="Modules\Hes\HesModule.cs" />
     <Compile Include="Modules\Hes\Messages\HesAccessManager_AccessRetractedMessage.cs" />
@@ -246,10 +247,11 @@
     <Compile Include="Modules\Hes\Messages\HesAppConnection_AlarmMessage.cs" />
     <Compile Include="Modules\IModule.cs" />
     <Compile Include="Modules\ModuleBase.cs" />
-    <Compile Include="Modules\ProximityLock\ReconnectAndProximityLockModule.cs" />
+    <Compile Include="Modules\ReconnectAndWorkstationLock\ReconnectAndWorkstationLockModule.cs" />
     <Compile Include="Modules\RemoteUnlock\RemoteUnlockModule.cs" />
     <Compile Include="Modules\Rfid\RfidModule.cs" />
     <Compile Include="Modules\WinBle\WinBleModule.cs" />
+    <Compile Include="Modules\ReconnectAndWorkstationLock\WtsapiWorkstationLocker.cs" />
     <Compile Include="RegistrySettings.cs" />
     <Compile Include="Resources\Strings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -268,6 +270,9 @@
     <Compile Include="Utils\WorkstationHelper\IWorkstationHelper.cs" />
     <Compile Include="Utils\WorkstationHelper\WorkstationHelper.cs" />
     <Compile Include="WinBleControllersStateMonitor.cs" />
+    <Compile Include="Modules\ReconnectAndWorkstationLock\UniversalWorkstationLocker.cs" />
+    <Compile Include="Modules\ReconnectAndWorkstationLock\WcfWorkstationLocker.cs" />
+    <Compile Include="WorkstationLock\WtsapiWorkstationLocker.cs" />
     <Compile Include="Workstation\IWorkstationIdProvider.cs" />
     <Compile Include="Local\LocalDeviceInfo.cs" />
     <Compile Include="Local\LocalDeviceInfoCache.cs" />

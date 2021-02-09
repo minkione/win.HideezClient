@@ -1,14 +1,13 @@
 ﻿using Hideez.SDK.Communication.Log;
-using HideezMiddleware;
 using HideezMiddleware.Utils.WorkstationHelper;
 using Meta.Lib.Modules.PubSub;
 using Microsoft.Win32;
 using System;
 using System.Threading.Tasks;
 
-namespace ServiceLibrary.Implementation.WorkstationLock
+namespace HideezMiddleware.Modules.ReconnectAndWorkstationLock
 {
-    class UniversalWorkstationLocker : Logger, IWorkstationLocker
+    internal sealed class UniversalWorkstationLocker : Logger, IWorkstationLocker
     {
         class EnsureWorkstationLockProc : IDisposable
         {
@@ -70,7 +69,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                 Dispose(true);
                 GC.SuppressFinalize(this);
             }
-            
+
             void Dispose(bool disposing)
             {
                 if (!disposed)

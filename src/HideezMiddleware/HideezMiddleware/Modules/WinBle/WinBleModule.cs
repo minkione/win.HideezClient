@@ -16,6 +16,7 @@ namespace HideezMiddleware.Modules.WinBle
         readonly WinBleConnectionManager _winBleConnectionManager;
         readonly WinBleAutomaticConnectionProcessor _winBleAutomaticConnectionProcessor;
         readonly CommandLinkVisibilityController _commandLinkVisibilityController;
+        readonly ConnectionManagerRestarter _connectionManagerRestarter;
 
         public WinBleModule(ConnectionManagersCoordinator connectionManagersCoordinator,
             ConnectionManagerRestarter connectionManagerRestarter,
@@ -31,13 +32,17 @@ namespace HideezMiddleware.Modules.WinBle
             _winBleConnectionManager = winBleConnectionManager;
             _winBleAutomaticConnectionProcessor = winBleAutomaticConnectionProcessor;
             _commandLinkVisibilityController = commandLinkVisibilityController;
+            _connectionManagerRestarter = connectionManagerRestarter;
 
             _winBleConnectionManager.AdapterStateChanged += WinBleConnectionManager_AdapterStateChanged;
 
-            connectionManagerRestarter.AddManager(_winBleConnectionManager);
+            _connectionManagerRestarter.AddManager(_winBleConnectionManager);
             connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManager);
 
             _messenger.Subscribe<CredentialProvider_CommandLinkPressedMessage>(CredentialProvider_CommandLinkPressedHandler);
+
+            _winBleAutomaticConnectionProcessor.Start();
+            _connectionManagerRestarter.Start();
         }
 
         private async void WinBleConnectionManager_AdapterStateChanged(object sender, EventArgs e)

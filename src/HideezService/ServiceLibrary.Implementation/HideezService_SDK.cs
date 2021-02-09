@@ -32,7 +32,6 @@ using HideezMiddleware.SoftwareVault.UnlockToken;
 using Meta.Lib.Modules.PubSub.Messages;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ScreenActivation;
-using ServiceLibrary.Implementation.WorkstationLock;
 using HideezMiddleware.DeviceConnection.Workflow;
 using Hideez.SDK.Communication.HES.DTO;
 using WinBle._10._0._18362;
@@ -389,7 +388,7 @@ namespace ServiceLibrary.Implementation
             _deviceReconnectManager.DeviceReconnected += (s, a) => _log.WriteLine($"Device {a.SerialNo} reconnected successfully");
 
             // WorkstationLocker ==================================
-            _workstationLocker = new UniversalWorkstationLocker(SdkConfig.DefaultLockTimeout * 1000, _messenger, _workstationHelper, _sdkLogger);
+            //_workstationLocker = new UniversalWorkstationLocker(SdkConfig.DefaultLockTimeout * 1000, _messenger, _workstationHelper, _sdkLogger);
 
             // WorkstationLockProcessor ==================================
             _workstationLockProcessor = new WorkstationLockProcessor(_connectionFlowProcessor,
@@ -844,8 +843,8 @@ namespace ServiceLibrary.Implementation
                         // The leftover bond files must be deleted manually
                         await _bondManager.RemoveAll();
 
-                        var wsLocker = new WcfWorkstationLocker(_messenger, _workstationHelper, _sdkLogger);
-                        wsLocker.LockWorkstation();
+                        //var wsLocker = new WcfWorkstationLocker(_messenger, _workstationHelper, _sdkLogger);
+                        //wsLocker.LockWorkstation();
 
                         _connectionManagerRestarter.Stop();
                         await Task.Run(async () =>

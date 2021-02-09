@@ -5,9 +5,9 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace ServiceLibrary.Implementation.WorkstationLock
+namespace HideezMiddleware.WorkstationLock
 {
-    class WtsapiWorkstationLocker : Logger
+    internal sealed class WtsapiWorkstationLocker : Logger
     {
         [DllImport("wtsapi32.dll", SetLastError = true)]
         static extern bool WTSDisconnectSession(IntPtr hServer, int sessionId, bool bWait);
@@ -20,16 +20,16 @@ namespace ServiceLibrary.Implementation.WorkstationLock
 
         [DllImport("Wtsapi32.dll")]
         static extern bool WTSQuerySessionInformation(
-        System.IntPtr hServer, int sessionId, WTS_INFO_CLASS wtsInfoClass, out System.IntPtr ppBuffer, out uint pBytesReturned);
+        IntPtr hServer, int sessionId, WTS_INFO_CLASS wtsInfoClass, out IntPtr ppBuffer, out uint pBytesReturned);
 
 
         [StructLayout(LayoutKind.Sequential)]
         private struct WTS_SESSION_INFO
         {
-            public Int32 SessionID;
+            public int SessionID;
 
             [MarshalAs(UnmanagedType.LPStr)]
-            public String pWinStationName;
+            public string pWinStationName;
 
             public WTS_CONNECTSTATE_CLASS State;
         }
@@ -86,9 +86,9 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                 IntPtr ppSessionInfo = IntPtr.Zero;
                 IntPtr userPtr = IntPtr.Zero;
                 IntPtr domainPtr = IntPtr.Zero;
-                Int32 count = 0;
-                Int32 retval = WTSEnumerateSessions(IntPtr.Zero, 0, 1, ref ppSessionInfo, ref count);
-                Int32 dataSize = Marshal.SizeOf(typeof(WTS_SESSION_INFO));
+                int count = 0;
+                int retval = WTSEnumerateSessions(IntPtr.Zero, 0, 1, ref ppSessionInfo, ref count);
+                int dataSize = Marshal.SizeOf(typeof(WTS_SESSION_INFO));
                 var currentSession = ppSessionInfo;
                 uint bytes = 0;
 
@@ -98,7 +98,7 @@ namespace ServiceLibrary.Implementation.WorkstationLock
                 WriteLine("Query sessions");
                 for (int i = 0; i < count; i++)
                 {
-                    WTS_SESSION_INFO si = (WTS_SESSION_INFO)Marshal.PtrToStructure((System.IntPtr)currentSession, typeof(WTS_SESSION_INFO));
+                    WTS_SESSION_INFO si = (WTS_SESSION_INFO)Marshal.PtrToStructure(currentSession, typeof(WTS_SESSION_INFO));
                     currentSession += dataSize;
 
                     WTSQuerySessionInformation(IntPtr.Zero, si.SessionID, WTS_INFO_CLASS.WTSUserName, out userPtr, out bytes);

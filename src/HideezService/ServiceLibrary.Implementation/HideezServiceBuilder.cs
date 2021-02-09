@@ -5,6 +5,7 @@ using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Proximity;
 using Hideez.SDK.Communication.Proximity.Interfaces;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware;
@@ -24,9 +25,11 @@ using HideezMiddleware.Modules.Csr;
 using HideezMiddleware.Modules.DeviceManagement;
 using HideezMiddleware.Modules.FatalExceptionHandler;
 using HideezMiddleware.Modules.Hes;
+using HideezMiddleware.Modules.ReconnectAndWorkstationLock;
 using HideezMiddleware.Modules.RemoteUnlock;
 using HideezMiddleware.Modules.Rfid;
 using HideezMiddleware.Modules.WinBle;
+using HideezMiddleware.ReconnectManager;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Settings.SettingsProvider;
@@ -433,30 +436,23 @@ namespace ServiceLibrary.Implementation
             AddModule(rfidModule);
         }
 
+        public void AddWorkstationLock()
+        {
+            _container.RegisterType<ProximityMonitorManager>(new ContainerControlledLifetimeManager());
+            _container.RegisterType<DeviceReconnectManager>(new ExternallyControlledLifetimeManager());
+            _container.RegisterType<WorkstationLockProcessor>(new ExternallyControlledLifetimeManager());
+            var workstationLockModule = _container.Resolve<WorkstationLockModule>();
+            AddModule(workstationLockModule);
+        }
 
-        //public void AddReconnectAndLockByProximity()
-        //{
-        //    var proximitySettings = _container.Resolve<ISettingsManager<WorkstationSettings>>().Settings.GetProximityMonitorSettings();
-        //    var proximityMonitorManager = _container.Resolve<ProximityMonitorManager>(new ParameterOverride(typeof(ProximityMonitorSettings), proximitySettings));
-        //    AddModule(proximityMonitorManager);
+        public void Finalize()
+        {
+            var connectionManagersCoordinator = _container.Resolve<ConnectionManagersCoordinator>();
+            connectionManagersCoordinator.Start();
 
-        //    var deviceReconnectManager = _container.Resolve<DeviceReconnectManager>();
-        //    AddModule(deviceReconnectManager);
-
-        //    var workstationLocker = _container.Resolve<UniversalWorkstationLocker>(new ParameterOverride(typeof(int), "lockTimeout", SdkConfig.DefaultLockTimeout * 1000));
-        //    AddModule(workstationLocker);
-
-        //    // WorkstationLockProcessor ==================================
-        //    var workstationLockProcessor = _container.Resolve<WorkstationLockProcessor>();
-        //    // TODO: Event handling
-        //    //workstationLockProcessor.DeviceProxLockEnabled += WorkstationLockProcessor_DeviceProxLockEnabled;
-        //    AddModule(workstationLockProcessor);
-
-        //    _service.SubscribeReconnectAndLockByProximityModule(proximityMonitorManager);
-
-        //    var reconnectAndProximityLockModule = new ReconnectAndProximityLockModule();
-        //    AddModule(reconnectAndProximityLockModule);
-        //}
+            var connectionManagersRestarter = _container.Resolve<ConnectionManagerRestarter>();
+            connectionManagersRestarter.Start();
+        }
 
         /// <summary>
         /// Finishes building, returns built service instance and performs builder cleanup

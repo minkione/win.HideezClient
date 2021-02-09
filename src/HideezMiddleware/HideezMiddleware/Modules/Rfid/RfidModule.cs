@@ -22,6 +22,9 @@ namespace HideezMiddleware.Modules.Rfid
             _rfidServiceConnection = rfidServiceConnection;
 
             _rfidServiceConnection.RfidReaderStateChanged += RfidServiceConnection_RfidReaderStateChanged;
+
+            _rfidServiceConnection.Start();
+            _rfidConnectionProcessor.Start();
         }
 
         private async void RfidServiceConnection_RfidReaderStateChanged(object sender, EventArgs e)

@@ -107,9 +107,6 @@
     <Compile Include="ScreenActivation\MetalibScreenActivator.cs" />
     <Compile Include="HideezServiceBuildDirector.cs" />
     <Compile Include="HideezServiceBuilder.cs" />
-    <Compile Include="WorkstationLock\UniversalWorkstationLocker.cs" />
-    <Compile Include="WorkstationLock\WcfWorkstationLocker.cs" />
-    <Compile Include="WorkstationLock\WtsapiWorkstationLocker.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\win.sdk\Communication\Communication.csproj">
