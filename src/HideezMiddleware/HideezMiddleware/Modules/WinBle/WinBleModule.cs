@@ -1,8 +1,10 @@
 ﻿using Hideez.SDK.Communication.Connection;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.CredentialProvider;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.IPC.Messages;
+using HideezMiddleware.Modules.WinBle.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;
 using System.Threading.Tasks;
@@ -42,12 +44,38 @@ namespace HideezMiddleware.Modules.WinBle
             _messenger.Subscribe<CredentialProvider_CommandLinkPressedMessage>(CredentialProvider_CommandLinkPressedHandler);
 
             _winBleAutomaticConnectionProcessor.Start();
-            _connectionManagerRestarter.Start();
         }
 
         private async void WinBleConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
-            await _messenger.Publish(new BleAdapterStateChangedMessage(_winBleConnectionManager, _winBleConnectionManager.State));
+            BluetoothStatus status;
+            switch (_winBleConnectionManager.State)
+            {
+                case BluetoothAdapterState.PoweredOn:
+                case BluetoothAdapterState.LoadingKnownDevices:
+                    status = BluetoothStatus.Ok;
+                    break;
+                case BluetoothAdapterState.Unknown:
+                    status = BluetoothStatus.Unknown;
+                    break;
+                case BluetoothAdapterState.Resetting:
+                    status = BluetoothStatus.Resetting;
+                    break;
+                case BluetoothAdapterState.Unsupported:
+                    status = BluetoothStatus.Unsupported;
+                    break;
+                case BluetoothAdapterState.Unauthorized:
+                    status = BluetoothStatus.Unauthorized;
+                    break;
+                case BluetoothAdapterState.PoweredOff:
+                    status = BluetoothStatus.PoweredOff;
+                    break;
+                default:
+                    status = BluetoothStatus.Unknown;
+                    break;
+            }
+
+            await _messenger.Publish(new WinBleStatusChangedMessage(sender, status));
         }
 
         private Task CredentialProvider_CommandLinkPressedHandler(CredentialProvider_CommandLinkPressedMessage msg)

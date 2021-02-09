@@ -3,6 +3,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware.IPC.IncommingMessages;
+using HideezMiddleware.Modules.RemoteUnlock.Messages;
 using HideezMiddleware.Settings;
 using HideezMiddleware.SoftwareVault.UnlockToken;
 using HideezMiddleware.Utils.WorkstationHelper;
@@ -37,6 +38,8 @@ namespace HideezMiddleware.Modules.RemoteUnlock
             _tbHesAppConnection = tbHesAppConnection;
             _remoteWorkstationUnlocker = new RemoteWorkstationUnlocker(_unlockTokenProvider, _tbHesAppConnection, workstationUnlocker, log);
 
+            _tbHesAppConnection.HubConnectionStateChanged += TBHesAppConnection_HubConnectionStateChanged;
+
             if (_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock)
                 Task.Run(_unlockTokenGenerator.Start);
 
@@ -48,7 +51,12 @@ namespace HideezMiddleware.Modules.RemoteUnlock
             _messenger.Subscribe<SetSoftwareVaultUnlockModuleStateMessage>(SetSoftwareVaultUnlockModuleState);
         }
 
-        async Task SetSoftwareVaultUnlockModuleState(SetSoftwareVaultUnlockModuleStateMessage args)
+        private async void TBHesAppConnection_HubConnectionStateChanged(object sender, System.EventArgs e)
+        {
+            await _messenger.Publish(new TBConnection_StateChangedMessage(sender, e));
+        }
+
+        Task SetSoftwareVaultUnlockModuleState(SetSoftwareVaultUnlockModuleStateMessage args)
         {
             var settings = _serviceSettingsManager.Settings;
             if (settings.EnableSoftwareVaultUnlock != args.Enabled)
@@ -69,6 +77,8 @@ namespace HideezMiddleware.Modules.RemoteUnlock
                     _unlockTokenGenerator.DeleteSavedToken();
                 }
             }
+
+            return Task.CompletedTask;
         }
     }
 }

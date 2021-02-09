@@ -17,9 +17,9 @@ namespace ServiceLibrary.Implementation
             builder.AddRfidSupport();
             builder.AddRemoteUnlock();
             builder.AddWorkstationLock();
-            //builder.AddClientPipe();
+            builder.AddClientPipe();
             builder.AddAudit();
-            builder.Finalize();
+            builder.End();
 
             return builder.GetService();
         }
@@ -34,8 +34,8 @@ namespace ServiceLibrary.Implementation
             builder.AddCsrSupport();
             builder.AddWinBleSupport();
             builder.AddWorkstationLock();
-            //builder.AddClientPipe();
-            builder.Finalize();
+            builder.AddClientPipe();
+            builder.End();
 
             return builder.GetService();
         }

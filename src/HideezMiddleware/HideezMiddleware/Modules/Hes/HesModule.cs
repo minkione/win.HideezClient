@@ -39,7 +39,6 @@ namespace HideezMiddleware.Modules.Hes
             _hesAppConnection.LiftHwVaultStorageLockRequest += HesAppConnection_LiftHwVaultStorageLockRequest;
             _hesAppConnection.Alarm += HesAppConnection_Alarm;
 
-
             // TODO: Event handling
             //hesConnection.HubProximitySettingsArrived += async (s, e) => await _service.Messenger.Publish(new HES_HubProximitySettingsArrivedMessage());
 

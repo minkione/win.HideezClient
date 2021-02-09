@@ -12,6 +12,7 @@ namespace HideezMiddleware
         Unsupported,
         Unauthorized,
         PoweredOff,
+        Disabled,
     }
 
     public enum RfidStatus

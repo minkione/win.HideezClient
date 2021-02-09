@@ -20,7 +20,7 @@ using WinBle._10._0._18362;
 
 namespace HideezMiddleware.DeviceConnection
 {
-    public sealed class WinBleAutomaticConnectionProcessor : BaseConnectionProcessor, IDisposable
+    public sealed class WinBleAutomaticConnectionProcessor : BaseConnectionProcessor
     {
         readonly WinBleConnectionManager _winBleConnectionManager;
         readonly IDeviceProximitySettingsProvider _proximitySettingsProvider;
@@ -55,33 +55,6 @@ namespace HideezMiddleware.DeviceConnection
             _ui = ui ?? throw new ArgumentNullException(nameof(ui));
             _workstationHelper = workstationHelper ?? throw new ArgumentNullException(nameof(workstationHelper));
         }
-
-        #region IDisposable
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        bool disposed = false;
-        void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
-
-            if (disposing)
-            {
-                _winBleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
-            }
-
-            disposed = true;
-        }
-
-        ~WinBleAutomaticConnectionProcessor()
-        {
-            Dispose(false);
-        }
-        #endregion
 
         public override void Start()
         {

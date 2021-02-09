@@ -1,131 +1,93 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Hideez.SDK.Communication.HES.Client;
-using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.BLE;
-using HideezMiddleware.Settings;
+using Meta.Lib.Modules.PubSub;
+using HideezMiddleware.Modules.Rfid.Messages;
+using HideezMiddleware.Modules.RemoteUnlock.Messages;
+using HideezMiddleware.Modules.Hes.Messages;
+using HideezMiddleware.Modules.WinBle.Messages;
+using HideezMiddleware.Modules.Csr.Messages;
+using Hideez.SDK.Communication.HES.Client;
+using HideezMiddleware.IPC.Messages;
+using HideezMiddleware.Modules.CredentialProvider.Messages;
 
 namespace HideezMiddleware
 {
-    public class StatusManager : Logger, IDisposable
+    public class StatusManager : Logger
     {
-        readonly HesAppConnection _hesConnection;
-        readonly HesAppConnection _tbHesConnection;
-        readonly RfidServiceConnection _rfidService;
-        readonly IBleConnectionManager _csrConnectionManager;
-        readonly IBleConnectionManager _winBleConnectionManager;
         readonly IClientUiManager _uiClientManager;
-        readonly ISettingsManager<RfidSettings> _rfidSettingsManager;
-        readonly IWorkstationUnlocker _workstationUnlocker;
+        readonly IMetaPubSub _messenger;
 
-        public StatusManager(HesAppConnection hesConnection,
-            HesAppConnection tbHesConnection,
-            RfidServiceConnection rfidService,
-            IBleConnectionManager csrConnectionManager,
-            IBleConnectionManager winBleConnectionManager,
-            IClientUiManager clientUiManager,
-            ISettingsManager<RfidSettings> rfidSettingsManager,
-            IWorkstationUnlocker workstationUnlocker,
+        RfidStatus rfidStatus = RfidStatus.Disabled;
+        BluetoothStatus csrStatus = BluetoothStatus.Disabled;
+        BluetoothStatus winBleStatus = BluetoothStatus.Disabled;
+        HesStatus hesStatus = HesStatus.Disabled;
+        HesStatus tbStatus = HesStatus.Disabled;
+
+        public StatusManager(IClientUiManager clientUiManager,
+            IMetaPubSub messenger,
             ILog log)
             : base(nameof(StatusManager), log)
         {
-            _hesConnection = hesConnection;
-            _tbHesConnection = tbHesConnection;
-            _rfidService = rfidService;
-            _csrConnectionManager = csrConnectionManager;
-            _winBleConnectionManager = winBleConnectionManager;
             _uiClientManager = clientUiManager;
-            _rfidSettingsManager = rfidSettingsManager;
-            _workstationUnlocker = workstationUnlocker;
+            _messenger = messenger;
 
-            _rfidService.RfidServiceStateChanged += RfidService_RfidServiceStateChanged;
-            _rfidService.RfidReaderStateChanged += RfidService_RfidReaderStateChanged;
-            _csrConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            _winBleConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            _rfidSettingsManager.SettingsChanged += RfidSettingsManager_SettingsChanged;
-
-            if (_hesConnection != null)
-                _hesConnection.HubConnectionStateChanged += HesConnection_HubConnectionStateChanged;
-
-            if(_tbHesConnection != null)
-                _tbHesConnection.HubConnectionStateChanged += TryAndBuyHesConnection_HubConnectionStateChanged;
-
-            if (_workstationUnlocker != null)
-                _workstationUnlocker.Connected += WorkstationUnlocker_Connected;
+            _messenger.Subscribe<RfidStatusChangedMessage>(ServiceStatusChanged);
+            _messenger.Subscribe<CsrStatusChangedMessage>(BleAdapterStatusChanged);
+            _messenger.Subscribe<WinBleStatusChangedMessage>(WinBleAdapterStatusChanged);
+            _messenger.Subscribe<HesAppConnection_HubConnectionStateChangedMessage>(HesConnectionStateChanged);
+            _messenger.Subscribe<TBConnection_StateChangedMessage>(TBConnectionStateChanged);
+            _messenger.Subscribe<WorkstationUnlocker_ConnectedMessage>(WorkstationUnlockerConnected);
+            _messenger.Subscribe<RefreshStatusMessage>(RefreshStatus);
         }
 
-        #region IDisposable
-        bool disposed = false;
-        public void Dispose()
+        private async Task ServiceStatusChanged(RfidStatusChangedMessage msg)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
-
-            if (disposing)
-            {
-                // Release managed resources here
-                _rfidService.RfidServiceStateChanged -= RfidService_RfidServiceStateChanged;
-                _rfidService.RfidReaderStateChanged -= RfidService_RfidReaderStateChanged;
-                _csrConnectionManager.AdapterStateChanged -= ConnectionManager_AdapterStateChanged;
-                _winBleConnectionManager.AdapterStateChanged -= ConnectionManager_AdapterStateChanged;
-
-                if (_hesConnection != null)
-                    _hesConnection.HubConnectionStateChanged -= HesConnection_HubConnectionStateChanged;
-
-                if (_tbHesConnection != null)
-                    _tbHesConnection.HubConnectionStateChanged -= TryAndBuyHesConnection_HubConnectionStateChanged;
-
-                if (_workstationUnlocker != null)
-                    _workstationUnlocker.Connected -= WorkstationUnlocker_Connected;
-            }
-
-            disposed = true;
-        }
-
-        ~StatusManager()
-        {
-            Dispose(false);
-        }
-        #endregion
-
-        async void HesConnection_HubConnectionStateChanged(object sender, EventArgs e)
-        {
+            rfidStatus = msg.Status;
             await SendStatusToUI();
         }
 
-        async void ConnectionManager_AdapterStateChanged(object sender, EventArgs e)
+        private async Task WinBleAdapterStatusChanged(WinBleStatusChangedMessage msg)
         {
+            winBleStatus = msg.Status;
             await SendStatusToUI();
         }
 
-        async void RfidService_RfidReaderStateChanged(object sender, EventArgs e)
+        private async Task BleAdapterStatusChanged(CsrStatusChangedMessage msg)
         {
+            csrStatus = msg.Status;
             await SendStatusToUI();
         }
 
-        async void RfidService_RfidServiceStateChanged(object sender, EventArgs e)
+        private async Task HesConnectionStateChanged(HesAppConnection_HubConnectionStateChangedMessage msg)
         {
+            var hesConnection = (IHesAppConnection)msg.Sender;
+
+            if (hesConnection.State == HesConnectionState.Connected)
+                hesStatus = HesStatus.Ok;
+            else if (hesConnection.State == HesConnectionState.NotApproved)
+                hesStatus = HesStatus.NotApproved;
+            else
+                hesStatus = HesStatus.HesNotConnected;
+
             await SendStatusToUI();
         }
 
-        async void TryAndBuyHesConnection_HubConnectionStateChanged(object sender, EventArgs e)
+        private async Task TBConnectionStateChanged(TBConnection_StateChangedMessage msg)
         {
+            var tbConnection = (IHesAppConnection)msg.Sender;
+
+            if (tbConnection.State == HesConnectionState.Connected)
+                tbStatus = HesStatus.Ok;
+            else if (tbConnection.State == HesConnectionState.NotApproved)
+                tbStatus = HesStatus.NotApproved;
+            else
+                tbStatus = HesStatus.HesNotConnected;
+
             await SendStatusToUI();
         }
 
-        async void RfidSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<RfidSettings> e)
-        {
-            await SendStatusToUI();
-        }
-
-        async void WorkstationUnlocker_Connected(object sender, EventArgs e)
+        private async Task WorkstationUnlockerConnected(WorkstationUnlocker_ConnectedMessage arg)
         {
             await Task.Delay(200);
             await SendStatusToUI();
@@ -135,17 +97,7 @@ namespace HideezMiddleware
         {
             try
             {
-                var hesStatus = GetHesStatus();
-
-                var rfidStatus = GetRfidStatus();
-
-                var dongleStatus = GetDongleStatus();
-
-                var tbHesStatus = GetTBHesStatus();
-
-                var bluetoothStatus = GetBluetoothStatus();
-
-                await _uiClientManager.SendStatus(hesStatus, rfidStatus, dongleStatus, bluetoothStatus, tbHesStatus);
+                await _uiClientManager.SendStatus(hesStatus, rfidStatus, csrStatus, winBleStatus, tbStatus);
             }
             catch (Exception ex)
             {
@@ -153,88 +105,9 @@ namespace HideezMiddleware
             }
         }
 
-        BluetoothStatus GetDongleStatus()
+        private async Task RefreshStatus(RefreshStatusMessage arg)
         {
-            switch (_csrConnectionManager.State)
-            {
-                case BluetoothAdapterState.PoweredOn:
-                case BluetoothAdapterState.LoadingKnownDevices:
-                    return BluetoothStatus.Ok;
-                case BluetoothAdapterState.Unknown:
-                    return BluetoothStatus.Unknown;
-                case BluetoothAdapterState.Resetting:
-                    return BluetoothStatus.Resetting;
-                case BluetoothAdapterState.Unsupported:
-                    return BluetoothStatus.Unsupported;
-                case BluetoothAdapterState.Unauthorized:
-                    return BluetoothStatus.Unauthorized;
-                case BluetoothAdapterState.PoweredOff:
-                    return BluetoothStatus.PoweredOff;
-                default:
-                    return BluetoothStatus.Unknown;
-            }
-        }
-
-        RfidStatus GetRfidStatus()
-        {
-            if (!_rfidSettingsManager.Settings.IsRfidEnabled)
-                return RfidStatus.Disabled;
-            else if (!_rfidService.ServiceConnected)
-                return RfidStatus.RfidServiceNotConnected;
-            else if (!_rfidService.ReaderConnected)
-                return RfidStatus.RfidReaderNotConnected;
-            else
-                return RfidStatus.Ok;
-        }
-
-        HesStatus GetHesStatus()
-        {
-            if (_hesConnection != null)
-            {
-                if (_hesConnection.State == HesConnectionState.Connected)
-                    return HesStatus.Ok;
-
-                if (_hesConnection.State == HesConnectionState.NotApproved)
-                    return HesStatus.NotApproved;
-            }
-            
-            return HesStatus.HesNotConnected;
-        }
-
-        HesStatus GetTBHesStatus()
-        {
-            if (_tbHesConnection != null)
-            {
-                if (_tbHesConnection.State == HesConnectionState.Connected)
-                    return HesStatus.Ok;
-
-                if (_tbHesConnection.State == HesConnectionState.NotApproved)
-                    return HesStatus.NotApproved;
-            }
-
-            return HesStatus.HesNotConnected;
-        }
-
-        BluetoothStatus GetBluetoothStatus()
-        {
-            switch (_winBleConnectionManager.State)
-            {
-                case BluetoothAdapterState.PoweredOn:
-                case BluetoothAdapterState.LoadingKnownDevices:
-                    return BluetoothStatus.Ok;
-                case BluetoothAdapterState.Unknown:
-                    return BluetoothStatus.Unknown;
-                case BluetoothAdapterState.Resetting:
-                    return BluetoothStatus.Resetting;
-                case BluetoothAdapterState.Unsupported:
-                    return BluetoothStatus.Unsupported;
-                case BluetoothAdapterState.Unauthorized:
-                    return BluetoothStatus.Unauthorized;
-                case BluetoothAdapterState.PoweredOff:
-                    return BluetoothStatus.PoweredOff;
-                default:
-                    return BluetoothStatus.Unknown;
-            }
+            await SendStatusToUI();
         }
     }
 }

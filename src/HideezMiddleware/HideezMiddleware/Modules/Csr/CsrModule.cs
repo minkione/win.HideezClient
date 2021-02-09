@@ -1,8 +1,10 @@
 ﻿using Hideez.CsrBLE;
 using Hideez.SDK.Communication.Connection;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.IPC.Messages;
+using HideezMiddleware.Modules.Csr.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;
 
@@ -43,7 +45,34 @@ namespace HideezMiddleware.Modules.Csr
 
         private async void CsrBleConnectionManager_AdapterStateChanged(object sender, EventArgs e)
         {
-            await _messenger.Publish(new BleAdapterStateChangedMessage(_csrBleConnectionManager, _csrBleConnectionManager.State));
+            BluetoothStatus status;
+            switch (_csrBleConnectionManager.State)
+            {
+                case BluetoothAdapterState.PoweredOn:
+                case BluetoothAdapterState.LoadingKnownDevices:
+                    status = BluetoothStatus.Ok;
+                    break;
+                case BluetoothAdapterState.Unknown:
+                    status = BluetoothStatus.Unknown;
+                    break;
+                case BluetoothAdapterState.Resetting:
+                    status = BluetoothStatus.Resetting;
+                    break;
+                case BluetoothAdapterState.Unsupported:
+                    status = BluetoothStatus.Unsupported;
+                    break;
+                case BluetoothAdapterState.Unauthorized:
+                    status = BluetoothStatus.Unauthorized;
+                    break;
+                case BluetoothAdapterState.PoweredOff:
+                    status = BluetoothStatus.PoweredOff;
+                    break;
+                default:
+                    status = BluetoothStatus.Unknown;
+                    break;
+            }
+
+            await _messenger.Publish(new CsrStatusChangedMessage(sender, status));
         }
     }
 }

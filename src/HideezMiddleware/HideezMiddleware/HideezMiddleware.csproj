@@ -198,7 +198,6 @@
     <Compile Include="IPC\IncommingMessages\SendActivationCodeMessage.cs" />
     <Compile Include="IPC\IncommingMessages\SetSoftwareVaultUnlockModuleStateMessage.cs" />
     <Compile Include="IPC\Messages\ActivateScreenRequestMessage.cs" />
-    <Compile Include="IPC\Messages\BleAdapterStateChangedMessage.cs" />
     <Compile Include="IPC\Messages\CredentialProvider_CommandLinkPressedMessage.cs" />
     <Compile Include="IPC\Messages\DeviceBatteryChangedMessage.cs" />
     <Compile Include="IPC\Messages\DeviceConnectionStateChangedMessage.cs" />
@@ -214,9 +213,9 @@
     <Compile Include="IPC\Messages\LockWorkstationMessage.cs" />
     <Compile Include="IPC\Messages\LoginClientRequestMessage.cs" />
     <Compile Include="IPC\Messages\ProximitySettingsChangedMessage.cs" />
+    <Compile Include="IPC\Messages\RefreshStatusMessage.cs" />
     <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_DeviceStateChangedMessage.cs" />
     <Compile Include="IPC\Messages\RemoteDevice\PipeDeviceDisconnectedMessage.cs" />
-    <Compile Include="IPC\Messages\RfidService_RfidReaderStateChangedMessage.cs" />
     <Compile Include="IPC\Messages\ServiceComponentsStateChangedMessage.cs" />
     <Compile Include="IPC\Messages\ServiceSettingsChangedMessage.cs" />
     <Compile Include="IPC\Messages\ShowActivationCodeUiMessage.cs" />
@@ -231,7 +230,9 @@
     <Compile Include="Modules\ClientPipe\PipeDeviceConnectionHandler.cs" />
     <Compile Include="Modules\ClientPipe\PipeDeviceConnectionManager.cs" />
     <Compile Include="Modules\CredentialProvider\CredentialProviderModule.cs" />
+    <Compile Include="Modules\CredentialProvider\Messages\WorkstationUnlocker_ConnectedMessage.cs" />
     <Compile Include="Modules\Csr\CsrModule.cs" />
+    <Compile Include="Modules\Csr\Messages\CsrStatusChangedMessage.cs" />
     <Compile Include="Modules\DeviceManagement\DeviceManagementModule.cs" />
     <Compile Include="Modules\DeviceManagement\Messages\DeviceManager_DeviceAddedMessage.cs" />
     <Compile Include="Modules\DeviceManagement\Messages\DeviceManager_DeviceRemovedMessage.cs" />
@@ -248,8 +249,11 @@
     <Compile Include="Modules\IModule.cs" />
     <Compile Include="Modules\ModuleBase.cs" />
     <Compile Include="Modules\ReconnectAndWorkstationLock\ReconnectAndWorkstationLockModule.cs" />
+    <Compile Include="Modules\RemoteUnlock\Messages\TBConnection_StateChangedMessage.cs" />
     <Compile Include="Modules\RemoteUnlock\RemoteUnlockModule.cs" />
+    <Compile Include="Modules\Rfid\Messages\RfidStatusChangedMessage.cs" />
     <Compile Include="Modules\Rfid\RfidModule.cs" />
+    <Compile Include="Modules\WinBle\Messages\WinBleStatusChangedMessage.cs" />
     <Compile Include="Modules\WinBle\WinBleModule.cs" />
     <Compile Include="Modules\ReconnectAndWorkstationLock\WtsapiWorkstationLocker.cs" />
     <Compile Include="RegistrySettings.cs" />
@@ -349,8 +353,6 @@
       <Name>WinBle</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Modules\RemoteUnlock\Messages\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

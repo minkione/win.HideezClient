@@ -208,6 +208,10 @@ namespace ServiceLibrary.Implementation
                     typeof(ILog)
                     ));
 
+            // Status manager tracks status of certain modules and caches it for client modules, like ClientPipe and CP
+            var statusManager = _container.Resolve<StatusManager>();
+            _container.RegisterInstance(statusManager, new ContainerControlledLifetimeManager());
+
             // Credential provider module is currently essentia
             var credentialProviderModule = _container.Resolve<CredentialProviderModule>();
             AddModule(credentialProviderModule);
@@ -355,6 +359,7 @@ namespace ServiceLibrary.Implementation
             var hesAccessManager = _container.Resolve<IHesAccessManager>();
 
             var tapConnectionProcessor = new TapConnectionProcessor(connectionFlow, csrBleConnectionManager, log);
+            _container.RegisterInstance(tapConnectionProcessor);
             var proximityConnectionProcessor = new ProximityConnectionProcessor(
                 connectionFlow,
                 csrBleConnectionManager,
@@ -364,6 +369,7 @@ namespace ServiceLibrary.Implementation
                 workstationUnlocker,
                 hesAccessManager,
                 log);
+            _container.RegisterInstance(proximityConnectionProcessor);
 
             var connectionManagersCoordinator = _container.Resolve<ConnectionManagersCoordinator>();
             var connectionManagersRestarter = _container.Resolve<ConnectionManagerRestarter>(); 
@@ -405,6 +411,7 @@ namespace ServiceLibrary.Implementation
                 uiManager,
                 workstationHelper, 
                 log);
+            _container.RegisterInstance(winBleAutomaticConnectionProcessor);
 
             var commandLinkVisibilityController = new CommandLinkVisibilityController(
                 credProvProxy,
@@ -445,7 +452,7 @@ namespace ServiceLibrary.Implementation
             AddModule(workstationLockModule);
         }
 
-        public void Finalize()
+        public void End()
         {
             var connectionManagersCoordinator = _container.Resolve<ConnectionManagersCoordinator>();
             connectionManagersCoordinator.Start();

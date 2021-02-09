@@ -8,7 +8,9 @@ using Hideez.SDK.Communication.WorkstationEvents;
 using HideezMiddleware.Audit;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.IPC.Messages;
+using HideezMiddleware.Modules.Csr.Messages;
 using HideezMiddleware.Modules.Hes.Messages;
+using HideezMiddleware.Modules.Rfid.Messages;
 using HideezMiddleware.Workstation;
 using Meta.Lib.Modules.PubSub;
 using System;
@@ -40,14 +42,14 @@ namespace HideezMiddleware.Modules.Audit
             if (string.IsNullOrWhiteSpace(workstationIdProvider.GetWorkstationId()))
                 workstationIdProvider.SaveWorkstationId(Guid.NewGuid().ToString());
 
-            _messenger.Subscribe<BleAdapterStateChangedMessage>(HandleAdapterStateChanged, msg => msg.Sender is BleConnectionManager);
-            _messenger.Subscribe<RfidService_RfidReaderStateChangedMessage>(HandleRfidReaderStateChanged);
+            _messenger.Subscribe<CsrStatusChangedMessage>(HandleCsrStatusChanged);
+            _messenger.Subscribe<RfidStatusChangedMessage>(HandleRfidStatusChanged);
             _messenger.Subscribe<HesAppConnection_HubConnectionStateChangedMessage>(HandleHubConnectionStateChanged);
 
             _messenger.Subscribe<PublishEventMessage>(PublishEvent);
         }
 
-        private async Task HandleAdapterStateChanged(BleAdapterStateChangedMessage msg)
+        private async Task HandleCsrStatusChanged(CsrStatusChangedMessage msg)
         {
             var csrBleConnectionManager = (BleConnectionManager)msg.Sender;
             if (csrBleConnectionManager.State == BluetoothAdapterState.Unknown || csrBleConnectionManager.State == BluetoothAdapterState.PoweredOn)
@@ -69,7 +71,7 @@ namespace HideezMiddleware.Modules.Audit
         }
 
         private bool prevRfidIsConnectedState = false;
-        private async Task HandleRfidReaderStateChanged(RfidService_RfidReaderStateChangedMessage msg)
+        private async Task HandleRfidStatusChanged(RfidStatusChangedMessage msg)
         {
             var rfidServiceConnection = (RfidServiceConnection)msg.Sender;
             var isConnected = rfidServiceConnection.ServiceConnected && rfidServiceConnection.ReaderConnected;

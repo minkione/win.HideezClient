@@ -112,6 +112,8 @@ namespace HideezMiddleware.Modules.ClientPipe
             await SafePublish(new DevicesCollectionChangedMessage(GetDevices()));
 
             await SafePublish(new ServiceSettingsChangedMessage(_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock, RegistrySettings.GetHesAddress(this)));
+
+            await SafePublish(new RefreshStatusMessage());
         }
 
         async void ServiceSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ServiceSettings> e)

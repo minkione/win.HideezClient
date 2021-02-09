@@ -1,6 +1,7 @@
 ﻿using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.IPC.Messages;
+using HideezMiddleware.Modules.Rfid.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;
 
@@ -29,7 +30,15 @@ namespace HideezMiddleware.Modules.Rfid
 
         private async void RfidServiceConnection_RfidReaderStateChanged(object sender, EventArgs e)
         {
-            await _messenger.Publish(new RfidService_RfidReaderStateChangedMessage(sender, e));
+            RfidStatus status;
+            if (!_rfidServiceConnection.ServiceConnected)
+                status = RfidStatus.RfidServiceNotConnected;
+            else if (!_rfidServiceConnection.ReaderConnected)
+                status = RfidStatus.RfidReaderNotConnected;
+            else
+                status = RfidStatus.Ok;
+
+            await _messenger.Publish(new RfidStatusChangedMessage(sender, status));
         }
     }
 }
