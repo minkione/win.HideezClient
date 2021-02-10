@@ -12,7 +12,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity.Interfaces;
 using Hideez.SDK.Communication.Utils;
-using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.Settings;
 
 namespace HideezMiddleware.DeviceConnection
@@ -32,7 +32,7 @@ namespace HideezMiddleware.DeviceConnection
         bool isRunning = false;
 
         public ProximityConnectionProcessor(
-            ConnectionFlowProcessor connectionFlowProcessor,
+            ConnectionFlowProcessorBase connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
             IDeviceProximitySettingsProvider proximitySettingsProvider,
             AdvertisementIgnoreList advIgnoreListMonitor,

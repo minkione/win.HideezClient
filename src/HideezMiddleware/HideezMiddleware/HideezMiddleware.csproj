@@ -129,8 +129,10 @@
     <Compile Include="DeviceConnection\Workflow\AccountsUpdateProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\ActivationProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\CacheVaultInfoProcessor.cs" />
-    <Compile Include="DeviceConnection\Workflow\ConnectionFlowProcessor.cs" />
-    <Compile Include="DeviceConnection\Workflow\ConnectionFlowProcessorFactory.cs" />
+    <Compile Include="DeviceConnection\Workflow\ConnectionFlow\EnterpriseConnectionFlowProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\ConnectionFlow\ConnectionFlowProcessorBase.cs" />
+    <Compile Include="DeviceConnection\Workflow\ConnectionFlow\EnterpriseConnectionFlowProcessorFactory.cs" />
+    <Compile Include="DeviceConnection\Workflow\ConnectionFlow\StandaloneConnectionFlowProcessorFactory.cs" />
     <Compile Include="DeviceConnection\Workflow\Interfaces\IAccountsUpdateProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\Interfaces\IActivationProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\Interfaces\ICacheVaultInfoProcessor.cs" />
@@ -142,6 +144,8 @@
     <Compile Include="DeviceConnection\Workflow\Interfaces\IVaultAuthorizationProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\Interfaces\IVaultConnectionProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\LicensingProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\ConnectionFlow\StandaloneConnectionFlowProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\StandaloneVaultAuthorizationProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\VaultAuthorizationProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\PermissionsCheckProcessor.cs" />
     <Compile Include="DeviceConnection\Workflow\StateUpdateProcessor.cs" />

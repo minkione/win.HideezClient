@@ -1,7 +1,7 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.DeviceConnection;
-using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using System;
 using System.Threading.Tasks;
 
@@ -10,7 +10,7 @@ namespace HideezMiddleware.Tasks
     //todo - doesn't need to be IDisposable if move SubscribeToEvents into Run() method
     class UnlockSessionSwitchProc : IDisposable
     {
-        readonly ConnectionFlowProcessor _connectionFlowProcessor;
+        readonly ConnectionFlowProcessorBase _connectionFlowProcessor;
         readonly TapConnectionProcessor _tapProcessor;
         readonly RfidConnectionProcessor _rfidProcessor;
         readonly ProximityConnectionProcessor _proximityProcessor;
@@ -28,7 +28,7 @@ namespace HideezMiddleware.Tasks
 
         public UnlockSessionSwitchProc(
             string flowId,
-            ConnectionFlowProcessor connectionFlowProcessor,
+            ConnectionFlowProcessorBase connectionFlowProcessor,
             TapConnectionProcessor tapProcessor,
             RfidConnectionProcessor rfidProcessor,
             ProximityConnectionProcessor proximityProcessor,

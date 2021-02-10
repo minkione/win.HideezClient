@@ -8,9 +8,9 @@ using Hideez.SDK.Communication.Device;
 using HideezMiddleware.Utils.WorkstationHelper;
 using HideezMiddleware.DeviceLogging;
 
-namespace HideezMiddleware.DeviceConnection.Workflow
+namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
 {
-    public class ConnectionFlowProcessorFactory
+    public class EnterpriseConnectionFlowProcessorFactory
     {
         private readonly DeviceManager _deviceManager;
         private readonly BondManager _bondManager;
@@ -25,7 +25,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         private readonly DeviceLogManager _deviceLogManager;
         private readonly ILog _log;
 
-        public ConnectionFlowProcessorFactory(
+        public EnterpriseConnectionFlowProcessorFactory(
             DeviceManager deviceManager,
             BondManager bondManager,
             IHesAppConnection hesConnection,
@@ -33,7 +33,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             IScreenActivator screenActivator,
             IClientUiManager ui,
             IHesAccessManager hesAccessManager,
-            ISettingsManager<ServiceSettings> serviceSettingsManager, 
+            ISettingsManager<ServiceSettings> serviceSettingsManager,
             ILocalDeviceInfoCache localDeviceInfoCache,
             IWorkstationHelper workstationHelper,
             DeviceLogManager deviceLogManager,
@@ -53,9 +53,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             _log = log;
         }
 
-        public ConnectionFlowProcessor Create()
+        public EnterpriseConnectionFlowProcessor Create()
         {
-            var flowSubprocessors = new ConnectionFlowProcessor.ConnectionFlowSubprocessorsStruct()
+            var flowSubprocessors = new EnterpriseConnectionFlowProcessor.ConnectionFlowSubprocessorsStruct()
             {
                 PermissionsCheckProcessor = new PermissionsCheckProcessor(_hesAccessManager, _serviceSettingsManager),
                 VaultConnectionProcessor = new VaultConnectionProcessor(_ui, _bondManager, _deviceManager, _log),
@@ -69,15 +69,15 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 CacheVaultInfoProcessor = new CacheVaultInfoProcessor(_localDeviceInfoCache, _log)
             };
 
-            return new ConnectionFlowProcessor(
-                _deviceManager, 
-                _hesConnection, 
-                _workstationUnlocker, 
-                _screenActivator, 
-                _ui, 
-                _hesAccessManager, 
-                _serviceSettingsManager, 
-                flowSubprocessors, 
+            return new EnterpriseConnectionFlowProcessor(
+                _deviceManager,
+                _hesConnection,
+                _workstationUnlocker,
+                _screenActivator,
+                _ui,
+                _hesAccessManager,
+                _serviceSettingsManager,
+                flowSubprocessors,
                 _workstationHelper,
                 _deviceLogManager,
                 _log);

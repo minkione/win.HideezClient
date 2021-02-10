@@ -1,7 +1,7 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection;
-using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.Localize;
 using HideezMiddleware.Threading;
 using System;
@@ -19,10 +19,10 @@ namespace HideezMiddleware.CredentialProvider
     {
         readonly CredentialProviderProxy _cpProxy;
         readonly WinBleConnectionManager _winBleConnectionManager;
-        readonly ConnectionFlowProcessor _connectionFlowProcessor;
+        readonly ConnectionFlowProcessorBase _connectionFlowProcessor;
         readonly SemaphoreQueue _visibilityUpdateSemaphore = new SemaphoreQueue(1, 1);
 
-        public CommandLinkVisibilityController(CredentialProviderProxy cpProxy, WinBleConnectionManager connectionManager, ConnectionFlowProcessor connectionFlowProcessor, ILog log)
+        public CommandLinkVisibilityController(CredentialProviderProxy cpProxy, WinBleConnectionManager connectionManager, ConnectionFlowProcessorBase connectionFlowProcessor, ILog log)
             : base(nameof(CommandLinkVisibilityController), log)
         {
             _cpProxy = cpProxy;

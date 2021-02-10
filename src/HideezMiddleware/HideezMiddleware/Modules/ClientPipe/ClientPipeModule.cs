@@ -4,6 +4,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.ClientManagement;
 using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.IPC.DTO;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.IPC.Messages;
@@ -28,7 +29,7 @@ namespace HideezMiddleware.Modules.ClientPipe
         readonly ISettingsManager<ServiceSettings> _serviceSettingsManager;
         readonly SessionUnlockMethodMonitor _sessionUnlockMethodMonitor;
         readonly StatusManager _statusManager;
-        readonly ConnectionFlowProcessor _connectionFlowProcessor;
+        readonly ConnectionFlowProcessorBase _connectionFlowProcessor;
         readonly PipeDeviceConnectionManager _pipeDeviceConnectionManager;
 
         public ClientPipeModule(DeviceManager deviceManager, 
@@ -36,7 +37,7 @@ namespace HideezMiddleware.Modules.ClientPipe
             ISettingsManager<ServiceSettings> serviceSettingsManager,
             SessionUnlockMethodMonitor sessionUnlockMethodMonitor,
             StatusManager statusManager,
-            ConnectionFlowProcessor connectionFlowProcessor,
+            ConnectionFlowProcessorBase connectionFlowProcessor,
             IMetaPubSub messenger, 
             ILog log)
             : base(messenger, nameof(ClientPipeModule), log)

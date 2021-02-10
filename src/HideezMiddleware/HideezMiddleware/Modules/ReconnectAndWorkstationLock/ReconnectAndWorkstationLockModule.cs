@@ -3,7 +3,7 @@ using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
-using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.Modules.DeviceManagement.Messages;
 using HideezMiddleware.Modules.Hes.Messages;
 using HideezMiddleware.ReconnectManager;
@@ -22,7 +22,7 @@ namespace HideezMiddleware.Modules.ReconnectAndWorkstationLock
 
         public WorkstationLockModule(DeviceReconnectManager deviceReconnectManager,
             IWorkstationHelper workstationHelper,
-            ConnectionFlowProcessor connectionFlowProcessor,
+            ConnectionFlowProcessorBase connectionFlowProcessor,
             ProximityMonitorManager proximityMonitorManager,
             DeviceManager deviceManager,
             IMetaPubSub messenger,

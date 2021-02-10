@@ -21,9 +21,9 @@ using Hideez.SDK.Communication.Connection;
 using HideezMiddleware.Utils.WorkstationHelper;
 using HideezMiddleware.DeviceLogging;
 
-namespace HideezMiddleware.DeviceConnection.Workflow
+namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
 {
-    public class ConnectionFlowProcessor : Logger
+    public sealed class EnterpriseConnectionFlowProcessor : ConnectionFlowProcessorBase
     {
         public struct ConnectionFlowSubprocessorsStruct
         {
@@ -51,17 +51,12 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
         readonly ConnectionFlowSubprocessorsStruct _subp;
 
-        int _workflowInterlock = 0;
-        CancellationTokenSource _cts;
+        public override event EventHandler<string> Started;
+        public override event EventHandler<IDevice> DeviceFinilizingMainFlow;
+        public override event EventHandler<IDevice> DeviceFinishedMainFlow;
+        public override event EventHandler<string> Finished;
 
-        public event EventHandler<string> Started;
-        public event EventHandler<IDevice> DeviceFinilizingMainFlow;
-        public event EventHandler<IDevice> DeviceFinishedMainFlow;
-        public event EventHandler<string> Finished;
-
-        public bool IsRunning { get; private set; }
-
-        public ConnectionFlowProcessor(
+        public EnterpriseConnectionFlowProcessor(
             DeviceManager deviceManager,
             IHesAppConnection hesConnection,
             IWorkstationUnlocker workstationUnlocker,
@@ -73,7 +68,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             IWorkstationHelper workstationHelper,
             DeviceLogManager deviceLogManager,
             ILog log)
-            : base(nameof(ConnectionFlowProcessor), log)
+            : base(nameof(EnterpriseConnectionFlowProcessor), log)
         {
             _deviceManager = deviceManager;
             _workstationUnlocker = workstationUnlocker;
@@ -88,8 +83,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             _deviceLogManager = deviceLogManager;
 
             _hesAccessManager.AccessRetracted += HesAccessManager_AccessRetractedEvent;
-            SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
-            _serviceSettingsManager.SettingsChanged += ServiceSettingsManager_SettingsChanged; 
+            _serviceSettingsManager.SettingsChanged += ServiceSettingsManager_SettingsChanged;
         }
 
         void ServiceSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ServiceSettings> e)
@@ -104,82 +98,11 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             Cancel("Workstation access retracted");
         }
 
-        void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
-        {
-            // Cancel the workflow if session switches to an unlocked (or different one)
-            // Keep in mind, that workflow can cancel itself due to successful workstation unlock
-            Cancel("Session switched");
-        }
-
-        void OnVaultDisconnectedDuringFlow(object sender, EventArgs e)
-        {
-            // Cancel the workflow if the vault disconnects
-            Cancel("Vault unexpectedly disconnected");
-        }
-
-        void OnCancelledByVaultButton(object sender, EventArgs e)
-        {
-            // Cancel the workflow if the user pressed the cancel button (long button press)
-            Cancel("User pressed the cancel button");
-        }
-
-        public void Cancel(string reason)
-        {
-            if (_cts != null)
-            {
-                WriteLine($"Canceling; {reason}");
-                _cts?.Cancel();
-            }
-        }
-
-        public async Task Connect(ConnectionId connectionId)
-        {
-            // ignore, if already performing workflow for any device
-            if (Interlocked.CompareExchange(ref _workflowInterlock, 1, 0) == 0)
-            {
-                try
-                {
-                    _cts = new CancellationTokenSource();
-                    await MainWorkflow(connectionId, false, false, null, _cts.Token);
-                }
-                finally
-                {
-                    _cts.Cancel();
-                    _cts.Dispose();
-                    _cts = null;
-
-                    Interlocked.Exchange(ref _workflowInterlock, 0);
-                }
-            }
-
-        }
-
-        public async Task ConnectAndUnlock(ConnectionId connectionId, Action<WorkstationUnlockResult> onSuccessfulUnlock)
-        {
-            // ignore, if already performing workflow for any device
-            if (Interlocked.CompareExchange(ref _workflowInterlock, 1, 0) == 0)
-            {
-                try
-                {
-                    _cts = new CancellationTokenSource();
-                    await MainWorkflow(connectionId, connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr, true, onSuccessfulUnlock, _cts.Token);
-                }
-                finally
-                {
-                    _cts.Cancel();
-                    _cts.Dispose();
-                    _cts = null;
-
-                    Interlocked.Exchange(ref _workflowInterlock, 0);
-                }
-            }
-        }
-
-        async Task MainWorkflow(ConnectionId connectionId, bool rebondOnConnectionFail, bool tryUnlock, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
+        protected override async Task MainWorkflow(ConnectionId connectionId, bool rebondOnConnectionFail, bool tryUnlock, Action<WorkstationUnlockResult> onUnlockAttempt, CancellationToken ct)
         {
             // Ignore MainFlow requests for devices that are already connected
             // IsConnected-true indicates that device already finished main flow or is in progress
-            var existingDevice = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId == connectionId 
+            var existingDevice = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId == connectionId
                 && d.ChannelNo == (int)DefaultDeviceChannel.Main);
             if (existingDevice != null && existingDevice.IsConnected && existingDevice.IsInitialized && !_workstationHelper.IsActiveSessionLocked())
                 return;
@@ -228,7 +151,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 // Different device with the same name indicates that a single physical device is connected through different channel
                 // This temporary fix is applied to prevent this behavior
                 // TODO: Another temporary fix is to compare by Id instead of by refence. Should be fixed too
-                if (_deviceManager.Devices.FirstOrDefault(d => d.Id != device.Id 
+                if (_deviceManager.Devices.FirstOrDefault(d => d.Id != device.Id
                     && !(d is IRemoteDeviceProxy)
                     && d.Name == device.Name
                     && d.IsConnected) != null)
@@ -237,7 +160,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                 //This fix is applied to prevent spam by failed connections for WinBle.
                 deleteVaultBondOnError = IsNeedDeleteBond(device);
-                
+
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Initializing);
 
                 HwVaultInfoFromHesDto vaultInfo = new HwVaultInfoFromHesDto(); // Initializes with default values for when HES is not connected
@@ -266,7 +189,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Finalizing);
                 WriteLine($"Finalizing main workflow: ({device.Id})");
                 DeviceFinilizingMainFlow?.Invoke(this, device);
-                
+
                 await _subp.AccountsUpdateProcessor.UpdateAccounts(device, vaultInfo, false);
 
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Online);

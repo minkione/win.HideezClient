@@ -1,7 +1,7 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection;
-using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.Tasks;
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace HideezMiddleware
 {
     public class SessionUnlockMethodMonitor : Logger
     {
-        readonly ConnectionFlowProcessor _connectionFlowProcessor;
+        readonly ConnectionFlowProcessorBase _connectionFlowProcessor;
         readonly TapConnectionProcessor _tapProcessor;
         readonly RfidConnectionProcessor _rfidProcessor;
         readonly ProximityConnectionProcessor _proximityProcessor;
@@ -24,7 +24,7 @@ namespace HideezMiddleware
 
         internal UnlockSessionSwitchProc UnlockProcedure { get => _unlockProcedure; }
 
-        public SessionUnlockMethodMonitor(ConnectionFlowProcessor connectionFlowProcessor,
+        public SessionUnlockMethodMonitor(ConnectionFlowProcessorBase connectionFlowProcessor,
                                           TapConnectionProcessor tapProcessor,
                                           RfidConnectionProcessor rfidProcessor,
                                           ProximityConnectionProcessor proximityProcessor,
