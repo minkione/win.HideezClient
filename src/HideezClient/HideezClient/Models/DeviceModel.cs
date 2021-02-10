@@ -67,7 +67,7 @@ namespace HideezClient.Models
         int battery = 0;
         bool finishedMainFlow;
         byte storageUpdateCounter;
-        long _dtoCounter = long.MinValue;
+        DateTime _snapshotTime = DateTime.MinValue;
 
         bool isCreatingRemoteDevice;
         bool isAuthorizingRemoteDevice;
@@ -513,9 +513,9 @@ namespace HideezClient.Models
 
         void LoadFrom(DeviceDTO dto)
         {
-            if (dto.Counter > _dtoCounter)
+            if (dto.SnapshotTime > _snapshotTime)
             {
-                _dtoCounter = dto.Counter;
+                _snapshotTime = dto.SnapshotTime;
                 Id = dto.Id;
                 NotificationsId = dto.NotificationsId;
                 Name = dto.Name;

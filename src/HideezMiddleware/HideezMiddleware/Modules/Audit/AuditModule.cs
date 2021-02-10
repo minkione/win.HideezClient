@@ -9,6 +9,7 @@ using HideezMiddleware.Audit;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Modules.Csr.Messages;
+using HideezMiddleware.Modules.DeviceManagement.Messages;
 using HideezMiddleware.Modules.Hes.Messages;
 using HideezMiddleware.Modules.Rfid.Messages;
 using HideezMiddleware.Workstation;
@@ -45,6 +46,9 @@ namespace HideezMiddleware.Modules.Audit
             _messenger.Subscribe<CsrStatusChangedMessage>(HandleCsrStatusChanged);
             _messenger.Subscribe<RfidStatusChangedMessage>(HandleRfidStatusChanged);
             _messenger.Subscribe<HesAppConnection_HubConnectionStateChangedMessage>(HandleHubConnectionStateChanged);
+            _messenger.Subscribe<DeviceInitializedMessage>(DeviceInitialized);
+            _messenger.Subscribe<DeviceDisconnectedMessage>(DeviceDisconnected);
+            _messenger.Subscribe<DeviceManager_DeviceRemovedMessage>(DeviceRemoved);
 
             _messenger.Subscribe<PublishEventMessage>(PublishEvent);
         }
@@ -110,6 +114,53 @@ namespace HideezMiddleware.Modules.Audit
                 }
 
                 await _eventSaver.AddNewAsync(we, sendImmediately);
+            }
+        }
+
+        private async Task DeviceInitialized(DeviceInitializedMessage msg)
+        {
+            var workstationEvent = _eventSaver.GetWorkstationEvent();
+            workstationEvent.Severity = WorkstationEventSeverity.Info;
+            workstationEvent.DeviceId = msg.Device.SerialNo;
+            if (msg.Device.IsRemote)
+            {
+                workstationEvent.EventId = WorkstationEventType.RemoteConnect;
+            }
+            else
+            {
+                workstationEvent.EventId = WorkstationEventType.DeviceConnect;
+            }
+            await _eventSaver.AddNewAsync(workstationEvent);
+        }
+
+        private async Task DeviceDisconnected(DeviceDisconnectedMessage msg)
+        {
+            if (msg.Device.IsInitialized)
+            {
+                var workstationEvent = _eventSaver.GetWorkstationEvent();
+                workstationEvent.Severity = WorkstationEventSeverity.Info;
+                workstationEvent.DeviceId = msg.Device.SerialNo;
+                if (msg.Device.IsRemote)
+                {
+                    workstationEvent.EventId = WorkstationEventType.RemoteDisconnect;
+                }
+                else
+                {
+                    workstationEvent.EventId = WorkstationEventType.DeviceDisconnect;
+                }
+                await _eventSaver.AddNewAsync(workstationEvent);
+            }
+        }
+
+        private async Task DeviceRemoved(DeviceManager_DeviceRemovedMessage msg)
+        {
+            if (!(msg.Device is IRemoteDeviceProxy) && msg.Device.IsInitialized)
+            {
+                var workstationEvent = _eventSaver.GetWorkstationEvent();
+                workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
+                workstationEvent.Severity = WorkstationEventSeverity.Warning;
+                workstationEvent.DeviceId = msg.Device.SerialNo;
+                await _eventSaver.AddNewAsync(workstationEvent);
             }
         }
 

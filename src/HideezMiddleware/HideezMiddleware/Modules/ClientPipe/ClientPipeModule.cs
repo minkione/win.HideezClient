@@ -1,10 +1,13 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Device;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.ClientManagement;
+using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.IPC.DTO;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.IPC.Messages;
+using HideezMiddleware.Modules.DeviceManagement.Messages;
 using HideezMiddleware.Settings;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
@@ -25,7 +28,7 @@ namespace HideezMiddleware.Modules.ClientPipe
         readonly ISettingsManager<ServiceSettings> _serviceSettingsManager;
         readonly SessionUnlockMethodMonitor _sessionUnlockMethodMonitor;
         readonly StatusManager _statusManager;
-        readonly DeviceDTOFactory _deviceDTOFactory;
+        readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly PipeDeviceConnectionManager _pipeDeviceConnectionManager;
 
         public ClientPipeModule(DeviceManager deviceManager, 
@@ -33,6 +36,7 @@ namespace HideezMiddleware.Modules.ClientPipe
             ISettingsManager<ServiceSettings> serviceSettingsManager,
             SessionUnlockMethodMonitor sessionUnlockMethodMonitor,
             StatusManager statusManager,
+            ConnectionFlowProcessor connectionFlowProcessor,
             IMetaPubSub messenger, 
             ILog log)
             : base(messenger, nameof(ClientPipeModule), log)
@@ -42,9 +46,8 @@ namespace HideezMiddleware.Modules.ClientPipe
             _serviceSettingsManager = serviceSettingsManager;
             _sessionUnlockMethodMonitor = sessionUnlockMethodMonitor;
             _statusManager = statusManager;
-            _deviceDTOFactory = new DeviceDTOFactory(); // Todo: DTO factory should be used everytime IDevice is sent over pipe
+            _connectionFlowProcessor = connectionFlowProcessor;
             _pipeDeviceConnectionManager = new PipeDeviceConnectionManager(deviceManager, messenger, log);
-
 
             var pipeName = "HideezServicePipe";
             _messenger.StartServer(pipeName, () =>
@@ -73,7 +76,12 @@ namespace HideezMiddleware.Modules.ClientPipe
 
             _serviceSettingsManager.SettingsChanged += ServiceSettingsManager_SettingsChanged;
 
-            SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch; 
+            _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
+
+            SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
+
+            _messenger.Subscribe<DeviceManager_DeviceAddedMessage>(OnDeviceAdded);
+            _messenger.Subscribe<DeviceManager_DeviceRemovedMessage>(OnDeviceRemoved);
 
             _messenger.Subscribe<RemoteClientConnectedEvent>(OnClientConnected);
             _messenger.Subscribe<RemoteClientDisconnectedEvent>(OnClientDisconnected);
@@ -96,7 +104,7 @@ namespace HideezMiddleware.Modules.ClientPipe
         {
             try
             {
-                return _deviceManager.Devices.Select(d => _deviceDTOFactory.Create(d)).ToArray();
+                return _deviceManager.Devices.Select(d => new DeviceDTO(d)).ToArray();
             }
             catch (Exception ex)
             {
@@ -121,10 +129,25 @@ namespace HideezMiddleware.Modules.ClientPipe
             await RefreshServiceInfo();
         }
 
+        async void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice e)
+        {
+            await SafePublish(new DeviceFinishedMainFlowMessage(new DeviceDTO(e)));
+        }
+
         async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
             if (reason == SessionSwitchReason.SessionUnlock || reason == SessionSwitchReason.SessionLogon)
                 await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+        }
+
+        private async Task OnDeviceAdded(DeviceManager_DeviceAddedMessage msg)
+        {
+            await SafePublish(new DevicesCollectionChangedMessage(GetDevices()));
+        }
+
+        private async Task OnDeviceRemoved(DeviceManager_DeviceRemovedMessage msg)
+        {
+            await SafePublish(new DevicesCollectionChangedMessage(GetDevices()));
         }
 
         Task OnClientConnected(RemoteClientConnectedEvent arg)

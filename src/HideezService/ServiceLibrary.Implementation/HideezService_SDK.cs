@@ -86,7 +86,6 @@ namespace ServiceLibrary.Implementation
         static ConnectionManagersCoordinator _connectionManagersCoordinator;
         static ILocalDeviceInfoCache _localDeviceInfoCache;
         static DeviceLogManager _deviceLogManager;
-        static DeviceDTOFactory _deviceDTOFactory;
 
         static DeviceReconnectManager _deviceReconnectManager;
 
@@ -109,7 +108,7 @@ namespace ServiceLibrary.Implementation
             bool isVerified = _hideezExceptionLocalization.VerifyResourcesForErrorCode(new CultureInfo("en"));
             // Debug.Assert(isVerified, $">>>>>> Verifying error codes resalt: {isVerified}");
 #endif
-            _deviceDTOFactory = new DeviceDTOFactory();
+            //_deviceDTOFactory = new DeviceDTOFactory();
             // Collection of module initialization tasks that must be finished to complete service launch
             // but otherwise are not immediatelly required by other modules
             List<Task> serviceInitializationTasks = new List<Task>();
@@ -804,8 +803,8 @@ namespace ServiceLibrary.Implementation
                     device.WipeFinished -= Device_WipeFinished;
                     device.AccessLevelChanged -= Device_AccessLevelChanged;
 
-                    if (device is PipeRemoteDeviceProxy pipeDevice)
-                        _pipeDeviceConnectionManager.RemovePipeDeviceConnection(pipeDevice);
+                    //if (device is PipeRemoteDeviceProxy pipeDevice)
+                    //    _pipeDeviceConnectionManager.RemovePipeDeviceConnection(pipeDevice);
 
                     if (!(device is IRemoteDeviceProxy) && device.IsInitialized)
                     {
@@ -816,7 +815,7 @@ namespace ServiceLibrary.Implementation
                         await _eventSaver.AddNewAsync(workstationEvent);
                     }
 
-                    _deviceDTOFactory.ResetCounter(device);
+                    //_deviceDTOFactory.ResetCounter(device);
                 }
             }
             finally
@@ -884,7 +883,7 @@ namespace ServiceLibrary.Implementation
                     if (!device.IsConnected)
                         device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Offline);
 
-                    await SafePublish(new DeviceConnectionStateChangedMessage(_deviceDTOFactory.Create(device)));
+                    await SafePublish(new DeviceConnectionStateChangedMessage(new DeviceDTO(device)));
                 }
             }
             catch (Exception ex)
@@ -903,7 +902,7 @@ namespace ServiceLibrary.Implementation
                     // every session, even if an error occurs
                     try
                     {
-                        await SafePublish(new DeviceInitializedMessage(_deviceDTOFactory.Create(device)));
+                        await SafePublish(new DeviceInitializedMessage(new DeviceDTO(device)));
                     }
                     catch (Exception ex)
                     {
@@ -936,7 +935,7 @@ namespace ServiceLibrary.Implementation
         async void Device_OperationCancelled(object sender, EventArgs e)
         {
             if (sender is IDevice device)
-                await SafePublish(new DeviceOperationCancelledMessage(_deviceDTOFactory.Create(device)));
+                await SafePublish(new DeviceOperationCancelledMessage(new DeviceDTO(device)));
         }
 
         async void Device_ProximityChanged(object sender, double e)
@@ -989,12 +988,12 @@ namespace ServiceLibrary.Implementation
 
         async void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice device)
         {
-            await SafePublish(new DeviceFinishedMainFlowMessage(_deviceDTOFactory.Create(device)));
+            await SafePublish(new DeviceFinishedMainFlowMessage(new DeviceDTO(device)));
         }
 
         async void WorkstationLockProcessor_DeviceProxLockEnabled(object sender, IDevice device)
         {
-            await SafePublish(new DeviceProximityLockEnabledMessage(_deviceDTOFactory.Create(device)));
+            await SafePublish(new DeviceProximityLockEnabledMessage(new DeviceDTO(device)));
         }
 
         async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
@@ -1024,7 +1023,7 @@ namespace ServiceLibrary.Implementation
         {
             try
             {
-                return _deviceManager.Devices.Select(d => _deviceDTOFactory.Create(d)).ToArray();
+                return _deviceManager.Devices.Select(d => new DeviceDTO(d)).ToArray();
             }
             catch (Exception ex)
             {

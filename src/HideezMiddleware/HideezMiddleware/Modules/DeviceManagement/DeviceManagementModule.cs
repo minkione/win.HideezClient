@@ -1,7 +1,11 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Device;
+using Hideez.SDK.Communication.HES.DTO;
+using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware.IPC.DTO;
 using HideezMiddleware.IPC.IncommingMessages;
+using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Modules.DeviceManagement.Messages;
 using HideezMiddleware.Modules.Hes.Messages;
 using HideezMiddleware.Threading;
@@ -41,8 +45,6 @@ namespace HideezMiddleware.Modules.DeviceManagement
             await _devicesSemaphore.WaitAsync();
             try
             {
-                await SafePublish(new DeviceManager_DeviceAddedMessage(_deviceManager, e.Device));
-
                 if (e.Device != null)
                 {
                     // TODO: check, who is responsible for handling these events
@@ -55,6 +57,8 @@ namespace HideezMiddleware.Modules.DeviceManagement
                     e.Device.WipeFinished += Device_WipeFinished;
                     e.Device.AccessLevelChanged += Device_AccessLevelChanged;
                 }
+
+                await SafePublish(new DeviceManager_DeviceAddedMessage(_deviceManager, e.Device));
             }
             finally
             {
@@ -67,8 +71,6 @@ namespace HideezMiddleware.Modules.DeviceManagement
             await _devicesSemaphore.WaitAsync();
             try
             {
-                await SafePublish(new DeviceManager_DeviceRemovedMessage(_deviceManager, e.Device));
-
                 if (e.Device != null)
                 {
                     // TODO: check, who is responsible for handling these events
@@ -82,22 +84,7 @@ namespace HideezMiddleware.Modules.DeviceManagement
                     e.Device.AccessLevelChanged -= Device_AccessLevelChanged;
                 }
 
-                // Deivce Added/Removed and handled by client pipe
-                //if (device is PipeRemoteDeviceProxy pipeDevice)
-                //    _pipeDeviceConnectionManager.RemovePipeDeviceConnection(pipeDevice);
-
-                // handled by audit
-                //if (!(device is IRemoteDeviceProxy) && device.IsInitialized)
-                //{
-                //    var workstationEvent = _eventSaver.GetWorkstationEvent();
-                //    workstationEvent.EventId = WorkstationEventType.DeviceDeleted;
-                //    workstationEvent.Severity = WorkstationEventSeverity.Warning;
-                //    workstationEvent.DeviceId = device.SerialNo;
-                //    await _eventSaver.AddNewAsync(workstationEvent);
-                //}
-
-                // handled by client pipe
-                //_deviceDTOFactory.ResetCounter(device);
+                await SafePublish(new DeviceManager_DeviceRemovedMessage(_deviceManager, e.Device));
             }
             finally
             {
@@ -107,133 +94,120 @@ namespace HideezMiddleware.Modules.DeviceManagement
 
         private async void Device_ConnectionStateChanged(object sender, EventArgs e)
         {
-            //try
-            //{
-            //    if (sender is IDevice device)
-            //    {
-            //        if (!device.IsConnected)
-            //            device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Offline);
+            try
+            {
+                if (sender is IDevice device)
+                {
+                    if (!device.IsConnected)
+                        device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Offline);
 
-            //        await SafePublish(new DeviceConnectionStateChangedMessage(_deviceDTOFactory.Create(device)));
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    Error(ex);
-            //}
+                    await SafePublish(new DeviceConnectionStateChangedMessage(new DeviceDTO(device)));
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
         }
 
         private async void Device_Initialized(object sender, EventArgs e)
         {
-            //try
-            //{
-            //    if (sender is IDevice device)
-            //    {
-            //        // Separate error handling block for each callback ensures we try to notify 
-            //        // every session, even if an error occurs
-            //        try
-            //        {
-            //            await SafePublish(new DeviceInitializedMessage(_deviceDTOFactory.Create(device)));
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            Error(ex);
-            //        }
-
-            //        if (!(device is IRemoteDeviceProxy) || device.ChannelNo > 2)
-            //        {
-            //            var workstationEvent = _eventSaver.GetWorkstationEvent();
-            //            workstationEvent.Severity = WorkstationEventSeverity.Info;
-            //            workstationEvent.DeviceId = device.SerialNo;
-            //            if (device is IRemoteDeviceProxy)
-            //            {
-            //                workstationEvent.EventId = WorkstationEventType.RemoteConnect;
-            //            }
-            //            else
-            //            {
-            //                workstationEvent.EventId = WorkstationEventType.DeviceConnect;
-            //            }
-            //            await _eventSaver.AddNewAsync(workstationEvent);
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    Error(ex);
-            //}
+            try
+            {
+                if (sender is IDevice device)
+                {
+                    // Separate error handling block for each callback ensures we try to notify 
+                    // every session, even if an error occurs
+                    try
+                    {
+                        await SafePublish(new DeviceInitializedMessage(new DeviceDTO(device)));
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLine(ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
         }
 
         private async void Device_Disconnected(object sender, EventArgs e)
         {
-            //if (sender is IDevice device && device.IsInitialized && (!(device is IRemoteDeviceProxy) || device.ChannelNo > 2))
-            //{
-            //    var workstationEvent = _eventSaver.GetWorkstationEvent();
-            //    workstationEvent.Severity = WorkstationEventSeverity.Info;
-            //    workstationEvent.DeviceId = device.SerialNo;
-            //    if (device is IRemoteDeviceProxy)
-            //    {
-            //        workstationEvent.EventId = WorkstationEventType.RemoteDisconnect;
-            //    }
-            //    else
-            //    {
-            //        workstationEvent.EventId = WorkstationEventType.DeviceDisconnect;
-            //    }
-            //    await _eventSaver.AddNewAsync(workstationEvent);
-            //}
+            try
+            {
+                if (sender is IDevice device)
+                {
+                    try
+                    {
+                        await SafePublish(new DeviceDisconnectedMessage(new DeviceDTO(device)));
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLine(ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
         }
 
         private async void Device_OperationCancelled(object sender, EventArgs e)
         {
-            //if (sender is IDevice device)
-            //    await SafePublish(new DeviceOperationCancelledMessage(_deviceDTOFactory.Create(device)));
+            if (sender is IDevice device)
+                await SafePublish(new DeviceOperationCancelledMessage(new DeviceDTO(device)));
         }
 
         private async void Device_ProximityChanged(object sender, double e)
         {
-            //if (sender is IDevice device)
-            //    await SafePublish(new DeviceProximityChangedMessage(device.Id, e));
+            if (sender is IDevice device)
+                await SafePublish(new DeviceProximityChangedMessage(device.Id, e));
         }
 
         private async void Device_BatteryChanged(object sender, sbyte e)
         {
-            //if (sender is IDevice device)
-            //    await SafePublish(new DeviceBatteryChangedMessage(device.Id, device.Mac, e));
+            if (sender is IDevice device)
+                await SafePublish(new DeviceBatteryChangedMessage(device.Id, device.Mac, e));
         }
 
-        private void Device_WipeFinished(object sender, WipeFinishedEventtArgs e)
+        private async void Device_WipeFinished(object sender, WipeFinishedEventtArgs e)
         {
-            //if (e.Status == FwWipeStatus.WIPE_OK)
-            //{
-            //    var device = (IDevice)sender;
-            //    _log?.WriteLine($"({device.SerialNo}) Wipe finished. Disabling automatic reconnect");
-            //    _deviceReconnectManager.DisableDeviceReconnect(device);
-            //    device.Disconnected += async (s, a) =>
-            //    {
-            //        try
-            //        {
-            //            // Wiped device is cleared of all bond information, and therefore must be paired again
-            //            await _deviceManager.DeleteBond(device.DeviceConnection);
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            Error(ex);
-            //        }
-            //    };
+            if (e.Status == FwWipeStatus.WIPE_OK)
+            {
+                var device = (IDevice)sender;
+                WriteLine($"({device.SerialNo}) Wipe finished. Disabling automatic reconnect");
+                await _messenger.Publish(new DeviceManager_ExpectedDeviceRemovalMessage(device));
+                device.Disconnected += async (s, a) =>
+                {
+                    try
+                    {
+                        // Wiped device is cleared of all bond information, and therefore must be paired again
+                        await _deviceManager.DeleteBond(device.DeviceConnection);
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLine(ex);
+                    }
+                };
 
-            //}
+            }
         }
 
         private async void Device_AccessLevelChanged(object sender, AccessLevel e)
         {
-            //var device = (IDevice)sender;
-            //if (device.ChannelNo == (int)DefaultDeviceChannel.Main)
-            //{
-            //    try
-            //    {
-            //        await device.RefreshDeviceInfo();
-            //    }
-            //    catch { }
-            //}
+            var device = (IDevice)sender;
+            if (device.ChannelNo == (int)DefaultDeviceChannel.Main)
+            {
+                try
+                {
+                    await device.RefreshDeviceInfo();
+                }
+                catch { }
+            }
         }
 
 

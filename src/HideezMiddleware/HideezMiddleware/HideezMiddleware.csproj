@@ -165,7 +165,6 @@
     <Compile Include="DeviceConnection\TapConnectionProcessor.cs" />
     <Compile Include="IPC\DTO\AccessLevelDTO.cs" />
     <Compile Include="IPC\DTO\DeviceDTO.cs" />
-    <Compile Include="IPC\DTO\DeviceDTOFactory.cs" />
     <Compile Include="IPC\DTO\DeviceStateDTO.cs" />
     <Compile Include="IPC\DTO\ProximitySettingsDTO.cs" />
     <Compile Include="IPC\DTO\WorkstationEventDTO.cs" />
@@ -201,6 +200,7 @@
     <Compile Include="IPC\Messages\CredentialProvider_CommandLinkPressedMessage.cs" />
     <Compile Include="IPC\Messages\DeviceBatteryChangedMessage.cs" />
     <Compile Include="IPC\Messages\DeviceConnectionStateChangedMessage.cs" />
+    <Compile Include="IPC\Messages\DeviceDisconnectedMessage.cs" />
     <Compile Include="IPC\Messages\DeviceFinishedMainFlowMessage.cs" />
     <Compile Include="IPC\Messages\DeviceInitializedMessage.cs" />
     <Compile Include="IPC\Messages\DeviceOperationCancelledMessage.cs" />

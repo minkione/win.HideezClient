@@ -4,6 +4,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.PipeDevice;
 using HideezMiddleware.IPC.IncommingMessages;
+using HideezMiddleware.Modules.DeviceManagement.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;
 using System.Collections.Generic;
@@ -28,10 +29,10 @@ namespace HideezMiddleware.Modules.ClientPipe
             _messenger = pubSub;
 
             _messenger.Subscribe<EstablishRemoteDeviceConnectionMessage>(EstablishRemoteDeviceConnection);
+            _messenger.Subscribe<DeviceManager_DeviceRemovedMessage>(DeviceRemoved);
         }
 
-        #region Event Handlers
-        async Task EstablishRemoteDeviceConnection(EstablishRemoteDeviceConnectionMessage args)
+        private async Task EstablishRemoteDeviceConnection(EstablishRemoteDeviceConnectionMessage args)
         {
             try
             {
@@ -60,24 +61,25 @@ namespace HideezMiddleware.Modules.ClientPipe
                 throw;
             }
         }
-        #endregion
+
+        // Remove pipe connection, if that pipe's device is removed from manager
+        private Task DeviceRemoved(DeviceManager_DeviceRemovedMessage msg)
+        {
+            if (msg.Device is PipeRemoteDeviceProxy pipeDevice)
+            {
+                pipeDevicesPubSubHandlers.TryGetValue(pipeDevice.Id, out PipeDeviceConnectionHandler remoteDevicePubSubManager);
+
+                remoteDevicePubSubManager.DisposePair();
+
+                pipeDevicesPubSubHandlers.Remove(pipeDevice.Id);
+            }
+
+            return Task.CompletedTask;
+        }
 
         IDevice FindDeviceByConnectionId(string connectionId, byte channelNo)
         {
             return _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == connectionId && d.ChannelNo == channelNo);
-        }
-
-        /// <summary>
-        /// Remove the pipe device connection.
-        /// </summary>
-        /// <param name="pipeDevice">The pipe device, that must be removed.</param>
-        public void RemovePipeDeviceConnection(IRemoteDeviceProxy pipeDevice)
-        {
-            pipeDevicesPubSubHandlers.TryGetValue(pipeDevice.Id, out PipeDeviceConnectionHandler remoteDevicePubSubManager);
-
-            remoteDevicePubSubManager.DisposePair();
-
-            pipeDevicesPubSubHandlers.Remove(pipeDevice.Id);
         }
     }
 }

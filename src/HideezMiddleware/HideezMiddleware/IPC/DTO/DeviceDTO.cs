@@ -1,9 +1,6 @@
-﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.Device;
+﻿using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
-using HideezMiddleware;
-using HideezMiddleware.DeviceConnection.Workflow;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -20,12 +17,14 @@ namespace HideezMiddleware.IPC.DTO
 
         public DeviceDTO(IDevice device)
         {
+            SnapshotTime = DateTime.UtcNow;
             Id = device.Id;
-            // Next line is consistant with what is used in service as id for notifications sent to client interfaces
+            // NotificationsId is consistent with what is used in service as id for notifications sent to client interfaces
             NotificationsId = device.DeviceConnection.Connection.ConnectionId.Id; 
             Name = device.Name;
             IsConnected = device.IsConnected;
             IsBoot = device.IsBoot;
+            IsRemote = device is IRemoteDeviceProxy;
             Battery = device.Battery;
             SerialNo = device.SerialNo;
             ChannelNo = device.ChannelNo;
@@ -47,6 +46,9 @@ namespace HideezMiddleware.IPC.DTO
             OwnerEmail = device.GetUserProperty<string>(CustomProperties.OWNER_EMAIL_PROP) ?? string.Empty;
             ConnectionType = device.DeviceConnection.Connection.ConnectionId.IdProvider;
         }
+
+        [DataMember]
+        public DateTime SnapshotTime { get; set; }
 
         [DataMember]
         public string Id { get; set; }
@@ -77,6 +79,9 @@ namespace HideezMiddleware.IPC.DTO
 
         [DataMember]
         public bool IsBoot { get; private set; }
+
+        [DataMember]
+        public bool IsRemote { get; private set; }
 
         [DataMember]
         public sbyte Battery { get; set; }
@@ -121,9 +126,6 @@ namespace HideezMiddleware.IPC.DTO
         
         [DataMember]
         public bool CanLockPyProximity { get; private set; }
-
-        [DataMember]
-        public long Counter { get; set; }
 
         [DataMember]
         public byte ConnectionType { get; private set; }
