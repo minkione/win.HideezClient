@@ -6,6 +6,7 @@ using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.DeviceLogging;
 using HideezMiddleware.ScreenActivation;
@@ -69,7 +70,7 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
 
             DeviceLogManager deviceLogManager = new DeviceLogManager(string.Empty, new Mock<IDeviceLogWriter>().Object, settingsManagerMock.Object, logMock.Object);
 
-            ConnectionFlowProcessor.ConnectionFlowSubprocessorsStruct connectionFlowSubprocessors = GetConnectionFlowSubprocessors(
+            EnterpriseConnectionFlowProcessor.ConnectionFlowSubprocessorsStruct connectionFlowSubprocessors = GetConnectionFlowSubprocessors(
                 hesConnectionState,
                 licenseCount,
                 isMasterKeyRequired,
@@ -77,7 +78,7 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
                 isLocked,
                 deviceManager,
                 controller);
-            ConnectionFlowProcessor connectionFlowProcessor = new ConnectionFlowProcessor(deviceManager, hesAppConnectionMock.Object,
+            EnterpriseConnectionFlowProcessor connectionFlowProcessor = new EnterpriseConnectionFlowProcessor(deviceManager, hesAppConnectionMock.Object,
                 workstationUnlockerMock.Object, screenActivatorMock.Object, uiMock.Object, hesAccesManagerMock.Object, settingsManagerMock.Object,
                 connectionFlowSubprocessors, workstationHelperMock.Object, deviceLogManager, logMock.Object);
 
@@ -89,7 +90,7 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
             Assert.AreEqual(expectedResult, invokeCounter);
         }
 
-        ConnectionFlowProcessor.ConnectionFlowSubprocessorsStruct GetConnectionFlowSubprocessors(
+        EnterpriseConnectionFlowProcessor.ConnectionFlowSubprocessorsStruct GetConnectionFlowSubprocessors(
             HesConnectionState hesConnectionState,
             ushort licenseCount,
             bool isMasterKeyRequired,
@@ -139,7 +140,7 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
                 if (isLocked)
                     activationProcessorMock.Setup(p => p.ActivateVault(deviceMock.Object, It.IsAny<HwVaultInfoFromHesDto>(), It.IsAny<CancellationToken>()))
                         .Throws(new WorkflowException());
-            return new ConnectionFlowProcessor.ConnectionFlowSubprocessorsStruct()
+            return new EnterpriseConnectionFlowProcessor.ConnectionFlowSubprocessorsStruct()
             {
                 AccountsUpdateProcessor = accountsUpdateProcessorMock.Object,
                 ActivationProcessor = activationProcessorMock.Object,

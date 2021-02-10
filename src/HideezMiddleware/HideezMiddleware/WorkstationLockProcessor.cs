@@ -2,7 +2,7 @@
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
-using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.ReconnectManager;
 using System;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace HideezMiddleware
     {
         public const string PROX_LOCK_ENABLED_PROP = "ProximityLockEnabled";
 
-        readonly ConnectionFlowProcessor _flowProcessor;
+        readonly ConnectionFlowProcessorBase _flowProcessor;
         readonly ProximityMonitorManager _proximityMonitorManager;
         readonly DeviceManager _deviceManager;
         readonly IWorkstationLocker _workstationLocker;
@@ -25,7 +25,7 @@ namespace HideezMiddleware
         public event EventHandler<WorkstationLockingEventArgs> WorkstationLocking;
 
         public WorkstationLockProcessor(
-            ConnectionFlowProcessor flowProcessor, 
+            ConnectionFlowProcessorBase flowProcessor, 
             ProximityMonitorManager proximityMonitorManager, 
             DeviceManager deviceManager, 
             IWorkstationLocker workstationLocker, 

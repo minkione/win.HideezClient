@@ -13,7 +13,7 @@ using HideezMiddleware.Audit;
 using HideezMiddleware.ClientManagement;
 using HideezMiddleware.CredentialProvider;
 using HideezMiddleware.DeviceConnection;
-using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.DeviceLogging;
 using HideezMiddleware.IPC.DTO;
 using HideezMiddleware.Local;
@@ -186,8 +186,8 @@ namespace ServiceLibrary.Implementation
                     var serviceSettingsManager = new SettingsManager<ServiceSettings>(serviceSettingsPath, fileSerializer);
                     serviceSettingsManager.InitializeFileStruct();
                     await serviceSettingsManager.LoadSettingsAsync().ConfigureAwait(false);
-                    sdkLogger.WriteLine(nameof(HideezService), $"{nameof(ServiceSettings)} loaded");
                     _container.RegisterInstance<ISettingsManager<ServiceSettings>>(serviceSettingsManager, new ExternallyControlledLifetimeManager());
+                    sdkLogger.WriteLine(nameof(HideezService), $"{nameof(ServiceSettings)} loaded");
 
                     messenger.Subscribe<HesAppConnection_AlarmMessage>(async (msg) =>
                     {
@@ -320,15 +320,18 @@ namespace ServiceLibrary.Implementation
 
         public void AddEnterpriseConnectionFlow()
         {
-            var connectionFlowProcessorfactory = _container.Resolve<ConnectionFlowProcessorFactory>();
+            var connectionFlowProcessorfactory = _container.Resolve<EnterpriseConnectionFlowProcessorFactory>();
             var connectionFlowProcessor = connectionFlowProcessorfactory.Create();
 
-            _container.RegisterInstance(connectionFlowProcessor, new ExternallyControlledLifetimeManager());
+            _container.RegisterInstance<ConnectionFlowProcessorBase>(connectionFlowProcessor, new ExternallyControlledLifetimeManager());
         }
 
         public void AddStandaloneConnectionFlow()
         {
-            throw new NotImplementedException();
+            var connectionFlowProcessorfactory = _container.Resolve<StandaloneConnectionFlowProcessorFactory>();
+            var standaloneConnectionFlowProcessor = connectionFlowProcessorfactory.Create();
+
+            _container.RegisterInstance<ConnectionFlowProcessorBase>(standaloneConnectionFlowProcessor, new ExternallyControlledLifetimeManager());
         }
 
         /// <summary>
@@ -374,7 +377,7 @@ namespace ServiceLibrary.Implementation
             var log = _container.Resolve<ILog>();
             var messenger = _container.Resolve<IMetaPubSub>();
             var csrBleConnectionManager = _container.Resolve<BleConnectionManager>();
-            var connectionFlow = _container.Resolve<ConnectionFlowProcessor>();
+            var connectionFlow = _container.Resolve<ConnectionFlowProcessorBase>();
             var proximitySettingsProvider = _container.Resolve<IDeviceProximitySettingsProvider>();
             var advIgnoreCsrList = new AdvertisementIgnoreList(csrBleConnectionManager, proximitySettingsProvider, SdkConfig.DefaultLockTimeout, log);
             var deviceManager = _container.Resolve<DeviceManager>();
@@ -412,7 +415,7 @@ namespace ServiceLibrary.Implementation
         {
             var log = _container.Resolve<ILog>();
             var messenger = _container.Resolve<IMetaPubSub>();
-            var connectionFlow = _container.Resolve<ConnectionFlowProcessor>();
+            var connectionFlow = _container.Resolve<ConnectionFlowProcessorBase>();
             var winBleConnectionManager = _container.Resolve<WinBleConnectionManager>();
             winBleConnectionManager.UnpairProvider = new UnpairProvider(messenger, log);
             var workstationSettingsManager = _container.Resolve<ISettingsManager<WorkstationSettings>>();

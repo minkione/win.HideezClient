@@ -1,7 +1,7 @@
 ﻿using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Utils;
-using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,10 +11,10 @@ namespace HideezMiddleware.ReconnectManager
     class ReconnectProc
     {
         readonly IDevice _device;
-        readonly ConnectionFlowProcessor _connectionFlowProcessor;
+        readonly ConnectionFlowProcessorBase _connectionFlowProcessor;
         bool _isReconnectSuccessful = false;
 
-        public ReconnectProc(IDevice device, ConnectionFlowProcessor connectionFlowProcessor)
+        public ReconnectProc(IDevice device, ConnectionFlowProcessorBase connectionFlowProcessor)
         {
             _device = device;
             _connectionFlowProcessor = connectionFlowProcessor;

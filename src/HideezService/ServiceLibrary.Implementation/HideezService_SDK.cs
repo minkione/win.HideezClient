@@ -32,7 +32,6 @@ using HideezMiddleware.SoftwareVault.UnlockToken;
 using Meta.Lib.Modules.PubSub.Messages;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation.ScreenActivation;
-using HideezMiddleware.DeviceConnection.Workflow;
 using Hideez.SDK.Communication.HES.DTO;
 using WinBle._10._0._18362;
 using Hideez.SDK.Communication.Connection;
@@ -42,6 +41,7 @@ using HideezMiddleware.ClientManagement;
 using HideezMiddleware.Modules.ClientPipe;
 using Hideez.SDK.Communication.Proximity.Interfaces;
 using HideezMiddleware.Settings.SettingsProvider;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 
 namespace ServiceLibrary.Implementation
 {
@@ -72,7 +72,7 @@ namespace ServiceLibrary.Implementation
         static WatchingSettingsManager<UserProximitySettings> _userProximitySettingsManager;
 
         static BondManager _bondManager;
-        static ConnectionFlowProcessor _connectionFlowProcessor;
+        static EnterpriseConnectionFlowProcessor _connectionFlowProcessor;
         static AdvertisementIgnoreList _advIgnoreCsrList;
         static AdvertisementIgnoreList _advIgnoreWinBleList;
         static RfidConnectionProcessor _rfidProcessor;
@@ -310,7 +310,7 @@ namespace ServiceLibrary.Implementation
             _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _sdkLogger);
 
             // ConnectionFlowProcessor
-            var connectionFlowProcessorfactory = new ConnectionFlowProcessorFactory(
+            var connectionFlowProcessorfactory = new EnterpriseConnectionFlowProcessorFactory(
                 _deviceManager,
                 _bondManager,
                 _hesConnection,

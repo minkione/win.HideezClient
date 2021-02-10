@@ -6,7 +6,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity.Interfaces;
 using HideezMiddleware.CredentialProvider;
-using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.Localize;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Tasks;
@@ -36,7 +36,7 @@ namespace HideezMiddleware.DeviceConnection
         bool isRunning = false;
 
         public WinBleAutomaticConnectionProcessor(
-            ConnectionFlowProcessor connectionFlowProcessor,
+            ConnectionFlowProcessorBase connectionFlowProcessor,
             WinBleConnectionManager winBleConnectionManager,
             AdvertisementIgnoreList advIgnoreListMonitor,
             IDeviceProximitySettingsProvider proximitySettingsProvider,

@@ -3,7 +3,7 @@ using Hideez.SDK.Communication.Connection;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Log;
-using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.Localize;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
@@ -26,7 +26,7 @@ namespace HideezMiddleware.DeviceConnection
         bool isRunning = false;
 
         public RfidConnectionProcessor(
-            ConnectionFlowProcessor connectionFlowProcessor, 
+            ConnectionFlowProcessorBase connectionFlowProcessor, 
             HesAppConnection hesConnection,
             RfidServiceConnection rfidService, 
             ISettingsManager<RfidSettings> rfidSettingsManager,

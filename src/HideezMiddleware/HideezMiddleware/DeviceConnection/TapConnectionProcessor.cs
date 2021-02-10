@@ -3,9 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
-using HideezMiddleware.DeviceConnection.Workflow;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Connection;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 
 namespace HideezMiddleware.DeviceConnection
 {
@@ -18,7 +18,7 @@ namespace HideezMiddleware.DeviceConnection
         bool isRunning = false;
 
         public TapConnectionProcessor(
-            ConnectionFlowProcessor connectionFlowProcessor,
+            ConnectionFlowProcessorBase connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
             ILog log) 
             : base(connectionFlowProcessor, nameof(TapConnectionProcessor), log)

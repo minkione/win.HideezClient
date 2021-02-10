@@ -2,7 +2,7 @@
 using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
-using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using System;
 using System.Linq;
 using System.Threading;
@@ -23,7 +23,7 @@ namespace HideezMiddleware.DeviceConnection
         bool isRunning = false;
 
         public ExternalConnectionProcessor(
-            ConnectionFlowProcessor connectionFlowProcessor,
+            ConnectionFlowProcessorBase connectionFlowProcessor,
             IConnectionManager connectionManager,
             ILog log)
             : base(connectionFlowProcessor, nameof(ExternalConnectionProcessor), log)

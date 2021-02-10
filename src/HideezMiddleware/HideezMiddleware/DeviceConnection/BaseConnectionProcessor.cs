@@ -1,6 +1,6 @@
 ﻿using Hideez.SDK.Communication.Connection;
 using Hideez.SDK.Communication.Log;
-using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using System;
 using System.Threading.Tasks;
 
@@ -8,11 +8,11 @@ namespace HideezMiddleware.DeviceConnection
 {
     public abstract class BaseConnectionProcessor : Logger, IConnectionProcessor
     {
-        readonly ConnectionFlowProcessor _connectionFlowProcessor;
+        readonly ConnectionFlowProcessorBase _connectionFlowProcessor;
 
         public event EventHandler<WorkstationUnlockResult> WorkstationUnlockPerformed;
 
-        public BaseConnectionProcessor(ConnectionFlowProcessor connectionFlowProcessor, string logSource, ILog log)
+        public BaseConnectionProcessor(ConnectionFlowProcessorBase connectionFlowProcessor, string logSource, ILog log)
             : base(logSource, log)
         {
             _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));

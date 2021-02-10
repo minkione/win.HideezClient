@@ -7,6 +7,7 @@ using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.PropertyChangedMonitoring;
 using System;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -251,7 +252,7 @@ namespace DeviceMaintenance.ViewModel
 
                 if (mb == MessageBoxResult.OK)
                 {
-                    await _device.Wipe(Array.Empty<byte>());
+                    await _device.Wipe(Encoding.UTF8.GetBytes(""));
                     CurrentState = State.Wiping;
                     await Task.Delay(30_000);
                     if (CurrentState != State.Success)
