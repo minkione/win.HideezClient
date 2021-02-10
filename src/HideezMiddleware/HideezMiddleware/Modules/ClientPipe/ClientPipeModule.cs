@@ -8,6 +8,7 @@ using HideezMiddleware.IPC.DTO;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Modules.DeviceManagement.Messages;
+using HideezMiddleware.Modules.Hes.Messages;
 using HideezMiddleware.Settings;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
@@ -88,6 +89,10 @@ namespace HideezMiddleware.Modules.ClientPipe
 
             _messenger.Subscribe<LoginClientRequestMessage>(OnClientLogin);
             _messenger.Subscribe<RefreshServiceInfoMessage>(OnRefreshServiceInfo);
+
+            _messenger.Subscribe<HesAppConnection_LockHwVaultStorageMessage>(OnLockHwVaultStorage);
+            _messenger.Subscribe<HesAppConnection_LiftHwVaultStorageLockMessage>(OnLiftHwVaultStorageLock);
+            _messenger.Subscribe<HesAppConnection_HubConnectionStateChangedMessage>(OnHubConnectionStateChanged);
         }
 
         private void Error(Exception ex, string message = "")
@@ -185,5 +190,22 @@ namespace HideezMiddleware.Modules.ClientPipe
             await RefreshServiceInfo();
         }
 
+        // Engage storage lock upon hub request
+        async Task OnLockHwVaultStorage(HesAppConnection_LockHwVaultStorageMessage msg)
+        {
+            await SafePublish(new LockDeviceStorageMessage(msg.SerialNo));
+        }
+
+        // Clear store lock upon hub request
+        async Task OnLiftHwVaultStorageLock(HesAppConnection_LiftHwVaultStorageLockMessage msg)
+        {
+            await SafePublish(new LiftDeviceStorageLockMessage(msg.SerialNo));
+        }
+
+        // Clear storage lock when hub connects or disconnects, 
+        async Task OnHubConnectionStateChanged(HesAppConnection_HubConnectionStateChangedMessage msg)
+        {
+            await SafePublish(new LiftDeviceStorageLockMessage(string.Empty));
+        }
     }
 }

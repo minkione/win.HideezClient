@@ -4,12 +4,15 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
 using HideezMiddleware.DeviceConnection.Workflow;
+using HideezMiddleware.IPC.DTO;
+using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Modules.DeviceManagement.Messages;
 using HideezMiddleware.Modules.Hes.Messages;
 using HideezMiddleware.ReconnectManager;
 using HideezMiddleware.Utils.WorkstationHelper;
 using Meta.Lib.Modules.PubSub;
 using Microsoft.Win32;
+using System;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware.Modules.ReconnectAndWorkstationLock
@@ -45,10 +48,16 @@ namespace HideezMiddleware.Modules.ReconnectAndWorkstationLock
 
             _messenger.Subscribe<HesAccessManager_AccessRetractedMessage>(HesAccessManager_AccessRetracted);
             _messenger.Subscribe<DeviceManager_ExpectedDeviceRemovalMessage>(DeviceManager_UserRemovingDevice);
+            _messenger.Subscribe<HesAppConnection_AlarmMessage>(HesAppConnection_Alarm);
 
             proximityMonitorManager.Start();
             _deviceReconnectManager.Start();
             _workstationLockProcessor.Start();
+        }
+
+        private async void WorkstationLockProcessor_DeviceProxLockEnabled(object sender, IDevice device)
+        {
+            await SafePublish(new DeviceProximityLockEnabledMessage(new DeviceDTO(device)));
         }
 
         // Disable automatic reconnect when user is logged out or session is locked
@@ -76,10 +85,10 @@ namespace HideezMiddleware.Modules.ReconnectAndWorkstationLock
             return Task.CompletedTask;
         }
 
-        private async void WorkstationLockProcessor_DeviceProxLockEnabled(object sender, IDevice device)
+        private Task HesAppConnection_Alarm(HesAppConnection_AlarmMessage arg)
         {
-            // Todo: solve issue with dto and its factory
-            //await _messenger.Publish(new DeviceProximityLockEnabledMessage(_deviceDTOFactory.Create(device)));
+            _universalWorkstationLocker.LockWorkstation();
+            return Task.CompletedTask;
         }
     }
 }

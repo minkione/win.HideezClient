@@ -39,28 +39,6 @@ namespace HideezMiddleware.Modules.Hes
             _hesAppConnection.LiftHwVaultStorageLockRequest += HesAppConnection_LiftHwVaultStorageLockRequest;
             _hesAppConnection.Alarm += HesAppConnection_Alarm;
 
-            // TODO: Event handling
-            //hesConnection.HubProximitySettingsArrived += async (s, e) => await _service.Messenger.Publish(new HES_HubProximitySettingsArrivedMessage());
-
-            /*
-            hesConnection.HubProximitySettingsArrived += async (sender, receivedSettings) =>
-            {
-                var settings = await proximitySettingsManager.GetSettingsAsync().ConfigureAwait(false);
-                settings.DevicesProximity = receivedSettings.ToArray();
-                proximitySettingsManager.SaveSettings(settings);
-            };
-            hesConnection.HubRFIDIndicatorStateArrived += async (sender, isEnabled) =>
-            {
-                var settings = await rfidSettingsManager.GetSettingsAsync().ConfigureAwait(false);
-                settings.IsRfidEnabled = isEnabled;
-                rfidSettingsManager.SaveSettings(settings);
-            };
-            hesConnection.HubConnectionStateChanged += HES_ConnectionStateChanged;
-            hesConnection.LockHwVaultStorageRequest += HES_LockDeviceStorageRequest;
-            hesConnection.LiftHwVaultStorageLockRequest += HES_LiftDeviceStorageLockRequest;
-            hesConnection.Alarm += HesConnection_Alarm;
-            */
-
             if (!string.IsNullOrWhiteSpace(hesAddress))
                 _hesAppConnection.Start(hesAddress); // Launch HES connection immediatelly to save time
 
@@ -77,27 +55,27 @@ namespace HideezMiddleware.Modules.Hes
             await _messenger.Publish(new HesAppConnection_HubProximitySettingsArrivedMessage(sender, e));
         }
 
-        private async void HesAppConnection_HubRFIDIndicatorStateArrived(object sender, bool e)
+        private async void HesAppConnection_HubRFIDIndicatorStateArrived(object sender, bool isEnabled)
         {
-            await _messenger.Publish(new HesAppConnection_HUbRFIDIndicatorStateArrivedMessage(sender, e));
+            await _messenger.Publish(new HesAppConnection_HUbRFIDIndicatorStateArrivedMessage(sender, isEnabled));
         }
         private async void HesAppConnection_HubConnectionStateChanged(object sender, EventArgs e)
         {
             await _messenger.Publish(new HesAppConnection_HubConnectionStateChangedMessage(sender, e));
         }
-        private async void HesAppConnection_LockHwVaultStorageRequest(object sender, string e)
+        private async void HesAppConnection_LockHwVaultStorageRequest(object sender, string serialNo)
         {
-            await _messenger.Publish(new HesAppConnection_LockHwVaultStorageMessage(sender, e));
+            await _messenger.Publish(new HesAppConnection_LockHwVaultStorageMessage(sender, serialNo));
         }
 
-        private async void HesAppConnection_LiftHwVaultStorageLockRequest(object sender, string e)
+        private async void HesAppConnection_LiftHwVaultStorageLockRequest(object sender, string serialNo)
         {
-            await _messenger.Publish(new HesAppConnection_LiftHwVaultStorageLockMessage(sender, e));
+            await _messenger.Publish(new HesAppConnection_LiftHwVaultStorageLockMessage(sender, serialNo));
         }
 
-        private async void HesAppConnection_Alarm(object sender, bool e)
+        private async void HesAppConnection_Alarm(object sender, bool isEnabled)
         {
-            await _messenger.Publish(new HesAppConnection_AlarmMessage(sender, e));
+            await _messenger.Publish(new HesAppConnection_AlarmMessage(sender, isEnabled));
         }
 
         private async Task ChangeServerAddress(ChangeServerAddressMessage args)

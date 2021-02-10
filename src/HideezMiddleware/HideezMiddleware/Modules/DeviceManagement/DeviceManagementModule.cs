@@ -37,6 +37,7 @@ namespace HideezMiddleware.Modules.DeviceManagement
             _messenger.Subscribe<GetAvailableChannelsMessage>(GetAvailableChannels);
             _messenger.Subscribe<DisconnectDeviceMessage>(DisconnectDevice);
             _messenger.Subscribe<RemoveDeviceMessage>(RemoveDeviceAsync);
+            _messenger.Subscribe<HesAppConnection_AlarmMessage>(OnAlarm);
         }
 
         private readonly SemaphoreQueue _devicesSemaphore = new SemaphoreQueue(1, 1);
@@ -307,6 +308,18 @@ namespace HideezMiddleware.Modules.DeviceManagement
             {
                 WriteLine(ex);
                 throw;
+            }
+        }
+
+        async Task OnAlarm(HesAppConnection_AlarmMessage msg)
+        {
+            if (msg.IsEnabled)
+            {
+                foreach (var device in _deviceManager.Devices)
+                {
+                    await _messenger.Publish(new DeviceManager_ExpectedDeviceRemovalMessage(device));
+                    await _deviceManager.DeleteBond(device.DeviceConnection);
+                }
             }
         }
     }

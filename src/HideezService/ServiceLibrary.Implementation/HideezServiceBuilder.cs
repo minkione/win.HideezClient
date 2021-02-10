@@ -25,6 +25,7 @@ using HideezMiddleware.Modules.Csr;
 using HideezMiddleware.Modules.DeviceManagement;
 using HideezMiddleware.Modules.FatalExceptionHandler;
 using HideezMiddleware.Modules.Hes;
+using HideezMiddleware.Modules.Hes.Messages;
 using HideezMiddleware.Modules.ReconnectAndWorkstationLock;
 using HideezMiddleware.Modules.RemoteUnlock;
 using HideezMiddleware.Modules.Rfid;
@@ -41,6 +42,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -156,6 +158,13 @@ namespace ServiceLibrary.Implementation
                     await rfidSettingsManager.LoadSettingsAsync().ConfigureAwait(false);
                     sdkLogger.WriteLine(nameof(HideezService), $"{nameof(RfidSettings)} loaded");
                     _container.RegisterInstance<ISettingsManager<RfidSettings>>(rfidSettingsManager, new ExternallyControlledLifetimeManager());
+
+                    messenger.Subscribe<HesAppConnection_HUbRFIDIndicatorStateArrivedMessage>(async (msg) =>
+                    {
+                        var settings = await rfidSettingsManager.GetSettingsAsync().ConfigureAwait(false);
+                        settings.IsRfidEnabled = msg.IsEnabled;
+                        rfidSettingsManager.SaveSettings(settings);
+                    });
                 }),
                 Task.Run(async () =>
                 {
@@ -164,6 +173,13 @@ namespace ServiceLibrary.Implementation
                     await proximitySettingsManager.GetSettingsAsync().ConfigureAwait(false);
                     _container.RegisterInstance<ISettingsManager<ProximitySettings>>(proximitySettingsManager, new ExternallyControlledLifetimeManager());
                     sdkLogger.WriteLine(nameof(HideezService), $"{nameof(ProximitySettings)} loaded");
+
+                    messenger.Subscribe<HesAppConnection_HubProximitySettingsArrivedMessage>(async (msg) =>
+                    {
+                        var settings = await proximitySettingsManager.GetSettingsAsync().ConfigureAwait(false);
+                        settings.DevicesProximity = msg.Settings.ToArray();
+                        proximitySettingsManager.SaveSettings(settings);
+                    });
                 }),
                 Task.Run(async () =>
                 {
@@ -172,6 +188,13 @@ namespace ServiceLibrary.Implementation
                     await serviceSettingsManager.LoadSettingsAsync().ConfigureAwait(false);
                     sdkLogger.WriteLine(nameof(HideezService), $"{nameof(ServiceSettings)} loaded");
                     _container.RegisterInstance<ISettingsManager<ServiceSettings>>(serviceSettingsManager, new ExternallyControlledLifetimeManager());
+
+                    messenger.Subscribe<HesAppConnection_AlarmMessage>(async (msg) =>
+                    {
+                        var settings = await serviceSettingsManager.GetSettingsAsync().ConfigureAwait(false);
+                        settings.AlarmTurnOn = msg.IsEnabled;
+                        serviceSettingsManager.SaveSettings(settings);
+                    });
                 }),
                 Task.Run(async () =>
                 {

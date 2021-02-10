@@ -5,12 +5,12 @@ namespace HideezMiddleware.Modules.Hes.Messages
     public sealed class HesAppConnection_AlarmMessage : PubSubMessageBase
     {
         public object Sender { get; }
-        public bool Args { get; }
+        public bool IsEnabled { get; }
 
-        public HesAppConnection_AlarmMessage(object sender, bool args)
+        public HesAppConnection_AlarmMessage(object sender, bool isEnabled)
         {
             Sender = sender;
-            Args = args;
+            IsEnabled = isEnabled;
         }
     }
 }
