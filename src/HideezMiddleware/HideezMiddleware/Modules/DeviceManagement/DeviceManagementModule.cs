@@ -32,12 +32,12 @@ namespace HideezMiddleware.Modules.DeviceManagement
 
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
 
-            _messenger.Subscribe<HesAccessManager_AccessRetractedMessage>(HesAccessManager_AccessRetracted);
+            _messenger.Subscribe(GetSafeHandler<HesAccessManager_AccessRetractedMessage>(HesAccessManager_AccessRetracted));
 
-            _messenger.Subscribe<GetAvailableChannelsMessage>(GetAvailableChannels);
-            _messenger.Subscribe<DisconnectDeviceMessage>(DisconnectDevice);
-            _messenger.Subscribe<RemoveDeviceMessage>(RemoveDeviceAsync);
-            _messenger.Subscribe<HesAppConnection_AlarmMessage>(OnAlarm);
+            _messenger.Subscribe(GetSafeHandler<GetAvailableChannelsMessage>(GetAvailableChannels));
+            _messenger.Subscribe(GetSafeHandler<DisconnectDeviceMessage>(DisconnectDevice));
+            _messenger.Subscribe(GetSafeHandler<RemoveDeviceMessage>(RemoveDeviceAsync));
+            _messenger.Subscribe(GetSafeHandler<HesAppConnection_AlarmMessage>(OnAlarm));
         }
 
         private readonly SemaphoreQueue _devicesSemaphore = new SemaphoreQueue(1, 1);

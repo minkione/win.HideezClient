@@ -41,7 +41,7 @@ namespace HideezMiddleware.Modules.WinBle
             _connectionManagerRestarter.AddManager(_winBleConnectionManager);
             connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManager);
 
-            _messenger.Subscribe<CredentialProvider_CommandLinkPressedMessage>(CredentialProvider_CommandLinkPressedHandler);
+            _messenger.Subscribe(GetSafeHandler<CredentialProvider_CommandLinkPressedMessage>(CredentialProvider_CommandLinkPressedHandler));
 
             _winBleAutomaticConnectionProcessor.Start();
         }
@@ -75,7 +75,7 @@ namespace HideezMiddleware.Modules.WinBle
                     break;
             }
 
-            await _messenger.Publish(new WinBleStatusChangedMessage(sender, status));
+            await SafePublish(new WinBleStatusChangedMessage(sender, status));
         }
 
         private Task CredentialProvider_CommandLinkPressedHandler(CredentialProvider_CommandLinkPressedMessage msg)

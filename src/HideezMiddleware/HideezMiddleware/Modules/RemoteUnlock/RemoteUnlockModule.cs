@@ -48,12 +48,12 @@ namespace HideezMiddleware.Modules.RemoteUnlock
             if (_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock)
                 _remoteWorkstationUnlocker.Start();
 
-            _messenger.Subscribe<SetSoftwareVaultUnlockModuleStateMessage>(SetSoftwareVaultUnlockModuleState);
+            _messenger.Subscribe(GetSafeHandler<SetSoftwareVaultUnlockModuleStateMessage>(SetSoftwareVaultUnlockModuleState));
         }
 
         private async void TBHesAppConnection_HubConnectionStateChanged(object sender, System.EventArgs e)
         {
-            await _messenger.Publish(new TBConnection_StateChangedMessage(sender, e));
+            await SafePublish(new TBConnection_StateChangedMessage(sender, e));
         }
 
         Task SetSoftwareVaultUnlockModuleState(SetSoftwareVaultUnlockModuleStateMessage args)

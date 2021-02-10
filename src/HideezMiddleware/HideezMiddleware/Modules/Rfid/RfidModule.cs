@@ -38,7 +38,7 @@ namespace HideezMiddleware.Modules.Rfid
             else
                 status = RfidStatus.Ok;
 
-            await _messenger.Publish(new RfidStatusChangedMessage(sender, status));
+            await SafePublish(new RfidStatusChangedMessage(sender, status));
         }
     }
 }

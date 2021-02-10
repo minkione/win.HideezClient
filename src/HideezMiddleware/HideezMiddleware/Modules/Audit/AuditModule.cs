@@ -43,14 +43,14 @@ namespace HideezMiddleware.Modules.Audit
             if (string.IsNullOrWhiteSpace(workstationIdProvider.GetWorkstationId()))
                 workstationIdProvider.SaveWorkstationId(Guid.NewGuid().ToString());
 
-            _messenger.Subscribe<CsrStatusChangedMessage>(HandleCsrStatusChanged);
-            _messenger.Subscribe<RfidStatusChangedMessage>(HandleRfidStatusChanged);
-            _messenger.Subscribe<HesAppConnection_HubConnectionStateChangedMessage>(HandleHubConnectionStateChanged);
-            _messenger.Subscribe<DeviceInitializedMessage>(DeviceInitialized);
-            _messenger.Subscribe<DeviceDisconnectedMessage>(DeviceDisconnected);
-            _messenger.Subscribe<DeviceManager_DeviceRemovedMessage>(DeviceRemoved);
+            _messenger.Subscribe(GetSafeHandler<CsrStatusChangedMessage>(HandleCsrStatusChanged));
+            _messenger.Subscribe(GetSafeHandler<RfidStatusChangedMessage>(HandleRfidStatusChanged));
+            _messenger.Subscribe(GetSafeHandler<HesAppConnection_HubConnectionStateChangedMessage>(HandleHubConnectionStateChanged));
+            _messenger.Subscribe(GetSafeHandler<DeviceInitializedMessage>(DeviceInitialized));
+            _messenger.Subscribe(GetSafeHandler<DeviceDisconnectedMessage>(DeviceDisconnected));
+            _messenger.Subscribe(GetSafeHandler<DeviceManager_DeviceRemovedMessage>(DeviceRemoved));
 
-            _messenger.Subscribe<PublishEventMessage>(PublishEvent);
+            _messenger.Subscribe(GetSafeHandler<PublishEventMessage>(PublishEvent));
         }
 
         private async Task HandleCsrStatusChanged(CsrStatusChangedMessage msg)

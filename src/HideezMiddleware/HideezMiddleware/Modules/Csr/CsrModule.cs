@@ -72,7 +72,7 @@ namespace HideezMiddleware.Modules.Csr
                     break;
             }
 
-            await _messenger.Publish(new CsrStatusChangedMessage(sender, status));
+            await SafePublish(new CsrStatusChangedMessage(sender, status));
         }
     }
 }

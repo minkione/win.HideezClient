@@ -28,12 +28,12 @@ namespace HideezMiddleware.Modules.CredentialProvider
 
         private async void CredentialProviderProxy_Connected(object sender, EventArgs e)
         {
-            await _messenger.Publish(new WorkstationUnlocker_ConnectedMessage(sender, e));
+            await SafePublish(new WorkstationUnlocker_ConnectedMessage(sender, e));
         }
 
         private async void CredentialProviderProxy_CommandLinkPressed(object sender, EventArgs e)
         {
-            await _messenger.Publish(new CredentialProvider_CommandLinkPressedMessage(sender, e));
+            await SafePublish(new CredentialProvider_CommandLinkPressedMessage(sender, e));
         }
     }
 }

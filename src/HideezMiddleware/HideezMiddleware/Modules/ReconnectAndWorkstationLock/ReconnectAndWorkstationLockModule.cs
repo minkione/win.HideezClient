@@ -46,9 +46,9 @@ namespace HideezMiddleware.Modules.ReconnectAndWorkstationLock
 
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
 
-            _messenger.Subscribe<HesAccessManager_AccessRetractedMessage>(HesAccessManager_AccessRetracted);
-            _messenger.Subscribe<DeviceManager_ExpectedDeviceRemovalMessage>(DeviceManager_UserRemovingDevice);
-            _messenger.Subscribe<HesAppConnection_AlarmMessage>(HesAppConnection_Alarm);
+            _messenger.Subscribe(GetSafeHandler<HesAccessManager_AccessRetractedMessage>(HesAccessManager_AccessRetracted));
+            _messenger.Subscribe(GetSafeHandler<DeviceManager_ExpectedDeviceRemovalMessage>(DeviceManager_UserRemovingDevice));
+            _messenger.Subscribe(GetSafeHandler<HesAppConnection_AlarmMessage>(HesAppConnection_Alarm));
 
             proximityMonitorManager.Start();
             _deviceReconnectManager.Start();

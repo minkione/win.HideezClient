@@ -81,18 +81,18 @@ namespace HideezMiddleware.Modules.ClientPipe
 
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
 
-            _messenger.Subscribe<DeviceManager_DeviceAddedMessage>(OnDeviceAdded);
-            _messenger.Subscribe<DeviceManager_DeviceRemovedMessage>(OnDeviceRemoved);
+            _messenger.Subscribe(GetSafeHandler<DeviceManager_DeviceAddedMessage>(OnDeviceAdded));
+            _messenger.Subscribe(GetSafeHandler<DeviceManager_DeviceRemovedMessage>(OnDeviceRemoved));
 
-            _messenger.Subscribe<RemoteClientConnectedEvent>(OnClientConnected);
-            _messenger.Subscribe<RemoteClientDisconnectedEvent>(OnClientDisconnected);
+            _messenger.Subscribe(GetSafeHandler<RemoteClientConnectedEvent>(OnClientConnected));
+            _messenger.Subscribe(GetSafeHandler<RemoteClientDisconnectedEvent>(OnClientDisconnected));
 
-            _messenger.Subscribe<LoginClientRequestMessage>(OnClientLogin);
-            _messenger.Subscribe<RefreshServiceInfoMessage>(OnRefreshServiceInfo);
+            _messenger.Subscribe(GetSafeHandler<LoginClientRequestMessage>(OnClientLogin));
+            _messenger.Subscribe(GetSafeHandler<RefreshServiceInfoMessage>(OnRefreshServiceInfo));
 
-            _messenger.Subscribe<HesAppConnection_LockHwVaultStorageMessage>(OnLockHwVaultStorage);
-            _messenger.Subscribe<HesAppConnection_LiftHwVaultStorageLockMessage>(OnLiftHwVaultStorageLock);
-            _messenger.Subscribe<HesAppConnection_HubConnectionStateChangedMessage>(OnHubConnectionStateChanged);
+            _messenger.Subscribe(GetSafeHandler<HesAppConnection_LockHwVaultStorageMessage>(OnLockHwVaultStorage));
+            _messenger.Subscribe(GetSafeHandler<HesAppConnection_LiftHwVaultStorageLockMessage>(OnLiftHwVaultStorageLock));
+            _messenger.Subscribe(GetSafeHandler<HesAppConnection_HubConnectionStateChangedMessage>(OnHubConnectionStateChanged));
         }
 
         private void Error(Exception ex, string message = "")
@@ -118,10 +118,10 @@ namespace HideezMiddleware.Modules.ClientPipe
             }
         }
 
-        async Task RefreshServiceInfo() // Todo: error handling
+        async Task RefreshServiceInfo()
         {
             await _statusManager.SendStatusToUI();
-            
+
             await SafePublish(new DevicesCollectionChangedMessage(GetDevices()));
 
             await SafePublish(new ServiceSettingsChangedMessage(_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock, RegistrySettings.GetHesAddress(this)));
@@ -141,8 +141,15 @@ namespace HideezMiddleware.Modules.ClientPipe
 
         async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
-            if (reason == SessionSwitchReason.SessionUnlock || reason == SessionSwitchReason.SessionLogon)
-                await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+            try
+            {
+                if (reason == SessionSwitchReason.SessionUnlock || reason == SessionSwitchReason.SessionLogon)
+                    await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
         }
 
         private async Task OnDeviceAdded(DeviceManager_DeviceAddedMessage msg)
@@ -177,11 +184,18 @@ namespace HideezMiddleware.Modules.ClientPipe
 
             await RefreshServiceInfo();
 
-            // Client may have only been launched after we already sent an event about workstation unlock
-            // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
-            // To avoid the confusion, we resend the event about latest unlock method to every client that connects to service
-            if (_deviceManager.Devices.Count() == 0)
-                await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+            try
+            {
+                // Client may have only been launched after we already sent an event about workstation unlock
+                // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
+                // To avoid the confusion, we resend the event about latest unlock method to every client that connects to service
+                if (_deviceManager.Devices.Count() == 0)
+                    await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
 
         }
 

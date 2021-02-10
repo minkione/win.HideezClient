@@ -42,40 +42,40 @@ namespace HideezMiddleware.Modules.Hes
             if (!string.IsNullOrWhiteSpace(hesAddress))
                 _hesAppConnection.Start(hesAddress); // Launch HES connection immediatelly to save time
 
-            _messenger.Subscribe<ChangeServerAddressMessage>(ChangeServerAddress);
+            _messenger.Subscribe(GetSafeHandler<ChangeServerAddressMessage>(ChangeServerAddress));
         }
 
         private async void HesAccessManager_AccessRetracted(object sender, EventArgs e)
         {
-            await _messenger.Publish(new HesAccessManager_AccessRetractedMessage(sender, e));
+            await SafePublish(new HesAccessManager_AccessRetractedMessage(sender, e));
         }
 
         private async void HesAppConnection_HubProximitySettingsArrived(object sender, IReadOnlyList<DeviceProximitySettings> e)
         {
-            await _messenger.Publish(new HesAppConnection_HubProximitySettingsArrivedMessage(sender, e));
+            await SafePublish(new HesAppConnection_HubProximitySettingsArrivedMessage(sender, e));
         }
 
         private async void HesAppConnection_HubRFIDIndicatorStateArrived(object sender, bool isEnabled)
         {
-            await _messenger.Publish(new HesAppConnection_HUbRFIDIndicatorStateArrivedMessage(sender, isEnabled));
+            await SafePublish(new HesAppConnection_HUbRFIDIndicatorStateArrivedMessage(sender, isEnabled));
         }
         private async void HesAppConnection_HubConnectionStateChanged(object sender, EventArgs e)
         {
-            await _messenger.Publish(new HesAppConnection_HubConnectionStateChangedMessage(sender, e));
+            await SafePublish(new HesAppConnection_HubConnectionStateChangedMessage(sender, e));
         }
         private async void HesAppConnection_LockHwVaultStorageRequest(object sender, string serialNo)
         {
-            await _messenger.Publish(new HesAppConnection_LockHwVaultStorageMessage(sender, serialNo));
+            await SafePublish(new HesAppConnection_LockHwVaultStorageMessage(sender, serialNo));
         }
 
         private async void HesAppConnection_LiftHwVaultStorageLockRequest(object sender, string serialNo)
         {
-            await _messenger.Publish(new HesAppConnection_LiftHwVaultStorageLockMessage(sender, serialNo));
+            await SafePublish(new HesAppConnection_LiftHwVaultStorageLockMessage(sender, serialNo));
         }
 
         private async void HesAppConnection_Alarm(object sender, bool isEnabled)
         {
-            await _messenger.Publish(new HesAppConnection_AlarmMessage(sender, isEnabled));
+            await SafePublish(new HesAppConnection_AlarmMessage(sender, isEnabled));
         }
 
         private async Task ChangeServerAddress(ChangeServerAddressMessage args)
