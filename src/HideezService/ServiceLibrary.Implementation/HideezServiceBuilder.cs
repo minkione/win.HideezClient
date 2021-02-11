@@ -61,10 +61,6 @@ namespace ServiceLibrary.Implementation
     /// </summary>
     public sealed class HideezServiceBuilder
     {
-        // NOTE: Because container is disposed after service building is finished, 
-        // components that implement IDisposable interface should have ExternallyControlledLifetimeManager
-        // because container recursively disposes of all objects it controls
-
         /// <summary>
         /// Reference to service instance that is being built
         /// </summary>
@@ -81,7 +77,7 @@ namespace ServiceLibrary.Implementation
         private void Cleanup()
         {
             _service = null;
-            _container?.Dispose();
+            _container = null;
         }
 
         private void AddModule(IModule module)
@@ -94,8 +90,8 @@ namespace ServiceLibrary.Implementation
         /// </summary>
         public void Begin()
         {
-            _service = new HideezService();
             _container = new UnityContainer();
+            _service = new HideezService(_container);
             _container.AddExtension(new Diagnostic());
 
             // Register and instantiate essentials
@@ -103,18 +99,18 @@ namespace ServiceLibrary.Implementation
             // Used by all modules to write logs
             NLog.LogManager.EnableLogging();
             var sdkLogger = new NLogWrapper();
-            _container.RegisterInstance<ILog>(sdkLogger, new ExternallyControlledLifetimeManager());
+            _container.RegisterInstance<ILog>(sdkLogger, new ContainerControlledLifetimeManager());
 
             // Used by almost all modules to communicate with each other through "weak-event style" messages
             var messenger = new MetaPubSub(new MetaPubSubLogger(sdkLogger));
-            _container.RegisterInstance<IMetaPubSub>(messenger, new ExternallyControlledLifetimeManager());
+            _container.RegisterInstance<IMetaPubSub>(messenger, new ContainerControlledLifetimeManager());
 
             var serviceEventsModule = _container.Resolve<ServiceEventsModule>();
             AddModule(serviceEventsModule);
 
             // Used by some modules to access data stored in registry
             var registryRoot = HideezClientRegistryRoot.GetRootRegistryKey(true);
-            _container.RegisterInstance(registryRoot, new ExternallyControlledLifetimeManager());
+            _container.RegisterInstance(registryRoot, new ContainerControlledLifetimeManager());
 
             // Used by many modules to gather info about currect PC state
             _container.RegisterType<IWorkstationHelper, WorkstationHelper>(new ContainerControlledLifetimeManager());
@@ -153,7 +149,7 @@ namespace ServiceLibrary.Implementation
                     sdkSettingsManager.InitializeFileStruct();
                     await SdkConfigLoader.LoadSdkConfigFromFileAsync(sdkSettingsManager).ConfigureAwait(false);
                     sdkLogger.WriteLine(nameof(HideezService), $"{nameof(SdkSettings)} loaded");
-                    _container.RegisterInstance<ISettingsManager<SdkSettings>>(sdkSettingsManager, new ExternallyControlledLifetimeManager());
+                    _container.RegisterInstance<ISettingsManager<SdkSettings>>(sdkSettingsManager, new ContainerControlledLifetimeManager());
                 }),
                 Task.Run(async () =>
                 {
@@ -161,7 +157,7 @@ namespace ServiceLibrary.Implementation
                     rfidSettingsManager.InitializeFileStruct();
                     await rfidSettingsManager.LoadSettingsAsync().ConfigureAwait(false);
                     sdkLogger.WriteLine(nameof(HideezService), $"{nameof(RfidSettings)} loaded");
-                    _container.RegisterInstance<ISettingsManager<RfidSettings>>(rfidSettingsManager, new ExternallyControlledLifetimeManager());
+                    _container.RegisterInstance<ISettingsManager<RfidSettings>>(rfidSettingsManager, new ContainerControlledLifetimeManager());
 
                     messenger.Subscribe<HesAppConnection_HUbRFIDIndicatorStateArrivedMessage>(async (msg) =>
                     {
@@ -175,7 +171,7 @@ namespace ServiceLibrary.Implementation
                     var proximitySettingsManager = new SettingsManager<ProximitySettings>(proximitySettingsPath, fileSerializer);
                     proximitySettingsManager.InitializeFileStruct();
                     await proximitySettingsManager.GetSettingsAsync().ConfigureAwait(false);
-                    _container.RegisterInstance<ISettingsManager<ProximitySettings>>(proximitySettingsManager, new ExternallyControlledLifetimeManager());
+                    _container.RegisterInstance<ISettingsManager<ProximitySettings>>(proximitySettingsManager, new ContainerControlledLifetimeManager());
                     sdkLogger.WriteLine(nameof(HideezService), $"{nameof(ProximitySettings)} loaded");
 
                     messenger.Subscribe<HesAppConnection_HubProximitySettingsArrivedMessage>(async (msg) =>
@@ -190,7 +186,7 @@ namespace ServiceLibrary.Implementation
                     var serviceSettingsManager = new SettingsManager<ServiceSettings>(serviceSettingsPath, fileSerializer);
                     serviceSettingsManager.InitializeFileStruct();
                     await serviceSettingsManager.LoadSettingsAsync().ConfigureAwait(false);
-                    _container.RegisterInstance<ISettingsManager<ServiceSettings>>(serviceSettingsManager, new ExternallyControlledLifetimeManager());
+                    _container.RegisterInstance<ISettingsManager<ServiceSettings>>(serviceSettingsManager, new ContainerControlledLifetimeManager());
                     sdkLogger.WriteLine(nameof(HideezService), $"{nameof(ServiceSettings)} loaded");
 
                     messenger.Subscribe<HesAppConnection_AlarmMessage>(async (msg) =>
@@ -207,7 +203,7 @@ namespace ServiceLibrary.Implementation
                     await workstationSettingsManager.LoadSettingsAsync().ConfigureAwait(false);
                     workstationSettingsManager.AutoReloadOnFileChanges = true;
                     sdkLogger.WriteLine(nameof(HideezService), $"{nameof(WorkstationSettings)} loaded");
-                    _container.RegisterInstance<ISettingsManager<WorkstationSettings>>(workstationSettingsManager, new ExternallyControlledLifetimeManager());
+                    _container.RegisterInstance<ISettingsManager<WorkstationSettings>>(workstationSettingsManager, new ContainerControlledLifetimeManager());
                 }),
                 Task.Run(async () =>
                 {
@@ -216,7 +212,7 @@ namespace ServiceLibrary.Implementation
                     await userProximitySettingsManager.LoadSettingsAsync().ConfigureAwait(false);
                     userProximitySettingsManager.AutoReloadOnFileChanges = true;
                     sdkLogger.WriteLine(nameof(HideezService), $"{nameof(UserProximitySettings)} loaded");
-                    _container.RegisterInstance<ISettingsManager<UserProximitySettings>>(userProximitySettingsManager, new ExternallyControlledLifetimeManager());
+                    _container.RegisterInstance<ISettingsManager<UserProximitySettings>>(userProximitySettingsManager, new ContainerControlledLifetimeManager());
                 })
             };
 
@@ -272,7 +268,7 @@ namespace ServiceLibrary.Implementation
                     ));
 
             // Hes access manager is used by workflow and processors
-            _container.RegisterType<IHesAccessManager, HesAccessManager>();
+            _container.RegisterType<IHesAccessManager, HesAccessManager>(new ContainerControlledLifetimeManager());
         }
 
         public void AddEnterpriseProximitySettingsSupport()
@@ -293,7 +289,7 @@ namespace ServiceLibrary.Implementation
 
         public void AddHES()
         {
-            _container.RegisterType<IHesAppConnection, HesAppConnection>(new ExternallyControlledLifetimeManager(), 
+            _container.RegisterType<IHesAppConnection, HesAppConnection>(new ContainerControlledLifetimeManager(), 
                 new InjectionConstructor(
                     typeof(DeviceManager),
                     typeof(IWorkstationInfoProvider),
@@ -306,7 +302,7 @@ namespace ServiceLibrary.Implementation
 
         public void AddRemoteUnlock()
         {
-            _container.RegisterType<IHesAppConnection, HesAppConnection>("tb", new ExternallyControlledLifetimeManager(),
+            _container.RegisterType<IHesAppConnection, HesAppConnection>("tb", new ContainerControlledLifetimeManager(),
                 new InjectionConstructor(
                     typeof(IWorkstationInfoProvider),
                     typeof(ILog)
@@ -327,7 +323,7 @@ namespace ServiceLibrary.Implementation
             var connectionFlowProcessorfactory = _container.Resolve<EnterpriseConnectionFlowProcessorFactory>();
             var connectionFlowProcessor = connectionFlowProcessorfactory.Create();
 
-            _container.RegisterInstance<ConnectionFlowProcessorBase>(connectionFlowProcessor, new ExternallyControlledLifetimeManager());
+            _container.RegisterInstance<ConnectionFlowProcessorBase>(connectionFlowProcessor, new ContainerControlledLifetimeManager());
         }
 
         public void AddStandaloneConnectionFlow()
@@ -335,7 +331,7 @@ namespace ServiceLibrary.Implementation
             var connectionFlowProcessorfactory = _container.Resolve<StandaloneConnectionFlowProcessorFactory>();
             var standaloneConnectionFlowProcessor = connectionFlowProcessorfactory.Create();
 
-            _container.RegisterInstance<ConnectionFlowProcessorBase>(standaloneConnectionFlowProcessor, new ExternallyControlledLifetimeManager());
+            _container.RegisterInstance<ConnectionFlowProcessorBase>(standaloneConnectionFlowProcessor, new ContainerControlledLifetimeManager());
         }
 
         /// <summary>
@@ -389,7 +385,7 @@ namespace ServiceLibrary.Implementation
             var hesAccessManager = _container.Resolve<IHesAccessManager>();
 
             var tapConnectionProcessor = new TapConnectionProcessor(connectionFlow, csrBleConnectionManager, log);
-            _container.RegisterInstance(tapConnectionProcessor);
+            _container.RegisterInstance(tapConnectionProcessor, new ContainerControlledLifetimeManager());
             var proximityConnectionProcessor = new ProximityConnectionProcessor(
                 connectionFlow,
                 csrBleConnectionManager,
@@ -399,7 +395,7 @@ namespace ServiceLibrary.Implementation
                 workstationUnlocker,
                 hesAccessManager,
                 log);
-            _container.RegisterInstance(proximityConnectionProcessor);
+            _container.RegisterInstance(proximityConnectionProcessor, new ContainerControlledLifetimeManager());
 
             var connectionManagersCoordinator = _container.Resolve<ConnectionManagersCoordinator>();
             var connectionManagersRestarter = _container.Resolve<ConnectionManagerRestarter>(); 
@@ -441,7 +437,7 @@ namespace ServiceLibrary.Implementation
                 uiManager,
                 workstationHelper, 
                 log);
-            _container.RegisterInstance(winBleAutomaticConnectionProcessor);
+            _container.RegisterInstance(winBleAutomaticConnectionProcessor, new ContainerControlledLifetimeManager());
 
             var commandLinkVisibilityController = new CommandLinkVisibilityController(
                 credProvProxy,
@@ -476,8 +472,8 @@ namespace ServiceLibrary.Implementation
         public void AddWorkstationLock()
         {
             _container.RegisterType<ProximityMonitorManager>(new ContainerControlledLifetimeManager());
-            _container.RegisterType<DeviceReconnectManager>(new ExternallyControlledLifetimeManager());
-            _container.RegisterType<WorkstationLockProcessor>(new ExternallyControlledLifetimeManager());
+            _container.RegisterType<DeviceReconnectManager>(new ContainerControlledLifetimeManager());
+            _container.RegisterType<WorkstationLockProcessor>(new ContainerControlledLifetimeManager());
             var workstationLockModule = _container.Resolve<WorkstationLockModule>();
             AddModule(workstationLockModule);
         }

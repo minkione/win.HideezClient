@@ -42,6 +42,7 @@ using HideezMiddleware.ClientManagement;
 using HideezMiddleware.Modules.ClientPipe;
 using Hideez.SDK.Communication.Proximity.Interfaces;
 using HideezMiddleware.Settings.SettingsProvider;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 
 namespace ServiceLibrary.Implementation
 {
@@ -72,7 +73,7 @@ namespace ServiceLibrary.Implementation
         static WatchingSettingsManager<UserProximitySettings> _userProximitySettingsManager;
 
         static BondManager _bondManager;
-        static ConnectionFlowProcessor _connectionFlowProcessor;
+        static ConnectionFlowProcessorBase _connectionFlowProcessor;
         static AdvertisementIgnoreList _advIgnoreCsrList;
         static AdvertisementIgnoreList _advIgnoreWinBleList;
         static RfidConnectionProcessor _rfidProcessor;
@@ -143,7 +144,7 @@ namespace ServiceLibrary.Implementation
                 _connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
                 _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManager);
 
-                _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger);
+                _connectionManagerRestarter = new ConnectionManagerRestarter(_messenger, _sdkLogger);
                 _connectionManagerRestarter.AddManager(_csrBleConnectionManager);
                 _connectionManagerRestarter.AddManager(_winBleConnectionManager);
 
@@ -310,20 +311,20 @@ namespace ServiceLibrary.Implementation
             _deviceLogManager = new DeviceLogManager(deviceLogsPath, new DeviceLogWriter(), _serviceSettingsManager, _sdkLogger);
 
             // ConnectionFlowProcessor
-            var connectionFlowProcessorfactory = new ConnectionFlowProcessorFactory(
-                _deviceManager,
-                _bondManager,
-                _hesConnection,
-                _credentialProviderProxy,
-                _screenActivator,
-                _uiProxy,
-                _hesAccessManager,
-                _serviceSettingsManager,
-                _localDeviceInfoCache,
-                _workstationHelper,
-                _deviceLogManager,
-                _sdkLogger);
-            _connectionFlowProcessor = connectionFlowProcessorfactory.Create();
+            //var connectionFlowProcessorfactory = new ConnectionFlowProcessorFactory(
+            //    _deviceManager,
+            //    _bondManager,
+            //    _hesConnection,
+            //    _credentialProviderProxy,
+            //    _screenActivator,
+            //    _uiProxy,
+            //    _hesAccessManager,
+            //    _serviceSettingsManager,
+            //    _localDeviceInfoCache,
+            //    _workstationHelper,
+            //    _deviceLogManager,
+            //    _sdkLogger);
+            //_connectionFlowProcessor = connectionFlowProcessorfactory.Create();
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
             _advIgnoreCsrList = new AdvertisementIgnoreList(
                 _csrBleConnectionManager,
