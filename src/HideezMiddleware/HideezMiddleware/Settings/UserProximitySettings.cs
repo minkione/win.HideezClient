@@ -75,6 +75,23 @@ namespace HideezMiddleware.Settings
             return deviceProximity;
         }
 
+        public void SetProximitySettings(UserDeviceProximitySettings settings)
+        {
+            var devicesProximityList = DevicesProximity.ToList();
+            for(int i = 0; i< devicesProximityList.Count; i++)
+            {
+                if (devicesProximityList[i].Id == settings.Id)
+                {
+                    devicesProximityList[i] = settings;
+                    DevicesProximity = devicesProximityList.ToArray();
+                    return;
+                }
+            }
+
+            devicesProximityList.Add(settings);
+            DevicesProximity = devicesProximityList.ToArray();
+        }
+
         public override object Clone()
         {
             return new UserProximitySettings(this);

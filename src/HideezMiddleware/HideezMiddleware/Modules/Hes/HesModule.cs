@@ -33,8 +33,8 @@ namespace HideezMiddleware.Modules.Hes
             EndpointCertificateManager.AllowCertificate(hesAddress);
 
             _hesAccessManager.AccessRetracted += HesAccessManager_AccessRetracted;
-            _hesAppConnection.HubProximitySettingsArrived += HesAppConnection_HubProximitySettingsArrived; // todo: handler in settings module
-            _hesAppConnection.HubRFIDIndicatorStateArrived += HesAppConnection_HubRFIDIndicatorStateArrived; // todo: handler in settings module
+            _hesAppConnection.HubProximitySettingsArrived += HesAppConnection_HubProximitySettingsArrived;
+            _hesAppConnection.HubRFIDIndicatorStateArrived += HesAppConnection_HubRFIDIndicatorStateArrived;
             _hesAppConnection.HubConnectionStateChanged += HesAppConnection_HubConnectionStateChanged;
             _hesAppConnection.LockHwVaultStorageRequest += HesAppConnection_LockHwVaultStorageRequest;
             _hesAppConnection.LiftHwVaultStorageLockRequest += HesAppConnection_LiftHwVaultStorageLockRequest;

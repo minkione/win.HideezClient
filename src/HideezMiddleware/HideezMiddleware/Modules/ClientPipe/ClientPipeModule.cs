@@ -29,6 +29,7 @@ namespace HideezMiddleware.Modules.ClientPipe
         readonly DeviceManager _deviceManager;
         readonly ServiceClientUiManager _clientUi;
         readonly ISettingsManager<ServiceSettings> _serviceSettingsManager;
+        readonly ISettingsManager<UserProximitySettings> _userProximtiySettingsManager;
         readonly SessionUnlockMethodMonitor _sessionUnlockMethodMonitor;
         readonly StatusManager _statusManager;
         readonly ConnectionFlowProcessorBase _connectionFlowProcessor;
@@ -37,6 +38,7 @@ namespace HideezMiddleware.Modules.ClientPipe
         public ClientPipeModule(DeviceManager deviceManager, 
             ServiceClientUiManager clientUiProxy, 
             ISettingsManager<ServiceSettings> serviceSettingsManager,
+            ISettingsManager<UserProximitySettings> userProximtiySettingsManager,
             SessionUnlockMethodMonitor sessionUnlockMethodMonitor,
             StatusManager statusManager,
             ConnectionFlowProcessorBase connectionFlowProcessor,
@@ -47,6 +49,7 @@ namespace HideezMiddleware.Modules.ClientPipe
             _deviceManager = deviceManager;
             _clientUi = clientUiProxy;
             _serviceSettingsManager = serviceSettingsManager;
+            _userProximtiySettingsManager = userProximtiySettingsManager;
             _sessionUnlockMethodMonitor = sessionUnlockMethodMonitor;
             _statusManager = statusManager;
             _connectionFlowProcessor = connectionFlowProcessor;
@@ -95,6 +98,8 @@ namespace HideezMiddleware.Modules.ClientPipe
             _messenger.Subscribe(GetSafeHandler<HesAppConnection_HubConnectionStateChangedMessage>(OnHubConnectionStateChanged));
 
             _messenger.Subscribe(GetSafeHandler<SessionSwitchMonitor_SessionSwitchMessage>(OnSessionSwitch));
+            _messenger.Subscribe(GetSafeHandler<LoadUserProximitySettingsMessage>(LoadUserProximitySettings));
+            _messenger.Subscribe(GetSafeHandler<SaveUserProximitySettingsMessage>(SaveUserProximitySettings));
         }
 
         private void Error(Exception ex, string message = "")
@@ -216,6 +221,21 @@ namespace HideezMiddleware.Modules.ClientPipe
         {
             if (msg.Reason == SessionSwitchReason.SessionUnlock || msg.Reason == SessionSwitchReason.SessionLogon)
                 await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+        }
+
+        private async Task LoadUserProximitySettings(LoadUserProximitySettingsMessage msg)
+        {
+            var settings = _userProximtiySettingsManager.Settings.GetProximitySettings(msg.DeviceConnectionId);
+            await SafePublish(new LoadUserProximitySettingsMessageReply(settings));
+        }
+
+        private Task SaveUserProximitySettings(SaveUserProximitySettingsMessage msg)
+        {
+            var settings = _userProximtiySettingsManager.Settings;
+            settings.SetProximitySettings(msg.UserDeviceProximitySettings);
+            _userProximtiySettingsManager.SaveSettings(settings);
+
+            return Task.CompletedTask;
         }
     }
 }

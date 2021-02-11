@@ -165,9 +165,6 @@ namespace HideezMiddleware.ReconnectManager
                     _proximityMonitorManager.DeviceProximityNormalized -= ProximityMonitorManager_DeviceProximityNormalized;
                 }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
                 disposed = true;
             }
         }
