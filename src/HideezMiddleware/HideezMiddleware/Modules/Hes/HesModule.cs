@@ -3,6 +3,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.Modules.Hes.Messages;
+using HideezMiddleware.Modules.ServiceEvents.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;
 using System.Collections.Generic;
@@ -43,6 +44,9 @@ namespace HideezMiddleware.Modules.Hes
                 _hesAppConnection.Start(hesAddress); // Launch HES connection immediatelly to save time
 
             _messenger.Subscribe(GetSafeHandler<ChangeServerAddressMessage>(ChangeServerAddress));
+
+            _messenger.Subscribe(GetSafeHandler<PowerEventMonitor_SystemSuspendingMessage>(OnSystemSuspending));
+            _messenger.Subscribe(GetSafeHandler<PowerEventMonitor_SystemLeftSuspendedModeMessage>(OnSystemLeftSuspendedMode));
         }
 
         private async void HesAccessManager_AccessRetracted(object sender, EventArgs e)
@@ -129,6 +133,32 @@ namespace HideezMiddleware.Modules.Hes
                     await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.SecurityError));
                 else
                     await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.UnknownError));
+            }
+        }
+
+        private async Task OnSystemSuspending(PowerEventMonitor_SystemSuspendingMessage msg)
+        {
+            try
+            {
+                await _hesAppConnection.Stop();
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
+        }
+
+        private async Task OnSystemLeftSuspendedMode(PowerEventMonitor_SystemLeftSuspendedModeMessage msg)
+        {
+            WriteLine("Starting restore from suspended mode");
+            try
+            {
+                await _hesAppConnection.Stop();
+                _hesAppConnection.Start();
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
             }
         }
     }

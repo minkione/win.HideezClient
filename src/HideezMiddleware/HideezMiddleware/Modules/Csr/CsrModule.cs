@@ -5,8 +5,10 @@ using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Modules.Csr.Messages;
+using HideezMiddleware.Modules.ServiceEvents.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;
+using System.Threading.Tasks;
 
 namespace HideezMiddleware.Modules.Csr
 {
@@ -35,6 +37,9 @@ namespace HideezMiddleware.Modules.Csr
             _csrBleConnectionManager.DiscoveryStopped += (s, e) => { }; // Event requires to have at least one handler
             _csrBleConnectionManager.DiscoveredDeviceAdded += (s, e) => { }; // Event requires intended to have at least one handler
             _csrBleConnectionManager.DiscoveredDeviceRemoved += (s, e) => { }; // Event requires intended to have at least one handler
+
+            _messenger.Subscribe(GetSafeHandler<PowerEventMonitor_SystemSuspendingMessage>(OnSysteSuspending));
+            _messenger.Subscribe(GetSafeHandler<PowerEventMonitor_SystemLeftSuspendedModeMessage>(OnSystemLeftSuspendedMode));
 
             _connectionManagerRestarter.AddManager(_csrBleConnectionManager);
             connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
@@ -73,6 +78,27 @@ namespace HideezMiddleware.Modules.Csr
             }
 
             await SafePublish(new CsrStatusChangedMessage(sender, status));
+        }
+
+        private Task OnSysteSuspending(PowerEventMonitor_SystemSuspendingMessage arg)
+        {
+            _proximityConnectionProcessor.Stop();
+            _tapConnectionProcessor.Stop();
+            return Task.CompletedTask;
+        }
+
+        private Task OnSystemLeftSuspendedMode(PowerEventMonitor_SystemLeftSuspendedModeMessage msg)
+        {
+            WriteLine("Starting restore from suspended mode"); 
+            _csrBleConnectionManager.Stop();
+            _proximityConnectionProcessor.Stop();
+            _tapConnectionProcessor.Stop();
+
+            _proximityConnectionProcessor.Start();
+            _tapConnectionProcessor.Start();
+            _csrBleConnectionManager.Start();
+
+            return Task.CompletedTask;
         }
     }
 }

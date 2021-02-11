@@ -2,8 +2,10 @@
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Modules.Rfid.Messages;
+using HideezMiddleware.Modules.ServiceEvents.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;
+using System.Threading.Tasks;
 
 namespace HideezMiddleware.Modules.Rfid
 {
@@ -24,6 +26,9 @@ namespace HideezMiddleware.Modules.Rfid
 
             _rfidServiceConnection.RfidReaderStateChanged += RfidServiceConnection_RfidReaderStateChanged;
 
+            _messenger.Subscribe(GetSafeHandler<PowerEventMonitor_SystemSuspendingMessage>(OnSysteSuspending));
+            _messenger.Subscribe(GetSafeHandler<PowerEventMonitor_SystemLeftSuspendedModeMessage>(OnSystemLeftSuspendedMode));
+
             _rfidServiceConnection.Start();
             _rfidConnectionProcessor.Start();
         }
@@ -39,6 +44,21 @@ namespace HideezMiddleware.Modules.Rfid
                 status = RfidStatus.Ok;
 
             await SafePublish(new RfidStatusChangedMessage(sender, status));
+        }
+
+        private Task OnSysteSuspending(PowerEventMonitor_SystemSuspendingMessage arg)
+        {
+            _rfidConnectionProcessor.Stop();
+            return Task.CompletedTask;
+        }
+
+        private Task OnSystemLeftSuspendedMode(PowerEventMonitor_SystemLeftSuspendedModeMessage msg)
+        {
+            WriteLine("Starting restore from suspended mode");
+
+            _rfidConnectionProcessor.Stop();
+            _rfidConnectionProcessor.Start();
+            return Task.CompletedTask;
         }
     }
 }

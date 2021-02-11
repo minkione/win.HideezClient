@@ -4,6 +4,7 @@ using Hideez.SDK.Communication.Log;
 using HideezMiddleware.CredentialProvider;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.IPC.Messages;
+using HideezMiddleware.Modules.ServiceEvents.Messages;
 using HideezMiddleware.Modules.WinBle.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;
@@ -42,6 +43,8 @@ namespace HideezMiddleware.Modules.WinBle
             connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManager);
 
             _messenger.Subscribe(GetSafeHandler<CredentialProvider_CommandLinkPressedMessage>(CredentialProvider_CommandLinkPressedHandler));
+            _messenger.Subscribe(GetSafeHandler<PowerEventMonitor_SystemSuspendingMessage>(OnSystemSuspending));
+            _messenger.Subscribe(GetSafeHandler<PowerEventMonitor_SystemLeftSuspendedModeMessage>(OnSystemLeftSuspendedMode));
 
             _winBleAutomaticConnectionProcessor.Start();
         }
@@ -81,6 +84,25 @@ namespace HideezMiddleware.Modules.WinBle
         private Task CredentialProvider_CommandLinkPressedHandler(CredentialProvider_CommandLinkPressedMessage msg)
         {
             _advertisementIgnoreList.Clear();
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnSystemSuspending(PowerEventMonitor_SystemSuspendingMessage arg)
+        {
+            _winBleAutomaticConnectionProcessor.Stop();
+            return Task.CompletedTask;
+        }
+
+        private Task OnSystemLeftSuspendedMode(PowerEventMonitor_SystemLeftSuspendedModeMessage msg)
+        {
+            WriteLine("Starting restore from suspended mode");
+
+            _winBleConnectionManager.Stop();
+            _winBleAutomaticConnectionProcessor.Stop();
+
+            _winBleAutomaticConnectionProcessor.Start();
+            _winBleConnectionManager.Start();
 
             return Task.CompletedTask;
         }

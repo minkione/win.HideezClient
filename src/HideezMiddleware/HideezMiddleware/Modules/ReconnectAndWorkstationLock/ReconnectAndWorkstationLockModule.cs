@@ -8,6 +8,7 @@ using HideezMiddleware.IPC.DTO;
 using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Modules.DeviceManagement.Messages;
 using HideezMiddleware.Modules.Hes.Messages;
+using HideezMiddleware.Modules.ServiceEvents.Messages;
 using HideezMiddleware.ReconnectManager;
 using HideezMiddleware.Utils.WorkstationHelper;
 using Meta.Lib.Modules.PubSub;

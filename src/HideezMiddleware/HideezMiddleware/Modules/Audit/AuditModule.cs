@@ -12,6 +12,7 @@ using HideezMiddleware.Modules.Csr.Messages;
 using HideezMiddleware.Modules.DeviceManagement.Messages;
 using HideezMiddleware.Modules.Hes.Messages;
 using HideezMiddleware.Modules.Rfid.Messages;
+using HideezMiddleware.Modules.ServiceEvents.Messages;
 using HideezMiddleware.Workstation;
 using Meta.Lib.Modules.PubSub;
 using System;
@@ -49,6 +50,7 @@ namespace HideezMiddleware.Modules.Audit
             _messenger.Subscribe(GetSafeHandler<DeviceInitializedMessage>(DeviceInitialized));
             _messenger.Subscribe(GetSafeHandler<DeviceDisconnectedMessage>(DeviceDisconnected));
             _messenger.Subscribe(GetSafeHandler<DeviceManager_DeviceRemovedMessage>(DeviceRemoved));
+            _messenger.Subscribe(GetSafeHandler<PowerEventMonitor_SystemSuspendingMessage>(OnSystemSuspending));
 
             _messenger.Subscribe(GetSafeHandler<PublishEventMessage>(PublishEvent));
         }
@@ -164,6 +166,12 @@ namespace HideezMiddleware.Modules.Audit
             }
         }
 
+        private async Task OnSystemSuspending(PowerEventMonitor_SystemSuspendingMessage arg)
+        {
+            WriteLine("Sending all events");
+            await _eventSender.SendEventsAsync(true);
+        }
+
         private async Task PublishEvent(PublishEventMessage msg)
         {
             var workstationEvent = msg.WorkstationEvent;
@@ -180,6 +188,5 @@ namespace HideezMiddleware.Modules.Audit
             we.AccountLogin = workstationEvent.AccountLogin;
             await _eventSaver.AddNewAsync(we);
         }
-
     }
 }

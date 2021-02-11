@@ -29,6 +29,7 @@ using HideezMiddleware.Modules.Hes.Messages;
 using HideezMiddleware.Modules.ReconnectAndWorkstationLock;
 using HideezMiddleware.Modules.RemoteUnlock;
 using HideezMiddleware.Modules.Rfid;
+using HideezMiddleware.Modules.ServiceEvents;
 using HideezMiddleware.Modules.WinBle;
 using HideezMiddleware.ReconnectManager;
 using HideezMiddleware.ScreenActivation;
@@ -107,6 +108,9 @@ namespace ServiceLibrary.Implementation
             // Used by almost all modules to communicate with each other through "weak-event style" messages
             var messenger = new MetaPubSub(new MetaPubSubLogger(sdkLogger));
             _container.RegisterInstance<IMetaPubSub>(messenger, new ExternallyControlledLifetimeManager());
+
+            var serviceEventsModule = _container.Resolve<ServiceEventsModule>();
+            AddModule(serviceEventsModule);
 
             // Used by some modules to access data stored in registry
             var registryRoot = HideezClientRegistryRoot.GetRootRegistryKey(true);

@@ -1,6 +1,7 @@
 ﻿using Hideez.SDK.Communication.BLE;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Meta.Lib.Modules.PubSub;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -18,7 +19,7 @@ namespace HideezMiddleware
         CancellationTokenSource _tcs = null;
         readonly object _tcsLock = new object();
 
-        public ConnectionManagerRestarter(ILog log)
+        public ConnectionManagerRestarter(IMetaPubSub messenger, ILog log)
             : base(nameof(ConnectionManagerRestarter), log)
         {
         }

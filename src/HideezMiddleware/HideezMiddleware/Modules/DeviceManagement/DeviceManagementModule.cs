@@ -8,6 +8,7 @@ using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Modules.DeviceManagement.Messages;
 using HideezMiddleware.Modules.Hes.Messages;
+using HideezMiddleware.Modules.ServiceEvents.Messages;
 using HideezMiddleware.Threading;
 using Meta.Lib.Modules.PubSub;
 using Microsoft.Win32;
@@ -30,14 +31,14 @@ namespace HideezMiddleware.Modules.DeviceManagement
             _deviceManager.DeviceAdded += DevicesManager_DeviceAdded;
             _deviceManager.DeviceRemoved += DevicesManager_DeviceRemoved;
 
-            SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
-
             _messenger.Subscribe(GetSafeHandler<HesAccessManager_AccessRetractedMessage>(HesAccessManager_AccessRetracted));
 
             _messenger.Subscribe(GetSafeHandler<GetAvailableChannelsMessage>(GetAvailableChannels));
             _messenger.Subscribe(GetSafeHandler<DisconnectDeviceMessage>(DisconnectDevice));
             _messenger.Subscribe(GetSafeHandler<RemoveDeviceMessage>(RemoveDeviceAsync));
             _messenger.Subscribe(GetSafeHandler<HesAppConnection_AlarmMessage>(OnAlarm));
+            _messenger.Subscribe(GetSafeHandler<SessionSwitchMonitor_SessionSwitchMessage>(OnSessionSwitch));
+            _messenger.Subscribe(GetSafeHandler<PowerEventMonitor_SystemSuspendingMessage>(OnSuspending));
         }
 
         private readonly SemaphoreQueue _devicesSemaphore = new SemaphoreQueue(1, 1);
@@ -212,24 +213,6 @@ namespace HideezMiddleware.Modules.DeviceManagement
         }
 
 
-        // Disconnect all devices when user is logged out or session is locked
-        private async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
-        {
-            try
-            {
-                if (reason == SessionSwitchReason.SessionLogoff || reason == SessionSwitchReason.SessionLock)
-                {
-                    // Disconnect all connected devices
-                    foreach (var device in _deviceManager.Devices)
-                        await _deviceManager.Disconnect(device.DeviceConnection);
-                }
-            }
-            catch (Exception ex)
-            {
-                WriteLine(ex);
-            }
-        }
-
         // Disconnect all devices when access is retracted
         private async Task HesAccessManager_AccessRetracted(HesAccessManager_AccessRetractedMessage msg)
         {
@@ -321,6 +304,24 @@ namespace HideezMiddleware.Modules.DeviceManagement
                     await _deviceManager.DeleteBond(device.DeviceConnection);
                 }
             }
+        }
+
+        // Disconnect all devices when user is logged out or session is locked
+        private async Task OnSessionSwitch(SessionSwitchMonitor_SessionSwitchMessage msg)
+        {
+            if (msg.Reason == SessionSwitchReason.SessionLogoff || msg.Reason == SessionSwitchReason.SessionLock)
+            {
+                // Disconnect all connected devices
+                foreach (var device in _deviceManager.Devices)
+                    await _deviceManager.Disconnect(device.DeviceConnection);
+            }
+        }
+
+        // Disconnect all devices when system is suspending
+        private async Task OnSuspending(PowerEventMonitor_SystemSuspendingMessage msg)
+        {
+            foreach (var device in _deviceManager.Devices)
+                await _deviceManager.Disconnect(device.DeviceConnection);
         }
     }
 }

@@ -76,7 +76,7 @@ namespace HideezServiceHost
          * When ResumeAutomatic is sent with no corresponding ResumeSuspend the system idle timeout is brief (2 minutes by default in Windows 10) and attached displays are kept in power saving mode. When a corresponding ResumeSuspend is sent the system idle timeout is normal (30 minutes by default in Windows 10) and attached displays are woken up. This is so that the computer goes back to sleep as soon as possible if it wakes automatically to perform maintenance, etc. It would be fantastic if Microsoft could make it work reliably.
          * 
          */
-        async void HandlePowerEvent(PowerBroadcastStatus powerStatus)
+        void HandlePowerEvent(PowerBroadcastStatus powerStatus)
         {
             switch (powerStatus)
             {
@@ -87,36 +87,21 @@ namespace HideezServiceHost
                 case PowerBroadcastStatus.PowerStatusChange:
                     break;
                 case PowerBroadcastStatus.QuerySuspend: // System is trying to schedule suspend
-                    await OnSystemQuerySuspend();
+                    PowerEventMonitor.InvokeSystemQuerySuspendEvent();
                     break;
                 case PowerBroadcastStatus.QuerySuspendFailed: // Some application canceled suspend
                     break;
                 case PowerBroadcastStatus.ResumeAutomatic: // Sleep or hibernation ended, brief system timeout (2m)
                 case PowerBroadcastStatus.ResumeCritical: // Suspension because of low battery charge ended
                 case PowerBroadcastStatus.ResumeSuspend: // Sleep or hibernation ended, normal system timeout (30m)
-                    await OnSystemLeftSuspendedMode();
+                    PowerEventMonitor.InvokeSystemLeftSuspendedModeEvent();
                     break;
                 case PowerBroadcastStatus.Suspend: // System is about to be suspended, approximately 2 seconds before it happens
-                    await OnSystemSuspending();
+                    PowerEventMonitor.InvokeSystemSuspendingEvent();
                     break;
                 default:
                     break;
             }
-        }
-
-        async Task OnSystemQuerySuspend()
-        {
-            await _service.OnPreparingToSuspend();
-        }
-
-        async Task OnSystemLeftSuspendedMode()
-        {
-            await _service.OnLaunchFromSuspend();
-        }
-
-        async Task OnSystemSuspending()
-        {
-            await _service.OnSuspending();
         }
     }
 }

@@ -257,9 +257,15 @@
     <Compile Include="Modules\RemoteUnlock\RemoteUnlockModule.cs" />
     <Compile Include="Modules\Rfid\Messages\RfidStatusChangedMessage.cs" />
     <Compile Include="Modules\Rfid\RfidModule.cs" />
+    <Compile Include="Modules\ServiceEvents\Messages\PowerEventMonitor_SystemLeftSuspendedModeMessage.cs" />
+    <Compile Include="Modules\ServiceEvents\Messages\PowerEventMonitor_SystemQuerySuspendMessage.cs" />
+    <Compile Include="Modules\ServiceEvents\Messages\PowerEventMonitor_SystemSuspendingMessage.cs" />
+    <Compile Include="Modules\ServiceEvents\Messages\SessionSwitchMonitor_SessionSwitchMessage.cs" />
+    <Compile Include="Modules\ServiceEvents\ServiceEventsModule.cs" />
     <Compile Include="Modules\WinBle\Messages\WinBleStatusChangedMessage.cs" />
     <Compile Include="Modules\WinBle\WinBleModule.cs" />
     <Compile Include="Modules\ReconnectAndWorkstationLock\WtsapiWorkstationLocker.cs" />
+    <Compile Include="PowerEventMonitor.cs" />
     <Compile Include="RegistrySettings.cs" />
     <Compile Include="Resources\Strings.Designer.cs">
       <AutoGen>True</AutoGen>

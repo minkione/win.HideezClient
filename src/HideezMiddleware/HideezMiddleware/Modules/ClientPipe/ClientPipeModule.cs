@@ -10,6 +10,7 @@ using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.IPC.Messages;
 using HideezMiddleware.Modules.DeviceManagement.Messages;
 using HideezMiddleware.Modules.Hes.Messages;
+using HideezMiddleware.Modules.ServiceEvents.Messages;
 using HideezMiddleware.Settings;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
@@ -80,8 +81,6 @@ namespace HideezMiddleware.Modules.ClientPipe
 
             _connectionFlowProcessor.DeviceFinishedMainFlow += ConnectionFlowProcessor_DeviceFinishedMainFlow;
 
-            SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
-
             _messenger.Subscribe(GetSafeHandler<DeviceManager_DeviceAddedMessage>(OnDeviceAdded));
             _messenger.Subscribe(GetSafeHandler<DeviceManager_DeviceRemovedMessage>(OnDeviceRemoved));
 
@@ -94,6 +93,8 @@ namespace HideezMiddleware.Modules.ClientPipe
             _messenger.Subscribe(GetSafeHandler<HesAppConnection_LockHwVaultStorageMessage>(OnLockHwVaultStorage));
             _messenger.Subscribe(GetSafeHandler<HesAppConnection_LiftHwVaultStorageLockMessage>(OnLiftHwVaultStorageLock));
             _messenger.Subscribe(GetSafeHandler<HesAppConnection_HubConnectionStateChangedMessage>(OnHubConnectionStateChanged));
+
+            _messenger.Subscribe(GetSafeHandler<SessionSwitchMonitor_SessionSwitchMessage>(OnSessionSwitch));
         }
 
         private void Error(Exception ex, string message = "")
@@ -138,19 +139,6 @@ namespace HideezMiddleware.Modules.ClientPipe
         async void ConnectionFlowProcessor_DeviceFinishedMainFlow(object sender, IDevice e)
         {
             await SafePublish(new DeviceFinishedMainFlowMessage(new DeviceDTO(e)));
-        }
-
-        async void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
-        {
-            try
-            {
-                if (reason == SessionSwitchReason.SessionUnlock || reason == SessionSwitchReason.SessionLogon)
-                    await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
-            }
-            catch (Exception ex)
-            {
-                WriteLine(ex);
-            }
         }
 
         private async Task OnDeviceAdded(DeviceManager_DeviceAddedMessage msg)
@@ -221,6 +209,13 @@ namespace HideezMiddleware.Modules.ClientPipe
         async Task OnHubConnectionStateChanged(HesAppConnection_HubConnectionStateChangedMessage msg)
         {
             await SafePublish(new LiftDeviceStorageLockMessage(string.Empty));
+        }
+
+        // Publish 'WorkstationUnlocked' notification/message when user performs unlock or logon
+        private async Task OnSessionSwitch(SessionSwitchMonitor_SessionSwitchMessage msg)
+        {
+            if (msg.Reason == SessionSwitchReason.SessionUnlock || msg.Reason == SessionSwitchReason.SessionLogon)
+                await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
         }
     }
 }
