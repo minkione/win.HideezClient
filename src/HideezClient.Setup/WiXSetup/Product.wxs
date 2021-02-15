@@ -433,7 +433,15 @@
       <Component Id="HideezService.System.Runtime.WindowsRuntime.dll" Guid="{0D46F970-343B-40A0-A2B4-EEB1B861076F}" Win64="$(var.Win64)">
         <File Id="HideezService.System.Runtime.WindowsRuntime.dll" Name="System.Runtime.WindowsRuntime.dll" Source="$(var.HideezServiceHost_TargetDir)System.Runtime.WindowsRuntime.dll" />
       </Component>
-      
+
+      <Component Id="HideezService.Unity.Abstractions.dll" Guid="{CA4FB601-DD81-4A42-9040-5F8569F107C8}" Win64="$(var.Win64)">
+        <File Id="HideezService.Unity.Abstractions.dll" Name="Unity.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Unity.Abstractions.dll" />
+      </Component>
+
+      <Component Id="HideezService.Unity.Container.dll" Guid="{FE35F902-226F-45E6-BEE7-F6D1D7A812E4}" Win64="$(var.Win64)">
+        <File Id="HideezService.Unity.Container.dll" Name="Unity.Container.dll" Source="$(var.HideezServiceHost_TargetDir)Unity.Container.dll" />
+      </Component>
+
     </ComponentGroup>
   </Fragment>
   
