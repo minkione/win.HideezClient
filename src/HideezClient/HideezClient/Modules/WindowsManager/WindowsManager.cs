@@ -22,6 +22,7 @@ using HideezClient.Modules.Log;
 using HideezClient.Modules.NotificationsManager;
 using Meta.Lib.Modules.PubSub;
 using HideezMiddleware.IPC.Messages;
+using HideezClient.ViewModels.Dialog;
 
 namespace HideezClient.Modules
 {
@@ -39,6 +40,9 @@ namespace HideezClient.Modules
 
         readonly object activationDialogLock = new object();
         ActivationDialog activationView = null;
+
+        readonly object masterPasswordDialogLock = new object();
+        MasterPasswordDialog masterPasswordView = null;
 
         bool _initialized = false;
         int _mainWindowActivationInterlock = 0;
@@ -67,7 +71,9 @@ namespace HideezClient.Modules
 
             metaMessenger.Subscribe<ShowButtonConfirmUiMessage>(ShowButtonConfirmAsync);
             metaMessenger.Subscribe<ShowPinUiMessage>(ShowPinAsync);
+            metaMessenger.Subscribe<ShowMasterPasswordUiMessage>(ShowMasterPasswordAsync);
             metaMessenger.Subscribe<HidePinUiMessage>(HidePinAsync);
+            metaMessenger.Subscribe<HideMasterPasswordUiMessage>(HideMasterPasswordAsync);
             metaMessenger.TrySubscribeOnServer<ShowActivationCodeUiMessage>(ShowActivationDialogAsync);
             metaMessenger.TrySubscribeOnServer<HideActivationCodeUi>(HideActivationDialogAsync);
 
@@ -411,6 +417,56 @@ namespace HideezClient.Modules
             return Task.CompletedTask;
         }
 
+        Task ShowMasterPasswordAsync(ShowMasterPasswordUiMessage message)
+        {
+            lock (masterPasswordDialogLock)
+            {
+                if (masterPasswordView == null)
+                {
+                    UIDispatcher.Invoke(() =>
+                    {
+                        if (MainWindow is MetroWindow metroWindow)
+                        {
+                            var vm = _viewModelLocator.MasterPasswordViewModel;
+                            vm.Initialize(message.DeviceId);
+                            masterPasswordView = new MasterPasswordDialog(vm);
+                            masterPasswordView.Closed += MasterPasswordView_Closed;
+                            OnActivateMainWindow();
+                            metroWindow.ShowMetroDialogAsync(masterPasswordView);
+                        }
+                    });
+                }
+
+                if (masterPasswordView != null)
+                {
+                    UIDispatcher.Invoke(() =>
+                    {
+                        ((MasterPasswordViewModel)masterPasswordView.DataContext).UpdateViewModel(message.DeviceId, false, message.OldPassword, message.ConfirmPassword);
+                    });
+                }
+            }
+            return Task.CompletedTask;
+        }
+
+        Task HideMasterPasswordAsync(HideMasterPasswordUiMessage message)
+        {
+            try
+            {
+                UIDispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        masterPasswordView?.Close();
+                        masterPasswordView = null;
+                    }
+                    catch { }
+                });
+            }
+            catch { }
+
+            return Task.CompletedTask;
+        }
+
         Task ShowActivationDialogAsync(HideezMiddleware.IPC.Messages.ShowActivationCodeUiMessage obj)
         {
             try
@@ -471,6 +527,18 @@ namespace HideezClient.Modules
                 {
                     pinView.Closed -= PinView_Closed;
                     pinView = null;
+                }
+            }
+        }
+
+        void MasterPasswordView_Closed(object sender, EventArgs e)
+        {
+            lock (masterPasswordDialogLock)
+            {
+                if (masterPasswordView != null)
+                {
+                    masterPasswordView.Closed -= MasterPasswordView_Closed;
+                    masterPasswordView = null;
                 }
             }
         }

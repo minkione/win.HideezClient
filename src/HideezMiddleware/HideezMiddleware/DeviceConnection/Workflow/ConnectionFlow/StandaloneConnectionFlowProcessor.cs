@@ -127,10 +127,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
 
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Initializing);
 
-                await _subp.MasterkeyProcessor.AuthVault(device, ct);
-
                 if (_workstationUnlocker.IsConnected && _workstationHelper.IsActiveSessionLocked() && tryUnlock)
                 {
+                    await _subp.MasterkeyProcessor.AuthVault(device, ct);
+
                     await Task.WhenAll(_subp.UserAuthorizationProcessor.AuthorizeUser(device, ct));
 
                     _screenActivator?.StopPeriodicScreenActivation();

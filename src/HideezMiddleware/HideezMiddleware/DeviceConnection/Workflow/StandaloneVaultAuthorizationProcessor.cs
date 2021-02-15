@@ -1,9 +1,14 @@
-﻿using Hideez.SDK.Communication.Device;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Interfaces;
+using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
+using HideezMiddleware.Localize;
+using HideezMiddleware.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -11,29 +16,89 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.DeviceConnection.Workflow
 {
-    public class StandaloneVaultAuthorizationProcessor : IVaultAuthorizationProcessor
+    public class StandaloneVaultAuthorizationProcessor : Logger, IVaultAuthorizationProcessor
     {
+        readonly IClientUiManager _ui;
+
+        public StandaloneVaultAuthorizationProcessor(IClientUiManager ui, ILog log)
+            : base(nameof(VaultAuthorizationProcessor), log)
+        {
+            _ui = ui;
+        }
+
         public async Task AuthVault(IDevice device, CancellationToken ct)
         {
-            var masterkey = Encoding.UTF8.GetBytes("passphrase");
-            var code = Encoding.UTF8.GetBytes("123456");
-            if (device.AccessLevel.IsLinkRequired)
+            ct.ThrowIfCancellationRequested();
+
+            if(device.AccessLevel.IsMasterKeyRequired)
+                await EnterMasterkeyWorkflow(device, ct);
+        }
+
+        async Task EnterMasterkeyWorkflow(IDevice device, CancellationToken ct)
+        {
+            Debug.WriteLine(">>>>>>>>>>>>>>> EnterMasterkeyWorkflow +++++++++++++++++++++++++++++++++++++++");
+
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.MasterPassword.EnterMPMessage"], device.DeviceConnection.Connection.ConnectionId.Id);
+            while (device.AccessLevel.IsMasterKeyRequired)
             {
-                await device.Link(masterkey, code, 5);
-                await device.Access(DateTime.Now, masterkey, new AccessParams()
+                var inputResult = await _ui.GetPin(device.Id, SdkConfig.MainWorkflowTimeout, ct);
+
+                ct.ThrowIfCancellationRequested();
+               
+                if (string.IsNullOrWhiteSpace(inputResult))
                 {
-                    MasterKey_Bond = true
-                });
-            }
+                    // we received an empty PIN from the user. Trying again with the same timeout.
+                    Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY Masterkey");
+                    WriteLine("Received empty Masterkey");
 
-            if (device.AccessLevel.IsLocked)
-            {
-                await device.UnlockDeviceCode(code);
-                await device.RefreshDeviceInfo();
-            }
+                    continue;
+                }
+                await _ui.SendError(string.Empty, device.DeviceConnection.Connection.ConnectionId.Id);
 
-            if (device.AccessLevel.IsMasterKeyRequired)
-                await device.CheckPassphrase(masterkey);
+                var byteArray = Encoding.UTF8.GetBytes(inputResult);
+                var masterkey = KdfKeyProvider.CreateKDFKey(byteArray, 32);
+
+                bool containZero = true;
+                while (containZero)
+                {
+                    containZero = false;
+                    for (int i = 0; i < masterkey.Length; i++)
+                    {
+                        if (masterkey[i] == 0)
+                        {
+                            containZero = true;
+                            masterkey = KdfKeyProvider.CreateKDFKey(masterkey, 32);
+                            break;
+                        }
+                    }
+                }
+
+                try
+                {
+                    await device.CheckPassphrase(masterkey); //this using default timeout for BLE commands
+                    ct.ThrowIfCancellationRequested();
+
+                    await device.RefreshDeviceInfo();
+                }
+                catch(HideezException ex)
+                {
+                    Debug.WriteLine($">>>>>>>>>>>>>>> Wrong masterkey ");
+                    if(ex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
+                        await _ui.SendError(TranslationSource.Instance["ConnectionFlow.MasterPassword.Error.InvalidMP"], device.DeviceConnection.Connection.ConnectionId.Id);
+                    else
+                        await _ui.SendError(ex.Message);
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    await _ui.SendError(ex.Message);
+                    continue;
+                }
+
+                WriteLine(">>>>>>>>>>>>>>> Masterkey OK");
+                break;
+            }
+            Debug.WriteLine(">>>>>>>>>>>>>>> EnterMasterkeyWorkflow ------------------------------");
         }
     }
 }

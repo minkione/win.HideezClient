@@ -223,7 +223,10 @@ namespace ServiceLibrary.Implementation
             _container.RegisterType<IScreenActivator, MetalibScreenActivator>(new ContainerControlledLifetimeManager());
 
             // Facade that is used by some modules to sent notifications to UI
-            _container.RegisterType<IWorkstationUnlocker, CredentialProviderProxy>(new ContainerControlledLifetimeManager());
+            var cp = _container.Resolve<CredentialProviderProxy>();
+            _container.RegisterInstance(cp);
+            _container.RegisterInstance<IWorkstationUnlocker>(cp);
+
             _container.RegisterType<ServiceClientUiManager>(new ContainerControlledLifetimeManager());
             _container.RegisterType<IClientUiManager, UiProxyManager>(new ContainerControlledLifetimeManager(), 
                 new InjectionConstructor(

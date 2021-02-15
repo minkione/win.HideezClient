@@ -16,6 +16,7 @@ using HideezMiddleware.IPC.DTO;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
 using HideezMiddleware.IPC.Messages;
+using HideezMiddleware.ApplicationModeProvider;
 
 namespace HideezClient.Modules.DeviceManager
 {
@@ -25,6 +26,7 @@ namespace HideezClient.Modules.DeviceManager
         readonly IWindowsManager _windowsManager;
         readonly IMetaPubSub _metaMessenger;
         readonly IRemoteDeviceFactory _remoteDeviceFactory;
+        readonly ApplicationMode _applicationMode;
         readonly SemaphoreQueue _semaphoreQueue = new SemaphoreQueue(1, 1);
         ConcurrentDictionary<string, DeviceModel> _devices { get; } = new ConcurrentDictionary<string, DeviceModel>();
 
@@ -45,11 +47,13 @@ namespace HideezClient.Modules.DeviceManager
 
         public event NotifyCollectionChangedEventHandler DevicesCollectionChanged;
 
-        public DeviceManager(IMetaPubSub metaMessenger, IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory)
+        public DeviceManager(IMetaPubSub metaMessenger, IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory, IApplicationModeProvider applicationModeProvider)
         {
             _windowsManager = windowsManager;
             _remoteDeviceFactory = remoteDeviceFactory;
             _metaMessenger = metaMessenger;
+
+            _applicationMode = applicationModeProvider.GetApplicationMode();
 
             _metaMessenger.TrySubscribeOnServer<DevicesCollectionChangedMessage>(OnDevicesCollectionChanged);
             _metaMessenger.TrySubscribeOnServer<DeviceConnectionStateChangedMessage>(OnDeviceConnectionStateChanged);
@@ -57,8 +61,8 @@ namespace HideezClient.Modules.DeviceManager
             _metaMessenger.Subscribe<DisconnectedFromServerEvent>(OnDisconnectedFromService, null);
         }
 
-        public DeviceManager(IMetaPubSub metaMessenger, IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory, IEnumerable<DeviceDTO> devices)
-            :this(metaMessenger,windowsManager, remoteDeviceFactory)
+        public DeviceManager(IMetaPubSub metaMessenger, IWindowsManager windowsManager, IRemoteDeviceFactory remoteDeviceFactory, IEnumerable<DeviceDTO> devices, IApplicationModeProvider applicationModeProvider)
+            :this(metaMessenger,windowsManager, remoteDeviceFactory, applicationModeProvider)
         {
             foreach (var device in devices)
                 AddDevice(device);
@@ -178,7 +182,7 @@ namespace HideezClient.Modules.DeviceManager
         {
             if (dto.ChannelNo == 1 && !_devices.ContainsKey(dto.Id))
             {
-                var device = new DeviceModel(_remoteDeviceFactory, _metaMessenger, dto);
+                var device = new DeviceModel(_remoteDeviceFactory, _metaMessenger, dto, _applicationMode);
                 device.PropertyChanged += Device_PropertyChanged;
 
                 if (_devices.TryAdd(device.Id, device))

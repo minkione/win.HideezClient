@@ -347,6 +347,9 @@
     <Compile Include="Converters\SerialNoAndFirmwareVerFormater.cs" />
     <Compile Include="Converters\SliderWidthToMinRangeWidthConverter.cs" />
     <Compile Include="Converters\StringToResource.cs" />
+    <Compile Include="Dialogs\MasterPasswordDialog.xaml.cs">
+      <DependentUpon>MasterPasswordDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\MessageDialog.xaml.cs">
       <DependentUpon>MessageDialog.xaml</DependentUpon>
     </Compile>
@@ -371,6 +374,8 @@
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
     <Compile Include="Messages\DeviceButtonPressedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
+    <Compile Include="Messages\HideMasterPasswordUiMessage.cs" />
+    <Compile Include="Messages\SendMasterPasswordMessage.cs" />
     <Compile Include="Messages\ShowDeviceLockedByPinNotificationMessage.cs" />
     <Compile Include="Messages\ShowLowBatteryNotificationMessage.cs" />
     <Compile Include="Messages\ShowLockNotificationMessage.cs" />
@@ -391,6 +396,7 @@
     <Compile Include="Messages\ShowButtonConfirmUiMessage.cs" />
     <Compile Include="Messages\ShowErrorNotificationMessage.cs" />
     <Compile Include="Messages\ShowInfoNotificationMessage.cs" />
+    <Compile Include="Messages\ShowMasterPasswordUiMessage.cs" />
     <Compile Include="Messages\ShowPinUiMessage.cs" />
     <Compile Include="Messages\ShowWarningNotificationMessage.cs" />
     <Compile Include="Messages\StartApplicationUpdateMessage.cs" />
@@ -493,6 +499,7 @@
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
     <Compile Include="ViewModels\Dialog\ActivationViewModel.cs" />
+    <Compile Include="ViewModels\Dialog\MasterPasswordViewModel.cs" />
     <Compile Include="ViewModels\IndicatorsSettingViewModel.cs" />
     <Compile Include="ViewModels\MessageViewModel.cs" />
     <Compile Include="ViewModels\NotificationsContainerViewModel.cs" />
@@ -567,6 +574,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TBConnectivityIndicator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\MasterPasswordDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

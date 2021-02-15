@@ -25,6 +25,8 @@ using HideezMiddleware.IPC.IncommingMessages;
 using HideezClient.Modules.Localize;
 using Hideez.SDK.Communication.HES.DTO;
 using HideezMiddleware.Utils.WorkstationHelper;
+using HideezMiddleware.ApplicationModeProvider;
+using HideezMiddleware.Utils;
 
 namespace HideezClient.Models
 {
@@ -39,9 +41,12 @@ namespace HideezClient.Models
         readonly IMetaPubSub _metaMessenger;
         readonly IMetaPubSub _remoteDeviceMessenger = new MetaPubSub(new MetaPubSubLogger(new NLogWrapper()));
 
+        ApplicationMode _applicationMode;
         Device _remoteDevice;
         DelayedMethodCaller dmc = new DelayedMethodCaller(2000);
         readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetPinRequests
+            = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
+        readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetMasterPasswordRequests
             = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
 
         string id;
@@ -84,10 +89,12 @@ namespace HideezClient.Models
         public DeviceModel(
             IRemoteDeviceFactory remoteDeviceFactory,
             IMetaPubSub metaMessenger,
-            DeviceDTO dto)
+            DeviceDTO dto,
+            ApplicationMode applicationMode)
         {
             _remoteDeviceFactory = remoteDeviceFactory;
             _metaMessenger = metaMessenger;
+            _applicationMode = applicationMode;
 
             PropertyChanged += Device_PropertyChanged;
 
@@ -101,6 +108,7 @@ namespace HideezClient.Models
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(OnLockDeviceStorage);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(OnLiftDeviceStorageLock);
             _metaMessenger.Subscribe<SendPinMessage>(OnPinReceived);
+            _metaMessenger.Subscribe<SendMasterPasswordMessage>(OnMasterPaswordReceived);
             _metaMessenger.Subscribe<SessionSwitchMessage>(OnSessionSwitch);
 
             RegisterDependencies();
@@ -416,6 +424,14 @@ namespace HideezClient.Models
         {
             if (_pendingGetPinRequests.TryGetValue(obj.DeviceId, out TaskCompletionSource<byte[]> tcs))
                 tcs.TrySetResult(obj.Pin);
+
+            return Task.CompletedTask;
+        }
+
+        Task OnMasterPaswordReceived(SendMasterPasswordMessage obj)
+        {
+            if (_pendingGetMasterPasswordRequests.TryGetValue(obj.DeviceId, out TaskCompletionSource<byte[]> tcs))
+                tcs.TrySetResult(obj.Password);
 
             return Task.CompletedTask;
         }
@@ -843,8 +859,11 @@ namespace HideezClient.Models
                 if (_remoteDevice.AccessLevel.IsLocked)
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);
 
-                else if (_remoteDevice.AccessLevel.IsLinkRequired)
+                else if (_remoteDevice.AccessLevel.IsLinkRequired && _applicationMode == ApplicationMode.Enterprise)
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
+
+                if (_applicationMode == ApplicationMode.Standalone)
+                    await MasterPasswordWorkflow(ct);
 
                 await ButtonWorkflow(ct);
                 await PinWorkflow(ct);
@@ -882,6 +901,7 @@ namespace HideezClient.Models
             finally
             {
                 await _metaMessenger.Publish(new HidePinUiMessage());
+                await _metaMessenger.Publish(new HideMasterPasswordUiMessage());
 
                 IsAuthorizingRemoteDevice = false;
             }
@@ -1042,6 +1062,160 @@ namespace HideezClient.Models
             return pinOk;
         }
 
+        Task<bool> MasterPasswordWorkflow(CancellationToken ct)
+        {
+            if (_remoteDevice.AccessLevel.IsLinkRequired)
+            {
+                return SetMasterkeyWorkflow(ct);
+            }
+            else if (_remoteDevice.AccessLevel.IsMasterKeyRequired)
+            {
+                return EnterMasterkeyWorkflow(ct);
+            }
+
+            return Task.FromResult(true);
+        }
+
+        async Task<bool> SetMasterkeyWorkflow(CancellationToken ct)
+        {
+            Debug.WriteLine(">>>>>>>>>>>>>>> SetMasterkeyWorkflow +++++++++++++++++++++++++++++++++++++++");
+
+            bool passwordOk = false;
+            ShowInfo(TranslationSource.Instance["Vault.Notification.NewMasterPassword"]);
+            while (AccessLevel.IsLinkRequired)
+            {
+                var inputResult = await GetMasterPassword(Id, CREDENTIAL_TIMEOUT, ct, withConfirm: true);
+
+                if (inputResult == null)
+                    return false; 
+
+                if (inputResult.Length == 0)
+                {
+                    // we received an empty PIN from the user. Trying again with the same timeout.
+                    Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY Masterkey");
+                    _log.WriteLine("Received empty Masterkey");
+                    continue;
+                }
+
+                if (inputResult.Length < 8)
+                {
+                    ShowError(TranslationSource.Instance["Vault.Error.MasterPasswordToShort"]);
+                    continue;
+                }
+
+                var masterkey = KdfKeyProvider.CreateKDFKey(inputResult, 32);
+                bool containZero = true;
+                while (containZero)
+                {
+                    containZero = false;
+                    for (int i = 0; i < masterkey.Length; i++)
+                    {
+                        if (masterkey[i] == 0)
+                        {
+                            containZero = true;
+                            masterkey = KdfKeyProvider.CreateKDFKey(masterkey, 32);
+                            break;
+                        }
+                    }
+                }
+
+                try
+                {
+                    var code = Encoding.UTF8.GetBytes("123456");
+
+                    await _remoteDevice.Link(masterkey, code, 3);
+                    await _remoteDevice.RefreshDeviceInfo();
+
+                    if (_remoteDevice.AccessLevel.IsLocked)
+                    {
+                        await _remoteDevice.UnlockDeviceCode(code);
+                        await _remoteDevice.RefreshDeviceInfo();
+                    }
+
+                    await _remoteDevice.Access(DateTime.Now, masterkey, new AccessParams()
+                    {
+                        MasterKey_Bond = true
+                    });
+
+                    
+                }
+                catch(Exception ex)
+                {
+                    ShowError(ex.Message);
+                    continue;
+                }
+                
+                _log.WriteLine(">>>>>>>>>>>>>>> Masterkey OK");
+                passwordOk = true;
+                break;
+            }
+            Debug.WriteLine(">>>>>>>>>>>>>>> SetMasterkeyWorkflow ---------------------------------------");
+            return passwordOk;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>Returns true is pin workflow successful. Returns false if workflow cancelled.</returns>
+        /// <exception cref="HideezException">Thrown with code <see cref="HideezErrorCode.DeviceIsLocked"/> if device is locked due to failed attempt</exception>
+        async Task<bool> EnterMasterkeyWorkflow(CancellationToken ct)
+        {
+            Debug.WriteLine(">>>>>>>>>>>>>>> EnterMasterkeyWorkflow +++++++++++++++++++++++++++++++++++++++");
+
+            bool passwordOk = false;
+            ShowInfo(TranslationSource.Instance["Vault.Notification.EnterCurrentMasterPassword"]);
+            while (AccessLevel.IsMasterKeyRequired)
+            {
+                var inputResult = await GetMasterPassword(Id, CREDENTIAL_TIMEOUT, ct);
+
+                if (inputResult == null)
+                    return false; 
+
+                if (inputResult.Length == 0)
+                {
+                    // we received an empty PIN from the user. Trying again with the same timeout.
+                    Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY Masterkey");
+                    _log.WriteLine("Received empty Masterkey");
+
+                    continue;
+                }
+
+                var masterkey = KdfKeyProvider.CreateKDFKey(inputResult, 32);
+                bool containZero = true;
+                while (containZero)
+                {
+                    containZero = false;
+                    for (int i = 0; i < masterkey.Length; i++)
+                    {
+                        if (masterkey[i] == 0)
+                        {
+                            containZero = true;
+                            masterkey = KdfKeyProvider.CreateKDFKey(masterkey, 32);
+                            break;
+                        }
+                    }
+                }
+
+                try
+                {
+                    await _remoteDevice.CheckPassphrase(masterkey); //this using default timeout for BLE commands
+                    await _remoteDevice.RefreshDeviceInfo();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($">>>>>>>>>>>>>>> Wrong masterkey ");
+                    ShowError(ex.Message);
+                    continue;
+                }
+
+                _log.WriteLine(">>>>>>>>>>>>>>> Masterkey OK");
+                passwordOk = true;
+                break;
+            }
+            Debug.WriteLine(">>>>>>>>>>>>>>> EnterMasterkeyWorkflow ------------------------------");
+            return passwordOk;
+        }
+
         async Task<byte[]> GetPin(string deviceId, int timeout, CancellationToken ct, bool withConfirm = false, bool askOldPin = false)
         {
             await _metaMessenger.Publish(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
@@ -1065,6 +1239,28 @@ namespace HideezClient.Models
             }
         }
 
+        async Task<byte[]> GetMasterPassword(string deviceId, int timeout, CancellationToken ct, bool withConfirm = false, bool askOldPassword = false)
+        {
+            await _metaMessenger.Publish(new ShowMasterPasswordUiMessage(deviceId, withConfirm, askOldPassword));
+
+            var tcs = _pendingGetMasterPasswordRequests.GetOrAdd(deviceId, (x) =>
+            {
+                return new TaskCompletionSource<byte[]>();
+            });
+
+            try
+            {
+                return await tcs.Task.TimeoutAfter(timeout, ct);
+            }
+            catch (TimeoutException)
+            {
+                return null;
+            }
+            finally
+            {
+                _pendingGetMasterPasswordRequests.TryRemove(deviceId, out TaskCompletionSource<byte[]> removed);
+            }
+        }
 
         #region Notifications display
         void ShowInfo(string message)
@@ -1103,6 +1299,7 @@ namespace HideezClient.Models
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(OnLockDeviceStorage);
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(OnLiftDeviceStorageLock);
                     _metaMessenger.Unsubscribe<SendPinMessage>(OnPinReceived);
+                    _metaMessenger.Unsubscribe<SendMasterPasswordMessage>(OnMasterPaswordReceived);
                     _metaMessenger.Unsubscribe<SessionSwitchMessage>(OnSessionSwitch);
                     StopDeviceMessangerAsync();
                 }

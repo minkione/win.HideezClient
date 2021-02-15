@@ -19,6 +19,7 @@ using HideezClient.Controls;
 using HideezClient.Dialogs;
 using HideezClient.PageViewModels;
 using HideezClient.ViewModels.Controls;
+using HideezClient.ViewModels.Dialog;
 using System.ComponentModel;
 using System.Diagnostics;
 using Unity;
@@ -93,6 +94,11 @@ namespace HideezClient.ViewModels
         public PinViewModel PinViewModel
         {
             get { return DIContainer.Resolve<PinViewModel>(); }
+        }
+
+        public MasterPasswordViewModel MasterPasswordViewModel
+        {
+            get { return DIContainer.Resolve<MasterPasswordViewModel>(); }
         }
 
         public DeviceNotAuthorizedNotificationViewModel PinNotVerifiedNotificationViewModel

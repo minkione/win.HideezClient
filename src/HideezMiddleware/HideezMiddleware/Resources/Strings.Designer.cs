@@ -358,6 +358,24 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please enter the master password for your Hideez Key.
+        /// </summary>
+        internal static string ConnectionFlow_MasterPassword_EnterMPMessage {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.MasterPassword.EnterMPMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid master password!.
+        /// </summary>
+        internal static string ConnectionFlow_MasterPassword_Error_InvalidMP {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.MasterPassword.Error.InvalidMP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please enter the PIN code for your Hideez Key.
         /// </summary>
         internal static string ConnectionFlow_Pin_EnterPinMessage {

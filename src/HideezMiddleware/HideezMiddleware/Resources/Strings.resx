@@ -306,4 +306,10 @@
   <data name="ConnectionProcessor.DisabledUnlockByProximity" xml:space="preserve">
     <value>Auto unlock is disabled for this vault {0}</value>
   </data>
+  <data name="ConnectionFlow.MasterPassword.EnterMPMessage" xml:space="preserve">
+    <value>Please enter the master password for your Hideez Key</value>
+  </data>
+  <data name="ConnectionFlow.MasterPassword.Error.InvalidMP" xml:space="preserve">
+    <value>Invalid master password!</value>
+  </data>
 </root>

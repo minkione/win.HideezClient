@@ -43,7 +43,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
             var flowSubprocessors = new StandaloneConnectionFlowProcessor.StandaloneConnectionFlowSubprocessorsStruct()
             {
                 VaultConnectionProcessor = new VaultConnectionProcessor(_ui, _bondManager, _deviceManager, _log),
-                MasterkeyProcessor = new StandaloneVaultAuthorizationProcessor(),
+                MasterkeyProcessor = new StandaloneVaultAuthorizationProcessor(_ui, _log),
                 UserAuthorizationProcessor = new UserAuthorizationProcessor(_ui, _log),
                 UnlockProcessor = new UnlockProcessor(_ui, _workstationUnlocker, _log),
             };
