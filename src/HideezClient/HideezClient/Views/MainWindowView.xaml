@@ -156,6 +156,12 @@
                 Grid.Row="3">
                 <controls:LeftMenuItemControl DataContext="{Binding MenuDefaultPage}" Visibility="Hidden" />
 
+                <controls:LeftMenuItemControl DataContext="{Binding MenuUpdateAvailable}">
+                    <controls:LeftMenuItemControl.Tag>
+                        <iconPacks:PackIconMaterial Kind="Download" />
+                    </controls:LeftMenuItemControl.Tag>
+                </controls:LeftMenuItemControl>
+                
                 <controls:LeftMenuItemControl DataContext="{Binding MenuSettings}">
                     <controls:LeftMenuItemControl.Tag>
                         <iconPacks:PackIconFontAwesome Kind="CogSolid" />

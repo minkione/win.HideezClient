@@ -262,6 +262,10 @@
     <Compile Include="Modules\ServiceEvents\Messages\PowerEventMonitor_SystemSuspendingMessage.cs" />
     <Compile Include="Modules\ServiceEvents\Messages\SessionSwitchMonitor_SessionSwitchMessage.cs" />
     <Compile Include="Modules\ServiceEvents\ServiceEventsModule.cs" />
+    <Compile Include="Modules\UpdateCheck\AppUpdateInfo.cs" />
+    <Compile Include="Modules\UpdateCheck\CachedUpdateInfo.cs" />
+    <Compile Include="Modules\UpdateCheck\Messages\ApplicationUpdateAvailableMessage.cs" />
+    <Compile Include="Modules\UpdateCheck\UpdateCheckModule.cs" />
     <Compile Include="Modules\WinBle\Messages\WinBleStatusChangedMessage.cs" />
     <Compile Include="Modules\WinBle\WinBleModule.cs" />
     <Compile Include="Modules\ReconnectAndWorkstationLock\WtsapiWorkstationLocker.cs" />

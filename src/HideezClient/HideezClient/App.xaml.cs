@@ -205,6 +205,7 @@ namespace HideezClient
             Container.Resolve<IProximityLockManager>();
             Container.Resolve<IVaultLowBatteryMonitor>();
             _bleDeviceUnpairHelper = Container.Resolve<BleDeviceUnpairHelper>();
+            Container.Resolve<IAppUpdater>();
 
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
 
@@ -360,6 +361,8 @@ namespace HideezClient
             Container.RegisterType<IEventPublisher, EventPublisher>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<MessageWindow>(new ContainerControlledLifetimeManager());
+
+            Container.RegisterType<IAppUpdater, AppUpdater>(new ContainerControlledLifetimeManager());
 
             _log.WriteLine("Finish initialize DI container");
 

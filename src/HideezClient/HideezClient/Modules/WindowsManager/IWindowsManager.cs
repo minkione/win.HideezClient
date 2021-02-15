@@ -25,6 +25,7 @@ namespace HideezClient.Modules
         Task<bool> ShowAccountNotFoundAsync(string message, string title = null);
         Task<Account> SelectAccountAsync(Account[] accounts, IntPtr hwnd);
         void ShowCredentialsLoading(CredentialsLoadNotificationViewModel viewModel);
+        Task<bool> ShowUpdateAvailableNotification(string message, string title = null);
 
         Task<bool> ShowDeleteCredentialsPromptAsync();
         Task<bool> ShowDisconnectDevicePromptAsync(string deviceName);

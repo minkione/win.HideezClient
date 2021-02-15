@@ -288,6 +288,9 @@
       <DependentUpon>LeftMenuButtonControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\Notification\ViewModel\DeviceIsLockedNotificationViewModel.cs" />
+    <Compile Include="Controls\Notification\View\UpdateAvailableNotification.xaml.cs">
+      <DependentUpon>UpdateAvailableNotification.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Notification\View\AccountNotFoundNotification.xaml.cs">
       <DependentUpon>AccountNotFoundNotification.xaml</DependentUpon>
     </Compile>
@@ -390,6 +393,7 @@
     <Compile Include="Messages\ShowInfoNotificationMessage.cs" />
     <Compile Include="Messages\ShowPinUiMessage.cs" />
     <Compile Include="Messages\ShowWarningNotificationMessage.cs" />
+    <Compile Include="Messages\StartApplicationUpdateMessage.cs" />
     <Compile Include="Models\DeviceModel.cs" />
     <Compile Include="Models\Account.cs" />
     <Compile Include="Modules\AccountManager\AccountExtensions.cs" />
@@ -412,6 +416,8 @@
     <Compile Include="Modules\ActionHandler\UserActionHandler.cs" />
     <Compile Include="Modules\ActiveDevice\ActiveDevice.cs" />
     <Compile Include="Modules\ActiveDevice\IActiveDevice.cs" />
+    <Compile Include="Modules\AppUpdater\AppUpdater.cs" />
+    <Compile Include="Modules\AppUpdater\IAppUpdater.cs" />
     <Compile Include="Modules\BleDeviceUnpairHelper\BleDeviceUnpairHelper.cs" />
     <Compile Include="Modules\ButtonManager\ButtonManager.cs" />
     <Compile Include="Modules\ButtonManager\IButtonManager.cs" />
@@ -527,6 +533,10 @@
     <Page Include="Controls\LeftMenuButtonControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Notification\View\UpdateAvailableNotification.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\Notification\View\AccountNotFoundNotification.xaml">
       <SubType>Designer</SubType>

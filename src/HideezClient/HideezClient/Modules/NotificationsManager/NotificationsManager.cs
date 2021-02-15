@@ -140,10 +140,10 @@ namespace HideezClient.Modules.NotificationsManager
                     {
                         notificationView.ResetCloseTimer();
                     }
-                else AddNotification(screen, notification, true);
+                else 
+                    AddNotification(screen, notification, true);
             }
 
-            
             var result = await taskCompletionSourceForDialog.Task;
             return result;
         }
@@ -188,6 +188,46 @@ namespace HideezClient.Modules.NotificationsManager
             }
 
             return null;
+        }
+
+        public async Task<bool> ShowApplicationUpdateAvailableNotification(string title, string message)
+        {
+            Screen screen = GetCurrentScreen();
+
+            TaskCompletionSource<bool> taskCompletionSourceForDialog = new TaskCompletionSource<bool>();
+            
+            var options = new NotificationOptions 
+            { 
+                CloseTimeout = TimeSpan.Zero,
+                Position = NotificationPosition.Bottom,
+                TaskCompletionSource = taskCompletionSourceForDialog,
+            };
+
+            var viewModel = new SimpleNotificationViewModel()
+            {
+                Title = title,
+                Message = message,
+            };
+
+            UpdateAvailableNotification notification = new UpdateAvailableNotification(options)
+            {
+                DataContext = viewModel
+            };
+
+            if (notification.Options.IsReplace)
+            {
+                var matchingNotificationViews = GetNotifications().Where(n => n is UpdateAvailableNotification).ToList();
+                if (matchingNotificationViews.Count > 0)
+                    foreach (var notificationView in matchingNotificationViews)
+                    {
+                        notificationView.ResetCloseTimer();
+                    }
+                else
+                    AddNotification(screen, notification, true);
+            }
+
+            var result = await taskCompletionSourceForDialog.Task;
+            return result;
         }
 
         /// <summary>

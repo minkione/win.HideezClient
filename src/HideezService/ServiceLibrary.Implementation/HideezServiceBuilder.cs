@@ -30,6 +30,7 @@ using HideezMiddleware.Modules.ReconnectAndWorkstationLock;
 using HideezMiddleware.Modules.RemoteUnlock;
 using HideezMiddleware.Modules.Rfid;
 using HideezMiddleware.Modules.ServiceEvents;
+using HideezMiddleware.Modules.UpdateCheck;
 using HideezMiddleware.Modules.WinBle;
 using HideezMiddleware.ReconnectManager;
 using HideezMiddleware.ScreenActivation;
@@ -476,6 +477,12 @@ namespace ServiceLibrary.Implementation
             _container.RegisterType<WorkstationLockProcessor>(new ContainerControlledLifetimeManager());
             var workstationLockModule = _container.Resolve<WorkstationLockModule>();
             AddModule(workstationLockModule);
+        }
+
+        public void AddUpdateCheck()
+        {
+            var applicationUpdateModule = _container.Resolve<UpdateCheckModule>();
+            AddModule(applicationUpdateModule);
         }
 
         public void End()

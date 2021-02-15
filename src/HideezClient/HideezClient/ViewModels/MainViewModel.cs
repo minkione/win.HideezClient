@@ -14,6 +14,7 @@ using HideezClient.Utilities;
 using System.Threading.Tasks;
 using Meta.Lib.Modules.PubSub;
 using HideezClient.ViewModels.Controls;
+using HideezMiddleware.Modules.UpdateCheck.Messages;
 
 namespace HideezClient.ViewModels
 {
@@ -23,6 +24,7 @@ namespace HideezClient.ViewModels
         readonly IDeviceManager _deviceManager;
         readonly IMenuFactory _menuFactory;
         readonly IActiveDevice _activeDevice;
+        readonly IMetaPubSub _messenger;
         readonly ViewModelLocator _viewModelLocator;
         readonly IAppHelper _appHelper;
         readonly SoftwareUnlockSettingViewModel _softwareUnlock;
@@ -46,14 +48,17 @@ namespace HideezClient.ViewModels
             _appHelper = appHelper;
             _softwareUnlock = softwareUnlock;
 
+            _messenger = metaMessenger;
+
             InitMenu();
 
             _deviceManager.DevicesCollectionChanged += Devices_CollectionChanged;
             _activeDevice.ActiveDeviceChanged += ActiveDevice_ActiveDeviceChanged;
 
-            metaMessenger.Subscribe<OpenPasswordManagerMessage>((p) => { MenuPasswordManager.IsChecked = true; return Task.CompletedTask; });
-            metaMessenger.Subscribe<OpenHideezKeyPageMessage>((p) => { MenuHardwareKeyPage.IsChecked = true; return Task.CompletedTask; });
-            metaMessenger.Subscribe<OpenMobileAuthenticatorPageMessage>((p) => { MenuSoftwareKeyPage.IsChecked = true; return Task.CompletedTask; });
+            _messenger.Subscribe<OpenPasswordManagerMessage>((p) => { MenuPasswordManager.IsChecked = true; return Task.CompletedTask; });
+            _messenger.Subscribe<OpenHideezKeyPageMessage>((p) => { MenuHardwareKeyPage.IsChecked = true; return Task.CompletedTask; });
+            _messenger.Subscribe<OpenMobileAuthenticatorPageMessage>((p) => { MenuSoftwareKeyPage.IsChecked = true; return Task.CompletedTask; });
+            _messenger.Subscribe<ApplicationUpdateAvailableMessage>((p) => { MenuUpdateAvailable.IsVisible = true; return Task.CompletedTask; });
         }
 
         void InitMenu()
@@ -99,9 +104,17 @@ namespace HideezClient.ViewModels
                 Description = "Menu.SoftwareKeyPage.Description",
                 Command = OpenSoftwareKeyPageCommand,
             };
+            MenuUpdateAvailable = new MenuItemViewModel
+            {
+                Header = "Menu.UpdateAvailable",
+                Command = OpenUpdateAvailablePageCommand,
+                IsVisible = false,
+            };
+
             _leftAppMenuItems.Add(MenuDefaultPage);
             _leftAppMenuItems.Add(MenuHelp);
             _leftAppMenuItems.Add(MenuSettings);
+            _leftAppMenuItems.Add(MenuUpdateAvailable);
             _leftAppMenuItems.Add(MenuHardwareKeyPage);
             _leftAppMenuItems.Add(MenuSoftwareKeyPage);
 
@@ -216,6 +229,7 @@ namespace HideezClient.ViewModels
         private MenuItemViewModel menuDefaultPage;
         private MenuItemViewModel menuHardwareKeyPage;
         private MenuItemViewModel menuSoftwareKeyPage;
+        private MenuItemViewModel menuUpdateAvailablePage;
 
         public MenuItemViewModel MenuPasswordManager
         {
@@ -257,6 +271,12 @@ namespace HideezClient.ViewModels
         {
             get { return menuSoftwareKeyPage; }
             set { Set(ref menuSoftwareKeyPage, value); }
+        }
+
+        public MenuItemViewModel MenuUpdateAvailable
+        {
+            get { return menuUpdateAvailablePage; }
+            set { Set(ref menuUpdateAvailablePage, value); }
         }
 
         #endregion
@@ -354,6 +374,20 @@ namespace HideezClient.ViewModels
                 };
             }
         }
+
+        public ICommand OpenUpdateAvailablePageCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        OnOpenUpdateAvailablePage();
+                    },
+                };
+            }
+        }
         #endregion Command
 
         #region Navigation
@@ -403,6 +437,20 @@ namespace HideezClient.ViewModels
 
             // Todo: Temporary for Try&Buy
             _softwareUnlock.IsChecked = true;
+        }
+
+        private void OnOpenUpdateAvailablePage()
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await _messenger.Publish(new StartApplicationUpdateMessage());
+                }
+                catch (Exception)
+                { 
+                }
+            });
         }
 
         #endregion

@@ -4,14 +4,11 @@ using HideezClient.Views;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Linq;
 using System.Windows.Threading;
 using HideezClient.Models;
 using HideezClient.Controls;
-using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
 using System.Threading;
-using System.Diagnostics;
 using System.Drawing;
 using HideezClient.Utilities;
 using System.Windows.Interop;
@@ -261,6 +258,11 @@ namespace HideezClient.Modules
         {
             UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(message.NotificationId, message.Title ?? GetTitle(), message.Message, NotificationIconType.Warn, message.Options));
             return Task.CompletedTask;
+        }
+
+        public Task<bool> ShowUpdateAvailableNotification(string message, string title = null)
+        {
+            return UIDispatcher.Invoke(() => _notificationsManager.ShowApplicationUpdateAvailableNotification(message, title));
         }
 
         private Task ClearNotifications(WorkstationUnlockedMessage message)
