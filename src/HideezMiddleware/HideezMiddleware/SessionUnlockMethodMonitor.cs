@@ -1,23 +1,15 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Log;
-using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezMiddleware
 {
     public class SessionUnlockMethodMonitor : Logger
     {
         readonly ConnectionFlowProcessorBase _connectionFlowProcessor;
-        readonly TapConnectionProcessor _tapProcessor;
-        readonly RfidConnectionProcessor _rfidProcessor;
-        readonly ProximityConnectionProcessor _proximityProcessor;
-        readonly WinBleAutomaticConnectionProcessor _winBleProcessor;
+        private readonly IMetaPubSub _messenger;
 
         UnlockSessionSwitchProc _unlockProcedure = null;
         readonly object _upLock = new object();
@@ -25,17 +17,12 @@ namespace HideezMiddleware
         internal UnlockSessionSwitchProc UnlockProcedure { get => _unlockProcedure; }
 
         public SessionUnlockMethodMonitor(ConnectionFlowProcessorBase connectionFlowProcessor,
-                                          TapConnectionProcessor tapProcessor,
-                                          RfidConnectionProcessor rfidProcessor,
-                                          ProximityConnectionProcessor proximityProcessor,
-                                          WinBleAutomaticConnectionProcessor winBleProcessor,
-                                          ILog log): base(nameof(SessionUnlockMethodMonitor), log)
+            IMetaPubSub messenger,
+            ILog log)
+            : base(nameof(SessionUnlockMethodMonitor), log)
         {
             _connectionFlowProcessor = connectionFlowProcessor;
-            _tapProcessor = tapProcessor;
-            _rfidProcessor = rfidProcessor;
-            _proximityProcessor = proximityProcessor;
-            _winBleProcessor = winBleProcessor;
+            _messenger = messenger;
 
             _connectionFlowProcessor.Started += ConnectionFlowProcessor_Started;
         }
@@ -46,8 +33,8 @@ namespace HideezMiddleware
             {
                 if (_unlockProcedure != null)
                     _unlockProcedure.Dispose();
-
-                _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor);
+                
+                _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _messenger);
                 WriteLine("Started unlock procedure");
             }
         }
@@ -56,7 +43,8 @@ namespace HideezMiddleware
         {
             if (_unlockProcedure == null)
                 return SessionSwitchSubject.NonHideez;
-            else return _unlockProcedure.UnlockMethod;
+            else 
+                return _unlockProcedure.UnlockMethod;
         }
     }
 }

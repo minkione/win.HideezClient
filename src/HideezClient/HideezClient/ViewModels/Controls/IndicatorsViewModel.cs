@@ -103,7 +103,7 @@ namespace HideezClient.ViewModels.Controls
                     Server.State = StateControlState.Red;
                     break;
             }
-            Server.Visible = _serviceProxy.IsConnected;
+            Server.Visible = msg.HesStatus != HesStatus.Disabled && _serviceProxy.IsConnected;
 
             // RFID
             RFID.State = StateControlViewModel.BoolToState(msg.RfidStatus == RfidStatus.Ok);
@@ -111,7 +111,10 @@ namespace HideezClient.ViewModels.Controls
 
             // Hideez Dongle
             Dongle.State = StateControlViewModel.BoolToState(msg.DongleStatus == BluetoothStatus.Ok);
-            Dongle.Visible = _appSettingsManager.Settings.ShowDongleIndicator ? _serviceProxy.IsConnected : false;
+            if (_appSettingsManager.Settings.ShowDongleIndicator)
+                Dongle.Visible = msg.DongleStatus != BluetoothStatus.Disabled && _serviceProxy.IsConnected;
+            else
+                Dongle.Visible = false;
 
             // Try&Buy Server
             TBServer.State = StateControlViewModel.BoolToState(msg.TbHesStatus == HesStatus.Ok);
@@ -119,7 +122,10 @@ namespace HideezClient.ViewModels.Controls
 
             // Built-in Bluetooth
             Bluetooth.State = StateControlViewModel.BoolToState(msg.BluetoothStatus == BluetoothStatus.Ok);
-            Bluetooth.Visible = _appSettingsManager.Settings.ShowBluetoothIndicator ? _serviceProxy.IsConnected : false;
+            if (_appSettingsManager.Settings.ShowBluetoothIndicator)
+                Bluetooth.Visible = msg.BluetoothStatus != BluetoothStatus.Disabled && _serviceProxy.IsConnected;
+            else
+                Bluetooth.Visible = false;
 
             return Task.CompletedTask;
         }
@@ -191,30 +197,27 @@ namespace HideezClient.ViewModels.Controls
             {
                 Service.State = StateControlState.Green;
                 Service.Visible = false;
-
-                Server.Visible = true;
-                TBServer.Visible = true;
-            }   
+            }
             else
             {
                 Service.State = StateControlState.Red;
                 Service.Visible = true;
+            }   
+                
+            Server.State = StateControlState.Red;
+            Server.Visible = false;
 
-                Server.State = StateControlState.Red;
-                Server.Visible = false;
+            Dongle.State = StateControlState.Red;
+            Dongle.Visible = false;
 
-                Dongle.State = StateControlState.Red;
-                Dongle.Visible = false;
+            RFID.State = StateControlState.Red;
+            RFID.Visible = false;
 
-                RFID.State = StateControlState.Red;
-                RFID.Visible = false;
+            TBServer.State = StateControlState.Red;
+            TBServer.Visible = false;
 
-                TBServer.State = StateControlState.Red;
-                TBServer.Visible = false;
-
-                Bluetooth.State = StateControlState.Red;
-                Bluetooth.Visible = false;
-            }
+            Bluetooth.State = StateControlState.Red;
+            Bluetooth.Visible = false;
 
             return Task.CompletedTask;
         }

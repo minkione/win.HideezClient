@@ -336,37 +336,37 @@ namespace ServiceLibrary.Implementation
                 _proximitySettingsProvider,
                 20, // WinBle rssi messages arrive much less frequently than when using csr. Empirically calculated 20s to be acceptable.
                 _sdkLogger);
-            _rfidProcessor = new RfidConnectionProcessor(
-                _connectionFlowProcessor,
-                _hesConnection,
-                _rfidService,
-                _rfidSettingsManager,
-                _screenActivator,
-                _uiProxy,
-                _sdkLogger);
-            _tapProcessor = new TapConnectionProcessor(
-                _connectionFlowProcessor,
-                _csrBleConnectionManager,
-                _sdkLogger);
-            _proximityProcessor = new ProximityConnectionProcessor(
-                _connectionFlowProcessor,
-                _csrBleConnectionManager,
-                _proximitySettingsProvider,
-                _advIgnoreCsrList,
-                _deviceManager,
-                _credentialProviderProxy,
-                _hesAccessManager,
-                _sdkLogger);
-            _winBleProcessor = new WinBleAutomaticConnectionProcessor(
-                _connectionFlowProcessor,
-                _winBleConnectionManager,
-                _advIgnoreWinBleList,
-                _proximitySettingsProvider,
-                _deviceManager,
-                _credentialProviderProxy,
-                _uiProxy,
-                _workstationHelper,
-                _sdkLogger);
+            //_rfidProcessor = new RfidConnectionProcessor(
+            //    _connectionFlowProcessor,
+            //    _hesConnection,
+            //    _rfidService,
+            //    _rfidSettingsManager,
+            //    _screenActivator,
+            //    _uiProxy,
+            //    _sdkLogger);
+            //_tapProcessor = new TapConnectionProcessor(
+            //    _connectionFlowProcessor,
+            //    _csrBleConnectionManager,
+            //    _sdkLogger);
+            //_proximityProcessor = new ProximityConnectionProcessor(
+            //    _connectionFlowProcessor,
+            //    _csrBleConnectionManager,
+            //    _proximitySettingsProvider,
+            //    _advIgnoreCsrList,
+            //    _deviceManager,
+            //    _credentialProviderProxy,
+            //    _hesAccessManager,
+            //    _sdkLogger);
+            //_winBleProcessor = new WinBleAutomaticConnectionProcessor(
+            //    _connectionFlowProcessor,
+            //    _winBleConnectionManager,
+            //    _advIgnoreWinBleList,
+            //    _proximitySettingsProvider,
+            //    _deviceManager,
+            //    _credentialProviderProxy,
+            //    _uiProxy,
+            //    _workstationHelper,
+            //    _sdkLogger);
 
             serviceInitializationTasks.Add(Task.Run(() =>
             {
@@ -400,8 +400,8 @@ namespace ServiceLibrary.Implementation
             _workstationLockProcessor.DeviceProxLockEnabled += WorkstationLockProcessor_DeviceProxLockEnabled;
 
             //SessionUnlockMethodMonitor ==================================
-            _sessionUnlockMethodMonitor = new SessionUnlockMethodMonitor(_connectionFlowProcessor,
-                 _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor, _sdkLogger);
+            //_sessionUnlockMethodMonitor = new SessionUnlockMethodMonitor(_connectionFlowProcessor,
+            //     _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor, _sdkLogger);
 
             // SessionSwitchLogger ==================================
             _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver, _sessionUnlockMethodMonitor,

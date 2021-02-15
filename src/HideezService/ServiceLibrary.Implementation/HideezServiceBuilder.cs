@@ -385,7 +385,7 @@ namespace ServiceLibrary.Implementation
             var workstationUnlocker = _container.Resolve<IWorkstationUnlocker>();
             var hesAccessManager = _container.Resolve<IHesAccessManager>();
 
-            var tapConnectionProcessor = new TapConnectionProcessor(connectionFlow, csrBleConnectionManager, log);
+            var tapConnectionProcessor = new TapConnectionProcessor(connectionFlow, csrBleConnectionManager, messenger, log);
             _container.RegisterInstance(tapConnectionProcessor, new ContainerControlledLifetimeManager());
             var proximityConnectionProcessor = new ProximityConnectionProcessor(
                 connectionFlow,
@@ -395,6 +395,7 @@ namespace ServiceLibrary.Implementation
                 deviceManager,
                 workstationUnlocker,
                 hesAccessManager,
+                messenger,
                 log);
             _container.RegisterInstance(proximityConnectionProcessor, new ContainerControlledLifetimeManager());
 
@@ -436,7 +437,8 @@ namespace ServiceLibrary.Implementation
                 deviceManager, 
                 credProvProxy, 
                 uiManager,
-                workstationHelper, 
+                workstationHelper,
+                messenger,
                 log);
             _container.RegisterInstance(winBleAutomaticConnectionProcessor, new ContainerControlledLifetimeManager());
 

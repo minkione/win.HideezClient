@@ -33,6 +33,7 @@ namespace ServiceLibrary.Implementation
             builder.AddStandaloneConnectionFlow();
             builder.AddCsrSupport();
             builder.AddWinBleSupport();
+            builder.AddRemoteUnlock();
             builder.AddWorkstationLock();
             builder.AddClientPipe();
             builder.End();

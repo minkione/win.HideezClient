@@ -1,7 +1,8 @@
 ﻿using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Utils;
-using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
+using HideezMiddleware.IPC.Messages;
+using Meta.Lib.Modules.PubSub;
 using System;
 using System.Threading.Tasks;
 
@@ -11,10 +12,7 @@ namespace HideezMiddleware.Tasks
     class UnlockSessionSwitchProc : IDisposable
     {
         readonly ConnectionFlowProcessorBase _connectionFlowProcessor;
-        readonly TapConnectionProcessor _tapProcessor;
-        readonly RfidConnectionProcessor _rfidProcessor;
-        readonly ProximityConnectionProcessor _proximityProcessor;
-        readonly WinBleAutomaticConnectionProcessor _winBleProcessor;
+        readonly IMetaPubSub _messenger;
 
         readonly TaskCompletionSource<object> _tcs = new TaskCompletionSource<object>();
         readonly string _flowId;
@@ -29,19 +27,77 @@ namespace HideezMiddleware.Tasks
         public UnlockSessionSwitchProc(
             string flowId,
             ConnectionFlowProcessorBase connectionFlowProcessor,
-            TapConnectionProcessor tapProcessor,
-            RfidConnectionProcessor rfidProcessor,
-            ProximityConnectionProcessor proximityProcessor,
-            WinBleAutomaticConnectionProcessor winBleProcessor)
+            IMetaPubSub messenger)
         {
             _flowId = flowId;
             _connectionFlowProcessor = connectionFlowProcessor;
-            _tapProcessor = tapProcessor;
-            _rfidProcessor = rfidProcessor;
-            _proximityProcessor = proximityProcessor;
-            _winBleProcessor = winBleProcessor;
+
+            _messenger = messenger;
 
             SubscribeToEvents();
+        }
+        public async Task Run(int timeout)
+        {
+            try
+            {
+                // Cancel if unlock failed or flow finished
+                if (FlowUnlockResult?.IsSuccessful == false || FlowFinished)
+                    return;
+                else
+                    await _tcs.Task.TimeoutAfter(timeout);
+            }
+            catch (TimeoutException)
+            {
+            }
+            finally
+            {
+                UnsubscribeFromEvents();
+            }
+
+        }
+
+        void SubscribeToEvents()
+        {
+            _connectionFlowProcessor.Finished += ConnectionFlowProcessor_Finished;
+            _messenger.Subscribe<WorkstationUnlockPerformedMessage>(OnWorkstationUnlockPerformed);
+        }
+
+        void UnsubscribeFromEvents()
+        {
+            _connectionFlowProcessor.Finished -= ConnectionFlowProcessor_Finished;
+            _messenger.Unsubscribe<WorkstationUnlockPerformedMessage>(OnWorkstationUnlockPerformed);
+        }
+
+        void ConnectionFlowProcessor_Finished(object sender, string e)
+        {
+            if (e == _flowId)
+            {
+                FlowFinished = true;
+                UnsubscribeFromEvents();
+
+                _tcs.TrySetResult(new object());
+            }
+        }
+
+        private Task OnWorkstationUnlockPerformed(WorkstationUnlockPerformedMessage msg)
+        {
+            if (msg.FlowId == _flowId)
+            {
+                FlowUnlockResult = new WorkstationUnlockResult
+                {
+                    FlowId = msg.FlowId,
+                    IsSuccessful = msg.IsSuccessful,
+                    DeviceMac = msg.Mac,
+                    AccountName = msg.AccountName,
+                    AccountLogin = msg.AccountLogin,
+                }; 
+                UnlockMethod = msg.UnlockMethod;
+
+                if (!FlowUnlockResult.IsSuccessful)
+                    _tcs.TrySetResult(new object());
+            }
+
+            return Task.CompletedTask;
         }
 
         #region IDisposable Support
@@ -70,103 +126,5 @@ namespace HideezMiddleware.Tasks
             Dispose(false);
         }
         #endregion
-
-        public async Task Run(int timeout)
-        {
-            try
-            {
-                // Cancel if unlock failed or flow finished
-                if (FlowUnlockResult?.IsSuccessful == false || FlowFinished)
-                    return;
-                else
-                    await _tcs.Task.TimeoutAfter(timeout);
-            }
-            catch (TimeoutException)
-            {
-            }
-            finally
-            {
-                UnsubscribeFromEvents();
-            }
-
-        }
-
-        void SubscribeToEvents()
-        {
-            _connectionFlowProcessor.Finished += ConnectionFlowProcessor_Finished;
-            _tapProcessor.WorkstationUnlockPerformed += TapProcessor_WorkstationUnlockPerformed;
-            _rfidProcessor.WorkstationUnlockPerformed += RfidProcessor_WorkstationUnlockPerformed;
-            _proximityProcessor.WorkstationUnlockPerformed += ProximityProcessor_WorkstationUnlockPerformed;
-            _winBleProcessor.WorkstationUnlockPerformed += WinBleProcessor_WorkstationUnlockPerformed;
-        }
-
-        void UnsubscribeFromEvents()
-        {
-            _connectionFlowProcessor.Finished -= ConnectionFlowProcessor_Finished;
-            _tapProcessor.WorkstationUnlockPerformed -= TapProcessor_WorkstationUnlockPerformed;
-            _rfidProcessor.WorkstationUnlockPerformed -= RfidProcessor_WorkstationUnlockPerformed;
-            _proximityProcessor.WorkstationUnlockPerformed -= ProximityProcessor_WorkstationUnlockPerformed;
-            _winBleProcessor.WorkstationUnlockPerformed -= WinBleProcessor_WorkstationUnlockPerformed;
-        }
-
-        void ConnectionFlowProcessor_Finished(object sender, string e)
-        {
-            if (e == _flowId)
-            {
-                FlowFinished = true;
-                UnsubscribeFromEvents();
-
-                _tcs.TrySetResult(new object());
-            }
-        }
-
-        void TapProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
-        {
-            if (e.FlowId == _flowId)
-            {
-                FlowUnlockResult = e;
-                UnlockMethod = SessionSwitchSubject.Dongle;
-
-                if (!FlowUnlockResult.IsSuccessful)
-                    _tcs.TrySetResult(new object());
-            }
-        }
-
-        void RfidProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
-        {
-            if (e.FlowId == _flowId)
-            {
-                FlowUnlockResult = e;
-                UnlockMethod = SessionSwitchSubject.RFID;
-
-                if (!FlowUnlockResult.IsSuccessful)
-                    _tcs.TrySetResult(new object());
-            }
-        }
-
-        void ProximityProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
-        {
-            if (e.FlowId == _flowId)
-            {
-                FlowUnlockResult = e;
-                UnlockMethod = SessionSwitchSubject.Proximity;
-
-                if (!FlowUnlockResult.IsSuccessful)
-                    _tcs.TrySetResult(new object());
-            }
-        }
-
-        void WinBleProcessor_WorkstationUnlockPerformed(object sender, WorkstationUnlockResult e)
-        {
-            if (e.FlowId == _flowId)
-            {
-                FlowUnlockResult = e;
-                UnlockMethod = SessionSwitchSubject.WinBle;
-
-                if (!FlowUnlockResult.IsSuccessful)
-                    _tcs.TrySetResult(new object());
-            }
-        }
-
     }
 }

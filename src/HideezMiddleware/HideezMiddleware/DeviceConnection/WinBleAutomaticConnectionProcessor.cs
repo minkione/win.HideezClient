@@ -12,6 +12,7 @@ using HideezMiddleware.Settings;
 using HideezMiddleware.Tasks;
 using HideezMiddleware.Threading;
 using HideezMiddleware.Utils.WorkstationHelper;
+using Meta.Lib.Modules.PubSub;
 using System;
 using System.Linq;
 using System.Threading;
@@ -44,8 +45,9 @@ namespace HideezMiddleware.DeviceConnection
             CredentialProviderProxy credentialProviderProxy,
             IClientUiManager ui,
             IWorkstationHelper workstationHelper,
+            IMetaPubSub messenger,
             ILog log)
-            : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
+            : base(connectionFlowProcessor, SessionSwitchSubject.WinBle, nameof(ProximityConnectionProcessor), messenger, log)
         {
             _winBleConnectionManager = winBleConnectionManager ?? throw new ArgumentNullException(nameof(winBleConnectionManager));
             _proximitySettingsProvider = proximitySettingsProvider ?? throw new ArgumentNullException(nameof(proximitySettingsProvider));

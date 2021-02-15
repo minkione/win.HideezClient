@@ -7,6 +7,7 @@ using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.Localize;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
+using Meta.Lib.Modules.PubSub;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,8 +33,9 @@ namespace HideezMiddleware.DeviceConnection
             ISettingsManager<RfidSettings> rfidSettingsManager,
             IScreenActivator screenActivator,
             IClientUiManager clientUiManager, 
+            IMetaPubSub messenger,
             ILog log) 
-            : base(connectionFlowProcessor, nameof(RfidConnectionProcessor), log)
+            : base(connectionFlowProcessor, SessionSwitchSubject.RFID, nameof(RfidConnectionProcessor), messenger, log)
         {
             _hesConnection = hesConnection ?? throw new ArgumentNullException(nameof(hesConnection));
             _rfidService = rfidService ?? throw new ArgumentNullException(nameof(rfidService));

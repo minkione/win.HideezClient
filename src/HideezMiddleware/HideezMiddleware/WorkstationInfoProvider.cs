@@ -76,7 +76,7 @@ namespace HideezMiddleware
                     Debug.Assert(false, "An exception occured while querrying workstation operating system");
                 }
 
-                workstationInfo.Users = _workstationHelper.GetAllUserNames();
+                workstationInfo.Users = _workstationHelper?.GetAllUserNames();
             }
             catch (Exception ex)
             {

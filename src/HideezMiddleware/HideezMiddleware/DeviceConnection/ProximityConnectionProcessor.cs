@@ -14,6 +14,7 @@ using Hideez.SDK.Communication.Proximity.Interfaces;
 using Hideez.SDK.Communication.Utils;
 using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.Settings;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezMiddleware.DeviceConnection
 {
@@ -39,8 +40,9 @@ namespace HideezMiddleware.DeviceConnection
             DeviceManager deviceManager,
             IWorkstationUnlocker workstationUnlocker,
             IHesAccessManager hesAccessManager,
+            IMetaPubSub messenger,
             ILog log) 
-            : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
+            : base(connectionFlowProcessor, SessionSwitchSubject.Proximity, nameof(ProximityConnectionProcessor), messenger, log)
         {
             _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
             _proximitySettingsProvider = proximitySettingsProvider ?? throw new ArgumentNullException(nameof(_proximitySettingsProvider));

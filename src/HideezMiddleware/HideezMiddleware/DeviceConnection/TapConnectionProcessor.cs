@@ -6,6 +6,7 @@ using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Connection;
 using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
+using Meta.Lib.Modules.PubSub;
 
 namespace HideezMiddleware.DeviceConnection
 {
@@ -20,8 +21,9 @@ namespace HideezMiddleware.DeviceConnection
         public TapConnectionProcessor(
             ConnectionFlowProcessorBase connectionFlowProcessor,
             IBleConnectionManager bleConnectionManager,
+            IMetaPubSub messenger,
             ILog log) 
-            : base(connectionFlowProcessor, nameof(TapConnectionProcessor), log)
+            : base(connectionFlowProcessor, SessionSwitchSubject.Dongle, nameof(TapConnectionProcessor), messenger, log)
         {
             _bleConnectionManager = bleConnectionManager ?? throw new ArgumentNullException(nameof(bleConnectionManager));
         }

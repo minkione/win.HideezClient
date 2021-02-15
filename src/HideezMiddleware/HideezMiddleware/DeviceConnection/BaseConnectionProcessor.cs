@@ -1,6 +1,9 @@
-﻿using Hideez.SDK.Communication.Connection;
+﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Connection;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
+using HideezMiddleware.IPC.Messages;
+using Meta.Lib.Modules.PubSub;
 using System;
 using System.Threading.Tasks;
 
@@ -9,12 +12,18 @@ namespace HideezMiddleware.DeviceConnection
     public abstract class BaseConnectionProcessor : Logger, IConnectionProcessor
     {
         readonly ConnectionFlowProcessorBase _connectionFlowProcessor;
+        readonly SessionSwitchSubject _unlockMethod;
+        readonly IMetaPubSub _messenger;
 
-        public event EventHandler<WorkstationUnlockResult> WorkstationUnlockPerformed;
-
-        public BaseConnectionProcessor(ConnectionFlowProcessorBase connectionFlowProcessor, string logSource, ILog log)
+        public BaseConnectionProcessor(ConnectionFlowProcessorBase connectionFlowProcessor,
+            SessionSwitchSubject unlockMethod,
+            string logSource, 
+            IMetaPubSub messenger,
+            ILog log)
             : base(logSource, log)
         {
+            _messenger = messenger;
+            _unlockMethod = unlockMethod;
             _connectionFlowProcessor = connectionFlowProcessor ?? throw new ArgumentNullException(nameof(connectionFlowProcessor));
         }
 
@@ -30,7 +39,14 @@ namespace HideezMiddleware.DeviceConnection
         void OnUnlockAttempt(WorkstationUnlockResult result)
         {
             if (result.IsSuccessful)
-                WorkstationUnlockPerformed?.Invoke(this, result);
+            {
+                _messenger.Publish(new WorkstationUnlockPerformedMessage(result.FlowId,
+                    result.IsSuccessful,
+                    _unlockMethod,
+                    result.AccountName,
+                    result.AccountLogin,
+                    result.DeviceMac));
+            }
         }
     }
 }
