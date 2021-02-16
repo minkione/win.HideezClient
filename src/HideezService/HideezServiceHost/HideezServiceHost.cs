@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.ServiceProcess;
 using HideezMiddleware;
-using System.Threading.Tasks;
 using Microsoft.Win32;
 using ServiceLibrary.Implementation;
 
@@ -35,7 +34,6 @@ namespace HideezServiceHost
 
         protected override void OnStop()
         {
-            _service.Shutdown();
         }
 
         // https://stackoverflow.com/questions/44980/programmatically-determine-a-duration-of-a-locked-workstation

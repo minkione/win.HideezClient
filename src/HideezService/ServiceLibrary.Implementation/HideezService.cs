@@ -160,13 +160,6 @@ namespace ServiceLibrary.Implementation
         }
         #endregion
 
-        public void Shutdown()
-        {
-            _log.WriteLine(">>>>>> Shutdown service", LogErrorSeverity.Debug);
-            OnServiceStopped();
-            // Todo: shutdown service in a clean way
-        }
-
         #region Host Only
         void OnServiceStarted()
         {

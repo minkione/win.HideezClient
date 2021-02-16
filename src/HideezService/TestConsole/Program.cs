@@ -20,7 +20,6 @@ namespace TestConsole
                     if (line == "q" || line == "exit")
                     {
                         Console.WriteLine("exiting...");
-                        service.Shutdown();
                         break;
                     }
                 }

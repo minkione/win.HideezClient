@@ -544,6 +544,10 @@
         <File Id="zxing.dll" Name="zxing.dll" Source="$(var.HideezClient_TargetDir)zxing.dll" />
       </Component>
 
+      <Component Id="zxing.presentation.dll" Guid="{152F1A9E-0272-43B1-A529-49774455FD4E}" Win64="$(var.Win64)">
+        <File Id="zxing.presentation.dll" Name="zxing.presentation.dll" Source="$(var.HideezClient_TargetDir)zxing.presentation.dll" />
+      </Component>
+
       <Component Id="Splat.dll" Guid="{5DE552CB-BB0D-43B8-8F49-694FEF9813EA}" Win64="$(var.Win64)">
         <File Id="Splat.dll" Name="Splat.dll" Source="$(var.HideezClient_TargetDir)Splat.dll" />
       </Component>
@@ -769,6 +773,22 @@
         <File Id="System.Collections.Immutable.dll" Name="System.Collections.Immutable.dll" Source="$(var.HideezClient_TargetDir)System.Collections.Immutable.dll" />
       </Component>
 
+      <Component Id="ReactiveUI.WPF.dll" Guid="{029E5AD1-745F-4A4C-B99E-FC4B3132CBFC}" Win64="$(var.Win64)">
+        <File Id="ReactiveUI.WPF.dll" Name="ReactiveUI.WPF.dll" Source="$(var.HideezClient_TargetDir)ReactiveUI.WPF.dll" />
+      </Component>
+      
+      <Component Id="Splat.Drawing.dll" Guid="{7D333BF7-B947-408F-832D-41A8890327FF}" Win64="$(var.Win64)">
+        <File Id="Splat.Drawing.dll" Name="Splat.Drawing.dll" Source="$(var.HideezClient_TargetDir)Splat.Drawing.dll" />
+      </Component>
+
+      <Component Id="System.Runtime.WindowsRuntime.dll" Guid="{C91C32DF-11B2-4A9B-AB39-9C0DEE0140FD}" Win64="$(var.Win64)">
+        <File Id="System.Runtime.WindowsRuntime.dll" Name="System.Runtime.WindowsRuntime.dll" Source="$(var.HideezClient_TargetDir)System.Runtime.WindowsRuntime.dll" />
+      </Component>
+      
+      <Component Id="System.ValueTuple.dll" Guid="{3B605A6A-2FAA-4A0C-86BF-220A4460AF64}" Win64="$(var.Win64)">
+        <File Id="System.ValueTuple.dll" Name="System.ValueTuple.dll" Source="$(var.HideezClient_TargetDir)System.ValueTuple.dll" />
+      </Component>
+  
     </ComponentGroup>
   </Fragment>
 
