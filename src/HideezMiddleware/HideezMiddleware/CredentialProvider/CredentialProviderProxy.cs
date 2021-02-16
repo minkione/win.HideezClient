@@ -365,7 +365,7 @@ namespace HideezMiddleware.CredentialProvider
         {
             var statuses = new List<string>();
 
-            if (dongleStatus != BluetoothStatus.Ok)
+            if (dongleStatus != BluetoothStatus.Ok && bluetoothStatus != BluetoothStatus.Ok)
                 statuses.Add(TranslationSource.Instance.Format("ServiceComponentStatus.Bluetooth.NotAvailable", dongleStatus));
 
             if (rfidStatus != RfidStatus.Disabled && rfidStatus != RfidStatus.Ok)
@@ -376,7 +376,7 @@ namespace HideezMiddleware.CredentialProvider
                     statuses.Add(TranslationSource.Instance["ServiceComponentStatus.RFID.ReaderNotConnected"]);
             }
 
-            if (hesStatus != HesStatus.Ok)
+            if (hesStatus != HesStatus.Disabled && hesStatus != HesStatus.Ok)
             {
                 if (hesStatus == HesStatus.NotApproved)
                     statuses.Add(TranslationSource.Instance["ServiceComponentStatus.HES.WorkstationNotApproved"]);

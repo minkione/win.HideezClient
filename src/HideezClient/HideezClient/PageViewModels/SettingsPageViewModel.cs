@@ -9,13 +9,10 @@ namespace HideezClient.PageViewModels
 
         public SoftwareUnlockSettingViewModel SoftwareUnlock { get; }
 
-        public IndicatorsSettingViewModel Indicators { get; }
-
-        public SettingsPageViewModel(ServiceViewModel serviceViewModel, SoftwareUnlockSettingViewModel softwareUnlockModuleSwitchViewModel, IndicatorsSettingViewModel indicatorsSettingViewModel)
+        public SettingsPageViewModel(ServiceViewModel serviceViewModel, SoftwareUnlockSettingViewModel softwareUnlockModuleSwitchViewModel)
         {
             Service = serviceViewModel;
             SoftwareUnlock = softwareUnlockModuleSwitchViewModel;
-            Indicators = indicatorsSettingViewModel;
         }
     }
 }
