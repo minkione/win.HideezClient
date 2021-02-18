@@ -905,10 +905,10 @@ Only 1 attempt left.</value>
     <value>press</value>
   </data>
   <data name="Vault.Error.AuthCanceled" xml:space="preserve">
-    <value>({0}) Authorization canceled</value>
+    <value>Vault authorization cancelled ({0})</value>
   </data>
   <data name="Vault.Error.AuthFailed" xml:space="preserve">
-    <value>({0}) Authorization failed</value>
+    <value>Vault authorization failed ({0})</value>
   </data>
   <data name="Vault.Error.InvalidPin" xml:space="preserve">
     <value>Invalid PIN</value>
@@ -1036,5 +1036,8 @@ Would you like to perform application update now?</value>
   </data>
   <data name="Vault.Notification.NewMasterPassword" xml:space="preserve">
     <value>Please create new master password for your Hardware Vault</value>
+  </data>
+  <data name="ButtonWindow.CancelTooltip" xml:space="preserve">
+    <value>Hold vault button to cancel</value>
   </data>
 </root>

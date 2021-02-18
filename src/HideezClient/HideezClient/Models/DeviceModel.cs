@@ -29,6 +29,7 @@ using HideezMiddleware.ApplicationModeProvider;
 using HideezMiddleware.Utils;
 using HideezClient.Messages.Dialogs.Pin;
 using HideezClient.Messages.Dialogs.MasterPassword;
+using HideezClient.Tasks;
 
 namespace HideezClient.Models
 {
@@ -103,14 +104,11 @@ namespace HideezClient.Models
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage>(OnDeviceConnectionStateChanged);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceInitializedMessage>(OnDeviceInitialized);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceFinishedMainFlowMessage>(OnDeviceFinishedMainFlow);
-            _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage>(OnOperationCancelled);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityChangedMessage>(OnDeviceProximityChanged);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceBatteryChangedMessage>(OnDeviceBatteryChanged);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DeviceProximityLockEnabledMessage>(OnDeviceProximityLockEnabled);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(OnLockDeviceStorage);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(OnLiftDeviceStorageLock);
-            _metaMessenger.Subscribe<SendPinMessage>(OnPinReceived);
-            _metaMessenger.Subscribe<SendMasterPasswordMessage>(OnMasterPaswordReceived);
             _metaMessenger.Subscribe<SessionSwitchMessage>(OnSessionSwitch);
 
             RegisterDependencies();
@@ -422,31 +420,10 @@ namespace HideezClient.Models
             return Task.CompletedTask;
         }
 
-        Task OnPinReceived(SendPinMessage obj)
-        {
-            if (_pendingGetPinRequests.TryGetValue(obj.DeviceId, out TaskCompletionSource<byte[]> tcs))
-                tcs.TrySetResult(obj.Pin);
-
-            return Task.CompletedTask;
-        }
-
-        Task OnMasterPaswordReceived(SendMasterPasswordMessage obj)
-        {
-            if (_pendingGetMasterPasswordRequests.TryGetValue(obj.DeviceId, out TaskCompletionSource<byte[]> tcs))
-                tcs.TrySetResult(obj.Password);
-
-            return Task.CompletedTask;
-        }
-
         Task OnSessionSwitch(SessionSwitchMessage obj)
         {
             switch (obj.Reason)
             {
-                case SessionSwitchReason.SessionLogoff:
-                case SessionSwitchReason.SessionLock:
-                    // Workstation lock should cancel ongoing remote device authorization
-                    CancelDeviceAuthorization();
-                    break;
                 case SessionSwitchReason.SessionLogon:
                 case SessionSwitchReason.SessionUnlock:
                     // Workstation unlock is one of reasons to try create remote device
@@ -455,14 +432,6 @@ namespace HideezClient.Models
                 default:
                     return Task.CompletedTask;
             }
-
-            return Task.CompletedTask;
-        }
-
-        Task OnOperationCancelled(HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage obj)
-        {
-            if (obj.Device.Id == Id)
-                CancelDeviceAuthorization();
 
             return Task.CompletedTask;
         }
@@ -871,12 +840,10 @@ namespace HideezClient.Models
                 await PinWorkflow(ct);
                 await ButtonWorkflow(ct);
 
-                if (ct.IsCancellationRequested)
-                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthCanceled"], NotificationsId));
-                else if (IsAuthorized)
+                if (IsAuthorized)
                     _log.WriteLine($"({_remoteDevice.Id}) Remote vault authorized");
                 else
-                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthFailed"], NotificationsId));
+                    ShowInfo(string.Format(TranslationSource.Instance["Vault.Error.AuthCanceled"], NotificationsId));
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked || ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
             {
@@ -972,10 +939,13 @@ namespace HideezClient.Models
             ShowInfo(TranslationSource.Instance["Vault.Notification.NewPin"]);
             while (AccessLevel.IsNewPinRequired)
             {
-                var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, ct, withConfirm: true);
+                var pinProc = new GetPinProc(_metaMessenger, Id, withConfirm: true);
+                var procResult = await pinProc.Run(CREDENTIAL_TIMEOUT, ct);
 
-                if (pin == null)
-                    return false; // finished by timeout from the _ui.GetPin
+                if (procResult == null)
+                    return false; // procedure timed out or cancelled by user
+
+                var pin = procResult.Pin;
 
                 if (pin.Length == 0)
                 {
@@ -1018,10 +988,13 @@ namespace HideezClient.Models
             ShowInfo(TranslationSource.Instance["Vault.Notification.EnterCurrentPin"]);
             while (!AccessLevel.IsLocked)
             {
-                var pin = await GetPin(Id, CREDENTIAL_TIMEOUT, ct);
+                var pinProc = new GetPinProc(_metaMessenger, Id);
+                var procResult = await pinProc.Run(CREDENTIAL_TIMEOUT, ct);
 
-                if (pin == null)
-                    return false; // finished by timeout from the _ui.GetPin
+                if (procResult == null)
+                    return false; // procedure timed out or cancelled by user
+
+                var pin = procResult.Pin;
 
                 if (pin.Length == 0)
                 {
@@ -1086,12 +1059,15 @@ namespace HideezClient.Models
             ShowInfo(TranslationSource.Instance["Vault.Notification.NewMasterPassword"]);
             while (AccessLevel.IsLinkRequired)
             {
-                var inputResult = await GetMasterPassword(Id, CREDENTIAL_TIMEOUT, ct, withConfirm: true);
+                var mpProc = new GetMasterPasswordProc(_metaMessenger, Id, withConfirm: true);
+                var procResult = await mpProc.Run(CREDENTIAL_TIMEOUT, ct);
 
-                if (inputResult == null)
+                if (procResult == null)
                     return false; 
 
-                if (inputResult.Length == 0)
+                var masterPassword = procResult.Password;
+
+                if (masterPassword.Length == 0)
                 {
                     // we received an empty PIN from the user. Trying again with the same timeout.
                     Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY Masterkey");
@@ -1099,13 +1075,13 @@ namespace HideezClient.Models
                     continue;
                 }
 
-                if (inputResult.Length < 8)
+                if (masterPassword.Length < 8)
                 {
                     ShowError(TranslationSource.Instance["Vault.Error.MasterPasswordToShort"]);
                     continue;
                 }
 
-                var masterkey = KdfKeyProvider.CreateKDFKey(inputResult, 32);
+                var masterkey = KdfKeyProvider.CreateKDFKey(masterPassword, 32);
                 bool containZero = true;
                 while (containZero)
                 {
@@ -1168,12 +1144,15 @@ namespace HideezClient.Models
             ShowInfo(TranslationSource.Instance["Vault.Notification.EnterCurrentMasterPassword"]);
             while (AccessLevel.IsMasterKeyRequired)
             {
-                var inputResult = await GetMasterPassword(Id, CREDENTIAL_TIMEOUT, ct);
+                var mpProc = new GetMasterPasswordProc(_metaMessenger, Id);
+                var procResult = await mpProc.Run(CREDENTIAL_TIMEOUT, ct);
 
-                if (inputResult == null)
-                    return false; 
+                if (procResult == null)
+                    return false;
 
-                if (inputResult.Length == 0)
+                var masterPassword = procResult.Password;
+
+                if (masterPassword.Length == 0)
                 {
                     // we received an empty PIN from the user. Trying again with the same timeout.
                     Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY Masterkey");
@@ -1182,7 +1161,7 @@ namespace HideezClient.Models
                     continue;
                 }
 
-                var masterkey = KdfKeyProvider.CreateKDFKey(inputResult, 32);
+                var masterkey = KdfKeyProvider.CreateKDFKey(masterPassword, 32);
                 bool containZero = true;
                 while (containZero)
                 {
@@ -1218,52 +1197,6 @@ namespace HideezClient.Models
             return passwordOk;
         }
 
-        async Task<byte[]> GetPin(string deviceId, int timeout, CancellationToken ct, bool withConfirm = false, bool askOldPin = false)
-        {
-            await _metaMessenger.Publish(new ShowPinUiMessage(deviceId, withConfirm, askOldPin));
-
-            var tcs = _pendingGetPinRequests.GetOrAdd(deviceId, (x) =>
-            {
-                return new TaskCompletionSource<byte[]>();
-            });
-
-            try
-            {
-                return await tcs.Task.TimeoutAfter(timeout, ct);
-            }
-            catch (TimeoutException)
-            {
-                return null;
-            }
-            finally
-            {
-                _pendingGetPinRequests.TryRemove(deviceId, out TaskCompletionSource<byte[]> removed);
-            }
-        }
-
-        async Task<byte[]> GetMasterPassword(string deviceId, int timeout, CancellationToken ct, bool withConfirm = false, bool askOldPassword = false)
-        {
-            await _metaMessenger.Publish(new ShowMasterPasswordUiMessage(deviceId, withConfirm, askOldPassword));
-
-            var tcs = _pendingGetMasterPasswordRequests.GetOrAdd(deviceId, (x) =>
-            {
-                return new TaskCompletionSource<byte[]>();
-            });
-
-            try
-            {
-                return await tcs.Task.TimeoutAfter(timeout, ct);
-            }
-            catch (TimeoutException)
-            {
-                return null;
-            }
-            finally
-            {
-                _pendingGetMasterPasswordRequests.TryRemove(deviceId, out TaskCompletionSource<byte[]> removed);
-            }
-        }
-
         #region Notifications display
         void ShowInfo(string message)
         {
@@ -1294,14 +1227,11 @@ namespace HideezClient.Models
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage>(OnDeviceConnectionStateChanged);
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceInitializedMessage>(OnDeviceInitialized);
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceFinishedMainFlowMessage>(OnDeviceFinishedMainFlow);
-                    _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceOperationCancelledMessage>(OnOperationCancelled);
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceProximityChangedMessage>(OnDeviceProximityChanged);
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceBatteryChangedMessage>(OnDeviceBatteryChanged);
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.DeviceProximityLockEnabledMessage>(OnDeviceProximityLockEnabled);
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(OnLockDeviceStorage);
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(OnLiftDeviceStorageLock);
-                    _metaMessenger.Unsubscribe<SendPinMessage>(OnPinReceived);
-                    _metaMessenger.Unsubscribe<SendMasterPasswordMessage>(OnMasterPaswordReceived);
                     _metaMessenger.Unsubscribe<SessionSwitchMessage>(OnSessionSwitch);
                     StopDeviceMessangerAsync();
                 }

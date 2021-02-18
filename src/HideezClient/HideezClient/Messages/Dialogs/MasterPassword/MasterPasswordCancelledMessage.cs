@@ -2,11 +2,11 @@
 
 namespace HideezClient.Messages.Dialogs.MasterPassword
 {
-    internal sealed class MassterPasswordCancelledMessage : PubSubMessageBase
+    internal sealed class MasterPasswordCancelledMessage : PubSubMessageBase
     {
         public string DeviceId { get; }
 
-        public MassterPasswordCancelledMessage(string deviceId)
+        public MasterPasswordCancelledMessage(string deviceId)
         {
             DeviceId = deviceId;
         }

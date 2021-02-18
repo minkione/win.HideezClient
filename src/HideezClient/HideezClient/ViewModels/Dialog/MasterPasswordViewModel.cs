@@ -316,8 +316,7 @@ namespace HideezClient.ViewModels.Dialog
 
         void OnCancel()
         {
-            _metaMessenger.Publish(new HideMasterPasswordUiMessage());
-            Device.CancelDeviceAuthorization();
+            _metaMessenger.Publish(new MasterPasswordCancelledMessage(Device.Id));
         }
 
         void ClearPasswords()

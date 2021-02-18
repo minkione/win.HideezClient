@@ -373,7 +373,7 @@
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
     <Compile Include="Messages\DeviceButtonPressedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
-    <Compile Include="Messages\Dialogs\MasterPassword\MassterPasswordCancelledMessage.cs" />
+    <Compile Include="Messages\Dialogs\MasterPassword\MasterPasswordCancelledMessage.cs" />
     <Compile Include="Messages\Dialogs\MasterPassword\HideMasterPasswordUiMessage.cs" />
     <Compile Include="Messages\Dialogs\Pin\PinCancelledMessage.cs" />
     <Compile Include="Messages\Dialogs\MasterPassword\SendMasterPasswordMessage.cs" />
@@ -478,6 +478,8 @@
     <Compile Include="PageViewModels\SettingsPageViewModel.cs" />
     <Compile Include="PageViewModels\HardwareKeyPageViewModel.cs" />
     <Compile Include="PageViewModels\SoftwareKeyPageViewModel.cs" />
+    <Compile Include="Tasks\GetMasterPasswordProc.cs" />
+    <Compile Include="Tasks\GetPinProc.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
     <Compile Include="Utilities\Base32Encoding.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
