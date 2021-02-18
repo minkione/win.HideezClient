@@ -47,10 +47,6 @@ namespace HideezClient.Models
         ApplicationMode _applicationMode;
         Device _remoteDevice;
         DelayedMethodCaller dmc = new DelayedMethodCaller(2000);
-        readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetPinRequests
-            = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
-        readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetMasterPasswordRequests
-            = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
 
         string id;
         string connectionId;
@@ -83,9 +79,9 @@ namespace HideezClient.Models
         bool isStorageLoaded;
         bool isProximityLockEnabled;
 
-        CancellationTokenSource authCancellationTokenSource;
+        event EventHandler RemoteDeviceShutdown;
+
         int _interlockedRemote = 0;
-        CancellationTokenSource remoteCancellationTokenSource;
 
         bool _isStorageLocked = false;
 
@@ -541,11 +537,6 @@ namespace HideezClient.Models
             }
         }
 
-        void CancelRemoteDeviceCreation()
-        {
-            remoteCancellationTokenSource?.Cancel();
-        }
-
         async Task TryShutdownRemoteAsync()
         {
             try
@@ -573,100 +564,107 @@ namespace HideezClient.Models
                         !IsLoadingStorage && 
                         WorkstationInformationHelper.GetCurrentSessionLockState() == WorkstationInformationHelper.LockState.Unlocked)
                     {
-                        try
+                        using (var authCts = new CancellationTokenSource())
                         {
-                            authCancellationTokenSource = new CancellationTokenSource();
-                            var ct = authCancellationTokenSource.Token;
-
-                            remoteCancellationTokenSource = new CancellationTokenSource();
-
-                            await CreateRemoteDeviceAsync(remoteCancellationTokenSource.Token);
-
-                            if (remoteCancellationTokenSource.IsCancellationRequested)
+                            void authCtsCancel(object sender, EventArgs e) { authCts.Cancel(); }
+                            try
                             {
-                                _log.WriteLine($"({SerialNo}) Remote vault creation cancelled");
-                                return;
-                            }
+                                RemoteDeviceShutdown += authCtsCancel;
 
-                            if (_remoteDevice != null)
-                            {
-                                _log.WriteLine($"({_remoteDevice.SerialNo}) Remote vault created");
-                                await _remoteDevice.RefreshDeviceInfo();
-                                if (_remoteDevice.AccessLevel != null)
+                                using (var remoteCts = new CancellationTokenSource())
                                 {
-                                    _log.WriteLine($"({_remoteDevice.SerialNo}) access profile (allOk:{_remoteDevice.AccessLevel.IsAllOk}; " +
-                                        $"pin:{_remoteDevice.AccessLevel.IsPinRequired}; " +
-                                        $"newPin:{_remoteDevice.AccessLevel.IsNewPinRequired}; " +
-                                        $"button:{_remoteDevice.AccessLevel.IsButtonRequired}; " +
-                                        $"link:{_remoteDevice.AccessLevel.IsLinkRequired}; " +
-                                        $"master:{_remoteDevice.AccessLevel.IsMasterKeyRequired}; " +
-                                        $"locked:{_remoteDevice.AccessLevel.IsLocked})");
+                                    void remoteCtsCancel(object sender, EventArgs e) { remoteCts.Cancel(); }
+                                    try
+                                    {
+                                        RemoteDeviceShutdown += remoteCtsCancel;
+                                        await CreateRemoteDeviceAsync(remoteCts.Token);
+
+                                        if (remoteCts.IsCancellationRequested)
+                                        {
+                                            _log.WriteLine($"({SerialNo}) Remote vault creation cancelled");
+                                            return;
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        RemoteDeviceShutdown -= remoteCtsCancel;
+                                    }
+                                }
+
+                                if (_remoteDevice != null)
+                                {
+                                    _log.WriteLine($"({_remoteDevice.SerialNo}) Remote vault created");
+                                    await _remoteDevice.RefreshDeviceInfo();
+                                    if (_remoteDevice.AccessLevel != null)
+                                    {
+                                        _log.WriteLine($"({_remoteDevice.SerialNo}) access profile (allOk:{_remoteDevice.AccessLevel.IsAllOk}; " +
+                                            $"pin:{_remoteDevice.AccessLevel.IsPinRequired}; " +
+                                            $"newPin:{_remoteDevice.AccessLevel.IsNewPinRequired}; " +
+                                            $"button:{_remoteDevice.AccessLevel.IsButtonRequired}; " +
+                                            $"link:{_remoteDevice.AccessLevel.IsLinkRequired}; " +
+                                            $"master:{_remoteDevice.AccessLevel.IsMasterKeyRequired}; " +
+                                            $"locked:{_remoteDevice.AccessLevel.IsLocked})");
+                                    }
+                                    else
+                                        _log.WriteLine($"({_remoteDevice.SerialNo}) access level is null");
+                                }
+
+                                if (_remoteDevice.IsLockedByCode)
+                                    throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                                else if (authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && !_remoteDevice.AccessLevel.IsAllOk)
+                                    await AuthorizeRemoteDevice(authCts.Token);
+                                else if (!authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsAllOk)
+                                    await AuthorizeRemoteDevice(authCts.Token);
+                                else if (_remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsLocked)
+                                    throw new HideezException(HideezErrorCode.DeviceIsLocked);
+
+                                if (!authCts.IsCancellationRequested && !IsStorageLoaded)
+                                    await LoadStorage();
+                            }
+                            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceDisconnected)
+                            {
+                                _log.WriteLine("Remote vault creation aborted, vault disconnected", LogErrorSeverity.Warning);
+                            }
+                            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked)
+                            {
+                                if (_remoteDevice.IsLockedByCode)
+                                {
+                                    await _metaMessenger.Publish(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByCode.Message"],
+                                        TranslationSource.Instance["Notification.DeviceLockedByCode.Caption"],
+                                        new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
+                                        NotificationsId));
+                                }
+                                else if (_remoteDevice.IsLockedByPin)
+                                {
+                                    await _metaMessenger.Publish(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
+                                        TranslationSource.Instance["Notification.DeviceLockedByPin.Caption"],
+                                        new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
+                                        NotificationsId));
                                 }
                                 else
-                                    _log.WriteLine($"({_remoteDevice.SerialNo}) access level is null");
+                                {
+                                    _log.WriteLine(ex);
+                                }
                             }
-
-                            if (_remoteDevice.IsLockedByCode)
-                                throw new HideezException(HideezErrorCode.DeviceIsLocked);
-                            else if (authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && !_remoteDevice.AccessLevel.IsAllOk)
-                                await AuthorizeRemoteDevice(ct);
-                            else if (!authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsAllOk)
-                                await AuthorizeRemoteDevice(ct);
-                            else if (_remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsLocked)
-                                throw new HideezException(HideezErrorCode.DeviceIsLocked);
-
-                            if (!ct.IsCancellationRequested && !IsStorageLoaded)
-                                await LoadStorage();
-                        }
-                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceDisconnected)
-                        {
-                            _log.WriteLine("Remote vault creation aborted, vault disconnected", LogErrorSeverity.Warning);
-                        }
-                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked)
-                        {
-                            if (_remoteDevice.IsLockedByCode)
+                            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
                             {
-                                await _metaMessenger.Publish(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByCode.Message"],
-                                    TranslationSource.Instance["Notification.DeviceLockedByCode.Caption"],
-                                    new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
-                                    NotificationsId));
                             }
-                            else if (_remoteDevice.IsLockedByPin)
+                            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLockedByCode)
                             {
-                                await _metaMessenger.Publish(new ShowLockNotificationMessage(TranslationSource.Instance["Notification.DeviceLockedByPin.Message"],
-                                    TranslationSource.Instance["Notification.DeviceLockedByPin.Caption"],
-                                    new NotificationOptions() { CloseTimeout = NotificationOptions.LongTimeout },
-                                    NotificationsId));
                             }
-                            else
+                            catch (HideezException ex)
                             {
-                                _log.WriteLine(ex);
+                                _log.WriteLine("Encryption desync, discarding remote device");
+                                await ShutdownRemoteDeviceAsync(ex.ErrorCode);
                             }
-                        }
-                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
-                        {
-                        }
-                        catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLockedByCode)
-                        {
-                        }
-                        catch (HideezException ex)
-                        {
-                            _log.WriteLine("Encryption desync, discarding remote device");
-                            await ShutdownRemoteDeviceAsync(ex.ErrorCode);
-                        }
-                        catch (Exception ex)
-                        {
-                            ShowError(ex.Message);
-                        }
-                        finally
-                        {
-                            var tmp = authCancellationTokenSource;
-                            authCancellationTokenSource = null;
-                            tmp.Dispose();
-
-                            tmp = remoteCancellationTokenSource;
-                            remoteCancellationTokenSource = null;
-                            tmp.Dispose();
+                            catch (Exception ex)
+                            {
+                                ShowError(ex.Message);
+                            }
+                            finally
+                            {
+                                RemoteDeviceShutdown -= authCtsCancel;
+                            }
                         }
                     }
                 }
@@ -677,19 +675,13 @@ namespace HideezClient.Models
             }
         }
 
-        public void CancelDeviceAuthorization()
-        {
-            authCancellationTokenSource?.Cancel();
-        }
-
         public async Task ShutdownRemoteDeviceAsync(HideezErrorCode code)
         {
             try
             {
                 if (_remoteDevice != null)
                 {
-                    CancelRemoteDeviceCreation();
-                    CancelDeviceAuthorization();
+                    RemoteDeviceShutdown?.Invoke(this, EventArgs.Empty);
 
                     var tempRemoteDevice = _remoteDevice;
                     _remoteDevice = null;
@@ -1233,7 +1225,7 @@ namespace HideezClient.Models
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.LockDeviceStorageMessage>(OnLockDeviceStorage);
                     _metaMessenger.Unsubscribe<HideezMiddleware.IPC.Messages.LiftDeviceStorageLockMessage>(OnLiftDeviceStorageLock);
                     _metaMessenger.Unsubscribe<SessionSwitchMessage>(OnSessionSwitch);
-                    StopDeviceMessangerAsync();
+                    StopDeviceMessengerAsync();
                 }
 
                 disposed = true;
@@ -1251,7 +1243,7 @@ namespace HideezClient.Models
             GC.SuppressFinalize(this);
         }
 
-        async void StopDeviceMessangerAsync()
+        async void StopDeviceMessengerAsync()
         {
             try
             {
