@@ -1,9 +1,8 @@
 ﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Device.Exchange;
 using Hideez.SDK.Communication.Interfaces;
 using HideezMiddleware.IPC.IncommingMessages.RemoteDevice;
-using HideezMiddleware.IPC.Messages;
+using HideezMiddleware.IPC.Messages.RemoteDevice;
 using Meta.Lib.Modules.PubSub;
 using System;
 using System.Threading.Tasks;
@@ -44,11 +43,32 @@ namespace HideezClient.Modules.Remote
             else State = ConnectionState.NotConnected;
 
             _metaPubSub.TrySubscribeOnServer<RemoteConnection_DeviceStateChangedMessage>(OnDeviceStateChanged);
+            _metaPubSub.TrySubscribeOnServer<RemoteConnection_OperationCancelledMessage>(OnOperationCancelled);
+            _metaPubSub.TrySubscribeOnServer<RemoteConnection_DeviceIsBusyMessage>(OnDeviceIsBusy);
+            _metaPubSub.TrySubscribeOnServer<RemoteConnection_WipeFinishedMessage>(OnWipeFinished);
         }
 
-        private Task OnDeviceStateChanged(RemoteConnection_DeviceStateChangedMessage arg)
+        private Task OnDeviceStateChanged(RemoteConnection_DeviceStateChangedMessage msg)
         {
-            DeviceStateChanged?.Invoke(this, arg.State);
+            DeviceStateChanged?.Invoke(this, msg.State);
+            return Task.CompletedTask;
+        }
+
+        private Task OnOperationCancelled(RemoteConnection_OperationCancelledMessage msg)
+        {
+            OperationCancelled?.Invoke(this, EventArgs.Empty);
+            return Task.CompletedTask;
+        }
+
+        private Task OnDeviceIsBusy(RemoteConnection_DeviceIsBusyMessage msg)
+        {
+            DeviceIsBusy?.Invoke(this, EventArgs.Empty);
+            return Task.CompletedTask;
+        }
+
+        private Task OnWipeFinished(RemoteConnection_WipeFinishedMessage msg)
+        {
+            WipeFinished?.Invoke(this, msg.WipeStatus);
             return Task.CompletedTask;
         }
 
