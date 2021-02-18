@@ -7,6 +7,7 @@ using Hideez.SDK.Communication.PipeDevice;
 using HideezMiddleware;
 using HideezMiddleware.IPC.IncommingMessages.RemoteDevice;
 using HideezMiddleware.IPC.Messages;
+using HideezMiddleware.IPC.Messages.RemoteDevice;
 using Meta.Lib.Modules.PubSub;
 using Meta.Lib.Modules.PubSub.Messages;
 using System;
@@ -41,6 +42,9 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
             _deviceManager = deviceManager;
 
             _pipeDevice.DeviceConnection.DeviceStateChanged += RemoteConnection_DeviceStateChanged;
+            _pipeDevice.DeviceConnection.OperationCancelled += RemoteConnection_OperationCancelled;
+            _pipeDevice.DeviceConnection.DeviceIsBusy += RemoteConnection_DeviceIsBusy;
+            _pipeDevice.DeviceConnection.WipeFinished += RemoteConnection_WipeFinished;
 
             InitializePubSub();
         }
@@ -80,13 +84,7 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
             _remoteConnectionPubSub.Subscribe<RemoteConnection_GetConnectionProviderMessage>(RemoteConnection_GetConnectionProviderAsync);
         }
 
-        #region Event Handlers
-        async Task RemoteConnection_GetConnectionProviderAsync(RemoteConnection_GetConnectionProviderMessage arg)
-        {
-            var idProvider = _pipeDevice.Device.DeviceConnection.Connection.ConnectionId.IdProvider;
-            await _remoteConnectionPubSub.Publish(new RemoteConnection_GetConnectionProviderMessageReply(idProvider));
-        }
-
+        #region Event handlers
         async void RemoteConnection_DeviceStateChanged(object sender, byte[] e)
         {
             try
@@ -100,6 +98,60 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
             {
                 Error(ex);
             }
+        }
+
+        async void RemoteConnection_OperationCancelled(object sender, EventArgs e)
+        {
+            try
+            {
+                if (sender is IConnectionController connection)
+                {
+                    await _remoteConnectionPubSub.Publish(new RemoteConnection_OperationCancelledMessage(connection.Id));
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        async void RemoteConnection_DeviceIsBusy(object sender, EventArgs e)
+        {
+            try
+            {
+                if (sender is IConnectionController connection)
+                {
+                    await _remoteConnectionPubSub.Publish(new RemoteConnection_DeviceIsBusyMessage(connection.Id));
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        async void RemoteConnection_WipeFinished(object sender, FwWipeStatus e)
+        {
+            try
+            {
+                if (sender is IConnectionController connection)
+                {
+                    await _remoteConnectionPubSub.Publish(new RemoteConnection_WipeFinishedMessage(connection.Id, e));
+                }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+            }
+        }
+
+        #endregion
+
+        #region Message handlers
+        async Task RemoteConnection_GetConnectionProviderAsync(RemoteConnection_GetConnectionProviderMessage arg)
+        {
+            var idProvider = _pipeDevice.Device.DeviceConnection.Connection.ConnectionId.IdProvider;
+            await _remoteConnectionPubSub.Publish(new RemoteConnection_GetConnectionProviderMessageReply(idProvider));
         }
 
         async Task RemoteConnection_ControlRemoteCommandAsync(RemoteConnection_ControlRemoteCommandMessage arg)
@@ -202,11 +254,15 @@ namespace ServiceLibrary.Implementation.RemoteConnectionManagement
 
             return Task.CompletedTask;
         }
+
         #endregion
 
         public void DisposePair()
         {
             _pipeDevice.DeviceConnection.DeviceStateChanged -= RemoteConnection_DeviceStateChanged;
+            _pipeDevice.DeviceConnection.OperationCancelled -= RemoteConnection_OperationCancelled;
+            _pipeDevice.DeviceConnection.DeviceIsBusy -= RemoteConnection_DeviceIsBusy;
+            _pipeDevice.DeviceConnection.WipeFinished -= RemoteConnection_WipeFinished;
 
             _remoteConnectionPubSub.StopServer();
         }

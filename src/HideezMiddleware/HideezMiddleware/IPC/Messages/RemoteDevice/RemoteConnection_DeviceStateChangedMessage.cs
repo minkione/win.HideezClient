@@ -1,7 +1,6 @@
-﻿using HideezMiddleware.IPC.DTO;
-using Meta.Lib.Modules.PubSub;
+﻿using Meta.Lib.Modules.PubSub;
 
-namespace HideezMiddleware.IPC.Messages
+namespace HideezMiddleware.IPC.Messages.RemoteDevice
 {
     public sealed class RemoteConnection_DeviceStateChangedMessage : PubSubMessageBase
     {

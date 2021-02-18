@@ -202,8 +202,11 @@
     <Compile Include="IPC\Messages\LockWorkstationMessage.cs" />
     <Compile Include="IPC\Messages\LoginClientRequestMessage.cs" />
     <Compile Include="IPC\Messages\ProximitySettingsChangedMessage.cs" />
+    <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_DeviceIsBusyMessage.cs" />
     <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_DeviceStateChangedMessage.cs" />
     <Compile Include="IPC\Messages\RemoteDevice\PipeDeviceDisconnectedMessage.cs" />
+    <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_OperationCancelledMessage.cs" />
+    <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_WipeFinishedMessage.cs" />
     <Compile Include="IPC\Messages\ServiceComponentsStateChangedMessage.cs" />
     <Compile Include="IPC\Messages\ServiceSettingsChangedMessage.cs" />
     <Compile Include="IPC\Messages\ShowActivationCodeUiMessage.cs" />
