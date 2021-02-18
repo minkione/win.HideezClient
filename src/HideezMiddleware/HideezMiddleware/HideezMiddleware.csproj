@@ -171,6 +171,7 @@
     <Compile Include="IPC\DTO\DeviceStateDTO.cs" />
     <Compile Include="IPC\DTO\ProximitySettingsDTO.cs" />
     <Compile Include="IPC\DTO\WorkstationEventDTO.cs" />
+    <Compile Include="IPC\IncommingMessages\ActivationCodeCancelledMessage.cs" />
     <Compile Include="IPC\IncommingMessages\AttachClientMessage.cs" />
     <Compile Include="IPC\IncommingMessages\CancelActivationCodeMessage.cs" />
     <Compile Include="IPC\IncommingMessages\CancelPinMessage.cs" />

@@ -1,12 +1,8 @@
-﻿using GalaSoft.MvvmLight.Messaging;
-using Hideez.SDK.Communication.Interfaces;
-using HideezClient.Extension;
-using HideezClient.Messages;
+﻿using HideezClient.Extension;
 using HideezClient.Models;
 using HideezClient.Modules.DeviceManager;
-using HideezClient.Modules.ServiceProxy;
 using HideezClient.Mvvm;
-using HideezMiddleware.IPC.Messages;
+using HideezMiddleware.IPC.IncommingMessages;
 using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.Commands;
@@ -166,16 +162,14 @@ namespace HideezClient.ViewModels
 
             var codeBytes = code != null ? code.ToUtf8Bytes() : _emptyBytes;
 
-            _metaMessenger.Publish(new SendActivationCodeMessage(Device.Id, codeBytes));
+            _metaMessenger.PublishOnServer(new SendActivationCodeMessage(Device.Id, codeBytes));
 
             ClearPasswords();
         }
 
         void OnCancel()
         {
-            _metaMessenger.Publish(new CancelActivationCodeEntryMessage(Device.Id));
-            _metaMessenger.PublishOnServer(new HideActivationCodeUi());
-            Device.CancelDeviceAuthorization();
+            _metaMessenger.PublishOnServer(new ActivationCodeCancelledMessage(Device.Id));
         }
 
         void ClearPasswords()

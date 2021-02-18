@@ -27,6 +27,8 @@ using Hideez.SDK.Communication.HES.DTO;
 using HideezMiddleware.Utils.WorkstationHelper;
 using HideezMiddleware.ApplicationModeProvider;
 using HideezMiddleware.Utils;
+using HideezClient.Messages.Dialogs.Pin;
+using HideezClient.Messages.Dialogs.MasterPassword;
 
 namespace HideezClient.Models
 {

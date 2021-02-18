@@ -1,8 +1,8 @@
 ﻿using Meta.Lib.Modules.PubSub;
 
-namespace HideezClient.Messages
+namespace HideezClient.Messages.Dialogs.Pin
 {
-    public class ShowButtonConfirmUiMessage: PubSubMessageBase
+    public class ShowButtonConfirmUiMessage : PubSubMessageBase
     {
         public string DeviceId { get; }
 

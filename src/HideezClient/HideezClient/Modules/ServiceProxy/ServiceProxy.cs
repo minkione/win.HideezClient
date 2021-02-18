@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using GalaSoft.MvvmLight.Messaging;
+﻿using System.Threading.Tasks;
 using Hideez.SDK.Communication.Log;
 using HideezClient.Messages;
 using HideezClient.Modules.Log;
@@ -21,12 +19,8 @@ namespace HideezClient.Modules.ServiceProxy
         {
             _metaMessenger = metaMessenger;
 
-            _metaMessenger.Subscribe<SendActivationCodeMessage>(OnSendActivationCodeMessage);
-            _metaMessenger.Subscribe<CancelActivationCodeEntryMessage>(OnCancelActivationCodeMessage);
-
             _metaMessenger.Subscribe<ConnectedToServerEvent>(OnConnected, null);
             _metaMessenger.Subscribe<DisconnectedFromServerEvent>(OnDisconnected, null);
-
         }
 
         Task OnConnected(ConnectedToServerEvent arg)
@@ -46,30 +40,6 @@ namespace HideezClient.Modules.ServiceProxy
         void ServiceProxy_ConnectionChanged()
         {
             _metaMessenger.Publish(new ConnectionServiceChangedMessage(IsConnected));
-        }
-
-        async Task OnSendActivationCodeMessage(SendActivationCodeMessage obj)
-        {
-            try
-            {
-                await _metaMessenger.PublishOnServer(new HideezMiddleware.IPC.IncommingMessages.SendActivationCodeMessage(obj.DeviceId, obj.Code));
-            }
-            catch (Exception ex)
-            {
-                log.WriteLine(ex);
-            }
-        }
-
-        async Task OnCancelActivationCodeMessage(CancelActivationCodeEntryMessage obj)
-        {
-            try
-            {
-                await _metaMessenger.PublishOnServer(new HideezMiddleware.IPC.IncommingMessages.CancelActivationCodeMessage(obj.DeviceId));
-            }
-            catch (Exception ex)
-            {
-                log.WriteLine(ex);
-            }
         }
     }
 }

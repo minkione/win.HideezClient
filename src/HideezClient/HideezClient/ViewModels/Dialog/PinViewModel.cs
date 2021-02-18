@@ -1,5 +1,4 @@
-﻿using GalaSoft.MvvmLight.Messaging;
-using HideezClient.Extension;
+﻿using HideezClient.Extension;
 using HideezClient.Messages;
 using HideezClient.Models;
 using HideezClient.Modules.DeviceManager;
@@ -9,10 +8,10 @@ using MvvmExtensions.Commands;
 using System.Security;
 using System.Windows.Input;
 using System.Linq;
-using Hideez.SDK.Communication.Interfaces;
 using System;
 using HideezClient.Modules.Localize;
 using Meta.Lib.Modules.PubSub;
+using HideezClient.Messages.Dialogs.Pin;
 
 namespace HideezClient.ViewModels
 {
@@ -320,8 +319,7 @@ namespace HideezClient.ViewModels
 
         void OnCancel()
         {
-            _metaMessenger.Publish(new HidePinUiMessage());
-            Device.CancelDeviceAuthorization();
+            _metaMessenger.Publish(new PinCancelledMessage(Device.Id));
         }
 
         void ClearPasswords()

@@ -1,9 +1,9 @@
 ﻿using Meta.Lib.Modules.PubSub;
 
 
-namespace HideezClient.Messages
+namespace HideezClient.Messages.Dialogs.MasterPassword
 {
-    public class ShowMasterPasswordUiMessage : PubSubMessageBase
+    internal sealed class ShowMasterPasswordUiMessage : PubSubMessageBase
     {
         public string DeviceId { get; }
 

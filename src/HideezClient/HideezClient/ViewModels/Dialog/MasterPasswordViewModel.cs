@@ -1,5 +1,6 @@
 ﻿using HideezClient.Extension;
 using HideezClient.Messages;
+using HideezClient.Messages.Dialogs.MasterPassword;
 using HideezClient.Models;
 using HideezClient.Modules.DeviceManager;
 using HideezClient.Modules.Localize;

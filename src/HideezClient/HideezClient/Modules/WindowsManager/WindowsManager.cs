@@ -23,6 +23,8 @@ using HideezClient.Modules.NotificationsManager;
 using Meta.Lib.Modules.PubSub;
 using HideezMiddleware.IPC.Messages;
 using HideezClient.ViewModels.Dialog;
+using HideezClient.Messages.Dialogs.Pin;
+using HideezClient.Messages.Dialogs.MasterPassword;
 
 namespace HideezClient.Modules
 {
