@@ -10,7 +10,7 @@
     xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="AboutDevicePage"
-    d:DesignHeight="450"
+    d:DesignHeight="800"
     d:DesignWidth="800"
     DataContext="{Binding DeviceSettingsPageViewModel, Mode=OneWay, Source={StaticResource Locator}}"
     Style="{DynamicResource PageStyle}"
@@ -48,6 +48,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Hidden">
     <Grid Margin="16" VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -163,7 +164,94 @@
             </Grid>
         </Border>
 
-        <StackPanel x:Name="proximityStackPanel" Grid.Row="3" Focusable="True" >
+        
+        <!-- Vault access profile -->
+            <StackPanel 
+                Grid.Row="2" 
+                Focusable="True" 
+                DataContext="{Binding VaultAccessSettingsViewModel}"
+                Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Style="{StaticResource SettingsHeaderStyle}" Text="{l:Localization AccessSettings.Title}" />
+
+                <Border Padding="24" Style="{StaticResource SettingsSectionBorderStyle}">
+                    <StackPanel>
+                        <Grid Grid.IsSharedSizeScope="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Style="{DynamicResource LabelStyle}"
+                                    Margin="0,0,0,18"
+                                    Text="{l:Localization AccessSettings.StorageAccess}" />
+                                <CheckBox 
+                                    Style="{StaticResource CheckboxStyle}"
+                                    Content="{l:Localization AccessSettings.RequireButton}"
+                                    Margin="0,0,0,18"
+                                    IsChecked="{Binding RequireButton}" />
+                                <CheckBox 
+                                    Style="{StaticResource CheckboxStyle}"
+                                    Content="{l:Localization AccessSettings.RequirePin}"
+                                    Margin="0,0,0,18"
+                                    IsChecked="{Binding RequirePin}" />
+                                <TextBlock
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Style="{DynamicResource LabelStyle}"
+                                    Margin="0,0,0,18"
+                                    Text="{l:Localization AccessSettings.StorageLockTimeout}" />
+                                <ComboBox 
+                                    HorizontalAlignment="Left"
+                                    MinWidth="150"
+                                    IsTabStop="True"
+                                    Style="{DynamicResource ComboBoxStyle}"
+                                    ItemsSource="{Binding TimeoutOptionsList}"
+                                    DisplayMemberPath="Title"
+                                    SelectedItem="{Binding SelectedTimeout}"
+                                    Tag="{Binding SelectedTimeout.Title}" 
+                                    />
+                            </StackPanel>
+                            <StackPanel 
+                                Grid.Column="1" 
+                                HorizontalAlignment="Right">
+                                <Button
+                                    Command="{Binding ChangeMasterPasswordCommand}"
+                                    Content="{l:Localization AccessSettings.ChangeMasterPassword}"
+                                    Style="{DynamicResource ConfirmButtonStyle}"
+                                    Margin="0,0,0,24" />
+
+                                <Button
+                                    Command="{Binding ChangePinCodeCommand}"
+                                    Content="{l:Localization AccessSettings.ChangePinCode}"
+                                    Style="{DynamicResource ConfirmButtonStyle}"
+                                    Margin="0,0,0,24" 
+                                    Visibility="{Binding SavedRequirePin, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <StackPanel 
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibilityHiddenConverter}}">
+                            <Button
+                                Command="{Binding CancelAccessProfileEditCommand}"
+                                Content="{l:Localization Button.Cancel}"
+                                Style="{DynamicResource CancelButtonStyle}" />
+                            <Rectangle Width="14" />
+                            <Button
+                                Command="{Binding SaveAccessProfileCommand}"
+                                Content="{l:Localization Button.Save}"
+                                Style="{StaticResource ConfirmButtonStyle}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        
+        <!-- Vault proximity settings -->
+        <StackPanel x:Name="proximityStackPanel" Grid.Row="3" Focusable="True">
             <StackPanel.Style>
                 <Style TargetType="StackPanel">
                     <Setter Property="Visibility" Value="Collapsed" />
@@ -491,7 +579,8 @@
             </Border>
         </StackPanel>
 
-        <StackPanel Grid.Row="3" Visibility="Collapsed">
+        <!-- Credentials import/export -->
+        <StackPanel Grid.Row="4" Visibility="Collapsed">
             <TextBlock Style="{StaticResource SettingsHeaderStyle}" Text="Import / Export credentials" />
 
             <Border Padding="24" Style="{StaticResource SettingsSectionBorderStyle}">

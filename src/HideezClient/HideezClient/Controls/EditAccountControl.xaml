@@ -101,17 +101,20 @@
 
                     <ComboBox
                         Grid.Column="2"
+                        Margin="-4,0,0,0"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Center"
                         ma:TextBoxHelper.Watermark="{l:Localization PM.Label.Login}"
-                        BorderThickness="0"
+                        Style="{DynamicResource ComboBoxStyle}"
+                        BorderThickness="0"                        
+                        Background="Transparent"
+                        BorderBrush="Transparent"
                         FontSize="16"
                         Foreground="{DynamicResource DarkForeground}"
                         IsEditable="True"
                         IsTabStop="True"
                         IsTextSearchCaseSensitive="True"
                         ItemsSource="{Binding Logins}"
-                        Style="{DynamicResource ComboBoxStyle}"
                         Text="{Binding Login}" />
                 </Grid>
             </ContentControl>

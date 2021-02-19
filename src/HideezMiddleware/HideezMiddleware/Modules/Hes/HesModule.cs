@@ -16,6 +16,7 @@ namespace HideezMiddleware.Modules.Hes
     {
         readonly IHesAppConnection _hesAppConnection;
         readonly IHesAccessManager _hesAccessManager;
+        string _address = string.Empty;
 
         public HesModule(IHesAppConnection hesAppConnection, IHesAccessManager hesAccessManager, IMetaPubSub messenger, ILog log)
             : base(messenger, nameof(HesModule), log)
@@ -26,11 +27,11 @@ namespace HideezMiddleware.Modules.Hes
             // Get HES address from registry ==================================
             // HKLM\SOFTWARE\Hideez\Client, client_hes_address REG_SZ
             var logger = new Logger(nameof(HesModule), log);
-            string hesAddress = RegistrySettings.GetHesAddress(logger);
+            _address = RegistrySettings.GetHesAddress(logger);
 
             // Allow self-signed SSL certificate for specified address
             EndpointCertificateManager.Enable();
-            EndpointCertificateManager.AllowCertificate(hesAddress);
+            EndpointCertificateManager.AllowCertificate(_address);
 
             _hesAccessManager.AccessRetracted += HesAccessManager_AccessRetracted;
             _hesAppConnection.HubProximitySettingsArrived += HesAppConnection_HubProximitySettingsArrived;
@@ -40,8 +41,15 @@ namespace HideezMiddleware.Modules.Hes
             _hesAppConnection.LiftHwVaultStorageLockRequest += HesAppConnection_LiftHwVaultStorageLockRequest;
             _hesAppConnection.Alarm += HesAppConnection_Alarm;
 
-            if (!string.IsNullOrWhiteSpace(hesAddress))
-                _hesAppConnection.Start(hesAddress); // Launch HES connection immediatelly to save time
+            if (!string.IsNullOrWhiteSpace(_address))
+                _hesAppConnection.Start(_address); // Launch HES connection immediatelly to save time
+            else
+                Task.Run(async () =>
+                {
+                    // We still need to notify about initial HesAppConnection state
+                    await SafePublish(
+                        new HesAppConnection_HubConnectionStateChangedMessage(_hesAppConnection, EventArgs.Empty));
+                });
 
             _messenger.Subscribe(GetSafeHandler<ChangeServerAddressMessage>(ChangeServerAddress));
 
@@ -86,34 +94,35 @@ namespace HideezMiddleware.Modules.Hes
         {
             try
             {
-                var address = args.ServerAddress;
-                WriteLine($"Client requested HES address change to \"{address}\"");
+                var oldAddress = _address;
+                _address = args.ServerAddress;
+                WriteLine($"Client requested HES address change to \"{_address}\"");
 
-                if (string.IsNullOrWhiteSpace(address))
+                if (string.IsNullOrWhiteSpace(_address))
                 {
                     WriteLine($"Clearing server address and shutting down connection");
-                    RegistrySettings.SetHesAddress(this, address);
+                    RegistrySettings.SetHesAddress(this, _address);
                     await _hesAppConnection.Stop();
                     await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.Success));
                 }
                 else
                 {
-                    EndpointCertificateManager.AllowCertificate(address);
-                    var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(address, _log).TimeoutAfter(30_000);
+                    EndpointCertificateManager.AllowCertificate(_address);
+                    var connectedOnNewAddress = await HubConnectivityChecker.CheckHubConnectivity(_address, _log).TimeoutAfter(30_000);
                     if (connectedOnNewAddress)
                     {
-                        WriteLine($"Passed connectivity check to {address}");
-                        RegistrySettings.SetHesAddress(this, address);
+                        WriteLine($"Passed connectivity check to {_address}");
+                        RegistrySettings.SetHesAddress(this, _address);
                         await _hesAppConnection.Stop();
-                        EndpointCertificateManager.DisableAllCertificates();
-                        EndpointCertificateManager.AllowCertificate(address);
-                        _hesAppConnection.Start(address);
+                        EndpointCertificateManager.DisableCertificate(oldAddress);
+                        EndpointCertificateManager.AllowCertificate(_address);
+                        _hesAppConnection.Start(_address);
 
                         await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.Success));
                     }
                     else
                     {
-                        WriteLine($"Failed connectivity check to {address}");
+                        WriteLine($"Failed connectivity check to {_address}");
                         await SafePublish(new ChangeServerAddressMessageReply(ChangeServerAddressResult.ConnectionTimedOut));
                     }
                 }
@@ -154,7 +163,8 @@ namespace HideezMiddleware.Modules.Hes
             try
             {
                 await _hesAppConnection.Stop();
-                _hesAppConnection.Start();
+                if (!string.IsNullOrWhiteSpace(_address))
+                    _hesAppConnection.Start();
             }
             catch (Exception ex)
             {

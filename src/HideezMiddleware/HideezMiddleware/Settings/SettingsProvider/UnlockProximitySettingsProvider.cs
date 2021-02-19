@@ -78,7 +78,7 @@ namespace HideezMiddleware.Settings.SettingsProvider
         public bool IsDisabledUnlockByProximity(string connectionId)
         {
             var isExistSettings = _unlockProximitySettings.DevicesProximity.Any(s=>s.Mac == BleUtils.ConnectionIdToMac(connectionId));
-            return isExistSettings;
+            return !isExistSettings;
         }
     }
 }

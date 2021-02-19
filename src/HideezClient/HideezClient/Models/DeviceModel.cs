@@ -1029,6 +1029,87 @@ namespace HideezClient.Models
             return pinOk;
         }
 
+        public async Task<bool> ChangePinWorkflow()
+        {
+            using (var cts = new CancellationTokenSource())
+            {
+                void ctsCancel(object sender, EventArgs e) { cts.Cancel(); }
+                try
+                {
+                    RemoteDeviceShutdown += ctsCancel;
+
+                    try
+                    {
+                        while (IsAuthorized)
+                        {
+                            var proc = new GetPinProc(_metaMessenger, Id, true, true);
+                            var procResult = await proc.Run(CREDENTIAL_TIMEOUT, cts.Token);
+
+                            if (procResult == null)
+                                return false; // finished by timeout from the _ui.GetPin
+
+                            if (procResult.Pin.Length == 0 || procResult.OldPin.Length == 0)
+                            {
+                                // we received an empty PIN from the user. Trying again with the same timeout.
+                                continue;
+                            }
+
+                            var attemptsLeft = PinAttemptsRemain - 1;
+                            var newPin = Encoding.UTF8.GetString(procResult.Pin);
+                            var oldPin = Encoding.UTF8.GetString(procResult.OldPin);
+                            var setPinResult = await _remoteDevice.SetPin(newPin, oldPin);
+
+                            if (setPinResult == HideezErrorCode.Ok)
+                            {
+                                return true;
+                            }
+                            else if (setPinResult == HideezErrorCode.ERR_DEVICE_LOCKED_BY_PIN)
+                            {
+                                throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                            }
+                            else // ERR_PIN_WRONG and ERR_PIN_TOO_SHORT should just be displayed as wrong pin for security reasons
+                            {
+                                if (AccessLevel.IsLocked)
+                                    ShowError(TranslationSource.Instance["Vault.Error.Pin.LockedByInvalidAttempts"]);
+                                else
+                                {
+                                    if (attemptsLeft > 1)
+                                        ShowError(string.Format(TranslationSource.Instance["Vault.Error.InvalidPin.ManyAttemptsLeft"], attemptsLeft));
+                                    else
+                                        ShowError(string.Format(TranslationSource.Instance["Vault.Error.InvalidPin.OneAttemptLeft"]));
+                                    await _remoteDevice.RefreshDeviceInfo(); // Remaining pin attempts update is not quick enough 
+                                }
+                            }
+                        }
+                    }
+                    catch (HideezException ex)
+                    {
+                        _log.WriteLine(ex);
+                        ShowError(ex.Message);
+                    }
+                    catch (OperationCanceledException ex)
+                    {
+                        _log.WriteLine(ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.WriteLine(ex);
+                        ShowError(ex.Message);
+                    }
+                    finally
+                    {
+                        await _metaMessenger.Publish(new HidePinUiMessage());
+                    }
+
+                    return false;
+                }
+                finally
+                {
+                    RemoteDeviceShutdown -= ctsCancel;
+                }
+            }
+        }
+
         Task<bool> MasterPasswordWorkflow(CancellationToken ct)
         {
             if (_remoteDevice.AccessLevel.IsLinkRequired)
@@ -1187,6 +1268,145 @@ namespace HideezClient.Models
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> EnterMasterkeyWorkflow ------------------------------");
             return passwordOk;
+        }
+
+        public async Task<bool> ChangeMasterkeyWorkflow()
+        {
+            using (var cts = new CancellationTokenSource())
+            {
+                void ctsCancel(object sender, EventArgs e) { cts.Cancel(); }
+                try
+                {
+                    RemoteDeviceShutdown += ctsCancel;
+
+                    try
+                    {
+                        while (IsAuthorized)
+                        {
+                            var proc = new GetMasterPasswordProc(_metaMessenger, Id, true, true);
+                            var procResult = await proc.Run(CREDENTIAL_TIMEOUT, cts.Token);
+
+                            if (procResult == null)
+                                return false; // finished by timeout from the _ui.GetPin
+
+                            if (procResult.Password.Length == 0 || procResult.OldPassword.Length == 0)
+                            {
+                                // we received an empty password from the user. Trying again with the same timeout.
+                                continue;
+                            }
+
+                            // Currently this operation has no support at firmware level
+                            throw new NotImplementedException();
+                        }
+                    }
+                    catch (HideezException ex)
+                    {
+                        _log.WriteLine(ex);
+                        ShowError(ex.Message);
+                    }
+                    catch (OperationCanceledException ex)
+                    {
+                        _log.WriteLine(ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.WriteLine(ex);
+                        ShowError(ex.Message);
+                    }
+                    finally
+                    {
+                        await _metaMessenger.Publish(new HideMasterPasswordUiMessage());
+                    }
+
+                    return false;
+                }
+                finally
+                {
+                    RemoteDeviceShutdown -= ctsCancel;
+                }
+            }
+        }
+
+        public async Task<bool> ChangeAccessProfileWorkflow(bool requirePin, bool requireButton, int expirationSeconds)
+        {
+            using (var cts = new CancellationTokenSource())
+            {
+                void ctsCancel(object sender, EventArgs e) { cts.Cancel(); }
+                try
+                {
+                    RemoteDeviceShutdown += ctsCancel;
+
+                    while (IsAuthorized)
+                    {
+                        try
+                        {
+                            var masterPasswordProc = new GetMasterPasswordProc(_metaMessenger, Id);
+                            var procResult = await masterPasswordProc.Run(CREDENTIAL_TIMEOUT, cts.Token);
+
+                            if (procResult == null)
+                                return false;
+
+                            if (procResult.Password.Length == 0)
+                                continue;
+
+                            var masterPassword = procResult.Password;
+
+                            var accessParams = new AccessParams
+                            {
+                                MasterKey_Bond = true,
+                                MasterKey_Channel = false,
+                                MasterKey_Connect = false,
+                                MasterKeyExpirationPeriod = 0,
+
+                                Pin_Bond = requirePin,
+                                Pin_Channel = requirePin,
+                                Pin_Connect = requirePin,
+                                PinMaxTries = 5,
+                                PinExpirationPeriod = requirePin ? expirationSeconds : 0,
+                                PinMinLength = requirePin ? 4 : 0,
+
+                                Button_Bond = requireButton,
+                                Button_Channel = requireButton,
+                                Button_Connect = requireButton,
+                                ButtonExpirationPeriod = requireButton ? expirationSeconds : 0,
+                            };
+
+                            var masterKey = KdfKeyProvider.CreateKDFKey(masterPassword, 32);
+                            while (masterKey.Contains((byte)0))
+                                masterKey = KdfKeyProvider.CreateKDFKey(masterKey, 32);
+
+                            await _remoteDevice.Access(DateTime.UtcNow, masterPassword, accessParams);
+                            await _remoteDevice.RefreshDeviceInfo();
+
+                            return true;
+                        }
+                        catch (HideezException ex)
+                        {
+                            _log.WriteLine(ex);
+                            ShowError(ex.Message);
+                        }
+                        catch (OperationCanceledException ex)
+                        {
+                            _log.WriteLine(ex);
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.WriteLine(ex);
+                            ShowError(ex.Message);
+                        }
+                        finally
+                        {
+                            await _metaMessenger.Publish(new HideMasterPasswordUiMessage());
+                        }
+                    }
+
+                    return false;
+                }
+                finally
+                {
+                    RemoteDeviceShutdown -= ctsCancel;
+                }
+            }
         }
 
         #region Notifications display
