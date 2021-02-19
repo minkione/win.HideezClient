@@ -97,11 +97,11 @@ namespace HideezClient.PageViewModels
             AllowEditProximitySettings = applicationModeProvider.GetApplicationMode() == ApplicationMode.Standalone;
 
 
-            this.WhenAnyValue(x => x.CredentialsHasChanges).Subscribe(o => CheckDifference());
+            this.WhenAnyValue(x => x.CredentialsHasChanges).Subscribe(o => OnSettingsChanged());
 
             this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity, x => x.EnabledUnlockByProximity,
                 x => x.EnabledLockByProximity, x => x.DisabledDisplayAuto).Where(t => t.Item1 != 0 && t.Item2 != 0)
-                .Subscribe(o => CheckDifference());
+                .Subscribe(o => OnSettingsChanged());
 
             TryLoadProximitySettings();
         }
@@ -119,6 +119,7 @@ namespace HideezClient.PageViewModels
         [Reactive] public bool DisabledDisplayAuto { get; set; }
         [Reactive] public bool CredentialsHasChanges { get; set; }
         [Reactive] public bool HasChanges { get; set; }
+        [Reactive] public bool InProgress { get; set; }
         [Reactive] public bool AllowEditProximitySettings { get; set; }
         [Reactive] public bool IsEditableCredentials { get; set; }
         [Reactive] public string UserName { get; set; }
@@ -201,13 +202,24 @@ namespace HideezClient.PageViewModels
 
         public async Task SaveSettings(SecureString password)
         {
-            if(CredentialsHasChanges)
+            InProgress = true;
+
+            if(CredentialsHasChanges && EnabledUnlockByProximity)
                 await SaveOrUpdateAccount(password);
-            if(_proximityHasChanges)
+            if (_proximityHasChanges)
+            {
+                if(!EnabledUnlockByProximity && _oldSettings!= null && _oldSettings.EnabledUnlockByProximity)
+                {
+                    var currentAccount = Device.AccountsRecords.FirstOrDefault(a => a.IsPrimary);
+                    if (currentAccount != null)
+                        await Device.DeleteAccountAsync(currentAccount);
+                }
                 await SaveOrUpdateSettings();
+            }
 
             HasChanges = false;
             IsEditableCredentials = false;
+            InProgress = false;
         }
 
         void ResetToPreviousSettings()
@@ -221,7 +233,7 @@ namespace HideezClient.PageViewModels
             IsEditableCredentials = false;
         }
 
-        void CheckDifference()
+        void OnSettingsChanged()
         {
             if (_oldSettings != null)
             {
@@ -230,6 +242,9 @@ namespace HideezClient.PageViewModels
                     || DisabledDisplayAuto != _oldSettings.DisabledDisplayAuto)
                     _proximityHasChanges = true;
                 else _proximityHasChanges = false;
+
+                if (EnabledUnlockByProximity && !_oldSettings.EnabledUnlockByProximity)
+                    UpdateIsEditableCredentials();
 
                 HasChanges = CredentialsHasChanges || _proximityHasChanges;
             }

@@ -175,6 +175,20 @@ namespace HideezClient.PageViewModels
             }
         }
 
+        public ICommand LoadedViewModelCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        Task.Run(OnFilterAccount);
+                    }
+                };
+            }
+        }
+
         #endregion
 
         private Task OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)

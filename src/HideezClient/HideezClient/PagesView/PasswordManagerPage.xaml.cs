@@ -1,4 +1,5 @@
 ﻿using HideezClient.Mvvm;
+using HideezClient.PageViewModels;
 using HideezClient.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,8 @@ namespace HideezClient.PagesView
             AnimationShowAccountInfo = this.FindResource("AnimationShowAccountInfo") as Storyboard;
 
             UpdateAnimation();
+
+            (DataContext as PasswordManagerViewModel)?.LoadedViewModelCommand.Execute(new object());
         }
 
         private void AccountsList_SelectionChanged(object sender, SelectionChangedEventArgs e)

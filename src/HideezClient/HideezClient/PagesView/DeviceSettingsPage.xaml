@@ -295,20 +295,12 @@
                                 Content="{l:Localization ProximitySettings.CheckBox.EnableUnlockPC}"
                                 Margin="0,0,0,18"
                                 IsChecked="{Binding EnabledUnlockByProximity}" >
-                                    <!--<CheckBox.Triggers>
-                                        <Trigger Property="IsChecked" Value="False">
-                                            <Setter TargetName="PasswordBox" Property="IsEnabled" Value="False"/>
-                                        </Trigger>
-                                        <Trigger Property="IsChecked" Value="True">
-                                            <Setter TargetName="PasswordBox" Property="IsEnabled" Value="True"/>
-                                        </Trigger>
-                                    </CheckBox.Triggers>-->
                                 </CheckBox>
                             </StackPanel>
                             <StackPanel Grid.Column="1" >
                                 <StackPanel.Style>
                                     <Style TargetType="StackPanel">
-                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Setter Property="Visibility" Value="Hidden" />
                                     <Style.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
@@ -428,7 +420,7 @@
                                 VerticalAlignment="Center">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource ConfirmButtonStyle}">
-                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Setter Property="Visibility" Value="Hidden" />
                                         <Style.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
@@ -549,31 +541,66 @@
                             </Border>
                         </Grid>
 
-                        <StackPanel
+                        <Grid>
+
+                            <StackPanel
                         Margin="0,24,0,0"
                         HorizontalAlignment="Right"
                         Orientation="Horizontal">
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasChanges}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </StackPanel.Style>
-                            <Button
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasChanges}" Value="False">
+                                                <Setter Property="Visibility" Value="Hidden" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding InProgress}" Value="True">
+                                                <Setter Property="Visibility" Value="Hidden" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <Button
                             Command="{Binding CancelEditProximityCommand}"
                             Content="{l:Localization Button.Cancel}"
                             Click="CancelButton_Click"
+                                    VerticalAlignment="Center"
                             Style="{DynamicResource CancelButtonStyle}" />
-                            <Rectangle Width="14" />
-                            <Button
+                                <Rectangle Width="14" />
+                                <Button
                             Click="SaveButton_Click"
                             Content="{l:Localization Button.Save}"
+                                    VerticalAlignment="Center"
                             Style="{StaticResource ConfirmButtonStyle}" />
-                        </StackPanel>
+                            </StackPanel>
+                            <StackPanel
+                        Margin="0,24,0,0"
+                        HorizontalAlignment="Right"
+                        Visibility="{Binding InProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource DialogTitleTextBlockStyle}" Margin="0,4,0,0" Text="Saving" />
+                                <ma:ProgressRing
+                            Width="32"
+                            Height="32"
+                            Margin="24,0,0,24"
+                            Foreground="{StaticResource ProgressRingBrush}" />
+                            </StackPanel>
+
+                            <StackPanel
+                                x:Name="ResultStack"
+                        Margin="0,24,0,0"
+                        HorizontalAlignment="Right"
+                                Visibility="Hidden"
+                        Orientation="Horizontal">
+                                <TextBlock x:Name="ResultText" Margin="0,4,0,0" Style="{StaticResource DialogTitleTextBlockStyle}" />
+                                <iconPacks:PackIconMaterial
+                                    x:Name="ResultIcon"
+                                        Width="28"
+                                    VerticalAlignment="Center"
+                                        Margin="24,0,0,24"
+                                        Height="28"/>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
                 
             </Border>
