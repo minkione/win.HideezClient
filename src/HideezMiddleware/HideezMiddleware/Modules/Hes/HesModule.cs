@@ -43,6 +43,13 @@ namespace HideezMiddleware.Modules.Hes
 
             if (!string.IsNullOrWhiteSpace(_address))
                 _hesAppConnection.Start(_address); // Launch HES connection immediatelly to save time
+            else
+                Task.Run(async () =>
+                {
+                    // We still need to notify about initial HesAppConnection state
+                    await SafePublish(
+                        new HesAppConnection_HubConnectionStateChangedMessage(_hesAppConnection, EventArgs.Empty));
+                });
 
             _messenger.Subscribe(GetSafeHandler<ChangeServerAddressMessage>(ChangeServerAddress));
 
