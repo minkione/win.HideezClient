@@ -235,7 +235,7 @@
                         <StackPanel 
                             Orientation="Horizontal"
                             HorizontalAlignment="Right"
-                            Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibilityHiddenConvenrter}}">
+                            Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibilityHiddenConverter}}">
                             <Button
                                 Command="{Binding CancelAccessProfileEditCommand}"
                                 Content="{l:Localization Button.Cancel}"
