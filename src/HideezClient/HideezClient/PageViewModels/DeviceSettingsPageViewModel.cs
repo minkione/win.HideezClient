@@ -39,6 +39,8 @@ namespace HideezClient.PageViewModels
             this.windowsManager = windowsManager;
             _metaMessenger = metaMessenger;
 
+            VaultAccessSettingsViewModel = new VaultAccessSettingsViewModel(serviceProxy, windowsManager, _metaMessenger);
+
             _metaMessenger.Subscribe<ActiveDeviceChangedMessage>(OnActiveDeviceChanged);
 
             Сonnected = new StateControlViewModel
@@ -78,6 +80,8 @@ namespace HideezClient.PageViewModels
                 Initialized.State = StateControlViewModel.BoolToState(Device.IsInitialized);
                 Authorized.State = StateControlViewModel.BoolToState(Device.IsAuthorized);
                 StorageLoaded.State = StateControlViewModel.BoolToState(Device.IsStorageLoaded);
+
+                VaultAccessSettingsViewModel.Device = Device;
             });
 
             this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Where(t => t.Item1 != 0 && t.Item2 != 0).Subscribe(o => ProximityHasChanges = true);
@@ -87,6 +91,7 @@ namespace HideezClient.PageViewModels
             TryLoadProximitySettings();
         }
 
+        [Reactive] public VaultAccessSettingsViewModel VaultAccessSettingsViewModel { get; set; }
         [Reactive] public DeviceViewModel Device { get; set; }
         [Reactive] public StateControlViewModel Сonnected { get; set; }
         [Reactive] public StateControlViewModel Initialized { get; set; }

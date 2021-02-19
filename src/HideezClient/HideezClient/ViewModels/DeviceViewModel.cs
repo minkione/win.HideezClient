@@ -1,5 +1,4 @@
 ﻿using Hideez.SDK.Communication.PasswordManager;
-using Hideez.SDK.Communication.BLE;
 using HideezClient.Models;
 using HideezClient.Mvvm;
 using MvvmExtensions.Attributes;
@@ -47,10 +46,8 @@ namespace HideezClient.ViewModels
         public uint StorageFreeSize => device.StorageFreeSize;
         [DependsOn(nameof(StorageTotalSize))]
         public uint StorageTotalSizeKb => StorageTotalSize / 1024;
-
         [DependsOn(nameof(StorageFreeSize), nameof(StorageTotalSize))]
         public byte StorageFreePercent => (byte)(((double)StorageFreeSize / StorageTotalSize) * 100);
-
         [DependsOn(nameof(IsStorageLoaded))]
         public IEnumerable<AccountRecord> AccountsRecords 
         { 
@@ -62,10 +59,11 @@ namespace HideezClient.ViewModels
                     return new List<AccountRecord>();
             } 
         }
-
         public bool CanLockByProximity => device.CanLockByProximity;
-
         public bool IsStorageLocked => device.IsStorageLocked;
+        public bool FinishedMainFlow => device.FinishedMainFlow;
+        public bool IsCreatingRemoteDevice => device.IsCreatingRemoteDevice;
+        public bool IsAuthorizingRemoteDevice => device.IsAuthorizingRemoteDevice;
 
         public async Task SaveOrUpdateAccountAsync(AccountRecord account)
         {
@@ -96,8 +94,20 @@ namespace HideezClient.ViewModels
         {
             return device.PasswordManager.DeleteAccount(account.StorageId, account.IsPrimary);
         }
-        public bool FinishedMainFlow => device.FinishedMainFlow;
-        public bool IsCreatingRemoteDevice => device.IsCreatingRemoteDevice;
-        public bool IsAuthorizingRemoteDevice => device.IsAuthorizingRemoteDevice;
+
+        public Task<bool> ChangeMasterPassword()
+        {
+            return device.ChangeMasterkeyWorkflow();
+        }
+
+        public Task<bool> ChangePinCode()
+        {
+            return device.ChangePinWorkflow();
+        }
+
+        public Task<bool> ChangeAccessProfile(bool requirePin, bool requireButton, int expirationSeconds)
+        {
+            return device.ChangeAccessProfileWorkflow(requirePin, requireButton, expirationSeconds);
+        }
     }
 }

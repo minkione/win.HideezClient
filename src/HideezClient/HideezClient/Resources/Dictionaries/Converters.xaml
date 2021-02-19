@@ -10,6 +10,7 @@
     <ext:MultiBoolOrConverter x:Key="MultiBoolOrConverter" />
     <ext:InvertBooleanConverter x:Key="InvertBooleanConverter" />
     <ext:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+    <ext:BooleanToVisibilityHiddenConverter x:Key="BooleanToVisibilityHiddenConvenrter" />
 
     <converters:FormatStringConverter x:Key="FormatStringConverter" />
     <converters:ProximityToOpacityConverter x:Key="ProximityToOpacityConverter" />
