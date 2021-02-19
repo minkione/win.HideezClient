@@ -1,10 +1,13 @@
 ﻿using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.PasswordManager;
+using HideezClient.Extension;
 using HideezClient.Messages;
 using HideezClient.Modules;
 using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using HideezClient.ViewModels;
 using HideezClient.ViewModels.Controls;
+using HideezMiddleware.ApplicationModeProvider;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.Settings;
 using Meta.Lib.Modules.PubSub;
@@ -16,6 +19,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Security;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -28,12 +33,15 @@ namespace HideezClient.PageViewModels
         readonly IWindowsManager windowsManager;
         readonly Logger log = LogManager.GetCurrentClassLogger(nameof(DeviceSettingsPageViewModel));
         readonly IMetaPubSub _metaMessenger;
+        bool _proximityHasChanges;
+        UserDeviceProximitySettings _oldSettings;
 
         public DeviceSettingsPageViewModel(
             IServiceProxy serviceProxy,
             IWindowsManager windowsManager,
             IActiveDevice activeDevice,
-            IMetaPubSub metaMessenger)
+            IMetaPubSub metaMessenger,
+            IApplicationModeProvider applicationModeProvider)
         {
             this.serviceProxy = serviceProxy;
             this.windowsManager = windowsManager;
@@ -80,9 +88,16 @@ namespace HideezClient.PageViewModels
                 StorageLoaded.State = StateControlViewModel.BoolToState(Device.IsStorageLoaded);
             });
 
-            this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity).Where(t => t.Item1 != 0 && t.Item2 != 0).Subscribe(o => ProximityHasChanges = true);
-
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
+            UserName = GetAccoutName().Split('\\')[1];
+            AllowEditProximitySettings = applicationModeProvider.GetApplicationMode() == ApplicationMode.Standalone;
+
+
+            this.WhenAnyValue(x => x.CredentialsHasChanges).Subscribe(o => CheckDifference());
+
+            this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity, x => x.EnabledUnlockByProximity,
+                x => x.EnabledLockByProximity, x => x.DisabledDisplayAuto).Where(t => t.Item1 != 0 && t.Item2 != 0)
+                .Subscribe(o => CheckDifference());
 
             TryLoadProximitySettings();
         }
@@ -97,10 +112,12 @@ namespace HideezClient.PageViewModels
         [Reactive] public bool EnabledLockByProximity { get; set; }
         [Reactive] public bool EnabledUnlockByProximity { get; set; }
         [Reactive] public bool DisabledDisplayAuto { get; set; }
-        [Reactive] public bool ProximityHasChanges { get; set; }
+        [Reactive] public bool CredentialsHasChanges { get; set; }
+        [Reactive] public bool HasChanges { get; set; }
         [Reactive] public bool AllowEditProximitySettings { get; set; }
-
-
+        [Reactive] public bool IsEditableCredentials { get; set; }
+        [Reactive] public string UserName { get; set; }
+        
         public ObservableCollection<StateControlViewModel> Indicators { get; } = new ObservableCollection<StateControlViewModel>();
 
         #region Command
@@ -139,15 +156,79 @@ namespace HideezClient.PageViewModels
             {
                 return new DelegateCommand
                 {
+                    CommandAction = async password =>
+                    {
+                        await SaveSettings(password as SecureString);
+                    }
+                };
+            }
+        }
+
+        public ICommand EditCredentialsCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction =  x =>
+                    {
+                        IsEditableCredentials = true;
+                    }
+                };
+            }
+        }
+
+        public ICommand CancelEditProximityCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
                     CommandAction = x =>
                     {
-                        SaveOrUpdateSettings();
+                        ResetToPreviousSettings();
                     }
                 };
             }
         }
 
         #endregion
+
+        public async Task SaveSettings(SecureString password)
+        {
+            if(CredentialsHasChanges)
+                await SaveOrUpdateAccount(password);
+            if(_proximityHasChanges)
+                await SaveOrUpdateSettings();
+
+            HasChanges = false;
+            IsEditableCredentials = false;
+        }
+
+        void ResetToPreviousSettings()
+        {
+            LockProximity = _oldSettings.LockProximity;
+            UnlockProximity = _oldSettings.UnlockProximity;
+            EnabledLockByProximity = _oldSettings.EnabledLockByProximity;
+            EnabledUnlockByProximity = _oldSettings.EnabledUnlockByProximity;
+            DisabledDisplayAuto = _oldSettings.DisabledDisplayAuto;
+
+            IsEditableCredentials = false;
+        }
+
+        void CheckDifference()
+        {
+            if (_oldSettings != null)
+            {
+                if (LockProximity != _oldSettings.LockProximity || UnlockProximity != _oldSettings.UnlockProximity
+                    || EnabledLockByProximity != _oldSettings.EnabledLockByProximity || EnabledUnlockByProximity != _oldSettings.EnabledUnlockByProximity
+                    || DisabledDisplayAuto != _oldSettings.DisabledDisplayAuto)
+                    _proximityHasChanges = true;
+                else _proximityHasChanges = false;
+
+                HasChanges = CredentialsHasChanges || _proximityHasChanges;
+            }
+        }
 
         private async Task OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
         {
@@ -167,8 +248,16 @@ namespace HideezClient.PageViewModels
                 Initialized.State = StateControlViewModel.BoolToState(Device.IsInitialized);
                 Authorized.State = StateControlViewModel.BoolToState(Device.IsAuthorized);
                 StorageLoaded.State = StateControlViewModel.BoolToState(Device.IsStorageLoaded);
+
+                UpdateIsEditableCredentials();
             }
             return true;
+        }
+
+        public void UpdateIsEditableCredentials()
+        {
+            if (Device != null && Device.IsStorageLoaded)
+                IsEditableCredentials = !Device.AccountsRecords.Any(r => r.IsPrimary);
         }
 
         async Task TryLoadProximitySettings()
@@ -182,6 +271,7 @@ namespace HideezClient.PageViewModels
                 EnabledLockByProximity = reply.UserDeviceProximitySettings.EnabledLockByProximity;
                 EnabledUnlockByProximity = reply.UserDeviceProximitySettings.EnabledUnlockByProximity;
                 DisabledDisplayAuto = reply.UserDeviceProximitySettings.DisabledDisplayAuto;
+                _oldSettings = reply.UserDeviceProximitySettings;
             }
             catch(Exception ex)
             {
@@ -204,11 +294,112 @@ namespace HideezClient.PageViewModels
                 newSettings.UnlockProximity = UnlockProximity;
 
                 await _metaMessenger.PublishOnServer(new SaveUserProximitySettingsMessage(newSettings));
+
+                _oldSettings = newSettings;
             }
             catch (Exception ex)
             {
                 log.WriteLine($"Failed proximity settings saving: {ex.Message}");
             }
         }
+
+        async Task SaveOrUpdateAccount(SecureString password)
+        {
+            if (password?.Length != 0)
+            {
+                var primaryAccount = Device.AccountsRecords.FirstOrDefault(a => a.IsPrimary == true);
+                if (primaryAccount == null)
+                    primaryAccount = new AccountRecord()
+                    {
+                        IsPrimary = true,
+                    };
+                primaryAccount.Name = "Unlock account";
+                primaryAccount.Login = GetAccoutName();
+                primaryAccount.Password = password.GetAsString();
+                await Device.SaveOrUpdateAccountAsync(primaryAccount, true);
+            }
+        }
+
+        #region Utils
+        private string GetAccoutName()
+        {
+            var wi = WindowsIdentity.GetCurrent();
+            string accountName = wi.Name;
+            foreach (var gsid in wi.Groups)
+            {
+                try
+                {
+                    var group = new SecurityIdentifier(gsid.Value).Translate(typeof(NTAccount)).ToString();
+                    if (group.StartsWith(@"MicrosoftAccount\"))
+                    {
+                        accountName = group;
+                        break;
+                    }
+                }
+                catch (IdentityNotMappedException)
+                {
+                    // Failed to map SID to NTAccount, skip
+                }
+                catch (SystemException)
+                {
+                    // Win32 exception whem mapping SID to NTAccount
+                }
+            }
+            
+            return accountName;
+        }
+        #endregion
+
+        //async Task<Credentials> GetCredentials(IDevice device)
+        //{
+        //    ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
+        //    var credentials = await GetCredentials(device, primaryAccountKey);
+        //    return credentials;
+        //}
+
+        //async Task<Credentials> GetCredentials(IDevice device, ushort key)
+        //{
+        //    Credentials credentials;
+
+        //    if (key == 0)
+        //    {
+        //        var str = await device.ReadStorageAsString(
+        //            (byte)StorageTable.BondVirtualTable1,
+        //            (ushort)BondVirtualTable1Item.PcUnlockCredentials);
+
+        //        if (str != null)
+        //        {
+        //            var parts = str.Split('\n');
+        //            if (parts.Length >= 2)
+        //            {
+        //                credentials.Login = parts[0];
+        //                credentials.Password = parts[1];
+        //            }
+        //            if (parts.Length >= 3)
+        //            {
+        //                credentials.PreviousPassword = parts[2];
+        //            }
+        //        }
+
+        //        if (credentials.IsEmpty)
+        //            throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Unlock.Error.NoCredentials"]);
+        //    }
+        //    else
+        //    {
+        //        // get the account name, login and password from the Hideez Key
+        //        credentials.Name = await device.ReadStorageAsString((byte)StorageTable.Accounts, key);
+        //        credentials.Login = await device.ReadStorageAsString((byte)StorageTable.Logins, key);
+        //        credentials.Password = await device.ReadStorageAsString((byte)StorageTable.Passwords, key);
+        //        credentials.PreviousPassword = ""; //todo
+
+        //        // Todo: Uncomment old message when primary account key sync is fixed
+        //        //if (credentials.IsEmpty)
+        //        //    throw new Exception($"Cannot read login or password from the vault '{device.SerialNo}'");
+        //        if (credentials.IsEmpty)
+        //            throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Unlock.Error.NoCredentials"]);
+        //    }
+
+        //    return credentials;
+        //}
     }
 }

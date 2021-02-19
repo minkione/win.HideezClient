@@ -163,16 +163,16 @@
             </Grid>
         </Border>
 
-        <StackPanel x:Name="proximityStackPanel" Grid.Row="3" Focusable="True">
+        <StackPanel x:Name="proximityStackPanel" Grid.Row="3" Focusable="True" >
             <StackPanel.Style>
                 <Style TargetType="StackPanel">
-                    <!--<Setter Property="Visibility" Value="Collapsed" />-->
+                    <Setter Property="Visibility" Value="Collapsed" />
                     <Style.Triggers>
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding Device.IsInitialized}" Value="True" />
-                                <Condition Binding="{Binding AllowEditProximitySettings}" Value="True" />
-                            </MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding Device.IsStorageLoaded}" Value="True" />
+                                    <Condition Binding="{Binding AllowEditProximitySettings}" Value="True" />
+                                </MultiDataTrigger.Conditions>
                             <MultiDataTrigger.Setters>
                                 <Setter Property="Visibility" Value="Visible" />
                             </MultiDataTrigger.Setters>
@@ -202,12 +202,38 @@
                                 Margin="0,0,0,18"
                                 IsChecked="{Binding DisabledDisplayAuto}" />
                                 <CheckBox 
+                                    x:Name="EnableUnlockCheckBox"
                                 Style="{StaticResource CheckboxStyle}"
                                 Content="{l:Localization ProximitySettings.CheckBox.EnableUnlockPC}"
                                 Margin="0,0,0,18"
-                                IsChecked="{Binding EnabledUnlockByProximity}" />
+                                IsChecked="{Binding EnabledUnlockByProximity}" >
+                                    <!--<CheckBox.Triggers>
+                                        <Trigger Property="IsChecked" Value="False">
+                                            <Setter TargetName="PasswordBox" Property="IsEnabled" Value="False"/>
+                                        </Trigger>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="PasswordBox" Property="IsEnabled" Value="True"/>
+                                        </Trigger>
+                                    </CheckBox.Triggers>-->
+                                </CheckBox>
                             </StackPanel>
-                            <StackPanel Grid.Column="1">
+                            <StackPanel Grid.Column="1" >
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding IsEditableCredentials}" Value="True" />
+                                                    <Condition Binding="{Binding ElementName=EnableUnlockCheckBox, Path=IsChecked}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <MultiDataTrigger.Setters>
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </MultiDataTrigger.Setters>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
                                 <!--  Account Name  -->
                                 <ContentControl Style="{StaticResource UnderLine}" Tag="{Binding ErrorAccountName}">
                                     <Grid Margin="0,0,0,24">
@@ -224,25 +250,17 @@
                                         <Run Text=":" />
                                         </TextBlock>
 
-                                        <TextBox
-                                        x:Name="AccountName"
+                                        <TextBlock
                                         Grid.Column="2"
-                                        HorizontalAlignment="Stretch"
                                         VerticalAlignment="Center"
-                                        ma:TextBoxHelper.Watermark="{l:Localization ProximitySettings.Label.UserName}"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        CaretBrush="{DynamicResource DarkForeground}"
-                                        Focusable="True"
-                                        FontSize="16"
-                                        Foreground="{DynamicResource DarkForeground}"
-                                        IsTabStop="True"
-                                        Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}">
-                                        </TextBox>
+                                        Style="{StaticResource LabelValuesStyle}"
+                                        Text="{Binding UserName}">
+                                        </TextBlock>
                                     </Grid>
                                 </ContentControl>
                                 <!--  Password  -->
-                                <ContentControl Style="{StaticResource UnderLine}" Tag="{Binding ErrorAccountName}">
+                                <ContentControl Style="{StaticResource UnderLine}" 
+                                                Tag="{Binding ErrorAccountName}">
                                     <Grid Margin="0,0,0,24">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
@@ -265,13 +283,15 @@
                                         HorizontalAlignment="Stretch"
                                         ma:PasswordBoxHelper.CapsLockWarningToolTip="CapsLock is enabled"
                                         ma:TextBoxHelper.Watermark="{l:Localization ProximitySettings.Watermark.Password}"
-                                        Background="Transparent"
+                                        
                                         BorderThickness="0"
                                         CaretBrush="{DynamicResource DarkForeground}"
                                         FontSize="16"
                                         Foreground="{DynamicResource DarkForeground}"
                                         IsTabStop="True"
-                                        Style="{StaticResource MetroButtonRevealedPasswordBox}">
+                                        PasswordChanged="PasswordBox_PasswordChanged"
+                                        Style="{StaticResource MetroButtonRevealedPasswordBox}"
+                                            Background="Transparent">
                                             <PasswordBox.Resources>
                                                 <Style x:Key="RevealButtonStyle" TargetType="Button">
                                                     <Setter Property="Background" Value="Transparent" />
@@ -310,6 +330,31 @@
                                     </Grid>
                                 </ContentControl>
                             </StackPanel>
+                            <Button
+                                x:Name="EditAccountButton"
+                                Grid.Column="1"
+                                Click="EditCredentialsButton_Click"
+                                Command="{Binding EditCredentialsCommand}"
+                                Content="{l:Localization Button.EditUnlockAccount}"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource ConfirmButtonStyle}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding IsEditableCredentials}" Value="False" />
+                                                    <Condition Binding="{Binding ElementName=EnableUnlockCheckBox, Path=IsChecked}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <MultiDataTrigger.Setters>
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </MultiDataTrigger.Setters>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                         </Grid>
                         <Border Style="{StaticResource ContainerStyle}" Margin="0,10">
                             <TextBlock Text="{l:Localization ProximitySettings.TextBlock.SignalLevel}" TextWrapping="Wrap" />
@@ -420,23 +465,24 @@
                         Margin="0,24,0,0"
                         HorizontalAlignment="Right"
                         Orientation="Horizontal">
-                            <!--<StackPanel.Style>
+                            <StackPanel.Style>
                                 <Style TargetType="StackPanel">
                                     <Setter Property="Visibility" Value="Visible" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ProximityHasChanges}" Value="False">
+                                        <DataTrigger Binding="{Binding HasChanges}" Value="False">
                                             <Setter Property="Visibility" Value="Collapsed" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </StackPanel.Style>-->
+                            </StackPanel.Style>
                             <Button
                             Command="{Binding CancelEditProximityCommand}"
                             Content="{l:Localization Button.Cancel}"
+                            Click="CancelButton_Click"
                             Style="{DynamicResource CancelButtonStyle}" />
                             <Rectangle Width="14" />
                             <Button
-                            Command="{Binding SaveProximityCommand}"
+                            Click="SaveButton_Click"
                             Content="{l:Localization Button.Save}"
                             Style="{StaticResource ConfirmButtonStyle}" />
                         </StackPanel>

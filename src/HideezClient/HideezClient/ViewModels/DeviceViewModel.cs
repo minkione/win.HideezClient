@@ -18,7 +18,7 @@ namespace HideezClient.ViewModels
         {
             if (device == null)
                 throw new ArgumentNullException(nameof(device));
-
+            
             this.device = device;
             device.PropertyChanged += (sender, e) => RaisePropertyChanged(e.PropertyName);
         }
@@ -67,12 +67,12 @@ namespace HideezClient.ViewModels
 
         public bool IsStorageLocked => device.IsStorageLocked;
 
-        public async Task SaveOrUpdateAccountAsync(AccountRecord account)
+        public async Task SaveOrUpdateAccountAsync(AccountRecord account, bool isReadonly = false)
         {
-            var flags = new AccountFlagsOptions
-            {
-                IsUserAccount = true,
-            };
+            var flags = new AccountFlagsOptions();
+            if (isReadonly)
+                flags.IsUnlockAccount = true;
+            else flags.IsUserAccount = true;
 
             if (account.StorageId == null)
                 account.StorageId = new StorageId();

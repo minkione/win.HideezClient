@@ -26,6 +26,12 @@ namespace HideezClient.PagesView
         {
             InitializeComponent();
             this.Loaded += DeviceSettingsPage_Loaded;
+            this.Unloaded += DeviceSettingsPage_Unloaded;
+        }
+
+        private void DeviceSettingsPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            (DataContext as DeviceSettingsPageViewModel)?.UpdateIsEditableCredentials();
         }
 
         private void DeviceSettingsPage_Loaded(object sender, RoutedEventArgs e)
@@ -75,12 +81,34 @@ namespace HideezClient.PagesView
                     {
                         PasswordBox.Focus();            // Set Logical Focus
                         Keyboard.Focus(PasswordBox);    // Set Keyboard Focus
-
-                        AccountName.Focus();            // Set Logical Focus
-                        Keyboard.Focus(AccountName);    // Set Keyboard Focus
                     }
                     catch (Exception) { }
                 }));
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            PasswordBox.Clear();
+        }
+
+        private async void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as DeviceSettingsPageViewModel;
+            if (viewModel != null)
+                await viewModel.SaveSettings(PasswordBox.SecurePassword);
+
+            PasswordBox.Clear();
+        }
+
+        private void EditCredentialsButton_Click(object sender, RoutedEventArgs e)
+        {
+            PasswordBox.Clear();
+            SetFocus();
+        }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            (DataContext as DeviceSettingsPageViewModel).CredentialsHasChanges = PasswordBox.Password.Length != 0; 
         }
     }
 }

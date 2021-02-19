@@ -1040,4 +1040,7 @@ Would you like to perform application update now?</value>
   <data name="ButtonWindow.CancelTooltip" xml:space="preserve">
     <value>Hold vault button to cancel</value>
   </data>
+  <data name="Button.EditUnlockAccount" xml:space="preserve">
+    <value>Edit unlock account</value>
+  </data>
 </root>
