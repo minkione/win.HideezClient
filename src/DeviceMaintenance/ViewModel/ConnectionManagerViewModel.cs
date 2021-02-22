@@ -11,9 +11,8 @@ using Meta.Lib.Utils;
 using MvvmExtensions.PropertyChangedMonitoring;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using WinBle._10._0._18362;
+using WinBle;
 
 namespace DeviceMaintenance.ViewModel
 {
@@ -37,6 +36,7 @@ namespace DeviceMaintenance.ViewModel
             _hub.Subscribe<StartDiscoveryCommand>(OnStartDiscoveryCommand);
             _hub.Subscribe<EnterBootCommand>(OnEnterBootCommand);
             _hub.Subscribe<DeviceWipedEvent>(OnDeviceWipedEvent);
+            _hub.Subscribe<ClosingEvent>(OnClosing);
 
             var commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             var bondsFolderPath = $"{commonAppData}\\Hideez\\Service\\Bonds";
@@ -47,7 +47,7 @@ namespace DeviceMaintenance.ViewModel
             _csrConnectionManager = new BleConnectionManager(log, bondsFolderPath);
             _csrConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _csrConnectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
-            _winBleConnectionManager = new WinBleConnectionManager(log, false);
+            _winBleConnectionManager = new WinBleConnectionManager(log);
             _winBleConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
             _winBleConnectionManager.BondedControllerAdded += WinBleConnectionManager_BondedControllerAdded;
 
@@ -61,10 +61,17 @@ namespace DeviceMaintenance.ViewModel
             _deviceManager = new DeviceManager(_connectionManagersCoordinator, log);
         }
 
+        Task OnClosing(ClosingEvent arg)
+        {
+            _winBleConnectionManager.Dispose();
+            return Task.CompletedTask;
+        }
+
         public void Initialize(DefaultConnectionIdProvider connectionType)
         {
-            _activeConnectionManager?.Restart();
+            //_activeConnectionManager?.Restart();
             _connectionManagersCoordinator.Stop();
+
             if (connectionType == DefaultConnectionIdProvider.Csr)
             {
                 _activeConnectionManager = _csrConnectionManager;
@@ -73,6 +80,7 @@ namespace DeviceMaintenance.ViewModel
             {
                 _activeConnectionManager = _winBleConnectionManager;
             }
+
             _activeConnectionManager.Start();
 
             NotifyPropertyChanged(nameof(BleAdapterAvailable));
