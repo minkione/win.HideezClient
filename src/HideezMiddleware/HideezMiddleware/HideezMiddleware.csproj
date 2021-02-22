@@ -290,6 +290,7 @@
     <Compile Include="Tasks\WaitAdvertisementProc.cs" />
     <Compile Include="UnpairProvider.cs" />
     <Compile Include="Utils\KdfKeyProvider.cs" />
+    <Compile Include="Utils\MasterPasswordConverter.cs" />
     <Compile Include="Utils\WorkstationHelper\IWorkstationHelper.cs" />
     <Compile Include="Utils\WorkstationHelper\WorkstationHelper.cs" />
     <Compile Include="WinBleControllersStateMonitor.cs" />

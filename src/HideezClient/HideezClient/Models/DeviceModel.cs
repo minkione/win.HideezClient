@@ -1154,21 +1154,7 @@ namespace HideezClient.Models
                     continue;
                 }
 
-                var masterkey = KdfKeyProvider.CreateKDFKey(masterPassword, 32);
-                bool containZero = true;
-                while (containZero)
-                {
-                    containZero = false;
-                    for (int i = 0; i < masterkey.Length; i++)
-                    {
-                        if (masterkey[i] == 0)
-                        {
-                            containZero = true;
-                            masterkey = KdfKeyProvider.CreateKDFKey(masterkey, 32);
-                            break;
-                        }
-                    }
-                }
+                var masterkey = MasterPasswordConverter.GetMasterKey(masterPassword, SerialNo);
 
                 try
                 {
@@ -1234,21 +1220,7 @@ namespace HideezClient.Models
                     continue;
                 }
 
-                var masterkey = KdfKeyProvider.CreateKDFKey(masterPassword, 32);
-                bool containZero = true;
-                while (containZero)
-                {
-                    containZero = false;
-                    for (int i = 0; i < masterkey.Length; i++)
-                    {
-                        if (masterkey[i] == 0)
-                        {
-                            containZero = true;
-                            masterkey = KdfKeyProvider.CreateKDFKey(masterkey, 32);
-                            break;
-                        }
-                    }
-                }
+                var masterkey = MasterPasswordConverter.GetMasterKey(masterPassword, SerialNo);
 
                 try
                 {
@@ -1371,9 +1343,7 @@ namespace HideezClient.Models
                                 ButtonExpirationPeriod = requireButton ? expirationSeconds : 0,
                             };
 
-                            var masterKey = KdfKeyProvider.CreateKDFKey(masterPassword, 32);
-                            while (masterKey.Contains((byte)0))
-                                masterKey = KdfKeyProvider.CreateKDFKey(masterKey, 32);
+                            var masterKey = MasterPasswordConverter.GetMasterKey(masterPassword, SerialNo);
 
                             await _remoteDevice.Access(DateTime.UtcNow, masterPassword, accessParams);
                             await _remoteDevice.RefreshDeviceInfo();

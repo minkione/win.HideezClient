@@ -55,23 +55,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 }
                 await _ui.SendError(string.Empty, device.DeviceConnection.Connection.ConnectionId.Id);
 
-                var byteArray = Encoding.UTF8.GetBytes(inputResult);
-                var masterkey = KdfKeyProvider.CreateKDFKey(byteArray, 32);
-
-                bool containZero = true;
-                while (containZero)
-                {
-                    containZero = false;
-                    for (int i = 0; i < masterkey.Length; i++)
-                    {
-                        if (masterkey[i] == 0)
-                        {
-                            containZero = true;
-                            masterkey = KdfKeyProvider.CreateKDFKey(masterkey, 32);
-                            break;
-                        }
-                    }
-                }
+                var masterkey = MasterPasswordConverter.GetMasterKey(inputResult, device.SerialNo);
 
                 try
                 {

@@ -7,11 +7,11 @@ namespace HideezMiddleware.Utils
     // see https://docs.microsoft.com/en-us/uwp/api/windows.security.cryptography.core.keyderivationalgorithmprovider?view=winrt-19041
     public class KdfKeyProvider
     {
-        public static byte[] CreateKDFKey(byte[] password, uint targetKeySize)
+        public static byte[] CreateKDFKey(byte[] password, uint targetKeySize, byte[] salt)
         {
             string strAlgName = KeyDerivationAlgorithmNames.Pbkdf2Sha256;
             uint iterationCount = 10000;
-            IBuffer buffKeyMaterial = DeriveKeyMaterialPbkdf(password, strAlgName, targetKeySize, iterationCount);
+            IBuffer buffKeyMaterial = DeriveKeyMaterialPbkdf(password, strAlgName, salt, targetKeySize, iterationCount);
 
             //IBuffer keyBuff = key.ExportPublicKey();
             CryptographicBuffer.CopyToByteArray(buffKeyMaterial, out byte[] result);
@@ -19,7 +19,7 @@ namespace HideezMiddleware.Utils
             return result;
         }
 
-        static IBuffer DeriveKeyMaterialPbkdf(byte[] strSecret, string strAlgName, uint targetKeySize, uint iterationCount)
+        static IBuffer DeriveKeyMaterialPbkdf(byte[] strSecret, string strAlgName, byte[] salt, uint targetKeySize, uint iterationCount)
         {
             // Open the specified algorithm.
             KeyDerivationAlgorithmProvider objKdfProv = KeyDerivationAlgorithmProvider.OpenAlgorithm(strAlgName);
@@ -27,15 +27,8 @@ namespace HideezMiddleware.Utils
             // Create a buffer that contains the secret used during derivation.
             IBuffer buffSecret = CryptographicBuffer.CreateFromByteArray(strSecret);
 
-            // Create a random salt value.
-            IBuffer buffSalt = CryptographicBuffer.CreateFromByteArray(
-                new byte[] 
-                {
-                    1,1,1,1,1,1,1,1,
-                    1,1,1,1,1,1,1,1,
-                    1,1,1,1,1,1,1,1,
-                    1,1,1,1,1,1,1,1
-                 });
+            // Create an IBuffer for salt value.
+            IBuffer buffSalt = CryptographicBuffer.CreateFromByteArray(salt);
 
             // Create the derivation parameters.
             KeyDerivationParameters pbkdf2Params = KeyDerivationParameters.BuildForPbkdf2(buffSalt, iterationCount);
