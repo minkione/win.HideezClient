@@ -281,6 +281,7 @@
     <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\EnterpriseModeContainer.cs" />
     <Compile Include="Controls\InfoButton.xaml.cs">
       <DependentUpon>InfoButton.xaml</DependentUpon>
     </Compile>
@@ -336,6 +337,7 @@
     <Compile Include="Controls\Notification\View\SimpleNotification.xaml.cs">
       <DependentUpon>SimpleNotification.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\StandaloneModeContainer.cs" />
     <Compile Include="Controls\TBConnectivityIndicator.xaml.cs">
       <DependentUpon>TBConnectivityIndicator.xaml</DependentUpon>
     </Compile>
@@ -499,6 +501,7 @@
     <Compile Include="Utilities\Url\URLHelper.cs" />
     <Compile Include="Utilities\WeakEvents\WeakEvent.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
+    <Compile Include="ViewModels\Controls\AppModeRestrictedContainerViewModel.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
     <Compile Include="ViewModels\Controls\ProgressIndicatorWithResultViewModel.cs" />
     <Compile Include="ViewModels\Controls\ServerAddressEditControlViewModel.cs" />
@@ -513,7 +516,7 @@
     <Compile Include="ViewModels\Account\AccountInfoViewModel.cs" />
     <Compile Include="ViewModels\ServiceViewModel.cs" />
     <Compile Include="ViewModels\SoftwareUnlockSettingViewModel.cs" />
-    <Compile Include="ViewModels\VaultAccessSettingsViewModel.cs" />
+    <Compile Include="ViewModels\VaultAccessSettingsControlViewModel.cs" />
     <Compile Include="Views\NotificationsContainerWindow.xaml.cs">
       <DependentUpon>NotificationsContainerWindow.xaml</DependentUpon>
     </Compile>

@@ -35,7 +35,9 @@
             Margin="0,70,0,0"
             HorizontalAlignment="Center"
             Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <controls:ServerAddressEditControl FontSize="14" HorizontalAlignment="Center" />
+            <controls:EnterpriseModeContainer>
+                <controls:ServerAddressEditControl FontSize="14" HorizontalAlignment="Center" />
+            </controls:EnterpriseModeContainer>
         </Grid>
 
         <Separator 

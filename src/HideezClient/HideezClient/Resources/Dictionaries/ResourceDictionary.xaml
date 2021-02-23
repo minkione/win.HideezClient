@@ -749,5 +749,34 @@
         <Setter Property="Opacity" Value="0.5" />
         <Setter Property="Foreground" Value="{StaticResource Foreground}" />
     </Style>
+    
+    <!-- StandaloneModeContainer control layout -->
+    <Style TargetType="{x:Type controls:StandaloneModeContainer}">
+        <Setter Property="Visibility" Value="{Binding IsStandalone, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:StandaloneModeContainer}">
+                    <Grid>
+                        <ContentControl Content="{TemplateBinding Content}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- EnterpriseModeContainer control layout -->
+    <Style TargetType="{x:Type controls:EnterpriseModeContainer}">
+        <Setter Property="Visibility" Value="{Binding IsEnterprise, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate 
+                    TargetType="{x:Type controls:EnterpriseModeContainer}">
+                    <Grid>
+                        <ContentControl Content="{TemplateBinding Content}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 </ResourceDictionary>

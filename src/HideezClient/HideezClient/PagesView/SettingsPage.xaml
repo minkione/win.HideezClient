@@ -54,16 +54,19 @@
             <StackPanel Grid.Row="2">
                 <Border
                     Style="{StaticResource SettingsBorderStyle}"
-                    Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <controls:ServerAddressEditControl FontSize="14" HorizontalAlignment="Center" />
-                </Border>
-
-                <!-- Server Address Editing control -->
-                <Border
-                    Style="{StaticResource SettingsBorderStyle}"
                     Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
                     <controls:ServiceRequiredMessageControl HorizontalAlignment="Center" />
                 </Border>
+
+                <!-- Server Address Editing control -->
+                <controls:EnterpriseModeContainer>
+                    <Border
+                        Style="{StaticResource SettingsBorderStyle}"
+                        Visibility="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}, 
+                        Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <controls:ServerAddressEditControl FontSize="14" HorizontalAlignment="Center" />
+                    </Border>
+                </controls:EnterpriseModeContainer>
 
                 <!-- Enable Mobile Authenticator unlock -->
                 <Border 

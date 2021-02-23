@@ -30,11 +30,6 @@ namespace HideezClient.PagesView
             SetFocus();
         }
 
-        private void Page_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            proximityStackPanel.Focus();
-        }
-
         private void UnlockProximityTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             int.TryParse(UnlockProximityTextBox.Text, out int value);
