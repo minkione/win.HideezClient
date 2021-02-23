@@ -184,11 +184,14 @@ namespace HideezClient.ViewModels
             {
                 IsLoading = true;
 
-                // todo: load access profile from device
-                // for now, use hardcoded values
-                SavedRequireButton = false;
-                SavedRequirePin = true;
-                SavedSelectedTimeout = TimeoutOptionsList.First();
+                var profile = await Device.GetAccessProfile();
+
+                SavedRequireButton = profile.ButtonReq > 0;
+                SavedRequirePin = profile.PinReq > 0;
+                if (SavedRequirePin)
+                    SavedSelectedTimeout = TimeoutOptionsList.FirstOrDefault(o => o.TimeoutSeconds == profile.PinExpirationPeriod);
+                else
+                    SavedSelectedTimeout = TimeoutOptionsList.FirstOrDefault(o => o.TimeoutSeconds == profile.MasterKeyExpirationPeriod);
 
                 RequireButton = SavedRequireButton;
                 RequirePin = SavedRequirePin;
@@ -196,6 +199,10 @@ namespace HideezClient.ViewModels
 
                 IsLoaded = true;
                 HasChanges = false;
+            }
+            catch (Exception ex)
+            {
+                _log.WriteLine(ex);
             }
             finally
             {

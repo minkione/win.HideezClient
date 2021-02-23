@@ -1299,6 +1299,12 @@ namespace HideezClient.Models
             }
         }
 
+        public async Task<AccessParams> GetAccessProfile()
+        {
+            var reply = await _remoteDevice.GetAccessProfile();
+            return reply.AccessParams;
+        }
+
         public async Task<bool> ChangeAccessProfileWorkflow(bool requirePin, bool requireButton, int expirationSeconds)
         {
             using (var cts = new CancellationTokenSource())
@@ -1328,24 +1334,24 @@ namespace HideezClient.Models
                                 MasterKey_Bond = true,
                                 MasterKey_Channel = false,
                                 MasterKey_Connect = false,
-                                MasterKeyExpirationPeriod = 0,
+                                MasterKeyExpirationPeriod = !requirePin && !requireButton ? expirationSeconds : 0,
 
                                 Pin_Bond = requirePin,
                                 Pin_Channel = requirePin,
                                 Pin_Connect = requirePin,
                                 PinMaxTries = 5,
-                                PinExpirationPeriod = requirePin ? expirationSeconds : 0,
                                 PinMinLength = requirePin ? 4 : 0,
 
                                 Button_Bond = requireButton,
                                 Button_Channel = requireButton,
                                 Button_Connect = requireButton,
-                                ButtonExpirationPeriod = requireButton ? expirationSeconds : 0,
+
+                                PinExpirationPeriod = requirePin || requireButton ? expirationSeconds : 0,
                             };
 
                             var masterKey = MasterPasswordConverter.GetMasterKey(masterPassword, SerialNo);
 
-                            await _remoteDevice.Access(DateTime.UtcNow, masterPassword, accessParams);
+                            await _remoteDevice.Access(DateTime.UtcNow, masterKey, accessParams);
                             await _remoteDevice.RefreshDeviceInfo();
 
                             return true;

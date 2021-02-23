@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Utils;
+using Hideez.SDK.Communication.Device;
 
 namespace HideezClient.ViewModels
 {
@@ -93,6 +94,11 @@ namespace HideezClient.ViewModels
         public Task DeleteAccountAsync(AccountRecord account)
         {
             return device.PasswordManager.DeleteAccount(account.StorageId, account.IsPrimary);
+        }
+
+        public Task<AccessParams> GetAccessProfile()
+        {
+            return device.GetAccessProfile();
         }
 
         public Task<bool> ChangeMasterPassword()
