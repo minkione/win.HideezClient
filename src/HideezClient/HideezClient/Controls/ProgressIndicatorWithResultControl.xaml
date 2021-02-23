@@ -1,0 +1,95 @@
+﻿<UserControl x:Class="HideezClient.Controls.ProgressIndicatorWithResultControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:local="clr-namespace:HideezClient.Controls"
+             mc:Ignorable="d" 
+             VerticalAlignment="Center"
+             d:DesignHeight="50" d:DesignWidth="200"
+             x:Name="userControl">
+    <Grid
+        x:Name="mainGrid"
+        Focusable="False"
+        Background="Transparent"
+        DataContext="{Binding ProcessResult,  RelativeSource={RelativeSource AncestorType=UserControl}}">
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <Setter Property="Visibility" Value="Hidden"/>
+                <Style.Triggers>
+                    <DataTrigger
+                        Binding="{Binding InProgress}"
+                        Value="True">
+                        <Setter Property="Visibility" Value="Visible"/>
+                    </DataTrigger>
+                    <DataTrigger
+                        Binding="{Binding IsFailed}" 
+                        Value="True">
+                        <Setter Property="Visibility" Value="Visible"/>
+                    </DataTrigger>
+                    <DataTrigger
+                        Binding="{Binding IsSuccessful}" 
+                        Value="True">
+                        <Setter Property="Visibility" Value="Visible"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Style>
+        <StackPanel
+            Margin="0,24,0,0"
+            HorizontalAlignment="Right"
+            Visibility="{Binding InProgress, Converter={StaticResource BooleanToVisibilityHiddenConverter}}"
+            Orientation="Horizontal">
+            <TextBlock 
+                Style="{StaticResource DialogTitleTextBlockStyle}" 
+                Margin="0,4,0,0" 
+                Text="Saving" />
+            <ma:ProgressRing
+                Width="32"
+                Height="32"
+                Margin="24,0,0,24"
+                Foreground="{StaticResource ProgressRingBrush}" />
+        </StackPanel>
+
+        <StackPanel
+            x:Name="successfulResultStack"
+            Margin="0,24,0,0"
+            HorizontalAlignment="Right"
+            Visibility="{Binding IsSuccessful, Converter={StaticResource BooleanToVisibilityHiddenConverter}}"
+            Orientation="Horizontal">
+            <TextBlock
+                Margin="0,4,0,0"
+                Text="Saved"
+                Style="{StaticResource DialogTitleTextBlockStyle}"/>
+            <iconPacks:PackIconMaterial
+                x:Name="succcessfulResultIcon"
+                Width="28"
+                Foreground="Green"
+                Kind="Check"
+                VerticalAlignment="Center"
+                Margin="24,0,0,24"
+                Height="28"/>
+        </StackPanel>
+        <StackPanel
+            x:Name="failedResultStack"
+            Margin="0,24,0,0"
+            HorizontalAlignment="Right"
+            Visibility="{Binding IsFailed, Converter={StaticResource BooleanToVisibilityHiddenConverter}}"
+            Orientation="Horizontal">
+            <TextBlock
+                Margin="0,4,0,0"
+                Text="Error"
+                Style="{StaticResource DialogTitleTextBlockStyle}"/>
+            <iconPacks:PackIconMaterial
+                x:Name="failedResultIcon"
+                Width="28"
+                Foreground="{DynamicResource ErrorBrush}"
+                Kind="AlertOctagon"
+                VerticalAlignment="Center"
+                Margin="24,0,0,24"
+                Height="28"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

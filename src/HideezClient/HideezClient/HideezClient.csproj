@@ -294,6 +294,9 @@
     <Compile Include="Controls\Notification\View\AccountNotFoundNotification.xaml.cs">
       <DependentUpon>AccountNotFoundNotification.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ProgressIndicatorWithResultControl.xaml.cs">
+      <DependentUpon>ProgressIndicatorWithResultControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ServerAddressEditControl.xaml.cs">
       <DependentUpon>ServerAddressEditControl.xaml</DependentUpon>
     </Compile>
@@ -497,6 +500,7 @@
     <Compile Include="Utilities\WeakEvents\WeakEvent.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
+    <Compile Include="ViewModels\Controls\ProgressIndicatorWithResultViewModel.cs" />
     <Compile Include="ViewModels\Controls\ServerAddressEditControlViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
@@ -548,6 +552,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\Notification\View\AccountNotFoundNotification.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ProgressIndicatorWithResultControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

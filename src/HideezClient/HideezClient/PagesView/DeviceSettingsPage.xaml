@@ -46,139 +46,147 @@
         </Style>
     </Page.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Hidden">
-    <Grid Margin="16" VerticalAlignment="Stretch">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+        <Grid Margin="16" VerticalAlignment="Stretch" Grid.IsSharedSizeScope="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <DockPanel HorizontalAlignment="Stretch">
-            <TextBlock
-                DockPanel.Dock="Left"
-                Style="{StaticResource SettingsHeaderStyle}"
-                Text="{Binding Device.Name}" />
+            <DockPanel HorizontalAlignment="Stretch">
+                <TextBlock
+                    DockPanel.Dock="Left"
+                    Style="{StaticResource SettingsHeaderStyle}"
+                    Text="{Binding Device.Name}" />
 
-            <ItemsControl
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center"
-                DockPanel.Dock="Right"
-                Focusable="False"
-                ItemsSource="{Binding Indicators}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <controls:StateControl Style="{DynamicResource StateControlStyle}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </DockPanel>
+                <ItemsControl
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Right"
+                    Focusable="False"
+                    ItemsSource="{Binding Indicators}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <controls:StateControl Style="{DynamicResource StateControlStyle}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </DockPanel>
 
-        <Border Grid.Row="1" Style="{StaticResource SettingsSectionBorderStyle}">
-            <Grid Margin="24" HorizontalAlignment="Center">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="12" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="40" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="40" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <Border
+                Grid.Row="1"
+                Style="{StaticResource SettingsSectionBorderStyle}">
+                <Grid
+                    Margin="24"
+                    HorizontalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="12" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Orientation="Horizontal">
-                    <TextBlock Text="{l:Localization DS.Label.DeviceName}" />
-                    <TextBlock
-                        FontWeight="DemiBold"
-                        Foreground="{DynamicResource DarkForeground}"
-                        Text="{Binding Device.Name}" />
-                </StackPanel>
+                    <StackPanel
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Orientation="Horizontal">
+                        <TextBlock Text="{l:Localization DS.Label.DeviceName}" />
+                        <TextBlock
+                            FontWeight="DemiBold"
+                            Foreground="{DynamicResource DarkForeground}"
+                            Text="{Binding Device.Name}" />
+                    </StackPanel>
 
-                <StackPanel
-                    Grid.Row="2"
-                    Grid.Column="0"
-                    Orientation="Horizontal">
-                    <TextBlock Text="{l:Localization DS.Label.SN}" />
-                    <TextBlock
-                        FontWeight="DemiBold"
-                        Foreground="{DynamicResource DarkForeground}"
-                        Text="{Binding Device.SerialNo}" />
-                </StackPanel>
+                    <StackPanel
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Orientation="Horizontal">
+                        <TextBlock Text="{l:Localization DS.Label.SN}" />
+                        <TextBlock
+                            FontWeight="DemiBold"
+                            Foreground="{DynamicResource DarkForeground}"
+                            Text="{Binding Device.SerialNo}" />
+                    </StackPanel>
 
-                <StackPanel
-                    Grid.Row="0"
-                    Grid.Column="2"
-                    Orientation="Horizontal">
-                    <TextBlock Text="{l:Localization DS.Label.MAC}" />
-                    <TextBlock
-                        FontWeight="DemiBold"
-                        Foreground="{DynamicResource DarkForeground}"
-                        Text="{Binding Device.Mac}" />
-                </StackPanel>
+                    <StackPanel
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Orientation="Horizontal">
+                        <TextBlock Text="{l:Localization DS.Label.MAC}" />
+                        <TextBlock
+                            FontWeight="DemiBold"
+                            Foreground="{DynamicResource DarkForeground}"
+                            Text="{Binding Device.Mac}" />
+                    </StackPanel>
 
-                <StackPanel
-                    Grid.Row="2"
-                    Grid.Column="2"
-                    Orientation="Horizontal">
-                    <TextBlock Text="{Binding Device.StorageTotalSizeKb, StringFormat='Storage ({0} KB): '}" />
-                    <TextBlock
-                        FontWeight="DemiBold"
-                        Foreground="{DynamicResource DarkForeground}"
-                        Text="{Binding Device.StorageFreePercent, StringFormat='{}{0}% free'}" />
-                </StackPanel>
+                    <StackPanel
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Orientation="Horizontal">
+                        <TextBlock Text="{Binding Device.StorageTotalSizeKb, StringFormat='Storage ({0} KB): '}" />
+                        <TextBlock
+                            FontWeight="DemiBold"
+                            Foreground="{DynamicResource DarkForeground}"
+                            Text="{Binding Device.StorageFreePercent, StringFormat='{}{0}% free'}" />
+                    </StackPanel>
 
-                <StackPanel
-                    Grid.Row="0"
-                    Grid.Column="4"
-                    Orientation="Horizontal">
-                    <TextBlock Text="{l:Localization DS.Label.FirmwareVersion}" />
-                    <TextBlock
-                        FontWeight="DemiBold"
-                        Foreground="{DynamicResource DarkForeground}"
-                        Text="{Binding Device.FirmwareVersion}" />
-                </StackPanel>
+                    <StackPanel
+                        Grid.Row="0"
+                        Grid.Column="4"
+                        Orientation="Horizontal">
+                        <TextBlock Text="{l:Localization DS.Label.FirmwareVersion}" />
+                        <TextBlock
+                            FontWeight="DemiBold"
+                            Foreground="{DynamicResource DarkForeground}"
+                            Text="{Binding Device.FirmwareVersion}" />
+                    </StackPanel>
 
-                <StackPanel
-                    Grid.Row="2"
-                    Grid.Column="4"
-                    Orientation="Horizontal">
-                    <TextBlock Text="{l:Localization DS.Label.BootloaderVersion}" />
-                    <TextBlock
-                        FontWeight="DemiBold"
-                        Foreground="{DynamicResource DarkForeground}"
-                        Text="{Binding Device.BootloaderVersion}" />
-                </StackPanel>
-            </Grid>
-        </Border>
+                    <StackPanel
+                        Grid.Row="2"
+                        Grid.Column="4"
+                        Orientation="Horizontal">
+                        <TextBlock Text="{l:Localization DS.Label.BootloaderVersion}" />
+                        <TextBlock
+                            FontWeight="DemiBold"
+                            Foreground="{DynamicResource DarkForeground}"
+                            Text="{Binding Device.BootloaderVersion}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
 
-        
-        <!-- Vault access profile -->
+
+            <!-- Vault access profile -->
             <StackPanel 
                 Grid.Row="2" 
                 Focusable="True" 
                 DataContext="{Binding VaultAccessSettingsViewModel}"
                 Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TextBlock Style="{StaticResource SettingsHeaderStyle}" Text="{l:Localization AccessSettings.Title}" />
+                <TextBlock
+                    Style="{StaticResource SettingsHeaderStyle}"
+                    Text="{l:Localization AccessSettings.Title}" />
 
-                <Border Padding="24" Style="{StaticResource SettingsSectionBorderStyle}">
+                <Border
+                    Padding="24"
+                    Style="{StaticResource SettingsSectionBorderStyle}">
                     <StackPanel>
-                        <Grid Grid.IsSharedSizeScope="True">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*" SharedSizeGroup="Button"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock
@@ -231,7 +239,7 @@
                                     Visibility="{Binding SavedRequirePin, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </StackPanel>
                         </Grid>
-                        
+
                         <StackPanel 
                             Orientation="Horizontal"
                             HorizontalAlignment="Right"
@@ -249,59 +257,64 @@
                     </StackPanel>
                 </Border>
             </StackPanel>
-        
-        <!-- Vault proximity settings -->
-        <StackPanel x:Name="proximityStackPanel" Grid.Row="3" Focusable="True">
-            <StackPanel.Style>
-                <Style TargetType="StackPanel">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                    <Style.Triggers>
-                        <MultiDataTrigger>
-                            <MultiDataTrigger.Conditions>
+
+            <!-- Vault proximity settings -->
+            <StackPanel
+                x:Name="proximityStackPanel"
+                Grid.Row="3"
+                Focusable="True">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding Device.IsStorageLoaded}" Value="True" />
                                     <Condition Binding="{Binding AllowEditProximitySettings}" Value="True" />
                                 </MultiDataTrigger.Conditions>
-                            <MultiDataTrigger.Setters>
-                                <Setter Property="Visibility" Value="Visible" />
-                            </MultiDataTrigger.Setters>
-                        </MultiDataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </StackPanel.Style>
-            <TextBlock Style="{StaticResource SettingsHeaderStyle}" Text="Proximity settings" />
-
-            <Border Padding="24" Style="{StaticResource SettingsSectionBorderStyle}">
-                
+                                <MultiDataTrigger.Setters>
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </MultiDataTrigger.Setters>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <TextBlock 
+                    Style="{StaticResource SettingsHeaderStyle}"
+                    Text="Proximity settings" />
+                <Border
+                    Padding="24"
+                    Style="{StaticResource SettingsSectionBorderStyle}">
                     <StackPanel>
-                        <Grid Grid.IsSharedSizeScope="True">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <CheckBox 
-                                Style="{StaticResource CheckboxStyle}"
-                                Content="{l:Localization ProximitySettings.CheckBox.EnableLockPC}"
-                                Margin="0,0,0,18"
-                                IsChecked="{Binding EnabledLockByProximity}" />
+                                    Style="{StaticResource CheckboxStyle}"
+                                    Content="{l:Localization ProximitySettings.CheckBox.EnableLockPC}"
+                                    Margin="0,0,0,18"
+                                    IsChecked="{Binding EnabledLockByProximity}" />
                                 <CheckBox 
-                                Style="{StaticResource CheckboxStyle}"
-                                Content="{l:Localization ProximitySettings.CheckBox.DisableDisplayAutomatically}"
-                                Margin="0,0,0,18"
-                                IsChecked="{Binding DisabledDisplayAuto}" />
+                                    Style="{StaticResource CheckboxStyle}"
+                                    Content="{l:Localization ProximitySettings.CheckBox.DisableDisplayAutomatically}"
+                                    Margin="0,0,0,18"
+                                    IsChecked="{Binding DisabledDisplayAuto}" />
                                 <CheckBox 
                                     x:Name="EnableUnlockCheckBox"
-                                Style="{StaticResource CheckboxStyle}"
-                                Content="{l:Localization ProximitySettings.CheckBox.EnableUnlockPC}"
-                                Margin="0,0,0,18"
-                                IsChecked="{Binding EnabledUnlockByProximity}" >
+                                    Style="{StaticResource CheckboxStyle}"
+                                    Content="{l:Localization ProximitySettings.CheckBox.EnableUnlockPC}"
+                                    Margin="0,0,0,18"
+                                    IsChecked="{Binding EnabledUnlockByProximity}" >
                                 </CheckBox>
                             </StackPanel>
                             <StackPanel Grid.Column="1" >
                                 <StackPanel.Style>
                                     <Style TargetType="StackPanel">
-                                    <Setter Property="Visibility" Value="Hidden" />
-                                    <Style.Triggers>
+                                        <Setter Property="Visibility" Value="Hidden" />
+                                        <Style.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
                                                     <Condition Binding="{Binding IsEditableCredentials}" Value="True" />
@@ -315,7 +328,9 @@
                                     </Style>
                                 </StackPanel.Style>
                                 <!--  Account Name  -->
-                                <ContentControl Style="{StaticResource UnderLine}" Tag="{Binding ErrorAccountName}">
+                                <ContentControl
+                                    Style="{StaticResource UnderLine}"
+                                    Tag="{Binding ErrorAccountName}">
                                     <Grid Margin="0,0,0,24">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
@@ -323,24 +338,25 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Center"
-                                        Style="{DynamicResource LabelStyle}">
-                                        <Run Text="{l:Localization ProximitySettings.Label.UserName}" />
-                                        <Run Text=":" />
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Center"
+                                            Style="{DynamicResource LabelStyle}">
+                                            <Run Text="{l:Localization ProximitySettings.Label.UserName}" />
+                                            <Run Text=":" />
                                         </TextBlock>
 
                                         <TextBlock
-                                        Grid.Column="2"
-                                        VerticalAlignment="Center"
-                                        Style="{StaticResource LabelValuesStyle}"
-                                        Text="{Binding UserName}">
+                                            Grid.Column="2"
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource LabelValuesStyle}"
+                                            Text="{Binding UserName}">
                                         </TextBlock>
                                     </Grid>
                                 </ContentControl>
                                 <!--  Password  -->
-                                <ContentControl Style="{StaticResource UnderLine}" 
-                                                Tag="{Binding ErrorAccountName}">
+                                <ContentControl
+                                    Style="{StaticResource UnderLine}" 
+                                    Tag="{Binding ErrorAccountName}">
                                     <Grid Margin="0,0,0,24">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
@@ -348,29 +364,28 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Center"
-                                        Style="{DynamicResource LabelStyle}">
-                                        <Run Text="{l:Localization PM.Label.Password}" />
-                                        <Run Text=":" />
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Center"
+                                            Style="{DynamicResource LabelStyle}">
+                                            <Run Text="{l:Localization PM.Label.Password}" />
+                                            <Run Text=":" />
                                         </TextBlock>
 
                                         <PasswordBox
-                                        x:Name="PasswordBox"
-                                        ScrollViewer.CanContentScroll="False"
-                                        Grid.Column="2"
-                                        VerticalAlignment="Center"
-                                        HorizontalAlignment="Stretch"
-                                        ma:PasswordBoxHelper.CapsLockWarningToolTip="CapsLock is enabled"
-                                        ma:TextBoxHelper.Watermark="{l:Localization ProximitySettings.Watermark.Password}"
-                                        
-                                        BorderThickness="0"
-                                        CaretBrush="{DynamicResource DarkForeground}"
-                                        FontSize="16"
-                                        Foreground="{DynamicResource DarkForeground}"
-                                        IsTabStop="True"
-                                        PasswordChanged="PasswordBox_PasswordChanged"
-                                        Style="{StaticResource MetroButtonRevealedPasswordBox}"
+                                            x:Name="PasswordBox"
+                                            ScrollViewer.CanContentScroll="False"
+                                            Grid.Column="2"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Stretch"
+                                            ma:PasswordBoxHelper.CapsLockWarningToolTip="CapsLock is enabled"
+                                            ma:TextBoxHelper.Watermark="{l:Localization ProximitySettings.Watermark.Password}"
+                                            BorderThickness="0"
+                                            CaretBrush="{DynamicResource DarkForeground}"
+                                            FontSize="16"
+                                            Foreground="{DynamicResource DarkForeground}"
+                                            IsTabStop="True"
+                                            PasswordChanged="PasswordBox_PasswordChanged"
+                                            Style="{StaticResource MetroButtonRevealedPasswordBox}"
                                             Background="Transparent">
                                             <PasswordBox.Resources>
                                                 <Style x:Key="RevealButtonStyle" TargetType="Button">
@@ -382,14 +397,16 @@
                                                     <Setter Property="Template">
                                                         <Setter.Value>
                                                             <ControlTemplate TargetType="{x:Type Button}">
-                                                                <Border x:Name="border" Background="Transparent">
+                                                                <Border
+                                                                    x:Name="border"
+                                                                    Background="Transparent">
                                                                     <iconPacks:PackIconFontAwesome
-                                                    Name="EyeIcon"
-                                                    Height="24"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    Foreground="{StaticResource IcoButtonBrush}"
-                                                    Kind="EyeSolid" />
+                                                                        Name="EyeIcon"
+                                                                        Height="24"
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"
+                                                                        Foreground="{StaticResource IcoButtonBrush}"
+                                                                        Kind="EyeSolid" />
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
@@ -410,16 +427,13 @@
                                     </Grid>
                                 </ContentControl>
                             </StackPanel>
-                            <Button
-                                x:Name="EditAccountButton"
-                                Grid.Column="1"
-                                Click="EditCredentialsButton_Click"
-                                Command="{Binding EditCredentialsCommand}"
-                                Content="{l:Localization Button.EditUnlockAccount}"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource ConfirmButtonStyle}">
+                            <Grid Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Button"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
                                         <Setter Property="Visibility" Value="Hidden" />
                                         <Style.Triggers>
                                             <MultiDataTrigger>
@@ -433,47 +447,60 @@
                                             </MultiDataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </Button.Style>
-                            </Button>
+                                </Grid.Style>
+                            <StackPanel 
+                                Grid.Column="1" 
+                                HorizontalAlignment="Stretch">
+                                    <Button
+                                        Click="EditCredentialsButton_Click"
+                                        Command="{Binding EditCredentialsCommand}"
+                                        Content="{l:Localization Button.EditUnlockAccount}"
+                                        Style="{StaticResource ConfirmButtonStyle}"/>
+                                </StackPanel>
+                            </Grid>
                         </Grid>
-                        <Border Style="{StaticResource ContainerStyle}" Margin="0,10">
-                            <TextBlock Text="{l:Localization ProximitySettings.TextBlock.SignalLevel}" TextWrapping="Wrap" />
+                        <Border
+                            Style="{StaticResource ContainerStyle}"
+                            Margin="0,10">
+                            <TextBlock
+                                Text="{l:Localization ProximitySettings.TextBlock.SignalLevel}"
+                                TextWrapping="Wrap" />
                         </Border>
                         <Grid>
                             <ProgressBar
-                            Height="3"
-                            MinHeight="1"
-                            Margin="0,8,0,0"
-                            Padding="0"
-                            VerticalAlignment="Center"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Foreground="#1BA2DC"
-                            Opacity="0.8"
-                            SnapsToDevicePixels="True"
-                            Value="{Binding Device.Proximity, Mode=OneWay}" />
+                                Height="3"
+                                MinHeight="1"
+                                Margin="0,8,0,0"
+                                Padding="0"
+                                VerticalAlignment="Center"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="#1BA2DC"
+                                Opacity="0.8"
+                                SnapsToDevicePixels="True"
+                                Value="{Binding Device.Proximity, Mode=OneWay}" />
                             <ma:RangeSlider
-                            x:Name="ProximitySlider"
-                            Margin="0,24,0,16"
-                            ExtendedMode="True"
-                            Focusable="False"
-                            IsMoveToPointEnabled="True"
-                            IsSnapToTickEnabled="True"
-                            IsTabStop="False"
-                            LowerValue="{Binding LockProximity, Mode=TwoWay}"
-                            Maximum="100"
-                            MinRange="20"
-                            MinRangeWidth="{Binding RelativeSource={RelativeSource Self}, Path=ActualWidth, Converter={StaticResource SliderWidthToMinRangeWidthConverter}, ConverterParameter=20}"
-                            Minimum="0"
-                            MoveWholeRange="True"
-                            Style="{DynamicResource RangeSliderStyle}"
-                            UpperValue="{Binding UnlockProximity, Mode=TwoWay}" />
+                                x:Name="ProximitySlider"
+                                Margin="0,24,0,16"
+                                ExtendedMode="True"
+                                Focusable="False"
+                                IsMoveToPointEnabled="True"
+                                IsSnapToTickEnabled="True"
+                                IsTabStop="False"
+                                LowerValue="{Binding LockProximity, Mode=TwoWay}"
+                                Maximum="100"
+                                MinRange="20"
+                                MinRangeWidth="{Binding RelativeSource={RelativeSource Self}, Path=ActualWidth, Converter={StaticResource SliderWidthToMinRangeWidthConverter}, ConverterParameter=20}"
+                                Minimum="0"
+                                MoveWholeRange="True"
+                                Style="{DynamicResource RangeSliderStyle}"
+                                UpperValue="{Binding UnlockProximity, Mode=TwoWay}" />
                         </Grid>
 
                         <Grid
-                        TextBlock.FontSize="16"
-                        TextBlock.FontWeight="DemiBold"
-                        TextBlock.Foreground="{DynamicResource DarkForeground}">
+                            TextBlock.FontSize="16"
+                            TextBlock.FontWeight="DemiBold"
+                            TextBlock.Foreground="{DynamicResource DarkForeground}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
@@ -484,32 +511,35 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Border
-                            Grid.Column="0"
-                            Padding="12,5"
-                            Style="{StaticResource ContainerStyle}">
+                                Grid.Column="0"
+                                Padding="12,5"
+                                Style="{StaticResource ContainerStyle}">
                                 <Grid>
-                                    <TextBox x:Name="LockProximityTextBox"
-                                         HorizontalAlignment="Center"
-                                         Text="{Binding LockProximity, UpdateSourceTrigger=PropertyChanged}"
-                                         Background="Transparent"
-                                         FontSize="16"
-                                         BorderThickness="0"
-                                         CaretBrush ="{DynamicResource DarkForeground}"
-                                         Foreground="{DynamicResource DarkForeground}"
-                                         LostFocus="LockProximityTextBox_LostFocus"/>
-                                    <TextBlock Text="100" Visibility="Hidden" />
+                                    <TextBox
+                                        x:Name="LockProximityTextBox"
+                                        HorizontalAlignment="Center"
+                                        Text="{Binding LockProximity, UpdateSourceTrigger=PropertyChanged}"
+                                        Background="Transparent"
+                                        FontSize="16"
+                                        BorderThickness="0"
+                                        CaretBrush ="{DynamicResource DarkForeground}"
+                                        Foreground="{DynamicResource DarkForeground}"
+                                        LostFocus="LockProximityTextBox_LostFocus"/>
+                                    <TextBlock
+                                        Text="100"
+                                        Visibility="Hidden" />
                                 </Grid>
                             </Border>
                             <TextBlock
-                            Grid.Column="1"
-                            Margin="8,0,0,0"
-                            VerticalAlignment="Center"
-                            Text="Lock" />
+                                Grid.Column="1"
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                Text="Lock" />
                             <TextBlock
-                            Grid.Column="3"
-                            HorizontalAlignment="Left"
-                            FontWeight="Normal"
-                            Foreground="{DynamicResource Foreground}">
+                                Grid.Column="3"
+                                HorizontalAlignment="Left"
+                                FontWeight="Normal"
+                                Foreground="{DynamicResource Foreground}">
                                 <TextBlock.Text>
                                     <MultiBinding Converter="{StaticResource FormatStringConverter}">
                                         <Binding Path="[DeviceInfo.CurrentProximityLevel]" Source="{x:Static l:TranslationSource.Instance}" />
@@ -518,35 +548,35 @@
                                 </TextBlock.Text>
                             </TextBlock>
                             <TextBlock
-                            Grid.Column="5"
-                            Margin="0,0,8,0"
-                            VerticalAlignment="Center"
-                            Text="Unlock" />
+                                Grid.Column="5"
+                                Margin="0,0,8,0"
+                                VerticalAlignment="Center"
+                                Text="Unlock" />
                             <Border
-                            Grid.Column="6"
-                            Padding="12,5"
-                            Style="{StaticResource ContainerStyle}">
+                                Grid.Column="6"
+                                Padding="12,5"
+                                Style="{StaticResource ContainerStyle}">
                                 <Grid>
-                                    <TextBox x:Name="UnlockProximityTextBox"
-                                         HorizontalAlignment="Center"
-                                         Text="{Binding UnlockProximity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         Background="Transparent"
-                                         FontSize="16"
-                                         BorderThickness="0"
-                                         Foreground="{DynamicResource DarkForeground}"
-                                         CaretBrush ="{DynamicResource DarkForeground}"
-                                         LostFocus="UnlockProximityTextBox_LostFocus"/>
+                                    <TextBox
+                                        x:Name="UnlockProximityTextBox"
+                                        HorizontalAlignment="Center"
+                                        Text="{Binding UnlockProximity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        Background="Transparent"
+                                        FontSize="16"
+                                        BorderThickness="0"
+                                        Foreground="{DynamicResource DarkForeground}"
+                                        CaretBrush ="{DynamicResource DarkForeground}"
+                                        LostFocus="UnlockProximityTextBox_LostFocus"/>
                                     <TextBlock Text="100" Visibility="Hidden" />
                                 </Grid>
                             </Border>
                         </Grid>
 
                         <Grid>
-
                             <StackPanel
-                        Margin="0,24,0,0"
-                        HorizontalAlignment="Right"
-                        Orientation="Horizontal">
+                                Margin="0,24,0,0"
+                                HorizontalAlignment="Right"
+                                Orientation="Horizontal">
                                 <StackPanel.Style>
                                     <Style TargetType="StackPanel">
                                         <Setter Property="Visibility" Value="Visible" />
@@ -554,130 +584,167 @@
                                             <DataTrigger Binding="{Binding HasChanges}" Value="False">
                                                 <Setter Property="Visibility" Value="Hidden" />
                                             </DataTrigger>
-                                            <DataTrigger Binding="{Binding InProgress}" Value="True">
+                                            <DataTrigger Binding="{Binding ProcessResultViewModel.InProgress}" Value="True">
                                                 <Setter Property="Visibility" Value="Hidden" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </StackPanel.Style>
                                 <Button
-                            Command="{Binding CancelEditProximityCommand}"
-                            Content="{l:Localization Button.Cancel}"
-                            Click="CancelButton_Click"
+                                    Command="{Binding CancelEditProximityCommand}"
+                                    Content="{l:Localization Button.Cancel}"
+                                    Click="CancelButton_Click"
                                     VerticalAlignment="Center"
-                            Style="{DynamicResource CancelButtonStyle}" />
+                                    Style="{DynamicResource CancelButtonStyle}" />
                                 <Rectangle Width="14" />
                                 <Button
-                            Click="SaveButton_Click"
-                            Content="{l:Localization Button.Save}"
+                                    Click="SaveButton_Click"
+                                    Content="{l:Localization Button.Save}"
                                     VerticalAlignment="Center"
-                            Style="{StaticResource ConfirmButtonStyle}" />
+                                    Style="{StaticResource ConfirmButtonStyle}" />
                             </StackPanel>
-                            <StackPanel
-                        Margin="0,24,0,0"
-                        HorizontalAlignment="Right"
-                        Visibility="{Binding InProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                        Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource DialogTitleTextBlockStyle}" Margin="0,4,0,0" Text="Saving" />
+
+                            <controls:ProgressIndicatorWithResultControl 
+                                x:Name="progressInicatorWithResult"
+                                
+                                ProcessResult="{Binding ProcessResultViewModel}"/>
+
+                            <!--<StackPanel
+                                Margin="0,24,0,0"
+                                HorizontalAlignment="Right"
+                                Visibility="{Binding InProgress, Converter={StaticResource BooleanToVisibilityHiddenConverter}}"
+                                Orientation="Horizontal">
+                                <TextBlock 
+                                    Style="{StaticResource DialogTitleTextBlockStyle}" 
+                                    Margin="0,4,0,0" 
+                                    Text="Saving" />
                                 <ma:ProgressRing
-                            Width="32"
-                            Height="32"
-                            Margin="24,0,0,24"
-                            Foreground="{StaticResource ProgressRingBrush}" />
+                                    Width="32"
+                                    Height="32"
+                                    Margin="24,0,0,24"
+                                    Foreground="{StaticResource ProgressRingBrush}" />
                             </StackPanel>
 
                             <StackPanel
                                 x:Name="ResultStack"
-                        Margin="0,24,0,0"
-                        HorizontalAlignment="Right"
-                                Visibility="Hidden"
-                        Orientation="Horizontal">
-                                <TextBlock x:Name="ResultText" Margin="0,4,0,0" Style="{StaticResource DialogTitleTextBlockStyle}" />
+                                Margin="0,24,0,0"
+                                HorizontalAlignment="Right"
+                                Orientation="Horizontal">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Hidden" />
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding HasChanges}" Value="True"/>
+                                                    <Condition Binding="{Binding Visibility, Source=ResultStack}" Value="Visible"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <MultiDataTrigger.Setters>
+                                                    <Setter Property="Visibility" Value="Hidden" />
+                                                </MultiDataTrigger.Setters>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <TextBlock
+                                    x:Name="ResultText"
+                                    Margin="0,4,0,0"
+                                    Text="Saved"
+                                    Style="{StaticResource DialogTitleTextBlockStyle}"/>
                                 <iconPacks:PackIconMaterial
                                     x:Name="ResultIcon"
-                                        Width="28"
+                                    Width="28"
                                     VerticalAlignment="Center"
-                                        Margin="24,0,0,24"
-                                        Height="28"/>
-                            </StackPanel>
+                                    Margin="24,0,0,24"
+                                    Height="28"/>
+                            </StackPanel>-->
                         </Grid>
                     </StackPanel>
-                
-            </Border>
-        </StackPanel>
+                </Border>
+            </StackPanel>
 
-        <!-- Credentials import/export -->
-        <StackPanel Grid.Row="4" Visibility="Collapsed">
-            <TextBlock Style="{StaticResource SettingsHeaderStyle}" Text="Import / Export credentials" />
+            <!-- Credentials import/export -->
+            <StackPanel
+                Grid.Row="4"
+                Visibility="Collapsed">
+                <TextBlock
+                    Style="{StaticResource SettingsHeaderStyle}"
+                    Text="Import / Export credentials" />
 
-            <Border Padding="24" Style="{StaticResource SettingsSectionBorderStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="32" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="8" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <TextBlock
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        Text="Import" />
-
-                    <Rectangle
-                        Grid.Row="2"
-                        Grid.Column="0"
-                        SnapsToDevicePixels="True"
-                        Stroke="#1BA2DC"
-                        StrokeDashArray="8 6"
-                        StrokeLineJoin="Round"
-                        StrokeThickness="1" />
-
-                    <Grid
-                        Grid.Row="2"
-                        Grid.Column="0"
-                        Margin="32,16"
-                        HorizontalAlignment="Stretch">
+                <Border
+                    Padding="24"
+                    Style="{StaticResource SettingsSectionBorderStyle}">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
                             <ColumnDefinition Width="32" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                            <iconPacks:PackIconMaterial
-                                Margin="8"
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="Import" />
+
+                        <Rectangle
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            SnapsToDevicePixels="True"
+                            Stroke="#1BA2DC"
+                            StrokeDashArray="8 6"
+                            StrokeLineJoin="Round"
+                            StrokeThickness="1" />
+
+                        <Grid
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            Margin="32,16"
+                            HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel
+                                HorizontalAlignment="Center"
+                                Orientation="Horizontal">
+                                <iconPacks:PackIconMaterial
+                                    Margin="8"
+                                    VerticalAlignment="Center"
+                                    Foreground="{StaticResource IcoButtonBrush}"
+                                    Kind="File" />
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    Text="Import CSV-file" />
+                            </StackPanel>
+                            <Button
+                                Grid.Column="2"
+                                HorizontalAlignment="Right"
                                 VerticalAlignment="Center"
-                                Foreground="{StaticResource IcoButtonBrush}"
-                                Kind="File" />
-                            <TextBlock VerticalAlignment="Center" Text="Import CSV-file" />
-                        </StackPanel>
-                        <Button
+                                Command="{Binding SelectCSVFileCommand}"
+                                Content="Select a file"
+                                Style="{StaticResource ConfirmButtonStyle}" />
+
+                        </Grid>
+
+                        <TextBlock
+                            Grid.Row="0"
                             Grid.Column="2"
-                            HorizontalAlignment="Right"
+                            Text="Export" />
+                        <Button
+                            Grid.Row="2"
+                            Grid.Column="2"
                             VerticalAlignment="Center"
-                            Command="{Binding SelectCSVFileCommand}"
-                            Content="Select a file"
+                            Command="{Binding ExportCredentialsCommand}"
+                            Content="Export credentials (125)"
                             Style="{StaticResource ConfirmButtonStyle}" />
-
                     </Grid>
-
-                    <TextBlock
-                        Grid.Row="0"
-                        Grid.Column="2"
-                        Text="Export" />
-                    <Button
-                        Grid.Row="2"
-                        Grid.Column="2"
-                        VerticalAlignment="Center"
-                        Command="{Binding ExportCredentialsCommand}"
-                        Content="Export credentials (125)"
-                        Style="{StaticResource ConfirmButtonStyle}" />
-                </Grid>
-            </Border>
-        </StackPanel>
-    </Grid>
+                </Border>
+            </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Page>

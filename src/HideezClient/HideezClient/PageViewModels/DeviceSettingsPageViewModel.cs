@@ -95,6 +95,7 @@ namespace HideezClient.PageViewModels
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
             UserName = GetAccoutName().Split('\\')[1];
             AllowEditProximitySettings = applicationModeProvider.GetApplicationMode() == ApplicationMode.Standalone;
+            ProcessResultViewModel = new ProgressIndicatorWithResultViewModel();
 
 
             this.WhenAnyValue(x => x.CredentialsHasChanges).Subscribe(o => OnSettingsChanged());
@@ -102,6 +103,8 @@ namespace HideezClient.PageViewModels
             this.WhenAnyValue(x => x.LockProximity, x => x.UnlockProximity, x => x.EnabledUnlockByProximity,
                 x => x.EnabledLockByProximity, x => x.DisabledDisplayAuto).Where(t => t.Item1 != 0 && t.Item2 != 0)
                 .Subscribe(o => OnSettingsChanged());
+
+            this.ObservableForProperty(vm => vm.HasChanges).Subscribe(vm => OnHasChangesChanged());
 
             TryLoadProximitySettings();
         }
@@ -123,7 +126,8 @@ namespace HideezClient.PageViewModels
         [Reactive] public bool AllowEditProximitySettings { get; set; }
         [Reactive] public bool IsEditableCredentials { get; set; }
         [Reactive] public string UserName { get; set; }
-        
+        [Reactive] public ProgressIndicatorWithResultViewModel ProcessResultViewModel { get; set; }
+
         public ObservableCollection<StateControlViewModel> Indicators { get; } = new ObservableCollection<StateControlViewModel>();
 
         #region Command
@@ -179,6 +183,7 @@ namespace HideezClient.PageViewModels
                     CommandAction =  x =>
                     {
                         IsEditableCredentials = true;
+                        HasChanges = true;
                     }
                 };
             }
@@ -202,24 +207,34 @@ namespace HideezClient.PageViewModels
 
         public async Task SaveSettings(SecureString password)
         {
-            InProgress = true;
-
-            if(CredentialsHasChanges && EnabledUnlockByProximity)
-                await SaveOrUpdateAccount(password);
-            if (_proximityHasChanges)
+            try
             {
-                if(!EnabledUnlockByProximity && _oldSettings!= null && _oldSettings.EnabledUnlockByProximity)
-                {
-                    var currentAccount = Device.AccountsRecords.FirstOrDefault(a => a.IsPrimary);
-                    if (currentAccount != null)
-                        await Device.DeleteAccountAsync(currentAccount);
-                }
-                await SaveOrUpdateSettings();
-            }
+                ProcessResultViewModel.InProgress = true;
 
-            HasChanges = false;
-            IsEditableCredentials = false;
-            InProgress = false;
+                if (CredentialsHasChanges && EnabledUnlockByProximity)
+                    await SaveOrUpdateAccount(password);
+                if (_proximityHasChanges)
+                {
+                    if (!EnabledUnlockByProximity && _oldSettings != null && _oldSettings.EnabledUnlockByProximity)
+                    {
+                        var currentAccount = Device.AccountsRecords.FirstOrDefault(a => a.IsPrimary);
+                        if (currentAccount != null)
+                            await Device.DeleteAccountAsync(currentAccount);
+                    }
+                    await SaveOrUpdateSettings();
+                }
+                ProcessResultViewModel.Result = ProcessResult.Successful;
+            }
+            catch
+            {
+                ProcessResultViewModel.Result = ProcessResult.Failed;
+            }
+            finally
+            {
+                HasChanges = false;
+                IsEditableCredentials = false;
+                ProcessResultViewModel.InProgress = false;
+            }
         }
 
         void ResetToPreviousSettings()
@@ -231,6 +246,7 @@ namespace HideezClient.PageViewModels
             DisabledDisplayAuto = _oldSettings.DisabledDisplayAuto;
 
             IsEditableCredentials = false;
+            HasChanges = false;
         }
 
         void OnSettingsChanged()
@@ -248,6 +264,12 @@ namespace HideezClient.PageViewModels
 
                 HasChanges = CredentialsHasChanges || _proximityHasChanges;
             }
+        }
+
+        void OnHasChangesChanged()
+        {
+            if (HasChanges == true)
+                ProcessResultViewModel.Result = ProcessResult.Undefined;
         }
 
         private async Task OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)

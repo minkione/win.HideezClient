@@ -1,7 +1,5 @@
 ﻿using HideezClient.PageViewModels;
-using MahApps.Metro.IconPacks;
 using System;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -86,30 +84,11 @@ namespace HideezClient.PagesView
 
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var viewModel = DataContext as DeviceSettingsPageViewModel;
-                if (viewModel != null)
-                    await viewModel.SaveSettings(PasswordBox.SecurePassword);
+            var viewModel = DataContext as DeviceSettingsPageViewModel;
+            if (viewModel != null)
+                await viewModel.SaveSettings(PasswordBox.SecurePassword);
 
-                PasswordBox.Clear();
-                
-                ResultText.Text = "Saved";
-                ResultIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.CheckOutline;
-                ResultIcon.Foreground = new SolidColorBrush(Colors.Green);
-            }
-            catch
-            {
-                ResultText.Text = "Error";
-                ResultIcon.Kind = PackIconMaterialKind.AlertOctagon;
-                ResultIcon.SetResourceReference(Control.ForegroundProperty, "ErrorBrush");
-            }
-            finally
-            {
-                ResultStack.Visibility = Visibility.Visible;
-                await Task.Delay(5000);
-                ResultStack.Visibility = Visibility.Hidden;
-            }
+            PasswordBox.Clear();
         }
 
         private void EditCredentialsButton_Click(object sender, RoutedEventArgs e)
