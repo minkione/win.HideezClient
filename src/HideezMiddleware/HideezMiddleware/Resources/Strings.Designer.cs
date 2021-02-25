@@ -241,6 +241,24 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This device is used by enterprise version of Hideez Client.
+        /// </summary>
+        internal static string ConnectionFlow_Error_VaultInEnterpriseMode {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Error.VaultInEnterpriseMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This device is used by standalone version of Hideez Client.
+        /// </summary>
+        internal static string ConnectionFlow_Error_VaultInStandaloneMode {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Error.VaultInStandaloneMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Vault is locked. Please, contact your system administrator..
         /// </summary>
         internal static string ConnectionFlow_Error_VaultIsLocked {

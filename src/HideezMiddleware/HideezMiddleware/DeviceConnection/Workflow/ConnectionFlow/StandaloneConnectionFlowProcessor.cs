@@ -110,6 +110,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultInBootloaderMode"]);
                 }
 
+                if(device.LicenseInfo > 0)
+                    throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultInEnterpriseMode"]);
+
                 await _deviceLogManager.TryReadDeviceLog(device);
 
                 // Different device with the same name indicates that a single physical device is connected through different channel

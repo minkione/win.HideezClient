@@ -312,4 +312,10 @@
   <data name="ConnectionFlow.MasterPassword.Error.InvalidMP" xml:space="preserve">
     <value>Invalid master password!</value>
   </data>
+  <data name="ConnectionFlow.Error.VaultInEnterpriseMode" xml:space="preserve">
+    <value>This device is used by enterprise version of Hideez Client</value>
+  </data>
+  <data name="ConnectionFlow.Error.VaultInStandaloneMode" xml:space="preserve">
+    <value>This device is used by standalone version of Hideez Client</value>
+  </data>
 </root>

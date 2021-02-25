@@ -145,6 +145,9 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
                 {
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultInBootloaderMode"]);
                 }
+                
+                if(device.LicenseInfo == 0 && device.AccessLevel.IsLinkRequired == false)
+                    throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultInStandaloneMode"]);
 
                 await _deviceLogManager.TryReadDeviceLog(device);
 
