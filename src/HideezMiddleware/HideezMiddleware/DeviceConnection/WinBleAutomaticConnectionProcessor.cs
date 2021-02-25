@@ -9,19 +9,20 @@ using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.Localize;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Tasks;
-using HideezMiddleware.Threading;
 using HideezMiddleware.Utils.WorkstationHelper;
+using Microsoft.Win32;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using WinBle._10._0._18362;
+using WinBle;
 
 namespace HideezMiddleware.DeviceConnection
 {
     public sealed class WinBleAutomaticConnectionProcessor : BaseConnectionProcessor, IDisposable
     {
         readonly WinBleConnectionManager _winBleConnectionManager;
+        readonly WinBleConnectionManagerWrapper _winBleConnectionManagerWrapper;
         readonly ISettingsManager<WorkstationSettings> _workstationSettingsManager;
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly DeviceManager _deviceManager;
@@ -37,6 +38,7 @@ namespace HideezMiddleware.DeviceConnection
         public WinBleAutomaticConnectionProcessor(
             ConnectionFlowProcessor connectionFlowProcessor,
             WinBleConnectionManager winBleConnectionManager,
+            WinBleConnectionManagerWrapper winBleConnectionManagerWrapper,
             AdvertisementIgnoreList advIgnoreListMonitor,
             ISettingsManager<WorkstationSettings> workstationSettingsManager,
             DeviceManager deviceManager,
@@ -47,6 +49,7 @@ namespace HideezMiddleware.DeviceConnection
             : base(connectionFlowProcessor, nameof(ProximityConnectionProcessor), log)
         {
             _winBleConnectionManager = winBleConnectionManager ?? throw new ArgumentNullException(nameof(winBleConnectionManager));
+            _winBleConnectionManagerWrapper = winBleConnectionManagerWrapper ?? throw new ArgumentNullException(nameof(winBleConnectionManagerWrapper));
             _workstationSettingsManager = workstationSettingsManager ?? throw new ArgumentNullException(nameof(workstationSettingsManager));
             _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
             _deviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
@@ -70,7 +73,10 @@ namespace HideezMiddleware.DeviceConnection
 
             if (disposing)
             {
-                _winBleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
+                _winBleConnectionManagerWrapper.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
+                _winBleConnectionManager.ControllerRemoved -= BleConnectionManager_ControllerRemoved;
+                _credentialProviderProxy.CommandLinkPressed -= CredentialProviderProxy_CommandLinkPressed;
+                SessionSwitchMonitor.SessionSwitch -= SessionSwitchMonitor_SessionSwitch;
             }
 
             disposed = true;
@@ -88,13 +94,26 @@ namespace HideezMiddleware.DeviceConnection
             {
                 if (!isRunning)
                 {
-                    _winBleConnectionManager.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
-                    _winBleConnectionManager.ConnectedBondedControllerAdded += BleConnectionManager_ConnectedBondedControllerAdded;
-                    _winBleConnectionManager.BondedControllerRemoved += BleConnectionManager_BondedControllerRemoved;
+                    _winBleConnectionManagerWrapper.AdvertismentReceived += BleConnectionManager_AdvertismentReceived;
+                    _winBleConnectionManager.ControllerRemoved += BleConnectionManager_ControllerRemoved;
                     _credentialProviderProxy.CommandLinkPressed += CredentialProviderProxy_CommandLinkPressed;
+                    SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
                     isRunning = true;
                     WriteLine("Started");
                 }
+            }
+        }
+
+        private void SessionSwitchMonitor_SessionSwitch(int sessionId, Microsoft.Win32.SessionSwitchReason reason)
+        {
+            switch (reason)
+            {
+                case SessionSwitchReason.SessionLogon:
+                case SessionSwitchReason.SessionUnlock:
+                    _advIgnoreListMonitor.Clear();
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -103,10 +122,10 @@ namespace HideezMiddleware.DeviceConnection
             lock (_lock)
             {
                 isRunning = false;
-                _winBleConnectionManager.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
-                _winBleConnectionManager.ConnectedBondedControllerAdded -= BleConnectionManager_ConnectedBondedControllerAdded;
-                _winBleConnectionManager.BondedControllerRemoved -= BleConnectionManager_BondedControllerRemoved;
+                _winBleConnectionManagerWrapper.AdvertismentReceived -= BleConnectionManager_AdvertismentReceived;
+                _winBleConnectionManager.ControllerRemoved -= BleConnectionManager_ControllerRemoved;
                 _credentialProviderProxy.CommandLinkPressed -= CredentialProviderProxy_CommandLinkPressed;
+                SessionSwitchMonitor.SessionSwitch -= SessionSwitchMonitor_SessionSwitch;
                 WriteLine("Stopped");
             }
         }
@@ -120,7 +139,7 @@ namespace HideezMiddleware.DeviceConnection
                 {
                     await _ui.SendError("");
                     await _ui.SendNotification(TranslationSource.Instance["ConnectionProcessor.SearchingForVault"]);
-                    var adv = await new WaitAdvertisementProc(_winBleConnectionManager).Run(10_000);
+                    var adv = await new WaitAdvertisementProc(_winBleConnectionManagerWrapper).Run(10_000);
                     if (adv != null)
                     {
                         await ConnectByProximity(adv, true);
@@ -142,27 +161,9 @@ namespace HideezMiddleware.DeviceConnection
             }
         }
 
-        private void BleConnectionManager_BondedControllerRemoved(object sender, ControllerRemovedEventArgs e)
+        private void BleConnectionManager_ControllerRemoved(object sender, ControllerRemovedEventArgs e)
         {
             _advIgnoreListMonitor.Remove(e.Controller.Id);
-        }
-
-
-        async void BleConnectionManager_ConnectedBondedControllerAdded(object sender, ControllerAddedEventArgs e)
-        {
-            if (!isRunning)
-                return;
-
-            if (e.Controller == null)
-                return;
-
-            if (_isConnecting == 1)
-                return;
-
-            if (_workstationHelper.IsActiveSessionLocked())
-                return;
-
-            await ConnectById(e.Controller.Id);
         }
 
         async void BleConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
@@ -206,21 +207,17 @@ namespace HideezMiddleware.DeviceConnection
             if (_advIgnoreListMonitor.IsIgnored(id))
                 return;
 
-            // Device must be present in the list of bonded devices to be suitable for connection
-            if (_winBleConnectionManager.BondedControllers.FirstOrDefault(c => c.Connection.ConnectionId.Id == id) == null)
-                return;
-
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)
             {
                 try
                 {
-                    // If device from advertisement already exists and is connected, ignore advertisement
-                    var device = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == id && !(d is IRemoteDeviceProxy));
-                    if (device != null && device.IsConnected)
-                        return;
-
                     try
                     {
+                        // If device from advertisement already exists and is connected, ignore advertisement
+                        var device = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == id && !(d is IRemoteDeviceProxy));
+                        if (device != null && device.IsConnected)
+                            return;
+
                         var connectionId = new ConnectionId(id, (byte)DefaultConnectionIdProvider.WinBle);
                         await ConnectAndUnlockByConnectionId(connectionId);
                     }
@@ -233,16 +230,13 @@ namespace HideezMiddleware.DeviceConnection
                     }
                     finally
                     {
-                        if (!_workstationHelper.IsActiveSessionLocked())
-                        {
-                            var resultDevice = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == id && !(d is IRemoteDeviceProxy));
-                            if (resultDevice != null && resultDevice.IsConnected)
-                                _advIgnoreListMonitor.Ignore(id);
-                            else 
-                                _advIgnoreListMonitor.IgnoreForTime(id, 60);
-                        }
-                        else
+                        var resultDevice = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == id && !(d is IRemoteDeviceProxy));
+                        if (resultDevice != null && resultDevice.IsConnected)
                             _advIgnoreListMonitor.Ignore(id);
+                        else if (_workstationHelper.IsActiveSessionLocked())
+                            _advIgnoreListMonitor.Ignore(id);
+                        else
+                            _advIgnoreListMonitor.IgnoreForTime(id, 60);
                     }
                 }
                 finally

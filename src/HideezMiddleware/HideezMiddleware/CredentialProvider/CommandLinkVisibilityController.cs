@@ -7,7 +7,7 @@ using HideezMiddleware.Threading;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using WinBle._10._0._18362;
+using WinBle;
 
 namespace HideezMiddleware.CredentialProvider
 {
@@ -31,8 +31,8 @@ namespace HideezMiddleware.CredentialProvider
 
             _cpProxy.Connected += CredentialProviderProxy_Connected;
 
-            _winBleConnectionManager.BondedControllerAdded += ConnectionManager_BondedControllerAdded;
-            _winBleConnectionManager.BondedControllerRemoved += ConnectionManager_BondedControllerRemoved;
+            _winBleConnectionManager.ControllerAdded += ConnectionManager_BondedControllerAdded;
+            _winBleConnectionManager.ControllerRemoved += ConnectionManager_BondedControllerRemoved;
             
             _connectionFlowProcessor.Started += ConnectionFlowProcessor_Started;
             _connectionFlowProcessor.Finished += ConnectionFlowProcessor_Finished;
@@ -78,16 +78,16 @@ namespace HideezMiddleware.CredentialProvider
                 // No reason sending anything if credential provider is not connected
                 if (_cpProxy.IsConnected)
                 {
-                    if (_winBleConnectionManager.BondedControllers.Count == 0 || _connectionFlowProcessor.IsRunning)
+                    if (_winBleConnectionManager.ConnectionControllers.Count == 0 || _connectionFlowProcessor.IsRunning)
                     {
                         await _cpProxy.HideCommandLink();
                     }
                     else
                     {
                         string linkMessage = TranslationSource.Instance["CredentialProvider.CommandLink.Unlock.Generic"];
-                        if (_winBleConnectionManager.BondedControllers.Count == 1)
+                        if (_winBleConnectionManager.ConnectionControllers.Count == 1)
                         {
-                            var controller = _winBleConnectionManager.BondedControllers.FirstOrDefault();
+                            var controller = _winBleConnectionManager.ConnectionControllers.FirstOrDefault();
                             linkMessage = string.Format(TranslationSource.Instance["CredentialProvider.CommandLink.Unlock.Specific"], controller?.Name ?? "Hideez Vault");
                         }
 
@@ -109,8 +109,8 @@ namespace HideezMiddleware.CredentialProvider
         {
             _cpProxy.Connected -= CredentialProviderProxy_Connected;
 
-            _winBleConnectionManager.BondedControllerAdded -= ConnectionManager_BondedControllerAdded;
-            _winBleConnectionManager.BondedControllerRemoved -= ConnectionManager_BondedControllerRemoved;
+            _winBleConnectionManager.ControllerAdded -= ConnectionManager_BondedControllerAdded;
+            _winBleConnectionManager.ControllerRemoved -= ConnectionManager_BondedControllerRemoved;
 
             _connectionFlowProcessor.Started -= ConnectionFlowProcessor_Started;
             _connectionFlowProcessor.Finished -= ConnectionFlowProcessor_Finished;

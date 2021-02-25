@@ -49,7 +49,7 @@ namespace DeviceMaintenance.ViewModel
             _csrConnectionManager.AdvertismentReceived += ConnectionManager_AdvertismentReceived;
             _winBleConnectionManager = new WinBleConnectionManager(log);
             _winBleConnectionManager.AdapterStateChanged += ConnectionManager_AdapterStateChanged;
-            _winBleConnectionManager.BondedControllerAdded += WinBleConnectionManager_BondedControllerAdded;
+            _winBleConnectionManager.ControllerAdded += WinBleConnectionManager_ControllerAdded;
 
             // Connection Managers Coordinator ============================
             _connectionManagersCoordinator = new ConnectionManagersCoordinator();
@@ -97,7 +97,7 @@ namespace DeviceMaintenance.ViewModel
                 _hub.Publish(new AdvertismentReceivedEvent(e));
         }
 
-        void WinBleConnectionManager_BondedControllerAdded(object sender, ControllerAddedEventArgs e)
+        void WinBleConnectionManager_ControllerAdded(object sender, ControllerAddedEventArgs e)
         {
             _hub.Publish(new ControllerAddedEvent(e.Controller.Id));
         }

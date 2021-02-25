@@ -423,6 +423,18 @@
       <Component Id="HideezService.System.Runtime.WindowsRuntime.dll" Guid="{0D46F970-343B-40A0-A2B4-EEB1B861076F}" Win64="$(var.Win64)">
         <File Id="HideezService.System.Runtime.WindowsRuntime.dll" Name="System.Runtime.WindowsRuntime.dll" Source="$(var.HideezServiceHost_TargetDir)System.Runtime.WindowsRuntime.dll" />
       </Component>
+
+      <Component Id="HideezService.Polly.dll" Guid="{47FDF6E8-B401-4113-A667-5D72E6F22E8D}" Win64="$(var.Win64)">
+        <File Id="HideezService.Polly.dll" Name="Polly.dll" Source="$(var.HideezServiceHost_TargetDir)Polly.dll" />
+      </Component>
+
+      <Component Id="HideezService.Polly.Contrib.DuplicateRequestCollapser.dll" Guid="{59A2E2F4-1C26-4ACB-A4B2-632C591C688E}" Win64="$(var.Win64)">
+        <File Id="HideezService.Polly.Contrib.DuplicateRequestCollapser.dll" Name="Polly.Contrib.DuplicateRequestCollapser.dll" Source="$(var.HideezServiceHost_TargetDir)Polly.Contrib.DuplicateRequestCollapser.dll" />
+      </Component>
+      
+      <Component Id="HideezService.Microsoft.Bcl.AsyncInterfaces.dll" Guid="{C0E45748-A274-4310-B5C1-92DCD6285731}" Win64="$(var.Win64)">
+        <File Id="HideezService.Microsoft.Bcl.AsyncInterfaces.dll" Name="Microsoft.Bcl.AsyncInterfaces.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Bcl.AsyncInterfaces.dll" />
+      </Component>
       
     </ComponentGroup>
   </Fragment>

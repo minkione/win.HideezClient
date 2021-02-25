@@ -18,22 +18,15 @@ namespace WinBle
 {
     public class WinBleConnectionManager : Logger, IBleConnectionManager, IDisposable
     {
-        //const int ADAPTER_CHECK_INTERVAL = 2000;
         const int START_TIMEOUT = 50_000;
         const int STOP_TIMEOUT = 100_000;
 
         readonly WinBleDeviceWatcher _deviceWatcher;
-        //readonly BluetoothLEAdvertisementWatcher _bluetoothLEAdvertisementWatcher;
-        //readonly List<IConnectionController> _bondedControllers = new List<IConnectionController>();
-        //readonly List<IConnectionController> _connectionControllers = new List<IConnectionController>();
         readonly ConcurrentDictionary<string, BleConnectionController> _controllers = new ConcurrentDictionary<string, BleConnectionController>();
-        //readonly Timer _bluetoothRadioExistanceCheckTimer;
-        //readonly object _startStopLock = new object();
         readonly SemaphoreSlim _startStopLock = new SemaphoreSlim(1, 1);
 
         Radio _bluetoothRadio = null;
         BluetoothAdapterState _state = BluetoothAdapterState.PoweredOff;
-
 
         public event EventHandler<AdvertismentReceivedEventArgs> AdvertismentReceived;
         public event EventHandler<DiscoveredDeviceAddedEventArgs> DiscoveredDeviceAdded;
@@ -41,15 +34,10 @@ namespace WinBle
         public event EventHandler DiscoveryStopped;
         public event EventHandler AdapterStateChanged;
 
-        //public event EventHandler<ControllerAddedEventArgs> ConnectedBondedControllerAdded;
-
         // when device connected
         public event EventHandler<ControllerAddedEventArgs> ControllerAdded;
         // when device bonding deleted from Windows
         public event EventHandler<ControllerRemovedEventArgs> ControllerRemoved;
-
-        public event EventHandler<ControllerAddedEventArgs> BondedControllerAdded;
-        public event EventHandler<ControllerRemovedEventArgs> BondedControllerRemoved;
 
         public BluetoothAdapterState State
         {
@@ -175,9 +163,6 @@ namespace WinBle
                     _bluetoothRadio = null;
                 }
 
-                //if (_bluetoothLEAdvertisementWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Started)
-                //    _bluetoothLEAdvertisementWatcher.Stop();
-
                 await ClearConnections();
 
                 if (State != BluetoothAdapterState.Resetting)
@@ -193,32 +178,7 @@ namespace WinBle
             }
         }
 
-        // Separated from public Stop() because State change produces lots of excess logging during subsequent Restart() calls
-        //async Task StopWatchers()
-        //{
-        //    await _startStopLock.WaitAsync();
-        //    try
-        //    {
-        //        _deviceWatcher.Stop();
-
-        //        if (_bluetoothRadio != null)
-        //        {
-        //            _bluetoothRadio.StateChanged -= BluetoothRadio_StateChanged;
-        //            _bluetoothRadio = null;
-        //        }
-
-        //        //if (_bluetoothLEAdvertisementWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Started)
-        //        //    _bluetoothLEAdvertisementWatcher.Stop();
-
-        //        ClearConnections();
-        //    }
-        //    finally
-        //    {
-        //        _startStopLock.Release();
-        //    }
-
-        //}
-
+        #region Event handlers
         void BluetoothRadio_StateChanged(Radio sender, object args)
         {
             State = sender.State == RadioState.On ?
@@ -235,7 +195,6 @@ namespace WinBle
                 try
                 {
                     var controller = CreateConnectionController(deviceInfo);
-                    SafeInvoke(BondedControllerAdded, new ControllerAddedEventArgs(controller));
                     await Connect(controller);
                 }
                 catch (Exception ex)
@@ -256,8 +215,14 @@ namespace WinBle
                     if (_controllers.TryRemove(deviceInfoUpdate.Id, out BleConnectionController controller))
                     {
                         if (controller.Connection is WinBleConnection connection)
+                        {
+                            connection.AdvertismentReceived -= Connection_AdvertismentReceived;
                             connection.Dispose();
-                        SafeInvoke(BondedControllerRemoved, new ControllerRemovedEventArgs(controller));
+                        }
+
+                        controller.ConnectionStateChanged -= ConnectionController_ConnectionStateChanged;
+                        
+                        SafeInvoke(ControllerRemoved, new ControllerRemovedEventArgs(controller));
                     }
                 }
                 catch (Exception ex)
@@ -267,33 +232,21 @@ namespace WinBle
             });
         }
 
-        void BluetoothLEAdvertisementWatcher_Received(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
+        void Connection_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
-            //Trace.WriteLine($"Advertisement Received");
+            SafeInvoke(AdvertismentReceived, e);
         }
 
-        public Task<IConnectionController> PairAndConnect(ConnectionId id)
+        void ConnectionController_ConnectionStateChanged(object sender, EventArgs e)
         {
-            throw new NotSupportedException();
-        }
-
-        async Task ClearConnections()
-        {
-            foreach (var controller in _controllers.Values.ToList())
+            if (sender is BleConnectionController connectionController &&
+                connectionController.State == ConnectionState.Connected)
             {
-                await RemoveConnection(controller);
-                //if (controller.Connection is WinBleConnection connection)
-                //{
-                //    connection.AdvertismentReceived -= Connection_AdvertismentReceived;
-                //    connection.Dispose();
-
-                //    SafeInvoke(ControllerRemoved, new ControllerRemovedEventArgs(controller));
-                //    SafeInvoke(BondedControllerRemoved, new ControllerRemovedEventArgs(controller));
-                //}
+                SafeInvoke(ControllerAdded, new ControllerAddedEventArgs(connectionController));
             }
-
-            _controllers.Clear();
         }
+
+        #endregion
 
         IConnectionController CreateConnectionController(DeviceInformation deviceInfo)
         {
@@ -309,17 +262,35 @@ namespace WinBle
             });
         }
 
-        void Connection_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
+        void RemoveConnectionController(string id)
         {
+            if (_controllers.TryRemove(id, out BleConnectionController controller))
+            {
+                if (controller.Connection is WinBleConnection connection)
+                {
+                    connection.AdvertismentReceived -= Connection_AdvertismentReceived;
+                    connection.Dispose();
+                }
+
+                controller.ConnectionStateChanged -= ConnectionController_ConnectionStateChanged;
+
+                SafeInvoke(ControllerRemoved, new ControllerRemovedEventArgs(controller));
+            }
         }
 
-        void ConnectionController_ConnectionStateChanged(object sender, EventArgs e)
+        async Task ClearConnections()
         {
-            if (sender is BleConnectionController connectionController &&
-                connectionController.State == ConnectionState.Connected)
+            foreach (var controller in _controllers.Values.ToList())
             {
-                SafeInvoke(ControllerAdded, new ControllerAddedEventArgs(connectionController));
+                await RemoveConnection(controller);
             }
+
+            _controllers.Clear();
+        }
+
+        public Task<IConnectionController> PairAndConnect(ConnectionId id)
+        {
+            throw new NotSupportedException();
         }
 
         public async Task<IConnectionController> Connect(IConnectionController connectionController)
@@ -361,7 +332,6 @@ namespace WinBle
                 bleConnectionController.ConnectionStateChanged -= ConnectionController_ConnectionStateChanged;
 
                 SafeInvoke(ControllerRemoved, new ControllerRemovedEventArgs(controller));
-                SafeInvoke(BondedControllerRemoved, new ControllerRemovedEventArgs(controller));
 
                 WriteLine($"Connection removed {controller.Name} [{controller.Id}]");
             }
@@ -401,7 +371,6 @@ namespace WinBle
 
             return Task.CompletedTask;
         }
-
 
     }
 }

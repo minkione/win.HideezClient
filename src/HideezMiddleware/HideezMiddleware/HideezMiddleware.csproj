@@ -225,7 +225,7 @@
     <Compile Include="UnpairProvider.cs" />
     <Compile Include="Utils\WorkstationHelper\IWorkstationHelper.cs" />
     <Compile Include="Utils\WorkstationHelper\WorkstationHelper.cs" />
-    <Compile Include="WinBleControllersStateMonitor.cs" />
+    <Compile Include="WinBleConnectionManagerWrapper.cs" />
     <Compile Include="Workstation\IWorkstationIdProvider.cs" />
     <Compile Include="Local\LocalDeviceInfo.cs" />
     <Compile Include="Local\LocalDeviceInfoCache.cs" />
@@ -298,7 +298,7 @@
       <Name>Communication</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\win.SDK\WinBle\WinBle.csproj">
-      <Project>{AF08ED4D-6977-4DCB-A49D-0C0A547698BA}</Project>
+      <Project>{af08ed4d-6977-4dcb-a49d-0c0a547698ba}</Project>
       <Name>WinBle</Name>
     </ProjectReference>
   </ItemGroup>

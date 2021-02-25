@@ -3,25 +3,25 @@ using Hideez.SDK.Communication.Utils;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using WinBle._10._0._18362;
+using WinBle;
 
 namespace HideezMiddleware.Tasks
 {
     class WaitAdvertisementProc
     {
         readonly TaskCompletionSource<AdvertismentReceivedEventArgs> _tcs = new TaskCompletionSource<AdvertismentReceivedEventArgs>();
-        readonly WinBleConnectionManager _winBleConnectionManager;
+        readonly IBleConnectionManager _bleConnectionManager;
 
-        public WaitAdvertisementProc(WinBleConnectionManager connectionManager)
+        public WaitAdvertisementProc(IBleConnectionManager connectionManager)
         {
-            _winBleConnectionManager = connectionManager;
+            _bleConnectionManager = connectionManager;
         }
 
         public async Task<AdvertismentReceivedEventArgs> Run(int timeout)
         {
             try
             {
-                _winBleConnectionManager.AdvertismentReceived += WinBleConnectionManager_AdvertismentReceived;
+                _bleConnectionManager.AdvertismentReceived += WinBleConnectionManager_AdvertismentReceived;
 
                 var res = await _tcs.Task.TimeoutAfter(timeout);
 
@@ -33,14 +33,13 @@ namespace HideezMiddleware.Tasks
             }
             finally
             {
-                _winBleConnectionManager.AdvertismentReceived -= WinBleConnectionManager_AdvertismentReceived;
+                _bleConnectionManager.AdvertismentReceived -= WinBleConnectionManager_AdvertismentReceived;
             }
         }
 
         private void WinBleConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
-            if (_winBleConnectionManager.BondedControllers.FirstOrDefault(c => c.Connection.ConnectionId.Id == e.Id) != null)
-                _tcs.TrySetResult(e);
+            _tcs.TrySetResult(e);
         }
     }
 }

@@ -32,8 +32,11 @@ namespace HideezMiddleware
             }
             set
             {
-                _readerConnected = value;
-                RfidReaderStateChanged?.Invoke(this, EventArgs.Empty);
+                if (_readerConnected != value)
+                {
+                    _readerConnected = value;
+                    RfidReaderStateChanged?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
 

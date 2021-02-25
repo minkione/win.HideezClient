@@ -40,7 +40,7 @@ using ServiceLibrary.Implementation.ScreenActivation;
 using ServiceLibrary.Implementation.WorkstationLock;
 using HideezMiddleware.DeviceConnection.Workflow;
 using Hideez.SDK.Communication.HES.DTO;
-using WinBle._10._0._18362;
+using WinBle;
 using Hideez.SDK.Communication.Connection;
 using HideezMiddleware.CredentialProvider;
 using HideezMiddleware.Threading;
@@ -52,6 +52,7 @@ namespace ServiceLibrary.Implementation
     {
         static BleConnectionManager _csrBleConnectionManager;
         static WinBleConnectionManager _winBleConnectionManager;
+        static WinBleConnectionManagerWrapper _winBleConnectionManagerWrapper;
         static DeviceManager _deviceManager;
         static CredentialProviderProxy _credentialProviderProxy;
         static HesAppConnection _hesConnection;
@@ -80,7 +81,6 @@ namespace ServiceLibrary.Implementation
         static TapConnectionProcessor _tapProcessor;
         static ProximityConnectionProcessor _proximityProcessor;
         static WinBleAutomaticConnectionProcessor _winBleProcessor;
-        static WinBleControllersStateMonitor _winBleControllersStateMonitor;
         static SessionUnlockMethodMonitor _sessionUnlockMethodMonitor;
         static SessionSwitchLogger _sessionSwitchLogger;
         static ConnectionManagerRestarter _connectionManagerRestarter;
@@ -139,13 +139,14 @@ namespace ServiceLibrary.Implementation
                 //_winBleConnectionManager.DiscoveryStopped += ConnectionManager_DiscoveryStopped;
                 //_winBleConnectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
                 //_winBleConnectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
+                _winBleConnectionManagerWrapper = new WinBleConnectionManagerWrapper(_winBleConnectionManager, _sdkLogger);
 
                 // Connection Managers Coordinator ============================
                 _connectionManagersCoordinator = new ConnectionManagersCoordinator();
                 _connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
-                _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManager);
+                _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManagerWrapper);
 
-                _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger, _csrBleConnectionManager, _winBleConnectionManager);
+                _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger, _csrBleConnectionManager);
 
 
                 // BLE ============================
@@ -279,7 +280,7 @@ namespace ServiceLibrary.Implementation
 
             // StatusManager =============================
             _statusManager = new StatusManager(_hesConnection, _tbHesConnection, _rfidService,
-                _csrBleConnectionManager, _winBleConnectionManager, _uiProxy, 
+                _csrBleConnectionManager, _winBleConnectionManagerWrapper, _uiProxy, 
                 _rfidSettingsManager, _credentialProviderProxy, _sdkLogger);
 
             // Local device info cache
@@ -313,7 +314,7 @@ namespace ServiceLibrary.Implementation
                 SdkConfig.DefaultLockTimeout,
                 _sdkLogger);
             _advIgnoreWinBleList = new AdvertisementIgnoreList(
-                _winBleConnectionManager,
+                _winBleConnectionManagerWrapper,
                 _workstationSettingsManager,
                 20, // WinBle rssi messages arrive much less frequently than when using csr. Empirically calculated 20s to be acceptable.
                 _sdkLogger);
@@ -342,6 +343,7 @@ namespace ServiceLibrary.Implementation
             _winBleProcessor = new WinBleAutomaticConnectionProcessor(
                 _connectionFlowProcessor,
                 _winBleConnectionManager,
+                _winBleConnectionManagerWrapper,
                 _advIgnoreWinBleList,
                 _workstationSettingsManager,
                 _deviceManager,
@@ -1219,8 +1221,6 @@ namespace ServiceLibrary.Implementation
             await SafePublish(new DevicesCollectionChangedMessage(GetDevices()));
 
             await SafePublish(new ServiceSettingsChangedMessage(_serviceSettingsManager.Settings.EnableSoftwareVaultUnlock, RegistrySettings.GetHesAddress(_log)));
-
-            //_winBleControllersStateMonitor.NotifySubscribers();
         }
         #endregion
 

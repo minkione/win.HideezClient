@@ -1,8 +1,8 @@
-﻿using Hideez.SDK.Communication.Log;
+﻿using Hideez.SDK.Communication.Interfaces;
+using Hideez.SDK.Communication.Log;
 using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
 using System.Threading.Tasks;
-using WinBle._10._0._18362;
 
 namespace HideezMiddleware
 {

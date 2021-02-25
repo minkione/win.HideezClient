@@ -83,8 +83,6 @@
   <ItemGroup>
     <Compile Include="AdapterStateMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tasks\ConnectDeviceProc.cs" />
-    <Compile Include="Tasks\DisconnectDeviceProc.cs" />
     <Compile Include="WinBleConnection.cs" />
     <Compile Include="WinBleConnectionManager.cs" />
     <Compile Include="WinBleDeviceWatcher.cs" />
