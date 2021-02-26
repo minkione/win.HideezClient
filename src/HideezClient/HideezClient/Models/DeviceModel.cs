@@ -1174,7 +1174,7 @@ namespace HideezClient.Models
                         MasterKey_Bond = true
                     });
 
-                    
+                    await _remoteDevice.RefreshDeviceInfo();
                 }
                 catch(Exception ex)
                 {
