@@ -1,14 +1,15 @@
-﻿using Meta.Lib.Modules.PubSub;
+﻿using Hideez.SDK.Communication.Connection;
+using Meta.Lib.Modules.PubSub;
 
 namespace DeviceMaintenance.Messages
 {
     public class ControllerAddedEvent : PubSubMessageBase
     {
-        public string DeviceId { get; }
+        public ConnectionId ConnectionId { get; }
 
-        public ControllerAddedEvent(string deviceId)
+        public ControllerAddedEvent(ConnectionId connectionId)
         {
-            DeviceId = deviceId;
+            ConnectionId = connectionId;
         }
     }
 }

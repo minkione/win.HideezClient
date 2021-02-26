@@ -44,7 +44,7 @@ namespace DeviceMaintenance.ViewModel
         public DateTime CreatedAt = DateTime.Now;
         public bool IsConnected => _device?.IsConnected ?? false;
         public bool IsBoot => _device?.IsBoot ?? false;
-        public string SerialNo => _device?.SerialNo != null ? $"{_device.SerialNo} (v{_device.FirmwareVersion}, b{_device.BootloaderVersion})" : _connectionId.Id;
+        public string SerialNo => _device?.SerialNo != null ? $"{_device.SerialNo} (v{_device.FirmwareVersion}, b{_device.BootloaderVersion})" : _connectionId.DeviceName;
 
         public double Progress => _longOperation.Progress;
         public bool InProgress => _longOperation.IsRunning;

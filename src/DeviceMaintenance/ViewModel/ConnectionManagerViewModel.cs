@@ -99,7 +99,7 @@ namespace DeviceMaintenance.ViewModel
 
         void WinBleConnectionManager_ControllerAdded(object sender, ControllerAddedEventArgs e)
         {
-            _hub.Publish(new ControllerAddedEvent(e.Controller.Id));
+            _hub.Publish(new ControllerAddedEvent(e.Controller.Connection.ConnectionId));
         }
 
         Task OnStartDiscoveryCommand(StartDiscoveryCommand arg)

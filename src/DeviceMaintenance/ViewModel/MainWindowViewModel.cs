@@ -204,7 +204,7 @@ namespace DeviceMaintenance.ViewModel
             _log = new EventLogger("Maintenance");
 
             _hub.Subscribe<AdvertismentReceivedEvent>(OnAdvertismentReceived);
-            _hub.Subscribe<ControllerAddedEvent>(OnDeviceDiscovered);
+            _hub.Subscribe<ControllerAddedEvent>(OnControllerAdded);
             _hub.Subscribe<DeviceConnectedEvent>(OnDeviceConnected);
             _hub.Subscribe<ClosingEvent>(OnClosing);
 
@@ -224,17 +224,20 @@ namespace DeviceMaintenance.ViewModel
             return Task.CompletedTask;
         }
 
-        async Task OnDeviceDiscovered(ControllerAddedEvent arg)
+        // WinBle only stuff
+        async Task OnControllerAdded(ControllerAddedEvent arg)
         {
-            await CreateDeviceViewModel(arg.DeviceId, (byte)DefaultConnectionIdProvider.WinBle);
+            await CreateDeviceViewModel(arg.ConnectionId);
         }
 
+        // CSR only stuff
         async Task OnAdvertismentReceived(AdvertismentReceivedEvent arg)
         {
-            await CreateDeviceViewModel(arg.DeviceId, (byte)DefaultConnectionIdProvider.Csr);
+            var connectionId = new ConnectionId(arg.DeviceId, (byte)DefaultConnectionIdProvider.Csr);
+            await CreateDeviceViewModel(connectionId);
         }
 
-        async Task CreateDeviceViewModel(string deviceId, byte connectionType)
+        async Task CreateDeviceViewModel(ConnectionId connectionId)
         {
             if (Interlocked.CompareExchange(ref _advConnectionInterlock, 1, 0) == 0)
             {
@@ -242,11 +245,11 @@ namespace DeviceMaintenance.ViewModel
                 try
                 {
                     bool added = false;
-                    deviceViewModel = _devices.GetOrAdd(deviceId, (id) =>
+                    deviceViewModel = _devices.GetOrAdd(connectionId.Id, (id) =>
                     {
                         added = true;
                         bool isBonded = ConnectionManager.IsBonded(id);
-                        return new DeviceViewModel(new ConnectionId(id, connectionType), isBonded, _hub);
+                        return new DeviceViewModel(connectionId, isBonded, _hub);
                     });
 
                     if (added)

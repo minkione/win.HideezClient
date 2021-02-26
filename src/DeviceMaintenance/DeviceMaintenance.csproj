@@ -234,8 +234,8 @@
       <Project>{d274aa09-5b34-4450-a6fb-5a5a351c7b45}</Project>
       <Name>CsrBLE</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Samples\WinBle\WinBle.csproj">
-      <Project>{b4c8fb39-3107-439e-aa8f-7a6a4dc76f1b}</Project>
+    <ProjectReference Include="..\..\win.SDK\WinBle\WinBle.csproj">
+      <Project>{af08ed4d-6977-4dcb-a49d-0c0a547698ba}</Project>
       <Name>WinBle</Name>
     </ProjectReference>
   </ItemGroup>
