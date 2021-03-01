@@ -62,10 +62,10 @@
                             Height="32"
                             Margin="0,0,24,0"
                             Foreground="{StaticResource ProgressRingBrush}" />
-                        <Button
-                            Command="{Binding CancelCommand}"
-                            Content="{l:Localization Button.Cancel}"
-                            Style="{StaticResource CancelButtonStyle}" />
+                        <TextBlock 
+                            VerticalAlignment="Center"
+                            Style="{StaticResource DialogLabelTextBlockStyle}"
+                            Text="{l:Localization ButtonWindow.CancelTooltip}" />
                     </StackPanel>
                 </Grid>
             </StackPanel>
@@ -223,6 +223,7 @@
                         HorizontalAlignment="Right"
                         Orientation="Horizontal">
                         <Button
+                            ma:VisibilityHelper.IsCollapsed="{Binding InProgress}"
                             Command="{Binding CancelCommand}"
                             Content="{l:Localization Button.Cancel}"
                             IsCancel="True"
