@@ -89,7 +89,6 @@ namespace HideezClient.PageViewModels
             });
 
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
-            UserName = GetAccoutName().Split('\\')[1];
             AllowEditProximitySettings = applicationModeProvider.GetApplicationMode() == ApplicationMode.Standalone;
             ProcessResultViewModel = new ProgressIndicatorWithResultViewModel();
 
@@ -101,9 +100,27 @@ namespace HideezClient.PageViewModels
                 .Subscribe(o => OnSettingsChanged());
 
             this.ObservableForProperty(vm => vm.HasChanges).Subscribe(vm => OnHasChangesChanged());
-
-            TryLoadProximitySettings();
+            
+            Initialize();
         }
+
+        private async Task Initialize()
+        {
+            try
+            {
+                IsLoading = true;
+
+                UserName = GetAccoutName().Split('\\')[1];
+                await TryLoadProximitySettings();
+
+                IsLoading = false;
+            }
+            catch(Exception ex)
+            {
+                log.WriteLine(ex);
+            }
+        }
+
         [Reactive] public DeviceViewModel Device { get; set; }
         [Reactive] public StateControlViewModel Сonnected { get; set; }
         [Reactive] public StateControlViewModel Initialized { get; set; }
@@ -117,6 +134,7 @@ namespace HideezClient.PageViewModels
         [Reactive] public bool CredentialsHasChanges { get; set; }
         [Reactive] public bool HasChanges { get; set; }
         [Reactive] public bool InProgress { get; set; }
+        [Reactive] public bool IsLoading { get; set; }
         [Reactive] public bool AllowEditProximitySettings { get; set; }
         [Reactive] public bool IsEditableCredentials { get; set; }
         [Reactive] public string UserName { get; set; }

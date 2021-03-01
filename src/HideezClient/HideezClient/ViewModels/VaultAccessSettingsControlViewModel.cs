@@ -218,15 +218,12 @@ namespace HideezClient.ViewModels
                 SelectedTimeout = SavedSelectedTimeout;
 
                 IsLoaded = true;
+                IsLoading = false;
                 HasChanges = false;
             }
             catch (Exception ex)
             {
                 _log.WriteLine(ex);
-            }
-            finally
-            {
-                IsLoading = false;
             }
         }
 

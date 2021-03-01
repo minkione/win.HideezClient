@@ -288,6 +288,9 @@
     <Compile Include="Controls\LeftMenuButtonControl.xaml.cs">
       <DependentUpon>LeftMenuButtonControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\LoadingControl.xaml.cs">
+      <DependentUpon>LoadingControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Notification\ViewModel\DeviceIsLockedNotificationViewModel.cs" />
     <Compile Include="Controls\Notification\View\UpdateAvailableNotification.xaml.cs">
       <DependentUpon>UpdateAvailableNotification.xaml</DependentUpon>
@@ -547,6 +550,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\LeftMenuButtonControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\LoadingControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

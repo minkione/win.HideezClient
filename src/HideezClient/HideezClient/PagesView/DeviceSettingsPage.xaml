@@ -169,90 +169,105 @@
 
             <!-- Vault access profile -->
             <controls:StandaloneModeContainer Grid.Row="2">
-                <StackPanel 
+                    <StackPanel 
                     Focusable="True" 
                     DataContext="{Binding VaultAccessSettingsControlViewModel, Mode=OneWay, Source={StaticResource Locator}}"
-                    Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    >
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsLoaded}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
                     <TextBlock
                         Style="{StaticResource SettingsHeaderStyle}"
                         Text="{l:Localization AccessSettings.Title}" />
 
-                    <Border
-                        Padding="24"
-                        Style="{StaticResource SettingsSectionBorderStyle}">
-                        <StackPanel>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*" SharedSizeGroup="Button"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        Style="{DynamicResource LabelStyle}"
-                                        Margin="0,0,0,18"
-                                        Text="{l:Localization AccessSettings.StorageAccess}" />
-                                    <CheckBox 
-                                        Style="{StaticResource CheckboxStyle}"
-                                        Content="{l:Localization AccessSettings.RequireButton}"
-                                        Margin="0,0,0,18"
-                                        IsChecked="{Binding RequireButton}" />
-                                    <CheckBox 
-                                        Style="{StaticResource CheckboxStyle}"
-                                        Content="{l:Localization AccessSettings.RequirePin}"
-                                        Margin="0,0,0,18"
-                                        IsChecked="{Binding RequirePin}" />
-                                    <TextBlock
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        Style="{DynamicResource LabelStyle}"
-                                        Margin="0,0,0,18"
-                                        Text="{l:Localization AccessSettings.StorageLockTimeout}" />
-                                    <ComboBox 
-                                        HorizontalAlignment="Left"
-                                        MinWidth="150"
-                                        IsTabStop="True"
-                                        Style="{DynamicResource ComboBoxStyle}"
-                                        ItemsSource="{Binding TimeoutOptionsList}"
-                                        DisplayMemberPath="Title"
-                                        SelectedItem="{Binding SelectedTimeout}"
-                                        Tag="{Binding SelectedTimeout.Title}" 
-                                        />
-                                </StackPanel>
+                    <Border Style="{StaticResource SettingsSectionBorderStyle}">
+                        <Grid>
+                            <StackPanel Margin="24">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*" SharedSizeGroup="Button"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Style="{DynamicResource LabelStyle}"
+                                            Margin="0,0,0,18"
+                                            Text="{l:Localization AccessSettings.StorageAccess}" />
+                                        <CheckBox 
+                                            Style="{StaticResource CheckboxStyle}"
+                                            Content="{l:Localization AccessSettings.RequireButton}"
+                                            Margin="0,0,0,18"
+                                            IsChecked="{Binding RequireButton}" />
+                                        <CheckBox 
+                                            Style="{StaticResource CheckboxStyle}"
+                                            Content="{l:Localization AccessSettings.RequirePin}"
+                                            Margin="0,0,0,18"
+                                            IsChecked="{Binding RequirePin}" />
+                                        <TextBlock
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Style="{DynamicResource LabelStyle}"
+                                            Margin="0,0,0,18"
+                                            Text="{l:Localization AccessSettings.StorageLockTimeout}" />
+                                        <ComboBox 
+                                            HorizontalAlignment="Left"
+                                            MinWidth="150"
+                                            IsTabStop="True"
+                                            Style="{DynamicResource ComboBoxStyle}"
+                                            ItemsSource="{Binding TimeoutOptionsList}"
+                                            DisplayMemberPath="Title"
+                                            SelectedItem="{Binding SelectedTimeout}"
+                                            Tag="{Binding SelectedTimeout.Title}" 
+                                            />
+                                    </StackPanel>
+                                    <StackPanel 
+                                        Grid.Column="1" 
+                                        HorizontalAlignment="Right">
+                                        <Button
+                                            Command="{Binding ChangeMasterPasswordCommand}"
+                                            Content="{l:Localization AccessSettings.ChangeMasterPassword}"
+                                            Style="{DynamicResource ConfirmButtonStyle}"
+                                            Margin="0,0,0,24" />
+
+                                        <Button
+                                            Command="{Binding ChangePinCodeCommand}"
+                                            Content="{l:Localization AccessSettings.ChangePinCode}"
+                                            Style="{DynamicResource ConfirmButtonStyle}"
+                                            Margin="0,0,0,24" 
+                                            Visibility="{Binding SavedRequirePin, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    </StackPanel>
+                                </Grid>
+
                                 <StackPanel 
-                                    Grid.Column="1" 
-                                    HorizontalAlignment="Right">
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibilityHiddenConverter}}">
                                     <Button
-                                        Command="{Binding ChangeMasterPasswordCommand}"
-                                        Content="{l:Localization AccessSettings.ChangeMasterPassword}"
-                                        Style="{DynamicResource ConfirmButtonStyle}"
-                                        Margin="0,0,0,24" />
-
+                                        Command="{Binding CancelAccessProfileEditCommand}"
+                                        Content="{l:Localization Button.Cancel}"
+                                        Style="{DynamicResource CancelButtonStyle}" />
+                                    <Rectangle Width="14" />
                                     <Button
-                                        Command="{Binding ChangePinCodeCommand}"
-                                        Content="{l:Localization AccessSettings.ChangePinCode}"
-                                        Style="{DynamicResource ConfirmButtonStyle}"
-                                        Margin="0,0,0,24" 
-                                        Visibility="{Binding SavedRequirePin, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        Command="{Binding SaveAccessProfileCommand}"
+                                        Content="{l:Localization Button.Save}"
+                                        Style="{StaticResource ConfirmButtonStyle}" />
                                 </StackPanel>
-                            </Grid>
-
-                            <StackPanel 
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibilityHiddenConverter}}">
-                                <Button
-                                    Command="{Binding CancelAccessProfileEditCommand}"
-                                    Content="{l:Localization Button.Cancel}"
-                                    Style="{DynamicResource CancelButtonStyle}" />
-                                <Rectangle Width="14" />
-                                <Button
-                                    Command="{Binding SaveAccessProfileCommand}"
-                                    Content="{l:Localization Button.Save}"
-                                    Style="{StaticResource ConfirmButtonStyle}" />
                             </StackPanel>
-                        </StackPanel>
+                            <controls:LoadingControl
+                                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        </Grid>
                     </Border>
                 </StackPanel>
             </controls:StandaloneModeContainer>
@@ -282,383 +297,335 @@
                     <TextBlock 
                         Style="{StaticResource SettingsHeaderStyle}"
                         Text="Proximity settings" />
-                    <Border
-                        Padding="24"
-                        Style="{StaticResource SettingsSectionBorderStyle}">
-                        <StackPanel>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <CheckBox 
-                                        Style="{StaticResource CheckboxStyle}"
-                                        Content="{l:Localization ProximitySettings.CheckBox.EnableLockPC}"
-                                        Margin="0,0,0,18"
-                                        IsChecked="{Binding EnabledLockByProximity}" />
-                                    <CheckBox 
-                                        Style="{StaticResource CheckboxStyle}"
-                                        Content="{l:Localization ProximitySettings.CheckBox.DisableDisplayAutomatically}"
-                                        Margin="0,0,0,18"
-                                        IsChecked="{Binding DisabledDisplayAuto}" />
-                                    <CheckBox 
-                                        x:Name="EnableUnlockCheckBox"
-                                        Style="{StaticResource CheckboxStyle}"
-                                        Content="{l:Localization ProximitySettings.CheckBox.EnableUnlockPC}"
-                                        Margin="0,0,0,18"
-                                        IsChecked="{Binding EnabledUnlockByProximity}" >
-                                    </CheckBox>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" >
-                                    <StackPanel.Style>
-                                        <Style TargetType="StackPanel">
-                                            <Setter Property="Visibility" Value="Hidden" />
-                                            <Style.Triggers>
-                                                <MultiDataTrigger>
-                                                    <MultiDataTrigger.Conditions>
-                                                        <Condition Binding="{Binding IsEditableCredentials}" Value="True" />
-                                                        <Condition Binding="{Binding ElementName=EnableUnlockCheckBox, Path=IsChecked}" Value="True" />
-                                                    </MultiDataTrigger.Conditions>
-                                                    <MultiDataTrigger.Setters>
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </MultiDataTrigger.Setters>
-                                                </MultiDataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </StackPanel.Style>
-                                    <!--  Account Name  -->
-                                    <ContentControl
-                                        Style="{StaticResource UnderLine}"
-                                        Tag="{Binding ErrorAccountName}">
-                                        <Grid Margin="0,0,0,24">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                                <ColumnDefinition Width="24"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Center"
-                                                Style="{DynamicResource LabelStyle}">
-                                                <Run Text="{l:Localization ProximitySettings.Label.UserName}" />
-                                                <Run Text=":" />
-                                            </TextBlock>
-
-                                            <TextBlock
-                                                Grid.Column="2"
-                                                VerticalAlignment="Center"
-                                                Style="{StaticResource LabelValuesStyle}"
-                                                Text="{Binding UserName}">
-                                            </TextBlock>
-                                        </Grid>
-                                    </ContentControl>
-                                    <!--  Password  -->
-                                    <ContentControl
-                                        Style="{StaticResource UnderLine}" 
-                                        Tag="{Binding ErrorAccountName}">
-                                        <Grid Margin="0,0,0,24">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                                <ColumnDefinition Width="24"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Center"
-                                                Style="{DynamicResource LabelStyle}">
-                                                <Run Text="{l:Localization PM.Label.Password}" />
-                                                <Run Text=":" />
-                                            </TextBlock>
-
-                                            <PasswordBox
-                                                x:Name="PasswordBox"
-                                                ScrollViewer.CanContentScroll="False"
-                                                Grid.Column="2"
-                                                VerticalAlignment="Center"
-                                                HorizontalAlignment="Stretch"
-                                                ma:PasswordBoxHelper.CapsLockWarningToolTip="CapsLock is enabled"
-                                                ma:TextBoxHelper.Watermark="{l:Localization ProximitySettings.Watermark.Password}"
-                                                BorderThickness="0"
-                                                CaretBrush="{DynamicResource DarkForeground}"
-                                                FontSize="16"
-                                                Foreground="{DynamicResource DarkForeground}"
-                                                IsTabStop="True"
-                                                PasswordChanged="PasswordBox_PasswordChanged"
-                                                Style="{StaticResource MetroButtonRevealedPasswordBox}"
-                                                Background="Transparent">
-                                                <PasswordBox.Resources>
-                                                    <Style x:Key="RevealButtonStyle" TargetType="Button">
-                                                        <Setter Property="Background" Value="Transparent" />
-                                                        <Setter Property="BorderThickness" Value="0" />
-                                                        <Setter Property="Foreground" Value="Red" />
-                                                        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-                                                        <Setter Property="Opacity" Value="1" />
-                                                        <Setter Property="Template">
-                                                            <Setter.Value>
-                                                                <ControlTemplate TargetType="{x:Type Button}">
-                                                                    <Border
-                                                                        x:Name="border"
-                                                                        Background="Transparent">
-                                                                        <iconPacks:PackIconFontAwesome
-                                                                            Name="EyeIcon"
-                                                                            Height="24"
-                                                                            HorizontalAlignment="Center"
-                                                                            VerticalAlignment="Center"
-                                                                            Foreground="{StaticResource IcoButtonBrush}"
-                                                                            Kind="EyeSolid" />
-                                                                    </Border>
-                                                                    <ControlTemplate.Triggers>
-                                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                                            <Setter TargetName="border" Property="Background" Value="Transparent" />
-                                                                            <Setter Property="Cursor" Value="Hand" />
-                                                                        </Trigger>
-                                                                        <Trigger Property="IsPressed" Value="True">
-                                                                            <Setter TargetName="EyeIcon" Property="Opacity" Value="0.65" />
-                                                                            <!--<Setter TargetName="EyeIcon" Property="Kind" Value="EyeSlashSolid" />-->
-                                                                        </Trigger>
-                                                                    </ControlTemplate.Triggers>
-                                                                </ControlTemplate>
-                                                            </Setter.Value>
-                                                        </Setter>
-                                                    </Style>
-                                                </PasswordBox.Resources>
-                                            </PasswordBox>
-                                        </Grid>
-                                    </ContentControl>
-                                </StackPanel>
-                                <Grid Grid.Column="1">
+                    <Border Style="{StaticResource SettingsSectionBorderStyle}">
+                        <Grid>
+                            <StackPanel Margin="24">
+                                <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="Auto" SharedSizeGroup="Button"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Grid.Style>
-                                        <Style TargetType="Grid">
-                                            <Setter Property="Visibility" Value="Hidden" />
-                                            <Style.Triggers>
-                                                <MultiDataTrigger>
-                                                    <MultiDataTrigger.Conditions>
-                                                        <Condition Binding="{Binding IsEditableCredentials}" Value="False" />
-                                                        <Condition Binding="{Binding ElementName=EnableUnlockCheckBox, Path=IsChecked}" Value="True" />
-                                                    </MultiDataTrigger.Conditions>
-                                                    <MultiDataTrigger.Setters>
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </MultiDataTrigger.Setters>
-                                                </MultiDataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Grid.Style>
-                                <StackPanel 
-                                    Grid.Column="1" 
-                                    HorizontalAlignment="Stretch">
-                                        <Button
-                                            Click="EditCredentialsButton_Click"
-                                            Command="{Binding EditCredentialsCommand}"
-                                            Content="{l:Localization Button.EditUnlockAccount}"
-                                            Style="{StaticResource ConfirmButtonStyle}"/>
+                                    <StackPanel Grid.Column="0">
+                                        <CheckBox 
+                                            Style="{StaticResource CheckboxStyle}"
+                                            Content="{l:Localization ProximitySettings.CheckBox.EnableLockPC}"
+                                            Margin="0,0,0,18"
+                                            IsChecked="{Binding EnabledLockByProximity}" />
+                                        <CheckBox 
+                                            Style="{StaticResource CheckboxStyle}"
+                                            Content="{l:Localization ProximitySettings.CheckBox.DisableDisplayAutomatically}"
+                                            Margin="0,0,0,18"
+                                            IsChecked="{Binding DisabledDisplayAuto}" />
+                                        <CheckBox 
+                                            x:Name="EnableUnlockCheckBox"
+                                            Style="{StaticResource CheckboxStyle}"
+                                            Content="{l:Localization ProximitySettings.CheckBox.EnableUnlockPC}"
+                                            Margin="0,0,0,18"
+                                            IsChecked="{Binding EnabledUnlockByProximity}" >
+                                        </CheckBox>
                                     </StackPanel>
+                                    <StackPanel Grid.Column="1" >
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
+                                                <Setter Property="Visibility" Value="Hidden" />
+                                                <Style.Triggers>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding IsEditableCredentials}" Value="True" />
+                                                            <Condition Binding="{Binding ElementName=EnableUnlockCheckBox, Path=IsChecked}" Value="True" />
+                                                        </MultiDataTrigger.Conditions>
+                                                        <MultiDataTrigger.Setters>
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </MultiDataTrigger.Setters>
+                                                    </MultiDataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                        <!--  Account Name  -->
+                                        <ContentControl
+                                            Style="{StaticResource UnderLine}"
+                                            Tag="{Binding ErrorAccountName}">
+                                            <Grid Margin="0,0,0,24">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                                    <ColumnDefinition Width="24"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Center"
+                                                    Style="{DynamicResource LabelStyle}">
+                                                    <Run Text="{l:Localization ProximitySettings.Label.UserName}" />
+                                                    <Run Text=":" />
+                                                </TextBlock>
+
+                                                <TextBlock
+                                                    Grid.Column="2"
+                                                    VerticalAlignment="Center"
+                                                    Style="{StaticResource LabelValuesStyle}"
+                                                    Text="{Binding UserName}">
+                                                </TextBlock>
+                                            </Grid>
+                                        </ContentControl>
+                                        <!--  Password  -->
+                                        <ContentControl
+                                            Style="{StaticResource UnderLine}" 
+                                            Tag="{Binding ErrorAccountName}">
+                                            <Grid Margin="0,0,0,24">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                                    <ColumnDefinition Width="24"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Center"
+                                                    Style="{DynamicResource LabelStyle}">
+                                                    <Run Text="{l:Localization PM.Label.Password}" />
+                                                    <Run Text=":" />
+                                                </TextBlock>
+
+                                                <PasswordBox
+                                                    x:Name="PasswordBox"
+                                                    ScrollViewer.CanContentScroll="False"
+                                                    Grid.Column="2"
+                                                    VerticalAlignment="Center"
+                                                    HorizontalAlignment="Stretch"
+                                                    ma:PasswordBoxHelper.CapsLockWarningToolTip="CapsLock is enabled"
+                                                    ma:TextBoxHelper.Watermark="{l:Localization ProximitySettings.Watermark.Password}"
+                                                    BorderThickness="0"
+                                                    CaretBrush="{DynamicResource DarkForeground}"
+                                                    FontSize="16"
+                                                    Foreground="{DynamicResource DarkForeground}"
+                                                    IsTabStop="True"
+                                                    PasswordChanged="PasswordBox_PasswordChanged"
+                                                    Style="{StaticResource MetroButtonRevealedPasswordBox}"
+                                                    Background="Transparent">
+                                                    <PasswordBox.Resources>
+                                                        <Style x:Key="RevealButtonStyle" TargetType="Button">
+                                                            <Setter Property="Background" Value="Transparent" />
+                                                            <Setter Property="BorderThickness" Value="0" />
+                                                            <Setter Property="Foreground" Value="Red" />
+                                                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                                            <Setter Property="Opacity" Value="1" />
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="{x:Type Button}">
+                                                                        <Border
+                                                                            x:Name="border"
+                                                                            Background="Transparent">
+                                                                            <iconPacks:PackIconFontAwesome
+                                                                                Name="EyeIcon"
+                                                                                Height="24"
+                                                                                HorizontalAlignment="Center"
+                                                                                VerticalAlignment="Center"
+                                                                                Foreground="{StaticResource IcoButtonBrush}"
+                                                                                Kind="EyeSolid" />
+                                                                        </Border>
+                                                                        <ControlTemplate.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter TargetName="border" Property="Background" Value="Transparent" />
+                                                                                <Setter Property="Cursor" Value="Hand" />
+                                                                            </Trigger>
+                                                                            <Trigger Property="IsPressed" Value="True">
+                                                                                <Setter TargetName="EyeIcon" Property="Opacity" Value="0.65" />
+                                                                                <!--<Setter TargetName="EyeIcon" Property="Kind" Value="EyeSlashSolid" />-->
+                                                                            </Trigger>
+                                                                        </ControlTemplate.Triggers>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Style>
+                                                    </PasswordBox.Resources>
+                                                </PasswordBox>
+                                            </Grid>
+                                        </ContentControl>
+                                    </StackPanel>
+                                    <Grid Grid.Column="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="Button"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.Style>
+                                            <Style TargetType="Grid">
+                                                <Setter Property="Visibility" Value="Hidden" />
+                                                <Style.Triggers>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding IsEditableCredentials}" Value="False" />
+                                                            <Condition Binding="{Binding ElementName=EnableUnlockCheckBox, Path=IsChecked}" Value="True" />
+                                                        </MultiDataTrigger.Conditions>
+                                                        <MultiDataTrigger.Setters>
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </MultiDataTrigger.Setters>
+                                                    </MultiDataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
+                                    <StackPanel 
+                                        Grid.Column="1" 
+                                        HorizontalAlignment="Stretch">
+                                            <Button
+                                                Click="EditCredentialsButton_Click"
+                                                Command="{Binding EditCredentialsCommand}"
+                                                Content="{l:Localization Button.EditUnlockAccount}"
+                                                Style="{StaticResource ConfirmButtonStyle}"/>
+                                        </StackPanel>
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                            <Border
-                                Style="{StaticResource ContainerStyle}"
-                                Margin="0,10">
-                                <TextBlock
-                                    Text="{l:Localization ProximitySettings.TextBlock.SignalLevel}"
-                                    TextWrapping="Wrap" />
-                            </Border>
-                            <Grid>
-                                <ProgressBar
-                                    Height="3"
-                                    MinHeight="1"
-                                    Margin="0,8,0,0"
-                                    Padding="0"
-                                    VerticalAlignment="Center"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Foreground="#1BA2DC"
-                                    Opacity="0.8"
-                                    SnapsToDevicePixels="True"
-                                    Value="{Binding Device.Proximity, Mode=OneWay}" />
-                                <ma:RangeSlider
-                                    x:Name="ProximitySlider"
-                                    Margin="0,24,0,16"
-                                    ExtendedMode="True"
-                                    Focusable="False"
-                                    IsMoveToPointEnabled="True"
-                                    IsSnapToTickEnabled="True"
-                                    IsTabStop="False"
-                                    LowerValue="{Binding LockProximity, Mode=TwoWay}"
-                                    Maximum="100"
-                                    MinRange="20"
-                                    MinRangeWidth="{Binding RelativeSource={RelativeSource Self}, Path=ActualWidth, Converter={StaticResource SliderWidthToMinRangeWidthConverter}, ConverterParameter=20}"
-                                    Minimum="0"
-                                    MoveWholeRange="True"
-                                    Style="{DynamicResource RangeSliderStyle}"
-                                    UpperValue="{Binding UnlockProximity, Mode=TwoWay}" />
-                            </Grid>
-
-                            <Grid
-                                TextBlock.FontSize="16"
-                                TextBlock.FontWeight="DemiBold"
-                                TextBlock.Foreground="{DynamicResource DarkForeground}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
                                 <Border
-                                    Grid.Column="0"
-                                    Padding="12,5"
-                                    Style="{StaticResource ContainerStyle}">
-                                    <Grid>
-                                        <TextBox
-                                            x:Name="LockProximityTextBox"
-                                            HorizontalAlignment="Center"
-                                            Text="{Binding LockProximity, UpdateSourceTrigger=PropertyChanged}"
-                                            Background="Transparent"
-                                            FontSize="16"
-                                            BorderThickness="0"
-                                            CaretBrush ="{DynamicResource DarkForeground}"
-                                            Foreground="{DynamicResource DarkForeground}"
-                                            LostFocus="LockProximityTextBox_LostFocus"/>
-                                        <TextBlock
-                                            Text="100"
-                                            Visibility="Hidden" />
-                                    </Grid>
-                                </Border>
-                                <TextBlock
-                                    Grid.Column="1"
-                                    Margin="8,0,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Lock" />
-                                <TextBlock
-                                    Grid.Column="3"
-                                    HorizontalAlignment="Left"
-                                    FontWeight="Normal"
-                                    Foreground="{DynamicResource Foreground}">
-                                    <TextBlock.Text>
-                                        <MultiBinding Converter="{StaticResource FormatStringConverter}">
-                                            <Binding Path="[DeviceInfo.CurrentProximityLevel]" Source="{x:Static l:TranslationSource.Instance}" />
-                                            <Binding Path="Device.Proximity" />
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                </TextBlock>
-                                <TextBlock
-                                    Grid.Column="5"
-                                    Margin="0,0,8,0"
-                                    VerticalAlignment="Center"
-                                    Text="Unlock" />
-                                <Border
-                                    Grid.Column="6"
-                                    Padding="12,5"
-                                    Style="{StaticResource ContainerStyle}">
-                                    <Grid>
-                                        <TextBox
-                                            x:Name="UnlockProximityTextBox"
-                                            HorizontalAlignment="Center"
-                                            Text="{Binding UnlockProximity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            Background="Transparent"
-                                            FontSize="16"
-                                            BorderThickness="0"
-                                            Foreground="{DynamicResource DarkForeground}"
-                                            CaretBrush ="{DynamicResource DarkForeground}"
-                                            LostFocus="UnlockProximityTextBox_LostFocus"/>
-                                        <TextBlock Text="100" Visibility="Hidden" />
-                                    </Grid>
-                                </Border>
-                            </Grid>
-
-                            <Grid>
-                                <StackPanel
-                                    Margin="0,24,0,0"
-                                    HorizontalAlignment="Right"
-                                    Orientation="Horizontal">
-                                    <StackPanel.Style>
-                                        <Style TargetType="StackPanel">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasChanges}" Value="False">
-                                                    <Setter Property="Visibility" Value="Hidden" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding ProcessResultViewModel.InProgress}" Value="True">
-                                                    <Setter Property="Visibility" Value="Hidden" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </StackPanel.Style>
-                                    <Button
-                                        Command="{Binding CancelEditProximityCommand}"
-                                        Content="{l:Localization Button.Cancel}"
-                                        Click="CancelButton_Click"
-                                        VerticalAlignment="Center"
-                                        Style="{DynamicResource CancelButtonStyle}" />
-                                    <Rectangle Width="14" />
-                                    <Button
-                                        Click="SaveButton_Click"
-                                        Content="{l:Localization Button.Save}"
-                                        VerticalAlignment="Center"
-                                        Style="{StaticResource ConfirmButtonStyle}" />
-                                </StackPanel>
-
-                                <controls:ProgressIndicatorWithResultControl 
-                                    x:Name="progressInicatorWithResult"
-                                    ProcessResult="{Binding ProcessResultViewModel}"/>
-
-                                <!--<StackPanel
-                                    Margin="0,24,0,0"
-                                    HorizontalAlignment="Right"
-                                    Visibility="{Binding InProgress, Converter={StaticResource BooleanToVisibilityHiddenConverter}}"
-                                    Orientation="Horizontal">
-                                    <TextBlock 
-                                        Style="{StaticResource DialogTitleTextBlockStyle}" 
-                                        Margin="0,4,0,0" 
-                                        Text="Saving" />
-                                    <ma:ProgressRing
-                                        Width="32"
-                                        Height="32"
-                                        Margin="24,0,0,24"
-                                        Foreground="{StaticResource ProgressRingBrush}" />
-                                </StackPanel>
-
-                                <StackPanel
-                                    x:Name="ResultStack"
-                                    Margin="0,24,0,0"
-                                    HorizontalAlignment="Right"
-                                    Orientation="Horizontal">
-                                    <StackPanel.Style>
-                                        <Style TargetType="StackPanel">
-                                            <Setter Property="Visibility" Value="Hidden" />
-                                            <Style.Triggers>
-                                                <MultiDataTrigger>
-                                                    <MultiDataTrigger.Conditions>
-                                                        <Condition Binding="{Binding HasChanges}" Value="True"/>
-                                                        <Condition Binding="{Binding Visibility, Source=ResultStack}" Value="Visible"/>
-                                                    </MultiDataTrigger.Conditions>
-                                                    <MultiDataTrigger.Setters>
-                                                        <Setter Property="Visibility" Value="Hidden" />
-                                                    </MultiDataTrigger.Setters>
-                                                </MultiDataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </StackPanel.Style>
+                                    Style="{StaticResource ContainerStyle}"
+                                    Margin="0,10">
                                     <TextBlock
-                                        x:Name="ResultText"
-                                        Margin="0,4,0,0"
-                                        Text="Saved"
-                                        Style="{StaticResource DialogTitleTextBlockStyle}"/>
-                                    <iconPacks:PackIconMaterial
-                                        x:Name="ResultIcon"
-                                        Width="28"
+                                        Text="{l:Localization ProximitySettings.TextBlock.SignalLevel}"
+                                        TextWrapping="Wrap" />
+                                </Border>
+                                <Grid>
+                                    <ProgressBar
+                                        Height="3"
+                                        MinHeight="1"
+                                        Margin="0,8,0,0"
+                                        Padding="0"
                                         VerticalAlignment="Center"
-                                        Margin="24,0,0,24"
-                                        Height="28"/>
-                                </StackPanel>-->
-                            </Grid>
-                        </StackPanel>
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Foreground="#1BA2DC"
+                                        Opacity="0.8"
+                                        SnapsToDevicePixels="True"
+                                        Value="{Binding Device.Proximity, Mode=OneWay}" />
+                                    <ma:RangeSlider
+                                        x:Name="ProximitySlider"
+                                        Margin="0,24,0,16"
+                                        ExtendedMode="True"
+                                        Focusable="False"
+                                        IsMoveToPointEnabled="True"
+                                        IsSnapToTickEnabled="True"
+                                        IsTabStop="False"
+                                        LowerValue="{Binding LockProximity, Mode=TwoWay}"
+                                        Maximum="100"
+                                        MinRange="20"
+                                        MinRangeWidth="{Binding RelativeSource={RelativeSource Self}, Path=ActualWidth, Converter={StaticResource SliderWidthToMinRangeWidthConverter}, ConverterParameter=20}"
+                                        Minimum="0"
+                                        MoveWholeRange="True"
+                                        Style="{DynamicResource RangeSliderStyle}"
+                                        UpperValue="{Binding UnlockProximity, Mode=TwoWay}" />
+                                </Grid>
+
+                                <Grid
+                                    TextBlock.FontSize="16"
+                                    TextBlock.FontWeight="DemiBold"
+                                    TextBlock.Foreground="{DynamicResource DarkForeground}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border
+                                        Grid.Column="0"
+                                        Padding="12,5"
+                                        Style="{StaticResource ContainerStyle}">
+                                        <Grid>
+                                            <TextBox
+                                                x:Name="LockProximityTextBox"
+                                                HorizontalAlignment="Center"
+                                                Text="{Binding LockProximity, UpdateSourceTrigger=PropertyChanged}"
+                                                Background="Transparent"
+                                                FontSize="16"
+                                                BorderThickness="0"
+                                                CaretBrush ="{DynamicResource DarkForeground}"
+                                                Foreground="{DynamicResource DarkForeground}"
+                                                LostFocus="LockProximityTextBox_LostFocus"/>
+                                            <TextBlock
+                                                Text="100"
+                                                Visibility="Hidden" />
+                                        </Grid>
+                                    </Border>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Center"
+                                        Text="Lock" />
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        HorizontalAlignment="Left"
+                                        FontWeight="Normal"
+                                        Foreground="{DynamicResource Foreground}">
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{StaticResource FormatStringConverter}">
+                                                <Binding Path="[DeviceInfo.CurrentProximityLevel]" Source="{x:Static l:TranslationSource.Instance}" />
+                                                <Binding Path="Device.Proximity" />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock
+                                        Grid.Column="5"
+                                        Margin="0,0,8,0"
+                                        VerticalAlignment="Center"
+                                        Text="Unlock" />
+                                    <Border
+                                        Grid.Column="6"
+                                        Padding="12,5"
+                                        Style="{StaticResource ContainerStyle}">
+                                        <Grid>
+                                            <TextBox
+                                                x:Name="UnlockProximityTextBox"
+                                                HorizontalAlignment="Center"
+                                                Text="{Binding UnlockProximity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                Background="Transparent"
+                                                FontSize="16"
+                                                BorderThickness="0"
+                                                Foreground="{DynamicResource DarkForeground}"
+                                                CaretBrush ="{DynamicResource DarkForeground}"
+                                                LostFocus="UnlockProximityTextBox_LostFocus"/>
+                                            <TextBlock Text="100" Visibility="Hidden" />
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+
+                                <Grid>
+                                    <StackPanel
+                                        Margin="0,24,0,0"
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal">
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasChanges}" Value="False">
+                                                        <Setter Property="Visibility" Value="Hidden" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ProcessResultViewModel.InProgress}" Value="True">
+                                                        <Setter Property="Visibility" Value="Hidden" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                        <Button
+                                            Command="{Binding CancelEditProximityCommand}"
+                                            Content="{l:Localization Button.Cancel}"
+                                            Click="CancelButton_Click"
+                                            VerticalAlignment="Center"
+                                            Style="{DynamicResource CancelButtonStyle}" />
+                                        <Rectangle Width="14" />
+                                        <Button
+                                            Click="SaveButton_Click"
+                                            Content="{l:Localization Button.Save}"
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource ConfirmButtonStyle}" />
+                                    </StackPanel>
+
+                                    <controls:ProgressIndicatorWithResultControl 
+                                        x:Name="progressInicatorWithResult"
+                                        ProcessResult="{Binding ProcessResultViewModel}"/>
+                                </Grid>
+                            </StackPanel>
+                            <controls:LoadingControl
+                                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        </Grid>
                     </Border>
                 </StackPanel>
             </controls:StandaloneModeContainer>
