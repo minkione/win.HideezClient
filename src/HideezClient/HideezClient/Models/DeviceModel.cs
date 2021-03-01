@@ -619,7 +619,7 @@ namespace HideezClient.Models
                                     _log.WriteLine($"({_remoteDevice.SerialNo}) access level is null");
                             }
 
-                            if (_remoteDevice.IsLockedByCode)
+                            if (_remoteDevice?.IsLockedByCode == true)
                                 throw new HideezException(HideezErrorCode.DeviceIsLocked);
                             else if (authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && !_remoteDevice.AccessLevel.IsAllOk)
                                 await AuthorizeRemoteDevice(ct);
