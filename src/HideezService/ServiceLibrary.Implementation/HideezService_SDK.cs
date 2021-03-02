@@ -419,6 +419,7 @@ namespace ServiceLibrary.Implementation
             _messenger.Subscribe<PublishEventMessage>(PublishEvent);
             _messenger.Subscribe<DisconnectDeviceMessage>(DisconnectDevice);
             _messenger.Subscribe<RemoveDeviceMessage>(RemoveDeviceAsync);
+            _messenger.Subscribe<CloseChannelMessage>(CloseChannelAsync);
 
             _messenger.Subscribe<ChangeServerAddressMessage>(ChangeServerAddress);
             _messenger.Subscribe<SetSoftwareVaultUnlockModuleStateMessage>(SetSoftwareVaultUnlockModuleState);
@@ -1088,6 +1089,26 @@ namespace ServiceLibrary.Implementation
                     _deviceReconnectManager.DisableDeviceReconnect(device);
                     await _deviceManager.DeleteBond(device.DeviceConnection);
                 }
+            }
+            catch (Exception ex)
+            {
+                Error(ex);
+                throw;
+            }
+        }
+
+
+        Task CloseChannelAsync(CloseChannelMessage msg)
+        {
+            try
+            {
+                var device = _deviceManager.Devices.FirstOrDefault(d => d.Id == msg.DeviceId);
+                if (device != null)
+                {
+                    _deviceManager.RemoveDeviceChannel(device);
+                }
+
+                return Task.CompletedTask;
             }
             catch (Exception ex)
             {

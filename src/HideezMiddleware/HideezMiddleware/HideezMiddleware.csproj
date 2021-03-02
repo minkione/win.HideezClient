@@ -167,6 +167,7 @@
     <Compile Include="IPC\IncommingMessages\CancelPinMessage.cs" />
     <Compile Include="IPC\IncommingMessages\ChangeServerAddressMessage.cs" />
     <Compile Include="IPC\IncommingMessages\ChangeServerAddressMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\CloseChannelMessage.cs" />
     <Compile Include="IPC\IncommingMessages\ConnectPairedVaultsMessage.cs" />
     <Compile Include="IPC\IncommingMessages\DisconnectDeviceMessage.cs" />
     <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessage.cs" />

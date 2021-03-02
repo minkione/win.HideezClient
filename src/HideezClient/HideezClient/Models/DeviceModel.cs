@@ -714,7 +714,7 @@ namespace HideezClient.Models
                         tempRemoteDevice.StorageModified -= RemoteDevice_StorageModified;
                         tempRemoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
                         await tempRemoteDevice.Shutdown();
-                        await _metaMessenger.PublishOnServer(new RemoveDeviceMessage(tempRemoteDevice.Id));
+                        await _metaMessenger.PublishOnServer(new CloseChannelMessage(tempRemoteDevice.Id));
                         tempRemoteDevice.Dispose();
                     }
                     try
