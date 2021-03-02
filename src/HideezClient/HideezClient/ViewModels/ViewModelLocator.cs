@@ -97,6 +97,11 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<VaultAccessSettingsControlViewModel>(); }
         }
 
+        public BackupCredentialsControlViewModel BackupCredentialsControlViewModel
+        {
+            get { return DIContainer.Resolve<BackupCredentialsControlViewModel>(); }
+        }
+
         #endregion
 
         #region Dialog
@@ -109,6 +114,11 @@ namespace HideezClient.ViewModels
         public MasterPasswordViewModel MasterPasswordViewModel
         {
             get { return DIContainer.Resolve<MasterPasswordViewModel>(); }
+        }
+
+        public BackupPasswordViewModel BackupPasswordViewModel
+        {
+            get { return DIContainer.Resolve<BackupPasswordViewModel>(); }
         }
 
         public DeviceNotAuthorizedNotificationViewModel PinNotVerifiedNotificationViewModel

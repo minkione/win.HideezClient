@@ -355,6 +355,9 @@
     <Compile Include="Converters\SerialNoAndFirmwareVerFormater.cs" />
     <Compile Include="Converters\SliderWidthToMinRangeWidthConverter.cs" />
     <Compile Include="Converters\StringToResource.cs" />
+    <Compile Include="Dialogs\BackupPasswordDialog.xaml.cs">
+      <DependentUpon>BackupPasswordDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\MasterPasswordDialog.xaml.cs">
       <DependentUpon>MasterPasswordDialog.xaml</DependentUpon>
     </Compile>
@@ -381,6 +384,10 @@
     <Compile Include="Messages\ConnectionServiceChangedMessage.cs" />
     <Compile Include="Messages\DeviceButtonPressedMessage.cs" />
     <Compile Include="Messages\DevicesCollectionChangedMessage.cs" />
+    <Compile Include="Messages\Dialogs\BackupPassword\BackupPasswordCancelledMessage.cs" />
+    <Compile Include="Messages\Dialogs\BackupPassword\HideBackupPasswordUiMessage.cs" />
+    <Compile Include="Messages\Dialogs\BackupPassword\SendBackupPasswordMessage.cs" />
+    <Compile Include="Messages\Dialogs\BackupPassword\ShowBackupPasswordUiMessage.cs" />
     <Compile Include="Messages\Dialogs\MasterPassword\MasterPasswordCancelledMessage.cs" />
     <Compile Include="Messages\Dialogs\MasterPassword\HideMasterPasswordUiMessage.cs" />
     <Compile Include="Messages\Dialogs\Pin\PinCancelledMessage.cs" />
@@ -486,6 +493,7 @@
     <Compile Include="PageViewModels\SettingsPageViewModel.cs" />
     <Compile Include="PageViewModels\HardwareKeyPageViewModel.cs" />
     <Compile Include="PageViewModels\SoftwareKeyPageViewModel.cs" />
+    <Compile Include="Tasks\GetBackupPasswordProc.cs" />
     <Compile Include="Tasks\GetMasterPasswordProc.cs" />
     <Compile Include="Tasks\GetPinProc.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
@@ -504,6 +512,7 @@
     <Compile Include="Utilities\Url\URLHelper.cs" />
     <Compile Include="Utilities\WeakEvents\WeakEvent.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
+    <Compile Include="ViewModels\BackupCredentialsControlViewModel.cs" />
     <Compile Include="ViewModels\Controls\AppModeRestrictedContainerViewModel.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
     <Compile Include="ViewModels\Controls\ProgressIndicatorWithResultViewModel.cs" />
@@ -511,6 +520,7 @@
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
     <Compile Include="ViewModels\Dialog\ActivationViewModel.cs" />
+    <Compile Include="ViewModels\Dialog\BackupPasswordViewModel.cs" />
     <Compile Include="ViewModels\Dialog\MasterPasswordViewModel.cs" />
     <Compile Include="ViewModels\MessageViewModel.cs" />
     <Compile Include="ViewModels\NotificationsContainerViewModel.cs" />
@@ -596,6 +606,10 @@
     <Page Include="Controls\TBConnectivityIndicator.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\BackupPasswordDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\MasterPasswordDialog.xaml">
       <SubType>Designer</SubType>

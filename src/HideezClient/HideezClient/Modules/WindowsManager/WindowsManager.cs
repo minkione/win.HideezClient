@@ -25,6 +25,7 @@ using HideezMiddleware.IPC.Messages;
 using HideezClient.ViewModels.Dialog;
 using HideezClient.Messages.Dialogs.Pin;
 using HideezClient.Messages.Dialogs.MasterPassword;
+using HideezClient.Messages.Dialogs.BackupPassword;
 
 namespace HideezClient.Modules
 {
@@ -45,6 +46,9 @@ namespace HideezClient.Modules
 
         readonly object masterPasswordDialogLock = new object();
         MasterPasswordDialog masterPasswordView = null;
+
+        readonly object backupPasswordDialogLock = new object();
+        BackupPasswordDialog backupPasswordView = null;
 
         bool _initialized = false;
         int _mainWindowActivationInterlock = 0;
@@ -73,9 +77,11 @@ namespace HideezClient.Modules
 
             metaMessenger.Subscribe<ShowButtonConfirmUiMessage>(ShowButtonConfirmAsync);
             metaMessenger.Subscribe<ShowPinUiMessage>(ShowPinAsync);
-            metaMessenger.Subscribe<ShowMasterPasswordUiMessage>(ShowMasterPasswordAsync);
             metaMessenger.Subscribe<HidePinUiMessage>(HidePinAsync);
+            metaMessenger.Subscribe<ShowMasterPasswordUiMessage>(ShowMasterPasswordAsync);
             metaMessenger.Subscribe<HideMasterPasswordUiMessage>(HideMasterPasswordAsync);
+            metaMessenger.Subscribe<ShowBackupPasswordUiMessage>(ShowBackupPasswordAsync);
+            metaMessenger.Subscribe<HideBackupPasswordUiMessage>(HideBackupPasswordAsync);
             metaMessenger.TrySubscribeOnServer<ShowActivationCodeUiMessage>(ShowActivationDialogAsync);
             metaMessenger.TrySubscribeOnServer<HideActivationCodeUi>(HideActivationDialogAsync);
 
@@ -469,6 +475,56 @@ namespace HideezClient.Modules
             return Task.CompletedTask;
         }
 
+        Task ShowBackupPasswordAsync(ShowBackupPasswordUiMessage message)
+        {
+            lock (backupPasswordDialogLock)
+            {
+                if (backupPasswordView == null)
+                {
+                    UIDispatcher.Invoke(() =>
+                    {
+                        if (MainWindow is MetroWindow metroWindow)
+                        {
+                            var vm = _viewModelLocator.BackupPasswordViewModel;
+                            vm.Initialize(message.DeviceId, message.BackupFileName);
+                            backupPasswordView = new BackupPasswordDialog(vm);
+                            backupPasswordView.Closed += BackupPasswordView_Closed;
+                            OnActivateMainWindow();
+                            metroWindow.ShowMetroDialogAsync(backupPasswordView);
+                        }
+                    });
+                }
+
+                if (backupPasswordView != null)
+                {
+                    UIDispatcher.Invoke(() =>
+                    {
+                        ((BackupPasswordViewModel)backupPasswordView.DataContext).UpdateViewModel(message.DeviceId, message.BackupFileName, message.IsNewPassword);
+                    });
+                }
+            }
+            return Task.CompletedTask;
+        }
+
+        Task HideBackupPasswordAsync(HideBackupPasswordUiMessage message)
+        {
+            try
+            {
+                UIDispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        backupPasswordView?.Close();
+                        backupPasswordView = null;
+                    }
+                    catch { }
+                });
+            }
+            catch { }
+
+            return Task.CompletedTask;
+        }
+
         Task ShowActivationDialogAsync(HideezMiddleware.IPC.Messages.ShowActivationCodeUiMessage obj)
         {
             try
@@ -541,6 +597,18 @@ namespace HideezClient.Modules
                 {
                     masterPasswordView.Closed -= MasterPasswordView_Closed;
                     masterPasswordView = null;
+                }
+            }
+        }
+
+        void BackupPasswordView_Closed(object sender, EventArgs e)
+        {
+            lock (backupPasswordDialogLock)
+            {
+                if (backupPasswordView != null)
+                {
+                    backupPasswordView.Closed -= MasterPasswordView_Closed;
+                    backupPasswordView = null;
                 }
             }
         }

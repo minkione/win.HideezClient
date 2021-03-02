@@ -52,6 +52,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <DockPanel HorizontalAlignment="Stretch">
@@ -712,6 +713,91 @@
                     </Grid>
                 </Border>
             </StackPanel>
+
+            <!-- Backup/restore -->
+            <controls:StandaloneModeContainer Grid.Row="5">
+                <StackPanel
+                    DataContext="{Binding BackupCredentialsControlViewModel, Mode=OneWay, Source={StaticResource Locator}}"
+                    Visibility="{Binding Device.IsStorageLoaded, Converter={StaticResource BooleanToVisibilityHiddenConverter}}">
+                    <TextBlock
+                        Style="{StaticResource SettingsHeaderStyle}"
+                        Text="Backup / Restore credentials" />
+
+                    <Border
+                        Padding="24"
+                        Style="{StaticResource SettingsSectionBorderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="8" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Text="Restore" />
+
+                            <Rectangle
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                SnapsToDevicePixels="True"
+                                Stroke="#1BA2DC"
+                                StrokeDashArray="8 6"
+                                StrokeLineJoin="Round"
+                                StrokeThickness="1" />
+
+                            <Grid
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                Margin="32,16"
+                                HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="32" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel
+                                    HorizontalAlignment="Center"
+                                    Orientation="Horizontal">
+                                    <iconPacks:PackIconMaterial
+                                        Margin="8"
+                                        VerticalAlignment="Center"
+                                        Foreground="{StaticResource IcoButtonBrush}"
+                                        Kind="File" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Text="Restore from file" />
+                                </StackPanel>
+                                <Button
+                                    Grid.Column="2"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Command="{Binding SelectFileCommand}"
+                                    Content="Select a file"
+                                    Style="{StaticResource ConfirmButtonStyle}" />
+
+                            </Grid>
+
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                Text="Backup" />
+                            <Button
+                                Grid.Row="2"
+                                Grid.Column="2"
+                                VerticalAlignment="Center"
+                                Command="{Binding RestoreCredentialsCommand}"
+                                Content="Backup credentials"
+                                Style="{StaticResource ConfirmButtonStyle}" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </controls:StandaloneModeContainer>
         </Grid>
     </ScrollViewer>
 </Page>

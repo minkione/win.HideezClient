@@ -1088,4 +1088,28 @@ Would you like to perform application update now?</value>
   <data name="Button.EditUnlockAccount" xml:space="preserve">
     <value>Edit unlock account</value>
   </data>
+  <data name="BackupPassword.ConfirmBP.Label" xml:space="preserve">
+    <value>Confirm password</value>
+  </data>
+  <data name="BackupPassword.CurrentBP.Label" xml:space="preserve">
+    <value>Enter password</value>
+  </data>
+  <data name="BackupPassword.EnterBP.Label" xml:space="preserve">
+    <value>Enter password for file '{0}'</value>
+  </data>
+  <data name="BackupPassword.Error.BPsDontMatch" xml:space="preserve">
+    <value>The new password and confirmation password does not match</value>
+  </data>
+  <data name="BackupPassword.NewBP.Label" xml:space="preserve">
+    <value>New password</value>
+  </data>
+  <data name="BackupPassword.Title" xml:space="preserve">
+    <value>Set up password for file '{0}'</value>
+  </data>
+  <data name="Vault.Notification.EnterCurrentBackupPassword" xml:space="preserve">
+    <value>Please enter the password for backup file</value>
+  </data>
+  <data name="Vault.Notification.NewBackupPassword" xml:space="preserve">
+    <value>Please create new password to protect your backup file</value>
+  </data>
 </root>
