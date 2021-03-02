@@ -234,9 +234,6 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     && d.IsConnected) != null)
                     throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Error.VaultAlreadyConnected"]);
                 // ...
-
-                //This fix is applied to prevent spam by failed connections for WinBle.
-                deleteVaultBondOnError = IsNeedDeleteBond(device);
                 
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Initializing);
 
@@ -284,9 +281,14 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     case HideezErrorCode.DeviceNotAssignedToUser:
                     case HideezErrorCode.HesDeviceNotFound:
                     case HideezErrorCode.HesDeviceCompromised:
-                    case HideezErrorCode.DeviceHasBeenWiped:
                     case HideezErrorCode.HesDeviceLinkedToAnotherServer:
-                        // There errors require bond removal
+                        // These errors require bond removal, but only when using CSR
+                        if (connectionId.IdProvider == (byte)DefaultConnectionIdProvider.Csr)
+                            deleteVaultBondOnError = true;
+                        errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
+                        break;
+                    case HideezErrorCode.DeviceHasBeenWiped:
+                        // This error always requires bond removal
                         deleteVaultBondOnError = true;
                         errorMessage = HideezExceptionLocalization.GetErrorAsString(ex);
                         break;
@@ -406,28 +408,6 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             {
                 WriteLine(ex, LogErrorSeverity.Error);
             }
-        }
-
-        /// <summary>
-        /// When PC is unlocked we need to delete the bond for the device connected via WinBle, the first connection of which 
-        /// was failed and the re-fast connection will also be failed.
-        /// </summary>
-        /// <param name="device">The device must be initialized.</param>
-        /// <param name="hesAppConnection"></param>
-        /// <returns>True, if device is connected via WinBle and PC is unlocked, device has no licenses or
-        /// workstation doesn't have connection to HES and device is not authorized on HES, not assigned to user or locked.
-        /// False, if else.</returns>
-        bool IsNeedDeleteBond(IDevice device)
-        {
-            if (device.DeviceConnection.Connection.ConnectionId.IdProvider == (byte)DefaultConnectionIdProvider.WinBle && !_workstationHelper.IsActiveSessionLocked())
-                if (device.LicenseInfo == 0)
-                    return true;
-                else
-                if (_hesConnection.State != HesConnectionState.Connected)
-                    if (device.AccessLevel.IsMasterKeyRequired || device.AccessLevel.IsLinkRequired || device.IsLocked)
-                        return true;
-
-            return false;
         }
     }
 }
