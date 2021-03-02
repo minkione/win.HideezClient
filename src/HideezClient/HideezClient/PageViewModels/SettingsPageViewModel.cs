@@ -1,21 +1,21 @@
 ﻿using HideezClient.Mvvm;
 using HideezClient.ViewModels;
+using Unity;
 
 namespace HideezClient.PageViewModels
 {
     class SettingsPageViewModel : LocalizedObject
     {
-        public ServiceViewModel Service { get; }
+        [Dependency]
+        public ServiceViewModel Service { get; set; }
 
-        public SoftwareUnlockSettingViewModel SoftwareUnlock { get; }
+        [Dependency]
+        public SoftwareUnlockSettingViewModel SoftwareUnlock { get; set; }
 
-        public IndicatorsSettingViewModel Indicators { get; }
+        [Dependency]
+        public IndicatorsSettingViewModel Indicators { get; set; }
 
-        public SettingsPageViewModel(ServiceViewModel serviceViewModel, SoftwareUnlockSettingViewModel softwareUnlockModuleSwitchViewModel, IndicatorsSettingViewModel indicatorsSettingViewModel)
-        {
-            Service = serviceViewModel;
-            SoftwareUnlock = softwareUnlockModuleSwitchViewModel;
-            Indicators = indicatorsSettingViewModel;
-        }
+        [Dependency]
+        public ReconnectPairedVaultsControlViewModel PairedVaultsReconnect { get; set; }
     }
 }

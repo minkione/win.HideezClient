@@ -979,4 +979,10 @@ Only 1 attempt left.</value>
   <data name="ButtonWindow.CancelTooltip" xml:space="preserve">
     <value>Hold vault button to cancel</value>
   </data>
+  <data name="Settings.ReconnectPairedVaults.Description" xml:space="preserve">
+    <value>Use this option if your vault is nearby and paired to this computer through default Bluetooth interface but failed to connect or its not visible in Hideez Client</value>
+  </data>
+  <data name="Settings.ReconnectPairedVaults.Reconnect" xml:space="preserve">
+    <value>Reconnect paired vaults</value>
+  </data>
 </root>

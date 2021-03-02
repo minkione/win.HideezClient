@@ -168,7 +168,6 @@ namespace ServiceLibrary.Implementation
                 // Named Pipes Server ==============================
                 _credentialProviderProxy = new CredentialProviderProxy(_sdkLogger);
                 // Line below allows us to connect WinBle devices on locked workstation when automatic connection is disabled
-                _credentialProviderProxy.CommandLinkPressed += (s, e) => { _advIgnoreWinBleList?.Clear(); }; 
                 _credentialProviderProxy.Start(); // Faster we connect to the CP, the better
 
                 // RFID Service Connection ============================
@@ -350,6 +349,7 @@ namespace ServiceLibrary.Implementation
                 _credentialProviderProxy,
                 _uiProxy,
                 _workstationHelper,
+                _messenger,
                 _sdkLogger);
 
             serviceInitializationTasks.Add(Task.Run(() =>
