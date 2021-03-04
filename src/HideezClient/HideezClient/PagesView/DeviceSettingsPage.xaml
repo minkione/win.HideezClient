@@ -780,7 +780,6 @@
                                     Command="{Binding SelectFileCommand}"
                                     Content="Select a file"
                                     Style="{StaticResource ConfirmButtonStyle}" />
-
                             </Grid>
 
                             <TextBlock
@@ -791,7 +790,7 @@
                                 Grid.Row="2"
                                 Grid.Column="2"
                                 VerticalAlignment="Center"
-                                Command="{Binding RestoreCredentialsCommand}"
+                                Command="{Binding BackupCredentialsCommand}"
                                 Content="Backup credentials"
                                 Style="{StaticResource ConfirmButtonStyle}" />
                         </Grid>

@@ -51,6 +51,8 @@ using HideezClient.Modules.BleDeviceUnpairHelper;
 using HideezClient.Modules.WorkstationManager;
 using HideezMiddleware.ApplicationModeProvider;
 using HideezClient.ViewModels.Dialog;
+using Hideez.SDK.Communication.PasswordManager;
+using Hideez.SDK.Communication.BackupManager;
 
 namespace HideezClient
 {
@@ -302,6 +304,8 @@ namespace HideezClient
             Container.RegisterType<ActivationViewModel>();
 
             #endregion ViewModels
+
+            Container.RegisterType<CredentialsBackupManager>();
 
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IWorkstationManager, WorkstationManager>(new ContainerControlledLifetimeManager());

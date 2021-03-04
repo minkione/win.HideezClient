@@ -1,11 +1,12 @@
 ﻿using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.BackupManager;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Security;
 using HideezClient.Messages;
 using HideezClient.Messages.Dialogs.BackupPassword;
 using HideezClient.Modules;
 using HideezClient.Modules.Localize;
 using HideezClient.Modules.Log;
-using HideezClient.Modules.ServiceProxy;
 using HideezClient.Tasks;
 using HideezMiddleware.ApplicationModeProvider;
 using Meta.Lib.Modules.PubSub;
@@ -15,36 +16,35 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
 using System.Reactive.Linq;
-using System.Text;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
+using System.Xml.Serialization;
 
 namespace HideezClient.ViewModels
 {
     class BackupCredentialsControlViewModel : ReactiveObject
     {
-        readonly IServiceProxy _serviceProxy;
+        readonly IActiveDevice _activeDevice;
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(BackupCredentialsControlViewModel));
         readonly IMetaPubSub _messenger;
+        readonly CredentialsBackupManager _credentialsBackupManager;
 
         public BackupCredentialsControlViewModel(
             IApplicationModeProvider applicationModeProvider,
             IActiveDevice activeDevice,
-            IServiceProxy serviceProxy,
-            IMetaPubSub messenger)
+            IMetaPubSub messenger,
+            CredentialsBackupManager credentialsBackupManager)
         {
             var mode = applicationModeProvider.GetApplicationMode();
             if (mode != ApplicationMode.Standalone)
                 return;
-
-            _serviceProxy = serviceProxy;
+            _activeDevice = activeDevice;
             _messenger = messenger;
-
+            _credentialsBackupManager = credentialsBackupManager;
             _messenger.Subscribe<ActiveDeviceChangedMessage>(OnActiveDeviceChanged);
 
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
@@ -70,7 +70,7 @@ namespace HideezClient.ViewModels
             }
         }
 
-        public ICommand RestoreCredentialsCommand
+        public ICommand BackupCredentialsCommand
         {
             get
             {
@@ -78,21 +78,23 @@ namespace HideezClient.ViewModels
                 {
                     CommandAction = async x =>
                     {
-                        await OnRestoreCredentials();
+                        await OnBackupCredentials();
                     }
                 };
             }
         }
         #endregion
 
-        private async Task OnRestoreCredentials()
+        private async Task OnBackupCredentials()
         {
             try
             {
-                SaveFileDialog dlg = new SaveFileDialog();
-                dlg.DefaultExt = ".hvb";
-                dlg.Filter = "Hideez vault backups (.hvb)|*.hvb"; // Filter files by extension
-                dlg.FileName = "CredentialsBackup";
+                SaveFileDialog dlg = new SaveFileDialog
+                {
+                    DefaultExt = ".hvb",
+                    Filter = "Hideez vault backups (.hvb)|*.hvb", // Filter files by extension
+                    FileName = "CredentialsBackup"
+                };
 
                 // Show open file dialog box
                 var result = dlg.ShowDialog();
@@ -100,10 +102,38 @@ namespace HideezClient.ViewModels
                 if (result == true)
                 {
                     string filename = dlg.FileName;
-                    var res = await GetBackupPassword(true, filename);
+                    var passwordResult = await GetBackupPassword(true, filename);
+                    var backup = await _credentialsBackupManager.GetBackup(_activeDevice.Device.Storage);
+
+                    using (var fileStream = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
+                    {
+                        using (Aes encryptor = Aes.Create())
+                        {
+                            encryptor.Mode = CipherMode.CBC;
+                            encryptor.Key = GetKey(passwordResult.Password);
+                            encryptor.IV = AesCryptoHelper.CreateRandomBuf(16);
+
+                            XmlSerializer xs = new XmlSerializer(typeof(List<TableRecord>), new Type[] { typeof(TableRecord) });
+                            // write IV
+                            fileStream.Write(encryptor.IV, 0, 16);
+
+                            using (var cryptoStream = new CryptoStream(fileStream, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
+                            {
+                                // write version and magic
+                                var buf = new byte[encryptor.BlockSize];
+                                buf[0] = 0x01;
+                                buf[1] = 0x00;
+                                buf[2] = 0x02;
+                                buf[3] = 0x28;
+                                cryptoStream.Write(buf, 0, buf.Length);
+
+                                xs.Serialize(cryptoStream, backup);
+                            }
+                        }
+                    }
                 }
             }
-            catch (OperationCanceledException ex)
+            catch(Exception ex)
             {
                 _log.WriteLine(ex);
             }
@@ -117,9 +147,11 @@ namespace HideezClient.ViewModels
         {
             try
             {
-                OpenFileDialog dlg = new OpenFileDialog();
-                dlg.DefaultExt = ".hvb";
-                //dlg.Filter = "Hideez vault backups (.hvb)|*.hvb"; // Filter files by extension
+                OpenFileDialog dlg = new OpenFileDialog
+                {
+                    DefaultExt = ".hvb",
+                    Filter = "Hideez vault backups (.hvb)|*.hvb" // Filter files by extension
+                };
 
                 // Show open file dialog box
                 var result = dlg.ShowDialog();
@@ -127,7 +159,48 @@ namespace HideezClient.ViewModels
                 if (result == true)
                 {
                     string filename = dlg.FileName;
-                    var res = await GetBackupPassword(false, filename);
+                    var passwordResult = await GetBackupPassword(false, filename);
+
+                    List<TableRecord> tableRecords = new List<TableRecord>();
+                    using (Aes encryptor = Aes.Create())
+                    {
+                        encryptor.Mode = CipherMode.CBC;
+                        encryptor.Key = GetKey(passwordResult.Password);
+
+                        var ser = new XmlSerializer(typeof(List<TableRecord>), new Type[] { typeof(TableRecord) });
+
+                        using (var fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read))
+                        {
+                            var iv = new byte[16];
+                            fileStream.Read(iv, 0, 16);
+                            encryptor.IV = iv;
+
+                            try
+                            {
+                                using (var cyptorStream = new CryptoStream(fileStream, encryptor.CreateDecryptor(), CryptoStreamMode.Read))
+                                {
+                                    // read version and magic
+                                    var buf = new byte[encryptor.BlockSize];
+                                    cyptorStream.Read(buf, 0, buf.Length);
+
+                                    if (buf[1] != 0x00 || buf[2] != 0x02 || buf[3] != 0x28)
+                                        throw new Exception("Credentials backup wrong pass or file is incorrect");
+
+                                    if (buf[0] != 0x01)
+                                        throw new Exception("File is incorrect");
+                                    var des = ser.Deserialize(cyptorStream);
+                                    tableRecords = (List<TableRecord>)des;
+                                }
+                            }
+                            catch (CryptographicException)
+                            {
+                                // MS bug - если установлен русский язык, возникает какое-то исключение
+                                // при попытке выхода из блока using через throw (на англ. языке все нормально)
+                            }
+                        }
+                    }
+
+                    await _credentialsBackupManager.Restore(_activeDevice.Device.Storage, tableRecords);
                 }
             }
             catch (OperationCanceledException ex)
@@ -179,6 +252,18 @@ namespace HideezClient.ViewModels
         void ShowInfo(string message)
         {
             _messenger?.Publish(new ShowInfoNotificationMessage(message,notificationId: Device.Id));
+        }
+
+
+        private byte[] GetKey(byte[] password)
+        {
+            var buf = new byte[32];
+            int len = password.Length < buf.Length ? password.Length : buf.Length;
+            for (int i = 0; i < len; i++)
+            {
+                buf[i] = (byte)(password[i] ^ buf[i]);
+            }
+            return buf;
         }
     }
 }
