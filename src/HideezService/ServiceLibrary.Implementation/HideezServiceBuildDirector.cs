@@ -36,6 +36,7 @@ namespace ServiceLibrary.Implementation
             builder.AddRemoteUnlock();
             builder.AddWorkstationLock();
             builder.AddClientPipe();
+            builder.AddUpdateCheck();
             builder.End();
 
             return builder.GetService();

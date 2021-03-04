@@ -16,7 +16,7 @@ namespace HideezMiddleware.Modules.UpdateCheck
     public sealed class UpdateCheckModule : ModuleBase
     {
         private readonly Version _currentProductVersion = Assembly.GetEntryAssembly().GetName().Version;
-        private readonly string _appUpdateUrl = "";
+        private readonly string _updateConfigUrl = "http://update.hideez.com/update/hideezclient/update.xml";
         private readonly RegistryKey _registryKey;
         private readonly string _updateCacheRegistryValueName = "update_cache_path";
 
@@ -33,9 +33,16 @@ namespace HideezMiddleware.Modules.UpdateCheck
         // Delete installed or outdated update from local cache
         private void ClearOutdatedCache()
         {
-            var cachedUpdate = GetCachedUpdateInfo();
-            if (cachedUpdate != null && _currentProductVersion > cachedUpdate.Version)
-                DeleteCachedUpdate();
+            try
+            {
+                var cachedUpdate = GetCachedUpdateInfo();
+                if (cachedUpdate != null && _currentProductVersion > cachedUpdate.Version)
+                    DeleteCachedUpdate();
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
         }
 
         private async Task RunUpdateCheck()
@@ -62,7 +69,6 @@ namespace HideezMiddleware.Modules.UpdateCheck
             }
 
             _messenger.Subscribe(GetSafeHandler<LoginClientRequestMessage>(OnServiceClientLogin));
-
         }
 
         /// <summary>
@@ -72,7 +78,7 @@ namespace HideezMiddleware.Modules.UpdateCheck
         {
             try
             {
-                WebRequest webRequest = WebRequest.Create(_appUpdateUrl);
+                WebRequest webRequest = WebRequest.Create(_updateConfigUrl);
                 WebResponse webResponse = webRequest.GetResponse();
 
                 var receivedAppCastDocument = new XmlDocument();
@@ -89,7 +95,7 @@ namespace HideezMiddleware.Modules.UpdateCheck
                     appUpdateInfo.Version = new Version(item.SelectSingleNode("version")?.InnerText);
                     appUpdateInfo.Changelog = item.SelectSingleNode("changelog")?.InnerText;
                     appUpdateInfo.Url = item.SelectSingleNode("url")?.InnerText;
-                    break; // only one node per file is supported
+                    break; // only one 'item' node per file is supported
                 }
 
                 return appUpdateInfo;
@@ -106,13 +112,20 @@ namespace HideezMiddleware.Modules.UpdateCheck
         /// </summary>
         private CachedUpdateInfo GetCachedUpdateInfo()
         {
-            string filepath = _registryKey.GetValue(_updateCacheRegistryValueName) as string;
-            if (!string.IsNullOrWhiteSpace(filepath) && File.Exists(filepath))
+            try
             {
-                var versionInfo = FileVersionInfo.GetVersionInfo(filepath);
-                var version = new Version(versionInfo.FileVersion);
+                string filepath = _registryKey.GetValue(_updateCacheRegistryValueName) as string;
+                if (!string.IsNullOrWhiteSpace(filepath) && File.Exists(filepath))
+                {
+                    var versionInfo = FileVersionInfo.GetVersionInfo(filepath);
+                    var version = new Version(versionInfo.FileVersion);
 
-                return new CachedUpdateInfo(filepath, version);
+                    return new CachedUpdateInfo(filepath, version);
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
             }
 
             return null;
@@ -125,6 +138,11 @@ namespace HideezMiddleware.Modules.UpdateCheck
             if (!string.IsNullOrWhiteSpace(filepath) && File.Exists(filepath))
             {
                 File.Delete(filepath);
+                
+                var dir = Path.GetDirectoryName(filepath);
+                if (dir != Path.GetTempPath())
+                    Directory.Delete(dir);
+
                 _registryKey.DeleteValue(_updateCacheRegistryValueName);
             }
         }
@@ -136,7 +154,8 @@ namespace HideezMiddleware.Modules.UpdateCheck
             {
                 var uri = new Uri(updateInfo.Url);
                 string filename = Path.GetFileName(uri.LocalPath);
-                string targetPath = Path.Combine(Path.GetTempPath(), filename);
+                string folderPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+                string targetPath = Path.Combine(folderPath, filename);
 
                 byte[] downloadedData;
 
@@ -174,6 +193,7 @@ namespace HideezMiddleware.Modules.UpdateCheck
                             }
                         }
 
+
                         //Convert the downloaded stream to a byte array
                         downloadedData = ms.ToArray();
                     }
@@ -182,6 +202,7 @@ namespace HideezMiddleware.Modules.UpdateCheck
                 // Todo: Hashsum check for downloaded update exe file
 
                 // Ensure that target path is available
+                Directory.CreateDirectory(folderPath);
                 File.Delete(targetPath);
 
                 //Write bytes to the specified file
@@ -209,7 +230,7 @@ namespace HideezMiddleware.Modules.UpdateCheck
         {
             var cachedUpdateInfo = GetCachedUpdateInfo();
             if (cachedUpdateInfo != null && cachedUpdateInfo.Version > _currentProductVersion)
-                await SafePublish(new ApplicationUpdateAvailableMessage(cachedUpdateInfo.Version.ToString(), cachedUpdateInfo.Filepath));
+                await SafePublish(new ApplicationUpdateAvailableMessage(cachedUpdateInfo.Filepath, cachedUpdateInfo.Version.ToString()));
         }
 
         // Run cache check when client connects to service

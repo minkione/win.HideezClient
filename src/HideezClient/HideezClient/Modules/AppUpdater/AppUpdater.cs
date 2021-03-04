@@ -23,7 +23,7 @@ namespace HideezClient.Modules
             _messenger = messenger;
             _windowsManager = windowsManager;
 
-            _messenger.Subscribe<ApplicationUpdateAvailableMessage>(OnUpdateAvailable);
+            _messenger.TrySubscribeOnServer<ApplicationUpdateAvailableMessage>(OnUpdateAvailable);
             _messenger.Subscribe<StartApplicationUpdateMessage>(OnStartUpdage);
         }
 
