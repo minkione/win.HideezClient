@@ -176,11 +176,7 @@ namespace ServiceLibrary.Implementation
                 // Generate event for audit
                 var workstationEvent = _eventSaver.GetWorkstationEvent();
                 workstationEvent.EventId = WorkstationEventType.ServiceStopped;
-                // We must wait for the sending completion
                 _eventSaver.AddNew(workstationEvent); 
-                var task = Task.Run(async () => await _eventSender.SendEventsAsync(true));
-            
-                task.Wait();
             }
             catch (Exception) { }
         }
