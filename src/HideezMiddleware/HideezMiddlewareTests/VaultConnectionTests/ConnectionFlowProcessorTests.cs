@@ -23,10 +23,10 @@ namespace HideezMiddleware.Tests.VaultConnectionTests
     class ConnectionFlowProcessorTests
     {
         [Test]
-        [TestCase((ushort)1, true, false, false, 1)]
-        [TestCase((ushort)1, false, true, false, 1)]
-        [TestCase((ushort)1, false, false, true, 1)]
-        [TestCase((ushort)0, false, false, false, 1)]
+        [TestCase((ushort)1, true, false, false, 0)]
+        [TestCase((ushort)1, false, true, false, 0)]
+        [TestCase((ushort)1, false, false, true, 0)]
+        [TestCase((ushort)0, false, false, false, 0)]
         [TestCase((ushort)1, false, false, false, 0)]
         public async Task TryConnect_CheckNeedDeleteBond_DeviceRemovedInvokedExpectedTimes(
             ushort licenseCount, 
