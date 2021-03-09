@@ -1227,9 +1227,14 @@ namespace HideezClient.Models
                     await _remoteDevice.CheckPassphrase(masterkey); //this using default timeout for BLE commands
                     await _remoteDevice.RefreshDeviceInfo();
                 }
-                catch (Exception ex)
+                catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
                 {
                     Debug.WriteLine($">>>>>>>>>>>>>>> Wrong masterkey ");
+                    ShowError(TranslationSource.Instance["Vault.Error.MasterPass.InvalidMasterPass"]);
+                    continue;
+                }
+                catch (Exception ex)
+                {
                     ShowError(ex.Message);
                     continue;
                 }
@@ -1267,8 +1272,20 @@ namespace HideezClient.Models
                                 continue;
                             }
 
-                            // Currently this operation has no support at firmware level
-                            throw new NotImplementedException();
+                            var oldPass = MasterPasswordConverter.GetMasterKey(procResult.OldPassword, _remoteDevice.SerialNo);
+                            var newPass = MasterPasswordConverter.GetMasterKey(procResult.Password, _remoteDevice.SerialNo);
+
+                            var changePassphraseResult = await _remoteDevice.ChangePassphrase(oldPass, newPass);
+
+                            if (changePassphraseResult == HideezErrorCode.Ok)
+                            {
+                                return true;
+                            }
+                            else if (changePassphraseResult == HideezErrorCode.ERR_KEY_WRONG)
+                            {
+                                ShowError(TranslationSource.Instance["Vault.Error.MasterPass.InvalidMasterPass"]);
+                                // There is no limit to the amount of retries
+                            }
                         }
                     }
                     catch (HideezException ex)
