@@ -126,7 +126,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
                 // ...
 
                 //This fix is applied to prevent spam by failed connections for WinBle.
-                deleteVaultBondOnError = IsNeedDeleteBond(device);
+                //deleteVaultBondOnError = IsNeedDeleteBond(device);
 
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Initializing);
 
@@ -218,6 +218,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
             try
             {
                 await _ui.HidePinUi();
+                await _ui.HidePasswordUi();
 
                 if (!string.IsNullOrEmpty(errorMessage))
                 {

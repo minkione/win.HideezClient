@@ -30,6 +30,8 @@ namespace HideezMiddleware.CredentialProvider
         GetActivationCode = 12,
         HideActivationCodeUi = 13,
         UpdateCommandLink = 14,
+        GetPassword = 15,
+        HidePasswordUi = 16,
     }
 
     // Events from the Credential Provider
@@ -43,6 +45,7 @@ namespace HideezMiddleware.CredentialProvider
         CheckPin = 105,
         LogonResult = 106,
         CheckActivationCode = 107,
+        CheckPassword= 108,
     }
 
     public class CredentialProviderProxy : Logger, IWorkstationUnlocker, IClientUiProxy
@@ -61,6 +64,8 @@ namespace HideezMiddleware.CredentialProvider
         public event EventHandler<ActivationCodeEventArgs> ActivationCodeCancelled { add { } remove { } }
 
         public event EventHandler<EventArgs> CommandLinkPressed;
+
+        public event EventHandler<PasswordEventArgs> PasswordReceived; 
 
         public bool IsConnected => _pipeServer.IsConnected;
 
@@ -130,6 +135,11 @@ namespace HideezMiddleware.CredentialProvider
                     var strings = ParseParams(buf, readBytes, expectedParamCount: 2);
                     OnCheckActivationCode(strings[0], strings[1]);
                 }
+                else if (code == CredentialProviderEventCode.CheckPassword)
+                {
+                    var strings = ParseParams(buf, readBytes, expectedParamCount: 2);
+                    OnCheckPassword(strings[0], strings[1]);
+                }
             }
             catch (Exception ex)
             {
@@ -188,6 +198,17 @@ namespace HideezMiddleware.CredentialProvider
             {
                 DeviceId = deviceId,
                 Code = Encoding.UTF8.GetBytes(code)
+            });
+        }
+
+        void OnCheckPassword(string deviceId, string password)
+        {
+            WriteLine($"OnCheckPassword: {deviceId}");
+
+            SafeInvoke(PasswordReceived, new PasswordEventArgs()
+            {
+                DeviceId = deviceId,
+                Password = password
             });
         }
         #endregion CP Message handlers 
@@ -310,6 +331,19 @@ namespace HideezMiddleware.CredentialProvider
         {
             WriteLine($"HideCommandLink: {commandLinkText}");
             await SendMessageAsync(CredentialProviderCommandCode.UpdateCommandLink, true, $"false\n{commandLinkText ?? ""}");
+        }
+
+        public async Task ShowPasswordUi(string deviceId)
+        {
+            WriteDebugLine($"SendGetPassword: {deviceId}");
+            var code = CredentialProviderCommandCode.GetPassword;
+            await SendMessageAsync(code, true, $"{deviceId}");
+        }
+
+        public async Task HidePasswordUi()
+        {
+            WriteDebugLine($"HidePasswordUi");
+            await SendMessageAsync(CredentialProviderCommandCode.HidePasswordUi, true, $"");
         }
         #endregion Commands to CP
 

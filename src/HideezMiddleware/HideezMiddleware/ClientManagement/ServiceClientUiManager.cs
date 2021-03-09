@@ -14,6 +14,7 @@ namespace HideezMiddleware.ClientManagement
         public event EventHandler<EventArgs> PinCancelled;
         public event EventHandler<ActivationCodeEventArgs> ActivationCodeReceived;
         public event EventHandler<ActivationCodeEventArgs> ActivationCodeCancelled;
+        public event EventHandler<PasswordEventArgs> PasswordReceived;
 
         public ServiceClientUiManager(IMetaPubSub messenger)
         {
@@ -92,5 +93,14 @@ namespace HideezMiddleware.ClientManagement
             await _messenger.Publish(new ServiceComponentsStateChangedMessage(hesStatus, rfidStatus, dongleStatus, tbHesStatus, bluetoothStatus));
         }
 
+        public Task ShowPasswordUi(string deviceId)
+        {
+            return Task.CompletedTask; // Not implemented for client UI
+        }
+
+        public Task HidePasswordUi()
+        {
+            return Task.CompletedTask; // Not implemented for client UI
+        }
     }
 }

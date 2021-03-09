@@ -18,6 +18,8 @@ namespace HideezMiddleware
             = new ConcurrentDictionary<string, TaskCompletionSource<string>>();
         readonly ConcurrentDictionary<string, TaskCompletionSource<byte[]>> _pendingGetActivationCodeRequests
             = new ConcurrentDictionary<string, TaskCompletionSource<byte[]>>();
+        readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _pendingGetPasswordsRequests
+            = new ConcurrentDictionary<string, TaskCompletionSource<string>>();
 
         public UiProxyManager(IClientUiProxy credentialProviderUi, IClientUiProxy clientUi, ILog log)
             : base(nameof(UiProxyManager), log)
@@ -26,6 +28,7 @@ namespace HideezMiddleware
             _credentialProviderUi.PinReceived += ClientUi_PinReceived;
             _credentialProviderUi.ActivationCodeReceived += ClientUi_ActivationCodeReceived;
             _credentialProviderUi.ActivationCodeCancelled += ClientUi_ActivationCodeCancelled;
+            _credentialProviderUi.PasswordReceived += ClientUi_PasswordReceived; ;
 
             _clientUi = clientUi ?? throw new ArgumentNullException(nameof(clientUi));
             _clientUi.PinReceived += ClientUi_PinReceived;
@@ -78,6 +81,12 @@ namespace HideezMiddleware
         {
             if (_pendingGetActivationCodeRequests.TryGetValue(e.DeviceId, out TaskCompletionSource<byte[]> tcs))
                 tcs.TrySetCanceled();
+        }
+
+        void ClientUi_PasswordReceived(object sender, PasswordEventArgs e)
+        {
+            if (_pendingGetPasswordsRequests.TryGetValue(e.DeviceId, out TaskCompletionSource<string> tcs))
+                tcs.TrySetResult(e.Password);
         }
 
         List<IClientUiProxy> GetClientUiList()
@@ -175,6 +184,49 @@ namespace HideezMiddleware
             {
                 if (ui != null)
                     await ui.HideActivationCodeUi();
+            }
+        }
+
+        public async Task<string> GetPassword(string deviceId, int timeout, CancellationToken ct)
+        {
+            WriteDebugLine($"SendGetPassword: {deviceId}");
+
+            var uiList = GetClientUiList();
+            if (uiList.Count == 0)
+                throw new HideezException(HideezErrorCode.NoConnectedUI);
+
+            foreach (var ui in uiList)
+            {
+                if (ui != null)
+                    await ui.ShowPasswordUi(deviceId);
+            }
+
+            var tcs = _pendingGetPasswordsRequests.GetOrAdd(deviceId, (x) =>
+            {
+                return new TaskCompletionSource<string>();
+            });
+
+            try
+            {
+                return await tcs.Task.TimeoutAfter(timeout, ct);
+            }
+            catch (TimeoutException)
+            {
+                throw new HideezException(HideezErrorCode.GetPasswordTimeout);
+            }
+            finally
+            {
+                _pendingGetPasswordsRequests.TryRemove(deviceId, out TaskCompletionSource<string> _);
+            }
+        }
+
+        public async Task HidePasswordUi()
+        {
+            var uiList = GetClientUiList();
+            foreach (var ui in uiList)
+            {
+                if (ui != null)
+                    await ui.HidePasswordUi();
             }
         }
 

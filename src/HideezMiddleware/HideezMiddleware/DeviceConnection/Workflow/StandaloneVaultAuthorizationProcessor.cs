@@ -41,7 +41,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.MasterPassword.EnterMPMessage"], device.DeviceConnection.Connection.ConnectionId.Id);
             while (device.AccessLevel.IsMasterKeyRequired)
             {
-                var inputResult = await _ui.GetPin(device.Id, SdkConfig.MainWorkflowTimeout, ct);
+                var inputResult = await _ui.GetPassword(device.Id, SdkConfig.MainWorkflowTimeout, ct);
 
                 ct.ThrowIfCancellationRequested();
                

@@ -44,18 +44,27 @@ namespace HideezMiddleware
         public byte[] Code { get; set; }
     }
 
+    public class PasswordEventArgs : EventArgs
+    {
+        public string DeviceId { get; set; }
+        public string Password{ get; set; }
+    }
+
     public interface IClientUiProxy
     {
         event EventHandler<PinReceivedEventArgs> PinReceived;
         event EventHandler<EventArgs> PinCancelled;
         event EventHandler<ActivationCodeEventArgs> ActivationCodeReceived;
         event EventHandler<ActivationCodeEventArgs> ActivationCodeCancelled;
+        event EventHandler<PasswordEventArgs> PasswordReceived;
 
         Task ShowPinUi(string deviceId, bool withConfirm = false, bool askOldPin = false);
         Task ShowButtonConfirmUi(string deviceId);
         Task HidePinUi();
         Task ShowActivationCodeUi(string deviceId);
         Task HideActivationCodeUi();
+        Task ShowPasswordUi(string deviceId);
+        Task HidePasswordUi();
 
 
         Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus dongleStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus);
@@ -70,6 +79,8 @@ namespace HideezMiddleware
         Task HidePinUi();
         Task<byte[]> GetActivationCode(string deviceId, int timeout, CancellationToken ct);
         Task HideActivationCodeUi();
+        Task<string> GetPassword(string deviceId, int timeout, CancellationToken ct);
+        Task HidePasswordUi();
 
         Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus dongleStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus);
         Task SendError(string message, string notificationId = null);
