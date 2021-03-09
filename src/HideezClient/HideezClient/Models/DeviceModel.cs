@@ -360,7 +360,7 @@ namespace HideezClient.Models
                         var updateCounter = _remoteDevice.StorageUpdateCounter;
                         var loadedUpdateCounter = PasswordManager.LoadedStorageUpdateCounter;
                         var delta = loadedUpdateCounter - updateCounter;
-                        if (updateCounter > loadedUpdateCounter || delta > 100)
+                        if (updateCounter > loadedUpdateCounter || delta > 0)
                         {
                             try
                             {
@@ -371,9 +371,7 @@ namespace HideezClient.Models
                                 _log.WriteLine(ex);
                             }
                         }
-                    }
-
-                                
+                    }        
                 });
             });
 

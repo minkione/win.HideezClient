@@ -81,7 +81,7 @@ namespace HideezClient.Modules
             metaMessenger.Subscribe<ShowMasterPasswordUiMessage>(ShowMasterPasswordAsync);
             metaMessenger.Subscribe<HideMasterPasswordUiMessage>(HideMasterPasswordAsync);
             metaMessenger.Subscribe<ShowBackupPasswordUiMessage>(ShowBackupPasswordAsync);
-            metaMessenger.Subscribe<HideBackupPasswordUiMessage>(HideBackupPasswordAsync);
+            metaMessenger.Subscribe<SetResultUIBackupPasswordMessage>(SetResultUIBackupPasswordAsync);
             metaMessenger.TrySubscribeOnServer<ShowActivationCodeUiMessage>(ShowActivationDialogAsync);
             metaMessenger.TrySubscribeOnServer<HideActivationCodeUi>(HideActivationDialogAsync);
 
@@ -506,7 +506,7 @@ namespace HideezClient.Modules
             return Task.CompletedTask;
         }
 
-        Task HideBackupPasswordAsync(HideBackupPasswordUiMessage message)
+        Task SetResultUIBackupPasswordAsync(SetResultUIBackupPasswordMessage message)
         {
             try
             {
@@ -514,7 +514,7 @@ namespace HideezClient.Modules
                 {
                     try
                     {
-                        backupPasswordView?.Close();
+                        backupPasswordView?.SetResult(message.IsSuccessful, message.ErrorMessage);
                         backupPasswordView = null;
                     }
                     catch { }

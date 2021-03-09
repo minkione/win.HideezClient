@@ -18,8 +18,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reactive.Linq;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Xml.Serialization;
@@ -32,6 +32,8 @@ namespace HideezClient.ViewModels
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(BackupCredentialsControlViewModel));
         readonly IMetaPubSub _messenger;
         readonly CredentialsBackupManager _credentialsBackupManager;
+
+        CancellationTokenSource _cts;
 
         public BackupCredentialsControlViewModel(
             IApplicationModeProvider applicationModeProvider,
@@ -89,6 +91,10 @@ namespace HideezClient.ViewModels
         {
             try
             {
+                _cts = new CancellationTokenSource();
+
+                _messenger.Subscribe<BackupPasswordCancelledMessage>(OnBackupPasswordCancelled, msg => msg.DeviceId == Device.Id);
+
                 SaveFileDialog dlg = new SaveFileDialog
                 {
                     DefaultExt = ".hvb",
@@ -103,43 +109,27 @@ namespace HideezClient.ViewModels
                 {
                     string filename = dlg.FileName;
                     var passwordResult = await GetBackupPassword(true, filename);
-                    var backup = await _credentialsBackupManager.GetBackup(_activeDevice.Device.Storage);
 
-                    using (var fileStream = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
+                    if (passwordResult != null)
                     {
-                        using (Aes encryptor = Aes.Create())
-                        {
-                            encryptor.Mode = CipherMode.CBC;
-                            encryptor.Key = GetKey(passwordResult.Password);
-                            encryptor.IV = AesCryptoHelper.CreateRandomBuf(16);
+                        var backup = await _credentialsBackupManager.GetBackup(_activeDevice.Device.Storage, _cts.Token);
 
-                            XmlSerializer xs = new XmlSerializer(typeof(List<TableRecord>), new Type[] { typeof(TableRecord) });
-                            // write IV
-                            fileStream.Write(encryptor.IV, 0, 16);
+                        EnctyptWriteToFile(backup, filename, passwordResult.Password);
 
-                            using (var cryptoStream = new CryptoStream(fileStream, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
-                            {
-                                // write version and magic
-                                var buf = new byte[encryptor.BlockSize];
-                                buf[0] = 0x01;
-                                buf[1] = 0x00;
-                                buf[2] = 0x02;
-                                buf[3] = 0x28;
-                                cryptoStream.Write(buf, 0, buf.Length);
-
-                                xs.Serialize(cryptoStream, backup);
-                            }
-                        }
+                        await _messenger.Publish(new SetResultUIBackupPasswordMessage(true));
                     }
                 }
             }
             catch(Exception ex)
             {
+                await _messenger.Publish(new SetResultUIBackupPasswordMessage(false));
                 _log.WriteLine(ex);
             }
             finally
             {
-                await _messenger.Publish(new HideBackupPasswordUiMessage());
+                await _messenger.Unsubscribe<BackupPasswordCancelledMessage>(OnBackupPasswordCancelled);
+                _cts.Dispose();
+                _cts = null;
             }
         }
 
@@ -161,61 +151,35 @@ namespace HideezClient.ViewModels
                     string filename = dlg.FileName;
                     var passwordResult = await GetBackupPassword(false, filename);
 
-                    List<TableRecord> tableRecords = new List<TableRecord>();
-                    using (Aes encryptor = Aes.Create())
+                    if (passwordResult != null)
                     {
-                        encryptor.Mode = CipherMode.CBC;
-                        encryptor.Key = GetKey(passwordResult.Password);
+                        var backup = ReadFromEncryptFile(filename, passwordResult.Password);
+                        
+                        await _credentialsBackupManager.Restore(_activeDevice.Device.Storage, backup);
 
-                        var ser = new XmlSerializer(typeof(List<TableRecord>), new Type[] { typeof(TableRecord) });
-
-                        using (var fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read))
-                        {
-                            var iv = new byte[16];
-                            fileStream.Read(iv, 0, 16);
-                            encryptor.IV = iv;
-
-                            try
-                            {
-                                using (var cyptorStream = new CryptoStream(fileStream, encryptor.CreateDecryptor(), CryptoStreamMode.Read))
-                                {
-                                    // read version and magic
-                                    var buf = new byte[encryptor.BlockSize];
-                                    cyptorStream.Read(buf, 0, buf.Length);
-
-                                    if (buf[1] != 0x00 || buf[2] != 0x02 || buf[3] != 0x28)
-                                        throw new Exception("Credentials backup wrong pass or file is incorrect");
-
-                                    if (buf[0] != 0x01)
-                                        throw new Exception("File is incorrect");
-                                    var des = ser.Deserialize(cyptorStream);
-                                    tableRecords = (List<TableRecord>)des;
-                                }
-                            }
-                            catch (CryptographicException)
-                            {
-                                // MS bug - если установлен русский язык, возникает какое-то исключение
-                                // при попытке выхода из блока using через throw (на англ. языке все нормально)
-                            }
-                        }
+                        await _messenger.Publish(new SetResultUIBackupPasswordMessage(true));
                     }
-
-                    await _credentialsBackupManager.Restore(_activeDevice.Device.Storage, tableRecords);
                 }
             }
             catch (OperationCanceledException ex)
             {
                 _log.WriteLine(ex);
+                await _messenger.Publish(new SetResultUIBackupPasswordMessage(false));
             }
-            finally
+            catch(CryptographicException ex)
             {
-                await _messenger.Publish(new HideBackupPasswordUiMessage());
+                _log.WriteLine(ex);
+                await _messenger.Publish(new SetResultUIBackupPasswordMessage(false, "Failed! Password is incorrect"));
+            }
+            catch(Exception ex)
+            {
+                _log.WriteLine(ex);
+                await _messenger.Publish(new SetResultUIBackupPasswordMessage(false));
             }
         }
 
         Task OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)
         {
-            // Todo: ViewModel should be reused instead of being recreated each time active device is changed
             Device = obj.NewDevice != null ? new DeviceViewModel(obj.NewDevice) : null;
 
             return Task.CompletedTask;
@@ -223,7 +187,6 @@ namespace HideezClient.ViewModels
 
         async Task<GetBackupPasswordProcResult> GetBackupPassword(bool isNewPassword, string fileName)
         {
-            Debug.WriteLine(">>>>>>>>>>>>>>> GetBackupPasswordWorkflow +++++++++++++++++++++++++++++++++++++++");
             if(isNewPassword)
                 ShowInfo(TranslationSource.Instance["Vault.Notification.NewBackupPassword"]);
             else
@@ -254,7 +217,6 @@ namespace HideezClient.ViewModels
             _messenger?.Publish(new ShowInfoNotificationMessage(message,notificationId: Device.Id));
         }
 
-
         private byte[] GetKey(byte[] password)
         {
             var buf = new byte[32];
@@ -265,5 +227,79 @@ namespace HideezClient.ViewModels
             }
             return buf;
         }
+
+        private Task OnBackupPasswordCancelled(BackupPasswordCancelledMessage msg)
+        {
+            _cts?.Cancel();
+
+            return Task.CompletedTask;
+        }
+
+        #region EncryptStream methods
+        void EnctyptWriteToFile(List<TableRecord> backup, string filename, byte[] password)
+        {
+            using (var fileStream = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                using (Aes encryptor = Aes.Create())
+                {
+                    encryptor.Mode = CipherMode.CBC;
+                    encryptor.Key = GetKey(password);
+                    encryptor.IV = AesCryptoHelper.CreateRandomBuf(16);
+
+                    XmlSerializer xs = new XmlSerializer(typeof(List<TableRecord>), new Type[] { typeof(TableRecord) });
+                    // write IV
+                    fileStream.Write(encryptor.IV, 0, 16);
+
+                    using (var cryptoStream = new CryptoStream(fileStream, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        // write version and magic
+                        var buf = new byte[encryptor.BlockSize];
+                        buf[0] = 0x01;
+                        buf[1] = 0x00;
+                        buf[2] = 0x02;
+                        buf[3] = 0x28;
+                        cryptoStream.Write(buf, 0, buf.Length);
+
+                        xs.Serialize(cryptoStream, backup);
+                    }
+                }
+            }
+        }
+
+        List<TableRecord> ReadFromEncryptFile(string filename, byte[] password)
+        {
+            List<TableRecord> tableRecords = new List<TableRecord>();
+            using (Aes encryptor = Aes.Create())
+            {
+                encryptor.Mode = CipherMode.CBC;
+                encryptor.Key = GetKey(password);
+
+                var ser = new XmlSerializer(typeof(List<TableRecord>), new Type[] { typeof(TableRecord) });
+
+                using (var fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read))
+                {
+                    var iv = new byte[16];
+                    fileStream.Read(iv, 0, 16);
+                    encryptor.IV = iv;
+
+                    using (var cyptorStream = new CryptoStream(fileStream, encryptor.CreateDecryptor(), CryptoStreamMode.Read))
+                    {
+                        // read version and magic
+                        var buf = new byte[encryptor.BlockSize];
+                        cyptorStream.Read(buf, 0, buf.Length);
+
+                        if (buf[1] != 0x00 || buf[2] != 0x02 || buf[3] != 0x28)
+                            throw new Exception("Credentials backup wrong pass or file is incorrect");
+
+                        if (buf[0] != 0x01)
+                            throw new Exception("File is incorrect");
+                        var des = ser.Deserialize(cyptorStream);
+                        tableRecords = (List<TableRecord>)des;
+                    }
+                }
+            }
+            return tableRecords;
+        }
+        #endregion
     }
 }
