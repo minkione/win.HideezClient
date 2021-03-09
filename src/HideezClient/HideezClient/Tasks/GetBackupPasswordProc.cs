@@ -42,7 +42,7 @@ namespace HideezClient.Tasks
             {
                 _messenger.Subscribe<SendBackupPasswordMessage>(OnBackupPasswordReceived, msg => msg.DeviceId == _deviceId);
                 _messenger.Subscribe<BackupPasswordCancelledMessage>(OnBackupPasswordCancelled, msg => msg.DeviceId == _deviceId);
-                _messenger.Subscribe<HideBackupPasswordUiMessage>(OnHideBackupPasswordUi);
+                _messenger.Subscribe<SetResultUIBackupPasswordMessage>(OnHideBackupPasswordUi);
 
                 await _messenger.Publish(new ShowBackupPasswordUiMessage(_deviceId, _fileName, _isNewPassword));
 
@@ -56,7 +56,7 @@ namespace HideezClient.Tasks
             {
                 await _messenger.Unsubscribe<SendBackupPasswordMessage>(OnBackupPasswordReceived);
                 await _messenger.Unsubscribe<BackupPasswordCancelledMessage>(OnBackupPasswordCancelled);
-                await _messenger.Unsubscribe<HideBackupPasswordUiMessage>(OnHideBackupPasswordUi);
+                await _messenger.Unsubscribe<SetResultUIBackupPasswordMessage>(OnHideBackupPasswordUi);
             }
         }
 
@@ -75,7 +75,7 @@ namespace HideezClient.Tasks
             return Task.CompletedTask;
         }
 
-        private Task OnHideBackupPasswordUi(HideBackupPasswordUiMessage msg)
+        private Task OnHideBackupPasswordUi(SetResultUIBackupPasswordMessage msg)
         {
             _tcs.TrySetCanceled();
 

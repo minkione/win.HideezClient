@@ -24,13 +24,25 @@ namespace HideezClient.Dialogs
 
         public event EventHandler Closed;
 
-        public void Close()
+        public void SetResult(bool isSuccessful, string errorMessage)
         {
-            if (Application.Current.MainWindow is MetroWindow metroWindow)
+
+            ((BackupPasswordViewModel)DataContext).InProgress = false;
+            progressStack.Visibility = Visibility.Hidden;
+
+            if (isSuccessful)
             {
-                metroWindow.HideMetroDialogAsync(this);
-                Closed?.Invoke(this, EventArgs.Empty);
+                successfulResultStack.Visibility = Visibility.Visible;
+                if (DataContext is BackupPasswordViewModel viewModel && viewModel.IsNewPassword)
+                    openFolderButton.Visibility = Visibility.Visible;
             }
+            else
+            {
+                failedResultStack.Visibility = Visibility.Visible;
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                    errorMessageText.Text = errorMessage;
+            }
+
         }
 
         private void PasswordView_PasswordsCleared(object sender, System.EventArgs e)
@@ -96,6 +108,15 @@ namespace HideezClient.Dialogs
                     pb.Focus();
                     break;
                 }
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (Application.Current.MainWindow is MetroWindow metroWindow)
+            {
+                metroWindow.HideMetroDialogAsync(this);
+                Closed?.Invoke(this, EventArgs.Empty);
             }
         }
     }

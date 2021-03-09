@@ -10,6 +10,7 @@ using MvvmExtensions.Attributes;
 using MvvmExtensions.Commands;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security;
 using System.Text;
@@ -31,8 +32,9 @@ namespace HideezClient.ViewModels.Dialog
 
         bool _isNewPassword = false;
         bool _inProgress = false;
+        bool _needInputPasswords = true;
         string _errorMessage = string.Empty;
-        string _fileName = "File name";
+        string _fileName = string.Empty;
         string _deviceId = string.Empty;
 
         public event EventHandler ViewModelUpdated;
@@ -75,6 +77,12 @@ namespace HideezClient.ViewModels.Dialog
         {
             get { return _inProgress; }
             set { Set(ref _inProgress, value); }
+        }
+        
+        public bool NeedInputPassword
+        {
+            get { return _needInputPasswords; }
+            set { Set(ref _needInputPasswords, value); }
         }
 
         public string ErrorMessage
@@ -130,6 +138,28 @@ namespace HideezClient.ViewModels.Dialog
                 };
             }
         }
+
+        public ICommand ShowInFolderCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        OnShowInFolder();
+                    },
+                };
+            }
+        }
+
+        void OnShowInFolder()
+        {
+            var index = _fileName.LastIndexOf('\\');
+            string folderPath = _fileName.Substring(0, index);
+
+            Process.Start(folderPath);
+        }
         #endregion
 
         public void Initialize(string deviceId, string fileName)
@@ -173,6 +203,7 @@ namespace HideezClient.ViewModels.Dialog
 
         void OnConfirm()
         {
+            NeedInputPassword = false;
             InProgress = true;
             ErrorMessage = string.Empty;
 

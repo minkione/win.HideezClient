@@ -1112,6 +1112,18 @@ Would you like to perform application update now?</value>
   <data name="Vault.Notification.NewBackupPassword" xml:space="preserve">
     <value>Please create new password to protect your backup file</value>
   </data>
+  <data name="BackupPassword.CreatePassword.Successful" xml:space="preserve">
+    <value>Successful! Your credentials backup saved to '{0}'</value>
+  </data>
+  <data name="BackupPassword.Failed" xml:space="preserve">
+    <value>Failed!</value>
+  </data>
+  <data name="BackupPassword.EnterPassword.Successful" xml:space="preserve">
+    <value>Successful! Your credentials restored from '{0}'</value>
+  </data>
+  <data name="BackupPassword.EnterPassword.Warning" xml:space="preserve">
+    <value>Warning! All your credentials will be rewritten!</value>
+  </data>
   <data name="Vault.Error.MasterPass.InvalidMasterPass" xml:space="preserve">
     <value>The entered master password is incorrect</value>
   </data>
