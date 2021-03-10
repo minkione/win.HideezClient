@@ -115,5 +115,10 @@ namespace HideezClient.ViewModels
         {
             return device.ChangeAccessProfileWorkflow(requirePin, requireButton, expirationSeconds);
         }
+
+        public Task<bool> Wipe()
+        {
+            return device.WipeWorkflow();
+        }
     }
 }

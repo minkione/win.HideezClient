@@ -166,6 +166,20 @@
         <Setter Property="Background" Value="#E1F3F8" />
     </Style>
 
+    <Style
+        x:Key="PinkButtonStyle"
+        BasedOn="{StaticResource ConfirmButtonStyle}"
+        TargetType="{x:Type ButtonBase}">
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush MappingMode="RelativeToBoundingBox" StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Offset="0" Color="#FC3085" />
+                    <GradientStop Offset="1" Color="#F6346B" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  Clickable transparent background style  -->
     <Style x:Key="ClickableTransparentBackgroundStyle" TargetType="{x:Type Shape}">
         <Setter Property="HorizontalAlignment" Value="Stretch" />

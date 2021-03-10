@@ -120,7 +120,11 @@ namespace HideezMiddleware.DeviceConnection
 
         private void BleConnectionManager_BondedControllerRemoved(object sender, ControllerRemovedEventArgs e)
         {
+            // Call to IgnoreForTime is added because advertisements may arrive shortly after
+            // bond removal is finished, causing an attempt to connect unpaired device which 
+            // always results in failure
             _advIgnoreListMonitor.Remove(e.Controller.Id);
+            _advIgnoreListMonitor.IgnoreForTime(e.Controller.Id, 2);
         }
 
 

@@ -26,6 +26,7 @@ using HideezClient.ViewModels.Dialog;
 using HideezClient.Messages.Dialogs.Pin;
 using HideezClient.Messages.Dialogs.MasterPassword;
 using HideezClient.Messages.Dialogs.BackupPassword;
+using HideezClient.Messages.Dialogs.Wipe;
 
 namespace HideezClient.Modules
 {
@@ -49,6 +50,9 @@ namespace HideezClient.Modules
 
         readonly object backupPasswordDialogLock = new object();
         BackupPasswordDialog backupPasswordView = null;
+
+        readonly object wipeDialogLock = new object();
+        WipeDialog wipeView = null;
 
         bool _initialized = false;
         int _mainWindowActivationInterlock = 0;
@@ -84,10 +88,12 @@ namespace HideezClient.Modules
             metaMessenger.Subscribe<SetResultUIBackupPasswordMessage>(SetResultUIBackupPasswordAsync);
             metaMessenger.TrySubscribeOnServer<ShowActivationCodeUiMessage>(ShowActivationDialogAsync);
             metaMessenger.TrySubscribeOnServer<HideActivationCodeUi>(HideActivationDialogAsync);
+            metaMessenger.Subscribe<ShowWipeDialogMessage>(ShowWipeDialogAsync);
+            metaMessenger.Subscribe<HideWipeDialogMessage>(HideWipeDialogAsync);
 
             metaMessenger.Subscribe<ShowActivateMainWindowMessage>((p) => ActivateMainWindow());
         }
-        
+
         public Task ActivateMainWindow()
         {
             UIDispatcher.Invoke(OnActivateMainWindow);
@@ -525,7 +531,7 @@ namespace HideezClient.Modules
             return Task.CompletedTask;
         }
 
-        Task ShowActivationDialogAsync(HideezMiddleware.IPC.Messages.ShowActivationCodeUiMessage obj)
+        Task ShowActivationDialogAsync(ShowActivationCodeUiMessage obj)
         {
             try
             {
@@ -568,6 +574,53 @@ namespace HideezClient.Modules
                     {
                         activationView?.Close();
                         activationView = null;
+                    }
+                    catch { }
+                });
+            }
+            catch { }
+
+            return Task.CompletedTask;
+        }
+
+        Task ShowWipeDialogAsync(ShowWipeDialogMessage msg)
+        {
+            lock (wipeDialogLock)
+            {
+                try
+                {
+                    if (wipeView == null)
+                    {
+                        UIDispatcher.Invoke(() =>
+                        {
+                            if (MainWindow is MetroWindow metroWindow)
+                            {
+                                var vm = _viewModelLocator.WipeViewModel;
+                                vm.Initialize(msg.DeviceId);
+                                wipeView = new WipeDialog(vm);
+                                wipeView.Closed += WipeView_Closed;
+                                OnActivateMainWindow();
+                                metroWindow.ShowMetroDialogAsync(wipeView);
+                            }
+                        });
+                    }
+                }
+                catch { }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        Task HideWipeDialogAsync(HideWipeDialogMessage arg)
+        {
+            try
+            {
+                UIDispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        wipeView?.Close();
+                        wipeView = null;
                     }
                     catch { }
                 });
@@ -621,6 +674,18 @@ namespace HideezClient.Modules
                 {
                     activationView.Closed -= ActivationView_Closed;
                     activationView = null;
+                }
+            }
+        }
+
+        void WipeView_Closed(object sender, EventArgs e)
+        {
+            lock (wipeDialogLock)
+            {
+                if (wipeView != null)
+                {
+                    wipeView.Closed -= WipeView_Closed;
+                    wipeView = null;
                 }
             }
         }

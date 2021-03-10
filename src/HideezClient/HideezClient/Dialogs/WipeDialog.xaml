@@ -1,0 +1,88 @@
+﻿<maDialog:BaseMetroDialog
+    x:Class="HideezClient.Dialogs.WipeDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Converters="clr-namespace:MvvmExtensions.Converters;assembly=MvvmExtensions"
+    xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:adorners="http://gu.se/Adorners"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    xmlns:local="clr-namespace:HideezClient.Dialogs"
+    xmlns:ma="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:maDialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    Background="Transparent"
+    FontSize="16"
+    mc:Ignorable="d">
+    <Border
+        MinWidth="385"
+        HorizontalAlignment="Center"
+        Background="{DynamicResource MainFontForeground}"
+        BorderBrush="#E1F3F8"
+        BorderThickness="1"
+        CornerRadius="10">
+
+        <Grid Margin="32">
+            <!--  Confirm start of vault wipe  -->
+            <StackPanel Visibility="{Binding InProgress, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        Text="Wipe will erase all data" />
+                    <StackPanel
+                        Grid.Row="2"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                        <Button 
+                            Style="{StaticResource CancelButtonStyle}"
+                            Content="{l:Localization WipeDialog.Button.CancelWipe}"
+                            Command="{Binding CancelWipeCommand}"
+                            />
+                        <!-- Margin between buttons is bigger than usual to avoid accidental misclick -->
+                        <Rectangle Width="36" /> 
+                        <Button
+                            Style="{StaticResource PinkButtonStyle}"
+                            Content="{l:Localization WipeDialog.Button.StartWipe}"
+                            Command="{Binding StartWipeCommand}"
+                            />
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+
+            <!--  Wipe in progress -->
+            <StackPanel Visibility="{Binding InProgress, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="25" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Style="{StaticResource DialogTitleTextBlockStyle}" Text="Press and hold vault button for 10 seconds to perform wipe operation" />
+
+                    <StackPanel
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                        <Metro:ProgressRing
+                            Width="32"
+                            Height="32"
+                            Margin="0,0,24,0"
+                            Foreground="{StaticResource ProgressRingBrush}" />
+                        <TextBlock 
+                            VerticalAlignment="Center"
+                            Style="{StaticResource DialogLabelTextBlockStyle}"
+                            Text="Click vault button once to cancel wipe" />
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Grid>
+    </Border>
+</maDialog:BaseMetroDialog>

@@ -181,12 +181,14 @@ namespace HideezMiddleware.Modules.DeviceManagement
             if (e.Status == FwWipeStatus.WIPE_OK)
             {
                 var device = (IDevice)sender;
-                WriteLine($"({device.SerialNo}) Wipe finished. Disabling automatic reconnect");
-                await _messenger.Publish(new DeviceManager_ExpectedDeviceRemovalMessage(device));
-                device.Disconnected += async (s, a) =>
+                if (device.ChannelNo == (byte)DefaultDeviceChannel.Main)
                 {
+                    WriteLine($"({device.SerialNo}) Wipe finished. Disabling automatic reconnect");
+                    await _messenger.Publish(new DeviceManager_ExpectedDeviceRemovalMessage(device));
                     try
                     {
+                            
+
                         // Wiped device is cleared of all bond information, and therefore must be paired again
                         await _deviceManager.DeleteBond(device.DeviceConnection);
                     }
@@ -194,8 +196,7 @@ namespace HideezMiddleware.Modules.DeviceManagement
                     {
                         WriteLine(ex);
                     }
-                };
-
+                }
             }
         }
 

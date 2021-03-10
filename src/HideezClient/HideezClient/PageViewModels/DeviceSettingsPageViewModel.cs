@@ -215,6 +215,19 @@ namespace HideezClient.PageViewModels
             }
         }
 
+        public ICommand WipeVaultCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = x =>
+                    {
+                        Task.Run(WipeVault);
+                    }
+                };
+            }
+        }
         #endregion
 
         public async Task SaveSettings(SecureString password)
@@ -318,14 +331,17 @@ namespace HideezClient.PageViewModels
         {
             try
             {
-                string connectionId = Device.Id.Remove(Device.Id.Length - 2);
-                var reply = await _metaMessenger.ProcessOnServer<LoadUserProximitySettingsMessageReply>(new LoadUserProximitySettingsMessage(connectionId));
-                LockProximity = reply.UserDeviceProximitySettings.LockProximity;
-                UnlockProximity = reply.UserDeviceProximitySettings.UnlockProximity;
-                EnabledLockByProximity = reply.UserDeviceProximitySettings.EnabledLockByProximity;
-                EnabledUnlockByProximity = reply.UserDeviceProximitySettings.EnabledUnlockByProximity;
-                DisabledDisplayAuto = reply.UserDeviceProximitySettings.DisabledDisplayAuto;
-                _oldSettings = reply.UserDeviceProximitySettings;
+                if (Device != null)
+                {
+                    string connectionId = Device.Id.Remove(Device.Id.Length - 2);
+                    var reply = await _metaMessenger.ProcessOnServer<LoadUserProximitySettingsMessageReply>(new LoadUserProximitySettingsMessage(connectionId));
+                    LockProximity = reply.UserDeviceProximitySettings.LockProximity;
+                    UnlockProximity = reply.UserDeviceProximitySettings.UnlockProximity;
+                    EnabledLockByProximity = reply.UserDeviceProximitySettings.EnabledLockByProximity;
+                    EnabledUnlockByProximity = reply.UserDeviceProximitySettings.EnabledUnlockByProximity;
+                    DisabledDisplayAuto = reply.UserDeviceProximitySettings.DisabledDisplayAuto;
+                    _oldSettings = reply.UserDeviceProximitySettings;
+                }
             }
             catch(Exception ex)
             {
@@ -372,6 +388,11 @@ namespace HideezClient.PageViewModels
                 primaryAccount.Password = password.GetAsString();
                 await Device.SaveOrUpdateAccountAsync(primaryAccount, true);
             }
+        }
+
+        async Task WipeVault()
+        {
+            await Device.Wipe();
         }
 
         #region Utils

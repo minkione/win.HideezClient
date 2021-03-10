@@ -131,6 +131,11 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<ActivationViewModel>(); }
         }
 
+        public WipeViewModel WipeViewModel
+        {
+            get { return DIContainer.Resolve<WipeViewModel>(); }
+        }
+
         #endregion
 
         #region Page

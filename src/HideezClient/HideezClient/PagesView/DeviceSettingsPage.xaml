@@ -28,14 +28,17 @@
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Background">
+            <Setter Property="Background" Value="#ECF9FC" />
+            <!-- Commented because full fill looks better than gradient when there are many sections -->
+            <!-- But gradient background may be still of use in some other place -->
+            <!--<Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                         <GradientStop Offset="0" Color="#DEF2F7" />
                         <GradientStop Offset="1" Color="#F8FEFF" />
                     </LinearGradientBrush>
                 </Setter.Value>
-            </Setter>
+            </Setter>-->
         </Style>
 
         <Style x:Key="ContainerStyle" TargetType="Border">
@@ -44,9 +47,11 @@
             <Setter Property="Background" Value="#E1F3F8" />
         </Style>
     </Page.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+    <ScrollViewer VerticalScrollBarVisibility="Visible">
         <Grid Margin="16" VerticalAlignment="Stretch" Grid.IsSharedSizeScope="True">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -170,7 +175,7 @@
 
             <!-- Vault access profile -->
             <controls:StandaloneModeContainer Grid.Row="2">
-                    <StackPanel 
+                <StackPanel 
                     Focusable="True" 
                     DataContext="{Binding VaultAccessSettingsControlViewModel, Mode=OneWay, Source={StaticResource Locator}}"
                     >
@@ -253,8 +258,20 @@
 
                                 <StackPanel 
                                     Orientation="Horizontal"
-                                    HorizontalAlignment="Right"
-                                    Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibilityHiddenConverter}}">
+                                    HorizontalAlignment="Right">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasChanges}" Value="False">
+                                                    <Setter Property="Visibility" Value="Hidden" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding ProcessResultViewModel.InProgress}" Value="True">
+                                                    <Setter Property="Visibility" Value="Hidden" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
                                     <Button
                                         Command="{Binding CancelAccessProfileEditCommand}"
                                         Content="{l:Localization Button.Cancel}"
@@ -718,7 +735,7 @@
             <controls:StandaloneModeContainer Grid.Row="5">
                 <StackPanel
                     DataContext="{Binding BackupCredentialsControlViewModel, Mode=OneWay, Source={StaticResource Locator}}"
-                    Visibility="{Binding Device.IsStorageLoaded, Converter={StaticResource BooleanToVisibilityHiddenConverter}}">
+                    Visibility="{Binding Device.IsStorageLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock
                         Style="{StaticResource SettingsHeaderStyle}"
                         Text="Backup / Restore credentials" />
@@ -796,6 +813,19 @@
                         </Grid>
                     </Border>
                 </StackPanel>
+            </controls:StandaloneModeContainer>
+
+            <controls:StandaloneModeContainer Grid.Row="6">
+                <Button 
+                    DataContext="{Binding RelativeSource={RelativeSource AncestorType=Page}, Path=DataContext}"
+                    Style="{StaticResource PinkButtonStyle}"
+                    Margin="0,48,0,0"
+                    VerticalAlignment="Bottom" 
+                    HorizontalAlignment="Right"
+                    Content="Wipe vault"
+                    ToolTip="A wipe, also known as factory reset, erases all your data from your vault."
+                    Command="{Binding WipeVaultCommand}"
+                    />
             </controls:StandaloneModeContainer>
         </Grid>
     </ScrollViewer>

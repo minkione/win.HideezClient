@@ -367,6 +367,9 @@
     <Compile Include="Dialogs\ActivationDialog.xaml.cs">
       <DependentUpon>ActivationDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\WipeDialog.xaml.cs">
+      <DependentUpon>WipeDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\PinDialog.xaml.cs">
       <DependentUpon>PinDialog.xaml</DependentUpon>
     </Compile>
@@ -392,6 +395,10 @@
     <Compile Include="Messages\Dialogs\MasterPassword\HideMasterPasswordUiMessage.cs" />
     <Compile Include="Messages\Dialogs\Pin\PinCancelledMessage.cs" />
     <Compile Include="Messages\Dialogs\MasterPassword\SendMasterPasswordMessage.cs" />
+    <Compile Include="Messages\Dialogs\Wipe\CancelWipeMessage.cs" />
+    <Compile Include="Messages\Dialogs\Wipe\StartWipeMessage.cs" />
+    <Compile Include="Messages\Dialogs\Wipe\HideWipeDialogMessage.cs" />
+    <Compile Include="Messages\Dialogs\Wipe\ShowWipeDialogMessage.cs" />
     <Compile Include="Messages\ShowDeviceLockedByPinNotificationMessage.cs" />
     <Compile Include="Messages\ShowLowBatteryNotificationMessage.cs" />
     <Compile Include="Messages\ShowLockNotificationMessage.cs" />
@@ -415,6 +422,7 @@
     <Compile Include="Messages\Dialogs\Pin\ShowPinUiMessage.cs" />
     <Compile Include="Messages\ShowWarningNotificationMessage.cs" />
     <Compile Include="Messages\StartApplicationUpdateMessage.cs" />
+    <Compile Include="Messages\WipeFinishedMessage.cs" />
     <Compile Include="Models\DeviceModel.cs" />
     <Compile Include="Models\Account.cs" />
     <Compile Include="Modules\AccountManager\AccountExtensions.cs" />
@@ -496,6 +504,8 @@
     <Compile Include="Tasks\GetBackupPasswordProc.cs" />
     <Compile Include="Tasks\GetMasterPasswordProc.cs" />
     <Compile Include="Tasks\GetPinProc.cs" />
+    <Compile Include="Tasks\GetUserWipeConfirmationProc.cs" />
+    <Compile Include="Tasks\GetWipeResultProc.cs" />
     <Compile Include="Utilities\AccountUtility.cs" />
     <Compile Include="Utilities\Base32Encoding.cs" />
     <Compile Include="Utilities\DelayedMethodCaller.cs" />
@@ -522,6 +532,7 @@
     <Compile Include="ViewModels\Dialog\ActivationViewModel.cs" />
     <Compile Include="ViewModels\Dialog\BackupPasswordViewModel.cs" />
     <Compile Include="ViewModels\Dialog\MasterPasswordViewModel.cs" />
+    <Compile Include="ViewModels\Dialog\WipeViewModel.cs" />
     <Compile Include="ViewModels\MessageViewModel.cs" />
     <Compile Include="ViewModels\NotificationsContainerViewModel.cs" />
     <Compile Include="PageViewModels\PasswordManagerViewModel.cs" />
@@ -620,6 +631,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\ActivationDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\WipeDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

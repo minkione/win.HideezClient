@@ -30,6 +30,7 @@ using HideezMiddleware.Utils;
 using HideezClient.Messages.Dialogs.Pin;
 using HideezClient.Messages.Dialogs.MasterPassword;
 using HideezClient.Tasks;
+using HideezClient.Messages.Dialogs.Wipe;
 
 namespace HideezClient.Models
 {
@@ -390,6 +391,18 @@ namespace HideezClient.Models
             }
         }
 
+        async void RemoteDevice_WipeFinished(object sender, WipeFinishedEventtArgs e)
+        {
+            try
+            {
+                await _metaMessenger.Publish(new WipeFinishedMessage(Id, e.Status));
+            }
+            catch (Exception ex)
+            {
+                _log.WriteLine(ex);
+            }
+        }
+
         Task OnDeviceConnectionStateChanged(HideezMiddleware.IPC.Messages.DeviceConnectionStateChangedMessage obj)
         {
             if (obj.Device.Id == Id)
@@ -690,6 +703,7 @@ namespace HideezClient.Models
                         tempRemoteDevice.ButtonPressed -= RemoteDevice_ButtonPressed;
                         tempRemoteDevice.StorageModified -= RemoteDevice_StorageModified;
                         tempRemoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
+                        tempRemoteDevice.WipeFinished -= RemoteDevice_WipeFinished;
                         await tempRemoteDevice.Shutdown();
                         await _metaMessenger.PublishOnServer(new RemoveDeviceMessage(tempRemoteDevice.Id));
                         tempRemoteDevice.Dispose();
@@ -752,6 +766,7 @@ namespace HideezClient.Models
                 IsCreatingRemoteDevice = true;
                 _remoteDevice = await _remoteDeviceFactory.CreateRemoteDeviceAsync(NotificationsId, channelNo, _remoteDeviceMessenger);
                 _remoteDevice.PropertyChanged += RemoteDevice_PropertyChanged;
+                _remoteDevice.WipeFinished += RemoteDevice_WipeFinished;
                 
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -1389,6 +1404,65 @@ namespace HideezClient.Models
                         {
                             await _metaMessenger.Publish(new HideMasterPasswordUiMessage());
                         }
+                    }
+
+                    return false;
+                }
+                finally
+                {
+                    RemoteDeviceShutdown -= ctsCancel;
+                }
+            }
+        }
+
+        public async Task<bool> WipeWorkflow()
+        {
+            using (var cts = new CancellationTokenSource())
+            {
+                void ctsCancel(object sender, EventArgs e) { cts.Cancel(); }
+                try
+                {
+                    RemoteDeviceShutdown += ctsCancel;
+
+                    try
+                    {
+                        var confirmationProc = new GetUserWipeConfirmationProc(_metaMessenger, Id);
+                        var confirmProcResult = await confirmationProc.Run(30_000, cts.Token);
+
+                        if (confirmProcResult == null || !confirmProcResult.Confirmed)
+                            return false;
+
+                        var reply = await _remoteDevice.Wipe(new byte[0]);
+
+                        var msg = await _metaMessenger.When<WipeFinishedMessage>(30_000, cancellationToken:cts.Token);
+
+                        return true;
+                    }
+                    catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.BleSendError)
+                    {
+                        _log.WriteLine(ex.Message, LogErrorSeverity.Warning);
+                    }
+                    catch (HideezException ex)
+                    {
+                        _log.WriteLine(ex);
+                        ShowError(ex.Message);
+                    }
+                    catch (OperationCanceledException ex)
+                    {
+                        _log.WriteLine(ex.Message);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        _log.WriteLine(ex.Message);
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.WriteLine(ex);
+                        ShowError(ex.Message);
+                    }
+                    finally
+                    {
+                        await _metaMessenger.Publish(new HideWipeDialogMessage());
                     }
 
                     return false;
