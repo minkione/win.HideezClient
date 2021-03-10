@@ -985,4 +985,7 @@ Only 1 attempt left.</value>
   <data name="Settings.ReconnectPairedVaults.Reconnect" xml:space="preserve">
     <value>Reconnect paired vaults</value>
   </data>
+  <data name="WaterMark.SearchPasswords" xml:space="preserve">
+    <value>Search passwords</value>
+  </data>
 </root>
