@@ -32,11 +32,27 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="24" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock
-                        Text="Wipe will erase all data" />
+                        Grid.Row="0"
+                        Style="{StaticResource DialogTitleTextBlockStyle}">
+                        <TextBlock.Text>
+                            <MultiBinding Converter="{StaticResource FormatStringConverter}">
+                                <Binding Path="[WipeDialog.Title]" Source="{x:Static l:TranslationSource.Instance}" />
+                                <Binding Path="VaultName" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <TextBlock
+                        Grid.Row="1"
+                        HorizontalAlignment="Left"
+                        TextAlignment="Left"
+                        Style="{StaticResource DialogLabelTextBlockStyle}"
+                        Text="{l:Localization WipeDialog.Description}" />
                     <StackPanel
-                        Grid.Row="2"
+                        Grid.Row="3"
                         HorizontalAlignment="Right"
                         Orientation="Horizontal">
                         <Button 
@@ -58,13 +74,39 @@
             <!--  Wipe in progress -->
             <StackPanel Visibility="{Binding InProgress, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="25" />
+                        <RowDefinition Height="24" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Style="{StaticResource DialogTitleTextBlockStyle}" Text="Press and hold vault button for 10 seconds to perform wipe operation" />
+                    <ContentPresenter
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Width="64"
+                        Height="64"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Content="{StaticResource KeyHandIco}" />
+
+                    <TextBlock 
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Margin="0"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource DialogTitleTextBlockStyle}">
+                        <TextBlock.Text>
+                            <MultiBinding Converter="{StaticResource FormatStringConverter}">
+                                <Binding Path="[WipeDialog.ConfirmTooltip]" Source="{x:Static l:TranslationSource.Instance}" />
+                                <Binding Path="VaultName" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
 
                     <StackPanel
                         Grid.Row="2"
@@ -79,7 +121,7 @@
                         <TextBlock 
                             VerticalAlignment="Center"
                             Style="{StaticResource DialogLabelTextBlockStyle}"
-                            Text="Click vault button once to cancel wipe" />
+                            Text="{l:Localization WipeDialog.CancelTooltip}" />
                     </StackPanel>
                 </Grid>
             </StackPanel>

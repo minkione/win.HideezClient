@@ -36,7 +36,7 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="10" />
+                        <RowDefinition Height="24" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <ContentPresenter
@@ -50,6 +50,8 @@
                     <TextBlock
                         Grid.Row="0"
                         Grid.Column="2"
+                        Margin="0"
+                        VerticalAlignment="Center"
                         Style="{StaticResource DialogTitleTextBlockStyle}"
                         Text="{l:Localization ButtonWindow.Content}" />
                     <StackPanel

@@ -822,8 +822,8 @@
                     Margin="0,48,0,0"
                     VerticalAlignment="Bottom" 
                     HorizontalAlignment="Right"
-                    Content="Wipe vault"
-                    ToolTip="A wipe, also known as factory reset, erases all your data from your vault."
+                    Content="{l:Localization DS.Button.Wipe}"
+                    ToolTip="{l:Localization DS.Button.Wipe.Tooltip}"
                     Command="{Binding WipeVaultCommand}"
                     />
             </controls:StandaloneModeContainer>
