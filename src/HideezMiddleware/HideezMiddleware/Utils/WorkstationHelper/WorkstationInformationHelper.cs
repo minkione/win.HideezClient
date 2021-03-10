@@ -26,12 +26,34 @@ namespace HideezMiddleware.Utils.WorkstationHelper
         [DllImport("kernel32.dll")]
         static extern uint WTSGetActiveConsoleSessionId();
 
+        [DllImport("wtsapi32.dll")]
+        static extern IntPtr WTSOpenServer([MarshalAs(UnmanagedType.LPStr)] String pServerName);
+
+        [DllImport("wtsapi32.dll")]
+        static extern void WTSCloseServer(IntPtr hServer);
+
+        [DllImport("wtsapi32.dll")]
+        static extern Int32 WTSEnumerateSessions(
+            IntPtr hServer,
+            [MarshalAs(UnmanagedType.U4)] Int32 Reserved,
+            [MarshalAs(UnmanagedType.U4)] Int32 Version,
+            ref IntPtr ppSessionInfo,
+            [MarshalAs(UnmanagedType.U4)] ref Int32 pCount);
+
         private enum WtsInfoClass
         {
             WTSUserName = 5,
             WTSDomainName = 7,
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        private struct WTS_SESSION_INFO
+        {
+            public uint SessionID;
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string pWinStationName;
+            public WTS_CONNECTSTATE_CLASS State;
+        }
 
         public static ILog Log { get; set; }
 
@@ -149,7 +171,40 @@ namespace HideezMiddleware.Utils.WorkstationHelper
 
         public static uint GetSessionId()
         {
-            return WTSGetActiveConsoleSessionId();
+            IntPtr serverHandle = WTSOpenServer("localhost");
+            uint activeSessionId = 0;
+
+            try
+            {
+                int sessionInfoSize = Marshal.SizeOf(typeof(WTS_SESSION_INFO));
+                IntPtr SessionInfoPtr = IntPtr.Zero;
+                int sessionCount = 0;
+
+                if (WTSEnumerateSessions(serverHandle, 0, 1, ref SessionInfoPtr, ref sessionCount) != 0)
+                {
+                    IntPtr enumeratedSession = SessionInfoPtr;
+
+                    for (int i = 0; i < sessionCount; i++)
+                    {
+                        WTS_SESSION_INFO sessionInfo = (WTS_SESSION_INFO)Marshal.PtrToStructure(enumeratedSession, typeof(WTS_SESSION_INFO));
+                        enumeratedSession = IntPtr.Add(enumeratedSession, sessionInfoSize);
+
+                        if (sessionInfo.State == WTS_CONNECTSTATE_CLASS.WTSActive)
+                        {
+                            activeSessionId = sessionInfo.SessionID;
+                            break;
+                        }
+                    }
+
+                    WTSFreeMemory(SessionInfoPtr);
+                }
+
+                return activeSessionId;
+            }
+            finally
+            {
+                WTSCloseServer(serverHandle);
+            }
         }
     }
 }
