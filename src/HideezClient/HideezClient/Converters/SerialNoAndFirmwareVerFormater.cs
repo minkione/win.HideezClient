@@ -1,4 +1,4 @@
-﻿using HideezClient.Modules.Localize;
+﻿using HideezMiddleware.Localize;
 using System;
 using System.Globalization;
 using System.Linq;

@@ -4,7 +4,7 @@ using HideezMiddleware.Settings;
 using HideezClient.Models;
 using HideezClient.Models.Settings;
 using HideezClient.Modules.DeviceManager;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication;
 using System;

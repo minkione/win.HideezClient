@@ -501,6 +501,7 @@
     <Compile Include="PageViewModels\SettingsPageViewModel.cs" />
     <Compile Include="PageViewModels\HardwareKeyPageViewModel.cs" />
     <Compile Include="PageViewModels\SoftwareKeyPageViewModel.cs" />
+    <Compile Include="Resources\StandaloneStrings\Strings.Designer.cs" />
     <Compile Include="Tasks\GetBackupPasswordProc.cs" />
     <Compile Include="Tasks\GetMasterPasswordProc.cs" />
     <Compile Include="Tasks\GetPinProc.cs" />
@@ -823,6 +824,9 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\StandaloneStrings\Strings.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Strings.resx">

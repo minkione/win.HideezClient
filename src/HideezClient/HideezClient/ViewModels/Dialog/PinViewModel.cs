@@ -9,7 +9,7 @@ using System.Security;
 using System.Windows.Input;
 using System.Linq;
 using System;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using Meta.Lib.Modules.PubSub;
 using HideezClient.Messages.Dialogs.Pin;
 

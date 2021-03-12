@@ -1,6 +1,6 @@
 ﻿using Hideez.SDK.Communication.Log;
 using HideezClient.Messages;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezClient.Mvvm;
 using HideezMiddleware;
 using HideezMiddleware.IPC.IncommingMessages;

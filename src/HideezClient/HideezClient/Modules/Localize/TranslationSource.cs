@@ -1,99 +1,111 @@
-﻿using HideezClient.Resources;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Resources;
+﻿//using HideezClient.Resources;
+//using HideezMiddleware;
+//using HideezMiddleware.ApplicationModeProvider;
+//using System.Collections.Generic;
+//using System.ComponentModel;
+//using System.Globalization;
+//using System.Resources;
 
-namespace HideezClient.Modules.Localize
-{
-    /// <summary>
-    /// A class that provide access to resource localized and manage one.
-    /// </summary>
-    class TranslationSource : INotifyPropertyChanged
-    {
-        private IReadOnlyList<CultureInfo> supportedCultures;
-        private readonly object supportedCulturesLockObj = new object();
-        private readonly ResourceManager resManager = new ResourceManager(typeof(Strings));
-        private CultureInfo currentCulture;
+//namespace HideezClient.Modules.Localize
+//{
+//    /// <summary>
+//    /// A class that provide access to resource localized and manage one.
+//    /// </summary>
+//    class TranslationSource : INotifyPropertyChanged
+//    {
+//        private IReadOnlyList<CultureInfo> supportedCultures;
+//        private readonly object supportedCulturesLockObj = new object();
+//        private static readonly ResourceManager resManager;
+//        private CultureInfo currentCulture;
 
-        protected TranslationSource()
-        {
-        }
+//        protected TranslationSource()
+//        {
+//        }
 
-        /// <summary>
-        /// Provide single access to this source
-        /// </summary>
-        public static TranslationSource Instance { get; } = new TranslationSource();
+//        static TranslationSource()
+//        {
+//            var modeProvider = new ApplicationModeRegistryProvider(HideezClientRegistryRoot.GetRootRegistryKey(false), null);
+//            var applicationMode = modeProvider.GetApplicationMode();
 
-        /// <summary>
-        /// Returns the value of the string resource localized.
-        /// </summary>
-        /// <param name="key">Key to get string from resource localized.</param>
-        /// <returns>Localized string.</returns>
-        public string this[string key]
-        {
-            get { return this.resManager.GetString(key, this.CurrentCulture); }
-        }
+//            if (applicationMode == ApplicationMode.Standalone)
+//                resManager = new ResourceManager(typeof(Resources.StandaloneStrings.Strings));
+//            else resManager = new ResourceManager(typeof(Strings));
+//        }
 
-        /// <summary>
-        /// An object that represents the culture for which the resource is localized.
-        /// </summary>
-        public CultureInfo CurrentCulture
-        {
-            get { return this.currentCulture; }
-            set
-            {
-                if (this.currentCulture != value)
-                {
-                    this.currentCulture = value;
-                    var @event = this.PropertyChanged;
-                    if (@event != null)
-                    {
-                        @event.Invoke(this, new PropertyChangedEventArgs(string.Empty));
-                    }
-                }
-            }
-        }
+//        /// <summary>
+//        /// Provide single access to this source
+//        /// </summary>
+//        public static TranslationSource Instance { get; } = new TranslationSource();
 
-        /// <summary>
-        /// Return supported cultures for resource localized.
-        /// </summary>
-        public IReadOnlyList<CultureInfo> SupportedCultures
-        {
-            get
-            {
-                lock (supportedCulturesLockObj)
-                {
-                    if (supportedCultures == null)
-                    {
-                        List<CultureInfo> listSupportedCultures = new List<CultureInfo>();
-                        CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
-                        foreach (CultureInfo culture in cultures)
-                        {
-                            try
-                            {
-                                ResourceSet rs = resManager.GetResourceSet(culture, true, false);
-                                if (rs != null && !string.IsNullOrEmpty(culture.Name))
-                                {
-                                    listSupportedCultures.Add(culture);
-                                }
-                            }
-                            catch (CultureNotFoundException)
-                            {
-                            }
-                        }
+//        /// <summary>
+//        /// Returns the value of the string resource localized.
+//        /// </summary>
+//        /// <param name="key">Key to get string from resource localized.</param>
+//        /// <returns>Localized string.</returns>
+//        public string this[string key]
+//        {
+//            get { return resManager.GetString(key, this.CurrentCulture); }
+//        }
 
-                        supportedCultures = listSupportedCultures;
-                    }
+//        /// <summary>
+//        /// An object that represents the culture for which the resource is localized.
+//        /// </summary>
+//        public CultureInfo CurrentCulture
+//        {
+//            get { return this.currentCulture; }
+//            set
+//            {
+//                if (this.currentCulture != value)
+//                {
+//                    this.currentCulture = value;
+//                    var @event = this.PropertyChanged;
+//                    if (@event != null)
+//                    {
+//                        @event.Invoke(this, new PropertyChangedEventArgs(string.Empty));
+//                    }
+//                }
+//            }
+//        }
 
-                    return supportedCultures;
-                }
-            }
-        }
+//        /// <summary>
+//        /// Return supported cultures for resource localized.
+//        /// </summary>
+//        public IReadOnlyList<CultureInfo> SupportedCultures
+//        {
+//            get
+//            {
+//                lock (supportedCulturesLockObj)
+//                {
+//                    if (supportedCultures == null)
+//                    {
+//                        List<CultureInfo> listSupportedCultures = new List<CultureInfo>();
+//                        CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
+//                        foreach (CultureInfo culture in cultures)
+//                        {
+//                            try
+//                            {
+//                                ResourceSet rs = resManager.GetResourceSet(culture, true, false);
+//                                if (rs != null && !string.IsNullOrEmpty(culture.Name))
+//                                {
+//                                    listSupportedCultures.Add(culture);
+//                                }
+//                            }
+//                            catch (CultureNotFoundException)
+//                            {
+//                            }
+//                        }
 
-        /// <summary>
-        /// Occurs when a property CurrentCulture value changes.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-    }
-}
+//                        supportedCultures = listSupportedCultures;
+//                    }
+
+//                    return supportedCultures;
+//                }
+//            }
+//        }
+
+//        /// <summary>
+//        /// Occurs when a property CurrentCulture value changes.
+//        /// </summary>
+//        public event PropertyChangedEventHandler PropertyChanged;
+//    }
+//}

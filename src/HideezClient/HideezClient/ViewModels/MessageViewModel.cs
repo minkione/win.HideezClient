@@ -1,4 +1,4 @@
-﻿using HideezClient.Modules.Localize;
+﻿using HideezMiddleware.Localize;
 using HideezClient.Mvvm;
 using MvvmExtensions.Commands;
 using System;
@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using HideezClient.Modules.Localize;
 
 namespace HideezClient.ViewModels
 {

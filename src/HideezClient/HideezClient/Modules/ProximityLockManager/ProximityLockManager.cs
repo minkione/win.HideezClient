@@ -1,6 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Messages;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;

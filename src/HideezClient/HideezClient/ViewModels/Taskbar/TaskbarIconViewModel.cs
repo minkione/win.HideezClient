@@ -1,6 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Modules;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezClient.Mvvm;
 using MvvmExtensions.Commands;
 using System.Collections.ObjectModel;
@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using HideezClient.Modules.Localize;
 
 namespace HideezClient.ViewModels
 {

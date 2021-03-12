@@ -231,6 +231,7 @@
     <Compile Include="IPC\Messages\UserNotificationMessage.cs" />
     <Compile Include="IPC\Messages\WorkstationUnlockedMessage.cs" />
     <Compile Include="IPC\Messages\WorkstationUnlockPerformedMessage.cs" />
+    <Compile Include="Localize\ResourceManagersProvider.cs" />
     <Compile Include="Localize\TranslationSource.cs" />
     <Compile Include="MetaPubSubLogger.cs" />
     <Compile Include="Modules\Audit\AuditModule.cs" />
@@ -275,6 +276,16 @@
     <Compile Include="Modules\ReconnectAndWorkstationLock\WtsapiWorkstationLocker.cs" />
     <Compile Include="PowerEventMonitor.cs" />
     <Compile Include="RegistrySettings.cs" />
+    <Compile Include="Resources\Standalone\ErrorCode.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ErrorCode.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\Standalone\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
     <Compile Include="Resources\Strings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -352,6 +363,14 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\ErrorCode.resx">
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Standalone\ErrorCode.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ErrorCode.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Standalone\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>

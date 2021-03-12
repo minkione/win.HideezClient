@@ -1,4 +1,5 @@
 ﻿using HideezMiddleware.Resources;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -9,12 +10,13 @@ namespace HideezMiddleware.Localize
     /// <summary>
     /// A class that provide access to resource localized and manage one.
     /// </summary>
-    class TranslationSource : INotifyPropertyChanged
+    public class TranslationSource : INotifyPropertyChanged
     {
         private IReadOnlyList<CultureInfo> supportedCultures;
         private readonly object supportedCulturesLockObj = new object();
-        private readonly ResourceManager resManager = new ResourceManager(typeof(Strings));
         private CultureInfo currentCulture;
+
+        static List<ResourceManager> _resourceManagers = new List<ResourceManager>();
 
         protected TranslationSource()
         {
@@ -32,7 +34,18 @@ namespace HideezMiddleware.Localize
         /// <returns>Localized string.</returns>
         public string this[string key]
         {
-            get { return this.resManager.GetString(key, this.CurrentCulture); }
+            get
+            {
+                for(int i = _resourceManagers.Count-1; i>=0; i--)
+                {
+                    string result = _resourceManagers[i].GetString(key, CurrentCulture);
+
+                    if (result != null)
+                        return result;
+                }
+                
+                return null;
+            }
         }
 
         public string Format(string key, params object[] args)
@@ -77,10 +90,13 @@ namespace HideezMiddleware.Localize
                         {
                             try
                             {
-                                ResourceSet rs = resManager.GetResourceSet(culture, true, false);
-                                if (rs != null && !string.IsNullOrEmpty(culture.Name))
+                                foreach (var resManager in _resourceManagers)
                                 {
-                                    listSupportedCultures.Add(culture);
+                                    ResourceSet rs = resManager.GetResourceSet(culture, true, false);
+                                    if (rs != null && !string.IsNullOrEmpty(culture.Name) && !listSupportedCultures.Contains(culture))
+                                    {
+                                        listSupportedCultures.Add(culture);
+                                    }
                                 }
                             }
                             catch (CultureNotFoundException)
@@ -94,6 +110,11 @@ namespace HideezMiddleware.Localize
                     return supportedCultures;
                 }
             }
+        }
+
+        public static void SetResourceManagers(List<ResourceManager> resourceManagers)
+        {
+            _resourceManagers = resourceManagers;
         }
 
         /// <summary>

@@ -1,5 +1,5 @@
 ﻿using HideezClient.Modules;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using System;
 
 namespace HideezClient.ViewModels

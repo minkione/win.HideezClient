@@ -1154,4 +1154,25 @@ Would you like to perform application update now?</value>
   <data name="WipeDialog.Title" xml:space="preserve">
     <value>Are you sure you want to wipe {0}?</value>
   </data>
+  <data name="BackupCredentials.Backup.Title" xml:space="preserve">
+    <value>Backup</value>
+  </data>
+  <data name="BackupCredentials.Button.Backup" xml:space="preserve">
+    <value>Backup credentials</value>
+  </data>
+  <data name="BackupCredentials.Button.SelectFile" xml:space="preserve">
+    <value>Select a file</value>
+  </data>
+  <data name="BackupCredentials.Restore.Title" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="BackupCredentials.RestoreFromFile" xml:space="preserve">
+    <value>Restore from file</value>
+  </data>
+  <data name="BackupCredentials.Title" xml:space="preserve">
+    <value>Backup / Restore credentials</value>
+  </data>
+  <data name="BackupPassword.Error.WrongPassword" xml:space="preserve">
+    <value>Failed! Password is incorrect</value>
+  </data>
 </root>

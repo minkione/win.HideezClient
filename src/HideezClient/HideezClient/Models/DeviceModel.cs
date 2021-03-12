@@ -22,7 +22,7 @@ using HideezClient.Modules.Log;
 using HideezMiddleware.IPC.DTO;
 using Meta.Lib.Modules.PubSub;
 using HideezMiddleware.IPC.IncommingMessages;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using Hideez.SDK.Communication.HES.DTO;
 using HideezMiddleware.Utils.WorkstationHelper;
 using HideezMiddleware.ApplicationModeProvider;

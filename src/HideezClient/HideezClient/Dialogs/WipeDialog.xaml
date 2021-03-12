@@ -9,6 +9,7 @@
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    xmlns:localization="clr-namespace:HideezMiddleware.Localize;assembly=HideezMiddleware"
     xmlns:local="clr-namespace:HideezClient.Dialogs"
     xmlns:ma="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:maDialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
@@ -40,7 +41,7 @@
                         Style="{StaticResource DialogTitleTextBlockStyle}">
                         <TextBlock.Text>
                             <MultiBinding Converter="{StaticResource FormatStringConverter}">
-                                <Binding Path="[WipeDialog.Title]" Source="{x:Static l:TranslationSource.Instance}" />
+                                <Binding Path="[WipeDialog.Title]" Source="{x:Static localization:TranslationSource.Instance}" />
                                 <Binding Path="VaultName" />
                             </MultiBinding>
                         </TextBlock.Text>
@@ -102,7 +103,7 @@
                         Style="{StaticResource DialogTitleTextBlockStyle}">
                         <TextBlock.Text>
                             <MultiBinding Converter="{StaticResource FormatStringConverter}">
-                                <Binding Path="[WipeDialog.ConfirmTooltip]" Source="{x:Static l:TranslationSource.Instance}" />
+                                <Binding Path="[WipeDialog.ConfirmTooltip]" Source="{x:Static localization:TranslationSource.Instance}" />
                                 <Binding Path="VaultName" />
                             </MultiBinding>
                         </TextBlock.Text>

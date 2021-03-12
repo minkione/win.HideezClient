@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    xmlns:localization="clr-namespace:HideezMiddleware.Localize;assembly=HideezMiddleware"
     xmlns:local="clr-namespace:HideezClient.PagesView"
     xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -574,7 +575,7 @@
                                         Foreground="{DynamicResource Foreground}">
                                         <TextBlock.Text>
                                             <MultiBinding Converter="{StaticResource FormatStringConverter}">
-                                                <Binding Path="[DeviceInfo.CurrentProximityLevel]" Source="{x:Static l:TranslationSource.Instance}" />
+                                                <Binding Path="[DeviceInfo.CurrentProximityLevel]" Source="{x:Static localization:TranslationSource.Instance}" />
                                                 <Binding Path="Device.Proximity" />
                                             </MultiBinding>
                                         </TextBlock.Text>
@@ -738,7 +739,7 @@
                     Visibility="{Binding Device.IsStorageLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock
                         Style="{StaticResource SettingsHeaderStyle}"
-                        Text="Backup / Restore credentials" />
+                        Text="{l:Localization BackupCredentials.Title}" />
 
                     <Border
                         Padding="24"
@@ -757,7 +758,7 @@
                             <TextBlock
                                 Grid.Row="0"
                                 Grid.Column="0"
-                                Text="Restore" />
+                                Text="{l:Localization BackupCredentials.Restore.Title}" />
 
                             <Rectangle
                                 Grid.Row="2"
@@ -788,27 +789,27 @@
                                         Kind="File" />
                                     <TextBlock
                                         VerticalAlignment="Center"
-                                        Text="Restore from file" />
+                                        Text="{l:Localization BackupCredentials.RestoreFromFile}" />
                                 </StackPanel>
                                 <Button
                                     Grid.Column="2"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center"
                                     Command="{Binding SelectFileCommand}"
-                                    Content="Select a file"
+                                    Content="{l:Localization BackupCredentials.Button.SelectFile}"
                                     Style="{StaticResource ConfirmButtonStyle}" />
                             </Grid>
 
                             <TextBlock
                                 Grid.Row="0"
                                 Grid.Column="2"
-                                Text="Backup" />
+                                Text="{l:Localization BackupCredentials.Backup.Title}"/>
                             <Button
                                 Grid.Row="2"
                                 Grid.Column="2"
                                 VerticalAlignment="Center"
                                 Command="{Binding BackupCredentialsCommand}"
-                                Content="Backup credentials"
+                                Content="{l:Localization BackupCredentials.Button.Backup}"
                                 Style="{StaticResource ConfirmButtonStyle}" />
                         </Grid>
                     </Border>

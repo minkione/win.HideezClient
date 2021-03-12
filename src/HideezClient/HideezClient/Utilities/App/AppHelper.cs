@@ -2,7 +2,7 @@
 using HideezMiddleware.Settings;
 using HideezClient.Models.Settings;
 using HideezClient.Modules;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezClient.Properties;
 using System;
 using System.Collections.Generic;

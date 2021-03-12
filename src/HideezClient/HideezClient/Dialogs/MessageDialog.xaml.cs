@@ -1,4 +1,5 @@
 ﻿using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using System;

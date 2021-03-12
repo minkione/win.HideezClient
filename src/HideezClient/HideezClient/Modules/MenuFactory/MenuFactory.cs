@@ -1,6 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Models.Settings;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezClient.Properties;
 using HideezClient.Utilities;
 using HideezClient.ViewModels;

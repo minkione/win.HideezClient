@@ -1,6 +1,7 @@
 ﻿using HideezClient.Controls;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezClient.Mvvm;
+using HideezClient.Modules.Localize;
 
 namespace HideezClient.ViewModels.Controls
 {

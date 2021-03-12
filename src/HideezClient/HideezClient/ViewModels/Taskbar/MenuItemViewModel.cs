@@ -1,10 +1,11 @@
 ﻿using HideezClient.Modules;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezClient.Mvvm;
 using NLog.LayoutRenderers;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using HideezClient.Modules.Localize;
 
 namespace HideezClient.ViewModels
 {

@@ -9,6 +9,7 @@
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    xmlns:localization="clr-namespace:HideezMiddleware.Localize;assembly=HideezMiddleware"
     xmlns:local="clr-namespace:HideezClient.Dialogs"
     xmlns:ma="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:maDialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
@@ -89,7 +90,7 @@
                                 Visibility="{Binding IsNewPin, Converter={StaticResource BooleanToVisibilityConverter}}" >
                                 <TextBlock.Text>
                                     <MultiBinding Converter="{StaticResource FormatStringConverter}">
-                                        <Binding Path="[Pin.Title]" Source="{x:Static l:TranslationSource.Instance}" />
+                                        <Binding Path="[Pin.Title]" Source="{x:Static localization:TranslationSource.Instance}" />
                                         <Binding Path="MinLenghtPin" />
                                     </MultiBinding>
                                 </TextBlock.Text>
@@ -103,7 +104,7 @@
                                 Visibility="{Binding IsChangePin, Converter={StaticResource BooleanToVisibilityConverter}}" >
                                 <TextBlock.Text>
                                     <MultiBinding Converter="{StaticResource FormatStringConverter}">
-                                        <Binding Path="[Pin.ChangePin.Label]" Source="{x:Static l:TranslationSource.Instance}" />
+                                        <Binding Path="[Pin.ChangePin.Label]" Source="{x:Static localization:TranslationSource.Instance}" />
                                         <Binding Path="MinLenghtPin" />
                                     </MultiBinding>
                                 </TextBlock.Text>
