@@ -78,7 +78,7 @@ namespace HideezMiddleware.CredentialProvider
                 // No reason sending anything if credential provider is not connected
                 if (_cpProxy.IsConnected)
                 {
-                    if (_winBleConnectionManager.ConnectionControllers.Count == 0 || _connectionFlowProcessor.IsRunning)
+                    if (_winBleConnectionManager.ConnectionControllers.Count == 0 || _connectionFlowProcessor.IsRunning || _winBleConnectionManager.State != BluetoothAdapterState.PoweredOn)
                     {
                         await _cpProxy.HideCommandLink();
                     }

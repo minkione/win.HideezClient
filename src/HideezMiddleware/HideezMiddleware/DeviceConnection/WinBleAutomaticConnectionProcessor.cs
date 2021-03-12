@@ -147,9 +147,12 @@ namespace HideezMiddleware.DeviceConnection
 
         private async void CredentialProviderProxy_CommandLinkPressed(object sender, EventArgs e)
         {
-            WriteLine("Command link request");
-            _advIgnoreListMonitor.Clear();
-            await WaitAdvertisementAndConnectByProximity();
+            if (_winBleConnectionManager.ConnectionControllers.Count != 0 && _winBleConnectionManager.State == BluetoothAdapterState.PoweredOn)
+            {
+                WriteLine("Command link request");
+                _advIgnoreListMonitor.Clear();
+                await WaitAdvertisementAndConnectByProximity();
+            }
         }
 
         private void BleConnectionManager_ControllerRemoved(object sender, ControllerRemovedEventArgs e)
