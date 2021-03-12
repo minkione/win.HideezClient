@@ -832,14 +832,14 @@ namespace HideezClient.Models
             {
                 IsAuthorizingRemoteDevice = true;
 
+                if (_applicationMode == ApplicationMode.Standalone)
+                    await MasterPasswordWorkflow(ct);
+
                 if (_remoteDevice.AccessLevel.IsLocked)
                     throw new HideezException(HideezErrorCode.DeviceIsLocked);
 
                 else if (_remoteDevice.AccessLevel.IsLinkRequired && _applicationMode == ApplicationMode.Enterprise)
                     throw new HideezException(HideezErrorCode.DeviceNotAssignedToUser);
-
-                if (_applicationMode == ApplicationMode.Standalone)
-                    await MasterPasswordWorkflow(ct);
 
                 await ButtonWorkflow(ct);
                 await PinWorkflow(ct);
@@ -1133,6 +1133,8 @@ namespace HideezClient.Models
             {
                 return EnterMasterkeyWorkflow(ct);
             }
+            else if (_remoteDevice.IsLocked)
+                return UnlockDevice(ct);
 
             return Task.FromResult(true);
         }
@@ -1203,11 +1205,6 @@ namespace HideezClient.Models
             return passwordOk;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns>Returns true is pin workflow successful. Returns false if workflow cancelled.</returns>
-        /// <exception cref="HideezException">Thrown with code <see cref="HideezErrorCode.DeviceIsLocked"/> if device is locked due to failed attempt</exception>
         async Task<bool> EnterMasterkeyWorkflow(CancellationToken ct)
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> EnterMasterkeyWorkflow +++++++++++++++++++++++++++++++++++++++");
@@ -1257,6 +1254,55 @@ namespace HideezClient.Models
                 break;
             }
             Debug.WriteLine(">>>>>>>>>>>>>>> EnterMasterkeyWorkflow ------------------------------");
+            return passwordOk;
+        }
+
+        async Task<bool> UnlockDevice(CancellationToken ct)
+        {
+            bool passwordOk = false;
+            ShowInfo(TranslationSource.Instance["Vault.Notification.UnlockDevice"]);
+            while (AccessLevel.IsLocked)
+            {
+                var mpProc = new GetMasterPasswordProc(_metaMessenger, Id);
+                var procResult = await mpProc.Run(CREDENTIAL_TIMEOUT, ct);
+
+                if (procResult == null)
+                    return false;
+
+                var masterPassword = procResult.Password;
+
+                if (masterPassword.Length == 0)
+                {
+                    // we received an empty PIN from the user. Trying again with the same timeout.
+                    Debug.WriteLine($">>>>>>>>>>>>>>> EMPTY Masterkey");
+                    _log.WriteLine("Received empty Masterkey");
+
+                    continue;
+                }
+
+                var masterkey = MasterPasswordConverter.GetMasterKey(masterPassword, SerialNo);
+
+                try
+                {
+                    await _remoteDevice.Unlock(masterkey); //this using default timeout for BLE commands
+                    await _remoteDevice.RefreshDeviceInfo();
+                }
+                catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
+                {
+                    Debug.WriteLine($">>>>>>>>>>>>>>> Wrong masterkey ");
+                    ShowError(TranslationSource.Instance["Vault.Error.MasterPass.InvalidMasterPass"]);
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    ShowError(ex.Message);
+                    continue;
+                }
+
+                _log.WriteLine(">>>>>>>>>>>>>>> Masterkey OK");
+                passwordOk = true;
+                break;
+            }
             return passwordOk;
         }
 
