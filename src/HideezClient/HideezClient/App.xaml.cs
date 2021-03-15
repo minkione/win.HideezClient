@@ -15,7 +15,7 @@ using System.Globalization;
 using System.Threading;
 using System.IO;
 using HideezClient.Modules.ServiceProxy;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezClient.Modules.ServiceWatchdog;
 using HideezClient.Modules.DeviceManager;
 using HideezClient.Modules.ActionHandler;
@@ -52,6 +52,7 @@ using HideezClient.Modules.WorkstationManager;
 using HideezMiddleware.ApplicationModeProvider;
 using HideezClient.ViewModels.Dialog;
 using Hideez.SDK.Communication.Backup;
+using HideezClient.Resources;
 
 namespace HideezClient
 {
@@ -153,7 +154,13 @@ namespace HideezClient
 
             // Get application mode as soon as possible
             var _applicationModeProvider = Container.Resolve<IApplicationModeProvider>();
-            _log.WriteLine($"Application mode: {_applicationModeProvider.GetApplicationMode()}");
+            var mode = _applicationModeProvider.GetApplicationMode();
+            _log.WriteLine($"Application mode: {mode}");
+
+            if(mode == ApplicationMode.Standalone)
+                ResourceManagersProvider.SetResources(typeof(Strings), typeof(Resources.StandaloneStrings.Strings));
+            else
+                ResourceManagersProvider.SetResources(typeof(Strings));
 
             // Init settings
             ApplicationSettings settings = null;

@@ -5,7 +5,7 @@ using Hideez.SDK.Communication.Security;
 using HideezClient.Messages;
 using HideezClient.Messages.Dialogs.BackupPassword;
 using HideezClient.Modules;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezClient.Modules.Log;
 using HideezClient.Tasks;
 using HideezMiddleware.ApplicationModeProvider;
@@ -166,7 +166,7 @@ namespace HideezClient.ViewModels
             catch(CryptographicException ex)
             {
                 _log.WriteLine(ex);
-                await _messenger.Publish(new SetResultUIBackupPasswordMessage(false, "Failed! Password is incorrect"));
+                await _messenger.Publish(new SetResultUIBackupPasswordMessage(false, TranslationSource.Instance["BackupPassword.Error.WrongPassword"]));
             }
             catch(Exception ex)
             {

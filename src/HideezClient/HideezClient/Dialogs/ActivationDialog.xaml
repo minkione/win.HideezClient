@@ -10,6 +10,7 @@
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
     xmlns:local="clr-namespace:HideezClient.Dialogs"
+    xmlns:localization="clr-namespace:HideezMiddleware.Localize;assembly=HideezMiddleware"
     xmlns:ma="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:maDialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -36,7 +37,7 @@
                 <TextBlock Style="{StaticResource DialogTitleTextBlockStyle}" >
                     <TextBlock.Text>
                         <MultiBinding Converter="{StaticResource FormatStringConverter}">
-                            <Binding Path="[ActivationCode.Title]" Source="{x:Static l:TranslationSource.Instance}" />
+                            <Binding Path="[ActivationCode.Title]" Source="{x:Static localization:TranslationSource.Instance}" />
                             <Binding Path="Device.Name" />
                         </MultiBinding>
                     </TextBlock.Text>

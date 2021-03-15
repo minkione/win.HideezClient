@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using HideezClient.Modules;
 using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 
 namespace HideezClient.Mvvm
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using HideezClient.Messages;
 using System.Threading.Tasks;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using GalaSoft.MvvmLight.Messaging;
 using HideezClient.Models;
 using Hideez.SDK.Communication.Log;

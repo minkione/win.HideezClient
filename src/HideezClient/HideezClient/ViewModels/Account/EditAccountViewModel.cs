@@ -16,7 +16,7 @@ using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Security;
 using HideezClient.Messages;
 using HideezClient.Modules;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezClient.Modules.Log;
 using HideezClient.Mvvm;
 using HideezClient.Utilities;

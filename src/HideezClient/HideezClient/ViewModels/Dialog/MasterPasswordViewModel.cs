@@ -3,7 +3,7 @@ using HideezClient.Messages;
 using HideezClient.Messages.Dialogs.MasterPassword;
 using HideezClient.Models;
 using HideezClient.Modules.DeviceManager;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezClient.Mvvm;
 using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Attributes;

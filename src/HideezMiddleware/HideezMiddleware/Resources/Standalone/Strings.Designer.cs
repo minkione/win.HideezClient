@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace HideezMiddleware.Resources {
+namespace HideezMiddleware.Resources.Standalone {
     using System;
     
     
@@ -19,17 +19,17 @@ namespace HideezMiddleware.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class ErrorCode {
+    public class Strings {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal ErrorCode() {
+        internal Strings() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace HideezMiddleware.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("HideezMiddleware.Resources.ErrorCode", typeof(ErrorCode).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("HideezMiddleware.Resources.Standalone.Strings", typeof(Strings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,6 +57,33 @@ namespace HideezMiddleware.Resources {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your device is in bootloader mode. Please, update your firmware..
+        /// </summary>
+        internal static string ConnectionFlow_Error_VaultInBootloaderMode {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Error.VaultInBootloaderMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vault got locked due to too many incorrect pin attempts..
+        /// </summary>
+        internal static string ConnectionFlow_Pin_Error_LockedByInvalidAttempts {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.Pin.Error.LockedByInvalidAttempts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User authorization failed unexpectedly. Please, try to connect your vault again..
+        /// </summary>
+        internal static string ConnectionFlow_UserAuthorization_Error_AuthFailed {
+            get {
+                return ResourceManager.GetString("ConnectionFlow.UserAuthorization.Error.AuthFailed", resourceCulture);
             }
         }
     }

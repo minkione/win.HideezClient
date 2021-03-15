@@ -9,6 +9,7 @@ namespace ServiceLibrary.Implementation
             builder.Begin();
 
             builder.AddFatalExceptionHandling();
+            builder.AddEnterpriseResources();
             builder.AddEnterpriseProximitySettingsSupport();
             builder.AddHES();
             builder.AddEnterpriseConnectionFlow();
@@ -29,6 +30,7 @@ namespace ServiceLibrary.Implementation
             builder.Begin();
 
             builder.AddFatalExceptionHandling();
+            builder.AddStandaloneResources();
             builder.AddStandaloneProximitySettingsSupport();
             builder.AddStandaloneConnectionFlow();
             builder.AddCsrSupport();

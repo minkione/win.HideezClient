@@ -33,7 +33,7 @@ using HideezClient.Modules.Log;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Settings;
 using HideezClient.Models.Settings;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using Meta.Lib.Modules.PubSub;
 
 namespace HideezClient.PageViewModels

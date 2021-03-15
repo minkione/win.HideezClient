@@ -3,6 +3,7 @@ using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Resources;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Resources;
@@ -11,6 +12,8 @@ namespace HideezMiddleware
 {
     public class HideezExceptionLocalization : Logger
     {
+        static List<ResourceManager> _resourceManagers = new List<ResourceManager>();
+
         public HideezExceptionLocalization(ILog log) 
             : base(string.Empty, log)
         {
@@ -91,7 +94,15 @@ namespace HideezMiddleware
 
         public static string GetErrorAsString(HideezErrorCode hideezErrorCode, CultureInfo culture = null)
         {
-            return ErrorCode.ResourceManager.GetString(hideezErrorCode.ToString(), culture ?? ErrorCode.Culture);
+            for (int i = _resourceManagers.Count - 1; i >= 0; i--)
+            {
+                string result = _resourceManagers[i].GetString(hideezErrorCode.ToString(), culture ?? Culture);
+
+                if (result != null)
+                    return result;
+            }
+
+            return null;
         }
 
         public static string GetErrorAsString(Exception exception, CultureInfo culture = null)
@@ -104,7 +115,7 @@ namespace HideezMiddleware
                 if (code == HideezErrorCode.NonHideezException)
                     return exception.Message;
 
-                string localizedStr = ErrorCode.ResourceManager.GetString(code.ToString(), culture ?? ErrorCode.Culture);
+                string localizedStr = GetErrorAsString(code, culture);
 
                 if (localizedStr != null)
                 {
@@ -125,6 +136,11 @@ namespace HideezMiddleware
             {
                 return exception.Message;
             }
+        }
+
+        public static void SetResourceManagers(List<ResourceManager> resourceManagers)
+        {
+            _resourceManagers = resourceManagers;
         }
     }
 }

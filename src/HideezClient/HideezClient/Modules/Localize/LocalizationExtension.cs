@@ -1,4 +1,5 @@
-﻿using System.Windows.Data;
+﻿using HideezMiddleware.Localize;
+using System.Windows.Data;
 
 namespace HideezClient.Modules.Localize
 {

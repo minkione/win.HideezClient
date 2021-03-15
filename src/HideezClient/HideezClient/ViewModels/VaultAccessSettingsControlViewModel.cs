@@ -1,7 +1,7 @@
 ﻿using Hideez.SDK.Communication.Log;
 using HideezClient.Messages;
 using HideezClient.Modules;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezClient.Modules.Log;
 using HideezClient.Modules.ServiceProxy;
 using HideezMiddleware.ApplicationModeProvider;

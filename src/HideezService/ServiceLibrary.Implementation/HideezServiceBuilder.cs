@@ -17,6 +17,7 @@ using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.DeviceLogging;
 using HideezMiddleware.IPC.DTO;
 using HideezMiddleware.Local;
+using HideezMiddleware.Localize;
 using HideezMiddleware.Modules;
 using HideezMiddleware.Modules.Audit;
 using HideezMiddleware.Modules.ClientPipe;
@@ -33,6 +34,7 @@ using HideezMiddleware.Modules.ServiceEvents;
 using HideezMiddleware.Modules.UpdateCheck;
 using HideezMiddleware.Modules.WinBle;
 using HideezMiddleware.ReconnectManager;
+using HideezMiddleware.Resources;
 using HideezMiddleware.ScreenActivation;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Settings.SettingsProvider;
@@ -283,6 +285,18 @@ namespace ServiceLibrary.Implementation
         public void AddStandaloneProximitySettingsSupport()
         {
             _container.RegisterType<IDeviceProximitySettingsProvider, UserProximitySettingsProvider>(new ContainerControlledLifetimeManager());
+        }
+
+        public void AddEnterpriseResources()
+        {
+            ResourceManagersProvider.SetResources(typeof(Strings));
+            ResourceManagersProvider.SetErrorCodesResources(typeof(ErrorCode));
+        }
+
+        public void AddStandaloneResources()
+        {
+            ResourceManagersProvider.SetResources(typeof(Strings), typeof(HideezMiddleware.Resources.Standalone.Strings));
+            ResourceManagersProvider.SetErrorCodesResources(typeof(ErrorCode), typeof(HideezMiddleware.Resources.Standalone.ErrorCode));
         }
 
         public void AddFatalExceptionHandling()

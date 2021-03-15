@@ -1,6 +1,6 @@
 ﻿using Hideez.SDK.Communication.Log;
 using HideezClient.Messages;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezMiddleware.Modules.UpdateCheck.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;

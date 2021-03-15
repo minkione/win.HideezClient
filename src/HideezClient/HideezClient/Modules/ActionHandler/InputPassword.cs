@@ -1,6 +1,6 @@
 ﻿using HideezClient.Models.Settings;
 using System.Threading.Tasks;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using Hideez.ISM;
 using HideezClient.Models;
 using HideezClient.Modules.DeviceManager;

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using HideezMiddleware.IPC.Messages;
 using System.Collections.Generic;
 using HideezClient.Messages;
-using HideezClient.Modules.Localize;
+using HideezMiddleware.Localize;
 using HideezClient.Models;
 using HideezClient.Modules.DeviceManager;
 using System.Linq;

@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
+    xmlns:localization="clr-namespace:HideezMiddleware.Localize;assembly=HideezMiddleware"
     xmlns:local="clr-namespace:HideezClient.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     MinWidth="545"
@@ -44,7 +45,7 @@
                 TextWrapping="Wrap">
                 <TextBlock.Text>
                     <MultiBinding Converter="{StaticResource FormatStringConverter}">
-                        <Binding Path="[PinNotVerified.Description]" Source="{x:Static l:TranslationSource.Instance}" />
+                        <Binding Path="[PinNotVerified.Description]" Source="{x:Static localization:TranslationSource.Instance}" />
                         <Binding Path="DeviceSN" />
                     </MultiBinding>
                 </TextBlock.Text>
