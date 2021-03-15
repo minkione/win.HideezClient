@@ -1,5 +1,5 @@
 ﻿using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.BackupManager;
+using Hideez.SDK.Communication.Backup;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Security;
 using HideezClient.Messages;
@@ -31,22 +31,19 @@ namespace HideezClient.ViewModels
         readonly IActiveDevice _activeDevice;
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(BackupCredentialsControlViewModel));
         readonly IMetaPubSub _messenger;
-        readonly CredentialsBackupManager _credentialsBackupManager;
 
         CancellationTokenSource _cts;
 
         public BackupCredentialsControlViewModel(
             IApplicationModeProvider applicationModeProvider,
             IActiveDevice activeDevice,
-            IMetaPubSub messenger,
-            CredentialsBackupManager credentialsBackupManager)
+            IMetaPubSub messenger)
         {
             var mode = applicationModeProvider.GetApplicationMode();
             if (mode != ApplicationMode.Standalone)
                 return;
             _activeDevice = activeDevice;
             _messenger = messenger;
-            _credentialsBackupManager = credentialsBackupManager;
             _messenger.Subscribe<ActiveDeviceChangedMessage>(OnActiveDeviceChanged);
 
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
@@ -58,7 +55,7 @@ namespace HideezClient.ViewModels
         #endregion
 
         #region Commands
-        public ICommand SelectFileCommand
+        public ICommand RestoreCredentialsCommand
         {
             get
             {
@@ -66,7 +63,7 @@ namespace HideezClient.ViewModels
                 {
                     CommandAction = async x =>
                     {
-                        await OnSelectFile();
+                        await OnRestoreCredentials();
                     }
                 };
             }
@@ -112,9 +109,9 @@ namespace HideezClient.ViewModels
 
                     if (passwordResult != null)
                     {
-                        var backup = await _credentialsBackupManager.GetBackup(_activeDevice.Device.Storage, _cts.Token);
+                        var backupProc = new CredentialsBackupProcedure();
 
-                        EnctyptWriteToFile(backup, filename, passwordResult.Password);
+                        await backupProc.Run(_activeDevice.Device.Storage, filename, passwordResult.Password, _cts.Token);
 
                         await _messenger.Publish(new SetResultUIBackupPasswordMessage(true));
                     }
@@ -133,14 +130,14 @@ namespace HideezClient.ViewModels
             }
         }
 
-        private async Task OnSelectFile()
+        private async Task OnRestoreCredentials()
         {
             try
             {
                 OpenFileDialog dlg = new OpenFileDialog
                 {
                     DefaultExt = ".hvb",
-                    Filter = "Hideez vault backups (.hvb)|*.hvb" // Filter files by extension
+                    Filter = "Hideez vault backup (.hvb)|*.hvb|Hideez key backup (*.hb)|*.hb|All files (*.*)|*.*" // Filter files by extension
                 };
 
                 // Show open file dialog box
@@ -153,9 +150,9 @@ namespace HideezClient.ViewModels
 
                     if (passwordResult != null)
                     {
-                        var backup = ReadFromEncryptFile(filename, passwordResult.Password);
-                        
-                        await _credentialsBackupManager.Restore(_activeDevice.Device.Storage, backup);
+                        var restoreProc = new CredentialsRestoreProcedure();
+
+                        await restoreProc.Run(_activeDevice.Device.Storage, filename, passwordResult.Password);
 
                         await _messenger.Publish(new SetResultUIBackupPasswordMessage(true));
                     }
@@ -234,72 +231,5 @@ namespace HideezClient.ViewModels
 
             return Task.CompletedTask;
         }
-
-        #region EncryptStream methods
-        void EnctyptWriteToFile(List<TableRecord> backup, string filename, byte[] password)
-        {
-            using (var fileStream = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                using (Aes encryptor = Aes.Create())
-                {
-                    encryptor.Mode = CipherMode.CBC;
-                    encryptor.Key = GetKey(password);
-                    encryptor.IV = AesCryptoHelper.CreateRandomBuf(16);
-
-                    XmlSerializer xs = new XmlSerializer(typeof(List<TableRecord>), new Type[] { typeof(TableRecord) });
-                    // write IV
-                    fileStream.Write(encryptor.IV, 0, 16);
-
-                    using (var cryptoStream = new CryptoStream(fileStream, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
-                    {
-                        // write version and magic
-                        var buf = new byte[encryptor.BlockSize];
-                        buf[0] = 0x01;
-                        buf[1] = 0x00;
-                        buf[2] = 0x02;
-                        buf[3] = 0x28;
-                        cryptoStream.Write(buf, 0, buf.Length);
-
-                        xs.Serialize(cryptoStream, backup);
-                    }
-                }
-            }
-        }
-
-        List<TableRecord> ReadFromEncryptFile(string filename, byte[] password)
-        {
-            List<TableRecord> tableRecords = new List<TableRecord>();
-            using (Aes encryptor = Aes.Create())
-            {
-                encryptor.Mode = CipherMode.CBC;
-                encryptor.Key = GetKey(password);
-
-                var ser = new XmlSerializer(typeof(List<TableRecord>), new Type[] { typeof(TableRecord) });
-
-                using (var fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read))
-                {
-                    var iv = new byte[16];
-                    fileStream.Read(iv, 0, 16);
-                    encryptor.IV = iv;
-
-                    using (var cyptorStream = new CryptoStream(fileStream, encryptor.CreateDecryptor(), CryptoStreamMode.Read))
-                    {
-                        // read version and magic
-                        var buf = new byte[encryptor.BlockSize];
-                        cyptorStream.Read(buf, 0, buf.Length);
-
-                        if (buf[1] != 0x00 || buf[2] != 0x02 || buf[3] != 0x28)
-                            throw new Exception("Credentials backup wrong pass or file is incorrect");
-
-                        if (buf[0] != 0x01)
-                            throw new Exception("File is incorrect");
-                        var des = ser.Deserialize(cyptorStream);
-                        tableRecords = (List<TableRecord>)des;
-                    }
-                }
-            }
-            return tableRecords;
-        }
-        #endregion
     }
 }

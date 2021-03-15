@@ -76,7 +76,7 @@ namespace HideezClient.ViewModels
             if (account.StorageId == null)
                 account.StorageId = new StorageId();
             
-            account.Timestamp = ConvertUtils.ConvertToUnixTime(DateTime.Now);
+            account.Timestamp = ConvertUtils.ConvertToUnixTime(DateTime.UtcNow);
 
            await device.PasswordManager.SaveOrUpdateAccount(
                account.StorageId, 

@@ -289,7 +289,6 @@
     <Compile Include="Settings\WorkstationSettings.cs" />
     <Compile Include="Tasks\WaitAdvertisementProc.cs" />
     <Compile Include="UnpairProvider.cs" />
-    <Compile Include="Utils\KdfKeyProvider.cs" />
     <Compile Include="Utils\MasterPasswordConverter.cs" />
     <Compile Include="Utils\WorkstationHelper\IWorkstationHelper.cs" />
     <Compile Include="Utils\WorkstationHelper\WorkstationHelper.cs" />
@@ -356,6 +355,7 @@
     <EmbeddedResource Include="Resources\Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

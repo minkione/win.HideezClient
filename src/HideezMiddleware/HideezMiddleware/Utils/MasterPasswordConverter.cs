@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hideez.SDK.Communication.Security;
+using System;
 using System.Linq;
 using System.Text;
 
@@ -12,9 +13,10 @@ namespace HideezMiddleware.Utils
         public static byte[] GetMasterKey(byte[] masterPassword, string serialNo)
         {
             byte[] salt = Encoding.ASCII.GetBytes(serialNo);
-            var masterKey = KdfKeyProvider.CreateKDFKey(masterPassword, 32, salt);
+            var masterKey = AesCryptoHelper.GetPbkdf2Bytes(masterPassword, salt);
+
             while (masterKey.Contains((byte)0))
-                masterKey = KdfKeyProvider.CreateKDFKey(masterKey, 32, salt);
+                masterKey = AesCryptoHelper.GetPbkdf2Bytes(masterKey, salt);
 
             return masterKey;
         }

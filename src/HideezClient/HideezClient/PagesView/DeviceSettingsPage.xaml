@@ -794,7 +794,7 @@
                                     Grid.Column="2"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center"
-                                    Command="{Binding SelectFileCommand}"
+                                    Command="{Binding RestoreCredentialsCommand}"
                                     Content="Select a file"
                                     Style="{StaticResource ConfirmButtonStyle}" />
                             </Grid>
