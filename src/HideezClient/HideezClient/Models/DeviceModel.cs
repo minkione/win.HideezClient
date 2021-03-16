@@ -480,7 +480,7 @@ namespace HideezClient.Models
             if (obj.SerialNo == SerialNo)
             {
                 IsStorageLocked = true;
-                _metaMessenger.Publish(new ShowInfoNotificationMessage(string.Format(TranslationSource.Instance["Vault.Notification.Synchronizing"], serialNo, Environment.NewLine), notificationId: NotificationsId));
+                _metaMessenger.Publish(new ShowInfoNotificationMessage(string.Format(TranslationSource.Instance["Vault.Notification.Synchronizing"], SerialNo, Environment.NewLine), notificationId: NotificationsId));
             }
 
             return Task.CompletedTask;
@@ -851,11 +851,9 @@ namespace HideezClient.Models
                 await ButtonWorkflow(ct);
 
                 if (ct.IsCancellationRequested)
-                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthCanceled"], NotificationsId));
+                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthCanceled"], SerialNo));
                 else if (IsAuthorized)
                     _log.WriteLine($"({_remoteDevice.Id}) Remote vault authorized");
-                else
-                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthFailed"], NotificationsId));
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked || ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
             {
