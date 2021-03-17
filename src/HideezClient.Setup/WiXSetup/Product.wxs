@@ -751,6 +751,14 @@
         <File Id="DeviceMaintenanceApplication.exe" Name="Hideez Device Maintenance Application.exe" Source="$(var.DeviceMaintenance_TargetDir)Hideez Device Maintenance Application.exe" />
       </Component>
 
+      <Component Id="DeviceMaintenanceApplication.exe.config" Guid="{963AE6E4-1B96-4045-B0C2-F980515CB689}" Win64="$(var.Win64)">
+        <File Id="DeviceMaintenanceApplication.exe.config" Name="Hideez Device Maintenance Application.exe.config" Source="$(var.DeviceMaintenance_TargetDir)Hideez Device Maintenance Application.exe.config" />
+      </Component>
+
+      <Component Id="DeviceMaintenance.WinBle.dll" Guid="{81B05567-FF54-45E7-A475-6381EF7B7498}" Win64="$(var.Win64)">
+        <File Id="DeviceMaintenance.WinBle.dll" Name="WinBle.dll" Source="$(var.HideezServiceHost_TargetDir)WinBle.dll" />
+      </Component>
+
       <Component Id="Meta.Lib.dll" Guid="{27458CF5-63A5-48D8-A90C-306E4DC09EB3}" Win64="$(var.Win64)">
         <File Id="Meta.Lib.dll" Name="Meta.Lib.dll" Source="$(var.HideezClient_TargetDir)Meta.Lib.dll" />
       </Component>
