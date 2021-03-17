@@ -85,8 +85,18 @@
                 Grid.Row="2"
                 FontWeight="DemiBold"
                 Foreground="{DynamicResource DarkForeground}"
-                Text="{l:Localization HKP.Description2}"
-                TextWrapping="Wrap" />
+                TextWrapping="Wrap">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="{l:Localization HKP.Description2.Csr}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsCsrMode}" Value="False">
+                                <Setter Property="Text" Value="{l:Localization HKP.Description2.WinBle}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
 
             <TextBlock
                 Grid.Row="4"

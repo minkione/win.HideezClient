@@ -1,5 +1,6 @@
 ﻿using HideezClient.Mvvm;
 using HideezClient.ViewModels;
+using HideezMiddleware.ConnectionModeProvider;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
@@ -19,13 +20,16 @@ namespace HideezClient.PageViewModels
             set { Set(ref _showServiceAddressEdit, value); }
         }
 
+        public bool IsCsrMode { get; }
+
         public ServiceViewModel Service { get; }
 
 
-        public HardwareKeyPageViewModel(IMetaPubSub metaMessenger, ServiceViewModel serviceViewModel)
+        public HardwareKeyPageViewModel(IMetaPubSub metaMessenger, ServiceViewModel serviceViewModel, IConnectionModeProvider connectionModeProvider)
         {
             _metaMessenger = metaMessenger;
             Service = serviceViewModel;
+            IsCsrMode = connectionModeProvider.IsCsrMode;
 
             _metaMessenger.TrySubscribeOnServer<ServiceSettingsChangedMessage>(OnServiceSettingsChanged);
             try

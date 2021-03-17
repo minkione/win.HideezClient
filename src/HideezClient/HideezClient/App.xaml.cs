@@ -49,6 +49,7 @@ using HideezClient.Modules.VaultLowBatteryMonitor;
 using HideezClient.ViewModels.Controls;
 using HideezClient.Modules.BleDeviceUnpairHelper;
 using HideezClient.Modules.WorkstationManager;
+using HideezMiddleware.ConnectionModeProvider;
 
 namespace HideezClient
 {
@@ -147,6 +148,9 @@ namespace HideezClient
             base.OnStartup(e);
 
             InitializeDIContainer();
+
+            var _connectionModeProvider = Container.Resolve<IConnectionModeProvider>();
+            _log.WriteLine($"Connection mode: {_connectionModeProvider.GetConnectionMode()}");
 
             // Init settings
             ApplicationSettings settings = null;
@@ -313,6 +317,8 @@ namespace HideezClient
             Container.RegisterType<IWorkstationInfoProvider, WorkstationInfoProvider>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IProximityLockManager, ProximityLockManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IVaultLowBatteryMonitor, VaultLowBatteryMonitor>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IConnectionModeProvider, ConnectionModeProvider>(new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(HideezClientRegistryRoot.GetRootRegistryKey(false), typeof(ILog)));
 
             // Settings
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()

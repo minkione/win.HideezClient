@@ -75,31 +75,24 @@
                         Content="{l:Localization Settings.CheckBox.EnableSoftwareVaultUnlockModule}"
                         IsChecked="{Binding Path=SoftwareUnlock.IsChecked}" />
                 </Border>
-                
-                <!-- Bottom-left indicators display settings -->
-                <Border 
-                    Style="{StaticResource SettingsBorderStyle}">
-                    <StackPanel Orientation="Vertical">
-                        <CheckBox 
-                            Style="{StaticResource CheckboxStyle}"
-                            Content="{l:Localization Settings.CheckBox.ShowDongleIndicator}"
-                            IsChecked="{Binding Path=Indicators.ShowDongleIndicator}" />
-                        <CheckBox 
-                            Margin="0,12,0,0"
-                            Style="{StaticResource CheckboxStyle}"
-                            Content="{l:Localization Settings.CheckBox.ShowBluetoothIndicator}"
-                            IsChecked="{Binding Path=Indicators.ShowBluetoothIndicator}" />
-                        <TextBlock 
-                            Margin="0,12,0,0"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Left"
-                            Text="{l:Localization Settings.Indicators.Tooltip}" />
-                    </StackPanel>
-                </Border>
 
-                <Border
-                    Style="{StaticResource SettingsBorderStyle}"
-                    Visibility="{Binding Path=Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Border>
+                    <Border.Style>
+                        <Style 
+                            TargetType="Border"
+                            BasedOn="{StaticResource SettingsBorderStyle}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding Service.IsServiceConnected}" Value="True"/>
+                                        <Condition Binding="{Binding PairedVaultsReconnect.IsWinBleMode}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                     <StackPanel Orientation="Vertical">
                         <TextBlock 
                             VerticalAlignment="Center"
