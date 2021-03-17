@@ -152,6 +152,8 @@ namespace HideezClient.ViewModels
                     {
                         var restoreProc = new CredentialsRestoreProcedure();
 
+                        restoreProc.ProgressChanged += RestoreProc_ProgressChanged;
+
                         await restoreProc.Run(_activeDevice.Device.Storage, filename, passwordResult.Password);
 
                         await _messenger.Publish(new SetResultUIBackupPasswordMessage(true));
@@ -163,7 +165,16 @@ namespace HideezClient.ViewModels
                 _log.WriteLine(ex);
                 await _messenger.Publish(new SetResultUIBackupPasswordMessage(false));
             }
-            catch(CryptographicException ex)
+            catch(HideezException ex) when (ex.ErrorCode == HideezErrorCode.FileCorruptOrPasswordIncorrect)
+            {
+                _log.WriteLine(ex);
+                await _messenger.Publish(new SetResultUIBackupPasswordMessage(false, TranslationSource.Instance["BackupPassword.Error.WrongPassword"]));
+            }
+            catch (NotSupportedException)
+            {
+                await _messenger.Publish(new SetResultUIBackupPasswordMessage(false, TranslationSource.Instance["BackupPassword.Error.NotSupportedFile"]));
+            }
+            catch (CryptographicException ex)
             {
                 _log.WriteLine(ex);
                 await _messenger.Publish(new SetResultUIBackupPasswordMessage(false, TranslationSource.Instance["BackupPassword.Error.WrongPassword"]));
@@ -172,6 +183,46 @@ namespace HideezClient.ViewModels
             {
                 _log.WriteLine(ex);
                 await _messenger.Publish(new SetResultUIBackupPasswordMessage(false));
+            }
+        }
+
+        private async void RestoreProc_ProgressChanged(object sender, RestoreProcedureStages e)
+        {
+            switch (e)
+            {
+                case RestoreProcedureStages.FileReading:
+                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.FileReading"]));
+                    break;
+                case RestoreProcedureStages.StorageErasing:
+                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.StorageErasing"]));
+                    break;
+                case RestoreProcedureStages.StartingWriting:
+                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.StartingWriting"]));
+                    break;
+                case RestoreProcedureStages.FirstTableWriting:
+                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.FirstTableWriting"]));
+                    break;
+                case RestoreProcedureStages.SecondTableWriting:
+                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.SecondTableWriting"]));
+                    break;
+                case RestoreProcedureStages.ThirdTableWriting:
+                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.ThirdTableWriting"]));
+                    break;
+                case RestoreProcedureStages.FourthTableWriting:
+                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.FourthTableWriting"]));
+                    break;
+                case RestoreProcedureStages.FifthTableWriting:
+                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.FifthTableWriting"]));
+                    break;
+                case RestoreProcedureStages.SixthTableWriting:
+                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.SixthTableWriting"]));
+                    break;
+                case RestoreProcedureStages.SeventhTableWriting:
+                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.SeventhTableWriting"]));
+                    break;
+                case RestoreProcedureStages.Finished:
+                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.SeventhTableWriting"]));
+                    break;
             }
         }
 
@@ -212,17 +263,6 @@ namespace HideezClient.ViewModels
         void ShowInfo(string message)
         {
             _messenger?.Publish(new ShowInfoNotificationMessage(message,notificationId: Device.Id));
-        }
-
-        private byte[] GetKey(byte[] password)
-        {
-            var buf = new byte[32];
-            int len = password.Length < buf.Length ? password.Length : buf.Length;
-            for (int i = 0; i < len; i++)
-            {
-                buf[i] = (byte)(password[i] ^ buf[i]);
-            }
-            return buf;
         }
 
         private Task OnBackupPasswordCancelled(BackupPasswordCancelledMessage msg)

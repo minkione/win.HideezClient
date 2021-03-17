@@ -45,6 +45,11 @@ namespace HideezClient.Dialogs
 
         }
 
+        public void SetProgress(string message)
+        {
+            progressText.Text = message;
+        }
+
         private void PasswordView_PasswordsCleared(object sender, System.EventArgs e)
         {
             if (DataContext != null)

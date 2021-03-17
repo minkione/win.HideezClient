@@ -25,7 +25,7 @@ namespace HideezMiddleware.Localize
         }
 
         /// <summary>
-        /// Creates list of ResourceManagers for TranslationSource. 
+        /// Creates list of ResourceManagers for HideezExceptionLocalization. 
         /// Your params will be saved by "first in - last out" principe.
         /// </summary>
         /// <param name="types">Type of auto-generated resource class.</param>

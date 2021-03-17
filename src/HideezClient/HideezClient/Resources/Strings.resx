@@ -1011,7 +1011,7 @@ Would you like to perform application update now?</value>
     <value>Update now</value>
   </data>
   <data name="MasterPassword.ChangeMP.Label" xml:space="preserve">
-    <value>Change vault master password</value>
+    <value>Change vault master password (minimum 8)</value>
   </data>
   <data name="MasterPassword.ConfirmMP.Label" xml:space="preserve">
     <value>Confirm master password</value>
@@ -1026,7 +1026,7 @@ Would you like to perform application update now?</value>
     <value>New master password</value>
   </data>
   <data name="MasterPassword.Title" xml:space="preserve">
-    <value>Set up new master password for vault</value>
+    <value>Set up new master password for vault (minimum 8)</value>
   </data>
   <data name="Vault.Error.MasterPasswordToShort" xml:space="preserve">
     <value>Master password is too short</value>
@@ -1173,9 +1173,45 @@ Would you like to perform application update now?</value>
     <value>Backup / Restore credentials</value>
   </data>
   <data name="BackupPassword.Error.WrongPassword" xml:space="preserve">
-    <value>Failed! Password is incorrect</value>
+    <value>Failed! The password is incorrect or the file is corrupt</value>
   </data>
   <data name="Vault.Notification.UnlockDevice" xml:space="preserve">
     <value>To many incorrect PIN entries. To unlock the vault, enter master password.</value>
+  </data>
+  <data name="BackupProgress.WritingData" xml:space="preserve">
+    <value>Writing data - {0} %</value>
+  </data>
+  <data name="BackupPassword.Error.NotSupportedFile" xml:space="preserve">
+    <value>Failed! The selected file is not supported</value>
+  </data>
+  <data name="RestoreProcedureStages.FifthTableWriting" xml:space="preserve">
+    <value>Writing data - 75 %</value>
+  </data>
+  <data name="RestoreProcedureStages.FileReading" xml:space="preserve">
+    <value>File reading</value>
+  </data>
+  <data name="RestoreProcedureStages.FirstTableWriting" xml:space="preserve">
+    <value>Writing data - 15 %</value>
+  </data>
+  <data name="RestoreProcedureStages.FourthTableWriting" xml:space="preserve">
+    <value>Writing data - 60 %</value>
+  </data>
+  <data name="RestoreProcedureStages.SecondTableWriting" xml:space="preserve">
+    <value>Writing data - 30 %</value>
+  </data>
+  <data name="RestoreProcedureStages.SeventhTableWriting" xml:space="preserve">
+    <value>Writing data - 100 %</value>
+  </data>
+  <data name="RestoreProcedureStages.SixthTableWriting" xml:space="preserve">
+    <value>Writing data - 90 %</value>
+  </data>
+  <data name="RestoreProcedureStages.StartingWriting" xml:space="preserve">
+    <value>Writing data - 0 %</value>
+  </data>
+  <data name="RestoreProcedureStages.StorageErasing" xml:space="preserve">
+    <value>Storage erasing</value>
+  </data>
+  <data name="RestoreProcedureStages.ThirdTableWriting" xml:space="preserve">
+    <value>Writing data - 45 %</value>
   </data>
 </root>
