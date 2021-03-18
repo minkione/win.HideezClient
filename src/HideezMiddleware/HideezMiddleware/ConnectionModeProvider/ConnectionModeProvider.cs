@@ -20,6 +20,7 @@ namespace HideezMiddleware.ConnectionModeProvider
 
         public bool IsWinBleMode { get => _mode == GlobalConnectionMode.WindowsBle; }
         public bool IsCsrMode { get => _mode == GlobalConnectionMode.CsrDongle; }
+        public GlobalConnectionMode ConnectionMode => _mode;
 
         public ConnectionModeProvider(RegistryKey rootKey, ILog log)
             : base(nameof(ConnectionModeProvider), log)
@@ -58,9 +59,5 @@ namespace HideezMiddleware.ConnectionModeProvider
             return GlobalConnectionMode.WindowsBle;
         }
 
-        public GlobalConnectionMode GetConnectionMode()
-        {
-            return _mode;
-        }
     }
 }

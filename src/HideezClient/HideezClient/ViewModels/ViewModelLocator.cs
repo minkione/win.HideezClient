@@ -86,6 +86,11 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<ServerAddressEditControlViewModel>(); }
         }
 
+        public ConnectionModeContainerViewModel ConnectionModeContainerViewModel
+        {
+            get { return DIContainer.Resolve<ConnectionModeContainerViewModel>(); }
+        }
+
         #endregion
 
         #region Dialog

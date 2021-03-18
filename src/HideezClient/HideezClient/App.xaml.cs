@@ -150,7 +150,7 @@ namespace HideezClient
             InitializeDIContainer();
 
             var _connectionModeProvider = Container.Resolve<IConnectionModeProvider>();
-            _log.WriteLine($"Connection mode: {_connectionModeProvider.GetConnectionMode()}");
+            _log.WriteLine($"Connection mode: {_connectionModeProvider.ConnectionMode}");
 
             // Init settings
             ApplicationSettings settings = null;

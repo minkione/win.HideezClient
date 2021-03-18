@@ -5,6 +5,6 @@
         bool IsWinBleMode { get; }
         bool IsCsrMode { get; }
 
-        GlobalConnectionMode GetConnectionMode();
+        GlobalConnectionMode ConnectionMode { get; }
     }
 }

@@ -281,6 +281,7 @@
     <Compile Include="Controls\ConnectivityIndicators.xaml.cs">
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\CsrModeContainer.cs" />
     <Compile Include="Controls\InfoButton.xaml.cs">
       <DependentUpon>InfoButton.xaml</DependentUpon>
     </Compile>
@@ -333,6 +334,7 @@
     <Compile Include="Controls\TBConnectivityIndicator.xaml.cs">
       <DependentUpon>TBConnectivityIndicator.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\WinBleModeContainer.cs" />
     <Compile Include="Converters\BooleanToVisibilityCollapsedConverter.cs" />
     <Compile Include="Converters\FormatStringConverter.cs" />
     <Compile Include="Converters\IntToVisibilityConverter.cs" />
@@ -482,6 +484,7 @@
     <Compile Include="Utilities\Url\URLHelper.cs" />
     <Compile Include="Utilities\WeakEvents\WeakEvent.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
+    <Compile Include="ViewModels\Controls\ConnectionModeContainerViewModel.cs" />
     <Compile Include="ViewModels\Controls\DeviceInfoViewModel.cs" />
     <Compile Include="ViewModels\Controls\ServerAddressEditControlViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />

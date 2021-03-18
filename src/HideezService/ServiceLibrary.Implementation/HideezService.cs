@@ -70,7 +70,7 @@ namespace ServiceLibrary.Implementation
 
                 _log.WriteLine(">>>>>> Get connection mode");
                 _connectionModeProvider = new ConnectionModeProvider(clientRootRegistryKey, _sdkLogger);
-                _log.WriteLine($"Connection mode: {_connectionModeProvider.GetConnectionMode()}");
+                _log.WriteLine($"Connection mode: {_connectionModeProvider.ConnectionMode}");
 
                 _log.WriteLine(">>>>>> Initialize session monitor");
                 _workstationHelper = new WorkstationHelper(_sdkLogger);

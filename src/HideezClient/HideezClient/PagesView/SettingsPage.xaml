@@ -76,43 +76,35 @@
                         IsChecked="{Binding Path=SoftwareUnlock.IsChecked}" />
                 </Border>
 
-                <Border>
-                    <Border.Style>
-                        <Style 
-                            TargetType="Border"
-                            BasedOn="{StaticResource SettingsBorderStyle}">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding Service.IsServiceConnected}" Value="True"/>
-                                        <Condition Binding="{Binding PairedVaultsReconnect.IsWinBleMode}" Value="True"/>
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <StackPanel Orientation="Vertical">
-                        <TextBlock 
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Left"
-                            TextWrapping="Wrap"
-                            Text="{l:Localization Settings.ReconnectPairedVaults.Description}" />
-                        <Button
-                            Margin="0,12,0,0"
-                            Style="{StaticResource ConfirmButtonStyle}"
-                            Content="{l:Localization Settings.ReconnectPairedVaults.Reconnect}" 
-                            Command="{Binding Path=PairedVaultsReconnect.ReconnectPairedVaultsCommand}" 
-                            Visibility="{Binding Path=PairedVaultsReconnect.InProgress, Converter={StaticResource InvertBooleanToVisibilityConverter}}" />
-                        <ma:ProgressRing
-                            Width="24"
-                            Height="24"
-                            Margin="0,12,0,16"
-                            Foreground="{StaticResource ProgressRingBrush}" 
-                            Visibility="{Binding Path=PairedVaultsReconnect.InProgress, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    </StackPanel>
-                </Border>
+                <controls:WinBleModeContainer>
+                    <Border
+                        Style="{StaticResource SettingsBorderStyle}"
+                        Visibility="{Binding Path=DataContext.Service.IsServiceConnected, Converter={StaticResource BooleanToVisibilityConverter},
+                        RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Page}}}">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock 
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Left"
+                                TextWrapping="Wrap"
+                                Text="{l:Localization Settings.ReconnectPairedVaults.Description}" />
+                            <Button
+                                Margin="0,12,0,0"
+                                Style="{StaticResource ConfirmButtonStyle}"
+                                Content="{l:Localization Settings.ReconnectPairedVaults.Reconnect}" 
+                                Command="{Binding Path=DataContext.PairedVaultsReconnect.ReconnectPairedVaultsCommand,
+                                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Page}}}" 
+                                Visibility="{Binding Path=DataContext.PairedVaultsReconnect.InProgress, Converter={StaticResource InvertBooleanToVisibilityConverter},
+                                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Page}}}" />
+                            <ma:ProgressRing
+                                Width="24"
+                                Height="24"
+                                Margin="0,12,0,16"
+                                Foreground="{StaticResource ProgressRingBrush}" 
+                                Visibility="{Binding Path=DataContext.PairedVaultsReconnect.InProgress, Converter={StaticResource BooleanToVisibilityConverter},
+                                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Page}}}" />
+                        </StackPanel>
+                    </Border>
+                </controls:WinBleModeContainer>
                 
             </StackPanel>
         </Grid>

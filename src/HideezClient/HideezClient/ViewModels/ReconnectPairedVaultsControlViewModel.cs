@@ -1,5 +1,4 @@
 ﻿using HideezClient.Mvvm;
-using HideezMiddleware.ConnectionModeProvider;
 using HideezMiddleware.IPC.IncommingMessages;
 using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Commands;
@@ -15,10 +14,9 @@ namespace HideezClient.ViewModels
 
         bool _inProgress = false;
 
-        public ReconnectPairedVaultsControlViewModel(IMetaPubSub messenger, IConnectionModeProvider connectionModeProvider)
+        public ReconnectPairedVaultsControlViewModel(IMetaPubSub messenger)
         {
             _messenger = messenger;
-            IsWinBleMode = connectionModeProvider.IsWinBleMode;
         }
 
         public bool InProgress
@@ -26,8 +24,6 @@ namespace HideezClient.ViewModels
             get { return _inProgress; }
             set { Set(ref _inProgress, value); }
         }
-
-        public bool IsWinBleMode { get; }
 
         public ICommand ReconnectPairedVaultsCommand
         {
