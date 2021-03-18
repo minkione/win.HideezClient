@@ -12,6 +12,24 @@ namespace HideezClient.Controls
     /// </summary>
     public partial class LeftMenuButtonControl : UserControl
     {
+        public static readonly DependencyProperty LeftSideIconProperty =
+            DependencyProperty.Register("LeftSideIcon", typeof(object), typeof(LeftMenuButtonControl), null);
+
+        public object LeftSideIcon
+        {
+            get { return GetValue(LeftSideIconProperty); }
+            set { SetValue(LeftSideIconProperty, value); }
+        }
+
+        public static readonly DependencyProperty RightSideIconProperty =
+            DependencyProperty.Register("RightSideIcon", typeof(object), typeof(LeftMenuButtonControl), null);
+
+        public object RightSideIcon
+        {
+            get { return GetValue(RightSideIconProperty); }
+            set { SetValue(RightSideIconProperty, value); }
+        }
+
         public LeftMenuButtonControl()
         {
             InitializeComponent();

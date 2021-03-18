@@ -27,6 +27,8 @@
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="10" />
                                         <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="10" />
+                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="30" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
@@ -44,13 +46,12 @@
                                         </Rectangle.Style>
                                     </Rectangle>
                                     <ContentControl
-                                        x:Name="menuIcon"
                                         Grid.Column="2"
                                         Width="18"
                                         Height="18"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Center"
-                                        Content="{Binding Tag, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+                                        Content="{Binding LeftSideIcon, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
                                         <ContentControl.Style>
                                             <Style TargetType="ContentControl">
                                                 <Setter Property="Opacity" Value="0.25" />
@@ -69,6 +70,25 @@
                                         VerticalAlignment="Center"
                                         FontWeight="SemiBold"
                                         Text="{Binding Header}" />
+                                    <ContentControl
+                                        Grid.Column="6"
+                                        Width="18"
+                                        Height="18"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        Content="{Binding RightSideIcon, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+                                        <ContentControl.Style>
+                                            <Style TargetType="ContentControl">
+                                                <Setter Property="Opacity" Value="0.25" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" Value="True">
+                                                        <Setter Property="Opacity" Value="1" />
+                                                        <Setter Property="Effect" Value="{StaticResource ShadowEffect}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ContentControl.Style>
+                                    </ContentControl>
                                 </Grid>
                             </Border>
                         </ControlTemplate>

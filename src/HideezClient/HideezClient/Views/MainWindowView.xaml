@@ -163,9 +163,12 @@
                 </controls:LeftMenuItemControl>
 
                 <controls:LeftMenuButtonControl DataContext="{Binding MenuHelp}">
-                    <controls:LeftMenuButtonControl.Tag>
+                    <controls:LeftMenuButtonControl.LeftSideIcon>
                         <iconPacks:PackIconFontAwesome Kind="QuestionCircleSolid" />
-                    </controls:LeftMenuButtonControl.Tag>
+                    </controls:LeftMenuButtonControl.LeftSideIcon>
+                    <controls:LeftMenuButtonControl.RightSideIcon>
+                        <iconPacks:PackIconMaterial Kind="OpenInNew" />
+                    </controls:LeftMenuButtonControl.RightSideIcon>
                 </controls:LeftMenuButtonControl>
             </StackPanel>
 
