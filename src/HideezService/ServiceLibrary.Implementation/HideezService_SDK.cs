@@ -143,8 +143,11 @@ namespace ServiceLibrary.Implementation
 
                 // Connection Managers Coordinator ============================
                 _connectionManagersCoordinator = new ConnectionManagersCoordinator();
-                _connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
-                _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManagerWrapper);
+
+                if(_connectionModeProvider.IsCsrMode)
+                    _connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
+                if(_connectionModeProvider.IsWinBleMode)
+                    _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManagerWrapper);
 
                 _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger, _csrBleConnectionManager);
 

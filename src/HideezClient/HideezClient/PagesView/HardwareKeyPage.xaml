@@ -80,14 +80,26 @@
                 Foreground="{DynamicResource DarkForeground}"
                 Text="2."/>
 
-            <TextBlock
+            <controls:CsrModeContainer
                 Grid.Column="2"
-                Grid.Row="2"
-                FontWeight="DemiBold"
-                Foreground="{DynamicResource DarkForeground}"
-                Text="{l:Localization HKP.Description2}"
-                TextWrapping="Wrap" />
+                Grid.Row="2">
+                <TextBlock
+                    FontWeight="DemiBold"
+                    Foreground="{DynamicResource DarkForeground}"
+                    Text="{l:Localization HKP.Description2.Csr}"
+                    TextWrapping="Wrap"/>
+            </controls:CsrModeContainer>
 
+            <controls:WinBleModeContainer
+                Grid.Column="2"
+                Grid.Row="2">
+                <TextBlock
+                    FontWeight="DemiBold"
+                    Foreground="{DynamicResource DarkForeground}"
+                    Text="{l:Localization HKP.Description2.WinBle}"
+                    TextWrapping="Wrap"/>
+            </controls:WinBleModeContainer>
+            
             <TextBlock
                 Grid.Row="4"
                 FontWeight="DemiBold"

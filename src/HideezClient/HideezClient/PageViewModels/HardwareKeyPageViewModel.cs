@@ -21,7 +21,6 @@ namespace HideezClient.PageViewModels
 
         public ServiceViewModel Service { get; }
 
-
         public HardwareKeyPageViewModel(IMetaPubSub metaMessenger, ServiceViewModel serviceViewModel)
         {
             _metaMessenger = metaMessenger;

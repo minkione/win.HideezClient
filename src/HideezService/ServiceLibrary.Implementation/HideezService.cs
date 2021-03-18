@@ -12,6 +12,7 @@ using System.IO.Pipes;
 using System.Security.Principal;
 using System.Security.AccessControl;
 using HideezMiddleware.Utils.WorkstationHelper;
+using HideezMiddleware.ConnectionModeProvider;
 
 namespace ServiceLibrary.Implementation
 {
@@ -29,6 +30,7 @@ namespace ServiceLibrary.Implementation
         static IWorkstationIdProvider _workstationIdProvider;
         static IMetaPubSub _messenger;
         static IWorkstationHelper _workstationHelper;
+        static IConnectionModeProvider _connectionModeProvider;
 
         public HideezService()
         {
@@ -65,6 +67,10 @@ namespace ServiceLibrary.Implementation
 
                 _log.WriteLine(">>>>>> Get registry settings key");
                 clientRootRegistryKey = HideezClientRegistryRoot.GetRootRegistryKey(true);
+
+                _log.WriteLine(">>>>>> Get connection mode");
+                _connectionModeProvider = new ConnectionModeProvider(clientRootRegistryKey, _sdkLogger);
+                _log.WriteLine($"Connection mode: {_connectionModeProvider.ConnectionMode}");
 
                 _log.WriteLine(">>>>>> Initialize session monitor");
                 _workstationHelper = new WorkstationHelper(_sdkLogger);
