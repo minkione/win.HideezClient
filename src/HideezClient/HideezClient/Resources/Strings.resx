@@ -1145,12 +1145,6 @@ Would you like to perform application update now?</value>
   <data name="DS.Button.Wipe.Tooltip" xml:space="preserve">
     <value>A wipe, also known as factory reset, erases all your data from your vault</value>
   </data>
-  <data name="WipeDialog.Description" xml:space="preserve">
-    <value>After performing wipe:
- - All your data will be erased from your vault
- - Your vault will be disconnected and unpaired from all devices
- - If proximity lock is enabled, this workstation will be locked</value>
-  </data>
   <data name="WipeDialog.Title" xml:space="preserve">
     <value>Are you sure you want to wipe {0}?</value>
   </data>
@@ -1213,5 +1207,19 @@ Would you like to perform application update now?</value>
   </data>
   <data name="RestoreProcedureStages.ThirdTableWriting" xml:space="preserve">
     <value>Writing data - 45 %</value>
+  </data>
+  <data name="WipeDialog.Description" xml:space="preserve">
+    <value>- All your credentials will be erased from your vault
+ - Your vault will be disconnected and unpaired from all devices
+ - If proximity lock is enabled, this workstation will be locked</value>
+  </data>
+  <data name="WipeDialog.Description.Fido.Part1" xml:space="preserve">
+    <value>- All your FIDO data will be erased from your vault</value>
+  </data>
+  <data name="WipeDialog.Description.Fido.Part2" xml:space="preserve">
+    <value>  (this data cannot be restored!)</value>
+  </data>
+  <data name="WipeDialog.Description.Title" xml:space="preserve">
+    <value>After performing wipe:</value>
   </data>
 </root>

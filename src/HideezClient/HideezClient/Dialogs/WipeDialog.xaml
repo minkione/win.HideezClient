@@ -50,8 +50,15 @@
                         Grid.Row="1"
                         HorizontalAlignment="Left"
                         TextAlignment="Left"
-                        Style="{StaticResource DialogLabelTextBlockStyle}"
-                        Text="{l:Localization WipeDialog.Description}" />
+                        Style="{StaticResource DialogLabelTextBlockStyle}">
+                        <Run Text="{l:Localization WipeDialog.Description.Title}"/>
+                        <Run Text="&#10;"/>
+                        <Run Text="{l:Localization WipeDialog.Description.Fido.Part1}" Foreground="#F6346B" FontWeight="SemiBold"/>
+                        <Run Text="&#10;"/>
+                        <Run Text="{l:Localization WipeDialog.Description.Fido.Part2}" Foreground="#F6346B" FontWeight="SemiBold"/>
+                        <Run Text="&#10;"/>
+                        <Run Text="{l:Localization WipeDialog.Description}"/>
+                    </TextBlock>
                     <StackPanel
                         Grid.Row="3"
                         HorizontalAlignment="Right"
