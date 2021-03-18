@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the Microsoft Reciprocal License. See LICENSE.TXT file in the project root for full license information. -->
 
+<!-- Windows styles (used for HexStyle): https://docs.microsoft.com/en-us/windows/win32/winmsg/window-styles -->
 
 <Theme xmlns="http://wixtoolset.org/schemas/thmutil/2010">
-  <Window Width="550" Height="378" HexStyle="100a0000" FontId="0">#(loc.Caption)</Window>
+  <Window Width="550" Height="398" HexStyle="100a0000" FontId="0">#(loc.Caption)</Window>
   <Font Id="0" Height="-12" Weight="500" Foreground="000000" Background="FFFFFF">Segoe UI</Font>
   <Font Id="1" Height="-24" Weight="500" Foreground="000000">Segoe UI</Font>
   <Font Id="2" Height="-22" Weight="500" Foreground="666666">Segoe UI</Font>
@@ -20,11 +21,12 @@
   </Page>
   <Page Name="Install">
     <Text X="180" Y="80" Width="-11" Height="17" FontId="3">#(loc.InstallSelectVersionText)</Text>
-    <Button Name="StandaloneInstallRadio" X="180" Y="110" Width="-11" Height="17" TabStop="yes" FontId="3" HexStyle="0x000009">#(loc.InstallStandaloneButton)</Button>
-    <Button Name="EnterpriseInstallRadio" X="180" Y="135" Width="-11" Height="17" TabStop="yes" FontId="3" HexStyle="0x000009">#(loc.InstallEnterpriseButton)</Button>
+    <Button Name="StandaloneInstallRadio" X="180" Y="110" Width="-11" Height="17" TabStop="yes" FontId="3" HexStyle="00020009">#(loc.InstallStandaloneButton)</Button>
+    <Button Name="EnterpriseInstallRadio" X="180" Y="135" Width="-11" Height="17" TabStop="yes" FontId="3" HexStyle="00000009">#(loc.InstallEnterpriseButton)</Button>
 
-    <Text X="180" Y="180" Width="-11" Height="17" FontId="3">#(loc.InstallAdditionalOptionsText)</Text>
-    <Checkbox Name="InstallDongleDriver"  X="180" Y="210" Width="-11" Height="17" TabStop="yes" FontId="3">#(loc.InstallDriverButton)</Checkbox>
+    <Text X="180" Y="180" Width="-11" Height="17" FontId="3">#(loc.InstallSelectConnectionTypeText)</Text>
+    <Button Name="UseWin10Radio"  X="180" Y="210" Width="-11" Height="17" TabStop="yes" FontId="3" HexStyle="00020009">#(loc.UseWin10Radio)</Button>
+    <Button Name="UseHDongleRadio"  X="180" Y="235" Width="-11" Height="17" TabStop="yes" FontId="3" HexStyle="00000009">#(loc.UseHDongleRadio)</Button>
     
     <Hypertext Name="EulaHyperlink" X="17" Y="-64" Width="-11" Height="17" TabStop="yes" FontId="3" HideWhenDisabled="yes">#(loc.InstallLicenseLinkText)</Hypertext>
     <Checkbox Name="EulaAcceptCheckbox" X="17" Y="-40" Width="360" Height="17" TabStop="yes" FontId="3" HideWhenDisabled="yes">#(loc.InstallAcceptCheckbox)</Checkbox>

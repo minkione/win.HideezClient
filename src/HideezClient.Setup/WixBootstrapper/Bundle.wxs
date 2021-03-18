@@ -66,9 +66,10 @@
     <!--<Variable Name="StandaloneInstallRadio" Type="numeric" Value="0"/>--> 
     <Variable Name="EnterpriseInstallRadio" Type="numeric" Value="1"/>
     
-    <!-- Driver option -->
-    <Variable Name="InstallDongleDriver" bal:Overridable="yes" Type="numeric" Value="0" />
-      
+    <!-- Vault connection option -->
+    <Variable Name="UseWin10Radio" Type="numeric" Value="1" bal:Overridable="no" />
+    <Variable Name="UseHDongleRadio" Type="numeric" Value="0" bal:Overridable="no" />
+    
     <Chain DisableSystemRestore="yes">
       <!-- Install .Net Framework 4.7.2 -->
       <PackageGroupRef Id="NetFx472Redist"/>
@@ -100,7 +101,11 @@
         <MsiProperty Name="HESADDRESS"
                      Value="[HESAddress]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
-                     Value="[InstallDongleDriver]" />
+                     Value="[UseHDongleRadio]" />
+        <MsiProperty Name="USEWIN10"
+                     Value="[UseWin10Radio]" />
+        <MsiProperty Name="USEHDONGLE"
+                     Value="[UseHDongleRadio]" />
         <MsiProperty Name="REINSTALLMODE"
                      Value="dmus"/>
       </MsiPackage>
@@ -113,7 +118,11 @@
         <MsiProperty Name="HESADDRESS"
                      Value="[HESAddress]" />
         <MsiProperty Name="INSTALLDONGLEDRIVER"
-                     Value="[InstallDongleDriver]" />
+                     Value="[UseHDongleRadio]" />
+        <MsiProperty Name="USEWIN10"
+                     Value="[UseWin10Radio]" />
+        <MsiProperty Name="USEHDONGLE"
+                     Value="[UseHDongleRadio]" />
         <MsiProperty Name="REINSTALLMODE" 
                      Value="dmus"/>
       </MsiPackage>
