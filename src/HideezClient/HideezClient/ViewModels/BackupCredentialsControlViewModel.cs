@@ -61,9 +61,9 @@ namespace HideezClient.ViewModels
             {
                 return new DelegateCommand
                 {
-                    CommandAction = async x =>
+                    CommandAction = x =>
                     {
-                        await OnRestoreCredentials();
+                        Task.Run(OnRestoreCredentials);
                     }
                 };
             }
@@ -75,9 +75,9 @@ namespace HideezClient.ViewModels
             {
                 return new DelegateCommand
                 {
-                    CommandAction = async x =>
+                    CommandAction = x =>
                     {
-                        await OnBackupCredentials();
+                        Task.Run(OnBackupCredentials);
                     }
                 };
             }
@@ -186,44 +186,47 @@ namespace HideezClient.ViewModels
             }
         }
 
-        private async void RestoreProc_ProgressChanged(object sender, RestoreProcedureStages e)
+        private void RestoreProc_ProgressChanged(object sender, RestoreProcedureStages e)
         {
-            switch (e)
+            Task.Run(async () =>
             {
-                case RestoreProcedureStages.FileReading:
-                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.FileReading"]));
-                    break;
-                case RestoreProcedureStages.StorageErasing:
-                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.StorageErasing"]));
-                    break;
-                case RestoreProcedureStages.StartingWriting:
-                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.StartingWriting"]));
-                    break;
-                case RestoreProcedureStages.FirstTableWriting:
-                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.FirstTableWriting"]));
-                    break;
-                case RestoreProcedureStages.SecondTableWriting:
-                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.SecondTableWriting"]));
-                    break;
-                case RestoreProcedureStages.ThirdTableWriting:
-                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.ThirdTableWriting"]));
-                    break;
-                case RestoreProcedureStages.FourthTableWriting:
-                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.FourthTableWriting"]));
-                    break;
-                case RestoreProcedureStages.FifthTableWriting:
-                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.FifthTableWriting"]));
-                    break;
-                case RestoreProcedureStages.SixthTableWriting:
-                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.SixthTableWriting"]));
-                    break;
-                case RestoreProcedureStages.SeventhTableWriting:
-                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.SeventhTableWriting"]));
-                    break;
-                case RestoreProcedureStages.Finished:
-                    await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.SeventhTableWriting"]));
-                    break;
-            }
+                switch (e)
+                {
+                    case RestoreProcedureStages.FileReading:
+                        await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.FileReading"]));
+                        break;
+                    case RestoreProcedureStages.StorageErasing:
+                        await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.StorageErasing"]));
+                        break;
+                    case RestoreProcedureStages.StartingWriting:
+                        await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.StartingWriting"]));
+                        break;
+                    case RestoreProcedureStages.FirstTableWriting:
+                        await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.FirstTableWriting"]));
+                        break;
+                    case RestoreProcedureStages.SecondTableWriting:
+                        await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.SecondTableWriting"]));
+                        break;
+                    case RestoreProcedureStages.ThirdTableWriting:
+                        await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.ThirdTableWriting"]));
+                        break;
+                    case RestoreProcedureStages.FourthTableWriting:
+                        await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.FourthTableWriting"]));
+                        break;
+                    case RestoreProcedureStages.FifthTableWriting:
+                        await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.FifthTableWriting"]));
+                        break;
+                    case RestoreProcedureStages.SixthTableWriting:
+                        await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.SixthTableWriting"]));
+                        break;
+                    case RestoreProcedureStages.SeventhTableWriting:
+                        await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.SeventhTableWriting"]));
+                        break;
+                    case RestoreProcedureStages.Finished:
+                        await _messenger.Publish(new SetProgressUIBackupPasswordMessage(TranslationSource.Instance["RestoreProcedureStages.SeventhTableWriting"]));
+                        break;
+                }
+            });
         }
 
         Task OnActiveDeviceChanged(ActiveDeviceChangedMessage obj)

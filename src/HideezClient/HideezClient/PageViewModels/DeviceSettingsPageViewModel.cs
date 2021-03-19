@@ -178,9 +178,9 @@ namespace HideezClient.PageViewModels
             {
                 return new DelegateCommand
                 {
-                    CommandAction = async password =>
+                    CommandAction = password =>
                     {
-                        await SaveSettings(password as SecureString);
+                        Task.Run(async()=>await SaveSettings(password as SecureString));
                     }
                 };
             }
@@ -192,10 +192,13 @@ namespace HideezClient.PageViewModels
             {
                 return new DelegateCommand
                 {
-                    CommandAction =  x =>
+                    CommandAction = x =>
                     {
-                        IsEditableCredentials = true;
-                        HasChanges = true;
+                        Task.Run(() =>
+                        {
+                            IsEditableCredentials = true;
+                            HasChanges = true;
+                        });
                     }
                 };
             }
@@ -209,7 +212,7 @@ namespace HideezClient.PageViewModels
                 {
                     CommandAction = x =>
                     {
-                        ResetToPreviousSettings();
+                        Task.Run(ResetToPreviousSettings);
                     }
                 };
             }
@@ -424,57 +427,5 @@ namespace HideezClient.PageViewModels
             return accountName;
         }
         #endregion
-
-        //async Task<Credentials> GetCredentials(IDevice device)
-        //{
-        //    ushort primaryAccountKey = await DevicePasswordManager.GetPrimaryAccountKey(device);
-        //    var credentials = await GetCredentials(device, primaryAccountKey);
-        //    return credentials;
-        //}
-
-        //async Task<Credentials> GetCredentials(IDevice device, ushort key)
-        //{
-        //    Credentials credentials;
-
-        //    if (key == 0)
-        //    {
-        //        var str = await device.ReadStorageAsString(
-        //            (byte)StorageTable.BondVirtualTable1,
-        //            (ushort)BondVirtualTable1Item.PcUnlockCredentials);
-
-        //        if (str != null)
-        //        {
-        //            var parts = str.Split('\n');
-        //            if (parts.Length >= 2)
-        //            {
-        //                credentials.Login = parts[0];
-        //                credentials.Password = parts[1];
-        //            }
-        //            if (parts.Length >= 3)
-        //            {
-        //                credentials.PreviousPassword = parts[2];
-        //            }
-        //        }
-
-        //        if (credentials.IsEmpty)
-        //            throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Unlock.Error.NoCredentials"]);
-        //    }
-        //    else
-        //    {
-        //        // get the account name, login and password from the Hideez Key
-        //        credentials.Name = await device.ReadStorageAsString((byte)StorageTable.Accounts, key);
-        //        credentials.Login = await device.ReadStorageAsString((byte)StorageTable.Logins, key);
-        //        credentials.Password = await device.ReadStorageAsString((byte)StorageTable.Passwords, key);
-        //        credentials.PreviousPassword = ""; //todo
-
-        //        // Todo: Uncomment old message when primary account key sync is fixed
-        //        //if (credentials.IsEmpty)
-        //        //    throw new Exception($"Cannot read login or password from the vault '{device.SerialNo}'");
-        //        if (credentials.IsEmpty)
-        //            throw new WorkflowException(TranslationSource.Instance["ConnectionFlow.Unlock.Error.NoCredentials"]);
-        //    }
-
-        //    return credentials;
-        //}
     }
 }

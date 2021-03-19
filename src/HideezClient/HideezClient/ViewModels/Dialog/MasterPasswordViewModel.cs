@@ -194,7 +194,7 @@ namespace HideezClient.ViewModels.Dialog
             {
                 return new DelegateCommand
                 {
-                    CommandAction = x => OnConfirm(),
+                    CommandAction = x => Task.Run(OnConfirm),
                     CanExecuteFunc = () => AreAllRequiredFieldsSet() && !InProgress,
                 };
             }
@@ -208,7 +208,7 @@ namespace HideezClient.ViewModels.Dialog
                 {
                     CommandAction = x =>
                     {
-                        OnCancel();
+                        Task.Run(OnCancel);
                     },
                 };
             }

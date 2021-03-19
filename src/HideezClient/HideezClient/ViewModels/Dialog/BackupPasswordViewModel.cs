@@ -119,7 +119,7 @@ namespace HideezClient.ViewModels.Dialog
             {
                 return new DelegateCommand
                 {
-                    CommandAction = x => OnConfirm(),
+                    CommandAction = x => Task.Run(OnConfirm),
                     CanExecuteFunc = () => AreAllRequiredFieldsSet() && !InProgress,
                 };
             }
@@ -133,7 +133,7 @@ namespace HideezClient.ViewModels.Dialog
                 {
                     CommandAction = x =>
                     {
-                        OnCancel();
+                        Task.Run(OnCancel);
                     },
                 };
             }
@@ -147,7 +147,7 @@ namespace HideezClient.ViewModels.Dialog
                 {
                     CommandAction = x =>
                     {
-                        OnShowInFolder();
+                        Task.Run(OnShowInFolder);
                     },
                 };
             }
@@ -234,8 +234,6 @@ namespace HideezClient.ViewModels.Dialog
             var passwordBytes = password != null ? password.ToUtf8Bytes() : _emptyBytes;
 
             _metaMessenger.Publish(new SendBackupPasswordMessage(_deviceId, passwordBytes));
-
-            ClearPasswords();
         }
 
         void OnCancel()
