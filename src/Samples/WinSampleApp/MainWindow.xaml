@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WinSampleApp"
         mc:Ignorable="d" Closing="Window_Closing"
         SizeToContent="Height"
-        Title="MainWindow" Width="1400">
+        Title="MainWindow" Width="1400" Height="1102">
     <Window.Resources>
         <ResourceDictionary>
             <Style TargetType="TextBox" x:Key="DependsOnIsInitialised">
@@ -43,7 +43,7 @@
                     <Button Content=" Connect " Margin="10,0,0,0" Command="{Binding ConnectHesCommand}"/>
                     <Button Content=" Disconnect " Margin="10,0,0,0" Command="{Binding DisconnectHesCommand}"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Height="699">
+                <StackPanel Orientation="Horizontal">
                     <StackPanel Margin="10">
                         <Label>Discovered devices:</Label>
                         <ListView ItemsSource="{Binding DiscoveredDevices}" SelectedItem="{Binding CurrentDiscoveredDevice, Mode=OneWayToSource}" Height="270">
@@ -250,6 +250,12 @@
                         <Button Content="Query license (0 slot)" Margin="0,10,0,0" Command="{Binding QueryLicenseCommand}" />
                         <Button Content="Query all licenses" Margin="0,10,0,0" Command="{Binding QueryAllLicensesCommand}" />
                         <Button Content="Query active license" Margin="0,10,0,0" Command="{Binding QueryActiveLicenseCommand}" />
+                        <Label></Label>
+                        <Label>Backup Restore</Label>
+                        <Label>Backup/Restore Password</Label>
+                        <TextBox Width="120" Margin="0" Text="{Binding BackupPasswordText}" />
+                        <Button Content="Backup" Margin="0,10,0,0" Command="{Binding BackupCommand}" />
+                        <Button Content="Restore" Margin="0,10,0,0" Command="{Binding RestoreCommand}" />
                     </StackPanel>
                     <!--client UI-->
                     <StackPanel>

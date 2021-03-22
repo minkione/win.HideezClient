@@ -23,19 +23,25 @@ using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.Settings;
 using HideezMiddleware.Workstation;
 using Microsoft.Win32;
+using Hideez.SDK.Communication.Connection;
+using HideezMiddleware.CredentialProvider;
+using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
+using Meta.Lib.Modules.PubSub;
+using HideezMiddleware.Utils;
+using Hideez.SDK.Communication.Backup;
+using System.Threading;
 
 namespace WinSampleApp.ViewModel
 {
     public class MainWindowViewModel : ViewModelBase, IClientUiProxy, IWorkstationUnlocker
     {
         readonly EventLogger _log;
+        readonly IMetaPubSub _messenger;
         readonly IBleConnectionManager _csrConnectionManager;
         readonly DeviceManager _deviceManager;
         readonly CredentialProviderProxy _credentialProviderProxy;
-        readonly ConnectionFlowProcessor _connectionFlowProcessor;
-        readonly RfidConnectionProcessor _rfidProcessor;
+        readonly ConnectionFlowProcessorBase _connectionFlowProcessor;
         readonly TapConnectionProcessor _tapProcessor;
-        readonly RfidServiceConnection _rfidService;
         readonly HesAppConnection _hesConnection;
 
         byte _nextChannelNo = 2;
@@ -205,6 +211,23 @@ namespace WinSampleApp.ViewModel
 
         public ObservableCollection<DeviceViewModel> Devices { get; }
             = new ObservableCollection<DeviceViewModel>();
+
+        string backupPasswordText = "12345678";
+        public string BackupPasswordText
+        {
+            get 
+            { 
+                return backupPasswordText; 
+            }
+            set
+            {
+                if (backupPasswordText != value)
+                {
+                    backupPasswordText = value;
+                    NotifyPropertyChanged(nameof(BackupPasswordText));
+                }
+            }
+        }
         #endregion Properties
 
 
@@ -983,6 +1006,42 @@ namespace WinSampleApp.ViewModel
             }
         }
 
+        public ICommand BackupCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        _ = RunDeviceBackupProcedure(CurrentDevice);
+                    }
+                };
+            }
+        }
+
+        public ICommand RestoreCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CanExecuteFunc = () =>
+                    {
+                        return CurrentDevice != null;
+                    },
+                    CommandAction = (x) =>
+                    {
+                        _ = RunDeviceRestoreProcedure(CurrentDevice);
+                    }
+                };
+            }
+        }
+
         #endregion
 
         public MainWindowViewModel()
@@ -1033,8 +1092,10 @@ namespace WinSampleApp.ViewModel
                 _csrConnectionManager.DiscoveredDeviceAdded += ConnectionManager_DiscoveredDeviceAdded;
                 _csrConnectionManager.DiscoveredDeviceRemoved += ConnectionManager_DiscoveredDeviceRemoved;
 
-                // BLE ============================
-                _deviceManager = new DeviceManager(_csrConnectionManager, _log);
+                var coordinator = new ConnectionManagersCoordinator();
+                coordinator.AddConnectionManager(_csrConnectionManager);
+
+                _deviceManager = new DeviceManager(coordinator, _log);
 
                 _deviceManager.DeviceAdded += DeviceManager_DeviceAdded;
                 _deviceManager.DeviceRemoved += DeviceManager_DeviceRemoved;
@@ -1068,10 +1129,6 @@ namespace WinSampleApp.ViewModel
                 _credentialProviderProxy = new CredentialProviderProxy(_log);
                 _credentialProviderProxy.Start();
 
-                // RFID Service Connection ============================
-                _rfidService = new RfidServiceConnection(_log);
-                _rfidService.Start();
-
                 // Service Settings Manager ==================================
                 var serviceSettingsManager = new SettingsManager<ServiceSettings>(string.Empty, new XmlFileSerializer(_log));
 
@@ -1087,30 +1144,21 @@ namespace WinSampleApp.ViewModel
                 // ConnectionFlowProcessor ==================================
                 var hesAccessManager = new HesAccessManager(clientRegistryRoot, _log);
                 var bondManager = new BondManager(bondsFolderPath, _log);
-                var connectionFlowProcessorfactory = new ConnectionFlowProcessorFactory(
+                var connectionFlowProcessorfactory = new StandaloneConnectionFlowProcessorFactory(
                     _deviceManager,
                     bondManager,
-                    _hesConnection,
                     _credentialProviderProxy,
                     null,
                     uiProxyManager,
-                    hesAccessManager,
-                    serviceSettingsManager,
+                    null,
                     null,
                     _log);
                 _connectionFlowProcessor = connectionFlowProcessorfactory.Create();
 
-                _rfidProcessor = new RfidConnectionProcessor(_connectionFlowProcessor, _hesConnection, _rfidService, rfidSettingsManager, null, uiProxyManager, _log);
-                _rfidProcessor.Start();
-
-                _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _csrConnectionManager, _log);
+                _tapProcessor = new TapConnectionProcessor(_connectionFlowProcessor, _csrConnectionManager, _messenger, _log);
                 _tapProcessor.Start();
 
-                // StatusManager =============================
-                var statusManager = new StatusManager(_hesConnection, null, _rfidService, _csrConnectionManager, uiProxyManager, rfidSettingsManager, null, _log);
-
                 _csrConnectionManager.Start();
-                _csrConnectionManager.StartDiscovery();
 
                 ClientConnected?.Invoke(this, EventArgs.Empty);
             }
@@ -1147,7 +1195,6 @@ namespace WinSampleApp.ViewModel
         internal async Task Close()
         {
             await _hesConnection.Stop();
-            _rfidService?.Stop();
             _credentialProviderProxy?.Stop();
         }
 
@@ -1210,13 +1257,13 @@ namespace WinSampleApp.ViewModel
         void StartDiscovery()
         {
             //DiscoveredDevices.Clear();
-            _csrConnectionManager.StartDiscovery();
+            _csrConnectionManager.Start();
             BleAdapterDiscovering = true;
         }
 
         void StopDiscovery()
         {
-            _csrConnectionManager.StopDiscovery();
+            _csrConnectionManager.Stop();
             BleAdapterDiscovering = false;
             DiscoveredDevices.Clear();
         }
@@ -1241,7 +1288,7 @@ namespace WinSampleApp.ViewModel
 
         async void ConnectDiscoveredDevice(DiscoveredDeviceAddedEventArgs e)
         {
-            await _deviceManager.Connect(e.Id);
+            await _deviceManager.Connect(new ConnectionId(e.Id, (byte)DefaultConnectionIdProvider.Csr));
         }
 
         async Task ConnectDeviceByMac(string mac)
@@ -1250,7 +1297,7 @@ namespace WinSampleApp.ViewModel
             {
                 _log.WriteLine("MainVM", $"Waiting Device connection {mac} ..........................");
 
-                var device = await _deviceManager.Connect(mac).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
+                var device = await _deviceManager.Connect(new ConnectionId(mac, (byte)DefaultConnectionIdProvider.Csr)).TimeoutAfter(SdkConfig.ConnectDeviceTimeout);
 
                 if (device != null)
                     _log.WriteLine("MainVM", $"Device connected {device.Name} ++++++++++++++++++++++++");
@@ -1267,7 +1314,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await _deviceManager.Connect(device.Device.DeviceConnection.Id);
+                await _deviceManager.Connect(device.Device.DeviceConnection.Connection.ConnectionId);
             }
             catch (Exception ex)
             {
@@ -1459,7 +1506,7 @@ namespace WinSampleApp.ViewModel
             try
             {
                 byte[] code = Encoding.UTF8.GetBytes(CODE);
-                byte[] key= Encoding.UTF8.GetBytes("passphrase");
+                byte[] key= MasterPasswordConverter.GetMasterKey(Passphrase, device.SerialNo);
                 byte unlockAttempts = 5;// Options 3-15
                 await device.Device.LockDeviceCode(key, code, unlockAttempts);
                 await device.Device.RefreshDeviceInfo();
@@ -1537,7 +1584,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                var masterkey = ConvertUtils.HexStringToBytes(Passphrase);
+                var masterkey = MasterPasswordConverter.GetMasterKey(Passphrase, device.SerialNo);
                 await device.Device.CheckPassphrase(masterkey);
                 //await device.Device.CheckPassphrase(Encoding.UTF8.GetBytes(Passphrase));
                 MessageBox.Show("Passphrase check - ok");
@@ -1552,8 +1599,9 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
+                
                 byte[] code = Encoding.UTF8.GetBytes(CODE);
-                byte[] key = Encoding.UTF8.GetBytes("passphrase");
+                byte[] key = MasterPasswordConverter.GetMasterKey(Passphrase, device.SerialNo);
                 byte unlockAttempts = 5;// Options 3-15
                 await device.Device.Link(key, code, unlockAttempts);
                 await device.Device.RefreshDeviceInfo();
@@ -1572,7 +1620,7 @@ namespace WinSampleApp.ViewModel
                 var res = wnd.ShowDialog();
                 if (res == true)
                 {
-                    var masterkey = ConvertUtils.HexStringToBytes(Passphrase);
+                    var masterkey = MasterPasswordConverter.GetMasterKey(Passphrase, device.SerialNo);
                     await device.Device.Access(
                           DateTime.UtcNow,
                           masterkey,
@@ -1594,7 +1642,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await device.Device.Wipe(Encoding.UTF8.GetBytes("passphrase"));
+                await device.Device.Wipe(MasterPasswordConverter.GetMasterKey(Passphrase, device.SerialNo));
             }
             catch (Exception ex)
             {
@@ -1618,7 +1666,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                await device.Device.Unlock(Encoding.UTF8.GetBytes("passphrase"));
+                await device.Device.Unlock(MasterPasswordConverter.GetMasterKey(Passphrase, device.SerialNo));
             }
             catch (Exception ex)
             {
@@ -1645,7 +1693,7 @@ namespace WinSampleApp.ViewModel
         {
             try
             {
-                if (await device.Device.ForceSetPin(Pin, Encoding.UTF8.GetBytes("passphrase")) != HideezErrorCode.Ok)
+                if (await device.Device.ForceSetPin(Pin, MasterPasswordConverter.GetMasterKey(Passphrase, device.SerialNo)) != HideezErrorCode.Ok)
                     MessageBox.Show("Wrong MasterKey");
                 else
                     MessageBox.Show("PIN has been changed");
@@ -1886,12 +1934,74 @@ namespace WinSampleApp.ViewModel
         }
         */
 
+        async Task RunDeviceBackupProcedure(DeviceViewModel currentDevice)
+        {
+            try
+            {
+                var cts = new CancellationTokenSource();
+                SaveFileDialog dlg = new SaveFileDialog
+                {
+                    DefaultExt = ".hvb",
+                    Filter = "Hideez vault backups (.hvb)|*.hvb", // Filter files by extension
+                    FileName = "CredentialsBackup"
+                };
+
+                // Show open file dialog box
+                var result = dlg.ShowDialog();
+
+                if (result == true)
+                {
+                    string filename = dlg.FileName;
+
+                    var backupProc = new CredentialsBackupProcedure();
+
+                    await backupProc.Run(currentDevice.Device, filename, Encoding.UTF8.GetBytes(backupPasswordText), cts.Token);
+                }
+
+                MessageBox.Show("Backup finished");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        async Task RunDeviceRestoreProcedure(DeviceViewModel currentDevice)
+        {
+            try
+            {
+                OpenFileDialog dlg = new OpenFileDialog
+                {
+                    DefaultExt = ".hvb",
+                    Filter = "Hideez vault backup (.hvb)|*.hvb|Hideez key backup (*.hb)|*.hb|All files (*.*)|*.*" // Filter files by extension
+                };
+
+                // Show open file dialog box
+                var result = dlg.ShowDialog();
+
+                if (result == true)
+                {
+                    string filename = dlg.FileName;
+
+                    var restoreProc = new CredentialsRestoreProcedure();
+
+                    await restoreProc.Run(currentDevice.Device, filename, Encoding.UTF8.GetBytes(backupPasswordText));
+                }
+
+                MessageBox.Show("Restore finished");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
         #region IClientUiProxy
         public event EventHandler<EventArgs> ClientConnected;
         public event EventHandler<PinReceivedEventArgs> PinReceived;
         public event EventHandler<ActivationCodeEventArgs> ActivationCodeReceived;
         public event EventHandler<ActivationCodeEventArgs> ActivationCodeCancelled;
+        public event EventHandler<PasswordEventArgs> PasswordReceived;
 
         public event EventHandler<EventArgs> Connected { add { } remove { } }
 
@@ -1940,9 +2050,9 @@ namespace WinSampleApp.ViewModel
             return Task.CompletedTask;
         }
 
-        public Task SendStatus(HesStatus hesStatus, HesStatus tbHesStatus, RfidStatus rfidStatus, BluetoothStatus bluetoothStatus)
+        public Task SendStatus(HesStatus hesStatus, RfidStatus rfidStatus, BluetoothStatus dongleStatus, BluetoothStatus bluetoothStatus, HesStatus tbHesStatus)
         {
-            ClientUiStatus = $"{DateTime.Now:T} BLE: {bluetoothStatus}, RFID: {rfidStatus}, HES: {hesStatus}";
+            ClientUiStatus = $"{DateTime.Now:T} HES: {hesStatus}, RFID: {rfidStatus}, CSR: {dongleStatus}, BLE: {bluetoothStatus}, TB: {tbHesStatus}";
             return Task.CompletedTask;
         }
 
@@ -1963,6 +2073,26 @@ namespace WinSampleApp.ViewModel
             return Task.CompletedTask;
         }
 
+        public Task ShowActivationCodeUi(string deviceId)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task HideActivationCodeUi()
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task ShowPasswordUi(string deviceId)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task HidePasswordUi()
+        {
+            return Task.CompletedTask;
+        }
+
         #endregion IClientUiProxy
 
         #region IWorkstationUnlocker
@@ -1975,15 +2105,5 @@ namespace WinSampleApp.ViewModel
         }
         #endregion IWorkstationUnlocker
 
-
-        public Task ShowActivationCodeUi(string deviceId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task HideActivationCodeUi()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
