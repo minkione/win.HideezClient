@@ -298,6 +298,6 @@
     <value>Searching the paired vault...</value>
   </data>
   <data name="ConnectionProcessor.VaultNotFound" xml:space="preserve">
-    <value>Vault is turned off or to far away</value>
+    <value>Vault is turned off or too far away</value>
   </data>
 </root>

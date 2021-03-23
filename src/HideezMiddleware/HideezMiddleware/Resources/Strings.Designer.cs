@@ -529,7 +529,7 @@ namespace HideezMiddleware.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Vault is turned off or to far away.
+        ///   Looks up a localized string similar to Vault is turned off or too far away.
         /// </summary>
         internal static string ConnectionProcessor_VaultNotFound {
             get {
