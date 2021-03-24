@@ -11,7 +11,7 @@ namespace HideezClient.Dialogs
     /// <summary>
     /// Interaction logic for MasterPasswordDialog.xaml
     /// </summary>
-    public partial class MasterPasswordDialog : BaseMetroDialog
+    public partial class MasterPasswordDialog : BaseDialog
     {
         public MasterPasswordDialog(MasterPasswordViewModel vm)
         {
@@ -19,28 +19,26 @@ namespace HideezClient.Dialogs
 
             vm.ViewModelUpdated += PasswordView_ViewModelUpdated;
             vm.PasswordsCleared += PasswordView_PasswordsCleared;
+            Closed += Dialog_Closed;
             DataContext = vm;
         }
 
-        public event EventHandler Closed;
-
-        public void Close()
+        private void Dialog_Closed(object sender, System.EventArgs e)
         {
-            if (Application.Current.MainWindow is MetroWindow metroWindow)
-            {
-                metroWindow.HideMetroDialogAsync(this);
-                Closed?.Invoke(this, EventArgs.Empty);
-            }
+            (DataContext as MasterPasswordViewModel).OnClose();
         }
 
         private void PasswordView_PasswordsCleared(object sender, System.EventArgs e)
         {
-            if (DataContext != null)
+            Dispatcher.Invoke(() =>
             {
-                CurrentPasswordBox.Clear();
-                NewPasswordBox.Clear();
-                ConfirmPasswordBox.Clear();
-            }
+                if (DataContext != null)
+                {
+                    CurrentPasswordBox.Clear();
+                    NewPasswordBox.Clear();
+                    ConfirmPasswordBox.Clear();
+                }
+            });
         }
 
         private void CurrentPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
@@ -97,13 +95,6 @@ namespace HideezClient.Dialogs
                     break;
                 }
             }
-        }
-
-        void PasswordBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            // Ignore all entered symbols except digits
-            //if (!onlyDigitsRegex.IsMatch(e.Text))
-            //    e.Handled = true;
         }
     }
 }

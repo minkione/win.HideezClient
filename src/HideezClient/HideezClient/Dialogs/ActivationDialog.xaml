@@ -1,4 +1,4 @@
-﻿<maDialog:BaseMetroDialog
+﻿<local:BaseDialog
     x:Class="HideezClient.Dialogs.ActivationDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -12,7 +12,6 @@
     xmlns:local="clr-namespace:HideezClient.Dialogs"
     xmlns:localization="clr-namespace:HideezMiddleware.Localize;assembly=HideezMiddleware"
     xmlns:ma="http://metro.mahapps.com/winfx/xaml/controls"
-    xmlns:maDialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     Background="Transparent"
@@ -109,4 +108,4 @@
             </StackPanel>
         </Grid>
     </Border>
-</maDialog:BaseMetroDialog>
+</local:BaseDialog>

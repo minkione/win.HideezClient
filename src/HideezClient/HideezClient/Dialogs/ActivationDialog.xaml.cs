@@ -12,7 +12,7 @@ namespace HideezClient.Dialogs
     /// <summary>
     /// Interaction logic for ActivationDialog.xaml
     /// </summary>
-    public partial class ActivationDialog : BaseMetroDialog
+    public partial class ActivationDialog : BaseDialog
     {
         readonly Regex onlyDigitsRegex = new Regex("[0-9]+");
 
@@ -22,18 +22,13 @@ namespace HideezClient.Dialogs
 
             vm.ViewModelUpdated += ViewModel_ViewModelUpdated;
             vm.PasswordsCleared += ViewModel_PasswordsCleared;
+            Closed += Dialog_Closed;
             DataContext = vm;
         }
 
-        public event EventHandler Closed;
-
-        public void Close()
+        private void Dialog_Closed(object sender, System.EventArgs e)
         {
-            if (Application.Current.MainWindow is MetroWindow metroWindow)
-            {
-                metroWindow.HideMetroDialogAsync(this);
-                Closed?.Invoke(this, EventArgs.Empty);
-            }
+            (DataContext as ActivationViewModel).OnClose();
         }
 
         void ViewModel_ViewModelUpdated(object sender, EventArgs e)

@@ -30,7 +30,6 @@ namespace HideezClient.ViewModels.Dialog
         SecureString _secureNewPassword;
         SecureString _secureConfirmPassword;
 
-        bool _askButton = true;
         bool _askOldPassword = false;
         bool _confirmNewPassword = false;
         bool _inProgress = false;
@@ -70,12 +69,6 @@ namespace HideezClient.ViewModels.Dialog
         }
 
         // Properties received from service
-        public bool AskButton
-        {
-            get { return _askButton; }
-            set { Set(ref _askButton, value); }
-        }
-
         public bool AskOldPassword
         {
             get { return _askOldPassword; }
@@ -91,30 +84,30 @@ namespace HideezClient.ViewModels.Dialog
         //...
 
         // Current Password operation
-        [DependsOn(nameof(AskOldPassword), nameof(ConfirmNewPassword), nameof(AskButton))]
+        [DependsOn(nameof(AskOldPassword), nameof(ConfirmNewPassword))]
         public bool IsNewPassword
         {
             get
             {
-                return !AskOldPassword && ConfirmNewPassword && !AskButton;
+                return !AskOldPassword && ConfirmNewPassword;
             }
         }
 
-        [DependsOn(nameof(AskOldPassword), nameof(ConfirmNewPassword), nameof(AskButton))]
+        [DependsOn(nameof(AskOldPassword), nameof(ConfirmNewPassword))]
         public bool IsEnterPassword
         {
             get
             {
-                return !AskOldPassword && !ConfirmNewPassword && !AskButton;
+                return !AskOldPassword && !ConfirmNewPassword;
             }
         }
 
-        [DependsOn(nameof(AskOldPassword), nameof(ConfirmNewPassword), nameof(AskButton))]
+        [DependsOn(nameof(AskOldPassword), nameof(ConfirmNewPassword))]
         public bool IsChangePassword
         {
             get
             {
-                return AskOldPassword && ConfirmNewPassword && !AskButton;
+                return AskOldPassword && ConfirmNewPassword;
             }
         }
         //...
@@ -215,7 +208,7 @@ namespace HideezClient.ViewModels.Dialog
         }
         #endregion
 
-        public void Initialize(string deviceId)
+        public void Initialize(string deviceId, bool askOldPassword, bool confirmNewPassword)
         {
             lock (initLock)
             {
@@ -228,17 +221,25 @@ namespace HideezClient.ViewModels.Dialog
                         Device.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
                     }
 
-                    ResetProgress();
+                    UpdateViewModel(deviceId, askOldPassword, confirmNewPassword);
+
+                    _metaMessenger.Subscribe<ShowMasterPasswordUiMessage>(ShowMasterPasswordAsync);
                 }
             }
         }
 
-        public void UpdateViewModel(string deviceId, bool askButton, bool askOldPassword, bool confirmNewPassword)
+        Task ShowMasterPasswordAsync(ShowMasterPasswordUiMessage msg)
+        {
+            UpdateViewModel(msg.DeviceId, msg.OldPassword, msg.ConfirmPassword);
+
+            return Task.CompletedTask;
+        }
+
+        void UpdateViewModel(string deviceId, bool askOldPassword, bool confirmNewPassword)
         {
             if (Device?.Id != deviceId)
                 return;
 
-            AskButton = askButton;
             AskOldPassword = askOldPassword;
             ConfirmNewPassword = confirmNewPassword;
 
@@ -361,6 +362,11 @@ namespace HideezClient.ViewModels.Dialog
                 return false;
 
             return password.IsEqualTo(confirmPassword);
+        }
+
+        public void OnClose()
+        {
+            _metaMessenger.Unsubscribe<ShowMasterPasswordUiMessage>(ShowMasterPasswordAsync);
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Hideez.SDK.Communication.Utils;
+using HideezClient.Dialogs;
+using HideezClient.Messages.Dialogs;
 using HideezClient.Messages.Dialogs.Wipe;
 using Meta.Lib.Modules.PubSub;
 using System;
@@ -38,7 +40,7 @@ namespace HideezClient.Tasks
             {
                 _messenger.Subscribe<StartWipeMessage>(OnStartWipe, msg => msg.DeviceId == _deviceId);
                 _messenger.Subscribe<CancelWipeMessage>(OnCancelWipe, msg => msg.DeviceId == _deviceId);
-                _messenger.Subscribe<HideWipeDialogMessage>(OnHideWipeDialog);
+                _messenger.Subscribe<HideDialogMessage>(OnHideWipeDialog);
 
                 await _messenger.Publish(new ShowWipeDialogMessage(_deviceId));
 
@@ -52,7 +54,7 @@ namespace HideezClient.Tasks
             {
                 await _messenger.Unsubscribe<StartWipeMessage>(OnStartWipe);
                 await _messenger.Unsubscribe<CancelWipeMessage>(OnCancelWipe);
-                await _messenger.Unsubscribe<HideWipeDialogMessage>(OnHideWipeDialog);
+                await _messenger.Unsubscribe<HideDialogMessage>(OnHideWipeDialog);
             }
         }
 
@@ -72,9 +74,10 @@ namespace HideezClient.Tasks
             return Task.CompletedTask;
         }
 
-        private Task OnHideWipeDialog(HideWipeDialogMessage msg)
+        private Task OnHideWipeDialog(HideDialogMessage msg)
         {
-            _tcs.TrySetCanceled();
+            if(msg.DialogType == typeof(WipeDialog))
+                _tcs.TrySetCanceled();
 
             return Task.CompletedTask;
         }

@@ -12,6 +12,7 @@ using System;
 using HideezMiddleware.Localize;
 using Meta.Lib.Modules.PubSub;
 using HideezClient.Messages.Dialogs.Pin;
+using System.Threading.Tasks;
 
 namespace HideezClient.ViewModels
 {
@@ -218,7 +219,7 @@ namespace HideezClient.ViewModels
         }
         #endregion
 
-        public void Initialize(string deviceId)
+        public void Initialize(string deviceId, bool askButton, bool askOldPin, bool confirmNewPin)
         {
             lock (initLock)
             {
@@ -231,12 +232,31 @@ namespace HideezClient.ViewModels
                         Device.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
                     }
 
-                    ResetProgress();
+                    UpdateViewModel(deviceId, askButton, askOldPin, confirmNewPin);
+
+                    if (askButton)
+                        _metaMessenger.Subscribe<ShowButtonConfirmUiMessage>(ShowButtonConfirmAsync);
+                    else
+                        _metaMessenger.Subscribe<ShowPinUiMessage>(ShowPinAsync);
                 }
             }
         }
 
-        public void UpdateViewModel(string deviceId, bool askButton, bool askOldPin, bool confirmNewPin)
+        Task ShowPinAsync(ShowPinUiMessage arg)
+        {
+            UpdateViewModel(arg.DeviceId, false, arg.OldPin, arg.ConfirmPin);
+
+            return Task.CompletedTask;
+        }
+
+        Task ShowButtonConfirmAsync(ShowButtonConfirmUiMessage arg)
+        {
+            UpdateViewModel(arg.DeviceId, true, false, false);
+
+            return Task.CompletedTask;
+        }
+
+        void UpdateViewModel(string deviceId, bool askButton, bool askOldPin, bool confirmNewPin)
         {
             if (Device?.Id != deviceId)
                 return;
@@ -364,6 +384,12 @@ namespace HideezClient.ViewModels
                 return false;
 
             return pin.IsEqualTo(confirmPin);
+        }
+
+        public void OnClose()
+        {
+            _metaMessenger.Unsubscribe<ShowButtonConfirmUiMessage>(ShowButtonConfirmAsync);
+            _metaMessenger.Unsubscribe<ShowPinUiMessage>(ShowPinAsync);
         }
     }
 }

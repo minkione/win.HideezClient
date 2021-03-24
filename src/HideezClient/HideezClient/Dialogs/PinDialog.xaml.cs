@@ -1,7 +1,4 @@
 ﻿using HideezClient.ViewModels;
-using MahApps.Metro.Controls;
-using MahApps.Metro.Controls.Dialogs;
-using System;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,7 +9,7 @@ namespace HideezClient.Dialogs
     /// <summary>
     /// Interaction logic for PinDialog.xaml
     /// </summary>
-    public partial class PinDialog : BaseMetroDialog
+    public partial class PinDialog : BaseDialog
     {
         readonly Regex onlyDigitsRegex = new Regex("[0-9]+");
 
@@ -22,18 +19,13 @@ namespace HideezClient.Dialogs
 
             vm.ViewModelUpdated += PinView_ViewModelUpdated;
             vm.PasswordsCleared += PinView_PasswordsCleared;
+            Closed += PinDialog_Closed;
             DataContext = vm;
         }
 
-        public event EventHandler Closed;
-
-        public void Close()
+        private void PinDialog_Closed(object sender, System.EventArgs e)
         {
-            if (Application.Current.MainWindow is MetroWindow metroWindow)
-            {
-                metroWindow.HideMetroDialogAsync(this);
-                Closed?.Invoke(this, EventArgs.Empty);
-            }
+            (DataContext as PinViewModel).OnClose();
         }
 
         private void PinView_PasswordsCleared(object sender, System.EventArgs e)

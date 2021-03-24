@@ -31,6 +31,8 @@ using HideezClient.Messages.Dialogs.Pin;
 using HideezClient.Messages.Dialogs.MasterPassword;
 using HideezClient.Tasks;
 using HideezClient.Messages.Dialogs.Wipe;
+using HideezClient.Messages.Dialogs;
+using HideezClient.Dialogs;
 
 namespace HideezClient.Models
 {
@@ -813,7 +815,7 @@ namespace HideezClient.Models
             }
             finally
             {
-                await _metaMessenger.Publish(new HidePinUiMessage());
+                await _metaMessenger.Publish(new HideDialogMessage(typeof(PinDialog)));
 
                 if (initErrorCode != HideezErrorCode.Ok)
                     await ShutdownRemoteDeviceAsync(initErrorCode);
@@ -874,8 +876,8 @@ namespace HideezClient.Models
             }
             finally
             {
-                await _metaMessenger.Publish(new HidePinUiMessage());
-                await _metaMessenger.Publish(new HideMasterPasswordUiMessage());
+                await _metaMessenger.Publish(new HideDialogMessage(typeof(PinDialog)));
+                await _metaMessenger.Publish(new HideDialogMessage(typeof(MasterPasswordDialog)));
 
                 IsAuthorizingRemoteDevice = false;
             }
@@ -1111,7 +1113,7 @@ namespace HideezClient.Models
                     }
                     finally
                     {
-                        await _metaMessenger.Publish(new HidePinUiMessage());
+                        await _metaMessenger.Publish(new HideDialogMessage(typeof(PinDialog)));
                     }
 
                     return false;
@@ -1363,7 +1365,7 @@ namespace HideezClient.Models
                     }
                     finally
                     {
-                        await _metaMessenger.Publish(new HideMasterPasswordUiMessage());
+                        await _metaMessenger.Publish(new HideDialogMessage(typeof(MasterPasswordDialog)));
                     }
 
                     return false;
@@ -1448,7 +1450,7 @@ namespace HideezClient.Models
                         }
                         finally
                         {
-                            await _metaMessenger.Publish(new HideMasterPasswordUiMessage());
+                            await _metaMessenger.Publish(new HideDialogMessage(typeof(MasterPasswordDialog)));
                         }
                     }
 
@@ -1508,7 +1510,7 @@ namespace HideezClient.Models
                     }
                     finally
                     {
-                        await _metaMessenger.Publish(new HideWipeDialogMessage());
+                        await _metaMessenger.Publish(new HideDialogMessage(typeof(WipeDialog)));
                     }
 
                     return false;

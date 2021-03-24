@@ -22,11 +22,13 @@ using HideezClient.Modules.Log;
 using HideezClient.Modules.NotificationsManager;
 using Meta.Lib.Modules.PubSub;
 using HideezMiddleware.IPC.Messages;
-using HideezClient.ViewModels.Dialog;
 using HideezClient.Messages.Dialogs.Pin;
 using HideezClient.Messages.Dialogs.MasterPassword;
 using HideezClient.Messages.Dialogs.BackupPassword;
 using HideezClient.Messages.Dialogs.Wipe;
+using System.Collections.Generic;
+using System.Linq;
+using HideezClient.Messages.Dialogs;
 
 namespace HideezClient.Modules
 {
@@ -39,20 +41,10 @@ namespace HideezClient.Modules
         private readonly ISettingsManager<ApplicationSettings> _settingsManager;
         readonly INotificationsManager _notificationsManager;
 
-        readonly object pinDialogLock = new object();
-        PinDialog pinView = null;
+        readonly object hideDialogLock = new object();
+        readonly object closedDialogLock = new object();
 
-        readonly object activationDialogLock = new object();
-        ActivationDialog activationView = null;
-
-        readonly object masterPasswordDialogLock = new object();
-        MasterPasswordDialog masterPasswordView = null;
-
-        readonly object backupPasswordDialogLock = new object();
-        BackupPasswordDialog backupPasswordView = null;
-
-        readonly object wipeDialogLock = new object();
-        WipeDialog wipeView = null;
+        List<BaseDialog> _dialogs = new List<BaseDialog>();
 
         bool _initialized = false;
         int _mainWindowActivationInterlock = 0;
@@ -76,21 +68,19 @@ namespace HideezClient.Modules
 
             metaMessenger.TrySubscribeOnServer<UserNotificationMessage>((m)=>ShowInfo(new ShowInfoNotificationMessage(m.Message, notificationId:m.NotificationId)));
             metaMessenger.TrySubscribeOnServer<UserErrorMessage>((m) => ShowError(new ShowErrorNotificationMessage(m.Message, notificationId: m.NotificationId)));
-            //messenger.Register<ServiceNotificationReceivedMessage>(this, (p) => ShowInfo(p.Message, notificationId: p.Id));
-            //messenger.Register<ServiceErrorReceivedMessage>(this, (p) => ShowError(p.Message, notificationId: p.Id));
 
             metaMessenger.Subscribe<ShowButtonConfirmUiMessage>(ShowButtonConfirmAsync);
             metaMessenger.Subscribe<ShowPinUiMessage>(ShowPinAsync);
-            metaMessenger.Subscribe<HidePinUiMessage>(HidePinAsync);
             metaMessenger.Subscribe<ShowMasterPasswordUiMessage>(ShowMasterPasswordAsync);
-            metaMessenger.Subscribe<HideMasterPasswordUiMessage>(HideMasterPasswordAsync);
             metaMessenger.Subscribe<ShowBackupPasswordUiMessage>(ShowBackupPasswordAsync);
-            metaMessenger.Subscribe<SetResultUIBackupPasswordMessage>(SetResultUIBackupPasswordAsync);
-            metaMessenger.Subscribe<SetProgressUIBackupPasswordMessage>(SetProgressUIBackupPasswordAsync);
+            metaMessenger.Subscribe<ShowWipeDialogMessage>(ShowWipeDialogAsync);
+
+            metaMessenger.Subscribe<HideDialogMessage>(OnHideDialog);
+            metaMessenger.Subscribe<HideAllDialogsMessage>(OnHideAllDialogs);
+
             metaMessenger.TrySubscribeOnServer<ShowActivationCodeUiMessage>(ShowActivationDialogAsync);
             metaMessenger.TrySubscribeOnServer<HideActivationCodeUi>(HideActivationDialogAsync);
-            metaMessenger.Subscribe<ShowWipeDialogMessage>(ShowWipeDialogAsync);
-            metaMessenger.Subscribe<HideWipeDialogMessage>(HideWipeDialogAsync);
+
 
             metaMessenger.Subscribe<ShowActivateMainWindowMessage>((p) => ActivateMainWindow());
         }
@@ -350,33 +340,28 @@ namespace HideezClient.Modules
             }
         }
 
+        void ShowDialog(BaseDialog baseDialog)
+        {
+            if (MainWindow is MetroWindow metroWindow)
+            {
+                baseDialog.Closed += DialogClosed;
+                OnActivateMainWindow();
+                metroWindow.ShowMetroDialogAsync(baseDialog);
+                _dialogs.Add(baseDialog);
+            }
+        }
+
         Task ShowButtonConfirmAsync(ShowButtonConfirmUiMessage message)
         {
-            lock (pinDialogLock)
+            if (_dialogs.FirstOrDefault(d => d.GetType() == typeof(PinDialog)) == null)
             {
-                if (pinView == null)
+                UIDispatcher.Invoke(() =>
                 {
-                    UIDispatcher.Invoke(() =>
-                    {
-                        if (MainWindow is MetroWindow metroWindow)
-                        {
-                            var vm = _viewModelLocator.PinViewModel;
-                            vm.Initialize(message.DeviceId);
-                            pinView = new PinDialog(vm);
-                            pinView.Closed += PinView_Closed;
-                            OnActivateMainWindow();
-                            metroWindow.ShowMetroDialogAsync(pinView);
-                        }
-                    });
-                }
-
-                if (pinView != null)
-                {
-                    UIDispatcher.Invoke(() =>
-                    {
-                        ((PinViewModel)pinView.DataContext).UpdateViewModel(message.DeviceId, true, false, false);
-                    });
-                }
+                    var vm = _viewModelLocator.PinViewModel;
+                    vm.Initialize(message.DeviceId, true, false, false);
+                    var pinView = new PinDialog(vm);
+                    ShowDialog(pinView);
+                });
             }
 
             return Task.CompletedTask;
@@ -384,168 +369,64 @@ namespace HideezClient.Modules
 
         Task ShowPinAsync(ShowPinUiMessage message)
         {
-            lock (pinDialogLock)
-            {
-                if (pinView == null)
-                {
-                    UIDispatcher.Invoke(() =>
-                    {
-                        if (MainWindow is MetroWindow metroWindow)
-                        {
-                            var vm = _viewModelLocator.PinViewModel;
-                            vm.Initialize(message.DeviceId);
-                            pinView = new PinDialog(vm);
-                            pinView.Closed += PinView_Closed;
-                            OnActivateMainWindow();
-                            metroWindow.ShowMetroDialogAsync(pinView);
-                        }
-                    });
-                }
-
-                if (pinView != null)
-                {
-                    UIDispatcher.Invoke(() =>
-                    {
-                        ((PinViewModel)pinView.DataContext).UpdateViewModel(message.DeviceId, false, message.OldPin, message.ConfirmPin);
-                    });
-                }
-            }
-            return Task.CompletedTask;
-        }
-
-        Task HidePinAsync(HidePinUiMessage message)
-        {
-            try
+            if (_dialogs.FirstOrDefault(d => d.GetType() == typeof(PinDialog)) == null)
             {
                 UIDispatcher.Invoke(() =>
                 {
-                    try
-                    {
-                        pinView?.Close();
-                        pinView = null;
-                    }
-                    catch { }
+                    var vm = _viewModelLocator.PinViewModel;
+                    vm.Initialize(message.DeviceId, false, message.OldPin, message.ConfirmPin);
+                    var pinView = new PinDialog(vm);
+                    ShowDialog(pinView);
                 });
             }
-            catch { }
 
             return Task.CompletedTask;
         }
 
         Task ShowMasterPasswordAsync(ShowMasterPasswordUiMessage message)
         {
-            lock (masterPasswordDialogLock)
-            {
-                if (masterPasswordView == null)
-                {
-                    UIDispatcher.Invoke(() =>
-                    {
-                        if (MainWindow is MetroWindow metroWindow)
-                        {
-                            var vm = _viewModelLocator.MasterPasswordViewModel;
-                            vm.Initialize(message.DeviceId);
-                            masterPasswordView = new MasterPasswordDialog(vm);
-                            masterPasswordView.Closed += MasterPasswordView_Closed;
-                            OnActivateMainWindow();
-                            metroWindow.ShowMetroDialogAsync(masterPasswordView);
-                        }
-                    });
-                }
-
-                if (masterPasswordView != null)
-                {
-                    UIDispatcher.Invoke(() =>
-                    {
-                        ((MasterPasswordViewModel)masterPasswordView.DataContext).UpdateViewModel(message.DeviceId, false, message.OldPassword, message.ConfirmPassword);
-                    });
-                }
-            }
-            return Task.CompletedTask;
-        }
-
-        Task HideMasterPasswordAsync(HideMasterPasswordUiMessage message)
-        {
-            try
+            if (_dialogs.FirstOrDefault(d => d.GetType() == typeof(MasterPasswordDialog)) == null)
             {
                 UIDispatcher.Invoke(() =>
                 {
-                    try
-                    {
-                        masterPasswordView?.Close();
-                        masterPasswordView = null;
-                    }
-                    catch { }
+                    var vm = _viewModelLocator.MasterPasswordViewModel;
+                    vm.Initialize(message.DeviceId, message.OldPassword, message.ConfirmPassword);
+                    var masterPasswordView = new MasterPasswordDialog(vm);
+                    ShowDialog(masterPasswordView);
                 });
             }
-            catch { }
 
             return Task.CompletedTask;
         }
 
         Task ShowBackupPasswordAsync(ShowBackupPasswordUiMessage message)
         {
-            lock (backupPasswordDialogLock)
-            {
-                if (backupPasswordView == null)
-                {
-                    UIDispatcher.Invoke(() =>
-                    {
-                        if (MainWindow is MetroWindow metroWindow)
-                        {
-                            var vm = _viewModelLocator.BackupPasswordViewModel;
-                            vm.Initialize(message.DeviceId, message.BackupFileName);
-                            backupPasswordView = new BackupPasswordDialog(vm);
-                            backupPasswordView.Closed += BackupPasswordView_Closed;
-                            OnActivateMainWindow();
-                            metroWindow.ShowMetroDialogAsync(backupPasswordView);
-                        }
-                    });
-                }
-
-                if (backupPasswordView != null)
-                {
-                    UIDispatcher.Invoke(() =>
-                    {
-                        ((BackupPasswordViewModel)backupPasswordView.DataContext).UpdateViewModel(message.DeviceId, message.BackupFileName, message.IsNewPassword);
-                    });
-                }
-            }
-            return Task.CompletedTask;
-        }
-
-        Task SetResultUIBackupPasswordAsync(SetResultUIBackupPasswordMessage message)
-        {
-            try
+            if (_dialogs.FirstOrDefault(d => d.GetType() == typeof(BackupPasswordDialog)) == null)
             {
                 UIDispatcher.Invoke(() =>
                 {
-                    try
-                    {
-                        backupPasswordView?.SetResult(message.IsSuccessful, message.ErrorMessage);
-                        backupPasswordView = null;
-                    }
-                    catch { }
+                    var vm = _viewModelLocator.BackupPasswordViewModel;
+                    vm.Initialize(message.DeviceId, message.BackupFileName, message.IsNewPassword);
+                    var backupPasswordView = new BackupPasswordDialog(vm);
+                    ShowDialog(backupPasswordView);
                 });
             }
-            catch { }
 
             return Task.CompletedTask;
         }
 
-        Task SetProgressUIBackupPasswordAsync(SetProgressUIBackupPasswordMessage message)
+        Task ShowWipeDialogAsync(ShowWipeDialogMessage msg)
         {
-            try
+            if (_dialogs.FirstOrDefault(d => d.GetType() == typeof(WipeDialog)) == null)
             {
                 UIDispatcher.Invoke(() =>
                 {
-                    try
-                    {
-                        backupPasswordView?.SetProgress(message.Text);
-                    }
-                    catch { }
+                    var vm = _viewModelLocator.WipeViewModel;
+                    vm.Initialize(msg.DeviceId);
+                    var wipeView = new WipeDialog(vm);
+                    ShowDialog(wipeView);
                 });
             }
-            catch { }
 
             return Task.CompletedTask;
         }
@@ -554,27 +435,14 @@ namespace HideezClient.Modules
         {
             try
             {
-                if (activationView == null)
+                if (_dialogs.FirstOrDefault(d => d.GetType() == typeof(ActivationDialog)) == null)
                 {
                     UIDispatcher.Invoke(() =>
                     {
-                        if (MainWindow is MetroWindow metroWindow)
-                        {
-                            var vm = _viewModelLocator.ActivationViewModel;
-                            vm.Initialize(obj.DeviceId);
-                            activationView = new ActivationDialog(vm);
-                            activationView.Closed += ActivationView_Closed;
-                            OnActivateMainWindow();
-                            metroWindow.ShowMetroDialogAsync(activationView);
-                        }
-                    });
-                }
-
-                if (activationView != null)
-                {
-                    UIDispatcher.Invoke(() =>
-                    {
-                        ((ActivationViewModel)activationView.DataContext).UpdateViewModel(obj.DeviceId);
+                        var vm = _viewModelLocator.ActivationViewModel;
+                        vm.Initialize(obj.DeviceId);
+                        var activationView = new ActivationDialog(vm);
+                        ShowDialog(activationView);
                     });
                 }
             }
@@ -585,128 +453,64 @@ namespace HideezClient.Modules
 
         Task HideActivationDialogAsync(HideActivationCodeUi message)
         {
-            try
-            {
-                UIDispatcher.Invoke(() =>
-                {
-                    try
-                    {
-                        activationView?.Close();
-                        activationView = null;
-                    }
-                    catch { }
-                });
-            }
-            catch { }
+            HideDialog(typeof(ActivationDialog));
 
             return Task.CompletedTask;
         }
 
-        Task ShowWipeDialogAsync(ShowWipeDialogMessage msg)
+        void DialogClosed(object sender, EventArgs e)
         {
-            lock (wipeDialogLock)
+            lock (closedDialogLock)
             {
-                try
+                if (sender is BaseDialog dialog)
                 {
-                    if (wipeView == null)
+                    dialog.Closed -= DialogClosed;
+                    _dialogs.Remove(dialog);
+                }
+            }
+        }
+
+        Task OnHideDialog(HideDialogMessage message)
+        {
+            HideDialog(message.DialogType);
+
+            return Task.CompletedTask;
+        }
+
+        void HideDialog(Type dialogType)
+        {
+            lock (hideDialogLock)
+            {
+                var dialog = _dialogs.FirstOrDefault(d => d.GetType() == dialogType);
+                if (dialog != null)
+                {
+                    UIDispatcher.Invoke(() =>
                     {
-                        UIDispatcher.Invoke(() =>
+                        try
                         {
-                            if (MainWindow is MetroWindow metroWindow)
-                            {
-                                var vm = _viewModelLocator.WipeViewModel;
-                                vm.Initialize(msg.DeviceId);
-                                wipeView = new WipeDialog(vm);
-                                wipeView.Closed += WipeView_Closed;
-                                OnActivateMainWindow();
-                                metroWindow.ShowMetroDialogAsync(wipeView);
-                            }
-                        });
-                    }
+                            dialog?.Close();
+                        }
+                        catch { }
+                    });
                 }
-                catch { }
             }
-
-            return Task.CompletedTask;
         }
 
-        Task HideWipeDialogAsync(HideWipeDialogMessage arg)
+        private Task OnHideAllDialogs(HideAllDialogsMessage arg)
         {
-            try
+            foreach(var dialog in _dialogs)
             {
                 UIDispatcher.Invoke(() =>
                 {
                     try
                     {
-                        wipeView?.Close();
-                        wipeView = null;
+                        dialog?.Close();
                     }
                     catch { }
                 });
             }
-            catch { }
 
             return Task.CompletedTask;
-        }
-
-        void PinView_Closed(object sender, EventArgs e)
-        {
-            lock (pinDialogLock)
-            {
-                if (pinView != null)
-                {
-                    pinView.Closed -= PinView_Closed;
-                    pinView = null;
-                }
-            }
-        }
-
-        void MasterPasswordView_Closed(object sender, EventArgs e)
-        {
-            lock (masterPasswordDialogLock)
-            {
-                if (masterPasswordView != null)
-                {
-                    masterPasswordView.Closed -= MasterPasswordView_Closed;
-                    masterPasswordView = null;
-                }
-            }
-        }
-
-        void BackupPasswordView_Closed(object sender, EventArgs e)
-        {
-            lock (backupPasswordDialogLock)
-            {
-                if (backupPasswordView != null)
-                {
-                    backupPasswordView.Closed -= MasterPasswordView_Closed;
-                    backupPasswordView = null;
-                }
-            }
-        }
-
-        void ActivationView_Closed(object sender, EventArgs e)
-        {
-            lock (activationDialogLock)
-            {
-                if (activationView != null)
-                {
-                    activationView.Closed -= ActivationView_Closed;
-                    activationView = null;
-                }
-            }
-        }
-
-        void WipeView_Closed(object sender, EventArgs e)
-        {
-            lock (wipeDialogLock)
-            {
-                if (wipeView != null)
-                {
-                    wipeView.Closed -= WipeView_Closed;
-                    wipeView = null;
-                }
-            }
         }
 
         public async Task<Bitmap> GetCurrentScreenImageAsync()

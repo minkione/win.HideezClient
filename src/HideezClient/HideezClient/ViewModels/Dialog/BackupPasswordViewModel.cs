@@ -32,8 +32,11 @@ namespace HideezClient.ViewModels.Dialog
 
         bool _isNewPassword = false;
         bool _inProgress = false;
+        bool _isSuccessful = false;
+        bool _isError = false;
         bool _needInputPasswords = true;
         string _errorMessage = string.Empty;
+        string _progressMessage = TranslationSource.Instance["Pin.InProgress"];
         string _fileName = string.Empty;
         string _deviceId = string.Empty;
 
@@ -85,10 +88,28 @@ namespace HideezClient.ViewModels.Dialog
             set { Set(ref _needInputPasswords, value); }
         }
 
+        public bool IsSuccessful
+        {
+            get { return _isSuccessful; }
+            set { Set(ref _isSuccessful, value); }
+        }
+
+        public bool IsError
+        {
+            get { return _isError; }
+            set { Set(ref _isError, value); }
+        }
+
         public string ErrorMessage
         {
             get { return _errorMessage; }
             set { Set(ref _errorMessage, value); }
+        }
+
+        public string ProgressMessage
+        {
+            get { return _progressMessage; }
+            set { Set(ref _progressMessage, value); }
         }
 
         public int MaxLenghtPassword
@@ -100,7 +121,7 @@ namespace HideezClient.ViewModels.Dialog
         {
             get
             {
-                return 8; //Todo:
+                return 8;
             }
         }
 
@@ -162,17 +183,53 @@ namespace HideezClient.ViewModels.Dialog
         }
         #endregion
 
-        public void Initialize(string deviceId, string fileName)
+        public void Initialize(string deviceId, string fileName, bool isNewPassword)
         {
             lock (initLock)
             {
                 _deviceId = deviceId;
-                FileName = fileName;
-                ResetProgress();
+
+                UpdateViewModel(deviceId, fileName, isNewPassword);
+
+                _metaMessenger.Subscribe<ShowBackupPasswordUiMessage>(ShowBackupPasswordAsync);
+                _metaMessenger.Subscribe<SetResultUIBackupPasswordMessage>(SetResultUIBackupPasswordAsync);
+                _metaMessenger.Subscribe<SetProgressUIBackupPasswordMessage>(SetProgressUIBackupPasswordAsync);
             }
         }
 
-        public void UpdateViewModel(string deviceId, string fileName, bool isNewPassword)
+        Task SetProgressUIBackupPasswordAsync(SetProgressUIBackupPasswordMessage arg)
+        {
+            ProgressMessage = arg.Text;
+
+            return Task.CompletedTask;
+        }
+
+        Task SetResultUIBackupPasswordAsync(SetResultUIBackupPasswordMessage arg)
+        {
+            InProgress = false;
+
+            if (arg.IsSuccessful)
+                IsSuccessful = true;
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(arg.ErrorMessage))
+                    ErrorMessage = arg.ErrorMessage;
+                else
+                    ErrorMessage = TranslationSource.Instance["BackupPassword.Failed"];
+                IsError = true;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        Task ShowBackupPasswordAsync(ShowBackupPasswordUiMessage arg)
+        {
+            UpdateViewModel(arg.DeviceId, arg.BackupFileName, arg.IsNewPassword);
+
+            return Task.CompletedTask;
+        }
+
+        void UpdateViewModel(string deviceId, string fileName, bool isNewPassword)
         {
             if (_deviceId != deviceId)
                 return;
@@ -254,6 +311,8 @@ namespace HideezClient.ViewModels.Dialog
         {
             ClearPasswords();
             InProgress = false;
+            IsSuccessful = false;
+            IsError = false;
         }
 
         /// <summary>
@@ -283,6 +342,13 @@ namespace HideezClient.ViewModels.Dialog
                 return false;
 
             return password.IsEqualTo(confirmPassword);
+        }
+
+        public void OnClose()
+        {
+            _metaMessenger.Unsubscribe<ShowBackupPasswordUiMessage>(ShowBackupPasswordAsync);
+            _metaMessenger.Unsubscribe<SetResultUIBackupPasswordMessage>(SetResultUIBackupPasswordAsync);
+            _metaMessenger.Unsubscribe<SetProgressUIBackupPasswordMessage>(SetProgressUIBackupPasswordAsync);
         }
     }
 }

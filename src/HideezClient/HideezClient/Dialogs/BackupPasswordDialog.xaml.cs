@@ -11,7 +11,7 @@ namespace HideezClient.Dialogs
     /// <summary>
     /// Interaction logic for BackupPasswordDialog.xaml
     /// </summary>
-    public partial class BackupPasswordDialog : BaseMetroDialog
+    public partial class BackupPasswordDialog : BaseDialog
     {
         public BackupPasswordDialog(BackupPasswordViewModel vm)
         {
@@ -19,45 +19,26 @@ namespace HideezClient.Dialogs
 
             vm.ViewModelUpdated += PasswordView_ViewModelUpdated;
             vm.PasswordsCleared += PasswordView_PasswordsCleared;
+            Closed += Dialog_Closed;
             DataContext = vm;
         }
 
-        public event EventHandler Closed;
-
-        public void SetResult(bool isSuccessful, string errorMessage)
+        private void Dialog_Closed(object sender, System.EventArgs e)
         {
-
-            ((BackupPasswordViewModel)DataContext).InProgress = false;
-            progressStack.Visibility = Visibility.Hidden;
-
-            if (isSuccessful)
-            {
-                successfulResultStack.Visibility = Visibility.Visible;
-                if (DataContext is BackupPasswordViewModel viewModel && viewModel.IsNewPassword)
-                    openFolderButton.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                failedResultStack.Visibility = Visibility.Visible;
-                if (!string.IsNullOrWhiteSpace(errorMessage))
-                    errorMessageText.Text = errorMessage;
-            }
-
-        }
-
-        public void SetProgress(string message)
-        {
-            progressText.Text = message;
+            (DataContext as BackupPasswordViewModel).OnClose();
         }
 
         private void PasswordView_PasswordsCleared(object sender, System.EventArgs e)
         {
-            if (DataContext != null)
+            Dispatcher.Invoke(() =>
             {
-                CurrentPasswordBox.Clear();
-                NewPasswordBox.Clear();
-                ConfirmPasswordBox.Clear();
-            }
+                if (DataContext != null)
+                {
+                    CurrentPasswordBox.Clear();
+                    NewPasswordBox.Clear();
+                    ConfirmPasswordBox.Clear();
+                }
+            });
         }
 
         private void CurrentPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
@@ -118,11 +99,7 @@ namespace HideezClient.Dialogs
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (Application.Current.MainWindow is MetroWindow metroWindow)
-            {
-                metroWindow.HideMetroDialogAsync(this);
-                Closed?.Invoke(this, EventArgs.Empty);
-            }
+            Close();
         }
     }
 }

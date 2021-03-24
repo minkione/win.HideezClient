@@ -1,4 +1,6 @@
 ﻿using Hideez.SDK.Communication.Utils;
+using HideezClient.Dialogs;
+using HideezClient.Messages.Dialogs;
 using HideezClient.Messages.Dialogs.MasterPassword;
 using Meta.Lib.Modules.PubSub;
 using System;
@@ -45,7 +47,7 @@ namespace HideezClient.Tasks
             {
                 _messenger.Subscribe<SendMasterPasswordMessage>(OnMasterPasswordReceived, msg => msg.DeviceId == _deviceId);
                 _messenger.Subscribe<MasterPasswordCancelledMessage>(OnMasterPasswordCancelled, msg => msg.DeviceId == _deviceId);
-                _messenger.Subscribe<HideMasterPasswordUiMessage>(OnHideMasterPasswordUi);
+                _messenger.Subscribe<HideDialogMessage>(OnHideMasterPasswordUi);
 
                 await _messenger.Publish(new ShowMasterPasswordUiMessage(_deviceId, _withConfirm, _askOldPassword));
 
@@ -59,7 +61,7 @@ namespace HideezClient.Tasks
             {
                 await _messenger.Unsubscribe<SendMasterPasswordMessage>(OnMasterPasswordReceived);
                 await _messenger.Unsubscribe<MasterPasswordCancelledMessage>(OnMasterPasswordCancelled);
-                await _messenger.Unsubscribe<HideMasterPasswordUiMessage>(OnHideMasterPasswordUi);
+                await _messenger.Unsubscribe<HideDialogMessage>(OnHideMasterPasswordUi);
             }
         }
 
@@ -78,9 +80,10 @@ namespace HideezClient.Tasks
             return Task.CompletedTask;
         }
 
-        private Task OnHideMasterPasswordUi(HideMasterPasswordUiMessage msg)
+        private Task OnHideMasterPasswordUi(HideDialogMessage msg)
         {
-            _tcs.TrySetCanceled();
+            if(msg.DialogType == typeof(MasterPasswordDialog))
+                _tcs.TrySetCanceled();
 
             return Task.CompletedTask;
         }

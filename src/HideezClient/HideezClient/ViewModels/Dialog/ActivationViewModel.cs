@@ -3,12 +3,14 @@ using HideezClient.Models;
 using HideezClient.Modules.DeviceManager;
 using HideezClient.Mvvm;
 using HideezMiddleware.IPC.IncommingMessages;
+using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.Commands;
 using System;
 using System.Linq;
 using System.Security;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace HideezClient.ViewModels
@@ -130,12 +132,21 @@ namespace HideezClient.ViewModels
                         Device.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
                     }
 
-                    ResetProgress();
+                    UpdateViewModel(deviceId);
+
+                    _metaMessenger.TrySubscribeOnServer<ShowActivationCodeUiMessage>(ShowActivationDialogAsync);
                 }
             }
         }
 
-        public void UpdateViewModel(string deviceId)
+        Task ShowActivationDialogAsync(ShowActivationCodeUiMessage msg)
+        {
+            UpdateViewModel(msg.DeviceId);
+
+            return Task.CompletedTask;
+        }
+
+        void UpdateViewModel(string deviceId)
         {
             if (Device?.Id != deviceId)
                 return;
@@ -204,6 +215,11 @@ namespace HideezClient.ViewModels
                 return 1;
 
             return 0;
+        }
+
+        public void OnClose()
+        {
+            _metaMessenger.Unsubscribe<ShowActivationCodeUiMessage>(ShowActivationDialogAsync);
         }
     }
 }

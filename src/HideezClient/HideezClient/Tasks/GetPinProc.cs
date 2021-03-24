@@ -1,5 +1,7 @@
 ﻿using Hideez.SDK.Communication.Utils;
+using HideezClient.Dialogs;
 using HideezClient.Messages;
+using HideezClient.Messages.Dialogs;
 using HideezClient.Messages.Dialogs.Pin;
 using Meta.Lib.Modules.PubSub;
 using System;
@@ -46,7 +48,7 @@ namespace HideezClient.Tasks
             {
                 _messenger.Subscribe<SendPinMessage>(OnPinReceived, msg => msg.DeviceId == _deviceId);
                 _messenger.Subscribe<PinCancelledMessage>(OnPinCancelled, msg => msg.DeviceId == _deviceId);
-                _messenger.Subscribe<HidePinUiMessage>(OnHidePinUi);
+                _messenger.Subscribe<HideDialogMessage>(OnHidePinUi);
 
                 await _messenger.Publish(new ShowPinUiMessage(_deviceId, _withConfirm, _askOldPin));
 
@@ -60,7 +62,7 @@ namespace HideezClient.Tasks
             {
                 await _messenger.Unsubscribe<SendPinMessage>(OnPinReceived);
                 await _messenger.Unsubscribe<PinCancelledMessage>(OnPinCancelled);
-                await _messenger.Unsubscribe<HidePinUiMessage>(OnHidePinUi);
+                await _messenger.Unsubscribe<HideDialogMessage>(OnHidePinUi);
             }
         }
 
@@ -79,9 +81,10 @@ namespace HideezClient.Tasks
             return Task.CompletedTask;
         }
 
-        private Task OnHidePinUi(HidePinUiMessage msg)
+        private Task OnHidePinUi(HideDialogMessage msg)
         {
-            _tcs.TrySetCanceled();
+            if (msg.DialogType == typeof(PinDialog))
+                _tcs.TrySetCanceled();
 
             return Task.CompletedTask;
         }
