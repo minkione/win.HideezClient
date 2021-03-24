@@ -3,10 +3,8 @@ using Hideez.SDK.Communication.Log;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.DeviceConnection.Workflow;
 using HideezMiddleware.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using HideezMiddleware.Utils.WorkstationHelper;
+using Microsoft.Win32;
 using System.Threading.Tasks;
 
 namespace HideezMiddleware
@@ -18,6 +16,7 @@ namespace HideezMiddleware
         readonly RfidConnectionProcessor _rfidProcessor;
         readonly ProximityConnectionProcessor _proximityProcessor;
         readonly WinBleAutomaticConnectionProcessor _winBleProcessor;
+        readonly IWorkstationHelper _workstationHelper;
 
         UnlockSessionSwitchProc _unlockProcedure = null;
         readonly object _upLock = new object();
@@ -29,6 +28,7 @@ namespace HideezMiddleware
                                           RfidConnectionProcessor rfidProcessor,
                                           ProximityConnectionProcessor proximityProcessor,
                                           WinBleAutomaticConnectionProcessor winBleProcessor,
+                                          IWorkstationHelper workstationHelper,
                                           ILog log): base(nameof(SessionUnlockMethodMonitor), log)
         {
             _connectionFlowProcessor = connectionFlowProcessor;
@@ -36,27 +36,41 @@ namespace HideezMiddleware
             _rfidProcessor = rfidProcessor;
             _proximityProcessor = proximityProcessor;
             _winBleProcessor = winBleProcessor;
+            _workstationHelper = workstationHelper;
 
             _connectionFlowProcessor.Started += ConnectionFlowProcessor_Started;
+            SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
         }
 
         void ConnectionFlowProcessor_Started(object sender, string e)
         {
             lock (_upLock)
             {
-                if (_unlockProcedure != null)
-                    _unlockProcedure.Dispose();
-
-                _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor);
-                WriteLine("Started unlock procedure");
+                if (_workstationHelper.IsCurrentSessionLocked())
+                {
+                    _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor);
+                    WriteLine("Started unlock procedure");
+                }
             }
         }
 
-        public SessionSwitchSubject GetUnlockMethod()
+        void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
         {
-            if (_unlockProcedure == null)
-                return SessionSwitchSubject.NonHideez;
-            else return _unlockProcedure.UnlockMethod;
+            if (reason == SessionSwitchReason.SessionLogoff || reason == SessionSwitchReason.SessionLock)
+                _unlockProcedure = null;
+        }
+
+        public async Task<SessionSwitchSubject> GetUnlockMethodAsync()
+        {
+            if (_unlockProcedure != null)
+            {
+                await _unlockProcedure.WaitFinish(); 
+
+                if (_unlockProcedure.FlowFinished && _unlockProcedure.FlowUnlockResult.IsSuccessful)
+                    return _unlockProcedure.UnlockMethod;
+            }
+
+            return SessionSwitchSubject.NonHideez;
         }
     }
 }

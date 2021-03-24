@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.Tasks
 {
-    //todo - doesn't need to be IDisposable if move SubscribeToEvents into Run() method
-    class UnlockSessionSwitchProc : IDisposable
+    internal sealed class UnlockSessionSwitchProc
     {
         readonly ConnectionFlowProcessor _connectionFlowProcessor;
         readonly TapConnectionProcessor _tapProcessor;
@@ -18,6 +17,8 @@ namespace HideezMiddleware.Tasks
 
         readonly TaskCompletionSource<object> _tcs = new TaskCompletionSource<object>();
         readonly string _flowId;
+
+        readonly int _timeout;
 
         public WorkstationUnlockResult FlowUnlockResult { get; private set; } = null; // Set on connectionFlow.UnlockAttempt
         public SessionSwitchSubject UnlockMethod { get; private set; } = SessionSwitchSubject.NonHideez; // Changed on connectionFlow.UnlockAttempt
@@ -32,7 +33,8 @@ namespace HideezMiddleware.Tasks
             TapConnectionProcessor tapProcessor,
             RfidConnectionProcessor rfidProcessor,
             ProximityConnectionProcessor proximityProcessor,
-            WinBleAutomaticConnectionProcessor winBleProcessor)
+            WinBleAutomaticConnectionProcessor winBleProcessor,
+            int timeout = 10_000)
         {
             _flowId = flowId;
             _connectionFlowProcessor = connectionFlowProcessor;
@@ -41,54 +43,37 @@ namespace HideezMiddleware.Tasks
             _proximityProcessor = proximityProcessor;
             _winBleProcessor = winBleProcessor;
 
-            SubscribeToEvents();
+            _timeout = timeout;
         }
 
-        #region IDisposable Support
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        bool disposed = false;
-        protected void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    UnsubscribeFromEvents();
-                }
-
-                disposed = true;
-            }
-        }
-
-        ~UnlockSessionSwitchProc()
-        {
-            Dispose(false);
-        }
-        #endregion
-
-        public async Task Run(int timeout)
+        public async Task Run()
         {
             try
             {
+                SubscribeToEvents();
+                
                 // Cancel if unlock failed or flow finished
-                if (FlowUnlockResult?.IsSuccessful == false || FlowFinished)
-                    return;
-                else
-                    await _tcs.Task.TimeoutAfter(timeout);
+                await _tcs.Task.TimeoutAfter(_timeout);
             }
             catch (TimeoutException)
             {
+                _tcs.TrySetResult(new object());
             }
             finally
             {
                 UnsubscribeFromEvents();
             }
+        }
 
+        public async Task WaitFinish()
+        {
+            try
+            {
+                await _tcs.Task.TimeoutAfter(_timeout);
+            }
+            catch (TimeoutException)
+            {
+            }
         }
 
         void SubscribeToEvents()
@@ -114,7 +99,6 @@ namespace HideezMiddleware.Tasks
             if (e == _flowId)
             {
                 FlowFinished = true;
-                UnsubscribeFromEvents();
 
                 _tcs.TrySetResult(new object());
             }

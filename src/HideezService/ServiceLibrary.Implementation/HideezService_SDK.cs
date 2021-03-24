@@ -389,7 +389,7 @@ namespace ServiceLibrary.Implementation
 
             //SessionUnlockMethodMonitor ==================================
             _sessionUnlockMethodMonitor = new SessionUnlockMethodMonitor(_connectionFlowProcessor,
-                 _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor, _sdkLogger);
+                 _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor, _workstationHelper, _sdkLogger);
 
             // SessionSwitchLogger ==================================
             _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver, _sessionUnlockMethodMonitor,
@@ -584,7 +584,10 @@ namespace ServiceLibrary.Implementation
             // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
             // To avoid the confusion, we resend the event about latest unlock method to every client that connects to service
             if (_deviceManager.Devices.Count() == 0)
-                await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+            {
+                var unlockMethod = await _sessionUnlockMethodMonitor.GetUnlockMethodAsync();
+                await SafePublish(new WorkstationUnlockedMessage(unlockMethod == SessionSwitchSubject.NonHideez));
+            }
 
         }
 
@@ -1004,7 +1007,10 @@ namespace ServiceLibrary.Implementation
             try
             {
                 if (reason == SessionSwitchReason.SessionUnlock || reason == SessionSwitchReason.SessionLogon)
-                    await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+                {
+                    var unlockMethod = await _sessionUnlockMethodMonitor.GetUnlockMethodAsync();
+                    await SafePublish(new WorkstationUnlockedMessage(unlockMethod == SessionSwitchSubject.NonHideez));
+                }
 
                 if (reason == SessionSwitchReason.SessionLogoff || reason == SessionSwitchReason.SessionLock)
                 {
