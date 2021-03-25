@@ -179,8 +179,8 @@
                 <StackPanel 
                     Focusable="True" 
                     DataContext="{Binding VaultAccessSettingsControlViewModel, Mode=OneWay, Source={StaticResource Locator}}"
-                    >
-                    <StackPanel.Style>
+                    Visibility="{Binding Device.IsStorageLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <!--<StackPanel.Style>
                         <Style TargetType="StackPanel">
                             <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
@@ -192,7 +192,7 @@
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </StackPanel.Style>
+                    </StackPanel.Style>-->
                     <TextBlock
                         Style="{StaticResource SettingsHeaderStyle}"
                         Text="{l:Localization AccessSettings.Title}" />
@@ -286,6 +286,14 @@
                             </StackPanel>
                             <controls:LoadingControl
                                 Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <controls:UnsupportedControl Visibility="{Binding IsSupported, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
+                                <controls:UnsupportedControl.Text>
+                                    <MultiBinding Converter="{StaticResource FormatStringConverter}">
+                                        <Binding Path="[AccessSettings.Unsupported]" Source="{x:Static localization:TranslationSource.Instance}" />
+                                        <Binding Path="RequiredFirmwareVersion" />
+                                    </MultiBinding>
+                                </controls:UnsupportedControl.Text>
+                            </controls:UnsupportedControl>
                         </Grid>
                     </Border>
                 </StackPanel>

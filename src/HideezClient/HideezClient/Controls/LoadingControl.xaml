@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:l="clr-namespace:HideezClient.Modules.Localize"
              xmlns:local="clr-namespace:HideezClient.Controls"
              mc:Ignorable="d">
     <Border 
@@ -27,7 +28,7 @@
                 VerticalAlignment="Center"
                 Style="{StaticResource DialogTitleTextBlockStyle}" 
                 FontSize="18"
-                Text="Loading" />
+                Text="{l:Localization AccessSettings.Loading}" />
         </StackPanel>
     </Border>
 </UserControl>

@@ -1225,4 +1225,13 @@ Would you like to perform application update now?</value>
   <data name="BackupPassword.ShowInFolder" xml:space="preserve">
     <value>Show in folder</value>
   </data>
+  <data name="AccessSettings.Loading" xml:space="preserve">
+    <value>Loading</value>
+  </data>
+  <data name="AccessSettings.Unsupported" xml:space="preserve">
+    <value>This feature requires firmware version {0} or higher</value>
+  </data>
+  <data name="AccessSettings.UpdateFW" xml:space="preserve">
+    <value>Open firmware update app</value>
+  </data>
 </root>

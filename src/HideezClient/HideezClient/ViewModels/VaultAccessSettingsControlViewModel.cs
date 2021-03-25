@@ -63,6 +63,8 @@ namespace HideezClient.ViewModels
             this.ObservableForProperty(vm => vm.SelectedTimeout).Subscribe(vm => { OnSettingValueChanged(); });
 
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
+
+            IsSupported = Device?.FirmwareVersion > RequiredFirmwareVersion;
         }
 
         #region Properties
@@ -71,6 +73,8 @@ namespace HideezClient.ViewModels
         [Reactive] public bool IsLoaded { get; set; }
 
         [Reactive] public bool IsLoading { get; set; }
+        
+        [Reactive] public bool IsSupported{ get; set; }
 
         [Reactive] public bool IsSaving { get; set; }
 
@@ -98,6 +102,8 @@ namespace HideezClient.ViewModels
         [Reactive] public bool RequireButton { get; set; }
 
         [Reactive] public bool RequirePin { get; set; }
+
+        [Reactive] public Version RequiredFirmwareVersion { get; set; } = new Version(3, 6, 10);
 
         [Reactive] public TimeoutOption SelectedTimeout { get; set; }
         #endregion
@@ -165,6 +171,9 @@ namespace HideezClient.ViewModels
         {
             // Todo: ViewModel should be reused instead of being recreated each time active device is changed
             Device = obj.NewDevice != null ? new DeviceViewModel(obj.NewDevice) : null;
+            IsLoaded = false;
+            IsLoading = false;
+            IsSupported = Device?.FirmwareVersion > RequiredFirmwareVersion;
 
             return Task.CompletedTask;
         }
