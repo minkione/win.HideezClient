@@ -16,19 +16,12 @@ namespace HideezClient.Dialogs
     {
         readonly Regex onlyDigitsRegex = new Regex("[0-9]+");
 
-        public ActivationDialog(ActivationViewModel vm)
+        public ActivationDialog(ActivationViewModel vm): base(vm)
         {
             InitializeComponent();
 
             vm.ViewModelUpdated += ViewModel_ViewModelUpdated;
             vm.PasswordsCleared += ViewModel_PasswordsCleared;
-            Closed += Dialog_Closed;
-            DataContext = vm;
-        }
-
-        private void Dialog_Closed(object sender, System.EventArgs e)
-        {
-            (DataContext as ActivationViewModel).OnClose();
         }
 
         void ViewModel_ViewModelUpdated(object sender, EventArgs e)
@@ -38,10 +31,13 @@ namespace HideezClient.Dialogs
 
         void ViewModel_PasswordsCleared(object sender, EventArgs e)
         {
-            if (DataContext != null)
+            Dispatcher.Invoke(() =>
             {
-                CodePasswordBox.Clear();
-            }
+                if (DataContext != null)
+                {
+                    CodePasswordBox.Clear();
+                }
+            });
         }
 
         void CodePasswordBox_PasswordChanged(object sender, RoutedEventArgs e)

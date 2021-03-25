@@ -7,11 +7,9 @@ namespace HideezClient.Dialogs
     /// </summary>
     public partial class WipeDialog : BaseDialog
     {
-        public WipeDialog(WipeViewModel vm)
+        public WipeDialog(WipeViewModel vm) : base(vm)
         {
             InitializeComponent();
-
-            DataContext = vm;
         }
     }
 }

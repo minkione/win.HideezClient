@@ -13,10 +13,11 @@ using HideezMiddleware.Localize;
 using Meta.Lib.Modules.PubSub;
 using HideezClient.Messages.Dialogs.Pin;
 using System.Threading.Tasks;
+using HideezClient.ViewModels.Dialog;
 
 namespace HideezClient.ViewModels
 {
-    public class PinViewModel : ObservableObject
+    public class PinViewModel : ObservableObject, IDialogViewModel
     {
         readonly IMetaPubSub _metaMessenger;
         readonly IDeviceManager _deviceManager;

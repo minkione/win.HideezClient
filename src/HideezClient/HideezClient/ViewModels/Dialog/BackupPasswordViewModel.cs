@@ -19,7 +19,7 @@ using System.Windows.Input;
 
 namespace HideezClient.ViewModels.Dialog
 {
-    public class BackupPasswordViewModel : ObservableObject
+    public class BackupPasswordViewModel : ObservableObject, IDialogViewModel
     {
         readonly IMetaPubSub _metaMessenger;
         readonly byte[] _emptyBytes = new byte[0];

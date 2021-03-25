@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace HideezClient.ViewModels.Dialog
 {
-    public class WipeViewModel : ObservableObject
+    public class WipeViewModel : ObservableObject, IDialogViewModel
     {
         readonly IMetaPubSub _messenger;
         readonly IDeviceManager _deviceManager;
@@ -73,6 +73,11 @@ namespace HideezClient.ViewModels.Dialog
         {
             DeviceId = deviceId;
             VaultName = _deviceManager.Devices.FirstOrDefault(d => d.Id == DeviceId)?.Name;
+        }
+
+        public void OnClose()
+        {
+            
         }
 
         void OnCancelWipe()

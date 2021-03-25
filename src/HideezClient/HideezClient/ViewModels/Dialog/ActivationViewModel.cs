@@ -2,6 +2,7 @@
 using HideezClient.Models;
 using HideezClient.Modules.DeviceManager;
 using HideezClient.Mvvm;
+using HideezClient.ViewModels.Dialog;
 using HideezMiddleware.IPC.IncommingMessages;
 using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
@@ -15,7 +16,7 @@ using System.Windows.Input;
 
 namespace HideezClient.ViewModels
 {
-    public class ActivationViewModel : ObservableObject
+    public class ActivationViewModel : ObservableObject, IDialogViewModel
     {
         readonly IDeviceManager _deviceManager;
         readonly IMetaPubSub _metaMessenger;

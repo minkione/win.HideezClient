@@ -13,19 +13,12 @@ namespace HideezClient.Dialogs
     /// </summary>
     public partial class BackupPasswordDialog : BaseDialog
     {
-        public BackupPasswordDialog(BackupPasswordViewModel vm)
+        public BackupPasswordDialog(BackupPasswordViewModel vm): base(vm)
         {
             InitializeComponent();
 
             vm.ViewModelUpdated += PasswordView_ViewModelUpdated;
             vm.PasswordsCleared += PasswordView_PasswordsCleared;
-            Closed += Dialog_Closed;
-            DataContext = vm;
-        }
-
-        private void Dialog_Closed(object sender, System.EventArgs e)
-        {
-            (DataContext as BackupPasswordViewModel).OnClose();
         }
 
         private void PasswordView_PasswordsCleared(object sender, System.EventArgs e)

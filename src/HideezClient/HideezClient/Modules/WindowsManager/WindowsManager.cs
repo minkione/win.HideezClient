@@ -22,13 +22,13 @@ using HideezClient.Modules.Log;
 using HideezClient.Modules.NotificationsManager;
 using Meta.Lib.Modules.PubSub;
 using HideezMiddleware.IPC.Messages;
+using HideezClient.Messages.Dialogs;
 using HideezClient.Messages.Dialogs.Pin;
 using HideezClient.Messages.Dialogs.MasterPassword;
 using HideezClient.Messages.Dialogs.BackupPassword;
 using HideezClient.Messages.Dialogs.Wipe;
 using System.Collections.Generic;
 using System.Linq;
-using HideezClient.Messages.Dialogs;
 
 namespace HideezClient.Modules
 {
@@ -69,22 +69,21 @@ namespace HideezClient.Modules
             metaMessenger.TrySubscribeOnServer<UserNotificationMessage>((m)=>ShowInfo(new ShowInfoNotificationMessage(m.Message, notificationId:m.NotificationId)));
             metaMessenger.TrySubscribeOnServer<UserErrorMessage>((m) => ShowError(new ShowErrorNotificationMessage(m.Message, notificationId: m.NotificationId)));
 
-            metaMessenger.Subscribe<ShowButtonConfirmUiMessage>(ShowButtonConfirmAsync);
-            metaMessenger.Subscribe<ShowPinUiMessage>(ShowPinAsync);
-            metaMessenger.Subscribe<ShowMasterPasswordUiMessage>(ShowMasterPasswordAsync);
-            metaMessenger.Subscribe<ShowBackupPasswordUiMessage>(ShowBackupPasswordAsync);
-            metaMessenger.Subscribe<ShowWipeDialogMessage>(ShowWipeDialogAsync);
+            metaMessenger.Subscribe<ShowButtonConfirmUiMessage>(ShowButtonConfirmAsync, msg => !ContainsDialogType(typeof(PinDialog)));
+            metaMessenger.Subscribe<ShowPinUiMessage>(ShowPinAsync, msg => !ContainsDialogType(typeof(PinDialog)));
+            metaMessenger.Subscribe<ShowMasterPasswordUiMessage>(ShowMasterPasswordAsync, msg => !ContainsDialogType(typeof(MasterPasswordDialog)));
+            metaMessenger.Subscribe<ShowBackupPasswordUiMessage>(ShowBackupPasswordAsync, msg => !ContainsDialogType(typeof(BackupPasswordDialog)));
+            metaMessenger.Subscribe<ShowWipeDialogMessage>(ShowWipeDialogAsync, msg => !ContainsDialogType(typeof(WipeDialog)));
 
             metaMessenger.Subscribe<HideDialogMessage>(OnHideDialog);
             metaMessenger.Subscribe<HideAllDialogsMessage>(OnHideAllDialogs);
 
-            metaMessenger.TrySubscribeOnServer<ShowActivationCodeUiMessage>(ShowActivationDialogAsync);
-            metaMessenger.TrySubscribeOnServer<HideActivationCodeUi>(HideActivationDialogAsync);
-
+            metaMessenger.TrySubscribeOnServer<ShowActivationCodeUiMessage>(ShowActivationDialogAsync, msg => !ContainsDialogType(typeof(ActivationDialog)));
 
             metaMessenger.Subscribe<ShowActivateMainWindowMessage>((p) => ActivateMainWindow());
         }
 
+        #region MainWindow
         public Task ActivateMainWindow()
         {
             UIDispatcher.Invoke(OnActivateMainWindow);
@@ -241,6 +240,38 @@ namespace HideezClient.Modules
             }
         }
 
+        public void CloseWindow(string id)
+        {
+            UIDispatcher.Invoke(() =>
+            {
+                foreach (Window window in Application.Current.Windows)
+                {
+                    if (window.DataContext is IRequireViewIdentification vm && vm.ObservableId == id)
+                    {
+                        window.Close();
+                    }
+                }
+            });
+        }
+
+        private void SetStartupLocation(Window window, bool mainWindowWasOpen, bool hideMainWindow = false)
+        {
+            if (mainWindowWasOpen)
+            {
+                window.Owner = MainWindow;
+                if (hideMainWindow)
+                {
+                    MainWindow?.Hide();
+                }
+            }
+            else
+            {
+                window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            }
+        }
+        #endregion
+
+        #region Notifications
         private Task ShowLockNotification(ShowLockNotificationMessage message)
         {
             UIDispatcher.Invoke(() => _notificationsManager.ShowNotification(message.NotificationId, message.Title ?? GetTitle(), message.Message, NotificationIconType.Lock, message.Options));
@@ -309,37 +340,9 @@ namespace HideezClient.Modules
         {
             UIDispatcher.Invoke(() => _notificationsManager.ShowStorageLoadingNotification(viewModel));
         }
+        #endregion
 
-        public void CloseWindow(string id)
-        {
-            UIDispatcher.Invoke(() =>
-            {
-                foreach (Window window in Application.Current.Windows)
-                {
-                    if (window.DataContext is IRequireViewIdentification vm && vm.ObservableId == id)
-                    {
-                        window.Close();
-                    }
-                }
-            });
-        }
-
-        private void SetStartupLocation(Window window, bool mainWindowWasOpen, bool hideMainWindow = false)
-        {
-            if (mainWindowWasOpen)
-            {
-                window.Owner = MainWindow;
-                if (hideMainWindow)
-                {
-                    MainWindow?.Hide();
-                }
-            }
-            else
-            {
-                window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            }
-        }
-
+        #region Dialogs
         void ShowDialog(BaseDialog baseDialog)
         {
             if (MainWindow is MetroWindow metroWindow)
@@ -353,80 +356,65 @@ namespace HideezClient.Modules
 
         Task ShowButtonConfirmAsync(ShowButtonConfirmUiMessage message)
         {
-            if (_dialogs.FirstOrDefault(d => d.GetType() == typeof(PinDialog)) == null)
+            UIDispatcher.Invoke(() =>
             {
-                UIDispatcher.Invoke(() =>
-                {
-                    var vm = _viewModelLocator.PinViewModel;
-                    vm.Initialize(message.DeviceId, true, false, false);
-                    var pinView = new PinDialog(vm);
-                    ShowDialog(pinView);
-                });
-            }
+                var vm = _viewModelLocator.PinViewModel;
+                vm.Initialize(message.DeviceId, true, false, false);
+                var pinView = new PinDialog(vm);
+                ShowDialog(pinView);
+            });
 
             return Task.CompletedTask;
         }
 
         Task ShowPinAsync(ShowPinUiMessage message)
         {
-            if (_dialogs.FirstOrDefault(d => d.GetType() == typeof(PinDialog)) == null)
+            UIDispatcher.Invoke(() =>
             {
-                UIDispatcher.Invoke(() =>
-                {
-                    var vm = _viewModelLocator.PinViewModel;
-                    vm.Initialize(message.DeviceId, false, message.OldPin, message.ConfirmPin);
-                    var pinView = new PinDialog(vm);
-                    ShowDialog(pinView);
-                });
-            }
+                var vm = _viewModelLocator.PinViewModel;
+                vm.Initialize(message.DeviceId, false, message.OldPin, message.ConfirmPin);
+                var pinView = new PinDialog(vm);
+                ShowDialog(pinView);
+            });
 
             return Task.CompletedTask;
         }
 
         Task ShowMasterPasswordAsync(ShowMasterPasswordUiMessage message)
         {
-            if (_dialogs.FirstOrDefault(d => d.GetType() == typeof(MasterPasswordDialog)) == null)
+            UIDispatcher.Invoke(() =>
             {
-                UIDispatcher.Invoke(() =>
-                {
-                    var vm = _viewModelLocator.MasterPasswordViewModel;
-                    vm.Initialize(message.DeviceId, message.OldPassword, message.ConfirmPassword);
-                    var masterPasswordView = new MasterPasswordDialog(vm);
-                    ShowDialog(masterPasswordView);
-                });
-            }
+                var vm = _viewModelLocator.MasterPasswordViewModel;
+                vm.Initialize(message.DeviceId, message.OldPassword, message.ConfirmPassword);
+                var masterPasswordView = new MasterPasswordDialog(vm);
+                ShowDialog(masterPasswordView);
+            });
 
             return Task.CompletedTask;
         }
 
         Task ShowBackupPasswordAsync(ShowBackupPasswordUiMessage message)
         {
-            if (_dialogs.FirstOrDefault(d => d.GetType() == typeof(BackupPasswordDialog)) == null)
+            UIDispatcher.Invoke(() =>
             {
-                UIDispatcher.Invoke(() =>
-                {
-                    var vm = _viewModelLocator.BackupPasswordViewModel;
-                    vm.Initialize(message.DeviceId, message.BackupFileName, message.IsNewPassword);
-                    var backupPasswordView = new BackupPasswordDialog(vm);
-                    ShowDialog(backupPasswordView);
-                });
-            }
+                var vm = _viewModelLocator.BackupPasswordViewModel;
+                vm.Initialize(message.DeviceId, message.BackupFileName, message.IsNewPassword);
+                var backupPasswordView = new BackupPasswordDialog(vm);
+                ShowDialog(backupPasswordView);
+            });
 
             return Task.CompletedTask;
         }
 
         Task ShowWipeDialogAsync(ShowWipeDialogMessage msg)
         {
-            if (_dialogs.FirstOrDefault(d => d.GetType() == typeof(WipeDialog)) == null)
+            UIDispatcher.Invoke(() =>
             {
-                UIDispatcher.Invoke(() =>
-                {
-                    var vm = _viewModelLocator.WipeViewModel;
-                    vm.Initialize(msg.DeviceId);
-                    var wipeView = new WipeDialog(vm);
-                    ShowDialog(wipeView);
-                });
-            }
+                var vm = _viewModelLocator.WipeViewModel;
+                vm.Initialize(msg.DeviceId);
+                var wipeView = new WipeDialog(vm);
+                ShowDialog(wipeView);
+            });
 
             return Task.CompletedTask;
         }
@@ -435,25 +423,15 @@ namespace HideezClient.Modules
         {
             try
             {
-                if (_dialogs.FirstOrDefault(d => d.GetType() == typeof(ActivationDialog)) == null)
+                UIDispatcher.Invoke(() =>
                 {
-                    UIDispatcher.Invoke(() =>
-                    {
-                        var vm = _viewModelLocator.ActivationViewModel;
-                        vm.Initialize(obj.DeviceId);
-                        var activationView = new ActivationDialog(vm);
-                        ShowDialog(activationView);
-                    });
-                }
+                    var vm = _viewModelLocator.ActivationViewModel;
+                    vm.Initialize(obj.DeviceId);
+                    var activationView = new ActivationDialog(vm);
+                    ShowDialog(activationView);
+                });
             }
             catch { }
-
-            return Task.CompletedTask;
-        }
-
-        Task HideActivationDialogAsync(HideActivationCodeUi message)
-        {
-            HideDialog(typeof(ActivationDialog));
 
             return Task.CompletedTask;
         }
@@ -513,6 +491,14 @@ namespace HideezClient.Modules
             return Task.CompletedTask;
         }
 
+
+        bool ContainsDialogType(Type type)
+        {
+            return _dialogs.FirstOrDefault(d => d.GetType() == type) != null;
+        }
+        #endregion
+
+        #region ScreenImage
         public async Task<Bitmap> GetCurrentScreenImageAsync()
         {
             Bitmap screenShot = new Bitmap(1, 1);
@@ -563,7 +549,9 @@ namespace HideezClient.Modules
 
             return bitmap;
         }
+        #endregion
 
+        #region Messages
         public Task<bool> ShowDeleteCredentialsPromptAsync()
         {
             var vm = new MessageViewModel();
@@ -606,6 +594,7 @@ namespace HideezClient.Modules
 
             return viewModel.Tcs.Task;
         }
+        #endregion
     }
 }
 

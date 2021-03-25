@@ -18,7 +18,7 @@ using System.Windows.Input;
 
 namespace HideezClient.ViewModels.Dialog
 {
-    public class MasterPasswordViewModel: ObservableObject
+    public class MasterPasswordViewModel: ObservableObject, IDialogViewModel
     {
         readonly IMetaPubSub _metaMessenger;
         readonly IDeviceManager _deviceManager;

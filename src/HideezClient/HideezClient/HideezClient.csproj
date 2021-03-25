@@ -457,6 +457,8 @@
     <Compile Include="Modules\DeviceManager\DeviceManager.cs" />
     <Compile Include="Modules\DeviceManager\IDeviceManager.cs" />
     <Compile Include="Controls\Notification\NotificationBase.cs" />
+    <Compile Include="Modules\HideDialogsAdapter\HideDialogsAdapter.cs" />
+    <Compile Include="Modules\HideDialogsAdapter\IHideDialogsAdapter.cs" />
     <Compile Include="Modules\Log\LogManager.cs" />
     <Compile Include="Modules\NotificationsManager\INotificationsManager.cs" />
     <Compile Include="Modules\NotificationsManager\NotificationsManager.cs" />
@@ -536,6 +538,7 @@
     <Compile Include="ViewModels\Account\EditAccountViewModel.cs" />
     <Compile Include="ViewModels\Dialog\ActivationViewModel.cs" />
     <Compile Include="ViewModels\Dialog\BackupPasswordViewModel.cs" />
+    <Compile Include="ViewModels\Dialog\IDialogViewModel.cs" />
     <Compile Include="ViewModels\Dialog\MasterPasswordViewModel.cs" />
     <Compile Include="ViewModels\Dialog\WipeViewModel.cs" />
     <Compile Include="ViewModels\MessageViewModel.cs" />

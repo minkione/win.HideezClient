@@ -13,19 +13,11 @@ namespace HideezClient.Dialogs
     /// </summary>
     public partial class MasterPasswordDialog : BaseDialog
     {
-        public MasterPasswordDialog(MasterPasswordViewModel vm)
+        public MasterPasswordDialog(MasterPasswordViewModel vm) : base(vm)
         {
             InitializeComponent();
-
             vm.ViewModelUpdated += PasswordView_ViewModelUpdated;
             vm.PasswordsCleared += PasswordView_PasswordsCleared;
-            Closed += Dialog_Closed;
-            DataContext = vm;
-        }
-
-        private void Dialog_Closed(object sender, System.EventArgs e)
-        {
-            (DataContext as MasterPasswordViewModel).OnClose();
         }
 
         private void PasswordView_PasswordsCleared(object sender, System.EventArgs e)

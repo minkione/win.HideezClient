@@ -51,8 +51,8 @@ using HideezClient.Modules.BleDeviceUnpairHelper;
 using HideezClient.Modules.WorkstationManager;
 using HideezMiddleware.ApplicationModeProvider;
 using HideezClient.ViewModels.Dialog;
-using Hideez.SDK.Communication.Backup;
 using HideezClient.Resources;
+using HideezClient.Modules.HideDialogsAdapter;
 
 namespace HideezClient
 {
@@ -215,6 +215,7 @@ namespace HideezClient
             Container.Resolve<IVaultLowBatteryMonitor>();
             _bleDeviceUnpairHelper = Container.Resolve<BleDeviceUnpairHelper>();
             Container.Resolve<IAppUpdater>();
+            Container.Resolve<IHideDialogsAdapter>();
 
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
 
@@ -318,6 +319,7 @@ namespace HideezClient
             Container.RegisterType<ILog, NLogWrapper>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IHideDialogsAdapter, HideDialogsAdapter>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
             Container.RegisterType<IApplicationModeProvider, ApplicationModeRegistryProvider>(new ContainerControlledLifetimeManager(),
