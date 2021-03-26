@@ -53,6 +53,7 @@ using HideezMiddleware.ApplicationModeProvider;
 using HideezClient.ViewModels.Dialog;
 using Hideez.SDK.Communication.Backup;
 using HideezClient.Resources;
+using HideezClient.Messages.Hotkeys;
 
 namespace HideezClient
 {
@@ -68,7 +69,7 @@ namespace HideezClient
         private IServiceWatchdog _serviceWatchdog;
         private IDeviceManager _deviceManager;
         private UserActionHandler _userActionHandler;
-        private IHotkeyManager _hotkeyManager;
+        private HotkeyModule _hotkeyModule;
         private IButtonManager _buttonManager;
         private MessageWindow _messageWindow;
         private IMetaPubSub _metaMessenger;
@@ -206,8 +207,8 @@ namespace HideezClient
             _serviceWatchdog.Start();
             _deviceManager = Container.Resolve<IDeviceManager>();
             _userActionHandler = Container.Resolve<UserActionHandler>();
-            _hotkeyManager = Container.Resolve<IHotkeyManager>();
-            _hotkeyManager.Enabled = true;
+            _hotkeyModule = Container.Resolve<HotkeyModule>();
+            await _metaMessenger.Publish(new EnableHotkeyMessage());
             _buttonManager = Container.Resolve<IButtonManager>();
             _buttonManager.Enabled = true;
             _messageWindow = Container.Resolve<MessageWindow>();
@@ -324,7 +325,6 @@ namespace HideezClient
                 new InjectionConstructor(HideezClientRegistryRoot.GetRootRegistryKey(false), typeof(ILog)));
             Container.RegisterType<IDeviceManager, DeviceManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ISupportMailContentGenerator, SupportMailContentGenerator>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IButtonManager, ButtonManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IActiveDevice, ActiveDevice>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IWorkstationIdProvider, WorkstationIdProvider>(new ContainerControlledLifetimeManager(),
@@ -332,6 +332,8 @@ namespace HideezClient
             Container.RegisterType<IWorkstationInfoProvider, WorkstationInfoProvider>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IProximityLockManager, ProximityLockManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IVaultLowBatteryMonitor, VaultLowBatteryMonitor>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IHotkeySettingsController, HotkeySettingsController>(new ContainerControlledLifetimeManager());
 
             // Settings
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()
