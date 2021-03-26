@@ -180,19 +180,6 @@
                     Focusable="True" 
                     DataContext="{Binding VaultAccessSettingsControlViewModel, Mode=OneWay, Source={StaticResource Locator}}"
                     Visibility="{Binding Device.IsStorageLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <!--<StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsLoading}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsLoaded}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>-->
                     <TextBlock
                         Style="{StaticResource SettingsHeaderStyle}"
                         Text="{l:Localization AccessSettings.Title}" />
@@ -284,16 +271,15 @@
                                         Style="{StaticResource ConfirmButtonStyle}" />
                                 </StackPanel>
                             </StackPanel>
+                            
                             <controls:LoadingControl
                                 Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                            <controls:UnsupportedControl Visibility="{Binding IsSupported, Converter={StaticResource InvertBooleanToVisibilityConverter}}">
-                                <controls:UnsupportedControl.Text>
-                                    <MultiBinding Converter="{StaticResource FormatStringConverter}">
-                                        <Binding Path="[AccessSettings.Unsupported]" Source="{x:Static localization:TranslationSource.Instance}" />
-                                        <Binding Path="RequiredFirmwareVersion" />
-                                    </MultiBinding>
-                                </controls:UnsupportedControl.Text>
-                            </controls:UnsupportedControl>
+
+                            <controls:UnsupportedControl
+                                DataContext="{Binding UnsupportedAccessSettingsViewModel, Mode=OneWay, Source={StaticResource Locator}}"
+                                Visibility="{Binding DataContext.IsSupported, RelativeSource={RelativeSource AncestorType=StackPanel},
+                                Converter={StaticResource InvertBooleanToVisibilityConverter}}"/>
+
                         </Grid>
                     </Border>
                 </StackPanel>

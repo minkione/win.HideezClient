@@ -20,20 +20,6 @@ namespace HideezClient.Controls
     /// </summary>
     public partial class UnsupportedControl : UserControl
     {
-        public string Text
-        {
-            get { return (string)GetValue(TextProperty); }
-            set { SetValue(TextProperty, value); }
-        }
-
-        public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register(
-                "Text",
-                typeof(string),
-                typeof(UnsupportedControl),
-                new PropertyMetadata(null)
-                );
-
         public UnsupportedControl()
         {
             InitializeComponent();

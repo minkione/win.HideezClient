@@ -14,45 +14,35 @@
         <Border.Background>
             <SolidColorBrush Color="#DEF2F7" Opacity="0.7"/>
         </Border.Background>
-        <Border Background="#F4FEFF" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="8" Padding="12,20">
-        <StackPanel
-            VerticalAlignment="Center">
-            <Border
-                Background="Transparent"
-                Padding="5,2"
-                Margin="0,8,0,50"
-                CornerRadius="8"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
-                <StackPanel Margin="0,0,0,-30">
-                    
-            <TextBlock 
-                HorizontalAlignment="Center"
-                Style="{StaticResource DialogTitleTextBlockStyle}" 
-                FontSize="18"
-                TextAlignment="Center"
-                Text="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                </StackPanel>
-            </Border>
-
-            <Button 
-                Style="{StaticResource ConfirmButtonStyle}"
-                HorizontalAlignment="Center"
-                >
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock 
-                        Text="{l:Localization AccessSettings.UpdateFW}"
-                        Margin="0,0,10,0"/>
-                    <iconPacks:PackIconMaterial 
-                        Kind="OpenInApp"
-                        FontWeight="Bold"
-                        VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button>
-            
-
-            
-        </StackPanel>
-            </Border>
+        <Border
+            Background="#F4FEFF"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            CornerRadius="8"
+            Padding="12,20">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock 
+                    HorizontalAlignment="Center"
+                    Style="{StaticResource DialogTitleTextBlockStyle}" 
+                    FontSize="18"
+                    Margin="5,8,5,50"
+                    TextAlignment="Center"
+                    Text="{Binding Text}"/>
+                <Button 
+                    Style="{StaticResource ConfirmButtonStyle}"
+                    Visibility="{Binding IsVisibleButton, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Command="{Binding OpenUpdateAppCommand}"
+                    HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock 
+                            Text="{Binding ButtonText}"
+                            Margin="0,0,10,0"/>
+                        <iconPacks:PackIconMaterial 
+                            Kind="{Binding Icon}"
+                            VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
     </Border>
 </UserControl>

@@ -19,6 +19,7 @@ using HideezClient.Controls;
 using HideezClient.Dialogs;
 using HideezClient.PageViewModels;
 using HideezClient.ViewModels.Controls;
+using HideezClient.ViewModels.Controls.UnsupportedControls;
 using HideezClient.ViewModels.Dialog;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -100,6 +101,11 @@ namespace HideezClient.ViewModels
         public BackupCredentialsControlViewModel BackupCredentialsControlViewModel
         {
             get { return DIContainer.Resolve<BackupCredentialsControlViewModel>(); }
+        }
+
+        public UnsupportedAccessSettingsViewModel UnsupportedAccessSettingsViewModel
+        {
+            get { return DIContainer.Resolve<UnsupportedAccessSettingsViewModel>(); }
         }
 
         #endregion

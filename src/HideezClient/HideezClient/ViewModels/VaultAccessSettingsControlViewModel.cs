@@ -33,6 +33,7 @@ namespace HideezClient.ViewModels
         readonly IWindowsManager _windowsManager;
         readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(VaultAccessSettingsControlViewModel));
         readonly IMetaPubSub _messenger;
+        readonly Version _requiredFirmwareVersion  = new Version(3, 6, 10);
 
         public VaultAccessSettingsControlViewModel(
             IApplicationModeProvider applicationModeProvider,
@@ -64,7 +65,7 @@ namespace HideezClient.ViewModels
 
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
 
-            IsSupported = Device?.FirmwareVersion > RequiredFirmwareVersion;
+            IsSupported = Device?.FirmwareVersion > _requiredFirmwareVersion;
         }
 
         #region Properties
@@ -102,8 +103,6 @@ namespace HideezClient.ViewModels
         [Reactive] public bool RequireButton { get; set; }
 
         [Reactive] public bool RequirePin { get; set; }
-
-        [Reactive] public Version RequiredFirmwareVersion { get; set; } = new Version(3, 6, 10);
 
         [Reactive] public TimeoutOption SelectedTimeout { get; set; }
         #endregion
@@ -173,7 +172,7 @@ namespace HideezClient.ViewModels
             Device = obj.NewDevice != null ? new DeviceViewModel(obj.NewDevice) : null;
             IsLoaded = false;
             IsLoading = false;
-            IsSupported = Device?.FirmwareVersion > RequiredFirmwareVersion;
+            IsSupported = Device?.FirmwareVersion > _requiredFirmwareVersion;
 
             return Task.CompletedTask;
         }
