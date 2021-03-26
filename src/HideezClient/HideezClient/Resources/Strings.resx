@@ -1104,7 +1104,7 @@ Would you like to perform application update now?</value>
     <value>New password</value>
   </data>
   <data name="BackupPassword.Title" xml:space="preserve">
-    <value>Set up password for file '{0}'</value>
+    <value>Set up password for file '{0}' (minimum 8)</value>
   </data>
   <data name="Vault.Notification.EnterCurrentBackupPassword" xml:space="preserve">
     <value>Please enter the password for backup file</value>

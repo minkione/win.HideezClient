@@ -98,13 +98,13 @@ namespace HideezMiddleware.Settings.SettingsProvider
             return deviceSettings.EnabledLockByProximity;
         }
 
-        public bool IsEnabledUnlock(string connectionId)
+        public bool IsEnabledUnlockByProximity(string connectionId)
         {
             var deviceSettings = _userProximitySettings.GetProximitySettings(connectionId);
             return deviceSettings.EnabledUnlockByProximity;
         }
 
-        public bool IsDisabledUnlockByProximity(string connectionId)
+        public bool IsDisabledAutoDisplay(string connectionId)
         {
             var deviceSettings = _userProximitySettings.GetProximitySettings(connectionId);
             return deviceSettings.DisabledDisplayAuto;

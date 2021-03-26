@@ -129,7 +129,7 @@ namespace HideezMiddleware.DeviceConnection
                 return;
 
             var id = adv.Id;
-            if (_proximitySettingsProvider.IsDisabledUnlockByProximity(id))
+            if (!_proximitySettingsProvider.IsEnabledUnlockByProximity(id))
                 return;
 
             var proximity = BleUtils.RssiToProximity(adv.Rssi);

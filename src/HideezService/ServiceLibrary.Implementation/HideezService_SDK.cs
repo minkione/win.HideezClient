@@ -395,6 +395,7 @@ namespace ServiceLibrary.Implementation
                 _proximityMonitorManager,
                 _deviceManager,
                 _workstationLocker,
+                _proximitySettingsProvider,
                 _deviceReconnectManager,
                 _sdkLogger);
             _workstationLockProcessor.DeviceProxLockEnabled += WorkstationLockProcessor_DeviceProxLockEnabled;

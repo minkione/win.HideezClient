@@ -2,6 +2,7 @@
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
+using Hideez.SDK.Communication.Proximity.Interfaces;
 using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.ReconnectManager;
 using System;
@@ -17,6 +18,7 @@ namespace HideezMiddleware
         readonly ProximityMonitorManager _proximityMonitorManager;
         readonly DeviceManager _deviceManager;
         readonly IWorkstationLocker _workstationLocker;
+        readonly IDeviceProximitySettingsProvider _proximitySettingsProvider;
         readonly DeviceReconnectManager _deviceReconnectManager;
 
         readonly object _deviceListsLock = new object();
@@ -28,7 +30,8 @@ namespace HideezMiddleware
             ConnectionFlowProcessorBase flowProcessor, 
             ProximityMonitorManager proximityMonitorManager, 
             DeviceManager deviceManager, 
-            IWorkstationLocker workstationLocker, 
+            IWorkstationLocker workstationLocker,
+            IDeviceProximitySettingsProvider proximitySettingsProvider,
             DeviceReconnectManager deviceReconnectManager,
             ILog log)
             :base(nameof(WorkstationLockProcessor), log)
@@ -37,6 +40,7 @@ namespace HideezMiddleware
             _proximityMonitorManager = proximityMonitorManager;
             _deviceManager = deviceManager;
             _workstationLocker = workstationLocker;
+            _proximitySettingsProvider = proximitySettingsProvider;
             _deviceReconnectManager = deviceReconnectManager;
 
             _flowProcessor.DeviceFinilizingMainFlow += FlowProcessor_DeviceFinalizingMainFlow;
@@ -173,7 +177,7 @@ namespace HideezMiddleware
 
         bool CanLock(IDevice device)
         {
-            return IsEnabled && device.GetUserProperty<bool>(PROX_LOCK_ENABLED_PROP);
+            return IsEnabled && device.GetUserProperty<bool>(PROX_LOCK_ENABLED_PROP) && _proximitySettingsProvider.IsEnabledLockByProximity(device.DeviceConnection.Connection.ConnectionId.Id);
         }
     }
 }

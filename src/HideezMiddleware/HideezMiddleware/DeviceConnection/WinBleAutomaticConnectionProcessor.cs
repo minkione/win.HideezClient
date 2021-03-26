@@ -171,10 +171,7 @@ namespace HideezMiddleware.DeviceConnection
 
             if (_workstationHelper.IsActiveSessionLocked())
             {
-                if(!_proximitySettingsProvider.IsEnabledUnlock(adv.Id))
-                    return;
-
-                if (_proximitySettingsProvider.IsDisabledUnlockByProximity(adv.Id) && !isCommandLinkPressed)
+                if (!_proximitySettingsProvider.IsEnabledUnlockByProximity(adv.Id) && !isCommandLinkPressed)
                     return;
 
                 if (proximity < _proximitySettingsProvider.GetUnlockProximity(adv.Id))

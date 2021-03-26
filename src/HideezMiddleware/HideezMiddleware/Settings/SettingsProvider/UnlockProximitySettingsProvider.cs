@@ -70,15 +70,15 @@ namespace HideezMiddleware.Settings.SettingsProvider
             return true;
         }
 
-        public bool IsEnabledUnlock(string connectionId)
+        public bool IsEnabledUnlockByProximity(string connectionId)
         {
-            return true;
+            var isExistSettings = _unlockProximitySettings.DevicesProximity.Any(s => s.Mac == BleUtils.ConnectionIdToMac(connectionId));
+            return isExistSettings;
         }
 
-        public bool IsDisabledUnlockByProximity(string connectionId)
+        public bool IsDisabledAutoDisplay(string connectionId)
         {
-            var isExistSettings = _unlockProximitySettings.DevicesProximity.Any(s=>s.Mac == BleUtils.ConnectionIdToMac(connectionId));
-            return !isExistSettings;
+            return false;
         }
     }
 }

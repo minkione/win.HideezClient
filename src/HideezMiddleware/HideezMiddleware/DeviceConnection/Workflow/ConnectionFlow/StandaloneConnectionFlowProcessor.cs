@@ -4,6 +4,7 @@ using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
+using Hideez.SDK.Communication.Proximity.Interfaces;
 using HideezMiddleware.DeviceConnection.Workflow.Interfaces;
 using HideezMiddleware.DeviceLogging;
 using HideezMiddleware.Localize;
@@ -33,6 +34,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
         readonly IScreenActivator _screenActivator;
         readonly IClientUiManager _ui;
         readonly IWorkstationHelper _workstationHelper;
+        private readonly IDeviceProximitySettingsProvider _proximitySettingsProvider;
         readonly DeviceLogManager _deviceLogManager;
 
         readonly StandaloneConnectionFlowSubprocessorsStruct _subp;
@@ -49,6 +51,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
             IClientUiManager ui,
             StandaloneConnectionFlowSubprocessorsStruct subprocs,
             IWorkstationHelper workstationHelper,
+            IDeviceProximitySettingsProvider proximitySettingsProvider,
             DeviceLogManager deviceLogManager,
             ILog log)
             : base(nameof(StandaloneConnectionFlowProcessor), log)
@@ -60,6 +63,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
 
             _subp = subprocs;
             _workstationHelper = workstationHelper;
+            _proximitySettingsProvider = proximitySettingsProvider;
             _deviceLogManager = deviceLogManager;
 
         }
@@ -90,7 +94,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
                 await _ui.SendNotification(string.Empty, connectionId.Id);
 
                 // Start periodic screen activator to raise the "curtain"
-                if (_workstationHelper.IsActiveSessionLocked())
+                if (_workstationHelper.IsActiveSessionLocked() && !_proximitySettingsProvider.IsDisabledAutoDisplay(connectionId.Id))
                 {
                     _screenActivator?.ActivateScreen();
                     _screenActivator?.StartPeriodicScreenActivation(0);

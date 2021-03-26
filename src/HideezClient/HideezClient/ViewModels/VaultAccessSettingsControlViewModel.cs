@@ -65,7 +65,7 @@ namespace HideezClient.ViewModels
 
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
 
-            IsSupported = Device?.FirmwareVersion > _requiredFirmwareVersion;
+            IsSupported = Device?.FirmwareVersion >= _requiredFirmwareVersion;
         }
 
         #region Properties
@@ -172,7 +172,7 @@ namespace HideezClient.ViewModels
             Device = obj.NewDevice != null ? new DeviceViewModel(obj.NewDevice) : null;
             IsLoaded = false;
             IsLoading = false;
-            IsSupported = Device?.FirmwareVersion > _requiredFirmwareVersion;
+            IsSupported = Device?.FirmwareVersion >= _requiredFirmwareVersion;
 
             return Task.CompletedTask;
         }

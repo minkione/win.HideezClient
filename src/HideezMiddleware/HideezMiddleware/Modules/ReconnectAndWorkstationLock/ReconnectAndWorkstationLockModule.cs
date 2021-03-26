@@ -3,6 +3,7 @@ using Hideez.SDK.Communication.Device;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.Proximity;
+using Hideez.SDK.Communication.Proximity.Interfaces;
 using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
 using HideezMiddleware.IPC.DTO;
 using HideezMiddleware.IPC.Messages;
@@ -29,6 +30,7 @@ namespace HideezMiddleware.Modules.ReconnectAndWorkstationLock
             ConnectionFlowProcessorBase connectionFlowProcessor,
             ProximityMonitorManager proximityMonitorManager,
             DeviceManager deviceManager,
+            IDeviceProximitySettingsProvider proximitySettingsProvider,
             IMetaPubSub messenger,
             ILog log)
             : base(messenger, nameof(WorkstationLockModule), log)
@@ -40,6 +42,7 @@ namespace HideezMiddleware.Modules.ReconnectAndWorkstationLock
                 proximityMonitorManager,
                 deviceManager,
                 _universalWorkstationLocker,
+                proximitySettingsProvider,
                 _deviceReconnectManager,
                 log);
 
