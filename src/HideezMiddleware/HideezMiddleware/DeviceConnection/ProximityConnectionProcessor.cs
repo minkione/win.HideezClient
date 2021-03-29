@@ -102,16 +102,6 @@ namespace HideezMiddleware.DeviceConnection
             }
         }
 
-        void SetAccessListFromSettings(ProximitySettings settings)
-        {
-            _advIgnoreListMonitor.Clear();
-        }
-
-        void UnlockerSettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<ProximitySettings> e)
-        {
-            SetAccessListFromSettings(e.NewSettings);
-        }
-
         async void BleConnectionManager_AdvertismentReceived(object sender, AdvertismentReceivedEventArgs e)
         {
             await ConnectByProximity(e);

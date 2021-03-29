@@ -1,0 +1,408 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2A5ABF59-55EE-461B-8C6F-2A294481129B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HideezMiddleware</RootNamespace>
+    <AssemblyName>HideezMiddleware</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CsrBLE">
+      <HintPath>..\..\..\win.sdk\CsrBLE\Build\Debug.x64\CsrBLE.dll</HintPath>
+    </Reference>
+    <Reference Include="Meta.Lib, Version=1.1.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Meta.Lib.1.1.3\lib\netstandard2.0\Meta.Lib.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NLog.4.6.6\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=1.2.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Collections.Immutable.1.7.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Windows, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.18362.0\Windows.winmd</HintPath>
+    </Reference>
+    <Reference Include="zxing, Version=0.16.5.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ZXing.Net.0.16.5\lib\net47\zxing.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing.presentation, Version=0.16.5.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ZXing.Net.0.16.5\lib\net47\zxing.presentation.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Version.cs">
+      <Link>Version.cs</Link>
+    </Compile>
+    <Compile Include="ApplicationModeProvider\ApplicationMode.cs" />
+    <Compile Include="ApplicationModeProvider\ApplicationModeRegistryProvider.cs" />
+    <Compile Include="ApplicationModeProvider\IApplicationModeProvider.cs" />
+    <Compile Include="Audit\EventSaver.cs" />
+    <Compile Include="Audit\EventSender.cs" />
+    <Compile Include="Audit\EventFactory.cs" />
+    <Compile Include="Audit\SessionInfoProvider.cs" />
+    <Compile Include="Audit\SessionSwitchLogger.cs" />
+    <Compile Include="Audit\SessionTimestampLogger.cs" />
+    <Compile Include="BondManager.cs" />
+    <Compile Include="ChangeServerAddressResult.cs" />
+    <Compile Include="ClientManagement\ServiceClientUiManager.cs" />
+    <Compile Include="CredentialProvider\CommandLinkVisibilityController.cs" />
+    <Compile Include="DeviceConnection\IConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\WinBleAutomaticConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\AccountsUpdateProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\ActivationProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\CacheVaultInfoProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\ConnectionFlow\EnterpriseConnectionFlowProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\ConnectionFlow\ConnectionFlowProcessorBase.cs" />
+    <Compile Include="DeviceConnection\Workflow\ConnectionFlow\EnterpriseConnectionFlowProcessorFactory.cs" />
+    <Compile Include="DeviceConnection\Workflow\ConnectionFlow\StandaloneConnectionFlowProcessorFactory.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IAccountsUpdateProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IActivationProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\ICacheVaultInfoProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\ILicensingProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IPermissionsCheckProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IStateUpdateProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IUnlockProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IUserAuthorizationProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IVaultAuthorizationProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\Interfaces\IVaultConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\LicensingProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\ConnectionFlow\StandaloneConnectionFlowProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\StandaloneVaultAuthorizationProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\VaultAuthorizationProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\PermissionsCheckProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\StateUpdateProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\UnlockProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\UserAuthorizationProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\VaultConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\Workflow\VaultFailedToAuthorizeException.cs" />
+    <Compile Include="DeviceConnection\Workflow\WorkflowException.cs" />
+    <Compile Include="DeviceConnection\Workflow\WorkstationUnlockFailedException.cs" />
+    <Compile Include="DeviceLogging\DeviceLogManager.cs" />
+    <Compile Include="DeviceLogging\DeviceLogWriter.cs" />
+    <Compile Include="DeviceLogging\IDeviceLogWriter.cs" />
+    <Compile Include="ConnectionModeProvider\ConnectionModeProvider.cs" />
+    <Compile Include="ConnectionModeProvider\IConnectionModeProvider.cs" />
+    <Compile Include="HesAccessManager.cs" />
+    <Compile Include="HideezClientRegistryRoot.cs" />
+    <Compile Include="ConnectionManagerRestarter.cs" />
+    <Compile Include="CredentialProvider\CredentialProviderProxy.cs" />
+    <Compile Include="DeviceConnection\AdvertisementIgnoreList.cs" />
+    <Compile Include="DeviceConnection\BaseConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\ProximityConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\RfidConnectionProcessor.cs" />
+    <Compile Include="DeviceConnection\TapConnectionProcessor.cs" />
+    <Compile Include="IPC\DTO\AccessLevelDTO.cs" />
+    <Compile Include="IPC\DTO\DeviceDTO.cs" />
+    <Compile Include="IPC\DTO\DeviceStateDTO.cs" />
+    <Compile Include="IPC\DTO\ProximitySettingsDTO.cs" />
+    <Compile Include="IPC\DTO\WorkstationEventDTO.cs" />
+    <Compile Include="IPC\IncommingMessages\ActivationCodeCancelledMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\AttachClientMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\CancelActivationCodeMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\CancelPinMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\ChangeServerAddressMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\ChangeServerAddressMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\CloseChannelMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\ConnectPairedVaultsMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\DisconnectDeviceMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\GetAvailableChannelsMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\GetAvailableChannelsMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\LoadUserProximitySettingsMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\LoadUserProximitySettingsMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\PublishEventMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RefreshServiceInfoMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_ControlRemoteCommandMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_GetConnectionProviderMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_GetConnectionProviderMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_GetRootKeyMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_GetRootKeyMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_RemoteCommandMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_RemoteCommandMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_ResetChannelMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_VerifyCommandMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoteDevice\RemoteConnection_DeviceCommandMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\RemoveDeviceMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\SaveUserProximitySettingsMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\SendActivationCodeMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\SetSoftwareVaultUnlockModuleStateMessage.cs" />
+    <Compile Include="IPC\Messages\ActivateScreenRequestMessage.cs" />
+    <Compile Include="IPC\Messages\CredentialProvider_CommandLinkPressedMessage.cs" />
+    <Compile Include="IPC\Messages\DeviceBatteryChangedMessage.cs" />
+    <Compile Include="IPC\Messages\DeviceConnectionStateChangedMessage.cs" />
+    <Compile Include="IPC\Messages\DeviceDisconnectedMessage.cs" />
+    <Compile Include="IPC\Messages\DeviceFinishedMainFlowMessage.cs" />
+    <Compile Include="IPC\Messages\DeviceInitializedMessage.cs" />
+    <Compile Include="IPC\Messages\DeviceOperationCancelledMessage.cs" />
+    <Compile Include="IPC\Messages\DeviceProximityChangedMessage.cs" />
+    <Compile Include="IPC\Messages\DeviceProximityLockEnabledMessage.cs" />
+    <Compile Include="IPC\Messages\DevicesCollectionChangedMessage.cs" />
+    <Compile Include="IPC\Messages\HideActivationCodeUi.cs" />
+    <Compile Include="IPC\Messages\LiftDeviceStorageLockMessage.cs" />
+    <Compile Include="IPC\Messages\LockDeviceStorageMessage.cs" />
+    <Compile Include="IPC\Messages\LockWorkstationMessage.cs" />
+    <Compile Include="IPC\Messages\LoginClientRequestMessage.cs" />
+    <Compile Include="IPC\Messages\ProximitySettingsChangedMessage.cs" />
+<<<<<<< HEAD
+    <Compile Include="IPC\Messages\RefreshStatusMessage.cs" />
+=======
+>>>>>>> release/3.7
+    <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_DeviceIsBusyMessage.cs" />
+    <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_DeviceStateChangedMessage.cs" />
+    <Compile Include="IPC\Messages\RemoteDevice\PipeDeviceDisconnectedMessage.cs" />
+    <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_OperationCancelledMessage.cs" />
+    <Compile Include="IPC\Messages\RemoteDevice\RemoteConnection_WipeFinishedMessage.cs" />
+    <Compile Include="IPC\Messages\ServiceComponentsStateChangedMessage.cs" />
+    <Compile Include="IPC\Messages\ServiceSettingsChangedMessage.cs" />
+    <Compile Include="IPC\Messages\ShowActivationCodeUiMessage.cs" />
+    <Compile Include="IPC\Messages\UnpairDeviceMessage.cs" />
+    <Compile Include="IPC\Messages\UserErrorMessage.cs" />
+    <Compile Include="IPC\Messages\UserNotificationMessage.cs" />
+    <Compile Include="IPC\Messages\WorkstationUnlockedMessage.cs" />
+    <Compile Include="IPC\Messages\WorkstationUnlockPerformedMessage.cs" />
+    <Compile Include="Localize\ResourceManagersProvider.cs" />
+    <Compile Include="Localize\TranslationSource.cs" />
+    <Compile Include="MetaPubSubLogger.cs" />
+    <Compile Include="Modules\Audit\AuditModule.cs" />
+    <Compile Include="Modules\ClientPipe\ClientPipeModule.cs" />
+    <Compile Include="Modules\ClientPipe\PipeDeviceConnectionHandler.cs" />
+    <Compile Include="Modules\ClientPipe\PipeDeviceConnectionManager.cs" />
+    <Compile Include="Modules\CredentialProvider\CredentialProviderModule.cs" />
+    <Compile Include="Modules\CredentialProvider\Messages\WorkstationUnlocker_ConnectedMessage.cs" />
+    <Compile Include="Modules\Csr\CsrModule.cs" />
+    <Compile Include="Modules\Csr\Messages\CsrStatusChangedMessage.cs" />
+    <Compile Include="Modules\DeviceManagement\DeviceManagementModule.cs" />
+    <Compile Include="Modules\DeviceManagement\Messages\DeviceManager_DeviceAddedMessage.cs" />
+    <Compile Include="Modules\DeviceManagement\Messages\DeviceManager_DeviceRemovedMessage.cs" />
+    <Compile Include="Modules\DeviceManagement\Messages\DeviceManager_ExpectedDeviceRemovalMessage.cs" />
+    <Compile Include="Modules\FatalExceptionHandler\FatalExceptionHandlerModule.cs" />
+    <Compile Include="Modules\Hes\HesModule.cs" />
+    <Compile Include="Modules\Hes\Messages\HesAccessManager_AccessRetractedMessage.cs" />
+    <Compile Include="Modules\Hes\Messages\HesAppConnection_HubConnectionStateChangedMessage.cs" />
+    <Compile Include="Modules\Hes\Messages\HesAppConnection_HubProximitySettingsArrivedMessage.cs" />
+    <Compile Include="Modules\Hes\Messages\HesAppConnection_HUbRFIDIndicatorStateArrivedMessage.cs" />
+    <Compile Include="Modules\Hes\Messages\HesAppConnection_LiftHwVaultStorageLockMessage.cs" />
+    <Compile Include="Modules\Hes\Messages\HesAppConnection_LockHwVaultStorageMessage.cs" />
+    <Compile Include="Modules\Hes\Messages\HesAppConnection_AlarmMessage.cs" />
+    <Compile Include="Modules\IModule.cs" />
+    <Compile Include="Modules\ModuleBase.cs" />
+    <Compile Include="Modules\ReconnectAndWorkstationLock\ReconnectAndWorkstationLockModule.cs" />
+    <Compile Include="Modules\RemoteUnlock\Messages\TBConnection_StateChangedMessage.cs" />
+    <Compile Include="Modules\RemoteUnlock\RemoteUnlockModule.cs" />
+    <Compile Include="Modules\Rfid\Messages\RfidStatusChangedMessage.cs" />
+    <Compile Include="Modules\Rfid\RfidModule.cs" />
+    <Compile Include="Modules\ServiceEvents\Messages\PowerEventMonitor_SystemLeftSuspendedModeMessage.cs" />
+    <Compile Include="Modules\ServiceEvents\Messages\PowerEventMonitor_SystemQuerySuspendMessage.cs" />
+    <Compile Include="Modules\ServiceEvents\Messages\PowerEventMonitor_SystemSuspendingMessage.cs" />
+    <Compile Include="Modules\ServiceEvents\Messages\SessionSwitchMonitor_SessionSwitchMessage.cs" />
+    <Compile Include="Modules\ServiceEvents\ServiceEventsModule.cs" />
+    <Compile Include="Modules\UpdateCheck\AppUpdateInfo.cs" />
+    <Compile Include="Modules\UpdateCheck\CachedUpdateInfo.cs" />
+    <Compile Include="Modules\UpdateCheck\Messages\ApplicationUpdateAvailableMessage.cs" />
+    <Compile Include="Modules\UpdateCheck\UpdateCheckModule.cs" />
+    <Compile Include="Modules\WinBle\Messages\WinBleStatusChangedMessage.cs" />
+    <Compile Include="Modules\WinBle\WinBleModule.cs" />
+    <Compile Include="Modules\ReconnectAndWorkstationLock\WtsapiWorkstationLocker.cs" />
+    <Compile Include="PowerEventMonitor.cs" />
+    <Compile Include="RegistrySettings.cs" />
+    <Compile Include="Resources\Standalone\ErrorCode.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ErrorCode.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\Standalone\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SessionUnlockMethodMonitor.cs" />
+    <Compile Include="Settings\SettingsProvider\UnlockProximitySettingsProvider.cs" />
+    <Compile Include="Settings\SettingsProvider\UserProximitySettingsProvider.cs" />
+    <Compile Include="Settings\UserDeviceProximitySettings.cs" />
+    <Compile Include="Settings\UserProximitySettings.cs" />
+    <Compile Include="Settings\Manager\WatchingSettingsManager.cs" />
+    <Compile Include="Settings\WorkstationSettings.cs" />
+    <Compile Include="Tasks\WaitAdvertisementProc.cs" />
+    <Compile Include="UnpairProvider.cs" />
+    <Compile Include="Utils\MasterPasswordConverter.cs" />
+    <Compile Include="Utils\WorkstationHelper\IWorkstationHelper.cs" />
+    <Compile Include="Utils\WorkstationHelper\WorkstationHelper.cs" />
+<<<<<<< HEAD
+    <Compile Include="WinBleControllersStateMonitor.cs" />
+    <Compile Include="Modules\ReconnectAndWorkstationLock\UniversalWorkstationLocker.cs" />
+    <Compile Include="Modules\ReconnectAndWorkstationLock\WcfWorkstationLocker.cs" />
+    <Compile Include="WorkstationLock\WtsapiWorkstationLocker.cs" />
+=======
+    <Compile Include="WinBleConnectionManagerWrapper.cs" />
+>>>>>>> release/3.7
+    <Compile Include="Workstation\IWorkstationIdProvider.cs" />
+    <Compile Include="Local\LocalDeviceInfo.cs" />
+    <Compile Include="Local\LocalDeviceInfoCache.cs" />
+    <Compile Include="Local\ILocalDeviceInfoCache.cs" />
+    <Compile Include="Extensions\IEnumerableExtension.cs" />
+    <Compile Include="HideezExceptionLocalization.cs" />
+    <Compile Include="IClientUiProxy.cs" />
+    <Compile Include="ReconnectManager\DeviceReconnectManager.cs" />
+    <Compile Include="ReconnectManager\ReconnectProc.cs" />
+    <Compile Include="SoftwareVault\QrFactories\ActivationQrBitmapFactory.cs" />
+    <Compile Include="SoftwareVault\QrFactories\SimpleQrBitmapFactory.cs" />
+    <Compile Include="SoftwareVault\QrFactories\UnlockQrBitmapFactory.cs" />
+    <Compile Include="SoftwareVault\UnlockToken\UnlockTokenGenerator.cs" />
+    <Compile Include="SoftwareVault\UnlockToken\UnlockTokenProvider.cs" />
+    <Compile Include="ScreenActivation\IScreenActivator.cs" />
+    <Compile Include="IWorkstationLocker.cs" />
+    <Compile Include="NLogWrapper.cs" />
+    <Compile Include="ScreenActivation\ScreenActivator.cs" />
+    <Compile Include="SdkConfigLoader.cs" />
+    <Compile Include="SessionSwitchMonitor.cs" />
+    <Compile Include="Settings\BaseSettings.cs" />
+    <Compile Include="Settings\DeviceProximitySettingsHelper.cs" />
+    <Compile Include="Settings\FileSerializer\IFileSerializer.cs" />
+    <Compile Include="Settings\Manager\ISettingsManager.cs" />
+    <Compile Include="Settings\Manager\VirtualSettingsManager.cs" />
+    <Compile Include="Settings\RfidSettings.cs" />
+    <Compile Include="Settings\SdkSettings.cs" />
+    <Compile Include="Settings\ServiceSettings.cs" />
+    <Compile Include="Settings\SettingAttribute.cs" />
+    <Compile Include="Settings\Manager\SettingsManager.cs" />
+    <Compile Include="Settings\FileSerializer\XmlFileSerializer.cs" />
+    <Compile Include="Settings\ProximitySettings.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\ErrorCode.Designer.cs" />
+    <Compile Include="RfidServiceConnection.cs" />
+    <Compile Include="StatusManager.cs" />
+    <Compile Include="Tasks\GetDeviceInfoFromHesProc.cs" />
+    <Compile Include="Tasks\UnlockSessionSwitchProc.cs" />
+    <Compile Include="Tasks\WaitWorkstationUnlockerConnectProc.cs" />
+    <Compile Include="Threading\SemaphoreQueue.cs" />
+    <Compile Include="UiProxyManager.cs" />
+    <Compile Include="Utils\QrBitmapFactory.cs" />
+    <Compile Include="Utils\LocalToMSAccountConverter.cs" />
+    <Compile Include="Utils\WorkstationHelper\WorkstationInformationHelper.cs" />
+    <Compile Include="Utils\WorkstationHelper\WorkstationInformationHelper_UnlockCheck.cs" />
+    <Compile Include="WorkstationInfoProvider.cs" />
+    <Compile Include="WorkstationLockingEventArgs.cs" />
+    <Compile Include="WorkstationLockProcessor.cs" />
+    <Compile Include="WorkstationLockingReason.cs" />
+    <Compile Include="WorkstationUnlockResult.cs" />
+    <Compile Include="Workstation\WorkstationIdProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ErrorCode.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Standalone\ErrorCode.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ErrorCode.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Standalone\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="NLog.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\win.SDK\Communication\Communication.csproj">
+      <Project>{6f4c0dc3-4aa3-4517-9311-edec593baf12}</Project>
+      <Name>Communication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\win.SDK\WinBle\WinBle.csproj">
+      <Project>{af08ed4d-6977-4dcb-a49d-0c0a547698ba}</Project>
+      <Name>WinBle</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

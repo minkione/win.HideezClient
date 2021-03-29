@@ -64,8 +64,6 @@ namespace HideezClient.ViewModels
             this.ObservableForProperty(vm => vm.SelectedTimeout).Subscribe(vm => { OnSettingValueChanged(); });
 
             Device = activeDevice.Device != null ? new DeviceViewModel(activeDevice.Device) : null;
-
-            IsSupported = Device?.FirmwareVersion >= _requiredFirmwareVersion;
         }
 
         #region Properties
@@ -199,6 +197,10 @@ namespace HideezClient.ViewModels
         {
             IsLoaded = false;
             HasChanges = false;
+            IsSupported = Device?.FirmwareVersion >= _requiredFirmwareVersion;
+
+            if (!IsSupported)
+                return;
 
             if (Device.IsStorageLoaded)
             {

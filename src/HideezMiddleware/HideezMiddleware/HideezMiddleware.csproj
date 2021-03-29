@@ -157,6 +157,8 @@
     <Compile Include="DeviceLogging\DeviceLogManager.cs" />
     <Compile Include="DeviceLogging\DeviceLogWriter.cs" />
     <Compile Include="DeviceLogging\IDeviceLogWriter.cs" />
+    <Compile Include="ConnectionModeProvider\ConnectionModeProvider.cs" />
+    <Compile Include="ConnectionModeProvider\IConnectionModeProvider.cs" />
     <Compile Include="HesAccessManager.cs" />
     <Compile Include="HideezClientRegistryRoot.cs" />
     <Compile Include="ConnectionManagerRestarter.cs" />
@@ -177,6 +179,8 @@
     <Compile Include="IPC\IncommingMessages\CancelPinMessage.cs" />
     <Compile Include="IPC\IncommingMessages\ChangeServerAddressMessage.cs" />
     <Compile Include="IPC\IncommingMessages\ChangeServerAddressMessageReply.cs" />
+    <Compile Include="IPC\IncommingMessages\CloseChannelMessage.cs" />
+    <Compile Include="IPC\IncommingMessages\ConnectPairedVaultsMessage.cs" />
     <Compile Include="IPC\IncommingMessages\DisconnectDeviceMessage.cs" />
     <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessage.cs" />
     <Compile Include="IPC\IncommingMessages\EstablishRemoteDeviceConnectionMessageReply.cs" />
@@ -303,10 +307,10 @@
     <Compile Include="Utils\MasterPasswordConverter.cs" />
     <Compile Include="Utils\WorkstationHelper\IWorkstationHelper.cs" />
     <Compile Include="Utils\WorkstationHelper\WorkstationHelper.cs" />
-    <Compile Include="WinBleControllersStateMonitor.cs" />
     <Compile Include="Modules\ReconnectAndWorkstationLock\UniversalWorkstationLocker.cs" />
     <Compile Include="Modules\ReconnectAndWorkstationLock\WcfWorkstationLocker.cs" />
     <Compile Include="WorkstationLock\WtsapiWorkstationLocker.cs" />
+    <Compile Include="WinBleConnectionManagerWrapper.cs" />
     <Compile Include="Workstation\IWorkstationIdProvider.cs" />
     <Compile Include="Local\LocalDeviceInfo.cs" />
     <Compile Include="Local\LocalDeviceInfoCache.cs" />
@@ -388,7 +392,7 @@
       <Name>Communication</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\win.SDK\WinBle\WinBle.csproj">
-      <Project>{AF08ED4D-6977-4DCB-A49D-0C0A547698BA}</Project>
+      <Project>{af08ed4d-6977-4dcb-a49d-0c0a547698ba}</Project>
       <Name>WinBle</Name>
     </ProjectReference>
   </ItemGroup>

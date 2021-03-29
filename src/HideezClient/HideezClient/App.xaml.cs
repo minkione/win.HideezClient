@@ -49,6 +49,7 @@ using HideezClient.Modules.VaultLowBatteryMonitor;
 using HideezClient.ViewModels.Controls;
 using HideezClient.Modules.BleDeviceUnpairHelper;
 using HideezClient.Modules.WorkstationManager;
+using HideezMiddleware.ConnectionModeProvider;
 using HideezMiddleware.ApplicationModeProvider;
 using HideezClient.ViewModels.Dialog;
 using HideezClient.Resources;
@@ -152,6 +153,9 @@ namespace HideezClient
 
             InitializeDIContainer();
 
+            var _connectionModeProvider = Container.Resolve<IConnectionModeProvider>();
+            _log.WriteLine($"Connection mode: {_connectionModeProvider.ConnectionMode}");
+
             // Get application mode as soon as possible
             var _applicationModeProvider = Container.Resolve<IApplicationModeProvider>();
             var mode = _applicationModeProvider.GetApplicationMode();
@@ -161,7 +165,6 @@ namespace HideezClient
                 ResourceManagersProvider.SetResources(typeof(Strings), typeof(Resources.StandaloneStrings.Strings));
             else
                 ResourceManagersProvider.SetResources(typeof(Strings));
-
             // Init settings
             ApplicationSettings settings = null;
             ISettingsManager<ApplicationSettings> appSettingsManager = Container.Resolve<ISettingsManager<ApplicationSettings>>();
@@ -334,6 +337,8 @@ namespace HideezClient
             Container.RegisterType<IWorkstationInfoProvider, WorkstationInfoProvider>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IProximityLockManager, ProximityLockManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IVaultLowBatteryMonitor, VaultLowBatteryMonitor>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IConnectionModeProvider, ConnectionModeProvider>(new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(HideezClientRegistryRoot.GetRootRegistryKey(false), typeof(ILog)));
 
             // Settings
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()

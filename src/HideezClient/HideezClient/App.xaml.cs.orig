@@ -9,17 +9,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using SingleInstanceApp;
 using HideezClient.Modules;
-using GalaSoft.MvvmLight.Messaging;
-using NLog;
 using HideezClient.ViewModels;
 using Hardcodet.Wpf.TaskbarNotification;
 using System.Globalization;
 using System.Threading;
 using System.IO;
 using HideezClient.Modules.ServiceProxy;
-using HideezClient.Modules.Localize;
-using HideezClient.HideezServiceReference;
-using HideezClient.Modules.ServiceCallbackMessanger;
+using HideezMiddleware.Localize;
 using HideezClient.Modules.ServiceWatchdog;
 using HideezClient.Modules.DeviceManager;
 using HideezClient.Modules.ActionHandler;
@@ -34,15 +30,33 @@ using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
 using HideezClient.Controls;
 using System.Reflection;
-<<<<<<< HEAD
-using HideezClient.Utilities.QrCode;
-using ZXing;
-=======
 using HideezClient.Views;
 using Microsoft.Win32;
 using HideezClient.Messages;
 using System.Diagnostics;
->>>>>>> develop
+using HideezClient.Modules.ButtonManager;
+using HideezClient.Utilities.QrCode;
+using ZXing;
+using HideezClient.Modules.Log;
+using Hideez.SDK.Communication.Workstation;
+using HideezMiddleware.Workstation;
+using HideezClient.Modules.ProximityLockManager;
+using Meta.Lib.Modules.PubSub;
+using HideezClient.Modules.NotificationsManager;
+using Meta.Lib.Modules.PubSub.Messages;
+using HideezMiddleware.IPC.Messages;
+using HideezClient.Modules.VaultLowBatteryMonitor;
+using HideezClient.ViewModels.Controls;
+using HideezClient.Modules.BleDeviceUnpairHelper;
+using HideezClient.Modules.WorkstationManager;
+<<<<<<< HEAD
+using HideezMiddleware.ApplicationModeProvider;
+using HideezClient.ViewModels.Dialog;
+using HideezClient.Resources;
+using HideezClient.Modules.HideDialogsAdapter;
+=======
+using HideezMiddleware.ConnectionModeProvider;
+>>>>>>> release/3.7
 
 namespace HideezClient
 {
@@ -51,30 +65,42 @@ namespace HideezClient
     /// </summary>
     public partial class App : Application, ISingleInstance
     {
-        public static ILogger logger;
-        private IStartupHelper startupHelper;
-        private IWorkstationManager workstationManager;
-        private IMessenger messenger;
-        private IWindowsManager windowsManager;
-        private IServiceWatchdog serviceWatchdog;
-        private IDeviceManager deviceManager;
-        private UserActionHandler userActionHandler;
-        private IHotkeyManager hotkeyManager;
-        private MessageWindow messageWindow;
+        public static Logger _log = LogManager.GetCurrentClassLogger(nameof(App));
+        private IStartupHelper _startupHelper;
+        private IWorkstationManager _workstationManager;
+        private IWindowsManager _windowsManager;
+        private IServiceWatchdog _serviceWatchdog;
+        private IDeviceManager _deviceManager;
+        private UserActionHandler _userActionHandler;
+        private IHotkeyManager _hotkeyManager;
+        private IButtonManager _buttonManager;
+        private MessageWindow _messageWindow;
+        private IMetaPubSub _metaMessenger;
+        private BleDeviceUnpairHelper _bleDeviceUnpairHelper;
 
         public static IUnityContainer Container { get; private set; }
 
         public App()
         {
+            App.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            
+            // Fixes System.ComponentModel.Win32Exception (0x80004005): Not enough quota is available to process this command
+            // Occurs when we receive 10000 windows messages per second
+            BaseCompatibilityPreferences.HandleDispatcherRequestProcessingFailure = BaseCompatibilityPreferences.HandleDispatcherRequestProcessingFailureOptions.Reset;
+
             SetupExceptionHandling();
 
             LogManager.EnableLogging();
-            logger = LogManager.GetCurrentClassLogger();
 
-            logger.Info("App version: {0}", Assembly.GetEntryAssembly().GetName().Version);
-            logger.Info("Version: {0}", Environment.Version);
-            logger.Info("OS: {0}", Environment.OSVersion);
-            logger.Info("Command: {0}", Environment.CommandLine);
+            _log.WriteLine($"App version: {Assembly.GetEntryAssembly().GetName().Version}");
+            _log.WriteLine($"Version: {Environment.Version}");
+            _log.WriteLine($"OS: {Environment.OSVersion}");
+            _log.WriteLine($"Command: {Environment.CommandLine}");
+        }
+
+        private void Application_Startup(object sender, StartupEventArgs e)
+        {
+
         }
 
         void SetupExceptionHandling()
@@ -95,11 +121,11 @@ namespace HideezClient
             {
                 LogManager.EnableLogging();
 
-                var fatalLogger = logger ?? LogManager.GetCurrentClassLogger();
+                var fatalLogger = _log ?? LogManager.GetCurrentClassLogger(nameof(App));
                 var assemblyName = Assembly.GetExecutingAssembly().GetName();
 
-                fatalLogger.Fatal($"Unhandled exception in {assemblyName.Name} v{assemblyName.Version}");
-                fatalLogger.Fatal(e);
+                fatalLogger.WriteLine($"Unhandled exception in {assemblyName.Name} v{assemblyName.Version}", LogErrorSeverity.Fatal);
+                fatalLogger.WriteLine(e, LogErrorSeverity.Fatal);
                 LogManager.Flush();
             }
             catch (Exception)
@@ -130,6 +156,21 @@ namespace HideezClient
 
             InitializeDIContainer();
 
+<<<<<<< HEAD
+            // Get application mode as soon as possible
+            var _applicationModeProvider = Container.Resolve<IApplicationModeProvider>();
+            var mode = _applicationModeProvider.GetApplicationMode();
+            _log.WriteLine($"Application mode: {mode}");
+
+            if(mode == ApplicationMode.Standalone)
+                ResourceManagersProvider.SetResources(typeof(Strings), typeof(Resources.StandaloneStrings.Strings));
+            else
+                ResourceManagersProvider.SetResources(typeof(Strings));
+=======
+            var _connectionModeProvider = Container.Resolve<IConnectionModeProvider>();
+            _log.WriteLine($"Connection mode: {_connectionModeProvider.ConnectionMode}");
+>>>>>>> release/3.7
+
             // Init settings
             ApplicationSettings settings = null;
             ISettingsManager<ApplicationSettings> appSettingsManager = Container.Resolve<ISettingsManager<ApplicationSettings>>();
@@ -156,27 +197,48 @@ namespace HideezClient
                 sb.AppendLine($"   Message:{exp.Message}");
                 sb.AppendLine($"StackTrace:{exp.StackTrace}");
                 sb.AppendLine();
-                logger.Error(sb.ToString());
+                _log.WriteLine(sb.ToString(), LogErrorSeverity.Error);
             }
 
-            messenger = Container.Resolve<IMessenger>();
+            // Due to implementation constraints, taskbar icon must be instantiated as late as possible
+            Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
             Container.Resolve<ITaskbarIconManager>();
+            _log.WriteLine("Resolve DI container");
+            _startupHelper = Container.Resolve<IStartupHelper>();
+            _workstationManager = Container.Resolve<IWorkstationManager>();
 
-            logger.Info("Resolve DI container");
-            startupHelper = Container.Resolve<IStartupHelper>();
-            workstationManager = Container.Resolve<IWorkstationManager>();
-            windowsManager = Container.Resolve<IWindowsManager>();
-            Container.Resolve<IHideezServiceCallback>();
-            serviceWatchdog = Container.Resolve<IServiceWatchdog>();
-            serviceWatchdog.Start();
-            deviceManager = Container.Resolve<IDeviceManager>();
-            userActionHandler = Container.Resolve<UserActionHandler>();
-            hotkeyManager = Container.Resolve<IHotkeyManager>();
-            hotkeyManager.Enabled = true;
-            messageWindow = Container.Resolve<MessageWindow>();
+            _metaMessenger = Container.Resolve<IMetaPubSub>();
+
+            _metaMessenger.Subscribe<ConnectedToServerEvent>(OnConnectedToServer);
+
+            _serviceWatchdog = Container.Resolve<IServiceWatchdog>();
+            _serviceWatchdog.Start();
+            _deviceManager = Container.Resolve<IDeviceManager>();
+            _userActionHandler = Container.Resolve<UserActionHandler>();
+            _hotkeyManager = Container.Resolve<IHotkeyManager>();
+            _hotkeyManager.Enabled = true;
+            _buttonManager = Container.Resolve<IButtonManager>();
+            _buttonManager.Enabled = true;
+            _messageWindow = Container.Resolve<MessageWindow>();
+            Container.Resolve<IProximityLockManager>();
+            Container.Resolve<IVaultLowBatteryMonitor>();
+            _bleDeviceUnpairHelper = Container.Resolve<BleDeviceUnpairHelper>();
+            Container.Resolve<IAppUpdater>();
+            Container.Resolve<IHideDialogsAdapter>();
 
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
 
+
+            // This will create an instance of password manager view model and allow handling of "Add new account" user action
+            // It is required for subscribtion of PasswordManagerViewModel to the "AddAccountForApp" message
+            // Note: PasswordManagerViewModel is not required for simplified UI
+            Container.Resolve<PasswordManagerViewModel>();
+
+            // Public Suffix list loading and updating may take some time (more than 8000 entries)
+            // Better to load it before its required (for main domain extraction)
+            await Task.Run(URLHelper.PreloadPublicSuffixAsync);
+
+            // Handle first launch
             if (settings.IsFirstLaunch)
             {
                 OnFirstLaunch();
@@ -184,11 +246,15 @@ namespace HideezClient
                 settings.IsFirstLaunch = false;
                 appSettingsManager.SaveSettings(settings);
             }
+
+            _windowsManager = Container.Resolve<IWindowsManager>();
+            await _windowsManager.InitializeMainWindowAsync();
+            await _metaMessenger.TryConnectToServer("HideezServicePipe");
         }
 
         private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
-            messenger.Send(new SessionSwitchMessage(Process.GetCurrentProcess().SessionId, e.Reason));
+            _metaMessenger.Publish(new SessionSwitchMessage(Process.GetCurrentProcess().SessionId, e.Reason));
         }
 
         /// <summary>
@@ -213,8 +279,8 @@ namespace HideezClient
             // handle command line arguments of second instance
             // ...
 
-            logger.Info("Handle start of second instance");
-            windowsManager.ActivateMainWindow();
+            _log.WriteLine("Handle start of second instance");
+            _windowsManager.ActivateMainWindow();
 
             
             return true;
@@ -222,68 +288,81 @@ namespace HideezClient
 
         private void OnFirstLaunch()
         {
-            logger.Info("First Hideez Client launch");
+            _log.WriteLine("First Hideez Client launch");
         }
 
         private void InitializeDIContainer()
         {
             Container = new UnityContainer();
 #if DEBUG
-            // Container.AddExtension(new Diagnostic());
+            Container.AddExtension(new Diagnostic());
 #endif
-            logger.Info("Start initialize DI container");
+            _log.WriteLine("Start initialize DI container");
 
             #region ViewModels
 
             Container.RegisterType<MainViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IndicatorsViewModel>();
-            Container.RegisterType<AddCredentialViewModel>();
             Container.RegisterType<NotificationsContainerViewModel>();
             Container.RegisterType<DeviceNotAuthorizedNotificationViewModel>();
             Container.RegisterType<PinViewModel>();
+            Container.RegisterType<MasterPasswordViewModel>();
             Container.RegisterType<HelpPageViewModel>();
             Container.RegisterType<SettingsPageViewModel>();
             Container.RegisterType<PasswordManagerViewModel>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<DefaultPageViewModel>();
             Container.RegisterType<DeviceSettingsPageViewModel>(new ContainerControlledLifetimeManager());
-
+            Container.RegisterType<ServerAddressEditControlViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ServiceViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<DefaultPageViewModel>();
+            Container.RegisterType<HardwareKeyPageViewModel>();
+            Container.RegisterType<SoftwareKeyPageViewModel>();
+            Container.RegisterType<SoftwareUnlockSettingViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ActivationViewModel>();
+            Container.RegisterType<VaultAccessSettingsControlViewModel>(new ContainerControlledLifetimeManager());
+            
             #endregion ViewModels
 
             Container.RegisterType<IStartupHelper, StartupHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IWorkstationManager, WorkstationManager>(new ContainerControlledLifetimeManager());
-            Container.RegisterInstance<IMessenger>(Messenger.Default, new ContainerControlledLifetimeManager());
 
             Container.RegisterType<ILog, NLogWrapper>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<IWindowsManager, WindowsManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IHideDialogsAdapter, HideDialogsAdapter>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAppHelper, AppHelper>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IFileSerializer, XmlFileSerializer>();
+            Container.RegisterType<IApplicationModeProvider, ApplicationModeRegistryProvider>(new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(HideezClientRegistryRoot.GetRootRegistryKey(false), typeof(ILog)));
             Container.RegisterType<IDeviceManager, DeviceManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ISupportMailContentGenerator, SupportMailContentGenerator>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IButtonManager, ButtonManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IActiveDevice, ActiveDevice>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IWorkstationIdProvider, WorkstationIdProvider>(new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(HideezClientRegistryRoot.GetRootRegistryKey(false), typeof(ILog)));
+            Container.RegisterType<IWorkstationInfoProvider, WorkstationInfoProvider>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IProximityLockManager, ProximityLockManager>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IVaultLowBatteryMonitor, VaultLowBatteryMonitor>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IConnectionModeProvider, ConnectionModeProvider>(new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(HideezClientRegistryRoot.GetRootRegistryKey(false), typeof(ILog)));
 
             // Settings
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()
-                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.ApplicationSettingsFileName), typeof(IFileSerializer), typeof(IMessenger)));
+                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.ApplicationSettingsFileName), typeof(IFileSerializer), typeof(IMetaPubSub)));
             Container.RegisterType<ISettingsManager<HotkeySettings>, HSSettingsManager<HotkeySettings>>(new ContainerControlledLifetimeManager()
-                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.HotkeySettingsFileName), typeof(IFileSerializer), typeof(IMessenger)));
+                , new InjectionConstructor(Path.Combine(Constants.DefaultSettingsFolderPath, Constants.HotkeySettingsFileName), typeof(IFileSerializer), typeof(IMetaPubSub)));
 
             // Service
             Container.RegisterType<IServiceProxy, ServiceProxy>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<IHideezServiceCallback, ServiceCallbackMessanger>(new ContainerControlledLifetimeManager());
+            Container.RegisterInstance<IMetaPubSub>(new MetaPubSub(new MetaPubSubLogger(Container.Resolve<ILog>()))); // Todo: fix this idiocity
             Container.RegisterType<IServiceWatchdog, ServiceWatchdog>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IRemoteDeviceFactory, RemoteDeviceFactory>(new ContainerControlledLifetimeManager());
 
             // Taskbar icon
-            Container.RegisterInstance(FindResource("TaskbarIcon") as TaskbarIcon, new ContainerControlledLifetimeManager());
             Container.RegisterType<IBalloonTipNotifyManager, BalloonTipNotifyManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IMenuFactory, MenuFactory>(new ContainerControlledLifetimeManager());
             Container.RegisterType<TaskbarIconViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ITaskbarIconManager, TaskbarIconManager>(new ContainerControlledLifetimeManager());
-
-
-            // Messenger
-            Container.RegisterType<IMessenger, Messenger>(new ContainerControlledLifetimeManager());
 
             // Input
             Container.RegisterType<UserActionHandler>(new ContainerControlledLifetimeManager());
@@ -296,16 +375,20 @@ namespace HideezClient
             Container.RegisterType<InputLogin>();
 
             // QrScanner
-            Container.RegisterType<IBarcodeReader, BarcodeReader>(new ContainerControlledLifetimeManager(), new InjectionConstructor(), new InjectionProperty("AutoRotate", true));
+            // Note: Previous BarcodeReader was renamed into BarcodeReaderGeneric when 
+            // ZXing library got updated; Its AutoRotate property was set to True in constructor
+            Container.RegisterType<IBarcodeReader, BarcodeReader>(new ContainerControlledLifetimeManager()); 
             Container.RegisterType<IQrScannerHelper, QrScannerHelper>();
 
-            Container.RegisterType<INotifier, Notifier>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<INotificationsManager, NotificationsManager>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<IEventPublisher, EventPublisher>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<MessageWindow>(new ContainerControlledLifetimeManager());
 
-            logger.Info("Finish initialize DI container");
+            Container.RegisterType<IAppUpdater, AppUpdater>(new ContainerControlledLifetimeManager());
+
+            _log.WriteLine("Finish initialize DI container");
 
         }
 
@@ -335,6 +418,16 @@ namespace HideezClient
             Container.Dispose();
             LogManager.Flush();
             LogManager.Shutdown();
+        }
+
+        /// <summary>
+        /// Called when MetaPubSub was connected to a server on the service side
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        async Task OnConnectedToServer(ConnectedToServerEvent arg)
+        {
+            await _metaMessenger.PublishOnServer(new LoginClientRequestMessage());
         }
     }
 }

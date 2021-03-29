@@ -476,7 +476,7 @@ namespace HideezClient.Models
             if (obj.SerialNo == SerialNo)
             {
                 IsStorageLocked = true;
-                _metaMessenger.Publish(new ShowInfoNotificationMessage(string.Format(TranslationSource.Instance["Vault.Notification.Synchronizing"], serialNo, Environment.NewLine), notificationId: NotificationsId));
+                _metaMessenger.Publish(new ShowInfoNotificationMessage(string.Format(TranslationSource.Instance["Vault.Notification.Synchronizing"], SerialNo, Environment.NewLine), notificationId: NotificationsId));
             }
 
             return Task.CompletedTask;
@@ -622,14 +622,14 @@ namespace HideezClient.Models
                                         _log.WriteLine($"({_remoteDevice.SerialNo}) access level is null");
                                 }
 
-                                if (_remoteDevice.IsLockedByCode)
-                                    throw new HideezException(HideezErrorCode.DeviceIsLocked);
-                                else if (authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && !_remoteDevice.AccessLevel.IsAllOk)
-                                    await AuthorizeRemoteDevice(authCts.Token);
-                                else if (!authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsAllOk)
-                                    await AuthorizeRemoteDevice(authCts.Token);
-                                else if (_remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsLocked)
-                                    throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                            if (_remoteDevice?.IsLockedByCode == true)
+                                throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                            else if (authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && !_remoteDevice.AccessLevel.IsAllOk)
+                                await AuthorizeRemoteDevice(authCts.Token);
+                            else if (!authorizeDevice && !IsAuthorized && _remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsAllOk)
+                                await AuthorizeRemoteDevice(authCts.Token);
+                            else if (_remoteDevice?.AccessLevel != null && _remoteDevice.AccessLevel.IsLocked)
+                                throw new HideezException(HideezErrorCode.DeviceIsLocked);
 
                                 if (!authCts.IsCancellationRequested && !IsStorageLoaded)
                                     await LoadStorage();
@@ -707,7 +707,7 @@ namespace HideezClient.Models
                         tempRemoteDevice.PropertyChanged -= RemoteDevice_PropertyChanged;
                         tempRemoteDevice.WipeFinished -= RemoteDevice_WipeFinished;
                         await tempRemoteDevice.Shutdown();
-                        await _metaMessenger.PublishOnServer(new RemoveDeviceMessage(tempRemoteDevice.Id));
+                        await _metaMessenger.PublishOnServer(new CloseChannelMessage(tempRemoteDevice.Id));
                         tempRemoteDevice.Dispose();
                     }
                     try
@@ -847,10 +847,10 @@ namespace HideezClient.Models
                 await PinWorkflow(ct);
                 await ButtonWorkflow(ct);
 
-                if (IsAuthorized)
+                if (ct.IsCancellationRequested)
+                    ShowError(string.Format(TranslationSource.Instance["Vault.Error.AuthCanceled"], NotificationsId));
+                else if (IsAuthorized)
                     _log.WriteLine($"({_remoteDevice.Id}) Remote vault authorized");
-                else
-                    ShowInfo(string.Format(TranslationSource.Instance["Vault.Error.AuthCanceled"], NotificationsId));
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.DeviceIsLocked || ex.ErrorCode == HideezErrorCode.DeviceIsLockedByPin)
             {

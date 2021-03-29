@@ -60,6 +60,8 @@ namespace HideezMiddleware.ReconnectManager
         void DeviceManager_DeviceRemoved(object sender, DeviceRemovedEventArgs e)
         {
             DisableDeviceReconnect(e.Device);
+
+            SafeInvoke(DeviceDisconnected, e.Device);
         }
 
         async void ProximityMonitorManager_DeviceBelowLockForToLong(object sender, IDevice device)

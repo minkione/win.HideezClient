@@ -88,6 +88,11 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<ServerAddressEditControlViewModel>(); }
         }
 
+        public ConnectionModeContainerViewModel ConnectionModeContainerViewModel
+        {
+            get { return DIContainer.Resolve<ConnectionModeContainerViewModel>(); }
+        }
+
         public AppModeRestrictedContainerViewModel AppModeRestrictedContainerViewModel
         {
             get { return DIContainer.Resolve<AppModeRestrictedContainerViewModel>(); }

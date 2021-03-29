@@ -738,7 +738,7 @@ to access stored credentials</value>
   <data name="HKP.Description1" xml:space="preserve">
     <value>Make sure that all the indicators in the bottom left corner are green.</value>
   </data>
-  <data name="HKP.Description2" xml:space="preserve">
+  <data name="HKP.Description2.Csr" xml:space="preserve">
     <value>Long tap the dongle with the vault until the initiation process launches.</value>
   </data>
   <data name="HKP.Description3" xml:space="preserve">
@@ -1233,5 +1233,20 @@ Would you like to perform application update now?</value>
   </data>
   <data name="AccessSettings.UpdateFW" xml:space="preserve">
     <value>Open firmware update app</value>
+  </data>
+  <data name="ButtonWindow.CancelTooltip" xml:space="preserve">
+    <value>Hold vault button to cancel</value>
+  </data>
+  <data name="Settings.ReconnectPairedVaults.Description" xml:space="preserve">
+    <value>Use this option if your vault is nearby and paired to this computer through default Bluetooth interface but failed to connect or its not visible in Hideez Client</value>
+  </data>
+  <data name="Settings.ReconnectPairedVaults.Reconnect" xml:space="preserve">
+    <value>Reconnect paired vaults</value>
+  </data>
+  <data name="WaterMark.SearchPasswords" xml:space="preserve">
+    <value>Search passwords</value>
+  </data>
+  <data name="HKP.Description2.WinBle" xml:space="preserve">
+    <value>Pair device through Windows Bluetooth Settings and wait until the initiation process launches.</value>
   </data>
 </root>

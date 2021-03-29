@@ -89,8 +89,9 @@
       <ComponentRef Id="ApplicationShortcut" />
       <ComponentRef Id="ApplicationStartup" />
 
+      <ComponentRef Id="ConnectionModeWriteToRegistry" />
       <ComponentRef Id="AppModeWriteToRegistry" />
-    
+
     </Feature>
 
     <!-- Directory structure -->
@@ -171,9 +172,8 @@
                Value="LaunchInstalledApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
     </UI>
 
-
     <!-- Public Variables -->
-    <Property Id="INSTALLDONGLEDRIVER" Secure="yes" Value="1" />
+    <Property Id="INSTALLDONGLEDRIVER" Secure="yes" Value="0" />
     
     <!-- Preserve saved HES Address on updates -->
     <Property Id="SAVEDHESADDRESS" Secure="yes">
@@ -183,7 +183,21 @@
                       Name="client_hes_address"
                       Type="raw" />
     </Property>
-    
+    <!-- Preserve saved values of connection modes on updates-->
+    <Property Id="SAVEDUSEWIN10" Secure="yes">
+      <RegistrySearch Id="FindSavedUSEWIN10"
+                      Root="HKLM"
+                      Key="SOFTWARE\Hideez\Client"
+                      Name="use_win10"
+                      Type="raw" />
+    </Property>
+    <Property Id="SAVEDUSEHDONGLE" Secure="yes">
+      <RegistrySearch Id="FindSavedUSEHDONGLE"
+                      Root="HKLM"
+                      Key="SOFTWARE\Hideez\Client"
+                      Name="use_hdongle"
+                      Type="raw" />
+    </Property>
     <Property Id="SAVEDMODE" Secure="yes">
       <RegistrySearch Id="FindSavedMODE"
                       Root="HKLM"
@@ -434,6 +448,19 @@
         <File Id="HideezService.System.Runtime.WindowsRuntime.dll" Name="System.Runtime.WindowsRuntime.dll" Source="$(var.HideezServiceHost_TargetDir)System.Runtime.WindowsRuntime.dll" />
       </Component>
 
+      <Component Id="HideezService.Polly.dll" Guid="{47FDF6E8-B401-4113-A667-5D72E6F22E8D}" Win64="$(var.Win64)">
+        <File Id="HideezService.Polly.dll" Name="Polly.dll" Source="$(var.HideezServiceHost_TargetDir)Polly.dll" />
+      </Component>
+
+      <Component Id="HideezService.Polly.Contrib.DuplicateRequestCollapser.dll" Guid="{59A2E2F4-1C26-4ACB-A4B2-632C591C688E}" Win64="$(var.Win64)">
+        <File Id="HideezService.Polly.Contrib.DuplicateRequestCollapser.dll" Name="Polly.Contrib.DuplicateRequestCollapser.dll" Source="$(var.HideezServiceHost_TargetDir)Polly.Contrib.DuplicateRequestCollapser.dll" />
+      </Component>
+      
+      <Component Id="HideezService.Microsoft.Bcl.AsyncInterfaces.dll" Guid="{C0E45748-A274-4310-B5C1-92DCD6285731}" Win64="$(var.Win64)">
+        <File Id="HideezService.Microsoft.Bcl.AsyncInterfaces.dll" Name="Microsoft.Bcl.AsyncInterfaces.dll" Source="$(var.HideezServiceHost_TargetDir)Microsoft.Bcl.AsyncInterfaces.dll" />
+      </Component>
+      
+
       <Component Id="HideezService.Unity.Abstractions.dll" Guid="{CA4FB601-DD81-4A42-9040-5F8569F107C8}" Win64="$(var.Win64)">
         <File Id="HideezService.Unity.Abstractions.dll" Name="Unity.Abstractions.dll" Source="$(var.HideezServiceHost_TargetDir)Unity.Abstractions.dll" />
       </Component>
@@ -441,7 +468,6 @@
       <Component Id="HideezService.Unity.Container.dll" Guid="{FE35F902-226F-45E6-BEE7-F6D1D7A812E4}" Win64="$(var.Win64)">
         <File Id="HideezService.Unity.Container.dll" Name="Unity.Container.dll" Source="$(var.HideezServiceHost_TargetDir)Unity.Container.dll" />
       </Component>
-
     </ComponentGroup>
   </Fragment>
   
@@ -761,6 +787,14 @@
         <File Id="DeviceMaintenanceApplication.exe" Name="Hideez Device Maintenance Application.exe" Source="$(var.DeviceMaintenance_TargetDir)Hideez Device Maintenance Application.exe" />
       </Component>
 
+      <Component Id="DeviceMaintenanceApplication.exe.config" Guid="{963AE6E4-1B96-4045-B0C2-F980515CB689}" Win64="$(var.Win64)">
+        <File Id="DeviceMaintenanceApplication.exe.config" Name="Hideez Device Maintenance Application.exe.config" Source="$(var.DeviceMaintenance_TargetDir)Hideez Device Maintenance Application.exe.config" />
+      </Component>
+
+      <Component Id="DeviceMaintenance.WinBle.dll" Guid="{81B05567-FF54-45E7-A475-6381EF7B7498}" Win64="$(var.Win64)">
+        <File Id="DeviceMaintenance.WinBle.dll" Name="WinBle.dll" Source="$(var.HideezServiceHost_TargetDir)WinBle.dll" />
+      </Component>
+
       <Component Id="Meta.Lib.dll" Guid="{27458CF5-63A5-48D8-A90C-306E4DC09EB3}" Win64="$(var.Win64)">
         <File Id="Meta.Lib.dll" Name="Meta.Lib.dll" Source="$(var.HideezClient_TargetDir)Meta.Lib.dll" />
       </Component>
@@ -914,6 +948,19 @@
                   Return="check"/>
   </Fragment>
   
+  <!-- Vault connection mode options installation -->
+  <Fragment>
+    <SetProperty Id="USEWIN10" After="CostFinalize" Value="[SAVEDUSEWIN10]">SAVEDUSEWIN10</SetProperty>
+    <SetProperty Id="USEHDONGLE" After="CostFinalize" Value="[SAVEDUSEHDONGLE]">SAVEDUSEHDONGLE</SetProperty>
+    <SetProperty Id="INSTALLDONGLEDRIVER" After="CostFinalize" Value="[USEHDONGLE]" />
+    <Component Id="ConnectionModeWriteToRegistry" Guid="{B63BF572-65F8-4D0E-A2EF-85E979ACE41E}" Directory="INSTALLFOLDER">
+      <RegistryKey Root="HKLM" Key="SOFTWARE\Hideez\Client">
+        <RegistryValue Type="string" Name="use_win10" Value="[USEWIN10]" />
+        <RegistryValue Type="string" Name="use_hdongle" Value="[USEHDONGLE]" />
+      </RegistryKey>
+    </Component>
+  </Fragment>
+
     <!-- Standalone / Enterprise installation-->
   <Fragment>
     <SetProperty Id="ENTERPRISE" After="CostFinalize" Value="[SAVEDMODE]">SAVEDMODE</SetProperty>
@@ -923,5 +970,4 @@
       </RegistryKey>
     </Component>
   </Fragment>
-  
-</Wix>
+  </Wix>

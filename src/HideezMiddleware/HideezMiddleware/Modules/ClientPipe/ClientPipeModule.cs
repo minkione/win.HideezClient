@@ -184,7 +184,10 @@ namespace HideezMiddleware.Modules.ClientPipe
                 // This may happen if we are login into the new session where application is not running during unlock but loads afterwards
                 // To avoid the confusion, we resend the event about latest unlock method to every client that connects to service
                 if (_deviceManager.Devices.Count() == 0)
-                    await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+                {
+                    var unlockMethod = await _sessionUnlockMethodMonitor.GetUnlockMethodAsync();
+                    await SafePublish(new WorkstationUnlockedMessage(unlockMethod == SessionSwitchSubject.NonHideez));
+                }
             }
             catch (Exception ex)
             {
@@ -220,7 +223,10 @@ namespace HideezMiddleware.Modules.ClientPipe
         private async Task OnSessionSwitch(SessionSwitchMonitor_SessionSwitchMessage msg)
         {
             if (msg.Reason == SessionSwitchReason.SessionUnlock || msg.Reason == SessionSwitchReason.SessionLogon)
-                await SafePublish(new WorkstationUnlockedMessage(_sessionUnlockMethodMonitor.GetUnlockMethod() == SessionSwitchSubject.NonHideez));
+            {
+                var unlockMethod = await _sessionUnlockMethodMonitor.GetUnlockMethodAsync();
+                await SafePublish(new WorkstationUnlockedMessage(unlockMethod == SessionSwitchSubject.NonHideez));
+            }
         }
 
         private async Task LoadUserProximitySettings(LoadUserProximitySettingsMessage msg)

@@ -54,7 +54,7 @@ using Unity;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
-using WinBle._10._0._18362;
+using WinBle;
 
 namespace ServiceLibrary.Implementation
 {
@@ -436,11 +436,12 @@ namespace ServiceLibrary.Implementation
             var messenger = _container.Resolve<IMetaPubSub>();
             var connectionFlow = _container.Resolve<ConnectionFlowProcessorBase>();
             var winBleConnectionManager = _container.Resolve<WinBleConnectionManager>();
+            var winBleConnectionManagerWrapper = new WinBleConnectionManagerWrapper(winBleConnectionManager, log);
             winBleConnectionManager.UnpairProvider = new UnpairProvider(messenger, log);
             var workstationSettingsManager = _container.Resolve<ISettingsManager<WorkstationSettings>>();
             var proximitySettingsProvider = _container.Resolve<IDeviceProximitySettingsProvider>();
             // WinBle rssi messages arrive much less frequently than when using csr. Empirically calculated 20s rssi clear delay to be acceptable.
-            var advIgnoreWinBleList = new AdvertisementIgnoreList(winBleConnectionManager, proximitySettingsProvider, 20, log);
+            var advIgnoreWinBleList = new AdvertisementIgnoreList(winBleConnectionManagerWrapper, proximitySettingsProvider, 20, log);
             var deviceManager = _container.Resolve<DeviceManager>();
             var credProvProxy = _container.Resolve<CredentialProviderProxy>();
             var uiManager = _container.Resolve<IClientUiManager>();
@@ -449,6 +450,7 @@ namespace ServiceLibrary.Implementation
             var winBleAutomaticConnectionProcessor = new WinBleAutomaticConnectionProcessor(
                 connectionFlow, 
                 winBleConnectionManager, 
+                winBleConnectionManagerWrapper,
                 advIgnoreWinBleList,
                 proximitySettingsProvider, 
                 deviceManager, 
@@ -472,7 +474,7 @@ namespace ServiceLibrary.Implementation
                 connectionManagersCoordinator,
                 connectionManagersRestarter,
                 advIgnoreWinBleList,
-                winBleConnectionManager,
+                winBleConnectionManagerWrapper,
                 winBleAutomaticConnectionProcessor,
                 commandLinkVisibilityController,
                 messenger,

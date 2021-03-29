@@ -235,10 +235,9 @@ namespace HideezClient.ViewModels
 
                     UpdateViewModel(deviceId, askButton, askOldPin, confirmNewPin);
 
-                    if (askButton)
-                        _metaMessenger.Subscribe<ShowButtonConfirmUiMessage>(ShowButtonConfirmAsync);
-                    else
-                        _metaMessenger.Subscribe<ShowPinUiMessage>(ShowPinAsync);
+                    
+                    _metaMessenger.Subscribe<ShowButtonConfirmUiMessage>(ShowButtonConfirmAsync);
+                    _metaMessenger.Subscribe<ShowPinUiMessage>(ShowPinAsync);
                 }
             }
         }

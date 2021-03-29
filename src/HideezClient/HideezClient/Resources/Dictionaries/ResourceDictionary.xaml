@@ -793,4 +793,32 @@
         </Setter>
     </Style>
 
+    <!--CsrModeContainer control layout-->
+    <Style TargetType="{x:Type controls:CsrModeContainer}">
+        <Setter Property="Visibility" Value="{Binding IsCsrMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:CsrModeContainer}">
+                    <Grid>
+                        <ContentControl Content="{TemplateBinding Content}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--WinBleModeContainer control layout-->
+    <Style TargetType="{x:Type controls:WinBleModeContainer}">
+        <Setter Property="Visibility" Value="{Binding IsWinBleMode, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate 
+                    TargetType="{x:Type controls:WinBleModeContainer}">
+                    <Grid>
+                        <ContentControl Content="{TemplateBinding Content}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

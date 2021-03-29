@@ -1,18 +1,18 @@
 ﻿using HideezClient.Mvvm;
 using HideezClient.ViewModels;
+using Unity;
 
 namespace HideezClient.PageViewModels
 {
     class SettingsPageViewModel : LocalizedObject
     {
-        public ServiceViewModel Service { get; }
+        [Dependency]
+        public ServiceViewModel Service { get; set; }
 
-        public SoftwareUnlockSettingViewModel SoftwareUnlock { get; }
+        [Dependency]
+        public SoftwareUnlockSettingViewModel SoftwareUnlock { get; set; }
 
-        public SettingsPageViewModel(ServiceViewModel serviceViewModel, SoftwareUnlockSettingViewModel softwareUnlockModuleSwitchViewModel)
-        {
-            Service = serviceViewModel;
-            SoftwareUnlock = softwareUnlockModuleSwitchViewModel;
-        }
+        [Dependency]
+        public ReconnectPairedVaultsControlViewModel PairedVaultsReconnect { get; set; }
     }
 }

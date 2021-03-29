@@ -13,7 +13,6 @@ namespace HideezMiddleware.Audit
     {
         // There is a race condition between programmatic lock/unlock by our app and actual session switch
         const int LOCK_EVENT_TIMEOUT = 3_000;
-        const int UNLOCK_EVENT_TIMEOUT = 10_000;
 
         class LockProcedure
         {
@@ -171,7 +170,7 @@ namespace HideezMiddleware.Audit
             if (procedure != null)
             {
                 WriteLine("Wait for unlock procedure");
-                await procedure.Run(UNLOCK_EVENT_TIMEOUT);
+                await procedure.Run();
             }
 
             WriteLine("Generating unlock event");
@@ -180,11 +179,13 @@ namespace HideezMiddleware.Audit
             we.Note = SessionSwitchSubject.NonHideez.ToString();
             we.Date = time;
 
+
             if (procedure != null && 
                 procedure.FlowUnlockResult != null && 
                 procedure.FlowUnlockResult.IsSuccessful)
             {
-                we.Note = _sessionUnlockMethodMonitor.GetUnlockMethod().ToString();
+                var unlockMethod = await _sessionUnlockMethodMonitor.GetUnlockMethodAsync();
+                we.Note = unlockMethod.ToString();
                 we.DeviceId = _deviceManager.Devices
                         .FirstOrDefault(d => d.Mac == procedure.FlowUnlockResult.DeviceMac
                        && d.ChannelNo == (byte)DefaultDeviceChannel.Main)?.SerialNo;
@@ -192,8 +193,6 @@ namespace HideezMiddleware.Audit
                 we.AccountName = procedure.FlowUnlockResult.AccountName;
                 WriteLine($"Procedure successful ({we.DeviceId}, method: {we.Note})");
             }
-
-            //_unlockProcedure = null;
 
             await _eventSaver.AddNewAsync(we, true);
 
