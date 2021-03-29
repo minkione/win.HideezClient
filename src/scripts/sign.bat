@@ -5,7 +5,7 @@
 
 @echo off
 setlocal
-:: GOTO SKIP
+GOTO SKIP
 call "%~dp0signing_variables.bat"
 IF [%2]==[] (
 	%TOOLPATH% sign /n %CERTNAME% /sha1 %CERTSHA1% /fd SHA256 /td SHA256 /tr "http://timestamp.comodoca.com" %1
