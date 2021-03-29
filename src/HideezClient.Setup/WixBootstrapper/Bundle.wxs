@@ -106,8 +106,6 @@
                      Value="[UseWin10Radio]" />
         <MsiProperty Name="USEHDONGLE"
                      Value="[UseHDongleRadio]" />
-        <MsiProperty Name="REINSTALLMODE"
-                     Value="dmus"/>
       </MsiPackage>
 
       <MsiPackage DisplayInternalUI="no"
@@ -123,8 +121,6 @@
                      Value="[UseWin10Radio]" />
         <MsiProperty Name="USEHDONGLE"
                      Value="[UseHDongleRadio]" />
-        <MsiProperty Name="REINSTALLMODE" 
-                     Value="dmus"/>
       </MsiPackage>
     </Chain>
   </Bundle>

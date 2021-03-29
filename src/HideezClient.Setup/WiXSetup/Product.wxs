@@ -64,6 +64,8 @@
     <Icon Id="app.ico" SourceFile="128x128.ico"/>
     <Property Id="ARPPRODUCTICON" Value="app.ico" />
 
+    <Property Id="REINSTALLMODE" Value="dmus" />
+    
     <WixVariable Id="WixUIBannerBmp" Value="Resources\InstallerBanner.jpg"/>
     <WixVariable Id="WixUIDialogBmp" Value="Resources\InstallerDialog.jpg"/>
 
