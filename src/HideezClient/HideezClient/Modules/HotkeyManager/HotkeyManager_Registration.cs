@@ -49,7 +49,7 @@ namespace HideezClient.Modules.HotkeyManager
                     };
 
                     KeyGesture kg = ConvertStringKeysToKeyGesture(hotkey.Keystroke);
-                    RegisterOrUpdateHotkeyGesture(Enum.GetName(typeof(UserAction), hotkey.Action), kg.Key, kg.Modifiers, hotkeyTriggerHandler);
+                    RegisterOrUpdateHotkeyGesture(HotkeyNameFormatter.GetHotkeyName(hotkey.HotkeyId, hotkey.Action), kg.Key, kg.Modifiers, hotkeyTriggerHandler);
                     await _metaMessenger?.Publish(new HotkeyStateChangedMessage(hotkey.HotkeyId, HotkeyState.Subscribed));
                 }
             }
@@ -65,7 +65,7 @@ namespace HideezClient.Modules.HotkeyManager
         {
             try
             {
-                RemoveHotkeyGesture(Enum.GetName(typeof(UserAction), hotkey.Action));
+                RemoveHotkeyGesture(HotkeyNameFormatter.GetHotkeyName(hotkey.HotkeyId, hotkey.Action));
                 await _metaMessenger?.Publish(new HotkeyStateChangedMessage(hotkey.HotkeyId, HotkeyState.Unsubscribed));
             }
             catch (Exception ex)

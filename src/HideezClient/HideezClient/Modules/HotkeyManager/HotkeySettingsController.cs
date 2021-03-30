@@ -42,7 +42,7 @@ namespace HideezClient.Modules.HotkeyManager
             // Theoretically may overflow, but can be fixed by erasing all hotkeys
             // and, realistically, will never happen during normal use
             int id = 0;
-            if (settings.Hotkeys.Count > 0)
+            if (settings.Hotkeys.Length > 0)
                 id = settings.Hotkeys.Select(h => h.HotkeyId).Max() + 1;
 
             var newHotkey = new Hotkey
@@ -52,7 +52,7 @@ namespace HideezClient.Modules.HotkeyManager
                 Action = msg.Action,
                 Keystroke = msg.Keystroke,
             };
-            settings.Hotkeys.Add(newHotkey);
+            settings.AddHotkey(newHotkey);
             _hotkeySettingsManager.SaveSettings(settings);
 
             return Task.CompletedTask;
@@ -78,7 +78,7 @@ namespace HideezClient.Modules.HotkeyManager
         private Task OnDeleteHotkey(DeleteHotkeyMessage msg)
         {
             HotkeySettings settings = (HotkeySettings)_hotkeySettingsManager.Settings.Clone();
-            var removedCount = settings.Hotkeys.RemoveAll(h => h.HotkeyId == msg.HotkeyId);
+            var removedCount = settings.RemoveHotkey(msg.HotkeyId);
             if (removedCount > 0)
                 _hotkeySettingsManager.SaveSettings(settings);
 

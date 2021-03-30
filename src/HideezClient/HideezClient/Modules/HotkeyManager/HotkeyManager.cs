@@ -44,7 +44,6 @@ namespace HideezClient.Modules.HotkeyManager
             : base(nameof(HotkeyManager), log)
 		{
 			_hotkeySettingsManager = hotkeySettingsManager;
-            hotkeySettingsManager.SettingsFilePath = Path.Combine(Constants.DefaultSettingsFolderPath, "hotkeys.xml"); ;
             _metaMessenger = metaMessenger;
 
             _metaMessenger.Subscribe<SettingsChangedMessage<HotkeySettings>>(OnHotkeysSettingsChanged);

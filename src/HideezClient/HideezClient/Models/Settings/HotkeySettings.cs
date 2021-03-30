@@ -14,7 +14,7 @@ namespace HideezClient.Models.Settings
         public HotkeySettings()
         {
             SettingsVersion = new Version(1, 2, 0);
-            Hotkeys = new List<Hotkey>()
+            Hotkeys = new Hotkey[]
             {
                 new Hotkey(1, true, UserAction.InputLogin, "Control + Alt + L"),
                 new Hotkey(2, true, UserAction.InputPassword, "Control + Alt + P"),
@@ -34,7 +34,7 @@ namespace HideezClient.Models.Settings
                 return;
 
             SettingsVersion = (Version)copy.SettingsVersion.Clone();
-            Hotkeys = new List<Hotkey>(copy.Hotkeys.Select(h => h.DeepCopy()));
+            Hotkeys = copy.Hotkeys.Select(h => h.DeepCopy()).ToArray();
         }
 
 
@@ -42,7 +42,19 @@ namespace HideezClient.Models.Settings
         public Version SettingsVersion { get; }
 
         [Setting]
-        public List<Hotkey> Hotkeys { get; set; }
+        public Hotkey[] Hotkeys { get; set; }
+
+        public void AddHotkey(Hotkey hotkey)
+        {
+            Hotkeys = Hotkeys.Append(hotkey).ToArray();
+        }
+
+        public int RemoveHotkey(int id)
+        {
+            int startCount = Hotkeys.Length;
+            Hotkeys = Hotkeys.Where(h => h.HotkeyId == id).ToArray();
+            return Hotkeys.Length - startCount;
+        }
 
         public override object Clone()
         {
