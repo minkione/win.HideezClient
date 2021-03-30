@@ -5,6 +5,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.BLE;
 using HideezMiddleware.Settings;
+using HideezMiddleware.ConnectionModeProvider;
 
 namespace HideezMiddleware
 {

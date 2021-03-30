@@ -72,7 +72,7 @@ namespace HideezMiddleware
                     {
                         try
                         {
-                            manager.Restart();
+                            await manager.Restart();
                         }
                         catch (Exception ex)
                         {

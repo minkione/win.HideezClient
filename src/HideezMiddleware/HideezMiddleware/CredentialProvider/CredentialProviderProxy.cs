@@ -8,6 +8,7 @@ using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.Log;
 using Hideez.SDK.Communication.NamedPipes;
 using Hideez.SDK.Communication.Utils;
+using HideezMiddleware.ConnectionModeProvider;
 using HideezMiddleware.Localize;
 
 namespace HideezMiddleware.CredentialProvider
@@ -47,6 +48,7 @@ namespace HideezMiddleware.CredentialProvider
 
     public class CredentialProviderProxy : Logger, IWorkstationUnlocker, IClientUiProxy
     {
+        readonly IConnectionModeProvider _connectionModeProvider;
         readonly PipeServer _pipeServer;
 
         public event EventHandler<EventArgs> Connected;
@@ -67,9 +69,11 @@ namespace HideezMiddleware.CredentialProvider
         readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _pendingLogonRequests
             = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
 
-        public CredentialProviderProxy(ILog log)
+        public CredentialProviderProxy(IConnectionModeProvider connectionModeProvider, ILog log)
             : base(nameof(CredentialProviderProxy), log)
         {
+            _connectionModeProvider = connectionModeProvider;
+
             _pipeServer = new PipeServer("hideezsafe3", log);
             _pipeServer.MessageReceivedEvent += PipeServer_MessageReceivedEvent;
             _pipeServer.ClientConnectedEvent += PipeServer_ClientConnectedEvent;
@@ -365,8 +369,11 @@ namespace HideezMiddleware.CredentialProvider
         {
             var statuses = new List<string>();
 
-            if (dongleStatus != BluetoothStatus.Ok)
+            if (dongleStatus != BluetoothStatus.Ok && _connectionModeProvider.IsCsrMode)
                 statuses.Add(TranslationSource.Instance.Format("ServiceComponentStatus.Bluetooth.NotAvailable", dongleStatus));
+
+            if (bluetoothStatus != BluetoothStatus.Ok && _connectionModeProvider.IsWinBleMode)
+                statuses.Add(TranslationSource.Instance.Format("ServiceComponentStatus.Bluetooth.NotAvailable", bluetoothStatus));
 
             if (rfidStatus != RfidStatus.Disabled && rfidStatus != RfidStatus.Ok)
             {

@@ -30,7 +30,7 @@ namespace HideezClient.Modules.HotkeyManager
 		public HotkeyManager(ISettingsManager<HotkeySettings> hotkeySettingsManager, IMetaPubSub metaMessenger)
 		{
 			this.hotkeySettingsManager = hotkeySettingsManager;
-            hotkeySettingsManager.SettingsFilePath = Path.Combine(Constants.DefaultSettingsFolderPath, "hotkeys.xml"); ;
+            hotkeySettingsManager.SettingsFilePath = Path.Combine(Constants.DefaultSettingsFolderPath, "hotkeys.xml");
             _metaMessenger = metaMessenger;
             _metaMessenger.Subscribe<SettingsChangedMessage<HotkeySettings>>(OnHotkeysSettingsChanged);
 		}

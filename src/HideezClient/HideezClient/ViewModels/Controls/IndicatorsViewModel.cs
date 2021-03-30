@@ -21,7 +21,6 @@ namespace HideezClient.ViewModels.Controls
     {
         private readonly Logger _log = LogManager.GetCurrentClassLogger(nameof(IndicatorsViewModel));
         private readonly IServiceProxy _serviceProxy;
-        private readonly ISettingsManager<ApplicationSettings> _appSettingsManager;
         private readonly IConnectionModeProvider _connectionModeProvider;
         private StateControlViewModel service;
         private StateControlViewModel server;
@@ -30,14 +29,11 @@ namespace HideezClient.ViewModels.Controls
         private StateControlViewModel tbServer;
         private StateControlViewModel bluetooth;
 
-        public IndicatorsViewModel(IServiceProxy serviceProxy, IMetaPubSub metaMessenger, ISettingsManager<ApplicationSettings> appSettingsManager, IConnectionModeProvider connectionModeProvider)
+        public IndicatorsViewModel(IServiceProxy serviceProxy, IMetaPubSub metaMessenger, IConnectionModeProvider connectionModeProvider)
         {
             _serviceProxy = serviceProxy;
-            _appSettingsManager = appSettingsManager;
             _connectionModeProvider = connectionModeProvider;
             InitIndicators();
-
-            _appSettingsManager.SettingsChanged += AppSettingsManager_OnSettingsChanged;
 
             metaMessenger.Subscribe<ConnectionServiceChangedMessage>(c => ResetIndicators(c.IsConnected));
             metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.ServiceComponentsStateChangedMessage>(OnComponentsStateChangedMessage);
@@ -112,26 +108,17 @@ namespace HideezClient.ViewModels.Controls
 
             // Hideez Dongle
             Dongle.State = StateControlViewModel.BoolToState(msg.DongleStatus == BluetoothStatus.Ok);
-            Dongle.Visible = _appSettingsManager.Settings.ShowDongleIndicator ? _serviceProxy.IsConnected && _connectionModeProvider.IsCsrMode : false;
+            Dongle.Visible = _serviceProxy.IsConnected && _connectionModeProvider.IsCsrMode;
+
+            // Built-in Bluetooth
+            Bluetooth.State = StateControlViewModel.BoolToState(msg.BluetoothStatus == BluetoothStatus.Ok);
+            Bluetooth.Visible = _serviceProxy.IsConnected && _connectionModeProvider.IsWinBleMode;
 
             // Try&Buy Server
             TBServer.State = StateControlViewModel.BoolToState(msg.TbHesStatus == HesStatus.Ok);
             TBServer.Visible = _serviceProxy.IsConnected;
 
-            // Built-in Bluetooth
-            Bluetooth.State = StateControlViewModel.BoolToState(msg.BluetoothStatus == BluetoothStatus.Ok);
-            Bluetooth.Visible = _appSettingsManager.Settings.ShowBluetoothIndicator ? _serviceProxy.IsConnected && _connectionModeProvider.IsWinBleMode : false;
-
             return Task.CompletedTask;
-        }
-
-        private void AppSettingsManager_OnSettingsChanged(object sender, SettingsChangedEventArgs<ApplicationSettings> e)
-        {
-            // Hideez Dongle
-            Dongle.Visible = _appSettingsManager.Settings.ShowDongleIndicator ? _serviceProxy.IsConnected : false;
-
-            // Built-in Bluetooth
-            Bluetooth.Visible = _appSettingsManager.Settings.ShowBluetoothIndicator ? _serviceProxy.IsConnected : false;
         }
 
         private void InitIndicators()

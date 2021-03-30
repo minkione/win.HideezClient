@@ -149,7 +149,9 @@ namespace ServiceLibrary.Implementation
                 if(_connectionModeProvider.IsWinBleMode)
                     _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManagerWrapper);
 
-                _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger, _csrBleConnectionManager);
+                _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger,
+                    _csrBleConnectionManager, 
+                    _winBleConnectionManagerWrapper);
 
 
                 // BLE ============================

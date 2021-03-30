@@ -13,9 +13,6 @@ namespace HideezClient.PageViewModels
         public SoftwareUnlockSettingViewModel SoftwareUnlock { get; set; }
 
         [Dependency]
-        public IndicatorsSettingViewModel Indicators { get; set; }
-
-        [Dependency]
         public ReconnectPairedVaultsControlViewModel PairedVaultsReconnect { get; set; }
     }
 }
