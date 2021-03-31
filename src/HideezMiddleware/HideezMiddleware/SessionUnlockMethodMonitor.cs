@@ -38,17 +38,17 @@ namespace HideezMiddleware
             _winBleProcessor = winBleProcessor;
             _workstationHelper = workstationHelper;
 
-            _connectionFlowProcessor.Started += ConnectionFlowProcessor_Started;
+            _connectionFlowProcessor.AttemptingUnlock += ConnectionFlowProcessor_AttemptingUnlock;
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
         }
 
-        void ConnectionFlowProcessor_Started(object sender, string e)
+        void ConnectionFlowProcessor_AttemptingUnlock(object sender, string flowId)
         {
             lock (_upLock)
             {
                 if (_workstationHelper.IsCurrentSessionLocked())
                 {
-                    _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor);
+                    _unlockProcedure = new UnlockSessionSwitchProc(flowId, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor);
                     WriteLine("Started unlock procedure");
                 }
             }

@@ -55,6 +55,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         CancellationTokenSource _cts;
 
         public event EventHandler<string> Started;
+        public event EventHandler<string> AttemptingUnlock;
+        public event EventHandler<string> UnlockAttempted;
         public event EventHandler<IDevice> DeviceFinilizingMainFlow;
         public event EventHandler<IDevice> DeviceFinishedMainFlow;
         public event EventHandler<string> Finished;
@@ -255,6 +257,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     await Task.WhenAll(_subp.UserAuthorizationProcessor.AuthorizeUser(device, ct), osAccUpdateTask);
 
                     _screenActivator?.StopPeriodicScreenActivation();
+                    AttemptingUnlock?.Invoke(this, flowId);
                     await _subp.UnlockProcessor.UnlockWorkstation(device, flowId, onUnlockAttempt, ct);
                 }
                 else
