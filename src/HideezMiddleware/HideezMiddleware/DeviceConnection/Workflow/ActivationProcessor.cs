@@ -39,13 +39,13 @@ namespace HideezMiddleware.DeviceConnection.Workflow
 
                         if (code.Length < 6)
                         {
-                            await _ui.SendError(TranslationSource.Instance["ConnectionFlow.ActivationCode.Error.CodeToShort"], device.DeviceConnection.Connection.ConnectionId.Id);
+                            await _ui.SendError(TranslationSource.Instance["ConnectionFlow.ActivationCode.Error.CodeToShort"], device.Id);
                             continue;
                         }
 
                         if (code.Length > 8)
                         {
-                            await _ui.SendError(TranslationSource.Instance["ConnectionFlow.ActivationCode.Error.CodeToLong"], device.DeviceConnection.Connection.ConnectionId.Id);
+                            await _ui.SendError(TranslationSource.Instance["ConnectionFlow.ActivationCode.Error.CodeToLong"], device.Id);
                             continue;
                         }
 

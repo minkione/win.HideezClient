@@ -104,6 +104,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             if (device == null)
                 throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed.Csr", connectionId.Id));
 
+            await _ui.SendNotification(string.Empty, connectionId.Id);
+
             return device;
         }
 
@@ -145,6 +147,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             if (device == null)
                 throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed", connectionId.Id));
 
+            await _ui.SendNotification(string.Empty, connectionId.Id);
+
             return device;
         }
 
@@ -152,8 +156,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             ct.ThrowIfCancellationRequested();
 
-            if (!device.IsInitialized)
-                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Initialization.WaitingInitializationMessage"], device.Id);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Initialization.WaitingInitializationMessage"], device.Id);
 
             if (!await device.WaitInitialization(SdkConfig.DeviceInitializationTimeout, ct))
                 throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Initialization.InitializationFailed", device.Id));

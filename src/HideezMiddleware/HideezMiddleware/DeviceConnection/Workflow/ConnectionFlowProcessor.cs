@@ -384,7 +384,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     }
 
                     WriteLine(errorMessage);
-                    await _ui.SendError(errorMessage, connectionId.Id);
+                    await _ui.SendError(errorMessage, device.Id);
                     await _ui.SendNotification(string.Empty, string.Empty);
                 }
 
@@ -393,6 +393,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     if (workflowFinishedSuccessfully)
                     {
                         WriteLine($"Successfully finished the main workflow: ({device.Id})");
+                        await _ui.SendError(string.Empty, device.Id);
+                        await _ui.SendNotification(string.Empty, device.Id);
                         DeviceFinishedMainFlow?.Invoke(this, device);
                     }
                     else if (deleteVaultBond)
