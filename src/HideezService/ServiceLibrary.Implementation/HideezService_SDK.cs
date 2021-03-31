@@ -150,8 +150,7 @@ namespace ServiceLibrary.Implementation
                     _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManagerWrapper);
 
                 _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger,
-                    _csrBleConnectionManager, 
-                    _winBleConnectionManagerWrapper);
+                    _csrBleConnectionManager);
 
 
                 // BLE ============================
@@ -171,7 +170,7 @@ namespace ServiceLibrary.Implementation
             var pipeInitTask = Task.Run(() =>
             {
                 // Named Pipes Server ==============================
-                _credentialProviderProxy = new CredentialProviderProxy(_sdkLogger);
+                _credentialProviderProxy = new CredentialProviderProxy(_connectionModeProvider, _sdkLogger);
                 // Line below allows us to connect WinBle devices on locked workstation when automatic connection is disabled
                 _credentialProviderProxy.Start(); // Faster we connect to the CP, the better
 
