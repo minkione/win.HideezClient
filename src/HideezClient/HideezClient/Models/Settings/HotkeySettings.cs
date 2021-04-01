@@ -52,8 +52,8 @@ namespace HideezClient.Models.Settings
         public int RemoveHotkey(int id)
         {
             int startCount = Hotkeys.Length;
-            Hotkeys = Hotkeys.Where(h => h.HotkeyId == id).ToArray();
-            return Hotkeys.Length - startCount;
+            Hotkeys = Hotkeys.Where(h => h.HotkeyId != id).ToArray();
+            return startCount - Hotkeys.Length;
         }
 
         public override object Clone()

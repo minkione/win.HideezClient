@@ -102,6 +102,11 @@ namespace HideezClient.ViewModels
             get { return DIContainer.Resolve<BackupCredentialsControlViewModel>(); }
         }
 
+        public HotkeySettingsViewModel HotkeySettingsViewModel
+        {
+            get { return DIContainer.Resolve<HotkeySettingsViewModel>(); }
+        }
+
         #endregion
 
         #region Dialog

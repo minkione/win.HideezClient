@@ -1225,4 +1225,10 @@ Would you like to perform application update now?</value>
   <data name="Hotkey.NotSet" xml:space="preserve">
     <value>Hotkey not set</value>
   </data>
+  <data name="MessageBox.ResetHotkeys.Caption" xml:space="preserve">
+    <value>Resetting hotkeys</value>
+  </data>
+  <data name="MessageBox.ResetHotkeys.Message" xml:space="preserve">
+    <value>Are you sure that you want to delete all your hotkeys and set them as default values?</value>
+  </data>
 </root>

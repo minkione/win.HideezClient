@@ -164,6 +164,7 @@ namespace HideezClient
                 ResourceManagersProvider.SetResources(typeof(Strings));
 
             // Init settings
+            ISettingsManager<HotkeySettings> hotkeySettingsManager = Container.Resolve<ISettingsManager<HotkeySettings>>();
             ApplicationSettings settings = null;
             ISettingsManager<ApplicationSettings> appSettingsManager = Container.Resolve<ISettingsManager<ApplicationSettings>>();
 
@@ -334,6 +335,7 @@ namespace HideezClient
             Container.RegisterType<IVaultLowBatteryMonitor, VaultLowBatteryMonitor>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IHotkeyManager, HotkeyManager>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IHotkeySettingsController, HotkeySettingsController>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IHotkeyStatesMonitor, HotkeyStatesMonitor>(new ContainerControlledLifetimeManager());
 
             // Settings
             Container.RegisterType<ISettingsManager<ApplicationSettings>, HSSettingsManager<ApplicationSettings>>(new ContainerControlledLifetimeManager()

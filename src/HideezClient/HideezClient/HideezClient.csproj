@@ -551,6 +551,8 @@
     <Compile Include="ViewModels\Dialog\BackupPasswordViewModel.cs" />
     <Compile Include="ViewModels\Dialog\MasterPasswordViewModel.cs" />
     <Compile Include="ViewModels\Dialog\WipeViewModel.cs" />
+    <Compile Include="ViewModels\HotkeySettingsViewModel.cs" />
+    <Compile Include="ViewModels\HotkeyViewModel.cs" />
     <Compile Include="ViewModels\MessageViewModel.cs" />
     <Compile Include="ViewModels\NotificationsContainerViewModel.cs" />
     <Compile Include="PageViewModels\PasswordManagerViewModel.cs" />
