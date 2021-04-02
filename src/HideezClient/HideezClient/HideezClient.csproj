@@ -282,6 +282,9 @@
       <DependentUpon>ConnectivityIndicators.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\EnterpriseModeContainer.cs" />
+    <Compile Include="Controls\HotkeySettingsControl.xaml.cs">
+      <DependentUpon>HotkeySettingsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\InfoButton.xaml.cs">
       <DependentUpon>InfoButton.xaml</DependentUpon>
     </Compile>
@@ -583,6 +586,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\AccountInfoControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\HotkeySettingsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -311,6 +311,7 @@ namespace HideezClient
             Container.RegisterType<SoftwareUnlockSettingViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ActivationViewModel>();
             Container.RegisterType<VaultAccessSettingsControlViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<HotkeySettingsViewModel>(new ContainerControlledLifetimeManager());
             
             #endregion ViewModels
 

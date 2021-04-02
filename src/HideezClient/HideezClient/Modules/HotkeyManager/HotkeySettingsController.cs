@@ -30,9 +30,21 @@ namespace HideezClient.Modules.HotkeyManager
             _hotkeySettingsManager = hotkeySettingsManager;
             _metaMessenger = metaMessenger;
 
+            FilterSettings();
             _metaMessenger.Subscribe<AddHotkeyMessage>(OnAddHotkey);
             _metaMessenger.Subscribe<ChangeHotkeyMessage>(OnChangeHotkey);
             _metaMessenger.Subscribe<DeleteHotkeyMessage>(OnDeleteHotkey);
+        }
+
+        async void FilterSettings()
+        {
+            HotkeySettings settings = await _hotkeySettingsManager.GetSettingsAsync();
+            var emptySettings = settings.Hotkeys.Where(h => h.Action == UserAction.None || string.IsNullOrEmpty(h.Keystroke)).ToArray();
+            foreach(var hotkey in emptySettings)
+            {
+                settings.RemoveHotkey(hotkey.HotkeyId);
+            }
+            _hotkeySettingsManager.SaveSettings(settings);
         }
 
         private Task OnAddHotkey(AddHotkeyMessage msg)

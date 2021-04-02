@@ -4,12 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:adorners="http://gu.se/Adorners"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:local="clr-namespace:HideezClient.PagesView"    
     xmlns:l="clr-namespace:HideezClient.Modules.Localize"
-    xmlns:ma="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:hotKey="clr-namespace:HideezClient.Modules.HotkeyManager.BondTech.HotKeyManagement"
     xmlns:controls="clr-namespace:HideezClient.Controls"
     Title="SettingsPage"
     d:DesignHeight="450"
@@ -17,57 +14,8 @@
     DataContext="{Binding SettingsPage, Mode=OneWay, Source={StaticResource Locator}}"
     Style="{DynamicResource PageStyle}"
     mc:Ignorable="d">
-    <Page.Resources>
-        <Style x:Key="ListViewContainerStyle" TargetType="{x:Type ListViewItem}">
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-            <Setter Property="Focusable" Value="False" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ListViewItem}">
-
-                        <StackPanel Orientation="Horizontal">
-                            <Border
-                                x:Name="Bd"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="#1BA2DC"
-                                CornerRadius="8"
-                                SnapsToDevicePixels="true">
-                                <StackPanel>
-                                    <Separator x:Name="Separator" Style="{DynamicResource SeparatorStyle}" />
-                                    <ContentPresenter
-                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                        
-                                </StackPanel>
-                            </Border>
-                            
-                        </StackPanel>
-
-                        <ControlTemplate.Triggers>
-
-                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
-                                <Setter TargetName="Separator" Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="True" />
-                                    <Condition Property="IsSelected" Value="False" />
-                                </MultiTrigger.Conditions>
-                                <Setter TargetName="Bd" Property="Cursor" Value="Hand" />
-                            </MultiTrigger>
-
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Page.Resources>
     <ScrollViewer 
+        x:Name="scrollViewer"
         HorizontalScrollBarVisibility="Hidden"
         VerticalScrollBarVisibility="Auto"
         CanContentScroll="True">
@@ -130,156 +78,19 @@
                         IsChecked="{Binding Path=SoftwareUnlock.IsChecked}" />
                 </Border>
                 <!-- Hotkey Settings -->
-                <Border Style="{StaticResource SettingsBorderStyle}"
-                        Padding="24,24,24,24">
-                    <StackPanel
-                        Grid.IsSharedSizeScope="True"
-                        DataContext="{Binding HotkeySettingsViewModel, Mode=OneWay, Source={StaticResource Locator}}">
-                        <DockPanel 
-                            Margin="0,0,0,20"
-                            HorizontalAlignment="Stretch">
-                            <!--<Border
-                                CornerRadius="8"
-                                Padding="12"
-                                Background="#E1F3F8">
-                                <TextBlock
-                                    Text="Keybinds will be disabled when any keystroke field is focused"
-                                    TextWrapping="Wrap" />
-                            </Border>-->
-                            <Button
-                                Style="{DynamicResource ConfirmButtonStyle}"
-                                Content="Add a keybind"
-                                Command="{Binding AddHotkeyCommand}"
-                                HorizontalAlignment="Left"/>
-                            <Button
-                                Style="{DynamicResource CancelButtonStyle}"
-                                Content="Reset to default"
-                                Command="{Binding ResetToDefaultCommand}"
-                                HorizontalAlignment="Left"
-                                Margin="15,0,0,0"/>
-                        </DockPanel>
-                        <Grid Margin="0,0,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="50"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="270"/>
-                                <ColumnDefinition Width="15"/>
-                                <ColumnDefinition Width="205"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock 
-                                Text="Enabled"
-                                TextWrapping="Wrap"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                TextAlignment="Center"/>
-                            <TextBlock
-                                Text="Action"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Bottom"
-                                Grid.Column="2"/>
-                            <TextBlock
-                                Text="Keystroke"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Bottom"
-                                Margin="10,0,5,0"
-                                Grid.Column="4"/>
-                        </Grid>
-                        <ListView
-                            OverridesDefaultStyle="True"
-                            HorizontalAlignment="Stretch"
-                            Background="Transparent"
-                            BorderBrush="Transparent"
-                            ItemContainerStyle="{StaticResource ListViewContainerStyle}"
-                            HorizontalContentAlignment="Stretch"
-                            VerticalContentAlignment="Stretch"
-                            
-                            ItemsSource="{Binding Hotkeys, UpdateSourceTrigger=PropertyChanged}"
-                            Focusable="False">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Grid
-                                        Margin="10,15">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="20"/>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition Width="270"/>
-                                                <ColumnDefinition Width="15"/>
-                                                <ColumnDefinition Width="205"/>
-                                            </Grid.ColumnDefinitions>
-                                            <CheckBox 
-                                                    Grid.Column="0"
-                                                    Style="{StaticResource CheckboxWithoutContentStyle}"
-                                                Height="20"
-                                                Width="20"
-                                                    IsChecked="{Binding IsEnabled}" />
-                                            <ComboBox 
-                                                    Grid.Column="2"
-                                                    IsTabStop="True"
-                                                    HorizontalAlignment="Stretch"
-                                                    Style="{DynamicResource ComboBoxStyle}"
-                                                    ItemsSource="{Binding HotkeyActionOptions}"
-                                                    DisplayMemberPath="Title"
-                                                    SelectedItem="{Binding SelectedActionOption}"/>
-
-                                            <ContentControl
-                                                    Style="{StaticResource UnderLine}" 
-                                                    Grid.Column="4"
-                                                    Margin="0,18,0,0"
-                                                    VerticalAlignment="Center">
-                                                <hotKey:HotKeyControl 
-                                                        Height="30"
-                                                        Margin="0,0,0,0"
-                                                        Text="{Binding Keystroke, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                        ma:TextBoxHelper.ButtonCommand="{Binding ClearKeystrokeCommand}">
-                                                    <hotKey:HotKeyControl.ToolTip>
-                                                        <ToolTip 
-                                                                Content="{Binding Keystroke, UpdateSourceTrigger=PropertyChanged}" 
-                                                                Visibility="{Binding Path=Keystroke, 
-                                                                Converter={StaticResource StringToVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}"/>
-                                                    </hotKey:HotKeyControl.ToolTip>
-                                                    <hotKey:HotKeyControl.Style>
-                                                        <Style
-                                                                BasedOn="{StaticResource MetroTextBox}"
-                                                                TargetType="{x:Type hotKey:HotKeyControl}">
-                                                            <Setter Property="FontSize" Value="16" />
-                                                            <Setter Property="FontWeight" Value="SemiBold" />
-                                                            <Setter Property="BorderThickness" Value="0" />
-                                                            <Setter Property="SnapsToDevicePixels" Value="True" />
-                                                            <Setter Property="HorizontalAlignment" Value="Stretch" />
-                                                            <Setter Property="BorderBrush" Value="#CC1BA2DC"    />
-                                                            <Setter Property="VerticalContentAlignment" Value="Center" />
-                                                            <Setter Property="Padding" Value="5,0,5,0" />
-                                                            <Setter Property="TextWrapping" Value="NoWrap" />
-                                                            <Setter Property="ma:ControlsHelper.ButtonWidth" Value="46" />
-                                                            <Setter Property="ma:TextBoxHelper.Watermark" Value="Enter key" />
-                                                            <Setter Property="ForceModifiers" Value="True" />
-                                                            <Setter Property="Background" Value="Transparent" />
-                                                            <Setter Property="Foreground" Value="{StaticResource DarkForeground}" />
-                                                        </Style>
-                                                    </hotKey:HotKeyControl.Style>
-                                                </hotKey:HotKeyControl>
-                                            </ContentControl>
-                                        </Grid>
-                                        <Border >
-                                            <Button
-                                                Style="{StaticResource SemiTransparentButtonStyle}"
-                                                Command="{Binding DeleteCommand}"
-                                                Width="40"
-                                                Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}">
-                                                <iconPacks:PackIconMaterial
-                                                    Margin="0"
-                                                    Foreground="{DynamicResource DisconnectButtonBrush}"
-                                                    Kind="Delete" />
-                                            </Button>
-                                        </Border>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                        
-                    </StackPanel>
-                </Border>
+                <StackPanel
+                    Focusable="True">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Left"
+                        FontSize="24"
+                        Foreground="{StaticResource DarkForeground}"
+                        Margin="31,2,0,2"
+                        Text="{l:Localization HotkeysSettings.Title}" />
+                    <Border Style="{StaticResource SettingsBorderStyle}">
+                        <controls:HotkeySettingsControl MouseWheelOverListView="HotkeySettingsControl_MouseWheelOverListView"/>
+                    </Border>
+                </StackPanel>
             </StackPanel>
         </Grid>
     </ScrollViewer>
