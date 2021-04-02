@@ -240,7 +240,7 @@ namespace HideezMiddleware.DeviceConnection
                     try
                     {
                         // If device from advertisement already exists and is connected, ignore advertisement
-                        var device = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == id && !(d is IRemoteDeviceProxy));
+                        var device = _deviceManager.Devices.FirstOrDefault(d => WinBleIdToMac(d.DeviceConnection.Connection.ConnectionId.Id) == WinBleIdToMac(id) && !(d is IRemoteDeviceProxy));
                         if (device != null && device.IsConnected)
                             return;
 
@@ -264,6 +264,11 @@ namespace HideezMiddleware.DeviceConnection
                     Interlocked.Exchange(ref _isConnecting, 0);
                 }
             }
+        }
+
+        string WinBleIdToMac(string winBleId)
+        {
+            return winBleId.Split('_').Last().Split('#').First();
         }
     }
 }
