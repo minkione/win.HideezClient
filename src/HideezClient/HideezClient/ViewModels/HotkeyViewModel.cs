@@ -1,7 +1,6 @@
 ﻿using HideezClient.Messages.Hotkeys;
 using HideezClient.Models;
 using HideezClient.Modules.HotkeyManager;
-using HideezClient.Utilities;
 using HideezMiddleware.Localize;
 using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Commands;
@@ -11,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 

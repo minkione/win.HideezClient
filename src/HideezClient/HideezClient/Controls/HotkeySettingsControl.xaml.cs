@@ -2,17 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace HideezClient.Controls
 {
@@ -22,22 +15,44 @@ namespace HideezClient.Controls
     public partial class HotkeySettingsControl : UserControl
     {
         public event EventHandler<MouseWheelEventArgs> MouseWheelOverListView;
+
         public HotkeySettingsControl()
         {
             InitializeComponent();
+            Loaded += HotkeySettingsControl_Loaded;
         }
 
-        private async void HotKeyControl_GotFocus(object sender, RoutedEventArgs e)
+        async void HotkeySettingsControl_Loaded(object sender, RoutedEventArgs e)
         {
-            await (DataContext as HotkeySettingsViewModel).ChangeHotkeyManagerState(false);
+            if (DataContext is HotkeySettingsViewModel viewModel)
+                await viewModel.ReloadHotkeys();
         }
 
-        private async void HotKeyControl_LostFocus(object sender, RoutedEventArgs e)
+        async void HotKeyControl_GotFocus(object sender, RoutedEventArgs e)
         {
-            await (DataContext as HotkeySettingsViewModel).ChangeHotkeyManagerState(true);
+            if (DataContext is HotkeySettingsViewModel viewModel)
+                await viewModel.ChangeHotkeyManagerState(false);
         }
 
-        private void ListView_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        async void HotKeyControl_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is HotkeySettingsViewModel viewModel)
+                await viewModel.ChangeHotkeyManagerState(true);
+        }
+
+        async void ComboBox_DropDownOpened(object sender, EventArgs e)
+        {
+            if (DataContext is HotkeySettingsViewModel viewModel)
+                await viewModel.ChangeHotkeyManagerState(false);
+        }
+
+        async void ComboBox_DropDownClosed(object sender, EventArgs e)
+        {
+            if (DataContext is HotkeySettingsViewModel viewModel)
+                await viewModel.ChangeHotkeyManagerState(true);
+        }
+
+        void ListView_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if(!IsComboBoxDropDownOpened())
                 MouseWheelOverListView?.Invoke(this, e);
@@ -71,16 +86,6 @@ namespace HideezClient.Controls
             }
 
             return false;
-        }
-
-        private async void ComboBox_DropDownOpened(object sender, EventArgs e)
-        {
-            await(DataContext as HotkeySettingsViewModel).ChangeHotkeyManagerState(false);
-        }
-
-        private async void ComboBox_DropDownClosed(object sender, EventArgs e)
-        {
-            await(DataContext as HotkeySettingsViewModel).ChangeHotkeyManagerState(true);
         }
     }
 }

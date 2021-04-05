@@ -2,18 +2,13 @@
 using HideezClient.Models;
 using HideezClient.Models.Settings;
 using HideezClient.Modules;
-using HideezClient.Modules.HotkeyManager;
 using HideezMiddleware.Settings;
-using MahApps.Metro.Controls;
 using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Commands;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -123,6 +118,13 @@ namespace HideezClient.ViewModels
                 await _metaMessenger.Publish(new EnableHotkeyMessage());
             else
                 await _metaMessenger.Publish(new DisableHotkeyMessage());
+        }
+
+        public async Task ReloadHotkeys()
+        {
+            bool hasError = Hotkeys.FirstOrDefault(h => string.IsNullOrEmpty(h.ErrorKeystroke)) == null;
+            if(hasError)
+                await _metaMessenger.Publish(new ResetHotkeysMessage());
         }
     }
 }
