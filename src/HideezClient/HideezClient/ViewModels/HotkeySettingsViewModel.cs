@@ -65,19 +65,15 @@ namespace HideezClient.ViewModels
 
         async Task OnAddHotkey()
         {
-            if (Hotkeys.Count <= 20)
+            if (Hotkeys.Count < 20)
                 await _metaMessenger.Publish(new AddHotkeyMessage(string.Empty, UserAction.None));
         }
 
         async Task ResetToDefault()
         {
-            await ChangeHotkeyManagerState(false);
-
             var result = await _windowsManager.ShowResetToDefaultHotkeysAsync();
             if (result)
                 _settingsManager.SaveSettings(new HotkeySettings());
-
-            await ChangeHotkeyManagerState(true);
         }
 
         void SettingsManager_SettingsChanged(object sender, SettingsChangedEventArgs<HotkeySettings> e)

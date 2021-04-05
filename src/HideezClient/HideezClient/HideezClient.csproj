@@ -473,6 +473,7 @@
     <Compile Include="Modules\HotkeyManager\HotkeyStatesMonitor.cs" />
     <Compile Include="Modules\HotkeyManager\IHotkeySettingsController.cs" />
     <Compile Include="Modules\HotkeyManager\IHotkeyStatesMonitor.cs" />
+    <Compile Include="Modules\HotkeyManager\RemoveEmptyHotkeysProc.cs" />
     <Compile Include="Modules\Log\LogManager.cs" />
     <Compile Include="Modules\NotificationsManager\INotificationsManager.cs" />
     <Compile Include="Modules\NotificationsManager\NotificationsManager.cs" />

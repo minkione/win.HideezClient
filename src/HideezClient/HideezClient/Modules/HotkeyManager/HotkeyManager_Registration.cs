@@ -25,16 +25,19 @@ namespace HideezClient.Modules.HotkeyManager
             foreach (var hotkey in settings.Hotkeys.Where(h => h.Enabled))
             {
                 await SubscribeHotkey(hotkey);
+
+                _subscribedHotkeys.Add(hotkey);
             }
         }
 
         async Task UnsubscribeAllHotkeys()
         {
-            var settings = await _hotkeySettingsManager.GetSettingsAsync();
-            foreach (var hotkey in settings.Hotkeys)
+            foreach (var hotkey in _subscribedHotkeys)
             {
                 await UnsubscribeHotkey(hotkey);
             }
+
+            _subscribedHotkeys.Clear();
         }
 
         async Task SubscribeHotkey(Hotkey hotkey)

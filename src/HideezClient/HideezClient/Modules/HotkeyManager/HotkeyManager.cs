@@ -16,6 +16,7 @@ using Meta.Lib.Modules.PubSub;
 using HideezClient.Messages.Hotkeys;
 using System.Linq;
 using HideezMiddleware.Threading;
+using System.Collections.Generic;
 
 namespace HideezClient.Modules.HotkeyManager
 {
@@ -39,6 +40,7 @@ namespace HideezClient.Modules.HotkeyManager
         bool enabled = false;
 
         readonly SemaphoreQueue registrationQueue = new SemaphoreQueue(1, 1);
+        List<Hotkey> _subscribedHotkeys = new List<Hotkey>();
 
         public HotkeyManager(ISettingsManager<HotkeySettings> hotkeySettingsManager, IMetaPubSub metaMessenger, ILog log)
             : base(nameof(HotkeyManager), log)

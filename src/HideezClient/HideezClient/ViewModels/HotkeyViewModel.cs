@@ -59,10 +59,6 @@ namespace HideezClient.ViewModels
 
         public List<HotkeyActionOption> HotkeyActionOptions { get; }
 
-        [Reactive] public bool IsEnabled { get; set; }
-
-        [Reactive] public HotkeyActionOption SelectedActionOption { get; set; }
-
         public string Keystroke 
         { 
             get => _keystroke; 
@@ -72,6 +68,10 @@ namespace HideezClient.ViewModels
                     this.RaiseAndSetIfChanged(ref _keystroke, value);
             }
         }
+
+        [Reactive] public bool IsEnabled { get; set; }
+
+        [Reactive] public HotkeyActionOption SelectedActionOption { get; set; }
 
         [Reactive] public string ErrorKeystroke { get; set; }
         #endregion
@@ -95,6 +95,7 @@ namespace HideezClient.ViewModels
             if (actionOption == null)
                 actionOption = HotkeyActionOptions.FirstOrDefault(o => o.Action == UserAction.None);
             SelectedActionOption = actionOption;
+
             IsEnabled = hotkey.Enabled;
             Keystroke = hotkey.Keystroke;
         }
@@ -109,11 +110,7 @@ namespace HideezClient.ViewModels
 
         async Task DeleteHotkey()
         {
-            await _metaMessenger.Publish(new DisableHotkeyMessage());
-
             await _metaMessenger.Publish(new DeleteHotkeyMessage(HotkeyId));
-
-            await _metaMessenger.Publish(new EnableHotkeyMessage());
         }
 
         Task OnHotkeyStateChanged(HotkeyStateChangedMessage msg)

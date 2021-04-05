@@ -165,6 +165,7 @@ namespace HideezClient
 
             // Init settings
             ISettingsManager<HotkeySettings> hotkeySettingsManager = Container.Resolve<ISettingsManager<HotkeySettings>>();
+            RemoveEmptyHotkeysProc removeEmptyHotkeysProc = new RemoveEmptyHotkeysProc(hotkeySettingsManager);
             ApplicationSettings settings = null;
             ISettingsManager<ApplicationSettings> appSettingsManager = Container.Resolve<ISettingsManager<ApplicationSettings>>();
 
@@ -175,6 +176,8 @@ namespace HideezClient
                     Directory.CreateDirectory(appSettingsDirectory);
 
                 settings = await appSettingsManager.LoadSettingsAsync().ConfigureAwait(true);
+
+                await removeEmptyHotkeysProc.Run();
 
                 // Init localization
                 var culture = new CultureInfo(settings.SelectedUiLanguage);
