@@ -19,7 +19,6 @@ namespace HideezMiddleware
         readonly IWorkstationHelper _workstationHelper;
 
         UnlockSessionSwitchProc _unlockProcedure = null;
-        readonly object _upLock = new object();
 
         internal UnlockSessionSwitchProc UnlockProcedure { get => _unlockProcedure; }
 
@@ -44,13 +43,14 @@ namespace HideezMiddleware
 
         void ConnectionFlowProcessor_AttemptingUnlock(object sender, string flowId)
         {
-            lock (_upLock)
+            if (_workstationHelper.IsCurrentSessionLocked())
             {
-                if (_workstationHelper.IsCurrentSessionLocked())
+                Task.Run(() =>
                 {
                     _unlockProcedure = new UnlockSessionSwitchProc(flowId, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor);
+                    Task.Run(_unlockProcedure.Run);
                     WriteLine("Started unlock procedure");
-                }
+                });
             }
         }
 
