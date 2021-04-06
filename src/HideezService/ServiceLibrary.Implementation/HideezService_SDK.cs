@@ -146,12 +146,14 @@ namespace ServiceLibrary.Implementation
 
                 if(_connectionModeProvider.IsCsrMode)
                     _connectionManagersCoordinator.AddConnectionManager(_csrBleConnectionManager);
+
                 if(_connectionModeProvider.IsWinBleMode)
                     _connectionManagersCoordinator.AddConnectionManager(_winBleConnectionManagerWrapper);
 
-                _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger,
-                    _csrBleConnectionManager);
-
+                if (_connectionModeProvider.IsCsrMode) 
+                    _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger, _csrBleConnectionManager);
+                else
+                    _connectionManagerRestarter = new ConnectionManagerRestarter(_sdkLogger);
 
                 // BLE ============================
                 _deviceManager = new DeviceManager(_connectionManagersCoordinator, _sdkLogger);
