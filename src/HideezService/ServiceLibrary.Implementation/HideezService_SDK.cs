@@ -392,7 +392,7 @@ namespace ServiceLibrary.Implementation
 
             //SessionUnlockMethodMonitor ==================================
             _sessionUnlockMethodMonitor = new SessionUnlockMethodMonitor(_connectionFlowProcessor,
-                 _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor, _workstationHelper, _sdkLogger);
+                 _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor, _sdkLogger);
 
             // SessionSwitchLogger ==================================
             _sessionSwitchLogger = new SessionSwitchLogger(_eventSaver, _sessionUnlockMethodMonitor,

@@ -16,7 +16,6 @@ namespace HideezMiddleware
         readonly RfidConnectionProcessor _rfidProcessor;
         readonly ProximityConnectionProcessor _proximityProcessor;
         readonly WinBleAutomaticConnectionProcessor _winBleProcessor;
-        readonly IWorkstationHelper _workstationHelper;
 
         UnlockSessionSwitchProc _unlockProcedure = null;
 
@@ -27,7 +26,6 @@ namespace HideezMiddleware
                                           RfidConnectionProcessor rfidProcessor,
                                           ProximityConnectionProcessor proximityProcessor,
                                           WinBleAutomaticConnectionProcessor winBleProcessor,
-                                          IWorkstationHelper workstationHelper,
                                           ILog log): base(nameof(SessionUnlockMethodMonitor), log)
         {
             _connectionFlowProcessor = connectionFlowProcessor;
@@ -35,7 +33,6 @@ namespace HideezMiddleware
             _rfidProcessor = rfidProcessor;
             _proximityProcessor = proximityProcessor;
             _winBleProcessor = winBleProcessor;
-            _workstationHelper = workstationHelper;
 
             _connectionFlowProcessor.AttemptingUnlock += ConnectionFlowProcessor_AttemptingUnlock;
             SessionSwitchMonitor.SessionSwitch += SessionSwitchMonitor_SessionSwitch;
@@ -43,15 +40,9 @@ namespace HideezMiddleware
 
         void ConnectionFlowProcessor_AttemptingUnlock(object sender, string flowId)
         {
-            if (_workstationHelper.IsCurrentSessionLocked())
-            {
-                Task.Run(() =>
-                {
-                    _unlockProcedure = new UnlockSessionSwitchProc(flowId, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor);
-                    Task.Run(_unlockProcedure.Run);
-                    WriteLine("Started unlock procedure");
-                });
-            }
+            _unlockProcedure = new UnlockSessionSwitchProc(flowId, _connectionFlowProcessor, _tapProcessor, _rfidProcessor, _proximityProcessor, _winBleProcessor);
+            Task.Run(_unlockProcedure.Run);
+            WriteLine("Started unlock procedure");
         }
 
         void SessionSwitchMonitor_SessionSwitch(int sessionId, SessionSwitchReason reason)
