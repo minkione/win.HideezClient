@@ -252,6 +252,18 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                 await _subp.MasterkeyProcessor.AuthVault(device, ct);
 
                 var osAccUpdateTask = _subp.AccountsUpdateProcessor.UpdateAccounts(device, vaultInfo, true);
+
+                if (tryUnlock)
+                {
+                    var sid = _workstationHelper.GetSessionId();
+                    var state = _workstationHelper.GetSessionLockState(sid);
+                    var name = _workstationHelper.GetSessionName(sid);
+                    var isCurrentLocked = _workstationHelper.IsActiveSessionLocked();
+                    WriteLine($"Session check for unlock sid:{sid}, state:{state}, name:{name}, islocked: {isCurrentLocked}");
+                }
+                else
+                    WriteLine("Skip unlock step");
+
                 if (_workstationUnlocker.IsConnected && _workstationHelper.IsActiveSessionLocked() && tryUnlock)
                 {
                     await Task.WhenAll(_subp.UserAuthorizationProcessor.AuthorizeUser(device, ct), osAccUpdateTask);
@@ -384,7 +396,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow
                     }
 
                     WriteLine(errorMessage);
-                    await _ui.SendError(errorMessage, device.Id);
+                    if (device != null)
+                        await _ui.SendError(errorMessage, device.Id);
+                    else
+                        await _ui.SendError(errorMessage, connectionId.Id);
                     await _ui.SendNotification(string.Empty, string.Empty);
                 }
 

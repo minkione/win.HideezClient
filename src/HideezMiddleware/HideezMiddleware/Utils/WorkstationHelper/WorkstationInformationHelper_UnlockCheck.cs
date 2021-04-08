@@ -221,7 +221,7 @@ namespace HideezMiddleware.Utils.WorkstationHelper
 
         public static bool IsActiveSessionLocked()
         {
-            return GetActiveSessionLockState() == LockState.Locked;
+            return GetActiveSessionLockState() != LockState.Unlocked;
         }
 
         public static LockState GetCurrentSessionLockState()

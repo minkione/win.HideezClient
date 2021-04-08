@@ -1,6 +1,4 @@
 ﻿using Hideez.SDK.Communication.Log;
-using Hideez.SDK.Communication.Workstation;
-using HideezMiddleware.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,6 +15,8 @@ namespace HideezMiddleware.Utils.WorkstationHelper
 {
     public partial class WorkstationInformationHelper
     {
+        static readonly string SYSTEM_SESSION = "SYSTEM";
+
         [DllImport("Wtsapi32.dll")]
         static extern bool WTSQuerySessionInformation(IntPtr hServer, uint sessionId, WtsInfoClass wtsInfoClass, out IntPtr ppBuffer, out int pBytesReturned);
 
@@ -160,7 +160,7 @@ namespace HideezMiddleware.Utils.WorkstationHelper
 
         public static string GetSessionName(uint sessionId)
         {
-            string username = "SYSTEM";
+            string username = SYSTEM_SESSION;
             if (WTSQuerySessionInformation(IntPtr.Zero, sessionId, WtsInfoClass.WTSUserName, out IntPtr buffer, out int strLen) && strLen > 1)
             {
                 username = Marshal.PtrToStringAnsi(buffer);
@@ -191,8 +191,12 @@ namespace HideezMiddleware.Utils.WorkstationHelper
 
                         if (sessionInfo.State == WTS_CONNECTSTATE_CLASS.WTSActive)
                         {
-                            activeSessionId = sessionInfo.SessionID;
-                            break;
+                            var sessionName = GetSessionName(sessionInfo.SessionID);
+                            if (sessionName != SYSTEM_SESSION)
+                            {
+                                activeSessionId = sessionInfo.SessionID;
+                                break;
+                            }
                         }
                     }
 
