@@ -3,6 +3,9 @@ using DeviceMaintenance.Service;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Connection;
 using Hideez.SDK.Communication.Log;
+using HideezMiddleware;
+using HideezMiddleware.Modules.FwUpdateCheck;
+using HideezMiddleware.Modules.FwUpdateCheck.Messages;
 using Meta.Lib.Modules.PubSub;
 using Microsoft.Win32;
 using MvvmExtensions.Attributes;
@@ -25,11 +28,15 @@ namespace DeviceMaintenance.ViewModel
             
         readonly EventLogger _log;
         readonly MetaPubSub _hub;
+        readonly FwUpdateCheckModule _fwUpdateCheckModule;
 
         bool _automaticallyUploadFirmware = Properties.Settings.Default.AutomaticallyUpload;
         bool _csrUpdate = true;
         bool _winBleUpdate = false;
+        bool _isServerUpdateEnabled = true;
+        bool _isUpdateManuallyEnabled;
         string _fileName = Properties.Settings.Default.FirmwareFileName;
+        string _cachedFilePath = string.Empty;
 
         readonly ConcurrentDictionary<string, DeviceViewModel> _devices =
             new ConcurrentDictionary<string, DeviceViewModel>();
@@ -70,13 +77,47 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
-        [DependsOn(nameof(FirmwareFilePath))]
+        public string CachedFilePath
+        {
+            get
+            {
+                return _cachedFilePath;
+            }
+            set
+            {
+                if (_cachedFilePath != value)
+                {
+                    _cachedFilePath = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        [DependsOn(nameof(CachedFilePath), nameof(FirmwareFilePath))]
+        public string FilePath
+        {
+            get
+            {
+                return IsServerUpdateEnabled ? CachedFilePath: FirmwareFilePath;
+            }
+        }
+
+        [DependsOn(nameof(CachedFilePath))]
+        public string TempFileName
+        {
+            get
+            {
+                return Path.GetFileNameWithoutExtension(CachedFilePath);
+            }
+        }
+
+        [DependsOn(nameof(FilePath))]
         public bool IsFirmwareSelected
         {
             get
             {
-                    return !string.IsNullOrWhiteSpace(FirmwareFilePath) &&
-                            FirmwareFilePath.EndsWith($".{FW_FILE_EXTENSION}");
+                    return !string.IsNullOrWhiteSpace(FilePath) &&
+                            FilePath.EndsWith($".{FW_FILE_EXTENSION}");
             }
         }
 
@@ -162,6 +203,38 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
+        public bool IsServerUpdateEnabled
+        {
+            get
+            {
+                return _isServerUpdateEnabled;
+            }
+            set
+            {
+                if (_isServerUpdateEnabled != value)
+                {
+                    _isServerUpdateEnabled = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public bool IsUpdateManuallyEnabled
+        {
+            get
+            {
+                return _isUpdateManuallyEnabled;
+            }
+            set
+            {
+                if (_isUpdateManuallyEnabled != value)
+                {
+                    _isUpdateManuallyEnabled = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         /// <summary>
         /// Returns true if any device is currently undergoing firmware update
         /// </summary>
@@ -207,6 +280,9 @@ namespace DeviceMaintenance.ViewModel
             _hub.Subscribe<ControllerAddedEvent>(OnControllerAdded);
             _hub.Subscribe<DeviceConnectedEvent>(OnDeviceConnected);
             _hub.Subscribe<ClosingEvent>(OnClosing);
+            _hub.Subscribe<FwUpdateAvailableMessage>(OnFwUpdateAvailableReceived);
+
+            _fwUpdateCheckModule = new FwUpdateCheckModule(HideezClientRegistryRoot.GetRootRegistryKey(true), _hub, _log);
 
             ConnectionManager = new ConnectionManagerViewModel(_log, _hub);
             ConnectionManager.Initialize(DefaultConnectionIdProvider.Csr);
@@ -235,6 +311,13 @@ namespace DeviceMaintenance.ViewModel
         {
             var connectionId = new ConnectionId(arg.DeviceId, (byte)DefaultConnectionIdProvider.Csr);
             await CreateDeviceViewModel(connectionId);
+        }
+
+        Task OnFwUpdateAvailableReceived(FwUpdateAvailableMessage arg)
+        {
+            CachedFilePath = arg.FilePath;
+
+            return Task.CompletedTask;
         }
 
         async Task CreateDeviceViewModel(ConnectionId connectionId)
@@ -274,7 +357,7 @@ namespace DeviceMaintenance.ViewModel
         Task OnDeviceConnected(DeviceConnectedEvent arg)
         {
             if (IsFirmwareSelected && (AutomaticallyUploadFirmware || arg.DeviceViewModel.IsBoot))
-                return arg.DeviceViewModel.StartFirmwareUpdate(FirmwareFilePath);
+                return arg.DeviceViewModel.StartFirmwareUpdate(FilePath);
 
             return Task.CompletedTask;
         }
@@ -304,6 +387,5 @@ namespace DeviceMaintenance.ViewModel
             if (IsFirmwareSelected)
                 _hub.Publish(new StartDiscoveryCommand());
         }
-
     }
 }

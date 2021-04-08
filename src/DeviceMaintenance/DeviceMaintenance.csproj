@@ -238,6 +238,10 @@
       <Project>{af08ed4d-6977-4dcb-a49d-0c0a547698ba}</Project>
       <Name>WinBle</Name>
     </ProjectReference>
+    <ProjectReference Include="..\HideezMiddleware\HideezMiddleware\HideezMiddleware.csproj">
+      <Project>{2a5abf59-55ee-461b-8c6f-2a294481129b}</Project>
+      <Name>HideezMiddleware</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\Fody.5.0.0\build\Fody.targets" Condition="Exists('packages\Fody.5.0.0\build\Fody.targets')" />
