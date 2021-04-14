@@ -4,6 +4,7 @@ using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Connection;
 using Hideez.SDK.Communication.Log;
 using HideezMiddleware;
+using HideezMiddleware.ConnectionModeProvider;
 using HideezMiddleware.Modules.FwUpdateCheck;
 using HideezMiddleware.Modules.FwUpdateCheck.Messages;
 using Meta.Lib.Modules.PubSub;
@@ -31,10 +32,10 @@ namespace DeviceMaintenance.ViewModel
         readonly FwUpdateCheckModule _fwUpdateCheckModule;
 
         bool _automaticallyUploadFirmware = Properties.Settings.Default.AutomaticallyUpload;
-        bool _csrUpdate = true;
-        bool _winBleUpdate = false;
-        bool _isServerUpdateEnabled = true;
-        bool _isUpdateManuallyEnabled;
+        bool _csrUpdate;
+        bool _winBleUpdate;
+        bool _isQuickUpdate;
+        bool _isAdvancedUpdate;
         string _fileName = Properties.Settings.Default.FirmwareFileName;
         string _cachedFilePath = string.Empty;
 
@@ -98,7 +99,7 @@ namespace DeviceMaintenance.ViewModel
         {
             get
             {
-                return IsServerUpdateEnabled ? CachedFilePath: FirmwareFilePath;
+                return IsQuickUpdate ? CachedFilePath: FirmwareFilePath;
             }
         }
 
@@ -203,36 +204,42 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
-        public bool IsServerUpdateEnabled
+        public bool IsQuickUpdate
         {
             get
             {
-                return _isServerUpdateEnabled;
+                return _isQuickUpdate;
             }
             set
             {
-                if (_isServerUpdateEnabled != value)
+                if (_isQuickUpdate != value)
                 {
-                    _isServerUpdateEnabled = value;
+                    _isQuickUpdate = value;
                     NotifyPropertyChanged();
                 }
             }
         }
 
-        public bool IsUpdateManuallyEnabled
+        public bool IsAdvancedUpdate
         {
             get
             {
-                return _isUpdateManuallyEnabled;
+                return _isAdvancedUpdate;
             }
             set
             {
-                if (_isUpdateManuallyEnabled != value)
+                if (_isAdvancedUpdate != value)
                 {
-                    _isUpdateManuallyEnabled = value;
+                    _isAdvancedUpdate = value;
                     NotifyPropertyChanged();
                 }
             }
+        }
+
+        [DependsOn(nameof(IsAdvancedUpdate), nameof(IsQuickUpdate))]
+        public bool IsButtonsVisible
+        {
+            get => !IsAdvancedUpdate && !IsQuickUpdate;
         }
 
         /// <summary>
@@ -264,6 +271,49 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
+        public ICommand QuickUpdateCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        IsQuickUpdate = true;
+                    }
+                };
+            }
+        }
+
+        public ICommand AdvancedUpdateCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        IsAdvancedUpdate = true;
+                    }
+                };
+            }
+        }
+
+        public ICommand GoToStartPageCommand
+        {
+            get
+            {
+                return new DelegateCommand
+                {
+                    CommandAction = (x) =>
+                    {
+                        IsAdvancedUpdate = false;
+                        IsQuickUpdate = false;
+                    }
+                };
+            }
+        }
+
         #endregion
 
         public MainWindowViewModel(MetaPubSub hub)
@@ -283,12 +333,18 @@ namespace DeviceMaintenance.ViewModel
             _hub.Subscribe<FwUpdateAvailableMessage>(OnFwUpdateAvailableReceived);
 
             _fwUpdateCheckModule = new FwUpdateCheckModule(HideezClientRegistryRoot.GetRootRegistryKey(true), _hub, _log);
+            ConnectionModeProvider modeProvider = new ConnectionModeProvider(HideezClientRegistryRoot.GetRootRegistryKey(false), _log);
 
             ConnectionManager = new ConnectionManagerViewModel(_log, _hub);
             ConnectionManager.Initialize(DefaultConnectionIdProvider.Csr);
             HideezServiceController = new HideezServiceController(_log, _hub);
 
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
+
+            if (modeProvider.IsCsrMode)
+                IsCsrEnabled = true;
+            else
+                IsWinBleEnabled = true;
 
             if (IsFirmwareSelected)
                 _hub.Publish(new StartDiscoveryCommand());
