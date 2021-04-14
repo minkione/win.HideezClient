@@ -6,10 +6,18 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.Modules.FwUpdateCheck
 {
-    class FwUpdateInfo
+    public enum ReleaseStage
+    {
+        Alpha,
+        Beta, 
+        Release
+    }
+
+    public class FwUpdateInfo
     {
         public string Id { get; set; }
         public string Version { get; set; }
         public string DeviceModel { get; set; }
+        public ReleaseStage ReleaseStage { get; set; }
     }
 }

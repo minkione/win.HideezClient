@@ -269,6 +269,9 @@
     <Compile Include="Modules\FwUpdateCheck\FwUpdateCheckModule.cs" />
     <Compile Include="Modules\FwUpdateCheck\FwUpdateInfo.cs" />
     <Compile Include="Modules\FwUpdateCheck\Messages\FwUpdateAvailableMessage.cs" />
+    <Compile Include="Modules\FwUpdateCheck\Messages\GetFwUpdateByModelMessage.cs" />
+    <Compile Include="Modules\FwUpdateCheck\Messages\GetFwUpdateByModelMessageResponse.cs" />
+    <Compile Include="Modules\FwUpdateCheck\Messages\GetFwUpdatesCollectionMessage.cs" />
     <Compile Include="Modules\Hes\HesModule.cs" />
     <Compile Include="Modules\Hes\Messages\HesAccessManager_AccessRetractedMessage.cs" />
     <Compile Include="Modules\Hes\Messages\HesAppConnection_HubConnectionStateChangedMessage.cs" />

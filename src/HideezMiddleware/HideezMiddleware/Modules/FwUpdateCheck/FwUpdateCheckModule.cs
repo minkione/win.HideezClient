@@ -1,9 +1,12 @@
 ﻿using Hideez.SDK.Communication.Log;
 using HideezMiddleware.Modules.FwUpdateCheck.Messages;
+using HideezMiddleware.Modules.UpdateCheck;
 using Meta.Lib.Modules.PubSub;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -14,7 +17,7 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
     public class FwUpdateCheckModule : ModuleBase
     {
         private readonly RegistryKey _registryKey;
-        private readonly string _updateConfigUrl = "https://hls.hideez.com/api/Firmwares/GetFirmwares/ST102";
+        private readonly string _updateConfigUrl = "https://hls.hideez.com/api/Firmwares/GetFirmwares/";
         private readonly string _downloadFwUrl = "https://hls.hideez.com/api/Firmwares/GetFirmware/";
         private readonly string _fwUpdateCacheRegistryValueName = "fw_update_cache_path";
 
@@ -23,35 +26,87 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
         {
             _registryKey = registryKey;
 
-            Task.Run(RunUpdateCheck);
+            Task.Run(DeleteOldCachedUpdates);
+            _messenger.Subscribe<GetFwUpdateByModelMessage>(OnGetFwUpdateFilePath);
+            _messenger.Subscribe<GetFwUpdatesCollectionMessage>(OnGetFwUpdatesCollection);
         }
 
-        async Task RunUpdateCheck()
+        //Delete the oldest used files if there are more than 10 ones
+        private void DeleteOldCachedUpdates()
         {
             try
             {
-                var availableUpdateInfo = GetAvailableFwUpdateInfo();
-                if (availableUpdateInfo != null)
+                string folderPath = _registryKey.GetValue(_fwUpdateCacheRegistryValueName) as string;
+                if(!string.IsNullOrWhiteSpace(folderPath) && Directory.Exists(folderPath))
                 {
-                    DeleteCachedUpdate();
-                    DownloadUpdate(availableUpdateInfo);
-                }
+                    var filePaths = Directory.GetFiles(folderPath);
+                    if (filePaths.Length > 10)
+                    {
+                        var filesDictionary = new Dictionary<string, DateTime>();
+                        foreach (var filePath in filePaths)
+                        {
+                            var lastAccessTime = File.GetLastAccessTime(filePath);
+                            filesDictionary.Add(filePath, lastAccessTime);
+                        }
 
-                await CheckCachedUpdate();
+                        var sortedCollection = filesDictionary.OrderBy(pair => pair.Value).ToArray();
+                        for (int i = 10; i < sortedCollection.Length; i++)
+                        {
+                            File.Delete(sortedCollection[i].Key);
+                        }
+                    }
+                }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 WriteLine(ex);
             }
         }
 
-        private string GetCachedFilePath()
+        private Task OnGetFwUpdatesCollection(GetFwUpdatesCollectionMessage arg)
+        {
+            return Task.CompletedTask;
+        }
+
+        private async Task OnGetFwUpdateFilePath(GetFwUpdateByModelMessage arg)
+        {
+            string filePath = string.Empty;
+            try
+            {
+                var availableUpdateInfo = GetAvailableFwUpdateInfo(arg.DeviceModel);
+                if (availableUpdateInfo.ReleaseStage == ReleaseStage.Release)
+                {
+                    var cachedFilePath = GetCachedFilePath(availableUpdateInfo.Version, arg.DeviceModel);
+                    if (availableUpdateInfo != null && string.IsNullOrWhiteSpace(cachedFilePath))
+                        DownloadUpdate(availableUpdateInfo);
+
+                    filePath = GetCachedFilePath(availableUpdateInfo.Version, arg.DeviceModel);
+                }
+            }
+            catch(Exception ex)
+            {
+                WriteLine(ex);
+            }
+            finally
+            {
+                await _messenger.Publish(new GetFwUpdateByModelMessageResponse(filePath));
+            }
+        }
+
+        /// <summary>
+        /// Returns <see cref="CachedUpdateInfo"/> populated by data from local cache
+        /// </summary>
+        private string GetCachedFilePath(string version, string deviceModel)
         {
             try
             {
-                string filepath = _registryKey.GetValue(_fwUpdateCacheRegistryValueName) as string;
-                if (!string.IsNullOrWhiteSpace(filepath) && File.Exists(filepath))
-                    return filepath;
+                string folderPath = _registryKey.GetValue(_fwUpdateCacheRegistryValueName) as string;
+                if (!string.IsNullOrWhiteSpace(folderPath))
+                {
+                    string filepath = Path.Combine(folderPath, $"fw{deviceModel}_{version}.img");
+                    if (File.Exists(filepath))
+                        return filepath;
+                }
             }
             catch (Exception ex)
             {
@@ -65,8 +120,10 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
         {
             try
             {
-                string filename = $"{updateInfo.Version}.img";
-                string folderPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+                string filename = $"fw{updateInfo.DeviceModel}_{updateInfo.Version}.img";
+                string folderPath = _registryKey.GetValue(_fwUpdateCacheRegistryValueName) as string;
+                if (string.IsNullOrWhiteSpace(folderPath))
+                    folderPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
                 string targetPath = Path.Combine(folderPath, filename);
 
                 byte[] downloadedData;
@@ -74,7 +131,7 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
                 downloadedData = new byte[0];
 
                 //open a data stream from the supplied URL
-                WebRequest webReq = WebRequest.Create(_downloadFwUrl+updateInfo.Id);
+                WebRequest webReq = WebRequest.Create(_downloadFwUrl + updateInfo.Id);
                 WebResponse webResponse = webReq.GetResponse();
 
                 //Download the data in chuncks
@@ -122,11 +179,10 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
                 }
 
                 // Save path to downloaded file in registry
-                _registryKey.SetValue(_fwUpdateCacheRegistryValueName, targetPath, RegistryValueKind.String);
+                _registryKey.SetValue(_fwUpdateCacheRegistryValueName, folderPath, RegistryValueKind.String);
 
                 return true;
             }
-
             catch (Exception)
             {
                 //We may not be connected to the internet
@@ -135,11 +191,11 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
             }
         }
 
-        FwUpdateInfo GetAvailableFwUpdateInfo()
+        FwUpdateInfo GetAvailableFwUpdateInfo(string deviceModel)
         {
             try
             {
-                WebRequest webRequest = WebRequest.Create(_updateConfigUrl);
+                WebRequest webRequest = WebRequest.Create(_updateConfigUrl + deviceModel);
                 WebResponse webResponse = webRequest.GetResponse();
 
                 JsonDocument jsonDocument = null;
@@ -150,13 +206,15 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
 
                 string id = jsonDocument.RootElement[0].GetProperty("id").GetString();
                 string version = jsonDocument.RootElement[0].GetProperty("version").GetString();
-                string deviceModel = jsonDocument.RootElement[0].GetProperty("deviceModel").GetString();
+                string releaseStageStr = jsonDocument.RootElement[0].GetProperty("releaseStage").GetString();
+                Enum.TryParse(releaseStageStr, out ReleaseStage releaseStage);
 
                 return new FwUpdateInfo
                 {
                     Id = id,
                     Version = version,
-                    DeviceModel = deviceModel
+                    DeviceModel = deviceModel,
+                    ReleaseStage = releaseStage
                 };
             }
             catch (Exception)
@@ -164,30 +222,6 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
                 // Any number of errors may prevent us from getting an update config
                 return null;
             }
-        }
-
-        // Delete update file and registry reference to its path
-        private void DeleteCachedUpdate()
-        {
-            string filepath = _registryKey.GetValue(_fwUpdateCacheRegistryValueName) as string;
-            if (!string.IsNullOrWhiteSpace(filepath) && File.Exists(filepath))
-            {
-                File.Delete(filepath);
-
-                var dir = Path.GetDirectoryName(filepath);
-                if (dir != Path.GetTempPath())
-                    Directory.Delete(dir);
-
-                _registryKey.DeleteValue(_fwUpdateCacheRegistryValueName);
-            }
-        }
-
-        // Check cache for possible update and publish a message if cached update is available
-        private async Task CheckCachedUpdate()
-        {
-            var filePath = GetCachedFilePath();
-            if (!string.IsNullOrEmpty(filePath))
-                await SafePublish(new FwUpdateAvailableMessage(filePath, Path.GetFileNameWithoutExtension(filePath)));
         }
     }
 }
