@@ -104,6 +104,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             if (device == null)
                 throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed.Csr", connectionId.Id));
 
+            await _ui.SendNotification(string.Empty, connectionId.Id);
+
             return device;
         }
 
@@ -145,6 +147,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow
             if (device == null)
                 throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Connection.ConnectionFailed", connectionId.Id));
 
+            await _ui.SendNotification(string.Empty, connectionId.Id);
+
             return device;
         }
 
@@ -152,18 +156,15 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             ct.ThrowIfCancellationRequested();
 
-            var connectionId = device.DeviceConnection.Connection.ConnectionId.Id;
-
-            if (!device.IsInitialized)
-                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Initialization.WaitingInitializationMessage"], connectionId);
+            await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.Initialization.WaitingInitializationMessage"], device.Id);
 
             if (!await device.WaitInitialization(SdkConfig.DeviceInitializationTimeout, ct))
-                throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Initialization.InitializationFailed", connectionId));
+                throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Initialization.InitializationFailed", device.Id));
 
             if (device.IsErrorState)
             {
                 await _deviceManager.RemoveConnection(device.DeviceConnection);
-                throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Initialization.DeviceInitializationError", connectionId, device.ErrorMessage));
+                throw new WorkflowException(TranslationSource.Instance.Format("ConnectionFlow.Initialization.DeviceInitializationError", device.Id, device.ErrorMessage));
             }
         }
     }

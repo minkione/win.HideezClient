@@ -170,21 +170,18 @@ namespace HideezMiddleware.DeviceConnection
             // Interlock prevents start of multiple or subsequent procedures if impatient user clicks commandLink multiple times
             if (Interlocked.CompareExchange(ref _commandLinkInterlock, 1, 0) == 0)
             {
+                var notifId = nameof(WinBleAutomaticConnectionProcessor);
                 try
                 {
-                    var notifId = nameof(WinBleAutomaticConnectionProcessor);
-
                     await _ui.SendError("", notifId);
                     await _ui.SendNotification(TranslationSource.Instance["ConnectionProcessor.SearchingForVault"], notifId);
                     var adv = await new WaitAdvertisementProc(_winBleConnectionManagerWrapper).Run(10_000);
                     if (adv != null)
                     {
-                        await _ui.SendNotification("", notifId);
                         await ConnectByProximity(adv, true);
                     }
                     else
                     {
-                        await _ui.SendNotification("", notifId);
                         await _ui.SendError(TranslationSource.Instance["ConnectionProcessor.VaultNotFound"], notifId);
                     }
                 }
@@ -194,6 +191,7 @@ namespace HideezMiddleware.DeviceConnection
                 }
                 finally
                 {
+                    await _ui.SendNotification("", notifId);
                     Interlocked.Exchange(ref _commandLinkInterlock, 0);
                 }
             }
@@ -277,7 +275,12 @@ namespace HideezMiddleware.DeviceConnection
                     try
                     {
                         // If device from advertisement already exists and is connected, ignore advertisement
-                        var device = _deviceManager.Devices.FirstOrDefault(d => d.DeviceConnection.Connection.ConnectionId.Id == id && !(d is IRemoteDeviceProxy));
+                        var device = _deviceManager.Devices.FirstOrDefault(d =>
+                        {
+                            return WinBleUtils.WinBleIdToMac(d.DeviceConnection.Connection.ConnectionId.Id) == WinBleUtils.WinBleIdToMac(id)
+                            && !(d is IRemoteDeviceProxy);
+                        });
+
                         if (device != null 
                             && device.IsConnected 
                             && device.GetUserProperty<HwVaultConnectionState>(CustomProperties.HW_CONNECTION_STATE_PROP) 

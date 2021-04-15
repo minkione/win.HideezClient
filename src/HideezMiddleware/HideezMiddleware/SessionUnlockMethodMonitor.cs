@@ -35,13 +35,13 @@ namespace HideezMiddleware
             _connectionFlowProcessor.Started += ConnectionFlowProcessor_Started;
         }
 
-        void ConnectionFlowProcessor_Started(object sender, string e)
+        void ConnectionFlowProcessor_Started(object sender, string flowId)
         {
             lock (_upLock)
             {
                 if (_workstationHelper.IsCurrentSessionLocked())
                 {
-                    _unlockProcedure = new UnlockSessionSwitchProc(e, _connectionFlowProcessor, _messenger);
+                    _unlockProcedure = new UnlockSessionSwitchProc(flowId, _connectionFlowProcessor, _messenger);
                     WriteLine("Started unlock procedure");
                 }
             }

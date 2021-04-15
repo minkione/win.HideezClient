@@ -170,7 +170,7 @@ namespace HideezMiddleware.Audit
             if (procedure != null)
             {
                 WriteLine("Wait for unlock procedure");
-                await procedure.Run();
+                await procedure.WaitFinish();
             }
 
             WriteLine("Generating unlock event");

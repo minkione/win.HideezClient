@@ -28,7 +28,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow
         {
             if ((device.AccessLevel.IsLinkRequired || vaultInfo.NeedUpdateLicense) && _hesConnection.State == HesConnectionState.Connected)
             {
-                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.License.UpdatingLicenseMessage"], device.DeviceConnection.Connection.ConnectionId.Id);
+                await _ui.SendNotification(TranslationSource.Instance["ConnectionFlow.License.UpdatingLicenseMessage"], device.Id);
 
                 IList<HwVaultLicenseDto> licenses;
                 if (device.AccessLevel.IsLinkRequired)

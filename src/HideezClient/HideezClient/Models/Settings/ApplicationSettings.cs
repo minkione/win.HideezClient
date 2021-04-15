@@ -20,8 +20,6 @@ namespace HideezClient.Models.Settings
             UseSimplifiedUI = false;
             AutoCreateAccountIfNotFound = false;
             AddMainDomain = true;
-            ShowDongleIndicator = true;
-            ShowBluetoothIndicator = true;
         }
 
         /// <summary>
@@ -43,8 +41,6 @@ namespace HideezClient.Models.Settings
             UseSimplifiedUI = copy.UseSimplifiedUI;
             AutoCreateAccountIfNotFound = copy.AutoCreateAccountIfNotFound;
             AddMainDomain = copy.AddMainDomain;
-            ShowDongleIndicator = copy.ShowDongleIndicator;
-            ShowBluetoothIndicator = copy.ShowBluetoothIndicator;
         }
 
         [Setting]

@@ -11,6 +11,7 @@ using Hideez.SDK.Communication.Workstation;
 using HideezMiddleware;
 using HideezMiddleware.Audit;
 using HideezMiddleware.ClientManagement;
+using HideezMiddleware.ConnectionModeProvider;
 using HideezMiddleware.CredentialProvider;
 using HideezMiddleware.DeviceConnection;
 using HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow;
@@ -114,6 +115,8 @@ namespace ServiceLibrary.Implementation
             // Used by some modules to access data stored in registry
             var registryRoot = HideezClientRegistryRoot.GetRootRegistryKey(true);
             _container.RegisterInstance(registryRoot, new ContainerControlledLifetimeManager());
+
+            _container.RegisterType<IConnectionModeProvider, ConnectionModeProvider>(new ContainerControlledLifetimeManager());
 
             // Used by many modules to gather info about currect PC state
             _container.RegisterType<IWorkstationHelper, WorkstationHelper>(new ContainerControlledLifetimeManager());
