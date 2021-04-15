@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Obfuscator>
+  
+  <Var name="InPath" value="." />
+  <Var name="OutPath" value=".\Obfuscator_Output" />
+
+  <Module file="$(InPath)\HideezClient.exe">
+    <SkipNamespace name="*" />
+  
+    <ForceMethod name="HideezClient.Models.Account" rx="TryGetPasswordAsync" />
+    <ForceType  name="HideezClient.Models.DeviceModel" />
+  
+    <ForceNamespace name="HideezClient.Modules.WorkstationManager*" />
+    <ForceNamespace name="HideezClient.Modules.ServiceProxy*" />
+    <ForceNamespace name="HideezClient.Modules.ActionHandler*" />
+  </Module>
+  <Module file="$(InPath)\Hideez Device Maintenance Application.exe">
+    <SkipNamespace name="*" />
+  </Module>
+  <Module file="$(InPath)\TemplateFactory.exe">
+    <SkipNamespace name="*" />
+  </Module>
+  <Module file="$(InPath)\HideezServiceHost.exe">
+    <SkipNamespace name="*" />
+  </Module>
+  <Module file="$(InPath)\ServiceLibrary.Implementation.dll">
+    <SkipNamespace name="*" />
+  </Module>
+  <Module file="$(InPath)\HideezMiddleware.dll">
+    <SkipNamespace name="*" />
+  </Module>
+  <Module file="$(InPath)\WinBle.dll" >
+    <SkipNamespace name="*" />
+  </Module>
+  <Module file="$(InPath)\Hideez.ISM.dll">
+    <ForceNamespace name="*" /> <!-- Critical module. Force. -->
+  </Module>
+  <Module file="$(InPath)\Hideez.ARM.dll">
+    <SkipNamespace name="*" />
+  </Module>
+  <Module file="$(InPath)\Communication.dll">
+    <SkipNamespace name="*" />
+    
+    <ForceNamespace name="Hideez.SDK.Communication.PasswordManager*" />
+    <ForceNamespace name="Hideez.SDK.Communication.Security*" />
+    <ForceNamespace name="Hideez.SDK.Communication.Command*" />
+    <!--<ForceNamespace name="Hideez.SDK.Communication.Interfaces*" />-->
+
+    <ForceType name="Hideez.SDK.Communication.Device.Device" />
+    <ForceType name="Hideez.SDK.Communication.Device.DeviceManager" />
+    <ForceType name="Hideez.SDK.Communication.StorageTable" />
+    <ForceType name="Hideez.SDK.Communication.Interfaces.IDeviceStorage" />
+    <ForceType name="Hideez.SDK.Communication.Interfaces.IDevice" />
+  </Module>
+
+  <!-- there is an issue when trying to obfuscate this due to invalid digital signature -->
+  <!--<Module file="$(InPath)\WindowsInput.dll" />-->
+
+  <!-- There are very few things we need to keep, and they are already marked with appropriate attribute -->
+  <Var name="KeepPublicApi" value="true" />
+  <Var name="HidePrivateApi" value="true" />
+  
+  <Var name="OptimizeMethods" value="true" />
+  <Var name="SuppressIldasm" value="true" />
+
+  <Var name="HideStrings" value="true" />
+  <Var name="RenameProperties" value="true" />
+  <Var name="RenameEvents" value="true" />
+  <Var name="RenameFields" value="true" />
+</Obfuscator>
