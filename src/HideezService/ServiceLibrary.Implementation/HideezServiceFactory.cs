@@ -1,5 +1,6 @@
 ﻿using HideezMiddleware;
 using HideezMiddleware.ApplicationModeProvider;
+using HideezMiddleware.ConnectionModeProvider;
 
 namespace ServiceLibrary.Implementation
 {
@@ -13,11 +14,12 @@ namespace ServiceLibrary.Implementation
             var builder = new HideezServiceBuilder();
             var director = new HideezServiceBuildDirector();
 
-            var mode = GetApplicationMode();
-            if (mode == ApplicationMode.Standalone)
-                return director.BuildStandaloneService(builder);
+            var appMode = GetApplicationMode();
+            var features = GetToggleFeaturesList();
+            if (appMode == ApplicationMode.Standalone)
+                return director.BuildStandaloneService(builder, features);
             else
-                return director.BuildEnterpriseService(builder);
+                return director.BuildEnterpriseService(builder, features);
         }
 
         private ApplicationMode GetApplicationMode()
@@ -37,6 +39,38 @@ namespace ServiceLibrary.Implementation
             {
                 NLog.LogManager.DisableLogging();
             }
+        }
+
+        private GlobalConnectionMode GetConnectionMode()
+        {
+            try
+            {
+                NLog.LogManager.EnableLogging();
+
+                using (var key = HideezClientRegistryRoot.GetRootRegistryKey(false))
+                {
+                    var sdkLogger = new NLogWrapper();
+                    var connectionModeProvider = new ConnectionModeProvider(key, sdkLogger);
+                    return connectionModeProvider.ConnectionMode;
+                }
+            }
+            finally
+            {
+                NLog.LogManager.DisableLogging();
+            }
+        }
+
+        private ToggleFeaturesList GetToggleFeaturesList()
+        {
+            var connectionMode = GetConnectionMode();
+
+            var toggleFeaturesList = new ToggleFeaturesList
+            {
+                EnableDongleSupport = connectionMode == GlobalConnectionMode.CsrDongle,
+                EnableWinBleSupport = connectionMode == GlobalConnectionMode.WindowsBle
+            };
+
+            return toggleFeaturesList;
         }
     }
 }

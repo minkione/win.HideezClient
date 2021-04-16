@@ -4,7 +4,7 @@ namespace ServiceLibrary.Implementation
 {
     public sealed class HideezServiceBuildDirector
     {
-        public HideezService BuildEnterpriseService(HideezServiceBuilder builder)
+        public HideezService BuildEnterpriseService(HideezServiceBuilder builder, ToggleFeaturesList featuresList)
         {
             builder.Begin();
 
@@ -13,8 +13,10 @@ namespace ServiceLibrary.Implementation
             builder.AddEnterpriseProximitySettingsSupport();
             builder.AddHES();
             builder.AddEnterpriseConnectionFlow();
-            builder.AddCsrSupport();
-            builder.AddWinBleSupport();
+            if (featuresList.EnableDongleSupport)
+                builder.AddDongleSupport();
+            if (featuresList.EnableWinBleSupport)
+                builder.AddWinBleSupport();
             builder.AddRfidSupport();
             builder.AddRemoteUnlock();
             builder.AddWorkstationLock();
@@ -25,7 +27,7 @@ namespace ServiceLibrary.Implementation
             return builder.GetService();
         }
 
-        public HideezService BuildStandaloneService(HideezServiceBuilder builder)
+        public HideezService BuildStandaloneService(HideezServiceBuilder builder, ToggleFeaturesList featuresList)
         {
             builder.Begin();
 
@@ -33,8 +35,10 @@ namespace ServiceLibrary.Implementation
             builder.AddStandaloneResources();
             builder.AddStandaloneProximitySettingsSupport();
             builder.AddStandaloneConnectionFlow();
-            builder.AddCsrSupport();
-            builder.AddWinBleSupport();
+            if (featuresList.EnableDongleSupport)
+                builder.AddDongleSupport();
+            if (featuresList.EnableWinBleSupport)
+                builder.AddWinBleSupport();
             builder.AddRemoteUnlock();
             builder.AddWorkstationLock();
             builder.AddClientPipe();

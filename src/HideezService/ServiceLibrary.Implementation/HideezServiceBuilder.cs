@@ -393,7 +393,7 @@ namespace ServiceLibrary.Implementation
         }
 
         // todo: simplify resolution
-        public void AddCsrSupport()
+        public void AddDongleSupport()
         {
             var log = _container.Resolve<ILog>();
             var messenger = _container.Resolve<IMetaPubSub>();
