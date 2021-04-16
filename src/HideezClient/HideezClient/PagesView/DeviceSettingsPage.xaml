@@ -237,10 +237,30 @@
 
                                         <Button
                                             Command="{Binding ChangePinCodeCommand}"
-                                            Content="{l:Localization AccessSettings.ChangePinCode}"
-                                            Style="{DynamicResource ConfirmButtonStyle}"
                                             Margin="0,0,0,24" 
-                                            Visibility="{Binding SavedRequirePin, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            Visibility="{Binding SavedRequirePin, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource ConfirmButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding SavedRequirePin}" Value="True"/>
+                                                                <Condition Binding="{Binding Device.IsNewPinRequired}" Value="False"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Content" Value="{l:Localization AccessSettings.ChangePinCode}"/>
+                                                        </MultiDataTrigger>
+
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding SavedRequirePin}" Value="True"/>
+                                                                <Condition Binding="{Binding Device.IsNewPinRequired}" Value="True"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Content" Value="{l:Localization AccessSettings.SetPinCode}"/>
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
                                     </StackPanel>
                                 </Grid>
 
@@ -297,7 +317,7 @@
                             <Style.Triggers>
                                 <MultiDataTrigger>
                                     <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding Device}" Value="True" />
+                                        <Condition Binding="{Binding Device.IsStorageLoaded}" Value="True" />
                                         <Condition Binding="{Binding Device.CanAccessStorage}" Value="True" />
                                         <Condition Binding="{Binding AllowEditProximitySettings}" Value="True" />
                                     </MultiDataTrigger.Conditions>

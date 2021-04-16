@@ -1234,9 +1234,6 @@ Would you like to perform application update now?</value>
   <data name="AccessSettings.UpdateFW" xml:space="preserve">
     <value>Open firmware update app</value>
   </data>
-  <data name="ButtonWindow.CancelTooltip" xml:space="preserve">
-    <value>Hold vault button to cancel</value>
-  </data>
   <data name="Settings.ReconnectPairedVaults.Description" xml:space="preserve">
     <value>Use this option if your vault is nearby and paired to this computer through default Bluetooth interface but failed to connect or its not visible in Hideez Client</value>
   </data>
@@ -1248,5 +1245,8 @@ Would you like to perform application update now?</value>
   </data>
   <data name="HKP.Description2.WinBle" xml:space="preserve">
     <value>Pair device through Windows Bluetooth Settings and wait until the initiation process launches.</value>
+  </data>
+  <data name="AccessSettings.SetPinCode" xml:space="preserve">
+    <value>Set PIN code</value>
   </data>
 </root>

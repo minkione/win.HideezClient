@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.Device;
+using System.Threading;
 
 namespace HideezClient.ViewModels
 {
@@ -65,6 +66,8 @@ namespace HideezClient.ViewModels
         public bool FinishedMainFlow => device.FinishedMainFlow;
         public bool IsCreatingRemoteDevice => device.IsCreatingRemoteDevice;
         public bool IsAuthorizingRemoteDevice => device.IsAuthorizingRemoteDevice;
+        [DependsOn(nameof(IsAuthorized))]
+        public bool IsNewPinRequired => IsAuthorized && device.AccessLevel.IsNewPinRequired;
 
         public async Task SaveOrUpdateAccountAsync(AccountRecord account, bool isReadonly = false)
         {
@@ -109,6 +112,11 @@ namespace HideezClient.ViewModels
         public Task<bool> ChangePinCode()
         {
             return device.ChangePinWorkflow();
+        }
+
+        public Task<bool> SetPinCode(CancellationToken ct)
+        {
+            return device.SetPinWorkflow(ct);
         }
 
         public Task<bool> ChangeAccessProfile(bool requirePin, bool requireButton, int expirationSeconds)

@@ -938,7 +938,7 @@ namespace HideezClient.Models
             return Task.FromResult(true);
         }
 
-        async Task<bool> SetPinWorkflow(CancellationToken ct)
+        public async Task<bool> SetPinWorkflow(CancellationToken ct)
         {
             Debug.WriteLine(">>>>>>>>>>>>>>> SetPinWorkflow +++++++++++++++++++++++++++++++++++++++");
 

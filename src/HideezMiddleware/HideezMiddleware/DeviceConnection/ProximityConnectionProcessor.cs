@@ -26,7 +26,6 @@ namespace HideezMiddleware.DeviceConnection
         readonly AdvertisementIgnoreList _advIgnoreListMonitor;
         readonly DeviceManager _deviceManager;
         readonly IWorkstationUnlocker _workstationUnlocker;
-        readonly IHesAccessManager _hesAccessManager;
         readonly object _lock = new object();
 
         int _isConnecting = 0;
@@ -39,7 +38,6 @@ namespace HideezMiddleware.DeviceConnection
             AdvertisementIgnoreList advIgnoreListMonitor,
             DeviceManager deviceManager,
             IWorkstationUnlocker workstationUnlocker,
-            IHesAccessManager hesAccessManager,
             IMetaPubSub messenger,
             ILog log) 
             : base(connectionFlowProcessor, SessionSwitchSubject.Proximity, nameof(ProximityConnectionProcessor), messenger, log)
@@ -49,7 +47,6 @@ namespace HideezMiddleware.DeviceConnection
             _advIgnoreListMonitor = advIgnoreListMonitor ?? throw new ArgumentNullException(nameof(advIgnoreListMonitor));
             _deviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
             _workstationUnlocker = workstationUnlocker ?? throw new ArgumentNullException(nameof(workstationUnlocker));
-            _hesAccessManager = hesAccessManager ?? throw new ArgumentNullException(nameof(hesAccessManager));
         }
 
         #region IDisposable
@@ -127,9 +124,6 @@ namespace HideezMiddleware.DeviceConnection
                 return;
 
             if (_advIgnoreListMonitor.IsIgnored(id))
-                return;
-
-            if (!_hesAccessManager.HasAccessKey())
                 return;
 
             if (Interlocked.CompareExchange(ref _isConnecting, 1, 0) == 0)

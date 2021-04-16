@@ -17,6 +17,9 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Threading;
+using HideezClient.Messages.Dialogs;
+using HideezClient.Dialogs;
 
 namespace HideezClient.ViewModels
 {
@@ -102,6 +105,8 @@ namespace HideezClient.ViewModels
 
         [Reactive] public bool RequirePin { get; set; }
 
+        [Reactive] public bool IsNewPinRequired { get; set; }
+
         [Reactive] public TimeoutOption SelectedTimeout { get; set; }
         #endregion
 
@@ -156,7 +161,13 @@ namespace HideezClient.ViewModels
                 {
                     CommandAction = x =>
                     {
-                        Task.Run(ChangePinCode);
+                        Task.Run(async () => 
+                        {
+                            if (Device.IsNewPinRequired)
+                                await SetPin();
+                            else
+                                await ChangePinCode();
+                        });
                     }
                 };
             }
@@ -249,11 +260,13 @@ namespace HideezClient.ViewModels
 
         async Task SaveOrUpdateAccessProfile()
         {
+            bool isSaved = false;
             try
             {
                 IsSaving = true;
 
-                if (await Device.ChangeAccessProfile(RequirePin, RequireButton, SelectedTimeout.TimeoutSeconds))
+                isSaved = await Device.ChangeAccessProfile(RequirePin, RequireButton, SelectedTimeout.TimeoutSeconds);
+                if (isSaved)
                 {
                     SavedRequireButton = RequireButton;
                     SavedRequirePin = RequirePin;
@@ -265,6 +278,22 @@ namespace HideezClient.ViewModels
             finally
             {
                 IsSaving = false;
+            }
+
+            if(isSaved)
+                await SetPin();
+        }
+
+        async Task SetPin()
+        {
+            try
+            {
+                if (Device.IsNewPinRequired)
+                    await Device.SetPinCode(CancellationToken.None);
+            }
+            finally
+            {
+                await _messenger.Publish(new HideDialogMessage(typeof(PinDialog)));
             }
         }
 

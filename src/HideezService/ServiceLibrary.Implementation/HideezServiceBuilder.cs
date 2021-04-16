@@ -403,7 +403,6 @@ namespace ServiceLibrary.Implementation
             var advIgnoreCsrList = new AdvertisementIgnoreList(csrBleConnectionManager, proximitySettingsProvider, SdkConfig.DefaultLockTimeout, log);
             var deviceManager = _container.Resolve<DeviceManager>();
             var workstationUnlocker = _container.Resolve<IWorkstationUnlocker>();
-            var hesAccessManager = _container.Resolve<IHesAccessManager>();
 
             var tapConnectionProcessor = new TapConnectionProcessor(connectionFlow, csrBleConnectionManager, messenger, log);
             _container.RegisterInstance(tapConnectionProcessor, new ContainerControlledLifetimeManager());
@@ -414,7 +413,6 @@ namespace ServiceLibrary.Implementation
                 advIgnoreCsrList,
                 deviceManager,
                 workstationUnlocker,
-                hesAccessManager,
                 messenger,
                 log);
             _container.RegisterInstance(proximityConnectionProcessor, new ContainerControlledLifetimeManager());
