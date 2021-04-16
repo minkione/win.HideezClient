@@ -11,7 +11,7 @@ namespace HideezClient.Models.Settings
         /// </summary>
         public ApplicationSettings()
         {
-            SettingsVersion = new Version(1, 3, 0);
+            SettingsVersion = new Version(1, 3, 1);
             IsFirstLaunch = true;
             LaunchApplicationOnStartup = false;
             SelectedUiLanguage = "en-us";
@@ -69,14 +69,6 @@ namespace HideezClient.Models.Settings
 
         [Setting]
         public bool AddMainDomain { get; set; }
-
-        [Obsolete]
-        [Setting]
-        public bool ShowDongleIndicator { get; set; }
-
-        [Obsolete]
-        [Setting]
-        public bool ShowBluetoothIndicator { get; set; }
 
         public override object Clone()
         {

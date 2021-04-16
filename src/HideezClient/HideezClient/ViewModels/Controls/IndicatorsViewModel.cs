@@ -182,9 +182,6 @@ namespace HideezClient.ViewModels.Controls
             {
                 Service.State = StateControlState.Green;
                 Service.Visible = false;
-
-                Server.Visible = true;
-                TBServer.Visible = true;
             }   
             else
             {
