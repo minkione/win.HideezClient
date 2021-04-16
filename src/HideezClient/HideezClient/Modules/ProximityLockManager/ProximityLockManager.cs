@@ -5,6 +5,7 @@ using HideezMiddleware.IPC.Messages;
 using Meta.Lib.Modules.PubSub;
 using System;
 using System.Threading.Tasks;
+using HideezMiddleware.ApplicationModeProvider;
 
 namespace HideezClient.Modules.ProximityLockManager
 {
@@ -12,11 +13,13 @@ namespace HideezClient.Modules.ProximityLockManager
     {
         private readonly ITaskbarIconManager _taskbarIconManager;
         readonly IMetaPubSub _metaMessenger;
+        private readonly IApplicationModeProvider _applicationModeProvider;
 
-        public ProximityLockManager(ITaskbarIconManager taskbarIconManager, IMetaPubSub metaMessenger)
+        public ProximityLockManager(ITaskbarIconManager taskbarIconManager, IMetaPubSub metaMessenger, IApplicationModeProvider applicationModeProvider)
         {
             _taskbarIconManager = taskbarIconManager;
             _metaMessenger = metaMessenger;
+            _applicationModeProvider = applicationModeProvider;
 
             _metaMessenger.TrySubscribeOnServer<WorkstationUnlockedMessage>(OnWorkstationUnlocked);
             _metaMessenger.TrySubscribeOnServer<HideezMiddleware.IPC.Messages.DevicesCollectionChangedMessage>(OnDevicesCollectionChanged);
@@ -24,10 +27,13 @@ namespace HideezClient.Modules.ProximityLockManager
 
         async Task OnWorkstationUnlocked(WorkstationUnlockedMessage message)
         {
-            if (message.IsNotHideezMethod)
-                await _metaMessenger.Publish(new ShowWarningNotificationMessage(message: TranslationSource.Instance["Notification.ProximityLockDisabled"]));
+            if (_applicationModeProvider.GetApplicationMode() == ApplicationMode.Enterprise)
+            {
+                if (message.IsNotHideezMethod)
+                    await _metaMessenger.Publish(new ShowWarningNotificationMessage(message: TranslationSource.Instance["Notification.ProximityLockDisabled"]));
 
-            ChangeIconState(message.IsNotHideezMethod);
+                ChangeIconState(message.IsNotHideezMethod);
+            }
         }
 
         Task OnDevicesCollectionChanged(HideezMiddleware.IPC.Messages.DevicesCollectionChangedMessage obj)

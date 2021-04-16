@@ -18,6 +18,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
         CancellationTokenSource _cts;
 
         public abstract event EventHandler<string> Started;
+        public abstract event EventHandler<string> AttemptingUnlock;
+        public abstract event EventHandler<string> UnlockAttempted;
         public abstract event EventHandler<IDevice> DeviceFinilizingMainFlow;
         public abstract event EventHandler<IDevice> DeviceFinishedMainFlow;
         public abstract event EventHandler<string> Finished;

@@ -18,7 +18,6 @@ namespace HideezMiddleware
         readonly IMetaPubSub _messenger;
 
         UnlockSessionSwitchProc _unlockProcedure = null;
-        readonly object _upLock = new object();
 
         internal UnlockSessionSwitchProc UnlockProcedure { get => _unlockProcedure; }
 
@@ -32,18 +31,19 @@ namespace HideezMiddleware
             _workstationHelper = workstationHelper;
             _messenger = messenger;
 
-            _connectionFlowProcessor.Started += ConnectionFlowProcessor_Started;
+            _connectionFlowProcessor.AttemptingUnlock += ConnectionFlowProcessor_AttemptingUnlock;
         }
 
-        void ConnectionFlowProcessor_Started(object sender, string flowId)
+        void ConnectionFlowProcessor_AttemptingUnlock(object sender, string flowId)
         {
-            lock (_upLock)
+            if (_workstationHelper.IsCurrentSessionLocked())
             {
-                if (_workstationHelper.IsCurrentSessionLocked())
+                Task.Run(() =>
                 {
                     _unlockProcedure = new UnlockSessionSwitchProc(flowId, _connectionFlowProcessor, _messenger);
+                    Task.Run(_unlockProcedure.Run);
                     WriteLine("Started unlock procedure");
-                }
+                });
             }
         }
 

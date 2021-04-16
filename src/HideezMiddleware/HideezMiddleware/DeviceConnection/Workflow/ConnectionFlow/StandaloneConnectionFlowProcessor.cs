@@ -43,6 +43,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
         public override event EventHandler<IDevice> DeviceFinilizingMainFlow;
         public override event EventHandler<IDevice> DeviceFinishedMainFlow;
         public override event EventHandler<string> Finished;
+        public override event EventHandler<string> AttemptingUnlock;
+        public override event EventHandler<string> UnlockAttempted;
 
         public StandaloneConnectionFlowProcessor(
             DeviceManager deviceManager,
@@ -134,6 +136,17 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
 
                 device.SetUserProperty(CustomProperties.HW_CONNECTION_STATE_PROP, HwVaultConnectionState.Initializing);
 
+                if (tryUnlock)
+                {
+                    var sid = _workstationHelper.GetSessionId();
+                    var state = _workstationHelper.GetSessionLockState(sid);
+                    var name = _workstationHelper.GetSessionName(sid);
+                    var isCurrentLocked = _workstationHelper.IsActiveSessionLocked();
+                    WriteLine($"Session check for unlock sid:{sid}, state:{state}, name:{name}, islocked: {isCurrentLocked}");
+                }
+                else
+                    WriteLine("Skip unlock step");
+
                 if (_workstationUnlocker.IsConnected && _workstationHelper.IsActiveSessionLocked() && tryUnlock)
                 {
                     await _subp.MasterkeyProcessor.AuthVault(device, ct);
@@ -141,6 +154,7 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
                     await Task.WhenAll(_subp.UserAuthorizationProcessor.AuthorizeUser(device, ct));
 
                     _screenActivator?.StopPeriodicScreenActivation();
+                    AttemptingUnlock?.Invoke(this, flowId);
                     await _subp.UnlockProcessor.UnlockWorkstation(device, flowId, onUnlockAttempt, ct);
                 }
 
@@ -238,7 +252,10 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
                     }
 
                     WriteLine(errorMessage);
-                    await _ui.SendError(errorMessage, connectionId.Id);
+                    if (device != null)
+                        await _ui.SendError(errorMessage, device.Id);
+                    else
+                        await _ui.SendError(errorMessage, connectionId.Id);
                     await _ui.SendNotification(string.Empty, string.Empty);
                 }
 
@@ -247,6 +264,8 @@ namespace HideezMiddleware.DeviceConnection.Workflow.ConnectionFlow
                     if (workflowFinishedSuccessfully)
                     {
                         WriteLine($"Successfully finished the main workflow: ({device.Id})");
+                        await _ui.SendError(string.Empty, device.Id);
+                        await _ui.SendNotification(string.Empty, device.Id);
                         DeviceFinishedMainFlow?.Invoke(this, device);
                     }
                     else if (deleteVaultBond)
