@@ -14,6 +14,7 @@ using MvvmExtensions.PropertyChangedMonitoring;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -391,6 +392,8 @@ namespace DeviceMaintenance.ViewModel
                         return new DeviceViewModel(connectionId, isBonded, _hub);
                     });
 
+                    deviceViewModel.PropertyChanged += DeviceViewModel_PropertyChanged;
+
                     if (added)
                     {
                         NotifyPropertyChanged(nameof(Devices));
@@ -408,6 +411,12 @@ namespace DeviceMaintenance.ViewModel
                     Interlocked.Exchange(ref _advConnectionInterlock, 0);
                 }
             }
+        }
+
+        private void DeviceViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "InProgress")
+                NotifyPropertyChanged(nameof(IsFirmwareUpdateInProgress));
         }
 
         Task OnDeviceConnected(DeviceConnectedEvent arg)

@@ -31,6 +31,7 @@
                         Style="{DynamicResource WhiteButton}"
                         Margin="10,0,10,0"
                         FontSize="14"
+                        IsEnabled="{Binding IsFirmwareUpdateInProgress, Converter={StaticResource InvertBooleanConverter}}"
                         Visibility="{Binding IsButtonsVisible, Converter={StaticResource InvertBooleanToVisibilityConverter}}"
                         Command="{Binding GoToStartPageCommand}">
                         <Button.Content>
@@ -126,8 +127,7 @@
                                 <Button
                                     Style="{DynamicResource BlueButton}"
                                     Content="Select firmware file"
-                                    Command="{Binding SelectFirmwareCommand}"
-                                    IsEnabled="{Binding IsFirmwareUpdateInProgress, Converter={StaticResource InvertBooleanConverter}}"/>
+                                    Command="{Binding SelectFirmwareCommand}"/>
                                 <TextBlock 
                                     Text="{Binding FirmwareFilePath}" 
                                     FontSize="16"
