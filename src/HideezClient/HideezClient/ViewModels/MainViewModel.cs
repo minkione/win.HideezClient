@@ -166,9 +166,9 @@ namespace HideezClient.ViewModels
 
         void ActiveDevice_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(DeviceInfoViewModel.CanShowPasswordManager))
+            if (e.PropertyName == nameof(DeviceInfoViewModel.CanAccessStorage))
             {
-                if (ActiveDevice != null && !ActiveDevice.CanShowPasswordManager && MenuPasswordManager.IsChecked)
+                if (ActiveDevice != null && !ActiveDevice.CanAccessStorage && MenuPasswordManager.IsChecked)
                 {
                     MenuDeviceSettings.IsChecked = true;
                 }
@@ -176,7 +176,7 @@ namespace HideezClient.ViewModels
 
             if (e.PropertyName == nameof(DeviceInfoViewModel.IsStorageLoaded))
             {
-                if (ActiveDevice != null && ActiveDevice.IsStorageLoaded && ActiveDevice.CanShowPasswordManager)
+                if (ActiveDevice != null && ActiveDevice.IsStorageLoaded && ActiveDevice.CanAccessStorage)
                 {
                     MenuPasswordManager.IsChecked = true;
                 }

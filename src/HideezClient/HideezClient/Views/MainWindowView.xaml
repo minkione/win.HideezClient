@@ -106,7 +106,7 @@
                                 <Style.Triggers>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding ActiveDevice.CanShowPasswordManager}" Value="True" />
+                                            <Condition Binding="{Binding ActiveDevice.CanAccessStorage}" Value="True" />
                                         </MultiDataTrigger.Conditions>
                                         <MultiDataTrigger.Setters>
                                             <Setter Property="Visibility" Value="Visible" />

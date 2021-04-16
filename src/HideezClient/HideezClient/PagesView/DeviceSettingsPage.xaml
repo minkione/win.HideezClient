@@ -179,7 +179,7 @@
                 <StackPanel 
                     Focusable="True" 
                     DataContext="{Binding VaultAccessSettingsControlViewModel, Mode=OneWay, Source={StaticResource Locator}}"
-                    Visibility="{Binding Device.IsStorageLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    Visibility="{Binding Device.CanAccessStorage, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock
                         Style="{StaticResource SettingsHeaderStyle}"
                         Text="{l:Localization AccessSettings.Title}" />
@@ -297,7 +297,8 @@
                             <Style.Triggers>
                                 <MultiDataTrigger>
                                     <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding Device.IsStorageLoaded}" Value="True" />
+                                        <Condition Binding="{Binding Device}" Value="True" />
+                                        <Condition Binding="{Binding Device.CanAccessStorage}" Value="True" />
                                         <Condition Binding="{Binding AllowEditProximitySettings}" Value="True" />
                                     </MultiDataTrigger.Conditions>
                                     <MultiDataTrigger.Setters>
@@ -730,7 +731,7 @@
             <controls:StandaloneModeContainer Grid.Row="5">
                 <StackPanel
                     DataContext="{Binding BackupCredentialsControlViewModel, Mode=OneWay, Source={StaticResource Locator}}"
-                    Visibility="{Binding Device.IsStorageLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    Visibility="{Binding Device.CanAccessStorage, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock
                         Style="{StaticResource SettingsHeaderStyle}"
                         Text="{l:Localization BackupCredentials.Title}" />
