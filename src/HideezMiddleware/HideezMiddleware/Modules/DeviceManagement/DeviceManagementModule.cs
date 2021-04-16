@@ -144,6 +144,7 @@ namespace HideezMiddleware.Modules.DeviceManagement
                 {
                     try
                     {
+                        await CheckIfWipedAndHandleDisconnect(device);
                         await SafePublish(new DeviceDisconnectedMessage(new DeviceDTO(device)));
                     }
                     catch (Exception ex)
@@ -176,6 +177,7 @@ namespace HideezMiddleware.Modules.DeviceManagement
                 await SafePublish(new DeviceBatteryChangedMessage(device.Id, device.Mac, e));
         }
 
+        // Todo: Fix documentation error. That event is triggered when wipe start is confirmed.
         private async void Device_WipeFinished(object sender, WipeFinishedEventtArgs e)
         {
             if (e.Status == FwWipeStatus.WIPE_OK)
@@ -183,19 +185,9 @@ namespace HideezMiddleware.Modules.DeviceManagement
                 var device = (IDevice)sender;
                 if (device.ChannelNo == (byte)DefaultDeviceChannel.Main)
                 {
-                    WriteLine($"({device.SerialNo}) Wipe finished. Disabling automatic reconnect");
+                    WriteLine($"({device.SerialNo}) Wipe start confirmed. Disabling automatic reconnect");
+                    device.SetUserProperty(CustomProperties.HW_WIPE_STATE_PROP, true);
                     await _messenger.Publish(new DeviceManager_ExpectedDeviceRemovalMessage(device));
-                    try
-                    {
-                            
-
-                        // Wiped device is cleared of all bond information, and therefore must be paired again
-                        await _deviceManager.DeleteBond(device.DeviceConnection);
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteLine(ex);
-                    }
                 }
             }
         }
@@ -323,6 +315,26 @@ namespace HideezMiddleware.Modules.DeviceManagement
         {
             foreach (var device in _deviceManager.Devices)
                 await _deviceManager.Disconnect(device.DeviceConnection);
+        }
+
+        /// <summary>
+        /// Checks if device was marked as wiped. If true, deletes device bond.
+        /// </summary>
+        private async Task CheckIfWipedAndHandleDisconnect(IDevice device)
+        {
+            if (device.ChannelNo == (byte)DefaultDeviceChannel.Main 
+                && device.GetUserProperty<bool>(CustomProperties.HW_WIPE_STATE_PROP))
+            {
+                try
+                {
+                    // Wiped device is cleared of all bond information, and therefore must be paired again
+                    await _deviceManager.DeleteBond(device.DeviceConnection);
+                }
+                catch (Exception ex)
+                {
+                    WriteLine(ex);
+                }
+            }
         }
     }
 }
