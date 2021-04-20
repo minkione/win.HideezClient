@@ -51,9 +51,17 @@
     </rule>
   </module>
   <module path="Hideez.ISM.dll">
-    <rule pattern="true" preset="maximum" />
+    <rule pattern="true" preset="maximum" inherit="false">
+      <protection id="rename">
+        <argument name="renPublic" value="true" />
+      </protection>
+    </rule>
   </module>
   <module path="Hideez.ARM.dll">
-    <rule pattern="true" preset="maximum" />
+    <rule pattern="true" preset="maximum" inherit="false">
+      <protection id="rename">
+        <argument name="renPublic" value="true" />
+      </protection>
+    </rule>
   </module>
 </project>
