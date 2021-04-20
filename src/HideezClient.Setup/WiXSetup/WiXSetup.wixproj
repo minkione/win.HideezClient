@@ -88,9 +88,7 @@
     <PostBuildEvent>if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" $(TargetPath) "Hideez Client Update"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" "$(SolutionDir)HideezClient\HideezClient\bin\$(PlatformName)\$(ConfigurationName)\HideezClient.exe" "Hideez Client"%3b
-if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" "$(SolutionDir)HideezService\HideezServiceHost\bin\$(PlatformName)\$(ConfigurationName)\HideezServiceHost.exe" "Hideez Client"
-if $(SolutionName) == HideezClient.Setup call "$(SolutionDir)scripts\sign.bat" "$(SolutionDir)TemplateFactory\TemplateFactory\bin\$(PlatformName)\$(ConfigurationName)\TemplateFactory.exe" "Hideez Template Factory"</PreBuildEvent>
+    <PreBuildEvent />
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.

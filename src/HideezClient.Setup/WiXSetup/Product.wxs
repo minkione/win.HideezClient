@@ -369,7 +369,7 @@
       </Component>
 
       <Component Id="HideezService.NLog.config" Guid="{58CA5238-F54C-4D8E-89C2-6D18B512189B}" Win64="$(var.Win64)">
-	      <File Id="HideezService.NLog.config" Name="NLog.config" Source="$(var.ProductionBuild_TargetDir)NLog.config" />
+	      <File Id="HideezService.NLog.config" Name="NLog.config" Source="$(var.ProductionBuild_TargetDir)ServiceHost\NLog.config" />
       </Component>
 
       <Component Id="HideezService.NLog.dll" Guid="{BFB79138-6938-48B4-AE0A-A1E59A9BE402}" Win64="$(var.Win64)">
@@ -610,7 +610,7 @@
       </Component>
 
       <Component Id="NLog.config" Guid="{90C30FA3-D866-4829-B380-E82D39F7FBC9}" Win64="$(var.Win64)">
-	      <File Id="NLog.config" Name="NLog.config" Source="$(var.ProductionBuild_TargetDir)NLog.config" />
+	      <File Id="NLog.config" Name="NLog.config" Source="$(var.ProductionBuild_TargetDir)Client\NLog.config" />
       </Component>
 
       <Component Id="NLog.dll" Guid="{46769438-F37C-466A-9C83-1F35BEB4C604}" Win64="$(var.Win64)">
@@ -783,6 +783,38 @@
 
       <Component Id="System.Collections.Immutable.dll" Guid="{B056F251-F414-487A-9B9C-05DF285F4EE8}" Win64="$(var.Win64)">
         <File Id="System.Collections.Immutable.dll" Name="System.Collections.Immutable.dll" Source="$(var.ProductionBuild_TargetDir)System.Collections.Immutable.dll" />
+      </Component>
+
+      <Component Id="Microsoft.Bcl.AsyncInterfaces.dll" Guid="{134C158C-9215-4FE8-87F7-F3EFB829615D}" Win64="$(var.Win64)">
+        <File Id="Microsoft.Bcl.AsyncInterfaces.dll" Name="Microsoft.Bcl.AsyncInterfaces.dll" Source="$(var.ProductionBuild_TargetDir)Microsoft.Bcl.AsyncInterfaces.dll" />
+      </Component>
+
+      <Component Id="Polly.Contrib.DuplicateRequestCollapser.dll" Guid="{70BD6175-D844-4BE6-AF60-B6D38D3497E3}" Win64="$(var.Win64)">
+        <File Id="Polly.Contrib.DuplicateRequestCollapser.dll" Name="Polly.Contrib.DuplicateRequestCollapser.dll" Source="$(var.ProductionBuild_TargetDir)Polly.Contrib.DuplicateRequestCollapser.dll" />
+      </Component>
+
+      <Component Id="Polly.dll" Guid="{74F4EC54-4834-4689-8626-7CB7E080065E}" Win64="$(var.Win64)">
+        <File Id="Polly.dll" Name="Polly.dll" Source="$(var.ProductionBuild_TargetDir)Polly.dll" />
+      </Component>
+
+      <Component Id="ReactiveUI.WPF.dll" Guid="{EA7C4727-8283-49CF-AC67-D7D98BF2BC37}" Win64="$(var.Win64)">
+        <File Id="ReactiveUI.WPF.dll" Name="ReactiveUI.WPF.dll" Source="$(var.ProductionBuild_TargetDir)ReactiveUI.WPF.dll" />
+      </Component>
+
+      <Component Id="Splat.Drawing.dll" Guid="{9C037F23-2709-4FAF-982D-52F4AC3C7D4E}" Win64="$(var.Win64)">
+        <File Id="Splat.Drawing.dll" Name="Splat.Drawing.dll" Source="$(var.ProductionBuild_TargetDir)Splat.Drawing.dll" />
+      </Component>
+
+      <Component Id="System.Runtime.WindowsRuntime.dll" Guid="{FA64CC5F-3EA2-4E5F-9DBC-DC78DDB1B279}" Win64="$(var.Win64)">
+        <File Id="System.Runtime.WindowsRuntime.dll" Name="System.Runtime.WindowsRuntime.dll" Source="$(var.ProductionBuild_TargetDir)System.Runtime.WindowsRuntime.dll" />
+      </Component>
+
+      <Component Id="System.ValueTuble.dll" Guid="{736D502C-A01B-41E3-9BEF-2BD5B8D04F20}" Win64="$(var.Win64)">
+        <File Id="System.ValueTuple.dll" Name="System.ValueTuple.dll" Source="$(var.ProductionBuild_TargetDir)System.ValueTuple.dll" />
+      </Component>
+
+      <Component Id="zxing.presentation.dll" Guid="{15A9F29C-0F2D-4A34-B803-1CF623A59C17}" Win64="$(var.Win64)">
+        <File Id="zxing.presentation.dll" Name="zxing.presentation.dll" Source="$(var.ProductionBuild_TargetDir)zxing.presentation.dll" />
       </Component>
 
     </ComponentGroup>

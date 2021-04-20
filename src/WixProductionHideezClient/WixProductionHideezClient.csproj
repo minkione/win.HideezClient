@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Obfuscar.2.2.29\build\obfuscar.props" Condition="Exists('..\packages\Obfuscar.2.2.29\build\obfuscar.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -80,10 +79,43 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
+    <None Include="ConfuserExObfuscationProject.crproj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ConfuserEx\ConfuserEx.exe.config" />
+    <None Include="ConfuserEx\This folder should contain Neo-ConfuserEx.CLI assembly" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="obfuscar.xml" />
+    <Content Include="ConfuserEx\Confuser.CLI.exe" />
+    <Content Include="ConfuserEx\Confuser.CLI.pdb" />
+    <Content Include="ConfuserEx\Confuser.Core.dll" />
+    <Content Include="ConfuserEx\Confuser.Core.pdb" />
+    <Content Include="ConfuserEx\Confuser.Core.xml" />
+    <Content Include="ConfuserEx\Confuser.DynCipher.dll" />
+    <Content Include="ConfuserEx\Confuser.DynCipher.pdb" />
+    <Content Include="ConfuserEx\Confuser.Protections.dll" />
+    <Content Include="ConfuserEx\Confuser.Protections.pdb" />
+    <Content Include="ConfuserEx\Confuser.Renamer.dll" />
+    <Content Include="ConfuserEx\Confuser.Renamer.pdb" />
+    <Content Include="ConfuserEx\Confuser.Runtime.dll" />
+    <Content Include="ConfuserEx\Confuser.Runtime.pdb" />
+    <Content Include="ConfuserEx\ConfuserEx.exe" />
+    <Content Include="ConfuserEx\ConfuserEx.pdb" />
+    <Content Include="ConfuserEx\dnlib.dll" />
+    <Content Include="ConfuserEx\dnlib.pdb" />
+    <Content Include="ConfuserEx\dnlib.xml" />
+    <Content Include="ConfuserEx\GalaSoft.MvvmLight.Extras.WPF4.dll" />
+    <Content Include="ConfuserEx\GalaSoft.MvvmLight.Extras.WPF4.pdb" />
+    <Content Include="ConfuserEx\GalaSoft.MvvmLight.Extras.WPF4.xml" />
+    <Content Include="ConfuserEx\GalaSoft.MvvmLight.WPF4.dll" />
+    <Content Include="ConfuserEx\GalaSoft.MvvmLight.WPF4.pdb" />
+    <Content Include="ConfuserEx\GalaSoft.MvvmLight.WPF4.xml" />
+    <Content Include="ConfuserEx\Microsoft.Practices.ServiceLocation.dll" />
+    <Content Include="ConfuserEx\Microsoft.Practices.ServiceLocation.pdb" />
+    <Content Include="ConfuserEx\Microsoft.Practices.ServiceLocation.xml" />
+    <Content Include="ConfuserEx\Ookii.Dialogs.Wpf.dll" />
+    <Content Include="ConfuserEx\System.Windows.Interactivity.dll" />
+    <Content Include="ConfuserEx\System.Windows.Interactivity.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -92,15 +124,12 @@ xcopy /Y /S "$(SolutionDir)TemplateFactory\TemplateFactory\$(OutDir)*" "$(Target
 xcopy /Y /S "$(SolutionDir)DeviceMaintenance\$(OutDir)*" "$(TargetDir)"
 xcopy /Y /S "$(SolutionDir)HideezService\HideezServiceHost\$(OutDir)*" "$(TargetDir)"
 xcopy /Y /S "$(SolutionDir)HideezClient\HideezClient\$(OutDir)*" "$(TargetDir)"
+xcopy /Y "$(SolutionDir)HideezClient\HideezClient\NLog.config" "$(TargetDir)\Client\"
+xcopy /Y "$(SolutionDir)HideezMiddleware\HideezMiddleware\NLog.config" "$(TargetDir)\ServiceHost\"
 
 echo ==================== Starting obfuscation process
 
 
-"$(Obfuscar)" $(ProjectDir)obfuscar.xml -s
-move  /Y $(TargetDir)Obfuscator_Output\* $(TargetDir)
-rmdir /S /Q $(TargetDir)Obfuscator_Output
-
-del /F /Q $(TargetDir)*.pdb
 
 
 echo ==================== Starting assembly signing
@@ -121,12 +150,6 @@ call "$(SolutionDir)scripts\sign.bat" "$(TargetDir)TemplateFactory.exe" "Hideez 
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>del /F /Q /S $(TargetDir)*
-</PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Obfuscar.2.2.29\build\obfuscar.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Obfuscar.2.2.29\build\obfuscar.props'))" />
-  </Target>
 </Project>
