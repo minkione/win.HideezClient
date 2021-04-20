@@ -129,7 +129,11 @@ xcopy /Y "$(SolutionDir)HideezMiddleware\HideezMiddleware\NLog.config" "$(Target
 
 echo ==================== Starting obfuscation process
 
+$(ProjectDir)ConfuserEx\Confuser.CLI.exe  $(TargetDir)ConfuserExObfuscationProject.crproj
+move  /Y $(TargetDir)Obfuscator_Output\* $(TargetDir)
+rmdir /S /Q $(TargetDir)Obfuscator_Output
 
+del /F /Q $(TargetDir)*.pdb
 
 
 echo ==================== Starting assembly signing
