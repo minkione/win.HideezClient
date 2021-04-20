@@ -691,7 +691,7 @@ to access stored credentials</value>
     <value>Hideez Key</value>
   </data>
   <data name="DP.MobileKey.Description" xml:space="preserve">
-    <value>Software Vault that can be installed on your smartphone</value>
+    <value>Software Vault that can be installed on your smartphone from Apple App Store or Google Play Market</value>
   </data>
   <data name="DP.MobileKey.Header" xml:space="preserve">
     <value>Hideez Mobile Authenticator</value>

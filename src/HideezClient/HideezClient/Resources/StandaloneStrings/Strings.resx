@@ -117,6 +117,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DP.Description" xml:space="preserve">
+    <value>Includes two type of a security key:</value>
+  </data>
+  <data name="DP.Header" xml:space="preserve">
+    <value>Hideez Authentication Solution for Consumers</value>
+  </data>
+  <data name="DP.HideezKey.Description" xml:space="preserve">
+    <value>Hardware token with Bluetooth connection
+Firmware minimum 3.6.10</value>
+  </data>
+  <data name="DP.HideezKey.Header" xml:space="preserve">
+    <value>Hideez Key 2 Updated</value>
+  </data>
+  <data name="HKP.Description1" xml:space="preserve">
+    <value>Insert Hideez Bluetooth Dongle to USB Port</value>
+  </data>
+  <data name="HKP.Description2" xml:space="preserve">
+    <value>Make sure that Dongle indicator in the bottom left corner are green</value>
+  </data>
+  <data name="HKP.Description3" xml:space="preserve">
+    <value>Push button on the Hideez Key</value>
+  </data>
+  <data name="HKP.Description4" xml:space="preserve">
+    <value>Long tap Hideez Key to the Dongle</value>
+  </data>
+  <data name="HKP.Description5" xml:space="preserve">
+    <value>Push Green Button on the Hideez Key</value>
+  </data>
+  <data name="HKP.Description6" xml:space="preserve">
+    <value>Follow the screen notifications</value>
+  </data>
   <data name="LowBatteryNotification.Message" xml:space="preserve">
     <value>The battery level in your vault is below 25%.</value>
   </data>
