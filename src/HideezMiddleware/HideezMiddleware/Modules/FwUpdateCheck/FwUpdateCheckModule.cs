@@ -18,6 +18,7 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
     {
         private readonly RegistryKey _registryKey;
         private readonly string _updateConfigUrl = "https://hls.hideez.com/api/Firmwares/GetFirmwares/";
+        private readonly string _deviceModelsUrl = "https://hls.hideez.com/api/Firmwares/GetDeviceModels";
         private readonly string _downloadFwUrl = "https://hls.hideez.com/api/Firmwares/GetFirmware/";
         private readonly string _fwUpdateCacheRegistryValueName = "fw_update_cache_path";
 
@@ -26,13 +27,49 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
         {
             _registryKey = registryKey;
 
-            Task.Run(DeleteOldCachedUpdates);
-            _messenger.Subscribe<GetFwUpdateByModelMessage>(OnGetFwUpdateFilePath);
+            DeleteOldCachedUpdates();
+            Task.Run(RunAvailableModelsCheck);
+
+            _messenger.Subscribe<GetFwUpdateByModelMessage>(OnGetFwUpdateByModel);
+            _messenger.Subscribe<GetFwUpdateFilePathMessage>(OnGetFwUpdate);
             _messenger.Subscribe<GetFwUpdatesCollectionMessage>(OnGetFwUpdatesCollection);
         }
 
+        async Task RunAvailableModelsCheck()
+        {
+            List<DeviceModelInfo> deviceModelInfos = new List<DeviceModelInfo>();
+            try
+            {
+                WebRequest webRequest = WebRequest.Create(_deviceModelsUrl);
+                WebResponse webResponse = webRequest.GetResponse();
+
+                JsonDocument jsonDocument = null;
+                using (Stream dataStream = webResponse.GetResponseStream())
+                {
+                    jsonDocument = JsonDocument.Parse(dataStream);
+                }
+
+                foreach (var element in jsonDocument.RootElement.EnumerateArray())
+                {
+                    string name = element.GetProperty("name").GetString();
+                    string code = element.GetProperty("modelCode").GetString();
+                    int.TryParse(code, out int resCode);
+
+                    deviceModelInfos.Add(new DeviceModelInfo(name, resCode));
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
+            finally
+            {
+                await _messenger.Publish(new AvailableDeviceModelsMessage(deviceModelInfos.ToArray()));
+            }
+        }
+
         //Delete the oldest used files if there are more than 10 ones
-        private void DeleteOldCachedUpdates()
+        void DeleteOldCachedUpdates()
         {
             try
             {
@@ -63,24 +100,73 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
             }
         }
 
-        private Task OnGetFwUpdatesCollection(GetFwUpdatesCollectionMessage arg)
+        private async Task OnGetFwUpdatesCollection(GetFwUpdatesCollectionMessage arg)
         {
-            return Task.CompletedTask;
+            List<FwUpdateInfo> fwUpdatesInfo = new List<FwUpdateInfo>();
+            try
+            {
+                WebRequest webRequest = WebRequest.Create(_updateConfigUrl + arg.ModelCode.ToString());
+                WebResponse webResponse = webRequest.GetResponse();
+
+                JsonDocument jsonDocument = null;
+                using (Stream dataStream = webResponse.GetResponseStream())
+                {
+                    jsonDocument = JsonDocument.Parse(dataStream);
+                }
+
+                foreach (var element in jsonDocument.RootElement.EnumerateArray())
+                {
+                    string id = element.GetProperty("id").GetString();
+                    string version = element.GetProperty("version").GetString();
+                    string releaseStageStr = element.GetProperty("releaseStage").GetString();
+                    Enum.TryParse(releaseStageStr, out ReleaseStage releaseStage);
+
+                    fwUpdatesInfo.Add(new FwUpdateInfo
+                    {
+                        Id = id,
+                        Version = version,
+                        ModelCode = arg.ModelCode,
+                        ReleaseStage = releaseStage
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
+            finally
+            {
+                await _messenger.Publish(new GetFwUpdatesCollectionResponse(fwUpdatesInfo.ToArray()));
+            }
         }
 
-        private async Task OnGetFwUpdateFilePath(GetFwUpdateByModelMessage arg)
+
+        private async Task OnGetFwUpdate(GetFwUpdateFilePathMessage arg)
         {
             string filePath = string.Empty;
             try
             {
-                var availableUpdateInfo = GetAvailableFwUpdateInfo(arg.DeviceModel);
-                if (availableUpdateInfo.ReleaseStage == ReleaseStage.Release)
-                {
-                    var cachedFilePath = GetCachedFilePath(availableUpdateInfo.Version, arg.DeviceModel);
-                    if (availableUpdateInfo != null && string.IsNullOrWhiteSpace(cachedFilePath))
-                        DownloadUpdate(availableUpdateInfo);
+                filePath = GetFilePath(arg.FwUpdateInfo);
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex);
+            }
+            finally
+            {
+                await _messenger.Publish(new GetFwUpdateFilePathResponse(filePath));
+            }
+        }
 
-                    filePath = GetCachedFilePath(availableUpdateInfo.Version, arg.DeviceModel);
+        private async Task OnGetFwUpdateByModel(GetFwUpdateByModelMessage arg)
+        {
+            string filePath = string.Empty;
+            try
+            {
+                var availableUpdateInfo = GetAvailableFwUpdateInfo(arg.ModelCode);
+                if (availableUpdateInfo != null && availableUpdateInfo.ReleaseStage == ReleaseStage.Release)
+                {
+                    filePath = GetFilePath(availableUpdateInfo);
                 }
             }
             catch(Exception ex)
@@ -89,21 +175,33 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
             }
             finally
             {
-                await _messenger.Publish(new GetFwUpdateByModelMessageResponse(filePath));
+                await _messenger.Publish(new GetFwUpdateByModelResponse(filePath));
             }
+        }
+
+        string GetFilePath(FwUpdateInfo fwUpdateInfo)
+        {
+            var cachedFilePath = GetCachedFilePath(fwUpdateInfo.Version, fwUpdateInfo.ModelCode);
+            if (string.IsNullOrWhiteSpace(cachedFilePath))
+            {
+                DownloadUpdate(fwUpdateInfo);
+                cachedFilePath = GetCachedFilePath(fwUpdateInfo.Version, fwUpdateInfo.ModelCode);
+            }
+
+            return cachedFilePath;
         }
 
         /// <summary>
         /// Returns <see cref="CachedUpdateInfo"/> populated by data from local cache
         /// </summary>
-        private string GetCachedFilePath(string version, string deviceModel)
+        private string GetCachedFilePath(string version, int modelCode)
         {
             try
             {
                 string folderPath = _registryKey.GetValue(_fwUpdateCacheRegistryValueName) as string;
                 if (!string.IsNullOrWhiteSpace(folderPath))
                 {
-                    string filepath = Path.Combine(folderPath, $"fw{deviceModel}_{version}.img");
+                    string filepath = Path.Combine(folderPath, $"fw{modelCode}_{version}.img");
                     if (File.Exists(filepath))
                         return filepath;
                 }
@@ -120,7 +218,7 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
         {
             try
             {
-                string filename = $"fw{updateInfo.DeviceModel}_{updateInfo.Version}.img";
+                string filename = $"fw{updateInfo.ModelCode}_{updateInfo.Version}.img";
                 string folderPath = _registryKey.GetValue(_fwUpdateCacheRegistryValueName) as string;
                 if (string.IsNullOrWhiteSpace(folderPath))
                     folderPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
@@ -191,11 +289,11 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
             }
         }
 
-        FwUpdateInfo GetAvailableFwUpdateInfo(string deviceModel)
+        FwUpdateInfo GetAvailableFwUpdateInfo(int modelCode)
         {
             try
             {
-                WebRequest webRequest = WebRequest.Create(_updateConfigUrl + deviceModel);
+                WebRequest webRequest = WebRequest.Create(_updateConfigUrl + modelCode);
                 WebResponse webResponse = webRequest.GetResponse();
 
                 JsonDocument jsonDocument = null;
@@ -213,7 +311,7 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
                 {
                     Id = id,
                     Version = version,
-                    DeviceModel = deviceModel,
+                    ModelCode = modelCode,
                     ReleaseStage = releaseStage
                 };
             }

@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 
 namespace HideezMiddleware.Modules.FwUpdateCheck.Messages
 {
-    public class GetFwUpdateByModelMessage : PubSubMessageBase
+    public class GetFwUpdateByModelResponse: PubSubMessageBase
     {
-        public int ModelCode { get; }
-        public GetFwUpdateByModelMessage(int modelCode)
+        public string FilePath { get; }
+
+        public GetFwUpdateByModelResponse(string filePath)
         {
-            ModelCode = modelCode;
+            FilePath = filePath;
         }
     }
 }

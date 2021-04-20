@@ -3,6 +3,8 @@ using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Connection;
 using Hideez.SDK.Communication.Interfaces;
 using Hideez.SDK.Communication.LongOperations;
+using HideezMiddleware.Modules.FwUpdateCheck;
+using HideezMiddleware.Modules.FwUpdateCheck.Messages;
 using Meta.Lib.Modules.PubSub;
 using MvvmExtensions.Attributes;
 using MvvmExtensions.PropertyChangedMonitoring;
@@ -114,8 +116,7 @@ namespace DeviceMaintenance.ViewModel
                 {
                     CommandAction = async (x) =>
                     {
-                        if(!string.IsNullOrEmpty((string)x))
-                            await StartFirmwareUpdate((string)x);
+                        await StartFirmwareUpdate();
                     }
                 };
             }
@@ -216,10 +217,16 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
-        public async Task StartFirmwareUpdate(string filePath)
+        public async Task StartFirmwareUpdate()
         {
             try
             {
+                var response = await _hub.Process<FilePathDetectionResponse>(new FilePathDetectionMessage(SerialNo));
+                string filePath = response.FilePath;
+
+                if (string.IsNullOrWhiteSpace(filePath))
+                    throw new Exception("No available firmware");
+
                 CurrentState = State.EnteringBoot;
 
                 var res = await _hub.Process<EnterBootResponse>(

@@ -89,13 +89,14 @@
                         <RadioButton
                             x:Name="serverRdBtn"
                             GroupName="FileLoading"
-                            IsChecked="True"
+                            IsChecked="{Binding IsAdvancedUpdateFromServerEnabled}"
                             Content="Choose available version for your device model"
                             Margin="0,0,0,10"/>
                         <RadioButton
                             x:Name="fileRdBtn"
                             GroupName="FileLoading"
                             Content="Select a file"
+                            IsChecked="{Binding IsUpdateFromFileEnabled}"
                             Margin="0,0,0,10"/>
                         <Grid Height="55">
                             <Grid Visibility="{Binding ElementName=serverRdBtn, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -115,10 +116,16 @@
                                     Text="Version"/>
                                 <ComboBox
                                     Grid.Row="1"
+                                    ItemsSource="{Binding DeviceModels}"
+                                    DisplayMemberPath="Name"
+                                    SelectedValue="{Binding SelectedModel}"
                                     Width="150"/>
                                 <ComboBox
                                     Grid.Row="1"
                                     Grid.Column="2"
+                                    ItemsSource="{Binding Versions}"
+                                    DisplayMemberPath="Version"
+                                    SelectedValue="{Binding SelectedVersion}"
                                     Width="150"/>
                             </Grid>
                             <WrapPanel 
@@ -282,7 +289,7 @@
                                             FontWeight="Bold"
                                             Margin="10,0,0,0"
                                             Command="{Binding UpdateDevice}" CommandParameter="{Binding DataContext.FilePath, RelativeSource={RelativeSource FindAncestor, AncestorType=Metro:MetroWindow}}"
-                                            IsEnabled="{Binding DataContext.IsFirmwareSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=Metro:MetroWindow}}"
+                                           
                                             Style="{StaticResource MetroAccentButton}"
                                             Visibility="{Binding ReadyToUpdateState, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                         

@@ -161,6 +161,8 @@
     <Compile Include="Messages\DeviceWipedEvent.cs" />
     <Compile Include="Messages\EnterBootCommand.cs" />
     <Compile Include="Messages\EnterBootResponse.cs" />
+    <Compile Include="Messages\FilePathDetectionMessage.cs" />
+    <Compile Include="Messages\FilePathDetectionResponse.cs" />
     <Compile Include="Messages\MessageBase.cs" />
     <Compile Include="Messages\StartDiscoveryCommand.cs" />
     <Compile Include="Service\HideezServiceController.cs" />

@@ -2,13 +2,13 @@
 
 namespace HideezMiddleware.Modules.FwUpdateCheck.Messages
 {
-    class GetFwUpdatesCollectionMessage: PubSubMessageBase
+    public class GetFwUpdatesCollectionMessage: PubSubMessageBase
     {
-        public FwUpdateInfo[] FwUpdates { get; }
+        public int ModelCode { get; }
 
-        public GetFwUpdatesCollectionMessage(FwUpdateInfo[] fwUpdates)
+        public GetFwUpdatesCollectionMessage(int deviceModel)
         {
-            FwUpdates = fwUpdates;
+            ModelCode = deviceModel;
         }
     }
 }

@@ -33,17 +33,20 @@ namespace DeviceMaintenance.ViewModel
         readonly FwUpdateCheckModule _fwUpdateCheckModule;
 
         bool _automaticallyUploadFirmware = Properties.Settings.Default.AutomaticallyUpload;
-        bool _csrUpdate;
-        bool _winBleUpdate;
-        bool _isQuickUpdate;
-        bool _isAdvancedUpdate;
+        bool _csrUpdate, _winBleUpdate, _isQuickUpdate, _isAdvancedUpdate, _isUpdateFromFileEnabled, _isAdvancedUpdateFromServerEnabled = true;
         string _fileName = Properties.Settings.Default.FirmwareFileName;
         string _cachedFilePath = string.Empty;
+        DeviceModelInfo[] _deviceModelInfos = new DeviceModelInfo[0];
 
         readonly ConcurrentDictionary<string, DeviceViewModel> _devices =
             new ConcurrentDictionary<string, DeviceViewModel>();
 
+        readonly ConcurrentDictionary<DeviceModelInfo, FwUpdateInfo[]> _fwVersions =
+            new ConcurrentDictionary<DeviceModelInfo, FwUpdateInfo[]>();
+
         int _advConnectionInterlock = 0;
+        private DeviceModelInfo _selectedModel;
+        private FwUpdateInfo _selectedVersion;
 
         public IEnumerable<DeviceViewModel> Devices => _devices.Values.OrderByDescending(x => x.CreatedAt);
         public HideezServiceController HideezServiceController { get; }
@@ -101,15 +104,6 @@ namespace DeviceMaintenance.ViewModel
             get
             {
                 return IsQuickUpdate ? CachedFilePath: FirmwareFilePath;
-            }
-        }
-
-        [DependsOn(nameof(CachedFilePath))]
-        public string TempFileName
-        {
-            get
-            {
-                return Path.GetFileNameWithoutExtension(CachedFilePath);
             }
         }
 
@@ -237,6 +231,38 @@ namespace DeviceMaintenance.ViewModel
             }
         }
 
+        public bool IsUpdateFromFileEnabled
+        {
+            get
+            {
+                return _isUpdateFromFileEnabled;
+            }
+            set
+            {
+                if (_isUpdateFromFileEnabled != value)
+                {
+                    _isUpdateFromFileEnabled = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public bool IsAdvancedUpdateFromServerEnabled
+        {
+            get
+            {
+                return _isAdvancedUpdateFromServerEnabled;
+            }
+            set
+            {
+                if (_isAdvancedUpdateFromServerEnabled != value)
+                {
+                    _isAdvancedUpdateFromServerEnabled = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         [DependsOn(nameof(IsAdvancedUpdate), nameof(IsQuickUpdate))]
         public bool IsButtonsVisible
         {
@@ -252,6 +278,63 @@ namespace DeviceMaintenance.ViewModel
             get
             {
                 return Devices.Any(d => d.InProgress);
+            }
+        }
+
+        public DeviceModelInfo[] DeviceModels
+        {
+            get
+            {
+                return _deviceModelInfos; 
+            }
+            set
+            {
+                _deviceModelInfos = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        public DeviceModelInfo SelectedModel
+        {
+            get
+            {
+                return _selectedModel;
+            }
+            set
+            {
+                if (_selectedModel != value)
+                {
+                    _selectedModel = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        [DependsOn(nameof(SelectedModel))]
+        public FwUpdateInfo[] Versions
+        {
+            get
+            {
+                if (SelectedModel != null)
+                    return _fwVersions[SelectedModel];
+                else 
+                    return new FwUpdateInfo[0];
+            }
+        }
+
+        public FwUpdateInfo SelectedVersion
+        {
+            get
+            {
+                return _selectedVersion;
+            }
+            set
+            {
+                if(_selectedVersion != value)
+                {
+                    _selectedVersion = value;
+                    NotifyPropertyChanged();
+                }
             }
         }
         #endregion
@@ -331,7 +414,8 @@ namespace DeviceMaintenance.ViewModel
             _hub.Subscribe<ControllerAddedEvent>(OnControllerAdded);
             _hub.Subscribe<DeviceConnectedEvent>(OnDeviceConnected);
             _hub.Subscribe<ClosingEvent>(OnClosing);
-            _hub.Subscribe<FwUpdateAvailableMessage>(OnFwUpdateAvailableReceived);
+            _hub.Subscribe<AvailableDeviceModelsMessage>(OnAvailableDeviceModelsReceived);
+            _hub.Subscribe<FilePathDetectionMessage>(OnFilePathDetection);
 
             _fwUpdateCheckModule = new FwUpdateCheckModule(HideezClientRegistryRoot.GetRootRegistryKey(true), _hub, _log);
             ConnectionModeProvider modeProvider = new ConnectionModeProvider(HideezClientRegistryRoot.GetRootRegistryKey(false), _log);
@@ -370,11 +454,56 @@ namespace DeviceMaintenance.ViewModel
             await CreateDeviceViewModel(connectionId);
         }
 
-        Task OnFwUpdateAvailableReceived(FwUpdateAvailableMessage arg)
+        private Task OnAvailableDeviceModelsReceived(AvailableDeviceModelsMessage arg)
         {
-            CachedFilePath = arg.FilePath;
+            DeviceModels = arg.AvailableModels;
+
+            Task.Run(InitializeModelsVersions);
 
             return Task.CompletedTask;
+        }
+
+        private async Task InitializeModelsVersions()
+        {
+            foreach (var model in DeviceModels)
+            {
+                var response = await _hub.Process<GetFwUpdatesCollectionResponse>(new GetFwUpdatesCollectionMessage(model.Code));
+                FwUpdateInfo[] fwUpdates = response.FwUpdatesInfo;
+
+                _fwVersions.TryAdd(model, fwUpdates);
+            }
+        }
+
+        private async Task OnFilePathDetection(FilePathDetectionMessage arg)
+        {
+            string filePath = string.Empty;
+            try
+            {
+
+                if (IsQuickUpdate)
+                {
+                    var deviceModel = GetDeviceModelBySerialNo(arg.DeviceSerialNo);
+                    var response = await _hub.Process<GetFwUpdateByModelResponse>(new GetFwUpdateByModelMessage(deviceModel.Code));
+                    filePath = response.FilePath;
+                }
+                else if (IsAdvancedUpdate)
+                {
+                    if (IsAdvancedUpdateFromServerEnabled)
+                    {
+                        if (SelectedVersion != null)
+                        {
+                            var response = await _hub.Process<GetFwUpdateFilePathResponse>(new GetFwUpdateFilePathMessage(SelectedVersion));
+                            filePath = response.FilePath;
+                        }
+                    }
+                    else if (IsUpdateFromFileEnabled)
+                        filePath = FirmwareFilePath;
+                }
+            }
+            finally
+            {
+                await _hub.Publish(new FilePathDetectionResponse(filePath));
+            }
         }
 
         async Task CreateDeviceViewModel(ConnectionId connectionId)
@@ -422,7 +551,7 @@ namespace DeviceMaintenance.ViewModel
         Task OnDeviceConnected(DeviceConnectedEvent arg)
         {
             if (IsFirmwareSelected && (AutomaticallyUploadFirmware || arg.DeviceViewModel.IsBoot))
-                return arg.DeviceViewModel.StartFirmwareUpdate(FilePath);
+                return arg.DeviceViewModel.StartFirmwareUpdate();
 
             return Task.CompletedTask;
         }
@@ -451,6 +580,18 @@ namespace DeviceMaintenance.ViewModel
 
             if (IsFirmwareSelected)
                 _hub.Publish(new StartDiscoveryCommand());
+        }
+
+
+        DeviceModelInfo GetDeviceModelBySerialNo(string serialNo)
+        {
+            foreach (var deviceModel in _deviceModelInfos)
+            {
+                if (serialNo.StartsWith(deviceModel.Name))
+                    return deviceModel;
+            }
+
+            return null;
         }
     }
 }

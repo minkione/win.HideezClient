@@ -17,7 +17,7 @@ namespace HideezMiddleware.Modules.FwUpdateCheck
     {
         public string Id { get; set; }
         public string Version { get; set; }
-        public string DeviceModel { get; set; }
+        public int ModelCode { get; set; }
         public ReleaseStage ReleaseStage { get; set; }
     }
 }
