@@ -137,7 +137,7 @@ namespace HideezClient.ViewModels
                 OpenFileDialog dlg = new OpenFileDialog
                 {
                     DefaultExt = ".hvb",
-                    Filter = "Hideez vault backup (.hvb)|*.hvb|Hideez key backup (*.hb)|*.hb|All files (*.*)|*.*" // Filter files by extension
+                    Filter = "Hideez vault backup (.hvb,*.hb)|*.hvb;*.hb|All files (*.*)|*.*" // Filter files by extension
                 };
 
                 // Show open file dialog box
