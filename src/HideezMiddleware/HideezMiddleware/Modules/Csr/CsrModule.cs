@@ -95,17 +95,16 @@ namespace HideezMiddleware.Modules.Csr
             _tapConnectionProcessor.Stop();
 
             _connectionManagerRestarter.Stop();
-            await Task.Run(async() =>
-            {
-                await Task.Delay(1000);
-                WriteLine("Restarting connection manager");
-                await _csrBleConnectionManager.Restart();
-                _connectionManagerRestarter.Start();
 
-                WriteLine("Starting connection processors");
-                _proximityConnectionProcessor.Start();
-                _tapConnectionProcessor.Start();
-            });
+            await Task.Delay(1000);
+            WriteLine("Restarting connection manager");
+            await _csrBleConnectionManager.Restart();
+
+            _connectionManagerRestarter.Start();
+
+            WriteLine("Starting connection processors");
+            _proximityConnectionProcessor.Start();
+            _tapConnectionProcessor.Start();
         }
     }
 }
