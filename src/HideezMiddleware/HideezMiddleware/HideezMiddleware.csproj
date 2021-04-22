@@ -204,6 +204,7 @@
     <Compile Include="IPC\IncommingMessages\SaveUserProximitySettingsMessage.cs" />
     <Compile Include="IPC\IncommingMessages\SendActivationCodeMessage.cs" />
     <Compile Include="IPC\IncommingMessages\SetSoftwareVaultUnlockModuleStateMessage.cs" />
+    <Compile Include="IPC\Messages\ShowClientMainWindowMessage.cs" />
     <Compile Include="IPC\Messages\ActivateScreenRequestMessage.cs" />
     <Compile Include="IPC\Messages\CredentialProvider_CommandLinkPressedMessage.cs" />
     <Compile Include="IPC\Messages\DeviceBatteryChangedMessage.cs" />

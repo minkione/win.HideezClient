@@ -408,6 +408,7 @@
     <Compile Include="Messages\Dialogs\Wipe\StartWipeMessage.cs" />
     <Compile Include="Messages\Dialogs\Wipe\HideWipeDialogMessage.cs" />
     <Compile Include="Messages\Dialogs\Wipe\ShowWipeDialogMessage.cs" />
+    <Compile Include="Messages\ShowActivateMainWindowMessage.cs" />
     <Compile Include="Messages\ShowDeviceLockedByPinNotificationMessage.cs" />
     <Compile Include="Messages\ShowLowBatteryNotificationMessage.cs" />
     <Compile Include="Messages\ShowLockNotificationMessage.cs" />
@@ -423,7 +424,6 @@
     <Compile Include="Messages\Dialogs\Pin\SendPinMessage.cs" />
     <Compile Include="Messages\SessionSwitchMessage.cs" />
     <Compile Include="Messages\SettingsChangedMessage.cs" />
-    <Compile Include="Messages\ShowActivateMainWindowMessage.cs" />
     <Compile Include="Messages\Dialogs\Pin\ShowButtonConfirmUiMessage.cs" />
     <Compile Include="Messages\ShowErrorNotificationMessage.cs" />
     <Compile Include="Messages\ShowInfoNotificationMessage.cs" />
