@@ -283,6 +283,7 @@ namespace HideezClient.ViewModels.Dialog
                 if (!IsConfirmPasswordCorrect(password, confirmPassword))
                 {
                     _metaMessenger.Publish(new ShowErrorNotificationMessage(TranslationSource.Instance["BackupPassword.Error.BPsDontMatch"]));
+                    NeedInputPassword = true;
                     InProgress = false;
                     return;
                 }
