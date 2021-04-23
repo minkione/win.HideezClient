@@ -1249,4 +1249,7 @@ Would you like to perform application update now?</value>
   <data name="AccessSettings.SetPinCode" xml:space="preserve">
     <value>Set PIN code</value>
   </data>
+  <data name="Notification.OpeningFromTaskbar" xml:space="preserve">
+    <value>Hideez Client can be opened from the taskbar.</value>
+  </data>
 </root>
