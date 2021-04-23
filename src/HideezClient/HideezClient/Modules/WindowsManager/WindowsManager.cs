@@ -79,6 +79,7 @@ namespace HideezClient.Modules
             metaMessenger.Subscribe<HideAllDialogsMessage>(OnHideAllDialogs);
 
             metaMessenger.TrySubscribeOnServer<ShowActivationCodeUiMessage>(ShowActivationDialogAsync, msg => !ContainsDialogType(typeof(ActivationDialog)));
+            metaMessenger.TrySubscribeOnServer<ShowClientMainWindowMessage>((p) => ActivateMainWindow());
 
             metaMessenger.Subscribe<ShowActivateMainWindowMessage>((p) => ActivateMainWindow());
         }

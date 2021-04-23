@@ -87,18 +87,24 @@ namespace HideezMiddleware.Modules.Csr
             return Task.CompletedTask;
         }
 
-        private Task OnSystemLeftSuspendedMode(PowerEventMonitor_SystemLeftSuspendedModeMessage msg)
+        private async Task OnSystemLeftSuspendedMode(PowerEventMonitor_SystemLeftSuspendedModeMessage msg)
         {
             WriteLine("Starting restore from suspended mode"); 
-            _csrBleConnectionManager.Stop();
+            
             _proximityConnectionProcessor.Stop();
             _tapConnectionProcessor.Stop();
 
+            _connectionManagerRestarter.Stop();
+
+            await Task.Delay(1000);
+            WriteLine("Restarting connection manager");
+            await _csrBleConnectionManager.Restart();
+
+            _connectionManagerRestarter.Start();
+
+            WriteLine("Starting connection processors");
             _proximityConnectionProcessor.Start();
             _tapConnectionProcessor.Start();
-            _csrBleConnectionManager.Start();
-
-            return Task.CompletedTask;
         }
     }
 }
