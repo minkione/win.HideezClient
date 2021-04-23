@@ -171,7 +171,8 @@
                                 Style="{StaticResource SemiTransparentButtonStyle}"
                                 Command="{Binding DeleteCommand}"
                                 Width="40"
-                                Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}">
+                                Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}"
+                                ToolTip="{l:Localization HotkeysSettings.Button.DeleteHotkey}">
                                 <iconPacks:PackIconMaterial
                                     Margin="0"
                                     Foreground="{DynamicResource DisconnectButtonBrush}"

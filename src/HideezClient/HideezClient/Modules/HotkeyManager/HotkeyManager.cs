@@ -27,8 +27,8 @@ namespace HideezClient.Modules.HotkeyManager
     /// <list type="bullet">
     /// <item><see cref="SettingsChangedMessage<HotkeySettings>"/></item>
     /// <item><see cref="ResetHotkeysMessage"/></item>
-    /// <item><see cref="EnableHotkeyMessage"/></item>
-    /// <item><see cref="DisableHotkeyMessage"/></item>
+    /// <item><see cref="EnableHotkeyManagerMessage"/></item>
+    /// <item><see cref="DisableHotkeyManagerMessage"/></item>
     /// </list>
     /// </para>
     /// </summary>
@@ -52,8 +52,8 @@ namespace HideezClient.Modules.HotkeyManager
             _metaMessenger.Subscribe<SettingsChangedMessage<HotkeySettings>>(OnHotkeysSettingsChanged);
 
             _metaMessenger.Subscribe<ResetHotkeysMessage>(OnResetHotkeys);
-            _metaMessenger.Subscribe<EnableHotkeyMessage>(OnEnableHotkeyManager);
-            _metaMessenger.Subscribe<DisableHotkeyMessage>(OnDisableHotkeyManager);
+            _metaMessenger.Subscribe<EnableHotkeyManagerMessage>(OnEnableHotkeyManager);
+            _metaMessenger.Subscribe<DisableHotkeyManagerMessage>(OnDisableHotkeyManager);
         }
 
         /// <summary>
@@ -95,14 +95,14 @@ namespace HideezClient.Modules.HotkeyManager
             return Task.CompletedTask;
         }
 
-        Task OnEnableHotkeyManager(EnableHotkeyMessage msg)
+        Task OnEnableHotkeyManager(EnableHotkeyManagerMessage msg)
         {
             Enabled = true;
 
             return Task.CompletedTask;
         }
 
-        Task OnDisableHotkeyManager(DisableHotkeyMessage msg)
+        Task OnDisableHotkeyManager(DisableHotkeyManagerMessage msg)
         {
             Enabled = false;
 

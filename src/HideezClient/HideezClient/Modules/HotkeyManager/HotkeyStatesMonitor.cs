@@ -13,8 +13,8 @@ namespace HideezClient.Modules.HotkeyManager
     /// <list type="bullet">
     /// <item><see cref="SettingsChangedMessage<HotkeySettings>"/></item>
     /// <item><see cref="ResetHotkeysMessage"/></item>
-    /// <item><see cref="EnableHotkeyMessage"/></item>
-    /// <item><see cref="DisableHotkeyMessage"/></item>
+    /// <item><see cref="EnableHotkeyManagerMessage"/></item>
+    /// <item><see cref="DisableHotkeyManagerMessage"/></item>
     /// </list>
     /// </para>
     /// </summary>

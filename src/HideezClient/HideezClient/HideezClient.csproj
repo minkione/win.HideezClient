@@ -415,8 +415,8 @@
     <Compile Include="Messages\Hotkeys\AddHotkeyMessage.cs" />
     <Compile Include="Messages\Hotkeys\DeleteHotkeyMessage.cs" />
     <Compile Include="Messages\Hotkeys\ChangeHotkeyMessage.cs" />
-    <Compile Include="Messages\Hotkeys\DisableHotkeyMessage.cs" />
-    <Compile Include="Messages\Hotkeys\EnableHotkeyMessage.cs" />
+    <Compile Include="Messages\Hotkeys\DisableHotkeyManagerMessage.cs" />
+    <Compile Include="Messages\Hotkeys\EnableHotkeyManagerMessage.cs" />
     <Compile Include="Messages\Hotkeys\GetHotkeyStatesMessage.cs" />
     <Compile Include="Messages\Hotkeys\GetHotkeyStatesMessageReply.cs" />
     <Compile Include="Messages\Hotkeys\ResetHotkeysMessage.cs" />

@@ -5,7 +5,7 @@ namespace HideezClient.Messages.Hotkeys
     /// <summary>
     /// Used to turn off the hotkey manager, subsequently unregistering all registered hotkeys
     /// </summary>
-    internal sealed class DisableHotkeyMessage : PubSubMessageBase
+    internal sealed class DisableHotkeyManagerMessage : PubSubMessageBase
     {
     }
 }

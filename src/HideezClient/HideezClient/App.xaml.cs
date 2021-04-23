@@ -168,7 +168,6 @@ namespace HideezClient
                 ResourceManagersProvider.SetResources(typeof(Strings));
             // Init settings
             ISettingsManager<HotkeySettings> hotkeySettingsManager = Container.Resolve<ISettingsManager<HotkeySettings>>();
-            RemoveEmptyHotkeysProc removeEmptyHotkeysProc = new RemoveEmptyHotkeysProc(hotkeySettingsManager);
             ApplicationSettings settings = null;
             ISettingsManager<ApplicationSettings> appSettingsManager = Container.Resolve<ISettingsManager<ApplicationSettings>>();
 
@@ -180,6 +179,7 @@ namespace HideezClient
 
                 settings = await appSettingsManager.LoadSettingsAsync().ConfigureAwait(true);
 
+                var removeEmptyHotkeysProc = new RemoveEmptyHotkeysProc(hotkeySettingsManager);
                 await removeEmptyHotkeysProc.Run();
 
                 // Init localization
@@ -215,7 +215,7 @@ namespace HideezClient
             _deviceManager = Container.Resolve<IDeviceManager>();
             _userActionHandler = Container.Resolve<UserActionHandler>();
             _hotkeyModule = Container.Resolve<HotkeyModule>();
-            await _metaMessenger.Publish(new EnableHotkeyMessage());
+            await _metaMessenger.Publish(new EnableHotkeyManagerMessage());
             _buttonManager = Container.Resolve<IButtonManager>();
             _buttonManager.Enabled = true;
             _messageWindow = Container.Resolve<MessageWindow>();

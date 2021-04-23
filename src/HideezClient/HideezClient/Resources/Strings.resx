@@ -1256,7 +1256,7 @@ Would you like to perform application update now?</value>
     <value>Resetting hotkeys</value>
   </data>
   <data name="MessageBox.ResetHotkeys.Message" xml:space="preserve">
-    <value>Are you sure that you want to delete all your hotkeys and set them as default values?</value>
+    <value>Are you sure that you want to reset all your hotkeys to default values?</value>
   </data>
   <data name="HotkeysSettings.Actions.AddAccount" xml:space="preserve">
     <value>Add New Account</value>
@@ -1277,7 +1277,10 @@ Would you like to perform application update now?</value>
     <value>Unassigned</value>
   </data>
   <data name="HotkeysSettings.Button.AddHotkey" xml:space="preserve">
-    <value>Add a Hot Keys</value>
+    <value>Add a hotkey</value>
+  </data>
+  <data name="HotkeysSettings.Button.DeleteHotkey" xml:space="preserve">
+    <value>Delete this hotkey</value>
   </data>
   <data name="HotkeysSettings.Button.SetDefault" xml:space="preserve">
     <value>Reset to default</value>
@@ -1289,15 +1292,15 @@ Would you like to perform application update now?</value>
     <value>Enable</value>
   </data>
   <data name="HotkeysSettings.ColumnHeader.Hotkeys" xml:space="preserve">
-    <value>Hot Keys</value>
+    <value>Hotkeys</value>
   </data>
   <data name="HotkeysSettings.Keystroke.Unavailable" xml:space="preserve">
-    <value>This Hot Keys is already used</value>
+    <value>This hotkey is already in use</value>
   </data>
   <data name="HotkeysSettings.Keystroke.Watermark" xml:space="preserve">
     <value>Unassigned</value>
   </data>
   <data name="HotkeysSettings.Title" xml:space="preserve">
-    <value>Hot keys</value>
+    <value>Hotkeys</value>
   </data>
 </root>

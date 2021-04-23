@@ -39,7 +39,6 @@ namespace HideezClient.ViewModels
                 new HotkeyActionOption { Action = UserAction.InputLogin, Title = TranslationSource.Instance["HotkeysSettings.Actions.InputLogin"]},
                 new HotkeyActionOption { Action = UserAction.InputOtp, Title = TranslationSource.Instance["HotkeysSettings.Actions.InputOtp"]},
                 new HotkeyActionOption { Action = UserAction.InputPassword, Title = TranslationSource.Instance["HotkeysSettings.Actions.InputPassword"]},
-                new HotkeyActionOption { Action = UserAction.LockWorkstation, Title = TranslationSource.Instance["HotkeysSettings.Actions.LockWorkstation"]}
             };
 
             HotkeyId = hotkeyModel.HotkeyId;

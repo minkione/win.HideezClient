@@ -115,9 +115,9 @@ namespace HideezClient.ViewModels
         public async Task ChangeHotkeyManagerState(bool isEnabled)
         {
             if (isEnabled)
-                await _metaMessenger.Publish(new EnableHotkeyMessage());
+                await _metaMessenger.Publish(new EnableHotkeyManagerMessage());
             else
-                await _metaMessenger.Publish(new DisableHotkeyMessage());
+                await _metaMessenger.Publish(new DisableHotkeyManagerMessage());
         }
 
         public async Task ReloadHotkeys()
