@@ -52,9 +52,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CsrBLE">
-      <HintPath>..\..\..\win.sdk\CsrBLE\Build\Debug.x64\CsrBLE.dll</HintPath>
-    </Reference>
     <Reference Include="Meta.Lib, Version=1.1.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Meta.Lib.1.1.3\lib\netstandard2.0\Meta.Lib.dll</HintPath>
     </Reference>
@@ -391,6 +388,10 @@
     <ProjectReference Include="..\..\..\win.SDK\Communication\Communication.csproj">
       <Project>{6f4c0dc3-4aa3-4517-9311-edec593baf12}</Project>
       <Name>Communication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\win.SDK\CsrBLE\CsrBLE.vcxproj">
+      <Project>{d274aa09-5b34-4450-a6fb-5a5a351c7b45}</Project>
+      <Name>CsrBLE</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\win.SDK\WinBle\WinBle.csproj">
       <Project>{af08ed4d-6977-4dcb-a49d-0c0a547698ba}</Project>
